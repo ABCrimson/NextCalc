@@ -3,7 +3,7 @@
 
 > **Project Name:** NextCalc Pro  
 > **Target:** Modern replacement for Web2.0calc  
-> **Stack:** React 19.2.0 + Next.js 15.5.5 + TypeScript 5.9.3  
+> **Stack:** React 19.2.0 + Next.js 16.0.0-beta.0 + TypeScript 5.9.3  
 > **Deployment:** Vercel + Cloudflare Workers  
 
 ---
@@ -51,7 +51,7 @@ Build a modern, accessible, high-performance scientific calculator that surpasse
 {
   "typescript": "5.9.3",
   "react": "19.2.0",
-  "next": "15.5.5"
+  "next": "16.0.0-beta.0"
 }
 ```
 
@@ -279,7 +279,7 @@ You are the Frontend UI Agent for NextCalc Pro.
 
 Context:
 - React 19.2.0 with RSC (React Server Components)
-- Next.js 15.5.5 App Router
+- Next.js 16.0.0-beta.0 App Router
 - TypeScript 5.9.3 strict mode
 - Tailwind 4.1.14 + Radix UI 1.4.3
 - shadcn/ui components (CLI-based, uses Radix primitives)
@@ -431,7 +431,7 @@ Deliver:
 You are the Backend & Infrastructure Agent for NextCalc Pro.
 
 Context:
-- Next.js 15.5.5 API routes + GraphQL
+- Next.js 16.0.0-beta.0 API routes + GraphQL
 - Prisma 6.17.1 with PostgreSQL
 - Cloudflare Workers for microservices
 - TypeScript 5.9.3 strict mode
@@ -680,7 +680,7 @@ nextcalc-pro/
 │       ├── deploy-vercel.yml         # Deploy to Vercel
 │       └── deploy-workers.yml        # Deploy Cloudflare Workers
 ├── apps/
-│   ├── web/                          # Next.js 15 frontend
+│   ├── web/                          # Next.js 16 beta frontend
 │   │   ├── app/
 │   │   │   ├── (calculator)/         # Calculator pages
 │   │   │   │   ├── page.tsx          # Main calculator UI
@@ -798,7 +798,7 @@ nextcalc-pro/
 ### **Objectives**
 - Initialize monorepo with Turborepo
 - Configure TypeScript 5.9.3 strict mode
-- Set up Next.js 15.5.5 with App Router
+- Set up Next.js 16.0.0-beta.0 with App Router
 - Install all dependencies
 - Configure MCP servers
 
@@ -960,7 +960,7 @@ Options:
 
 Consider:
 - TypeScript 5.9.3 project references
-- Next.js 15.5.5 build caching
+- Next.js 16.0.0-beta.0 build caching
 - WASM module compilation
 - Cloudflare Workers deployment
 - Development experience (DX)
@@ -1190,7 +1190,7 @@ export function Keyboard({ onInput }: KeyboardProps) {
 ```
 
 ### **Deliverables**
-- ✅ Next.js 15 app with App Router
+- ✅ Next.js 16 beta app with App Router
 - ✅ Calculator UI with Radix + Tailwind
 - ✅ KaTeX math rendering
 - ✅ Keyboard-first navigation
@@ -2417,7 +2417,7 @@ jobs:
 
 ## Documentation
 - [React 19 Docs](https://react.dev)
-- [Next.js 15 Docs](https://nextjs.org/docs)
+- [Next.js 16 beta Docs](https://nextjs.org/docs)
 - [TypeScript 5.9 Release Notes](https://devblogs.microsoft.com/typescript/)
 - [Cloudflare Developers](https://developers.cloudflare.com)
 - [Vercel Docs](https://vercel.com/docs)

@@ -7,7 +7,7 @@ export default function Home() {
         <header className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-2">NextCalc Pro</h1>
           <p className="text-muted-foreground">
-            Modern scientific calculator powered by React 19 + Next.js 15
+            Modern scientific calculator powered by React 19.2.0 + Next.js 16 beta
           </p>
         </header>
 

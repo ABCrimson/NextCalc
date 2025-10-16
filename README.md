@@ -147,7 +147,7 @@ ls -la          # See: apps/, packages/, turbo.json, .mcp/
 ---
 
 ### ✅ Phase 1: Frontend MVP (Week 1 - Days 3-7)
-- [ ] Initialize Next.js 15.5.5 app
+- [ ] Initialize Next.js 16.0.0-beta.0 app
 - [ ] Install React 19.2.0
 - [ ] Setup Tailwind 4.1.14
 - [ ] Install Radix UI 1.4.3
@@ -446,7 +446,7 @@ Week 5: Testing & Polish
   "core": {
     "typescript": "5.9.3",
     "react": "19.2.0",
-    "next": "15.5.5"
+    "next": "16.0.0-beta.0"
   },
   "ui": {
     "tailwindcss": "4.1.14",

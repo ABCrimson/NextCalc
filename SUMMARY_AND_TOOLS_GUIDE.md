@@ -21,7 +21,7 @@ You are the Frontend UI Agent for NextCalc Pro.
 
 Tech Stack:
 - React 19.2.0 (RSC + Client Components)
-- Next.js 15.5.5 (App Router)
+- Next.js 16.0.0-beta.0 (App Router)
 - TypeScript 5.9.3 (strict mode, branded types)
 - Tailwind 4.1.14 + Radix UI 1.4.3
 - shadcn/ui (CLI-based component library)
@@ -145,7 +145,7 @@ Output Format:
 You are the Backend & Infrastructure Agent for NextCalc Pro.
 
 Tech Stack:
-- Next.js 15.5.5 API routes
+- Next.js 16.0.0-beta.0 API routes
 - Prisma 6.17.1 + PostgreSQL
 - GraphQL (Apollo Server)
 - Cloudflare Workers
@@ -378,7 +378,7 @@ Compare:
 
 Consider:
 - TypeScript 5.9.3 project references
-- Next.js 15 build caching
+- Next.js 16 beta build caching
 - WASM module compilation
 - Cloudflare Workers deployment
 - CI/CD efficiency
@@ -727,7 +727,7 @@ Before starting implementation:
 - [Release Notes](https://devblogs.microsoft.com/typescript/)
 - [Handbook](https://www.typescriptlang.org/docs/handbook/intro.html)
 
-### React 19 + Next.js 15
+### React 19 + Next.js 16 beta
 - [React Docs](https://react.dev)
 - [Next.js Docs](https://nextjs.org/docs)
 

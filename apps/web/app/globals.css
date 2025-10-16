@@ -1,3 +1,6 @@
+/* KaTeX CSS - must be imported first */
+@import 'katex/dist/katex.min.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -67,6 +70,3 @@
     @apply bg-background text-foreground;
   }
 }
-
-/* KaTeX CSS */
-@import 'katex/dist/katex.min.css';

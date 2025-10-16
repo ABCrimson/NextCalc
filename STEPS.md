@@ -351,7 +351,7 @@ pnpx create-next-app@latest . \
   --turbopack
 ```
 
-- [ ] Next.js 15.5.5 app created
+- [ ] Next.js 16.0.0-beta.0 app created
 - [ ] App Router enabled
 - [ ] Tailwind CSS configured
 
@@ -367,7 +367,7 @@ pnpm install
 
 - [ ] Dependencies updated to exact versions
 - [ ] React 19.2.0 installed
-- [ ] Next.js 15.5.5 installed
+- [ ] Next.js 16.0.0-beta.0 installed
 - [ ] All packages installed
 
 ---
@@ -551,7 +551,7 @@ pnpx vercel --prod
 ---
 
 ### ✅ Phase 1 Complete Checklist
-- [ ] Next.js 15.5.5 app running
+- [ ] Next.js 16.0.0-beta.0 app running
 - [ ] Calculator UI complete
 - [ ] shadcn/ui components integrated
 - [ ] KaTeX rendering working

@@ -357,7 +357,7 @@ cat > package.json << 'EOF'
   "dependencies": {
     "react": "19.2.0",
     "react-dom": "19.2.0",
-    "next": "15.5.5",
+    "next": "16.0.0-beta.0",
     "tailwindcss": "4.1.14",
     "@radix-ui/react-dialog": "1.4.3",
     "@radix-ui/react-dropdown-menu": "1.4.3",
@@ -1157,7 +1157,7 @@ export default function Home() {
         <header className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-2">NextCalc Pro</h1>
           <p className="text-muted-foreground">
-            Modern scientific calculator powered by React 19 + Next.js 15
+            Modern scientific calculator powered by React 19 + Next.js 16 beta
           </p>
         </header>
 
@@ -1352,7 +1352,7 @@ After completing these steps, you should have:
 
 - [x] Monorepo with Turborepo
 - [x] TypeScript 5.9.3 strict mode
-- [x] Next.js 15.5.5 with App Router
+- [x] Next.js 16.0.0-beta.0 with App Router
 - [x] React 19.2.0
 - [x] Tailwind CSS 4.1.14
 - [x] Calculator UI with Radix components
@@ -1436,7 +1436,7 @@ pnpm build
 
 ## 📚 Resources
 
-- [Next.js 15 Docs](https://nextjs.org/docs)
+- [Next.js 16 beta Docs](https://nextjs.org/docs)
 - [React 19 Docs](https://react.dev)
 - [TypeScript 5.9 Release Notes](https://devblogs.microsoft.com/typescript/)
 - [Turborepo Handbook](https://turbo.build/repo/docs)

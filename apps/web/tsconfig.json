@@ -7,13 +7,31 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"],
-      "@nextcalc/types": ["../../packages/types/src"],
-      "@nextcalc/math-engine": ["../../packages/math-engine/src"],
-      "@nextcalc/plot-engine": ["../../packages/plot-engine/src"],
-      "@nextcalc/ui": ["../../packages/ui/src"]
-    }
+      "@/*": [
+        "./*"
+      ],
+      "@nextcalc/types": [
+        "../../packages/types/src"
+      ],
+      "@nextcalc/math-engine": [
+        "../../packages/math-engine/src"
+      ],
+      "@nextcalc/plot-engine": [
+        "../../packages/plot-engine/src"
+      ],
+      "@nextcalc/ui": [
+        "../../packages/ui/src"
+      ]
+    },
+    "noEmit": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
