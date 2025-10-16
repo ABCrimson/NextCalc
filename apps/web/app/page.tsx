@@ -1,3 +1,5 @@
+import { Calculator } from '@/components/calculator/calculator';
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-background py-8">
@@ -9,13 +11,7 @@ export default function Home() {
           </p>
         </header>
 
-        <div className="max-w-2xl mx-auto">
-          <div className="p-8 border rounded-lg bg-card">
-            <p className="text-center text-muted-foreground">
-              Calculator component will be added here
-            </p>
-          </div>
-        </div>
+        <Calculator />
       </div>
     </main>
   );
