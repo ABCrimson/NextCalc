@@ -7,16 +7,39 @@
     "build": "turbo run build",
     "test": "turbo run test",
     "lint": "turbo run lint",
-    "clean": "turbo run clean && rm -rf node_modules"
+    "clean": "turbo run clean && rm -rf node_modules",
+    "codegen": "graphql-codegen",
+    "codegen:watch": "graphql-codegen --watch"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.9.4",
-    "turbo": "2.3.3",
-    "typescript": "5.9.3"
+    "@apollo/server": "5.4.0",
+    "@biomejs/biome": "2.4.4",
+    "@graphql-codegen/cli": "7.0.0-alpha-20260219135511-f77afdad62fc366fc5f534344fa2a7eb96e1282f",
+    "@graphql-codegen/typescript": "6.0.0-alpha-20260219135511-f77afdad62fc366fc5f534344fa2a7eb96e1282f",
+    "@graphql-codegen/typescript-operations": "6.0.0-alpha-20260219135511-f77afdad62fc366fc5f534344fa2a7eb96e1282f",
+    "@graphql-codegen/typescript-resolvers": "6.0.0-alpha-20260219135511-f77afdad62fc366fc5f534344fa2a7eb96e1282f",
+    "@graphql-tools/merge": "9.1.7",
+    "@graphql-tools/schema": "10.0.31",
+    "chrome-launcher": "^1.2.1",
+    "graphql": "16.12.0",
+    "graphql-tag": "2.12.6",
+    "ioredis": "5.9.3",
+    "lighthouse": "13.0.3",
+    "tsx": "4.21.0",
+    "turbo": "2.8.10",
+    "typescript": "6.0.0-dev.20260219",
+    "zod": "4.4.0-canary.20260125T215152"
   },
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@11.0.0-alpha.5",
   "engines": {
-    "node": ">=20.0.0",
-    "pnpm": ">=9.0.0"
+    "node": ">=24.0.0",
+    "pnpm": ">=10.0.0"
+  },
+  "dependencies": {
+    "@as-integrations/next": "4.1.0",
+    "@upstash/redis": "1.37.0-rc.12",
+    "graphql-scalars": "1.25.0",
+    "graphql-subscriptions": "3.0.0",
+    "graphql-ws": "6.0.7"
   }
 }
