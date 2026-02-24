@@ -34,6 +34,18 @@ interface AttentionResult {
   output: number[][];
 }
 
+function attentionColor(score: number): string {
+  const t = Math.max(0, Math.min(1, score));
+  const hue = 290 - t * 210;
+  const l = 0.25 + t * 0.45;
+  const c = 0.04 + t * 0.18;
+  return `oklch(${l} ${c} ${hue})`;
+}
+
+function attentionTextColor(score: number): string {
+  return score > 0.45 ? 'oklch(0.15 0 0)' : 'oklch(0.92 0 0)';
+}
+
 export default function MLAlgorithmsPage() {
   const [temperature, setTemperature] = useState(0.5);
   const [batchSize, setBatchSize] = useState(4);
@@ -469,11 +481,8 @@ export default function MLAlgorithmsPage() {
                               );
                             }
 
-                            // OKLCH-based attention color: dark blue (0) -> bright blue (1)
-                            const l = 0.25 + score * 0.5; // 25% -> 75% lightness
-                            const c = 0.08 + score * 0.15; // subtle -> vivid chroma
-                            const color = `oklch(${l} ${c} 250)`;
-                            const textColor = score > 0.5 ? 'oklch(0.15 0 0)' : 'oklch(0.9 0 0)';
+                            const color = attentionColor(score);
+                            const textColor = attentionTextColor(score);
 
                             return (
                               <div
@@ -496,7 +505,7 @@ export default function MLAlgorithmsPage() {
 
                       <div className="text-xs text-muted-foreground">
                         <p>Rows: Query positions | Columns: Key positions</p>
-                        <p className="mt-1">Brighter = Higher attention weight</p>
+                        <p className="mt-1">Violet = Low attention | Amber = High attention</p>
                       </div>
                     </div>
                   ) : (
