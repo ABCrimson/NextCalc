@@ -290,14 +290,6 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
             <stop offset="50%" stopColor={colorViolet} stopOpacity="0.18" />
             <stop offset="100%" stopColor={colorPrimary} stopOpacity="0.15" />
           </linearGradient>
-          <linearGradient id="whiskerLeft" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor={colorEmerald} stopOpacity="0.6" />
-            <stop offset="100%" stopColor={colorPrimary} stopOpacity="0.9" />
-          </linearGradient>
-          <linearGradient id="whiskerRight" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor={colorPrimary} stopOpacity="0.9" />
-            <stop offset="100%" stopColor={colorEmerald} stopOpacity="0.6" />
-          </linearGradient>
         </defs>
 
         {/* Left whisker line (min to Q1) */}
@@ -306,8 +298,9 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
           y1={midY}
           x2={scale(q1)}
           y2={midY}
-          stroke="url(#whiskerLeft)"
-          strokeWidth="2.5"
+          stroke={colorEmerald}
+          strokeWidth="2"
+          strokeDasharray="6 4"
           strokeLinecap="round"
         />
 
@@ -317,8 +310,9 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
           y1={midY}
           x2={scale(max)}
           y2={midY}
-          stroke="url(#whiskerRight)"
-          strokeWidth="2.5"
+          stroke={colorEmerald}
+          strokeWidth="2"
+          strokeDasharray="6 4"
           strokeLinecap="round"
         />
 
@@ -374,9 +368,9 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
         {/* Min whisker cap — vertical bar perpendicular to the horizontal whisker */}
         <line
           x1={scale(min)}
-          y1={midY - 12}
+          y1={midY - 15}
           x2={scale(min)}
-          y2={midY + 12}
+          y2={midY + 15}
           stroke={colorEmerald}
           strokeWidth="2.5"
           strokeLinecap="round"
@@ -384,9 +378,9 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
         {/* Invisible hit target for min cap */}
         <line
           x1={scale(min)}
-          y1={midY - 12}
+          y1={midY - 15}
           x2={scale(min)}
-          y2={midY + 12}
+          y2={midY + 15}
           stroke="transparent"
           strokeWidth={hitTargetWidth}
           className="cursor-pointer"
@@ -398,9 +392,9 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
         {/* Max whisker cap — vertical bar perpendicular to the horizontal whisker */}
         <line
           x1={scale(max)}
-          y1={midY - 12}
+          y1={midY - 15}
           x2={scale(max)}
-          y2={midY + 12}
+          y2={midY + 15}
           stroke={colorEmerald}
           strokeWidth="2.5"
           strokeLinecap="round"
@@ -408,9 +402,9 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
         {/* Invisible hit target for max cap */}
         <line
           x1={scale(max)}
-          y1={midY - 12}
+          y1={midY - 15}
           x2={scale(max)}
-          y2={midY + 12}
+          y2={midY + 15}
           stroke="transparent"
           strokeWidth={hitTargetWidth}
           className="cursor-pointer"
