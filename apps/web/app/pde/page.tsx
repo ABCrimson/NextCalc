@@ -180,6 +180,7 @@ export default function PDESolverPage() {
   const [waveSpeed, setWaveSpeed] = useState(1.0);
   const [smoothRendering, setSmoothRendering] = useState(true);
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
+  const [initialCondition, setInitialCondition] = useState<InitialConditionType>('center');
 
   // UI state
   const [isComputing, setIsComputing] = useState(false);
@@ -423,12 +424,14 @@ export default function PDESolverPage() {
   }, []);
 
   /**
-   * Run default simulation on mount and when parameters change
+   * Run simulation on mount and whenever any solver parameter or
+   * initial-condition selection changes.  This replaces a previous
+   * effect that hard-coded 'center' and only depended on equationType,
+   * which left the heatmap blank when other parameters changed.
    */
-  // biome-ignore lint/correctness/useExhaustiveDependencies: Re-solve when equation type changes
   useEffect(() => {
-    solvePDE(initializeCondition('center'));
-  }, [equationType]);
+    solvePDE(initializeCondition(initialCondition));
+  }, [solvePDE, initializeCondition, initialCondition]);
 
   /**
    * High-performance animation loop
@@ -689,80 +692,80 @@ export default function PDESolverPage() {
                 <div className="grid grid-cols-2 gap-2">
                   <Button
                     variant="outline"
-                    onClick={() => solvePDE(initializeCondition('center'))}
-                    className="justify-start text-sm h-auto py-2 backdrop-blur-sm bg-muted/30 border-border hover:bg-muted/50"
+                    onClick={() => setInitialCondition('center')}
+                    className={`justify-start text-sm h-auto py-2 backdrop-blur-sm border-border hover:bg-muted/50 ${initialCondition === 'center' ? 'bg-muted/60 ring-1 ring-primary/40' : 'bg-muted/30'}`}
                     disabled={isComputing}
                   >
                     Center Spot
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => solvePDE(initializeCondition('line'))}
-                    className="justify-start text-sm h-auto py-2 backdrop-blur-sm bg-muted/30 border-border hover:bg-muted/50"
+                    onClick={() => setInitialCondition('line')}
+                    className={`justify-start text-sm h-auto py-2 backdrop-blur-sm border-border hover:bg-muted/50 ${initialCondition === 'line' ? 'bg-muted/60 ring-1 ring-primary/40' : 'bg-muted/30'}`}
                     disabled={isComputing}
                   >
                     Hot Line
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => solvePDE(initializeCondition('corners'))}
-                    className="justify-start text-sm h-auto py-2 backdrop-blur-sm bg-muted/30 border-border hover:bg-muted/50"
+                    onClick={() => setInitialCondition('corners')}
+                    className={`justify-start text-sm h-auto py-2 backdrop-blur-sm border-border hover:bg-muted/50 ${initialCondition === 'corners' ? 'bg-muted/60 ring-1 ring-primary/40' : 'bg-muted/30'}`}
                     disabled={isComputing}
                   >
                     Corners
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => solvePDE(initializeCondition('ring'))}
-                    className="justify-start text-sm h-auto py-2 backdrop-blur-sm bg-muted/30 border-border hover:bg-muted/50"
+                    onClick={() => setInitialCondition('ring')}
+                    className={`justify-start text-sm h-auto py-2 backdrop-blur-sm border-border hover:bg-muted/50 ${initialCondition === 'ring' ? 'bg-muted/60 ring-1 ring-primary/40' : 'bg-muted/30'}`}
                     disabled={isComputing}
                   >
                     Ring
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => solvePDE(initializeCondition('cross'))}
-                    className="justify-start text-sm h-auto py-2 backdrop-blur-sm bg-muted/30 border-border hover:bg-muted/50"
+                    onClick={() => setInitialCondition('cross')}
+                    className={`justify-start text-sm h-auto py-2 backdrop-blur-sm border-border hover:bg-muted/50 ${initialCondition === 'cross' ? 'bg-muted/60 ring-1 ring-primary/40' : 'bg-muted/30'}`}
                     disabled={isComputing}
                   >
                     Cross
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => solvePDE(initializeCondition('gaussian'))}
-                    className="justify-start text-sm h-auto py-2 backdrop-blur-sm bg-muted/30 border-border hover:bg-muted/50"
+                    onClick={() => setInitialCondition('gaussian')}
+                    className={`justify-start text-sm h-auto py-2 backdrop-blur-sm border-border hover:bg-muted/50 ${initialCondition === 'gaussian' ? 'bg-muted/60 ring-1 ring-primary/40' : 'bg-muted/30'}`}
                     disabled={isComputing}
                   >
                     Gaussian
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => solvePDE(initializeCondition('doubleGaussian'))}
-                    className="justify-start text-sm h-auto py-2 backdrop-blur-sm bg-muted/30 border-border hover:bg-muted/50"
+                    onClick={() => setInitialCondition('doubleGaussian')}
+                    className={`justify-start text-sm h-auto py-2 backdrop-blur-sm border-border hover:bg-muted/50 ${initialCondition === 'doubleGaussian' ? 'bg-muted/60 ring-1 ring-primary/40' : 'bg-muted/30'}`}
                     disabled={isComputing}
                   >
                     Double Gaussian
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => solvePDE(initializeCondition('sawtooth'))}
-                    className="justify-start text-sm h-auto py-2 backdrop-blur-sm bg-muted/30 border-border hover:bg-muted/50"
+                    onClick={() => setInitialCondition('sawtooth')}
+                    className={`justify-start text-sm h-auto py-2 backdrop-blur-sm border-border hover:bg-muted/50 ${initialCondition === 'sawtooth' ? 'bg-muted/60 ring-1 ring-primary/40' : 'bg-muted/30'}`}
                     disabled={isComputing}
                   >
                     Sawtooth
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => solvePDE(initializeCondition('squarePulse'))}
-                    className="justify-start text-sm h-auto py-2 backdrop-blur-sm bg-muted/30 border-border hover:bg-muted/50"
+                    onClick={() => setInitialCondition('squarePulse')}
+                    className={`justify-start text-sm h-auto py-2 backdrop-blur-sm border-border hover:bg-muted/50 ${initialCondition === 'squarePulse' ? 'bg-muted/60 ring-1 ring-primary/40' : 'bg-muted/30'}`}
                     disabled={isComputing}
                   >
                     Square Pulse
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => solvePDE(initializeCondition('sinc'))}
-                    className="justify-start text-sm h-auto py-2 backdrop-blur-sm bg-muted/30 border-border hover:bg-muted/50"
+                    onClick={() => setInitialCondition('sinc')}
+                    className={`justify-start text-sm h-auto py-2 backdrop-blur-sm border-border hover:bg-muted/50 ${initialCondition === 'sinc' ? 'bg-muted/60 ring-1 ring-primary/40' : 'bg-muted/30'}`}
                     disabled={isComputing}
                   >
                     Sinc Function
