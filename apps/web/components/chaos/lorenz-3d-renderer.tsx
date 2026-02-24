@@ -460,15 +460,28 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
           usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
         });
 
-        // --- Initialize particle positions randomly near the attractor basin ---
+        // --- Initialize particle positions along the attractor trajectory ---
         const initData = new Float32Array(count * LORENZ_PARTICLE_STRIDE);
+        const trajectoryLen = data.length;
         for (let i = 0; i < count; i++) {
           const base = i * LORENZ_PARTICLE_STRIDE;
-          // Random positions in a box around the attractor: x,y in [-20, 20], z in [5, 45]
-          initData[base] = (Math.random() - 0.5) * 40;
-          initData[base + 1] = (Math.random() - 0.5) * 40;
-          initData[base + 2] = Math.random() * 40 + 5;
-          initData[base + 3] = 0; // initial speed = 0
+          if (trajectoryLen > 0) {
+            // Sample evenly along the trajectory with small random offset
+            const idx = Math.floor((i / count) * trajectoryLen) % trajectoryLen;
+            const point = data[idx];
+            // Hash-based deterministic offset so particles spread slightly
+            const hash = Math.sin(i * 12.9898) * 43758.5453;
+            const offset = (hash - Math.floor(hash)) - 0.5;
+            initData[base] = (point?.x ?? 0) + offset * 2;
+            initData[base + 1] = (point?.y ?? 0) + offset * 2;
+            initData[base + 2] = (point?.z ?? 25) + offset * 2;
+          } else {
+            // Fallback if no trajectory data yet
+            initData[base] = (Math.sin(i * 12.9898) * 43758.5453 % 1 - 0.5) * 40;
+            initData[base + 1] = (Math.sin(i * 78.233) * 43758.5453 % 1 - 0.5) * 40;
+            initData[base + 2] = (Math.sin(i * 45.164) * 43758.5453 % 1) * 40 + 5;
+          }
+          initData[base + 3] = (Math.sin(i * 37.0) * 43758.5453 % 1) * 4.0; // staggered age
         }
         device.queue.writeBuffer(particleBuffer, 0, initData);
 
