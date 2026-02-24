@@ -16,9 +16,12 @@
 
 /**
  * Supported bifurcation maps.
- * - logistic: x_{n+1} = r * x * (1 - x)  — classic logistic map, r ∈ [2.5, 4]
- * - sine:     x_{n+1} = r * sin(π * x)   — sine map, r ∈ [0, 1]
- * - tent:     x_{n+1} = r * min(x, 1-x)  — tent map, r ∈ [0, 2]
+ * - logistic: x_{n+1} = r * x * (1 - x)           — classic logistic map, r ∈ [2.5, 4]
+ * - sine:     x_{n+1} = r * sin(π * x)             — sine map, r ∈ [0, 1]
+ * - tent:     x_{n+1} = r * min(x, 1-x)            — tent map, r ∈ [0, 2]
+ * - cubic:    x_{n+1} = r * x - x³                  — cubic map, r ∈ [0, 3]
+ * - gauss:    x_{n+1} = exp(-6.2 * x²) + r          — Gauss iterated map, r ∈ [-1, 1]
+ * - circle:   x_{n+1} = fract(x + r - sin(2πx)/2π)  — circle map, r ∈ [0, 3]
  */
 export type BifurcationMapType = 'logistic' | 'sine' | 'tent' | 'cubic' | 'gauss' | 'circle';
 
@@ -57,7 +60,7 @@ export interface WebGPUBifurcationResult {
  *   offset 12 : u32 warmup
  *   offset 16 : u32 plot_points
  *   offset 20 : f32 x0         (initial condition)
- *   offset 24 : u32 map_type   (0=logistic, 1=sine, 2=tent)
+ *   offset 24 : u32 map_type   (0=logistic, 1=sine, 2=tent, 3=cubic, 4=gauss, 5=circle)
  *   offset 28 : u32 _pad
  */
 const BIFURCATION_WGSL = /* wgsl */ `
@@ -76,15 +79,34 @@ struct Params {
 @group(0) @binding(1) var<storage, read_write> points : array<vec2f>;
 
 fn iterate(map_type: u32, r: f32, x: f32) -> f32 {
-  if (map_type == 0u) {
-    // Logistic map: x_{n+1} = r * x * (1 - x)
-    return r * x * (1.0 - x);
-  } else if (map_type == 1u) {
-    // Sine map: x_{n+1} = r * sin(pi * x)
-    return r * sin(3.14159265358979 * x);
-  } else {
-    // Tent map: x_{n+1} = r * min(x, 1 - x)
-    return r * min(x, 1.0 - x);
+  switch map_type {
+    case 0u: {
+      // Logistic map: x_{n+1} = r * x * (1 - x)
+      return r * x * (1.0 - x);
+    }
+    case 1u: {
+      // Sine map: x_{n+1} = r * sin(pi * x)
+      return r * sin(3.14159265358979 * x);
+    }
+    case 2u: {
+      // Tent map: x_{n+1} = r * min(x, 1 - x)
+      return r * min(x, 1.0 - x);
+    }
+    case 3u: {
+      // Cubic map: x_{n+1} = r * x - x^3
+      return r * x - x * x * x;
+    }
+    case 4u: {
+      // Gauss map: x_{n+1} = exp(-alpha * x^2) + beta, alpha=6.2, beta=r
+      return exp(-6.2 * x * x) + r;
+    }
+    case 5u: {
+      // Circle map: x_{n+1} = fract(x + r - (0.5 / pi) * sin(2*pi*x))
+      return fract(x + r - (0.5 / 3.14159265) * sin(6.28318530 * x));
+    }
+    default: {
+      return r * x * (1.0 - x);
+    }
   }
 }
 
@@ -102,12 +124,16 @@ fn bifurcation(@builtin(global_invocation_id) id: vec3u) {
   var x: f32 = params.x0;
   for (var i: u32 = 0u; i < params.warmup; i = i + 1u) {
     x = iterate(params.map_type, r, x);
+    // NaN check (x != x) + overflow guard
+    if (x != x || abs(x) > 1e6) { break; }
   }
 
   // Record attractor points
   let base = r_idx * params.plot_points;
   for (var i: u32 = 0u; i < params.plot_points; i = i + 1u) {
     x = iterate(params.map_type, r, x);
+    // NaN check (x != x) + overflow guard
+    if (x != x || abs(x) > 1e6) { break; }
     points[base + i] = vec2f(r, x);
   }
 }
@@ -154,12 +180,14 @@ export async function computeBifurcationGPU(
   } = params;
   const totalPoints = rSteps * plotPoints;
 
-  // Map type enum (must match WGSL): 0=logistic, 1=sine, 2=tent
-  // cubic/gauss/circle are CPU-only; return null so caller uses CPU fallback.
+  // Map type enum (must match WGSL switch cases)
   const GPU_SUPPORTED_MAPS: Partial<Record<BifurcationMapType, number>> = {
     logistic: 0,
     sine: 1,
     tent: 2,
+    cubic: 3,
+    gauss: 4,
+    circle: 5,
   };
   const mapTypeIdx = GPU_SUPPORTED_MAPS[mapType];
   if (mapTypeIdx === undefined) return null;
@@ -268,8 +296,8 @@ export async function computeBifurcationGPU(
   for (let i = 0; i < raw.length; i += 2) {
     const r = raw[i];
     const x = raw[i + 1];
-    // Exclude out-of-range or degenerate values
-    if (r !== undefined && x !== undefined && isFinite(r) && isFinite(x) && x > 0 && x < 1) {
+    // Exclude degenerate values (NaN/Inf) and zero-initialised slots (r=0, x=0)
+    if (r !== undefined && x !== undefined && isFinite(r) && isFinite(x) && (r !== 0 || x !== 0)) {
       points.push({ r, x });
     }
   }

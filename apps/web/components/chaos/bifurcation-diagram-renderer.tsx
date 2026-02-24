@@ -135,12 +135,12 @@ function computeBifurcationCPU(
     let x = x0;
     for (let j = 0; j < warmup; j++) {
       x = cpuIterateMap(mapType, r, x);
-      if (!isFinite(x)) break;
+      if (!Number.isFinite(x) || Math.abs(x) > 1e6) break;
     }
-    if (!isFinite(x)) continue;
+    if (!Number.isFinite(x) || Math.abs(x) > 1e6) continue;
     for (let j = 0; j < plotPoints; j++) {
       x = cpuIterateMap(mapType, r, x);
-      if (!isFinite(x)) break;
+      if (!Number.isFinite(x) || Math.abs(x) > 1e6) break;
       points.push({ r, x });
     }
   }
