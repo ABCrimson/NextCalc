@@ -1,0 +1,97 @@
+{
+  "name": "@nextcalc/math-engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./parser": {
+      "types": "./dist/parser/index.d.ts",
+      "import": "./dist/parser/index.js"
+    },
+    "./wasm": {
+      "types": "./dist/wasm/index.d.ts",
+      "import": "./dist/wasm/index.js"
+    },
+    "./units": {
+      "types": "./dist/units/index.d.ts",
+      "import": "./dist/units/index.js"
+    },
+    "./symbolic": {
+      "types": "./dist/symbolic/index.d.ts",
+      "import": "./dist/symbolic/index.js"
+    },
+    "./matrix": {
+      "types": "./dist/matrix/index.d.ts",
+      "import": "./dist/matrix/index.js"
+    },
+    "./solver": {
+      "types": "./dist/solver/index.d.ts",
+      "import": "./dist/solver/index.js"
+    },
+    "./stats": {
+      "types": "./dist/stats/index.d.ts",
+      "import": "./dist/stats/index.js"
+    },
+    "./complex": {
+      "types": "./dist/complex/index.d.ts",
+      "import": "./dist/complex/index.js"
+    },
+    "./knowledge": {
+      "types": "./dist/knowledge/index.d.ts",
+      "import": "./dist/knowledge/index.js"
+    },
+    "./algorithms": {
+      "types": "./dist/algorithms/index.d.ts",
+      "import": "./dist/algorithms/index.js"
+    },
+    "./differential": {
+      "types": "./dist/differential/index.d.ts",
+      "import": "./dist/differential/index.js"
+    },
+    "./problems": {
+      "types": "./dist/problems/index.d.ts",
+      "import": "./dist/problems/index.js"
+    },
+    "./prover": {
+      "types": "./dist/prover/index.d.ts",
+      "import": "./dist/prover/index.js"
+    },
+    "./content": {
+      "types": "./dist/content/index.d.ts",
+      "import": "./dist/content/index.js"
+    },
+    "./cas": {
+      "types": "./dist/cas/index.d.ts",
+      "import": "./dist/cas/index.js"
+    },
+    "./calculus": {
+      "types": "./dist/calculus/index.d.ts",
+      "import": "./dist/calculus/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "build:wasm": "./src/wasm/native/build.sh",
+    "clean": "rm -rf dist *.tsbuildinfo",
+    "rebuild": "pnpm clean && pnpm build",
+    "test": "vitest",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write ."
+  },
+  "dependencies": {
+    "mathjs": "15.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "25.3.0",
+    "typescript": "6.0.0-dev.20260223",
+    "vitest": "4.1.0-beta.4",
+    "fast-check": "4.5.3"
+  }
+}
