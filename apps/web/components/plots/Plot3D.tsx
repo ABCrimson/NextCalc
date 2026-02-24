@@ -15,6 +15,7 @@ interface OrbitControlsLike {
   dispose(): void;
   enableDamping: boolean;
   dampingFactor: number;
+  zoomSpeed: number;
   screenSpacePanning: boolean;
   minDistance: number;
   maxDistance: number;
@@ -106,10 +107,11 @@ export function Plot3D({
           if (camera && threeRenderer) {
             const controls = new OrbitControls(camera, threeRenderer.domElement);
             controls.enableDamping = true;
-            controls.dampingFactor = 0.05;
-            controls.screenSpacePanning = false;
-            controls.minDistance = 4; // Scaled 4x for larger scene
-            controls.maxDistance = 400; // Scaled 4x for larger scene
+            controls.dampingFactor = 0.12;
+            controls.zoomSpeed = 2.5;
+            controls.screenSpacePanning = true;
+            controls.minDistance = 1;
+            controls.maxDistance = 400;
 
             controlsRef.current = controls;
 
