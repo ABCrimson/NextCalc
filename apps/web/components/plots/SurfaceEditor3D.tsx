@@ -17,7 +17,8 @@
 import { useState, useCallback, useMemo, useRef } from 'react';
 import { Plot3D } from './Plot3D';
 import type { RendererWithExtras } from './Plot3D';
-import type { Plot3DSurfaceConfig } from '@nextcalc/plot-engine';
+import type { Plot3DSurfaceConfig, SpaceTheme, CubemapResolution } from '@nextcalc/plot-engine';
+import { SPACE_THEMES } from '@nextcalc/plot-engine';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -176,6 +177,8 @@ export function SurfaceEditor3D({
   // Renderer effects state
   const [envMapEnabled, setEnvMapEnabled] = useState(false);
   const [ssaoEnabled, setSsaoEnabled] = useState(false);
+  const [spaceTheme, setSpaceTheme] = useState<SpaceTheme>('neutron-star-collision');
+  const [cubemapRes, setCubemapRes] = useState<CubemapResolution>(512);
 
   // Ref to the renderer so we can call extended methods after init
   const rendererRef = useRef<RendererWithExtras | null>(null);
@@ -189,7 +192,23 @@ export function SurfaceEditor3D({
   const handleEnvMapToggle = useCallback(() => {
     const next = !envMapEnabled;
     setEnvMapEnabled(next);
-    rendererRef.current?.setEnvMapEnabled(next);
+    rendererRef.current?.setEnvMapEnabled(next, { theme: spaceTheme, resolution: cubemapRes });
+  }, [envMapEnabled, spaceTheme, cubemapRes]);
+
+  // Change space theme
+  const handleThemeChange = useCallback((theme: SpaceTheme) => {
+    setSpaceTheme(theme);
+    if (envMapEnabled) {
+      rendererRef.current?.setEnvMapEnabled(true, { theme });
+    }
+  }, [envMapEnabled]);
+
+  // Change cubemap resolution
+  const handleResolutionChange = useCallback((res: CubemapResolution) => {
+    setCubemapRes(res);
+    if (envMapEnabled) {
+      rendererRef.current?.setEnvMapEnabled(true, { resolution: res });
+    }
   }, [envMapEnabled]);
 
   // Toggle SSAO post-processing
@@ -444,6 +463,53 @@ export function SurfaceEditor3D({
                 {envMapEnabled ? 'ON' : 'OFF'}
               </Button>
             </div>
+
+            {/* Space Theme & Resolution controls (visible when HDR is on) */}
+            {envMapEnabled && (
+              <div className="space-y-3 pl-6 border-l-2 border-primary/20">
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Space Theme</Label>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="w-full justify-between text-xs">
+                        {SPACE_THEMES.find(t => t.id === spaceTheme)?.label ?? spaceTheme}
+                        <Lightbulb className="h-3 w-3" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-full">
+                      {SPACE_THEMES.map((t) => (
+                        <DropdownMenuItem key={t.id} onClick={() => handleThemeChange(t.id)} className="text-xs">
+                          {t.label}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">
+                    Cubemap Resolution: {cubemapRes}px
+                  </Label>
+                  <div className="flex gap-1">
+                    {([512, 1024, 2048, 4096] as const).map((res) => (
+                      <Button
+                        key={res}
+                        variant={cubemapRes === res ? 'default' : 'outline'}
+                        size="sm"
+                        className="flex-1 text-xs px-1"
+                        onClick={() => handleResolutionChange(res)}
+                      >
+                        {res === 512 ? '1080p' : res === 1024 ? '2K' : res === 2048 ? '4K' : '8K'}
+                      </Button>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">
+                    {cubemapRes >= 4096 ? 'Very high VRAM — may take 1-2s to generate' :
+                     cubemapRes >= 2048 ? 'High quality — moderate VRAM usage' :
+                     'Balanced quality and performance'}
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* SSAO Toggle */}
             <div className="flex items-center justify-between">

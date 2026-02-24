@@ -110,178 +110,314 @@ function makeAxisLabelSprite(
 }
 
 // ---------------------------------------------------------------------------
-// Procedural HDR CubeMap generation
+// Procedural HDR CubeMap generation — 5 space themes at configurable resolution
 // ---------------------------------------------------------------------------
+
+export type SpaceTheme =
+  | 'neutron-star-collision'
+  | 'black-hole-merger'
+  | 'great-attractor'
+  | 'dipole-repeller'
+  | 'shapley-attractor';
+
+export type CubemapResolution = 512 | 1024 | 2048 | 4096;
+
+export const SPACE_THEMES: ReadonlyArray<{ id: SpaceTheme; label: string }> = [
+  { id: 'neutron-star-collision', label: 'Neutron Star Collision' },
+  { id: 'black-hole-merger', label: 'Black Hole Merger' },
+  { id: 'great-attractor', label: 'Great Attractor' },
+  { id: 'dipole-repeller', label: 'Dipole Repeller' },
+  { id: 'shapley-attractor', label: 'Shapley Attractor' },
+];
 
 /**
  * Generates a procedural HDR-like environment cubemap purely in JavaScript.
- * No external .hdr files are required. The cubemap provides:
- *   - Dark blue/purple at the bottom hemisphere (ground)
- *   - Mid-toned indigo/slate at the horizon
- *   - Lighter cool-grey at the top with a subtle warm highlight spot
- *   - Deterministic starfield dots (2% density, varied color temperature)
- *   - Subtle nebula color wash regions (warm + cool Gaussian blobs)
+ * No external .hdr files are required.
  *
- * This creates convincing image-based lighting (IBL) on PBR surfaces,
- * helping mathematical surfaces reveal their curvature through reflections.
+ * Supports 5 space themes:
+ *   - neutron-star-collision: Hot-white point sources with orange/red shockwave rings
+ *   - black-hole-merger: Dark voids with accretion disks and gravitational wave ripples
+ *   - great-attractor: Dense warm-white cluster with galaxy smears and flow lines
+ *   - dipole-repeller: Warm/cool split scene with cosmic web filaments
+ *   - shapley-attractor: Massive supercluster with ICM glow and cosmic web
  *
- * The cubemap is 128×128 per face which is sufficient for diffuse IBL;
- * specular highlights come from the highlight spots painted on the top face.
+ * Resolution is configurable from 512 to 4096 per face.
+ *
+ * @param theme      Space theme to render. Default: 'neutron-star-collision'
+ * @param resolution Cubemap face resolution in pixels. Default: 512
  */
-function createProceduralHDRCubeMap(): THREE.CubeTexture {
-  const SIZE = 128;
+export function createProceduralHDRCubeMap(
+  theme: SpaceTheme = 'neutron-star-collision',
+  resolution: CubemapResolution = 512,
+): THREE.CubeTexture {
+  const SIZE = resolution;
 
-  /**
-   * Paints one cubemap face onto a flat Uint8Array (RGBA).
-   * `faceIndex` maps to: +X=0, -X=1, +Y=2, -Y=3, +Z=4, -Z=5
-   */
+  // Seeded PRNG for deterministic starfields
+  function seededRandom(seed: number): () => number {
+    let s = seed | 0;
+    return () => {
+      s = (s + 0x6d2b79f5) | 0;
+      let t = Math.imul(s ^ (s >>> 15), 1 | s);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  // Shared: direction-based star hash (deterministic)
+  function starHash(nx: number, ny: number, nz: number): number {
+    const h = Math.abs(Math.sin(nx * 12.9898 + ny * 78.233 + nz * 45.164) * 43758.5453);
+    return h - Math.floor(h);
+  }
+
+  // Shared: Gaussian blob
+  function gaussian(nx: number, ny: number, nz: number,
+                    cx: number, cy: number, cz: number, falloff: number): number {
+    return Math.exp(-falloff * ((nx - cx) ** 2 + (ny - cy) ** 2 + (nz - cz) ** 2));
+  }
+
+  // Get direction vector for cubemap face texel
+  function getDirection(faceIndex: number, u: number, v: number): [number, number, number] {
+    let wx = 0, wy = 0, wz = 0;
+    switch (faceIndex) {
+      case 0: wx =  1; wy = -v; wz = -u; break;
+      case 1: wx = -1; wy = -v; wz =  u; break;
+      case 2: wx =  u; wy =  1; wz =  v; break;
+      case 3: wx =  u; wy = -1; wz = -v; break;
+      case 4: wx =  u; wy = -v; wz =  1; break;
+      case 5: wx = -u; wy = -v; wz = -1; break;
+    }
+    const len = Math.sqrt(wx * wx + wy * wy + wz * wz);
+    return [wx / len, wy / len, wz / len];
+  }
+
+  // Paint a face based on theme
   function paintFace(faceIndex: number): Uint8Array {
     const data = new Uint8Array(SIZE * SIZE * 4);
+    const rng = seededRandom(faceIndex * 7919 + 42);
 
     for (let py = 0; py < SIZE; py++) {
       for (let px = 0; px < SIZE; px++) {
-        // Normalise to [-1, 1]
         const u = (px / (SIZE - 1)) * 2.0 - 1.0;
         const v = (py / (SIZE - 1)) * 2.0 - 1.0;
+        const [nx, ny, nz] = getDirection(faceIndex, u, v);
 
-        // Derive a world-space direction vector for this texel
-        let wx = 0;
-        let wy = 0;
-        let wz = 0;
+        let r = 0, g = 0, b = 0;
 
-        switch (faceIndex) {
-          case 0: wx =  1.0; wy =  -v; wz =  -u; break; // +X
-          case 1: wx = -1.0; wy =  -v; wz =   u; break; // -X
-          case 2: wx =  u;   wy =  1.0; wz =   v; break; // +Y (top)
-          case 3: wx =  u;   wy = -1.0; wz =  -v; break; // -Y (bottom)
-          case 4: wx =  u;   wy =  -v; wz =  1.0; break; // +Z
-          case 5: wx = -u;   wy =  -v; wz = -1.0; break; // -Z
+        switch (theme) {
+          case 'neutron-star-collision':
+            [r, g, b] = paintNeutronStar(nx, ny, nz, rng);
+            break;
+          case 'black-hole-merger':
+            [r, g, b] = paintBlackHole(nx, ny, nz, rng);
+            break;
+          case 'great-attractor':
+            [r, g, b] = paintGreatAttractor(nx, ny, nz, rng);
+            break;
+          case 'dipole-repeller':
+            [r, g, b] = paintDipoleRepeller(nx, ny, nz, rng);
+            break;
+          case 'shapley-attractor':
+            [r, g, b] = paintShapleyAttractor(nx, ny, nz, rng);
+            break;
         }
-
-        // Normalise the direction
-        const len = Math.sqrt(wx * wx + wy * wy + wz * wz);
-        const nx = wx / len;
-        const ny = wy / len;
-        const nz = wz / len;
-
-        // Elevation in [-1, 1]; 1 = straight up, -1 = straight down
-        const elevation = ny;
-
-        // Base sky gradient: deep purple-blue at horizon, lighter at zenith
-        const t = Math.max(0, Math.min(1, (elevation + 1) * 0.5));
-
-        // Ground colour (bottom): dark warm charcoal
-        const groundR = 0.05;
-        const groundG = 0.04;
-        const groundB = 0.06;
-
-        // Horizon colour: dark indigo
-        const horizR = 0.08;
-        const horizG = 0.07;
-        const horizB = 0.14;
-
-        // Zenith colour: cool blue-grey
-        const zenithR = 0.15;
-        const zenithG = 0.17;
-        const zenithB = 0.26;
-
-        // Two-stop gradient: ground → horizon → zenith
-        let baseR: number;
-        let baseG: number;
-        let baseB: number;
-
-        if (t < 0.5) {
-          // Ground to horizon
-          const s = t / 0.5;
-          baseR = groundR + s * (horizR - groundR);
-          baseG = groundG + s * (horizG - groundG);
-          baseB = groundB + s * (horizB - groundB);
-        } else {
-          // Horizon to zenith
-          const s = (t - 0.5) / 0.5;
-          baseR = horizR + s * (zenithR - horizR);
-          baseG = horizG + s * (zenithG - horizG);
-          baseB = horizB + s * (zenithB - horizB);
-        }
-
-        // Subtle warm highlight spot near the "sun" direction (+Y, +Z quadrant)
-        // This creates a specular hot spot visible in PBR reflections.
-        const sunDotX = 0.3;
-        const sunDotY = 0.8;
-        const sunDotZ = 0.5;
-        const sunLen = Math.sqrt(sunDotX * sunDotX + sunDotY * sunDotY + sunDotZ * sunDotZ);
-        const sunNX = sunDotX / sunLen;
-        const sunNY = sunDotY / sunLen;
-        const sunNZ = sunDotZ / sunLen;
-
-        const dot = Math.max(0, nx * sunNX + ny * sunNY + nz * sunNZ);
-        // Narrow highlight — only the very peak gets the warm glow
-        const highlight = Math.pow(dot, 32) * 0.6;
-
-        // Secondary soft fill light (cool, opposite hemisphere)
-        const fillDotX = -0.4;
-        const fillDotY = 0.2;
-        const fillDotZ = -0.7;
-        const fillLen = Math.sqrt(fillDotX * fillDotX + fillDotY * fillDotY + fillDotZ * fillDotZ);
-        const fillDot = Math.max(0, nx * (fillDotX / fillLen) + ny * (fillDotY / fillLen) + nz * (fillDotZ / fillLen));
-        const fillGlow = Math.pow(fillDot, 16) * 0.2;
-
-        // --- Starfield ---
-        // Deterministic pseudo-random star placement based on direction hash
-        const dirHash = Math.abs(
-          Math.sin(nx * 12.9898 + ny * 78.233 + nz * 45.164) * 43758.5453
-        );
-        const starRand = dirHash - Math.floor(dirHash);
-        let starR = 0;
-        let starG = 0;
-        let starB = 0;
-        if (starRand > 0.98) {
-          const starBrightness = (starRand - 0.98) * 50; // 0..1
-          const starTemp = Math.sin(nx * 37.0) * 0.5 + 0.5; // color temperature
-          starR = starBrightness * (0.8 + 0.2 * starTemp);
-          starG = starBrightness * (0.85 + 0.1 * (1 - starTemp));
-          starB = starBrightness * (0.8 + 0.2 * (1 - starTemp));
-        }
-
-        // --- Nebula wash ---
-        const nebula1 = Math.exp(-8 * ((nx - 0.5) ** 2 + (ny - 0.3) ** 2 + (nz + 0.2) ** 2));
-        const nebula2 = Math.exp(-6 * ((nx + 0.3) ** 2 + (ny + 0.5) ** 2 + (nz - 0.4) ** 2));
-        const nebR = nebula1 * 0.06 + nebula2 * 0.02;
-        const nebG = nebula1 * 0.01 + nebula2 * 0.04;
-        const nebB = nebula1 * 0.04 + nebula2 * 0.08;
-
-        // Combine and tone-map to [0, 255]
-        // Multiply by 2.5 to simulate an "HDR" exposure that gets tone-mapped
-        const exposure = 2.5;
-        const fr = Math.min(1.0, (baseR + highlight * 1.2 + fillGlow * 0.6 + starR + nebR) * exposure);
-        const fg = Math.min(1.0, (baseG + highlight * 1.0 + fillGlow * 0.7 + starG + nebG) * exposure);
-        const fb = Math.min(1.0, (baseB + highlight * 0.7 + fillGlow * 0.9 + starB + nebB) * exposure);
 
         const idx = (py * SIZE + px) * 4;
-        data[idx]     = Math.floor(fr * 255);
-        data[idx + 1] = Math.floor(fg * 255);
-        data[idx + 2] = Math.floor(fb * 255);
+        data[idx]     = Math.min(255, Math.floor(Math.max(0, r) * 255));
+        data[idx + 1] = Math.min(255, Math.floor(Math.max(0, g) * 255));
+        data[idx + 2] = Math.min(255, Math.floor(Math.max(0, b) * 255));
         data[idx + 3] = 255;
       }
     }
-
     return data;
   }
 
-  // Build one ImageData per face and wrap in CubeTexture
-  const faces: ImageData[] = [];
-  for (let f = 0; f < 6; f++) {
-    const pixels = paintFace(f);
-    faces.push(new ImageData(new Uint8ClampedArray(pixels.buffer as ArrayBuffer), SIZE, SIZE));
+  // --- THEME IMPLEMENTATIONS ---
+
+  function paintNeutronStar(nx: number, ny: number, nz: number, _rng: () => number): [number, number, number] {
+    // Deep blue-black base
+    const elev = (ny + 1) * 0.5;
+    let r = 0.01 + elev * 0.02;
+    let g = 0.01 + elev * 0.03;
+    let b = 0.04 + elev * 0.08;
+
+    // Dense blue starfield
+    const star = starHash(nx, ny, nz);
+    if (star > 0.97) {
+      const bright = (star - 0.97) * 33;
+      r += bright * 0.7; g += bright * 0.85; b += bright * 1.0;
+    }
+
+    // Two hot-white point sources (collision partners)
+    const src1 = gaussian(nx, ny, nz, 0.3, 0.7, 0.2, 40);
+    const src2 = gaussian(nx, ny, nz, -0.2, 0.65, 0.3, 40);
+    r += (src1 + src2) * 1.5;
+    g += (src1 + src2) * 1.4;
+    b += (src1 + src2) * 1.6;
+
+    // Orange/red shockwave rings radiating from collision midpoint
+    const mid = { x: 0.05, y: 0.675, z: 0.25 };
+    const distToMid = Math.sqrt((nx - mid.x) ** 2 + (ny - mid.y) ** 2 + (nz - mid.z) ** 2);
+    const ring1 = Math.exp(-80 * (distToMid - 0.3) ** 2) * 0.4;
+    const ring2 = Math.exp(-80 * (distToMid - 0.5) ** 2) * 0.25;
+    r += (ring1 + ring2) * 1.2;
+    g += (ring1 + ring2) * 0.4;
+    b += (ring1 + ring2) * 0.1;
+
+    // Gravitational lensing distortion (radial stretch near collision)
+    const lensing = gaussian(nx, ny, nz, mid.x, mid.y, mid.z, 8);
+    r += lensing * 0.05; g += lensing * 0.03; b += lensing * 0.08;
+
+    return [r * 2.5, g * 2.5, b * 2.5];
   }
 
-  // Convert each ImageData to a canvas so Three.js can consume it
-  const faceImages: HTMLCanvasElement[] = faces.map((imageData) => {
+  function paintBlackHole(nx: number, ny: number, nz: number, _rng: () => number): [number, number, number] {
+    // Dark base
+    const elev = (ny + 1) * 0.5;
+    let r = 0.02 + elev * 0.02;
+    let g = 0.01 + elev * 0.02;
+    let b = 0.03 + elev * 0.05;
+
+    // Starfield
+    const star = starHash(nx, ny, nz);
+    if (star > 0.975) {
+      const bright = (star - 0.975) * 40;
+      r += bright * 0.8; g += bright * 0.9; b += bright * 1.0;
+    }
+
+    // Two dark voids (black holes)
+    const void1 = gaussian(nx, ny, nz, 0.2, 0.5, 0.1, 60);
+    const void2 = gaussian(nx, ny, nz, -0.15, 0.45, 0.2, 60);
+    const voidMask = 1.0 - Math.min(1, (void1 + void2) * 2);
+    r *= voidMask; g *= voidMask; b *= voidMask;
+
+    // Bright accretion disk arcs (orange/white)
+    const dist1 = Math.sqrt((nx - 0.2) ** 2 + (ny - 0.5) ** 2 + (nz - 0.1) ** 2);
+    const disk1 = Math.exp(-120 * (dist1 - 0.15) ** 2) * 0.8;
+    const dist2 = Math.sqrt((nx + 0.15) ** 2 + (ny - 0.45) ** 2 + (nz - 0.2) ** 2);
+    const disk2 = Math.exp(-120 * (dist2 - 0.12) ** 2) * 0.7;
+    r += (disk1 + disk2) * 1.3;
+    g += (disk1 + disk2) * 0.8;
+    b += (disk1 + disk2) * 0.3;
+
+    // Gravitational wave ripples (concentric rings)
+    const merger = { x: 0.025, y: 0.475, z: 0.15 };
+    const distMerger = Math.sqrt((nx - merger.x) ** 2 + (ny - merger.y) ** 2 + (nz - merger.z) ** 2);
+    const ripple = Math.sin(distMerger * 30) * Math.exp(-3 * distMerger) * 0.08;
+    r += Math.max(0, ripple * 0.5);
+    g += Math.max(0, ripple * 0.6);
+    b += Math.max(0, ripple * 1.2);
+
+    return [r * 2.5, g * 2.5, b * 2.5];
+  }
+
+  function paintGreatAttractor(nx: number, ny: number, nz: number, _rng: () => number): [number, number, number] {
+    // Gradient from deep navy to dark purple
+    const elev = (ny + 1) * 0.5;
+    let r = 0.03 + elev * 0.04;
+    let g = 0.02 + elev * 0.02;
+    let b = 0.05 + elev * 0.08;
+
+    // Dense warm-white cluster in one hemisphere
+    const cluster = gaussian(nx, ny, nz, 0.4, 0.3, -0.2, 3);
+    const star = starHash(nx, ny, nz);
+    const clusterDensity = 0.96 - cluster * 0.12; // More stars near attractor
+    if (star > clusterDensity) {
+      const bright = (star - clusterDensity) * 25;
+      r += bright * 1.0; g += bright * 0.95; b += bright * 0.8;
+    }
+
+    // Galaxy smears (elongated blobs)
+    const gal1 = gaussian(nx, ny, nz, 0.5, 0.25, -0.1, 15) * 0.15;
+    const gal2 = gaussian(nx, ny, nz, 0.3, 0.4, -0.3, 20) * 0.12;
+    const gal3 = gaussian(nx, ny, nz, 0.6, 0.15, 0.1, 18) * 0.1;
+    r += (gal1 + gal2 + gal3) * 1.0;
+    g += (gal1 + gal2 + gal3) * 0.9;
+    b += (gal1 + gal2 + gal3) * 0.7;
+
+    // Flow lines converging toward attractor (subtle streaks)
+    const toAttractor = Math.atan2(nz + 0.2, nx - 0.4);
+    const streak = Math.exp(-2 * Math.abs(ny - 0.3)) * (0.5 + 0.5 * Math.sin(toAttractor * 8)) * 0.03;
+    r += streak * 0.8; g += streak * 0.6; b += streak * 1.0;
+
+    return [r * 2.5, g * 2.5, b * 2.5];
+  }
+
+  function paintDipoleRepeller(nx: number, ny: number, nz: number, _rng: () => number): [number, number, number] {
+    // Split scene: warm (attractor side nz>0) vs cool (repeller side nz<0)
+    const warmCool = (nz + 1) * 0.5; // 0=repeller, 1=attractor
+
+    let r = 0.02 + warmCool * 0.04;
+    let g = 0.02 + (1 - warmCool) * 0.02;
+    let b = 0.04 + (1 - warmCool) * 0.06;
+
+    // Star density: sparse on repeller side, dense on attractor side
+    const star = starHash(nx, ny, nz);
+    const threshold = 0.99 - warmCool * 0.04; // 0.99 (sparse) to 0.95 (dense)
+    if (star > threshold) {
+      const bright = (star - threshold) * (1 / (1 - threshold));
+      const temp = warmCool;
+      r += bright * (0.6 + 0.4 * temp);
+      g += bright * 0.85;
+      b += bright * (0.6 + 0.4 * (1 - temp));
+    }
+
+    // Cosmic web filaments (faint curved streaks)
+    const fil1 = Math.exp(-12 * (Math.abs(ny - 0.3 * Math.sin(nx * 3 + nz * 2)) - 0.02));
+    const fil2 = Math.exp(-12 * (Math.abs(nx - 0.4 * Math.cos(ny * 2.5 + nz * 1.5)) - 0.02));
+    const filament = (fil1 + fil2) * 0.02 * warmCool;
+    r += filament * 0.8; g += filament * 0.6; b += filament * 1.0;
+
+    // Void region on repeller side
+    const voidBlob = gaussian(nx, ny, nz, 0, 0, -0.7, 4);
+    const voidDarken = 1.0 - voidBlob * 0.5;
+    r *= voidDarken; g *= voidDarken; b *= voidDarken;
+
+    return [r * 2.5, g * 2.5, b * 2.5];
+  }
+
+  function paintShapleyAttractor(nx: number, ny: number, nz: number, _rng: () => number): [number, number, number] {
+    // Deep blue-black void base
+    const elev = (ny + 1) * 0.5;
+    let r = 0.01 + elev * 0.02;
+    let g = 0.01 + elev * 0.02;
+    let b = 0.03 + elev * 0.06;
+
+    // Massive supercluster: hundreds of bright points in concentrated region
+    const clusterCenter = gaussian(nx, ny, nz, -0.2, 0.1, 0.4, 2);
+    const star = starHash(nx, ny, nz);
+    const threshold = 0.97 - clusterCenter * 0.15;
+    if (star > threshold) {
+      const bright = (star - threshold) * 20;
+      r += bright * 1.0; g += bright * 0.95; b += bright * 0.9;
+    }
+
+    // ICM glow (diffuse pink/purple halos around cluster centers)
+    const icm1 = gaussian(nx, ny, nz, -0.2, 0.1, 0.4, 6) * 0.08;
+    const icm2 = gaussian(nx, ny, nz, -0.1, 0.2, 0.5, 10) * 0.05;
+    const icm3 = gaussian(nx, ny, nz, -0.3, 0.0, 0.3, 8) * 0.06;
+    r += (icm1 + icm2 + icm3) * 1.2;
+    g += (icm1 + icm2 + icm3) * 0.4;
+    b += (icm1 + icm2 + icm3) * 1.0;
+
+    // Cosmic web structure (faint filaments)
+    const web1 = Math.exp(-15 * (Math.abs(ny - 0.2 * Math.sin(nx * 4 + nz * 3)) - 0.015));
+    const web2 = Math.exp(-15 * (Math.abs(nz - 0.3 - 0.2 * Math.cos(nx * 3 + ny * 2)) - 0.015));
+    const web = (web1 + web2) * 0.015;
+    r += web * 0.6; g += web * 0.5; b += web * 0.8;
+
+    return [r * 2.5, g * 2.5, b * 2.5];
+  }
+
+  // Build cubemap from 6 faces
+  const faceImages: HTMLCanvasElement[] = Array.from({ length: 6 }, (_, f) => {
+    const pixels = paintFace(f);
     const c = document.createElement('canvas');
     c.width = SIZE;
     c.height = SIZE;
-    const ctx = c.getContext('2d')!;
-    ctx.putImageData(imageData, 0, 0);
+    c.getContext('2d')!.putImageData(
+      new ImageData(new Uint8ClampedArray(pixels.buffer as ArrayBuffer), SIZE, SIZE),
+      0, 0,
+    );
     return c;
   });
 
@@ -342,6 +478,10 @@ export interface HDREnvConfig {
    * Default: 0.08 — barely visible so it adds depth without distraction.
    */
   backgroundIntensity?: number;
+  /** Space theme for the procedural cubemap. Default: 'neutron-star-collision' */
+  theme?: SpaceTheme;
+  /** Cubemap face resolution in pixels. Default: 512 */
+  resolution?: CubemapResolution;
 }
 
 /**
@@ -376,6 +516,8 @@ export class WebGL3DRenderer implements IRenderer {
   private _envMapEnabled = false;
   private _envIntensity = 0.4;
   private _backgroundIntensity = 0.08;
+  private _spaceTheme: SpaceTheme = 'neutron-star-collision';
+  private _cubemapResolution: CubemapResolution = 512;
 
   // SSAO state — when enabled the post-processing pipeline is rebuilt
   private _ssaoEnabled = false;
@@ -656,29 +798,27 @@ export class WebGL3DRenderer implements IRenderer {
   setEnvMapEnabled(enabled: boolean, config?: HDREnvConfig): void {
     this._envMapEnabled = enabled;
 
-    if (config?.envIntensity !== undefined) {
-      this._envIntensity = config.envIntensity;
-    }
-    if (config?.backgroundIntensity !== undefined) {
-      this._backgroundIntensity = config.backgroundIntensity;
-    }
+    if (config?.envIntensity !== undefined) this._envIntensity = config.envIntensity;
+    if (config?.backgroundIntensity !== undefined) this._backgroundIntensity = config.backgroundIntensity;
+
+    const themeChanged = config?.theme !== undefined && config.theme !== this._spaceTheme;
+    const resChanged = config?.resolution !== undefined && config.resolution !== this._cubemapResolution;
+
+    if (config?.theme !== undefined) this._spaceTheme = config.theme;
+    if (config?.resolution !== undefined) this._cubemapResolution = config.resolution;
 
     if (!this.scene) return;
 
     if (enabled) {
-      // Generate the cubemap lazily (only once, reuse on re-enable)
-      if (!this.envMap) {
-        this.envMap = createProceduralHDRCubeMap();
+      if (!this.envMap || themeChanged || resChanged) {
+        if (this.envMap) this.envMap.dispose();
+        this.envMap = createProceduralHDRCubeMap(this._spaceTheme, this._cubemapResolution);
       }
 
       this.scene.environment = this.envMap;
       this.scene.environmentIntensity = this._envIntensity;
-
-      // Use the same texture as a very dim background for spatial context
       this.scene.background = this.envMap;
       this.scene.backgroundIntensity = this._backgroundIntensity;
-
-      // Remove fog when env map is active (they fight each other visually)
       this.scene.fog = null;
     } else {
       this.scene.environment = null;
@@ -686,7 +826,6 @@ export class WebGL3DRenderer implements IRenderer {
       this.scene.backgroundIntensity = 1.0;
       this.scene.fog = new THREE.FogExp2(0x0d0d1a, 0.002);
 
-      // Release the GPU texture
       if (this.envMap) {
         this.envMap.dispose();
         this.envMap = null;

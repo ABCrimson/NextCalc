@@ -14,84 +14,7 @@ import {
   LORENZ_WORKGROUP_SIZE,
   LORENZ_DEFAULTS,
 } from './lorenz-compute-shaders';
-
-function createSpaceCubeMap(): THREE.CubeTexture {
-  const SIZE = 64;
-
-  function paintFace(faceIndex: number): Uint8Array {
-    const data = new Uint8Array(SIZE * SIZE * 4);
-    for (let py = 0; py < SIZE; py++) {
-      for (let px = 0; px < SIZE; px++) {
-        const u = (px / (SIZE - 1)) * 2.0 - 1.0;
-        const v = (py / (SIZE - 1)) * 2.0 - 1.0;
-
-        let wx = 0, wy = 0, wz = 0;
-        switch (faceIndex) {
-          case 0: wx =  1; wy = -v; wz = -u; break;
-          case 1: wx = -1; wy = -v; wz =  u; break;
-          case 2: wx =  u; wy =  1; wz =  v; break;
-          case 3: wx =  u; wy = -1; wz = -v; break;
-          case 4: wx =  u; wy = -v; wz =  1; break;
-          case 5: wx = -u; wy = -v; wz = -1; break;
-        }
-
-        const len = Math.sqrt(wx * wx + wy * wy + wz * wz);
-        const nx = wx / len;
-        const ny = wy / len;
-        const nz = wz / len;
-
-        // Very dark base gradient
-        const elev = (ny + 1) * 0.5;
-        let r = 0.01 + elev * 0.03;
-        let g = 0.01 + elev * 0.02;
-        let b = 0.03 + elev * 0.06;
-
-        // Starfield (~3% density for a richer star field)
-        const hash = Math.abs(Math.sin(nx * 12.9898 + ny * 78.233 + nz * 45.164) * 43758.5453);
-        const starRand = hash - Math.floor(hash);
-        if (starRand > 0.97) {
-          const brightness = (starRand - 0.97) * 33.3;
-          const temp = Math.sin(nx * 37.0) * 0.5 + 0.5;
-          r += brightness * (0.7 + 0.3 * temp);
-          g += brightness * (0.8 + 0.15 * (1 - temp));
-          b += brightness * (0.7 + 0.3 * (1 - temp));
-        }
-
-        // Nebula regions matching Lorenz color theme (cyan -> violet -> rose)
-        const neb1 = Math.exp(-5 * ((nx - 0.6) ** 2 + (ny - 0.2) ** 2 + (nz + 0.3) ** 2));
-        const neb2 = Math.exp(-4 * ((nx + 0.4) ** 2 + (ny + 0.3) ** 2 + (nz - 0.5) ** 2));
-        const neb3 = Math.exp(-6 * ((nx - 0.1) ** 2 + (ny - 0.7) ** 2 + (nz + 0.5) ** 2));
-        r += neb1 * 0.03 + neb2 * 0.06 + neb3 * 0.02;
-        g += neb1 * 0.06 + neb2 * 0.01 + neb3 * 0.01;
-        b += neb1 * 0.08 + neb2 * 0.04 + neb3 * 0.06;
-
-        const idx = (py * SIZE + px) * 4;
-        data[idx]     = Math.min(255, Math.floor(r * 255));
-        data[idx + 1] = Math.min(255, Math.floor(g * 255));
-        data[idx + 2] = Math.min(255, Math.floor(b * 255));
-        data[idx + 3] = 255;
-      }
-    }
-    return data;
-  }
-
-  const faceImages = Array.from({ length: 6 }, (_, f) => {
-    const pixels = paintFace(f);
-    const c = document.createElement('canvas');
-    c.width = SIZE;
-    c.height = SIZE;
-    c.getContext('2d')!.putImageData(
-      new ImageData(new Uint8ClampedArray(pixels.buffer as ArrayBuffer), SIZE, SIZE),
-      0, 0,
-    );
-    return c;
-  });
-
-  const tex = new THREE.CubeTexture(faceImages);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.needsUpdate = true;
-  return tex;
-}
+import { createProceduralHDRCubeMap } from '@nextcalc/plot-engine';
 
 interface Point3D {
   x: number;
@@ -211,7 +134,7 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
     if (!scene) return;
     if (skyboxVisible) {
       if (!skyboxRef.current) {
-        skyboxRef.current = createSpaceCubeMap();
+        skyboxRef.current = createProceduralHDRCubeMap('neutron-star-collision', 512);
       }
       scene.background = skyboxRef.current;
       scene.backgroundIntensity = 0.12;

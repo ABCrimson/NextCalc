@@ -13,6 +13,10 @@ export type { WebGL3DRenderer } from './renderers/webgl-3d';
 export { WebGPU2DRenderer } from './renderers/webgpu-2d';
 export { createBest2DRenderer } from './renderers/index';
 
+// Space cubemap themes
+export type { SpaceTheme, CubemapResolution } from './renderers/webgl-3d';
+export { SPACE_THEMES, createProceduralHDRCubeMap } from './renderers/webgl-3d';
+
 // WGSL shaders (WebGPU)
 export {
   smoothLineShaderWGSL,
