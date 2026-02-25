@@ -12,6 +12,7 @@ import { calculationResolvers } from './calculation';
 import { forumResolvers } from './forum';
 import { commentResolvers } from './comment';
 import { upvoteResolvers } from './upvote';
+import { profileResolvers } from './profile';
 import { GraphQLDateTime, GraphQLJSON } from 'graphql-scalars';
 
 export const resolvers = {
@@ -27,6 +28,7 @@ export const resolvers = {
     ...calculationResolvers.Query,
     ...forumResolvers.Query,
     ...commentResolvers.Query,
+    ...profileResolvers.Query,
   },
 
   // Mutation resolvers
