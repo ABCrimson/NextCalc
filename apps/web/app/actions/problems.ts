@@ -274,6 +274,7 @@ export async function toggleFavorite(
     await prisma.favorite.create({
       data: {
         userProgressId: userProgress.id,
+        resourceType: 'PROBLEM',
         problemId: data.problemId,
       },
     });

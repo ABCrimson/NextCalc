@@ -698,19 +698,28 @@ model PracticeSession {
   @@index([createdAt(sort: Desc)])
 }
 
+enum FavoriteType {
+  PROBLEM
+  DEFINITION
+}
+
 model Favorite {
-  id             String   @id @default(cuid())
+  id             String       @id @default(cuid())
   userProgressId String
-  problemId      String
-  createdAt      DateTime @default(now())
+  resourceType   FavoriteType @default(PROBLEM)
+  problemId      String?
+  definitionId   String?      @db.VarChar(255)
+  createdAt      DateTime     @default(now())
 
   userProgress UserProgress @relation(fields: [userProgressId], references: [id], onDelete: Cascade)
-  problem      Problem      @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  problem      Problem?     @relation(fields: [problemId], references: [id], onDelete: Cascade)
 
   @@unique([userProgressId, problemId])
+  @@unique([userProgressId, definitionId])
   @@map("favorites")
   @@index([userProgressId])
   @@index([problemId])
+  @@index([definitionId])
 }
 
 // ============================================================================
