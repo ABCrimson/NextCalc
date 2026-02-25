@@ -608,6 +608,7 @@ model UserProgress {
   attempts       Attempt[]
   favorites      Favorite[]
   achievements   UserAchievement[]
+  practiceSessions PracticeSession[]
 
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -653,15 +654,47 @@ model Attempt {
   // Scoring
   pointsEarned   Int      @default(0)
 
+  // Optional link to practice session
+  practiceSessionId String?
+
   createdAt      DateTime @default(now())
 
   userProgress UserProgress @relation(fields: [userProgressId], references: [id], onDelete: Cascade)
   problem      Problem      @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  practiceSession PracticeSession? @relation(fields: [practiceSessionId], references: [id], onDelete: SetNull)
 
   @@map("attempts")
   @@index([userProgressId])
   @@index([problemId])
   @@index([userProgressId, problemId]) // User's attempts per problem
+  @@index([createdAt(sort: Desc)])
+  @@index([practiceSessionId])
+}
+
+model PracticeSession {
+  id             String    @id @default(cuid())
+  userProgressId String
+  topic          String?   @db.VarChar(100)
+  difficulty     String?   @db.VarChar(50)
+  questionCount  Int
+  timeLimit      Int?
+  adaptive       Boolean   @default(false)
+
+  // Results (filled on completion)
+  score          Float?
+  accuracy       Float?
+  bestStreak     Int       @default(0)
+  totalTime      Int       @default(0)
+  pointsEarned   Int       @default(0)
+  completedAt    DateTime?
+
+  createdAt      DateTime  @default(now())
+
+  userProgress   UserProgress @relation(fields: [userProgressId], references: [id], onDelete: Cascade)
+  attempts       Attempt[]
+
+  @@map("practice_sessions")
+  @@index([userProgressId])
   @@index([createdAt(sort: Desc)])
 }
 
