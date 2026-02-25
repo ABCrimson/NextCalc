@@ -1,9 +1,19 @@
 node_modules/
 .next/
 .env*
+!.env.example
 .vercel/
 .turbo/
 dist/
 build/
 *.log
 .DS_Store
+*.tsbuildinfo
+
+# Prisma generated client (regenerated on install via postinstall)
+packages/database/src/generated/
+
+# Serwist generated service worker (built from apps/web/app/sw.ts)
+public/sw.js
+public/sw.js.map
+public/swe-worker*
