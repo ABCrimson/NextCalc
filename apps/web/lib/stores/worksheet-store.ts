@@ -117,6 +117,13 @@ interface WorksheetStore {
   setTitle: (title: string) => void;
   resetWorksheet: () => void;
 
+  // DB persistence
+  worksheetId: string | null;
+  version: number;
+  isDirty: boolean;
+  hydrate: (data: { worksheetId: string; title: string; cells: WorksheetCell[]; version: number }) => void;
+  markClean: (version: number, worksheetId: string) => void;
+
   // Derived
   getVariablesUpTo: (cellId: string) => Record<string, number | bigint | string>;
 
@@ -204,6 +211,9 @@ export const useWorksheetStore = create<WorksheetStore>()(
     persist(
       immer((set, get) => ({
         worksheet: createWorksheet(),
+        worksheetId: null,
+        version: 0,
+        isDirty: false,
 
         // ---------------------------------------------------------------
         // Cell CRUD
@@ -223,6 +233,7 @@ export const useWorksheetStore = create<WorksheetStore>()(
               }
             }
             touchWorksheet(draft.worksheet);
+            draft.isDirty = true;
           });
           return cell.id;
         },
@@ -237,6 +248,7 @@ export const useWorksheetStore = create<WorksheetStore>()(
               cells.splice(idx, 1);
             }
             touchWorksheet(draft.worksheet);
+            draft.isDirty = true;
           });
         },
 
@@ -250,6 +262,7 @@ export const useWorksheetStore = create<WorksheetStore>()(
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             cells.splice(idx - 1, 0, cell!);
             touchWorksheet(draft.worksheet);
+            draft.isDirty = true;
           });
         },
 
@@ -262,6 +275,7 @@ export const useWorksheetStore = create<WorksheetStore>()(
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             cells.splice(idx + 1, 0, cell!);
             touchWorksheet(draft.worksheet);
+            draft.isDirty = true;
           });
         },
 
@@ -281,6 +295,7 @@ export const useWorksheetStore = create<WorksheetStore>()(
             cell.errorMessage = null;
             cell.updatedAt = Date.now();
             touchWorksheet(draft.worksheet);
+            draft.isDirty = true;
           });
         },
 
@@ -291,6 +306,7 @@ export const useWorksheetStore = create<WorksheetStore>()(
             cell.content = content;
             cell.updatedAt = Date.now();
             touchWorksheet(draft.worksheet);
+            draft.isDirty = true;
           });
         },
 
@@ -303,6 +319,7 @@ export const useWorksheetStore = create<WorksheetStore>()(
             cell.errorMessage = null;
             cell.updatedAt = Date.now();
             touchWorksheet(draft.worksheet);
+            draft.isDirty = true;
           });
         },
 
@@ -316,6 +333,7 @@ export const useWorksheetStore = create<WorksheetStore>()(
             cell.yMax = viewport.yMax;
             cell.updatedAt = Date.now();
             touchWorksheet(draft.worksheet);
+            draft.isDirty = true;
           });
         },
 
@@ -375,6 +393,7 @@ export const useWorksheetStore = create<WorksheetStore>()(
           set((draft) => {
             draft.worksheet.title = title;
             touchWorksheet(draft.worksheet);
+            draft.isDirty = true;
           });
         },
 
@@ -425,11 +444,37 @@ export const useWorksheetStore = create<WorksheetStore>()(
             // Silently ignore invalid JSON; UI should show an error independently
           }
         },
+
+        // ---------------------------------------------------------------
+        // DB persistence
+        // ---------------------------------------------------------------
+        hydrate: (data) => {
+          set((draft) => {
+            draft.worksheet = {
+              id: data.worksheetId,
+              title: data.title,
+              cells: data.cells,
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+            };
+            draft.worksheetId = data.worksheetId;
+            draft.version = data.version;
+            draft.isDirty = false;
+          });
+        },
+
+        markClean: (version, worksheetId) => {
+          set((draft) => {
+            draft.version = version;
+            draft.worksheetId = worksheetId;
+            draft.isDirty = false;
+          });
+        },
       })),
       {
         name: 'worksheet-storage',
         // Persist the whole worksheet document
-        partialize: (store) => ({ worksheet: store.worksheet }),
+        partialize: (store) => ({ worksheet: store.worksheet, worksheetId: store.worksheetId, version: store.version }),
       }
     ),
     {
@@ -474,4 +519,15 @@ export const useWorksheetActions = () =>
     getVariablesUpTo: s.getVariablesUpTo,
     exportAsJSON: s.exportAsJSON,
     importFromJSON: s.importFromJSON,
+    hydrate: s.hydrate,
+    markClean: s.markClean,
   })));
+
+export const useWorksheetId = () =>
+  useWorksheetStore((s) => s.worksheetId);
+
+export const useWorksheetVersion = () =>
+  useWorksheetStore((s) => s.version);
+
+export const useWorksheetDirty = () =>
+  useWorksheetStore((s) => s.isDirty);
