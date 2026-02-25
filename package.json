@@ -30,10 +30,10 @@
     "typescript": "6.0.0-dev.20260223",
     "zod": "4.4.0-canary.20260125T215152"
   },
-  "packageManager": "pnpm@11.0.0-alpha.5",
+  "packageManager": "pnpm@11.0.0-alpha.11",
   "engines": {
-    "node": ">=24.0.0",
-    "pnpm": ">=10.0.0"
+    "node": ">=25.0.0-0",
+    "pnpm": ">=11.0.0-alpha.1"
   },
   "dependencies": {
     "@as-integrations/next": "4.1.0",
