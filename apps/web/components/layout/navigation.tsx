@@ -227,7 +227,6 @@ function UserAvatar({
 }
 
 function LanguageSwitcher() {
-	const t = useTranslations();
 	const locale = useLocale() as LocaleCode;
 	const router = useRouter();
 	const pathname = usePathname();

@@ -175,10 +175,10 @@ export default function Home() {
           </div>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             {t.rich('home.hero.subtitle' as Parameters<typeof t>[0], {
-              react: (chunks) => (
+              react: () => (
                 <span className="font-semibold text-foreground">React 19.3.0</span>
               ),
-              nextjs: (chunks) => (
+              nextjs: () => (
                 <span className="font-semibold text-foreground">Next.js 16.2.0</span>
               ),
             })}
