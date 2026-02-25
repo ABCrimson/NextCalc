@@ -1,0 +1,29 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "nextcalc-cas-service"
+main = "src/index.ts"
+compatibility_date = "2026-02-15"
+compatibility_flags = ["nodejs_compat"]
+
+# Observability and monitoring
+[observability]
+enabled = true
+
+# Development configuration
+[env.development]
+name = "nextcalc-cas-service-dev"
+
+# Production configuration
+[env.production]
+name = "nextcalc-cas-service-prod"
+
+# Resource limits
+[limits]
+cpu_ms = 50
+
+# Build configuration
+[build]
+command = ""
+
+# CORS configuration for API access
+[vars]
+ALLOWED_ORIGINS = "http://localhost:3020,https://nextcalc.pro"

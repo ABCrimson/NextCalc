@@ -1,72 +1,370 @@
-/* KaTeX CSS - must be imported first */
+/* Tailwind CSS 4.2 - Modern import syntax */
+@import 'tailwindcss';
 @import 'katex/dist/katex.min.css';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* ============================================
+   OKLCH Color System - P3 Gamut, 2026 Standard
+   ============================================ */
+@theme {
+  /* Core palette - OKLCH (Lightness, Chroma, Hue) */
+  --color-background: oklch(0.98 0.005 250);
+  --color-foreground: oklch(0.15 0.02 250);
+  --color-border: oklch(0.88 0.01 250);
+  --color-input: oklch(0.92 0.008 250);
+  --color-ring: oklch(0.55 0.27 264);
 
+  --color-primary: oklch(0.55 0.27 264);
+  --color-primary-foreground: oklch(1.0 0 0);
+  --color-secondary: oklch(0.92 0.008 250);
+  --color-secondary-foreground: oklch(0.15 0.02 250);
+  --color-destructive: oklch(0.58 0.22 25);
+  --color-destructive-foreground: oklch(1.0 0 0);
+  --color-muted: oklch(0.92 0.008 250);
+  --color-muted-foreground: oklch(0.55 0.02 250);
+  --color-accent: oklch(0.92 0.008 250);
+  --color-accent-foreground: oklch(0.15 0.02 250);
+  --color-popover: oklch(1.0 0 0);
+  --color-popover-foreground: oklch(0.15 0.02 250);
+  --color-card: oklch(0.99 0.003 250);
+  --color-card-foreground: oklch(0.15 0.02 250);
+
+  /* Calculator-specific colors - vivid P3 gamut */
+  --color-calculator-bg: oklch(0.97 0.005 250);
+  --color-calculator-display: oklch(0.99 0.003 250);
+  --color-calculator-button: oklch(0.98 0.005 250);
+  --color-calculator-button-hover: oklch(0.95 0.008 250);
+  --color-calculator-operator: oklch(0.55 0.27 264);
+  --color-calculator-operator-hover: oklch(0.60 0.27 264);
+  --color-calculator-equals: oklch(0.65 0.20 155);
+  --color-calculator-equals-hover: oklch(0.70 0.20 155);
+  --color-calculator-special: oklch(0.58 0.22 300);
+  --color-calculator-special-hover: oklch(0.63 0.22 300);
+
+  /* Border radius */
+  --radius-lg: 1rem;
+  --radius-md: 0.75rem;
+  --radius-sm: 0.5rem;
+
+  /* Glow colors for shadows */
+  --color-glow-primary: oklch(0.55 0.27 264 / 0.4);
+  --color-glow-success: oklch(0.65 0.20 155 / 0.4);
+  --color-glow-purple: oklch(0.58 0.22 300 / 0.4);
+}
+
+/* ============================================
+   Dark Mode - OKLCH with deeper chromas
+   ============================================ */
+[data-theme='dark'] {
+  --color-background: oklch(0.16 0.02 250);
+  --color-foreground: oklch(0.93 0.008 250);
+  --color-border: oklch(0.30 0.02 250);
+  --color-input: oklch(0.25 0.02 250);
+  --color-ring: oklch(0.65 0.22 264);
+
+  --color-primary: oklch(0.65 0.22 264);
+  --color-primary-foreground: oklch(1.0 0 0);
+  --color-secondary: oklch(0.25 0.02 250);
+  --color-secondary-foreground: oklch(0.93 0.008 250);
+  --color-destructive: oklch(0.60 0.20 25);
+  --color-destructive-foreground: oklch(1.0 0 0);
+  --color-muted: oklch(0.25 0.02 250);
+  --color-muted-foreground: oklch(0.60 0.015 250);
+  --color-accent: oklch(0.25 0.02 250);
+  --color-accent-foreground: oklch(0.93 0.008 250);
+  --color-popover: oklch(0.20 0.015 250);
+  --color-popover-foreground: oklch(0.93 0.008 250);
+  --color-card: oklch(0.20 0.015 250);
+  --color-card-foreground: oklch(0.93 0.008 250);
+
+  /* Dark calculator colors - rich P3 gamut */
+  --color-calculator-bg: oklch(0.20 0.015 250);
+  --color-calculator-display: oklch(0.22 0.018 250);
+  --color-calculator-button: oklch(0.25 0.02 250);
+  --color-calculator-button-hover: oklch(0.32 0.02 250);
+  --color-calculator-operator: oklch(0.65 0.22 264);
+  --color-calculator-operator-hover: oklch(0.70 0.22 264);
+  --color-calculator-equals: oklch(0.65 0.18 155);
+  --color-calculator-equals-hover: oklch(0.70 0.18 155);
+  --color-calculator-special: oklch(0.63 0.20 300);
+  --color-calculator-special-hover: oklch(0.68 0.20 300);
+
+  --color-glow-primary: oklch(0.65 0.22 264 / 0.5);
+  --color-glow-success: oklch(0.65 0.18 155 / 0.5);
+  --color-glow-purple: oklch(0.63 0.20 300 / 0.5);
+}
+
+/* ============================================
+   Animated Custom Properties (CSS @property)
+   ============================================ */
+@property --gradient-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@property --glow-opacity {
+  syntax: '<number>';
+  initial-value: 0.3;
+  inherits: false;
+}
+
+@property --border-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* ============================================
+   Base Layer
+   ============================================ */
 @layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --calculator-bg: 0 0% 98%;
-    --calculator-display: 0 0% 100%;
-    --calculator-button: 0 0% 96%;
-    --calculator-operator: 221 83% 53%;
-    --calculator-equals: 142 76% 36%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+  *,
+  *::before,
+  *::after {
+    border-color: var(--color-border);
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --calculator-bg: 222.2 84% 6%;
-    --calculator-display: 222.2 84% 8%;
-    --calculator-button: 217.2 32.6% 17.5%;
-    --calculator-operator: 221 83% 53%;
-    --calculator-equals: 142 76% 36%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+  html {
+    /* Enable smooth height animations with keywords */
+    interpolate-size: allow-keywords;
+    /* Standard scrollbar styling */
+    scrollbar-color: var(--color-muted-foreground) var(--color-muted);
+    scrollbar-width: thin;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
+    min-height: 100dvh;
+  }
+
+  /* Modern selection styling */
+  ::selection {
+    background-color: color-mix(in oklch, var(--color-primary) 30%, transparent);
+    color: var(--color-foreground);
   }
 }
 
-@layer base {
-  * {
-    @apply border-border;
+/* ============================================
+   Utility Layer
+   ============================================ */
+@layer utilities {
+  /* Modern Glassmorphism - using color-mix for dynamic opacity */
+  .glass {
+    background: color-mix(in oklch, var(--color-background) 15%, transparent);
+    backdrop-filter: blur(12px) saturate(1.5);
+    border: 1px solid color-mix(in oklch, var(--color-foreground) 10%, transparent);
   }
-  body {
-    @apply bg-background text-foreground;
+
+  .glass-light {
+    background: color-mix(in oklch, var(--color-background) 8%, transparent);
+    backdrop-filter: blur(8px) saturate(1.3);
+    border: 1px solid color-mix(in oklch, var(--color-foreground) 6%, transparent);
+  }
+
+  .glass-heavy {
+    background: color-mix(in oklch, var(--color-background) 25%, transparent);
+    backdrop-filter: blur(20px) saturate(1.8);
+    border: 1px solid color-mix(in oklch, var(--color-foreground) 15%, transparent);
+  }
+
+  /* Premium shadow utilities with oklch glow */
+  .shadow-glow-sm {
+    box-shadow: 0 0 12px var(--color-glow-primary);
+  }
+
+  .shadow-glow-md {
+    box-shadow: 0 0 24px var(--color-glow-primary);
+  }
+
+  .shadow-glow-lg {
+    box-shadow: 0 0 36px var(--color-glow-primary);
+  }
+
+  /* Smooth transitions */
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .transition-bounce {
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  /* Modern focus ring */
+  .focus-ring {
+    @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary;
+  }
+
+  /* Noise texture overlay for depth */
+  .noise {
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0.03;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 256px 256px;
+      border-radius: inherit;
+      mix-blend-mode: overlay;
+    }
+  }
+
+  /* Animated gradient border */
+  .border-gradient {
+    position: relative;
+    border: none;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      padding: 1px;
+      border-radius: inherit;
+      background: conic-gradient(
+        from var(--border-angle),
+        var(--color-primary),
+        var(--color-calculator-special),
+        var(--color-calculator-equals),
+        var(--color-primary)
+      );
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      animation: border-rotate 4s linear infinite;
+    }
+  }
+}
+
+/* ============================================
+   Component Layer - Animations
+   ============================================ */
+@layer components {
+  /* Animated gradient for title */
+  @keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .animate-gradient {
+    animation: gradient 4s ease infinite;
+  }
+
+  /* Shimmer animation for loading states */
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+  }
+
+  /* Pulse glow animation with oklch */
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 20px var(--color-glow-primary); }
+    50% { box-shadow: 0 0 40px var(--color-glow-primary); }
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  /* Float animation */
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Slide up animation */
+  @keyframes slide-up {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Fade in animation */
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-in;
+  }
+
+  /* Scale in animation */
+  @keyframes scale-in {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Slow spin for loading */
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .animate-spin-slow {
+    animation: spin-slow 3s linear infinite;
+  }
+
+  /* Border rotation for animated borders */
+  @keyframes border-rotate {
+    to { --border-angle: 360deg; }
+  }
+
+  /* Mesh gradient background animation */
+  @keyframes mesh-shift {
+    0%, 100% {
+      background-position: 0% 50%, 100% 50%, 50% 0%;
+    }
+    25% {
+      background-position: 50% 0%, 0% 100%, 100% 50%;
+    }
+    50% {
+      background-position: 100% 50%, 50% 0%, 0% 100%;
+    }
+    75% {
+      background-position: 50% 100%, 100% 0%, 50% 50%;
+    }
+  }
+
+  .animate-mesh {
+    animation: mesh-shift 12s ease-in-out infinite;
+  }
+
+  /* Shine sweep for buttons */
+  @keyframes shine-sweep {
+    0% { transform: translateX(-100%) skewX(-15deg); }
+    100% { transform: translateX(200%) skewX(-15deg); }
+  }
+
+  /* Entry animation support */
+  @starting-style {
+    .animate-enter {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+
+  .animate-enter {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.3s ease, transform 0.3s ease;
   }
 }

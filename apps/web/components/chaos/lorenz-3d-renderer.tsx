@@ -137,7 +137,7 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
         skyboxRef.current = createProceduralHDRCubeMap('neutron-star-collision', 512);
       }
       scene.background = skyboxRef.current;
-      scene.backgroundIntensity = 0.12;
+      scene.backgroundIntensity = 0.18;
       scene.fog = null;
     } else {
       scene.background = new THREE.Color(0x050912);

@@ -1,0 +1,494 @@
+# NextCalc Pro GraphQL Test Queries
+# Use these in GraphQL Playground or your GraphQL client
+
+# ============================================================================
+# HEALTH CHECK
+# ============================================================================
+
+query HealthCheck {
+  health {
+    status
+    timestamp
+    database {
+      status
+      latency
+      error
+    }
+    redis {
+      status
+      latency
+      error
+    }
+    version
+  }
+}
+
+# ============================================================================
+# USER QUERIES
+# ============================================================================
+
+# Get current user
+query GetCurrentUser {
+  me {
+    id
+    email
+    name
+    image
+    role
+    createdAt
+    worksheetCount
+  }
+}
+
+# Get user by ID
+query GetUserById($id: ID!) {
+  user(id: $id) {
+    id
+    email
+    name
+    image
+    role
+    worksheetCount
+  }
+}
+
+# ============================================================================
+# WORKSHEET QUERIES
+# ============================================================================
+
+# Get all worksheets for current user
+query GetMyWorksheets($limit: Int = 20, $offset: Int = 0) {
+  worksheets(limit: $limit, offset: $offset) {
+    nodes {
+      id
+      title
+      description
+      visibility
+      views
+      createdAt
+      updatedAt
+      user {
+        name
+        image
+      }
+      folder {
+        id
+        name
+      }
+    }
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      totalCount
+      currentPage
+      totalPages
+    }
+  }
+}
+
+# Get single worksheet
+query GetWorksheet($id: ID!) {
+  worksheet(id: $id) {
+    id
+    title
+    description
+    content
+    visibility
+    views
+    createdAt
+    updatedAt
+    user {
+      id
+      name
+      image
+    }
+    folder {
+      id
+      name
+    }
+    shares {
+      id
+      sharedWith
+      permission
+      createdAt
+    }
+  }
+}
+
+# Get public worksheets (gallery)
+query GetPublicWorksheets($limit: Int = 20, $offset: Int = 0, $searchQuery: String) {
+  publicWorksheets(limit: $limit, offset: $offset, searchQuery: $searchQuery) {
+    nodes {
+      id
+      title
+      description
+      views
+      createdAt
+      user {
+        name
+        image
+      }
+    }
+    pageInfo {
+      hasNextPage
+      totalCount
+      currentPage
+      totalPages
+    }
+  }
+}
+
+# ============================================================================
+# FOLDER QUERIES
+# ============================================================================
+
+# Get all folders
+query GetFolders {
+  folders {
+    id
+    name
+    description
+    createdAt
+    parent {
+      id
+      name
+    }
+    children {
+      id
+      name
+    }
+    worksheets {
+      id
+      title
+    }
+  }
+}
+
+# Get single folder
+query GetFolder($id: ID!) {
+  folder(id: $id) {
+    id
+    name
+    description
+    createdAt
+    parent {
+      id
+      name
+    }
+    children {
+      id
+      name
+    }
+    worksheets {
+      id
+      title
+      visibility
+      createdAt
+    }
+  }
+}
+
+# ============================================================================
+# WORKSHEET MUTATIONS
+# ============================================================================
+
+# Create worksheet
+mutation CreateWorksheet($input: CreateWorksheetInput!) {
+  createWorksheet(input: $input) {
+    id
+    title
+    description
+    visibility
+    createdAt
+    updatedAt
+  }
+}
+
+# Example variables for CreateWorksheet:
+# {
+#   "input": {
+#     "title": "My New Worksheet",
+#     "description": "This is a test worksheet",
+#     "content": {
+#       "cells": [
+#         {
+#           "type": "HEADING",
+#           "content": "# Welcome to NextCalc"
+#         },
+#         {
+#           "type": "CALCULATION",
+#           "content": "2 + 2",
+#           "result": "4"
+#         }
+#       ]
+#     },
+#     "visibility": "PRIVATE"
+#   }
+# }
+
+# Update worksheet
+mutation UpdateWorksheet($id: ID!, $input: UpdateWorksheetInput!) {
+  updateWorksheet(id: $id, input: $input) {
+    id
+    title
+    description
+    visibility
+    updatedAt
+  }
+}
+
+# Example variables for UpdateWorksheet:
+# {
+#   "id": "worksheet_id_here",
+#   "input": {
+#     "title": "Updated Title",
+#     "visibility": "PUBLIC"
+#   }
+# }
+
+# Delete worksheet
+mutation DeleteWorksheet($id: ID!) {
+  deleteWorksheet(id: $id)
+}
+
+# Share worksheet
+mutation ShareWorksheet($input: ShareWorksheetInput!) {
+  shareWorksheet(input: $input) {
+    id
+    sharedWith
+    permission
+    createdAt
+  }
+}
+
+# Example variables for ShareWorksheet:
+# {
+#   "input": {
+#     "worksheetId": "worksheet_id_here",
+#     "sharedWith": "user@example.com",
+#     "permission": "VIEW"
+#   }
+# }
+
+# Unshare worksheet
+mutation UnshareWorksheet($worksheetId: ID!, $shareId: ID!) {
+  unshareWorksheet(worksheetId: $worksheetId, shareId: $shareId)
+}
+
+# Increment worksheet views
+mutation IncrementViews($id: ID!) {
+  incrementWorksheetViews(id: $id)
+}
+
+# ============================================================================
+# FOLDER MUTATIONS
+# ============================================================================
+
+# Create folder
+mutation CreateFolder($input: CreateFolderInput!) {
+  createFolder(input: $input) {
+    id
+    name
+    description
+    createdAt
+  }
+}
+
+# Example variables for CreateFolder:
+# {
+#   "input": {
+#     "name": "My Folder",
+#     "description": "A folder for organizing worksheets"
+#   }
+# }
+
+# Update folder
+mutation UpdateFolder($id: ID!, $input: UpdateFolderInput!) {
+  updateFolder(id: $id, input: $input) {
+    id
+    name
+    description
+    updatedAt
+  }
+}
+
+# Delete folder
+mutation DeleteFolder($id: ID!) {
+  deleteFolder(id: $id)
+}
+
+# ============================================================================
+# CALCULATION QUERIES & MUTATIONS
+# ============================================================================
+
+# Perform calculation
+query Calculate($input: CalculationInput!) {
+  calculate(input: $input) {
+    input
+    result
+    formatted
+    variables
+    timestamp
+  }
+}
+
+# Example variables for Calculate:
+# {
+#   "input": {
+#     "expression": "2 + 2 * 3",
+#     "precision": 16
+#   }
+# }
+
+# Get calculation history
+query GetCalculationHistory($limit: Int = 50, $offset: Int = 0) {
+  calculationHistory(limit: $limit, offset: $offset) {
+    id
+    expression
+    result
+    variables
+    timestamp
+  }
+}
+
+# Save calculation to history
+mutation SaveCalculation($input: CalculationInput!) {
+  saveCalculation(input: $input) {
+    id
+    expression
+    result
+    timestamp
+  }
+}
+
+# Clear calculation history
+mutation ClearHistory {
+  clearCalculationHistory
+}
+
+# ============================================================================
+# SUBSCRIPTIONS
+# ============================================================================
+
+# Subscribe to worksheet updates
+subscription OnWorksheetUpdated($worksheetId: ID!) {
+  worksheetUpdated(worksheetId: $worksheetId) {
+    id
+    title
+    content
+    updatedAt
+  }
+}
+
+# Subscribe to user's worksheet list changes
+subscription OnUserWorksheetsChanged($userId: ID!) {
+  userWorksheetsChanged(userId: $userId) {
+    id
+    title
+    visibility
+    updatedAt
+  }
+}
+
+# ============================================================================
+# COMPLEX QUERIES
+# ============================================================================
+
+# Get complete user profile with worksheets and folders
+query GetCompleteUserProfile {
+  me {
+    id
+    email
+    name
+    image
+    role
+    createdAt
+    worksheetCount
+    worksheets(limit: 10) {
+      id
+      title
+      visibility
+      views
+      createdAt
+    }
+    folders {
+      id
+      name
+      worksheets {
+        id
+        title
+      }
+    }
+  }
+}
+
+# Get worksheet with full details
+query GetWorksheetFull($id: ID!) {
+  worksheet(id: $id) {
+    id
+    title
+    description
+    content
+    visibility
+    views
+    createdAt
+    updatedAt
+    user {
+      id
+      name
+      image
+      email
+    }
+    folder {
+      id
+      name
+      parent {
+        id
+        name
+      }
+    }
+    shares {
+      id
+      sharedWith
+      permission
+      createdAt
+    }
+  }
+}
+
+# Search worksheets
+query SearchWorksheets($searchQuery: String!, $limit: Int = 20) {
+  worksheets(searchQuery: $searchQuery, limit: $limit) {
+    nodes {
+      id
+      title
+      description
+      visibility
+      views
+      createdAt
+      user {
+        name
+      }
+    }
+    pageInfo {
+      totalCount
+      hasNextPage
+    }
+  }
+}
+
+# Get worksheets in folder
+query GetWorksheetsInFolder($folderId: ID!, $limit: Int = 20) {
+  worksheets(folderId: $folderId, limit: $limit) {
+    nodes {
+      id
+      title
+      description
+      createdAt
+      updatedAt
+    }
+    pageInfo {
+      totalCount
+    }
+  }
+}

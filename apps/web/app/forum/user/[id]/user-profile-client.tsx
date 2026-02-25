@@ -32,6 +32,8 @@ import {
   getPostHue,
   timeAgo,
   formatNumber,
+  getMockUser,
+  buildMockUserProfile,
 } from '@/components/forum/forum-shared';
 
 // ============================================================================
@@ -73,12 +75,20 @@ export function UserProfileClient({ params }: UserProfileClientProps) {
   const prefersReduced = useReducedMotion();
   const router = useRouter();
 
-  const { data, loading, error, refetch } = useQuery<{ user: UserProfileData | null }>(USER_PROFILE_QUERY, {
+  const { data, loading, error } = useQuery<{ user: UserProfileData | null }>(USER_PROFILE_QUERY, {
     variables: { id },
     fetchPolicy: 'cache-and-network',
   });
 
-  const user: UserProfileData | null = data?.user ?? null;
+  // Fall back to mock data when GraphQL is unavailable
+  const user: UserProfileData | null = (() => {
+    if (data?.user) return data.user;
+    if (error || (!loading && !data?.user)) {
+      const mockUser = getMockUser(id);
+      if (mockUser) return buildMockUserProfile(mockUser);
+    }
+    return null;
+  })();
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-background">
@@ -111,14 +121,14 @@ export function UserProfileClient({ params }: UserProfileClientProps) {
           {/* Loading */}
           {loading && !user && <ProfileSkeleton />}
 
-          {/* Error */}
-          {error && !user && (
+          {/* Error — only show when no mock fallback */}
+          {error && !user && !getMockUser(id) && (
             <div className="rounded-2xl border border-destructive/30 p-6 bg-destructive/10 backdrop-blur-md text-center">
               <AlertCircle className="h-10 w-10 mx-auto text-destructive mb-3" />
-              <p className="text-sm text-destructive">Failed to load profile</p>
-              <p className="text-xs text-muted-foreground mt-1">{error.message}</p>
-              <Button variant="outline" className="mt-4" onClick={() => refetch()}>
-                Try again
+              <p className="text-sm text-destructive">User not found</p>
+              <p className="text-xs text-muted-foreground mt-1">This profile doesn&apos;t exist.</p>
+              <Button variant="outline" className="mt-4" onClick={() => router.push('/forum')}>
+                Back to Forum
               </Button>
             </div>
           )}

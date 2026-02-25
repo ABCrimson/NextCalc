@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="115" fill="#2563eb"/>
+
+  <!-- Calculator Display -->
+  <rect x="80" y="100" width="352" height="80" rx="12" fill="#ffffff" opacity="0.95"/>
+
+  <!-- Display Text -->
+  <text x="410" y="160" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#2563eb" text-anchor="end">42</text>
+
+  <!-- Button Grid -->
+  <!-- Row 1 -->
+  <rect x="80" y="200" width="70" height="70" rx="12" fill="#ffffff" opacity="0.85"/>
+  <rect x="165" y="200" width="70" height="70" rx="12" fill="#ffffff" opacity="0.85"/>
+  <rect x="250" y="200" width="70" height="70" rx="12" fill="#ffffff" opacity="0.85"/>
+  <rect x="335" y="200" width="97" height="70" rx="12" fill="#3b82f6" opacity="0.9"/>
+
+  <!-- Row 2 -->
+  <rect x="80" y="285" width="70" height="70" rx="12" fill="#ffffff" opacity="0.85"/>
+  <rect x="165" y="285" width="70" height="70" rx="12" fill="#ffffff" opacity="0.85"/>
+  <rect x="250" y="285" width="70" height="70" rx="12" fill="#ffffff" opacity="0.85"/>
+  <rect x="335" y="285" width="97" height="70" rx="12" fill="#3b82f6" opacity="0.9"/>
+
+  <!-- Row 3 -->
+  <rect x="80" y="370" width="70" height="70" rx="12" fill="#ffffff" opacity="0.85"/>
+  <rect x="165" y="370" width="70" height="70" rx="12" fill="#ffffff" opacity="0.85"/>
+  <rect x="250" y="370" width="70" height="70" rx="12" fill="#ffffff" opacity="0.85"/>
+  <rect x="335" y="370" width="97" height="70" rx="12" fill="#10b981" opacity="0.95"/>
+
+  <!-- Button Labels -->
+  <text x="115" y="245" font-family="Arial, sans-serif" font-size="28" font-weight="600" fill="#2563eb" text-anchor="middle">7</text>
+  <text x="200" y="245" font-family="Arial, sans-serif" font-size="28" font-weight="600" fill="#2563eb" text-anchor="middle">8</text>
+  <text x="285" y="245" font-family="Arial, sans-serif" font-size="28" font-weight="600" fill="#2563eb" text-anchor="middle">9</text>
+  <text x="383" y="245" font-family="Arial, sans-serif" font-size="32" font-weight="600" fill="#ffffff" text-anchor="middle">÷</text>
+
+  <text x="115" y="330" font-family="Arial, sans-serif" font-size="28" font-weight="600" fill="#2563eb" text-anchor="middle">4</text>
+  <text x="200" y="330" font-family="Arial, sans-serif" font-size="28" font-weight="600" fill="#2563eb" text-anchor="middle">5</text>
+  <text x="285" y="330" font-family="Arial, sans-serif" font-size="28" font-weight="600" fill="#2563eb" text-anchor="middle">6</text>
+  <text x="383" y="330" font-family="Arial, sans-serif" font-size="32" font-weight="600" fill="#ffffff" text-anchor="middle">×</text>
+
+  <text x="115" y="415" font-family="Arial, sans-serif" font-size="28" font-weight="600" fill="#2563eb" text-anchor="middle">1</text>
+  <text x="200" y="415" font-family="Arial, sans-serif" font-size="28" font-weight="600" fill="#2563eb" text-anchor="middle">2</text>
+  <text x="285" y="415" font-family="Arial, sans-serif" font-size="28" font-weight="600" fill="#2563eb" text-anchor="middle">3</text>
+  <text x="383" y="415" font-family="Arial, sans-serif" font-size="32" font-weight="600" fill="#ffffff" text-anchor="middle">=</text>
+</svg>

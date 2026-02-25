@@ -44,7 +44,12 @@ export interface Plot3DProps {
 export interface RendererWithExtras extends IRenderer {
   setEnvMapEnabled(
     enabled: boolean,
-    config?: { envIntensity?: number; backgroundIntensity?: number },
+    config?: {
+      envIntensity?: number;
+      backgroundIntensity?: number;
+      theme?: import('@nextcalc/plot-engine').SpaceTheme;
+      resolution?: import('@nextcalc/plot-engine').CubemapResolution;
+    },
   ): void;
   setSsaoEnabled(
     enabled: boolean,

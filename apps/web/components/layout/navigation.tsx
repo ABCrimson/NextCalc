@@ -286,30 +286,80 @@ export function Navigation() {
 						);
 					})}
 
-					{/* Algorithms pill */}
-					<Link
-						href="/algorithms"
-						className={cn(
-							'flex shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-200 relative group whitespace-nowrap',
-							isAlgorithmActive
-								? 'text-primary-foreground bg-gradient-to-r from-calculator-special to-primary shadow-md shadow-primary/20'
-								: 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
-						)}
-						aria-label="Algorithms - Visualizations and simulations"
-						aria-current={
-							pathname.startsWith('/algorithms') ? 'page' : undefined
-						}
-					>
-						<Sparkles
-							className={cn(
-								'h-3.5 w-3.5 transition-transform duration-200',
-								!isAlgorithmActive &&
-									'group-hover:scale-110 group-hover:rotate-12',
-							)}
-							aria-hidden="true"
-						/>
-						Algorithms
-					</Link>
+					{/* Algorithms dropdown */}
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<button
+								type="button"
+								className={cn(
+									'flex shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-200 relative group whitespace-nowrap',
+									'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+									isAlgorithmActive
+										? 'text-primary-foreground bg-gradient-to-r from-calculator-special to-primary shadow-md shadow-primary/20'
+										: 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
+								)}
+								aria-label="Algorithms menu"
+							>
+								<Sparkles
+									className={cn(
+										'h-3.5 w-3.5 transition-transform duration-200',
+										!isAlgorithmActive &&
+											'group-hover:scale-110 group-hover:rotate-12',
+									)}
+									aria-hidden="true"
+								/>
+								Algorithms
+							</button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent
+							align="start"
+							className="w-64 glass-heavy border-border/50"
+						>
+							<DropdownMenuItem asChild>
+								<Link
+									href="/algorithms"
+									className={cn(
+										'flex items-center gap-3 rounded-lg',
+										pathname === '/algorithms' && 'bg-primary/10 text-primary',
+									)}
+								>
+									<Sparkles className="h-4 w-4" aria-hidden="true" />
+									<div className="flex flex-col">
+										<span className="font-medium">All Algorithms</span>
+										<span className="text-xs text-muted-foreground">
+											Browse all visualizations
+										</span>
+									</div>
+								</Link>
+							</DropdownMenuItem>
+							<DropdownMenuSeparator />
+							{algorithmLinks.filter(l => l.href !== '/algorithms').map((link) => {
+								const Icon = link.icon;
+								const isActive = isLinkActive(link.href);
+
+								return (
+									<DropdownMenuItem key={link.href} asChild>
+										<Link
+											href={link.href}
+											className={cn(
+												'flex items-center gap-3 rounded-lg',
+												isActive && 'bg-primary/10 text-primary',
+											)}
+											aria-current={isActive ? 'page' : undefined}
+										>
+											<Icon className="h-4 w-4" aria-hidden="true" />
+											<div className="flex flex-col">
+												<span className="font-medium">{link.label}</span>
+												<span className="text-xs text-muted-foreground">
+													{link.description}
+												</span>
+											</div>
+										</Link>
+									</DropdownMenuItem>
+								);
+							})}
+						</DropdownMenuContent>
+					</DropdownMenu>
 				</div>
 
 				{/* Mobile Navigation */}

@@ -1,0 +1,40 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "nextcalc-rate-limiter"
+main = "src/index.ts"
+compatibility_date = "2026-02-15"
+compatibility_flags = ["nodejs_compat"]
+
+# Observability and monitoring
+[observability]
+enabled = true
+
+# KV namespace bindings for rate limit storage
+[[kv_namespaces]]
+binding = "RATE_LIMITS"
+id = "your-kv-namespace-id" # TODO: Replace with actual KV namespace ID from: wrangler kv namespace create "RATE_LIMITS"
+preview_id = "your-preview-kv-namespace-id" # TODO: Replace with actual preview KV namespace ID from: wrangler kv namespace create "RATE_LIMITS" --preview
+
+# Development configuration
+[env.development]
+name = "nextcalc-rate-limiter-dev"
+
+[[env.development.kv_namespaces]]
+binding = "RATE_LIMITS"
+id = "dev-kv-namespace-id" # TODO: Replace with actual KV namespace ID from: wrangler kv namespace create "RATE_LIMITS"
+
+# Production configuration
+[env.production]
+name = "nextcalc-rate-limiter-prod"
+
+[[env.production.kv_namespaces]]
+binding = "RATE_LIMITS"
+id = "prod-kv-namespace-id" # TODO: Replace with actual KV namespace ID from: wrangler kv namespace create "RATE_LIMITS"
+
+# Resource limits
+[limits]
+cpu_ms = 50
+
+# CORS configuration and shared variables
+[vars]
+ALLOWED_ORIGINS = "http://localhost:3020,https://nextcalc.pro"
+ADMIN_KEY = "" # TODO: Set via wrangler secret put ADMIN_KEY

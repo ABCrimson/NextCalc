@@ -45,7 +45,12 @@ export function PostForm() {
       router.push(`/forum/${postId}`);
     },
     onError(error) {
-      setValidationError(error.message);
+      // Friendly message when API is unavailable (demo mode)
+      if (error.message.includes('500') || error.message.includes('Failed to fetch') || error.message.includes('not successful')) {
+        setValidationError('The forum is running in demo mode — posts cannot be saved without a database connection.');
+      } else {
+        setValidationError(error.message);
+      }
     },
   });
 

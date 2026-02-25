@@ -1,0 +1,22 @@
+# Dependencies
+node_modules
+
+# Build outputs
+dist
+.next
+.turbo
+build
+coverage
+
+# Generated types
+*.d.ts
+*.tsbuildinfo
+
+# Lock files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Config files
+*.config.js
+*.config.mjs

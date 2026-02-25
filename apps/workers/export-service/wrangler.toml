@@ -1,0 +1,75 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "nextcalc-export-service"
+main = "src/index.ts"
+compatibility_date = "2026-02-15"
+compatibility_flags = ["nodejs_compat"]
+
+# Observability and monitoring
+[observability]
+enabled = true
+
+# R2 bucket bindings for file storage
+#
+# TODO: Create these R2 buckets before deploying.
+#
+# Production buckets (run once per Cloudflare account):
+#   npx wrangler r2 bucket create nextcalc-exports-public
+#   npx wrangler r2 bucket create nextcalc-exports-private
+#
+# Development/preview buckets:
+#   npx wrangler r2 bucket create nextcalc-exports-public-dev
+#   npx wrangler r2 bucket create nextcalc-exports-private-dev
+#
+# After creating the buckets, configure CORS on the public bucket so that
+# browsers can fetch exported files directly from R2:
+#   npx wrangler r2 bucket cors put nextcalc-exports-public \
+#     --rules '[{"allowedOrigins":["https://nextcalc.pro"],"allowedMethods":["GET"],"maxAgeSeconds":3600}]'
+#
+# For signed URLs on the private bucket, you will also need to enable
+# the S3-compatible API and create an R2 API token:
+#   https://developers.cloudflare.com/r2/api/s3/tokens/
+[[r2_buckets]]
+binding = "EXPORTS_PUBLIC"
+bucket_name = "nextcalc-exports-public"
+preview_bucket_name = "nextcalc-exports-public-dev"
+
+[[r2_buckets]]
+binding = "EXPORTS_PRIVATE"
+bucket_name = "nextcalc-exports-private"
+preview_bucket_name = "nextcalc-exports-private-dev"
+
+# Development configuration
+[env.development]
+name = "nextcalc-export-service-dev"
+
+# Production configuration
+[env.production]
+name = "nextcalc-export-service-prod"
+
+# Resource limits
+#
+# TODO: Review and raise cpu_ms once MathJax is integrated.
+#
+# MathJax 4.x SVG rendering is CPU-intensive, especially on first call
+# (font data loading + SVG path generation).  The current 100ms ceiling
+# will cause the Worker to be killed on complex expressions.
+#
+# Recommended values:
+#   - Simple expressions (e.g. "E = mc^2"): ~150–300ms
+#   - Complex expressions (integrals, sums, matrices): ~500–1500ms
+#   - First cold-start request (MathJax init): ~1000–3000ms
+#
+# Start with 5000ms and tune down based on observed P99 latencies in
+# the Cloudflare Workers analytics dashboard.
+#
+# Note: cpu_ms only counts actual CPU time, not I/O wait, so MathJax's
+# async font-loading promises do not count toward this limit while they
+# are awaiting network I/O.
+[limits]
+cpu_ms = 5000
+
+# CORS configuration
+[vars]
+ALLOWED_ORIGINS = "http://localhost:3020,https://nextcalc.pro"
+SIGNED_URL_EXPIRY = "3600"
+MAX_FILE_SIZE = "5242880"

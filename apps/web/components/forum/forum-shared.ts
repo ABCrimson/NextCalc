@@ -229,6 +229,143 @@ export function getInitials(name: string | null | undefined): string {
 }
 
 // ============================================================================
+// LOCAL STORAGE HELPERS (persist mock upvotes across reloads)
+// ============================================================================
+
+const UPVOTE_STORAGE_KEY = 'nextcalc-forum-upvotes';
+
+export function getStoredUpvotes(): Record<string, boolean> {
+  if (typeof window === 'undefined') return {};
+  try {
+    return JSON.parse(localStorage.getItem(UPVOTE_STORAGE_KEY) || '{}');
+  } catch { return {}; }
+}
+
+export function setStoredUpvote(postId: string, upvoted: boolean): void {
+  if (typeof window === 'undefined') return;
+  const stored = getStoredUpvotes();
+  if (upvoted) {
+    stored[postId] = true;
+  } else {
+    delete stored[postId];
+  }
+  localStorage.setItem(UPVOTE_STORAGE_KEY, JSON.stringify(stored));
+}
+
+// ============================================================================
+// MOCK USER DATA
+// ============================================================================
+
+export function getMockUserSlug(name: string): string {
+  return name.toLowerCase().replace(/\s+/g, '-');
+}
+
+export interface MockUser {
+  id: string;
+  name: string;
+  bio: string;
+  reputation: number;
+  tier: 'newcomer' | 'contributor' | 'expert' | 'legend';
+  role: string;
+  createdAt: Date;
+  postIds: string[];
+}
+
+export const MOCK_USERS: Record<string, MockUser> = {
+  'alice-chen': {
+    id: 'alice-chen', name: 'Alice Chen', bio: 'Passionate about real analysis and topology. PhD candidate in mathematics.',
+    reputation: 4280, tier: 'legend', role: 'ADMIN', createdAt: new Date('2024-03-15'), postIds: ['1'],
+  },
+  'marcus-liu': {
+    id: 'marcus-liu', name: 'Marcus Liu', bio: 'Undergraduate math major. Loves linear algebra and its applications.',
+    reputation: 890, tier: 'contributor', role: 'USER', createdAt: new Date('2025-01-10'), postIds: ['2'],
+  },
+  'priya-sharma': {
+    id: 'priya-sharma', name: 'Priya Sharma', bio: 'Complex analysis enthusiast. Building beautiful fractals with math.',
+    reputation: 2150, tier: 'expert', role: 'MODERATOR', createdAt: new Date('2024-06-22'), postIds: ['3'],
+  },
+  'david-kim': {
+    id: 'david-kim', name: 'David Kim', bio: 'Differential equations are my jam. Teaching assistant at university.',
+    reputation: 1670, tier: 'expert', role: 'MODERATOR', createdAt: new Date('2024-08-05'), postIds: ['4'],
+  },
+  'raj-patel': {
+    id: 'raj-patel', name: 'Raj Patel', bio: 'Computational fluid dynamics researcher. New to the community!',
+    reputation: 340, tier: 'newcomer', role: 'USER', createdAt: new Date('2025-11-20'), postIds: ['5'],
+  },
+  'sofia-rossi': {
+    id: 'sofia-rossi', name: 'Sofia Rossi', bio: 'Statistics professor. I believe everyone can learn to love data.',
+    reputation: 3100, tier: 'legend', role: 'ADMIN', createdAt: new Date('2024-04-01'), postIds: ['6'],
+  },
+  'james-wright': {
+    id: 'james-wright', name: 'James Wright', bio: 'Number theory hobbyist. Always chasing primes.',
+    reputation: 1200, tier: 'contributor', role: 'USER', createdAt: new Date('2024-11-15'), postIds: ['7'],
+  },
+};
+
+/** Look up a mock user by their slug ID */
+export function getMockUser(slug: string): MockUser | undefined {
+  return MOCK_USERS[slug];
+}
+
+/** Find mock post by ID */
+export function getMockPostById(id: string): MockForumPost | undefined {
+  return MOCK_POSTS.find(p => p.id === id);
+}
+
+/** Build a ForumPostDetail from a mock post (for detail page fallback) */
+export function buildMockPostDetail(post: MockForumPost): ForumPostDetail {
+  const userSlug = getMockUserSlug(post.author.name);
+  const mockUser = MOCK_USERS[userSlug];
+  return {
+    id: post.id,
+    title: post.title,
+    content: post.content,
+    tags: post.tags,
+    views: post.views,
+    isPinned: post.isPinned,
+    isClosed: post.isClosed,
+    createdAt: post.createdAt.toISOString(),
+    updatedAt: post.createdAt.toISOString(),
+    upvoteCount: post.upvotes,
+    hasUpvoted: post.hasUpvoted,
+    user: {
+      id: userSlug,
+      name: post.author.name,
+      image: null,
+      bio: mockUser?.bio ?? null,
+      role: mockUser?.role ?? 'USER',
+      createdAt: (mockUser?.createdAt ?? new Date('2025-01-01')).toISOString(),
+    },
+    comments: [],
+  };
+}
+
+/** Build a UserProfileData from a mock user (for profile page fallback) */
+export function buildMockUserProfile(user: MockUser): UserProfileData {
+  const posts = user.postIds
+    .map(id => MOCK_POSTS.find(p => p.id === id))
+    .filter((p): p is MockForumPost => p !== undefined);
+
+  return {
+    id: user.id,
+    name: user.name,
+    image: null,
+    bio: user.bio,
+    role: user.role,
+    createdAt: user.createdAt.toISOString(),
+    worksheetCount: 0,
+    forumPosts: posts.map(p => ({
+      id: p.id,
+      title: p.title,
+      tags: p.tags,
+      createdAt: p.createdAt.toISOString(),
+      upvoteCount: p.upvotes,
+      views: p.views,
+    })),
+  };
+}
+
+// ============================================================================
 // MOCK DATA (fallback when GraphQL is unavailable)
 // ============================================================================
 

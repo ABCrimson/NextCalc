@@ -16,7 +16,7 @@
  * @module app/pde/page
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -41,34 +41,34 @@ type InitialConditionType = 'center' | 'line' | 'corners' | 'ring' | 'cross' | '
  */
 function solveHeatPDE2D(
   initial: number[][],
-  dx: number,
-  dt: number,
-  alpha: number,
+  _dx: number,
+  _dt: number,
+  _alpha: number,
   numSteps: number
 ): number[][][] {
   const nx = initial.length;
   const ny = initial[0]?.length ?? 0;
-  const r = alpha * dt / (dx * dx);
 
-  // Clamp to stability limit
-  const effectiveR = Math.min(r, 0.24);
-  if (r > 0.25) {
-    console.warn(`Heat equation stability: r=${r.toFixed(4)}, clamped to ${effectiveR.toFixed(4)}`);
-  }
+  // Use adaptive dt that maximises diffusion within stability limit.
+  // The explicit FTCS scheme requires r = α·dt/dx² ≤ 0.25 for 2D.
+  // We set r = 0.24 (near-optimal) so every frame shows visible diffusion,
+  // rather than using a fixed tiny dt that makes diffusion imperceptible.
+  const effectiveR = 0.24;
 
+  // Pre-allocate a single "next" buffer and swap — avoids O(n²) allocation per step.
   const results: number[][][] = [initial.map(row => [...row])];
   let current = initial.map(row => [...row]);
+  let next: number[][] = Array.from({ length: nx }, () => new Array(ny).fill(0) as number[]);
 
   for (let step = 0; step < numSteps; step++) {
-    const next: number[][] = Array(nx).fill(0).map(() => Array(ny).fill(0));
-
     // Update interior points using explicit FTCS scheme
     for (let i = 1; i < nx - 1; i++) {
       for (let j = 1; j < ny - 1; j++) {
+        const center = current[i]![j]!;
         const laplacian =
-          (current[i + 1]?.[j] ?? 0) + (current[i - 1]?.[j] ?? 0) +
-          (current[i]?.[j + 1] ?? 0) + (current[i]?.[j - 1] ?? 0) - 4 * (current[i]?.[j] ?? 0);
-        next[i]![j] = (current[i]?.[j] ?? 0) + effectiveR * laplacian;
+          current[i + 1]![j]! + current[i - 1]![j]! +
+          current[i]![j + 1]! + current[i]![j - 1]! - 4 * center;
+        next[i]![j] = center + effectiveR * laplacian;
       }
     }
 
@@ -82,8 +82,12 @@ function solveHeatPDE2D(
       next[nx - 1]![j] = 0;
     }
 
+    results.push(next.map(row => [...row]));
+
+    // Swap buffers
+    const tmp = current;
     current = next;
-    results.push(current.map(row => [...row]));
+    next = tmp;
   }
 
   return results;
@@ -171,8 +175,8 @@ function solveWavePDE2D(
 export default function PDESolverPage() {
   // Solver state
   const [equationType, setEquationType] = useState<EquationType>('heat');
-  const [gridSize, setGridSize] = useState(50);
-  const [timeSteps, setTimeSteps] = useState(100);
+  const [gridSize, setGridSize] = useState(80);
+  const [timeSteps, setTimeSteps] = useState(200);
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [simulationData, setSimulationData] = useState<number[][][]>([]);
@@ -196,18 +200,19 @@ export default function PDESolverPage() {
     const grid: number[][] = Array(gridSize).fill(0).map(() => Array(gridSize).fill(0));
 
     switch (type) {
-      case 'center':
-        // Hot/high spot in the center
+      case 'center': {
+        // Gaussian hot spot in the center — scaled to grid size for visible diffusion
         const center = Math.floor(gridSize / 2);
-        for (let i = center - 3; i <= center + 3; i++) {
-          for (let j = center - 3; j <= center + 3; j++) {
-            if (i >= 0 && i < gridSize && j >= 0 && j < gridSize) {
-              const dist = Math.sqrt((i - center) ** 2 + (j - center) ** 2);
-              grid[i]![j] = Math.max(0, 100 * (1 - dist / 4));
-            }
+        const sigma = gridSize / 8; // Wider peak for better visualisation
+        for (let i = 0; i < gridSize; i++) {
+          for (let j = 0; j < gridSize; j++) {
+            const dx = i - center;
+            const dy = j - center;
+            grid[i]![j] = 100 * Math.exp(-(dx * dx + dy * dy) / (2 * sigma * sigma));
           }
         }
         break;
+      }
 
       case 'line':
         // Hot line across the middle
@@ -233,21 +238,24 @@ export default function PDESolverPage() {
         }
         break;
 
-      case 'ring':
-        // Ring pattern
+      case 'ring': {
+        // Ring pattern — width scales with grid for consistent aesthetics
         const ringCenter = Math.floor(gridSize / 2);
-        const ringRadius = Math.floor(gridSize / 4);
+        const ringRadius = Math.floor(gridSize / 3);
+        const ringWidth = Math.max(3, Math.floor(gridSize / 16));
         for (let i = 0; i < gridSize; i++) {
           for (let j = 0; j < gridSize; j++) {
             const dx = i - ringCenter;
             const dy = j - ringCenter;
             const dist = Math.sqrt(dx * dx + dy * dy);
-            if (Math.abs(dist - ringRadius) < 3) {
-              grid[i]![j] = 100 * (1 - Math.abs(dist - ringRadius) / 3);
+            const proximity = Math.abs(dist - ringRadius);
+            if (proximity < ringWidth) {
+              grid[i]![j] = 100 * (1 - proximity / ringWidth);
             }
           }
         }
         break;
+      }
 
       case 'cross':
         // Cross pattern
@@ -481,18 +489,16 @@ export default function PDESolverPage() {
   /**
    * Calculate the global value range across ALL simulation frames.
    *
-   * Using a per-frame min/max causes the colormap to rescale every frame,
-   * making the animation look static even when values are changing.
-   * A fixed global range means the color scale stays consistent and
-   * amplitude changes (especially wave decay/propagation) are visually obvious.
+   * Memoised on simulationData identity so we don't iterate every cell
+   * on every render. A fixed global range keeps the color scale consistent
+   * and makes amplitude changes (especially wave decay/propagation) obvious.
    */
-  const getValueRange = useCallback((): { min: number; max: number } => {
+  const valueRange = useMemo((): { min: number; max: number } => {
     if (simulationData.length === 0) return { min: 0, max: 100 };
 
     let globalMin = Number.POSITIVE_INFINITY;
     let globalMax = Number.NEGATIVE_INFINITY;
 
-    // Sample every frame to find the true global extremes.
     for (const frame of simulationData) {
       for (const row of frame) {
         for (const value of row) {
@@ -513,8 +519,6 @@ export default function PDESolverPage() {
 
     return { min: globalMin, max: globalMax };
   }, [simulationData]);
-
-  const valueRange = getValueRange();
 
   return (
     <main className="min-h-screen py-12 px-4 bg-gradient-to-br from-background via-background/95 to-background">

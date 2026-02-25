@@ -634,9 +634,11 @@ export function WebGPUHeatmap({
   } | null>(null);
 
   // -------------------------------------------------------------------------
-  // WebGPU initialization (one-time on mount)
+  // WebGPU initialization — re-runs when gpuAvailable transitions to true.
+  // On mount gpuAvailable is always false (SSR-safe); the detection effect
+  // above sets it to true, which triggers this effect to actually init.
   // -------------------------------------------------------------------------
-  // biome-ignore lint/correctness/useExhaustiveDependencies: One-time WebGPU initialization on mount only
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Init when GPU becomes available
   useEffect(() => {
     if (!gpuAvailable) return;
 
@@ -739,9 +741,11 @@ export function WebGPUHeatmap({
 
         if (onReady) onReady();
       } catch (err) {
-        console.error('WebGPU initialization failed:', err);
+        console.error('WebGPU initialization failed, falling back to WebGL:', err);
         isInitRef.current = false;
         initCompleteRef.current = false;
+        // Fall back to WebGL renderer
+        if (!destroyed) setGpuAvailable(false);
       }
     };
 
@@ -769,7 +773,7 @@ export function WebGPUHeatmap({
       isInitRef.current = false;
       initCompleteRef.current = false;
     };
-  }, []); // ONE-TIME mount initialization
+  }, [gpuAvailable]); // Re-run when GPU availability is detected
 
   // -------------------------------------------------------------------------
   // Canvas dimensions

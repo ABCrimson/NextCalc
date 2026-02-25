@@ -16,17 +16,39 @@
     "exactOptionalPropertyTypes": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
+
+    /* TypeScript 6.0 Features */
+    "noUncheckedSideEffectImports": true,
+    "strictBuiltinIteratorReturn": true,
+
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
+    "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "jsx": "preserve",
     "incremental": true,
     "paths": {
       "@nextcalc/types": ["./packages/types/src"],
-      "@nextcalc/math-engine": ["./packages/math-engine/src"],
-      "@nextcalc/plot-engine": ["./packages/plot-engine/src"],
-      "@nextcalc/ui": ["./packages/ui/src"]
+      "@nextcalc/math-engine": ["./packages/math-engine/dist"],
+      "@nextcalc/math-engine/parser": ["./packages/math-engine/dist/parser"],
+      "@nextcalc/math-engine/wasm": ["./packages/math-engine/dist/wasm"],
+      "@nextcalc/math-engine/units": ["./packages/math-engine/dist/units"],
+      "@nextcalc/math-engine/symbolic": ["./packages/math-engine/dist/symbolic"],
+      "@nextcalc/math-engine/matrix": ["./packages/math-engine/dist/matrix"],
+      "@nextcalc/math-engine/solver": ["./packages/math-engine/dist/solver"],
+      "@nextcalc/math-engine/stats": ["./packages/math-engine/dist/stats"],
+      "@nextcalc/math-engine/complex": ["./packages/math-engine/dist/complex"],
+      "@nextcalc/math-engine/knowledge": ["./packages/math-engine/dist/knowledge"],
+      "@nextcalc/math-engine/algorithms": ["./packages/math-engine/dist/algorithms"],
+      "@nextcalc/math-engine/differential": ["./packages/math-engine/dist/differential"],
+      "@nextcalc/math-engine/problems": ["./packages/math-engine/dist/problems"],
+      "@nextcalc/math-engine/prover": ["./packages/math-engine/dist/prover"],
+      "@nextcalc/math-engine/content": ["./packages/math-engine/dist/content"],
+      "@nextcalc/math-engine/cas": ["./packages/math-engine/dist/cas"],
+      "@nextcalc/math-engine/calculus": ["./packages/math-engine/dist/calculus"],
+      "@nextcalc/plot-engine": ["./packages/plot-engine/dist"],
+      "@nextcalc/database": ["./packages/database/src"]
     }
   },
   "exclude": ["node_modules", "dist", ".next", ".turbo"]

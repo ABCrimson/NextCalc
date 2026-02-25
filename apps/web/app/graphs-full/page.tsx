@@ -2083,8 +2083,43 @@ export default function GraphAlgorithmsPage() {
     'bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]';
 
   return (
-    <main className="min-h-screen py-10 px-4">
-      <div className="container mx-auto max-w-6xl">
+    <main className="min-h-screen py-10 px-4 relative">
+      {/* Animated background orbs */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        <motion.div
+          className="absolute -top-32 -left-32 w-[600px] h-[600px] rounded-full opacity-20"
+          style={{ background: 'radial-gradient(circle at 40% 40%, oklch(0.75 0.18 160), oklch(0.55 0.14 180), transparent 70%)' }}
+          {...(!prefersReducedMotion ? {
+            animate: { x: [0, 40, 0], y: [0, 60, 0], scale: [1, 1.08, 1] },
+            transition: { duration: 20, repeat: Infinity, ease: 'easeInOut' },
+          } : {})}
+        />
+        <motion.div
+          className="absolute top-1/2 -right-40 w-[500px] h-[500px] rounded-full opacity-15"
+          style={{ background: 'radial-gradient(circle at 60% 50%, oklch(0.72 0.16 195), oklch(0.52 0.18 220), transparent 70%)' }}
+          {...(!prefersReducedMotion ? {
+            animate: { x: [0, -50, 0], y: [0, -40, 0], scale: [1, 1.1, 1] },
+            transition: { duration: 25, repeat: Infinity, ease: 'easeInOut', delay: 3 },
+          } : {})}
+        />
+        <motion.div
+          className="absolute -bottom-40 left-1/3 w-[550px] h-[550px] rounded-full opacity-15"
+          style={{ background: 'radial-gradient(circle at 50% 60%, oklch(0.68 0.20 240), oklch(0.50 0.15 260), transparent 70%)' }}
+          {...(!prefersReducedMotion ? {
+            animate: { x: [0, 30, 0], y: [0, -50, 0], scale: [1, 1.06, 1] },
+            transition: { duration: 22, repeat: Infinity, ease: 'easeInOut', delay: 6 },
+          } : {})}
+        />
+        {/* SVG noise texture overlay */}
+        <svg className="absolute inset-0 w-full h-full opacity-[0.03]" xmlns="http://www.w3.org/2000/svg">
+          <filter id="graphs-noise">
+            <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
+            <feColorMatrix type="saturate" values="0" />
+          </filter>
+          <rect width="100%" height="100%" filter="url(#graphs-noise)" />
+        </svg>
+      </div>
+      <div className="container mx-auto max-w-6xl relative">
         {/* Header */}
         <motion.header
           className="mb-8"
@@ -2096,7 +2131,7 @@ export default function GraphAlgorithmsPage() {
             <div className="p-2 rounded-xl bg-primary/10 border border-primary/20 shrink-0">
               <Network className="w-8 h-8 text-primary" />
             </div>
-            <h1 className="text-4xl font-bold tracking-tight min-w-0 break-words">Graph Algorithms</h1>
+            <h1 className="text-4xl font-bold tracking-tight min-w-0 break-words bg-gradient-to-r from-emerald-400 via-teal-400 to-blue-400 bg-clip-text text-transparent">Graph Algorithms</h1>
           </div>
           <p className="text-lg text-muted-foreground ml-1">
             Visualize traversal, shortest paths, spanning trees, and structural analysis

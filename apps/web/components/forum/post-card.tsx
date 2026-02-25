@@ -9,6 +9,7 @@
  */
 
 import { useCallback } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
@@ -29,6 +30,7 @@ import {
   timeAgo,
   formatNumber,
   getInitials,
+  getMockUserSlug,
 } from '@/components/forum/forum-shared';
 import { cn } from '@/lib/utils';
 
@@ -171,14 +173,18 @@ export function PostCard({ post, index }: PostCardProps) {
 
         {/* Footer: author + stats */}
         <div className="flex items-center justify-between pt-1">
-          <div className="flex items-center gap-2">
+          <Link
+            href={`/forum/user/${post.user.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="flex items-center gap-2 rounded-lg p-0.5 -m-0.5 hover:bg-white/5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          >
             <AuthorAvatar name={post.user.name} image={post.user.image} />
             <div className="min-w-0">
-              <span className="text-xs font-semibold text-foreground truncate block">
+              <span className="text-xs font-semibold text-foreground hover:text-indigo-400 transition-colors truncate block">
                 {post.user.name ?? 'Anonymous'}
               </span>
             </div>
-          </div>
+          </Link>
 
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
@@ -298,17 +304,21 @@ export function MockPostCard({ post, index, onUpvote }: MockPostCardProps) {
 
         {/* Footer */}
         <div className="flex items-center justify-between pt-1">
-          <div className="flex items-center gap-2">
+          <Link
+            href={`/forum/user/${getMockUserSlug(post.author.name)}`}
+            onClick={(e) => e.stopPropagation()}
+            className="flex items-center gap-2 rounded-lg p-0.5 -m-0.5 hover:bg-white/5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          >
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-bold text-sm bg-gradient-to-br from-muted/60 to-muted/30 border border-border">
               <span className="text-muted-foreground">{post.author.avatar}</span>
             </div>
             <div className="min-w-0">
-              <span className="text-xs font-semibold text-foreground truncate block">
+              <span className="text-xs font-semibold text-foreground hover:text-indigo-400 transition-colors truncate block">
                 {post.author.name}
               </span>
               <span className="text-[10px] text-muted-foreground">{formatNumber(post.author.reputation)} rep</span>
             </div>
-          </div>
+          </Link>
 
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">

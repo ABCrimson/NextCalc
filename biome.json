@@ -1,7 +1,8 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-  "organizeImports": {
-    "enabled": true
+  "$schema": "https://biomejs.dev/schemas/2.4.3/schema.json",
+  "files": {
+    "maxSize": 10485760,
+    "ignoreUnknown": false
   },
   "linter": {
     "enabled": true,
@@ -10,20 +11,34 @@
       "suspicious": {
         "noExplicitAny": "error",
         "noImplicitAnyLet": "error"
-      }
+      },
+      "correctness": {
+        "noUnusedImports": "warn",
+        "noUnusedVariables": "warn"
+      },
+      "complexity": {
+        "noExcessiveCognitiveComplexity": "off",
+        "noForEach": "off"
+      },
+      "style": {
+        "noNonNullAssertion": "warn"
+      },
+      "nursery": {}
     }
   },
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
     "indentWidth": 2,
-    "lineWidth": 100
+    "lineWidth": 100,
+    "lineEnding": "lf"
   },
   "javascript": {
     "formatter": {
       "quoteStyle": "single",
       "semicolons": "always",
-      "trailingCommas": "all"
+      "trailingCommas": "all",
+      "arrowParentheses": "always"
     }
   }
 }

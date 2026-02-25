@@ -1,0 +1,732 @@
+// NextCalc Pro Database Schema
+// Prisma 7.5.0-dev.14 with PostgreSQL (Neon)
+// Features: nested transaction savepoints, result extension fixes, relation joins
+// Shared across all apps via @nextcalc/database
+
+generator client {
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["fullTextSearchPostgres", "nativeDistinct", "relationJoins"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================================
+// USERS & AUTHENTICATION (NextAuth.js v5 compatible)
+// ============================================================================
+
+enum UserRole {
+  USER      // Regular user
+  MODERATOR // Forum moderator
+  ADMIN     // System administrator
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  name          String?
+  image         String?   @db.Text
+  bio           String?   @db.Text
+  role          UserRole  @default(USER)
+  tokenVersion  Int       @default(0) // For JWT invalidation
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // NextAuth.js relations
+  accounts Account[]
+  sessions Session[]
+
+  // Application relations
+  worksheets         Worksheet[]
+  folders            Folder[]
+  calculationHistory CalculationHistory[]
+  forumPosts         ForumPost[]
+  comments           Comment[]
+  upvotes            Upvote[]
+  auditLogs          AuditLog[]
+  userProgress       UserProgress?
+
+  @@map("users")
+  @@index([email])
+  @@index([role])
+  @@index([createdAt(sort: Desc)])
+}
+
+// NextAuth.js required tables
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+  @@index([userId])
+  @@index([expires])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ============================================================================
+// WORKSHEETS SYSTEM
+// ============================================================================
+
+enum WorksheetVisibility {
+  PRIVATE  // Only owner can view
+  UNLISTED // Anyone with link can view
+  PUBLIC   // Listed in public gallery
+}
+
+model Worksheet {
+  id          String              @id @default(cuid())
+  title       String              @db.VarChar(255)
+  description String?             @db.Text
+  content     Json // WorksheetContent type (array of cells)
+  visibility  WorksheetVisibility @default(PRIVATE)
+  folderId    String?
+  userId      String
+  views       Int                 @default(0)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  deletedAt   DateTime? // Soft delete for recovery
+
+  // Relations
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  folder Folder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  shares WorksheetShare[]
+
+  @@map("worksheets")
+  @@index([userId])
+  @@index([folderId])
+  @@index([visibility])
+  @@index([createdAt(sort: Desc)])
+  @@index([updatedAt(sort: Desc)])
+  @@index([deletedAt]) // For soft delete queries
+  @@index([userId, visibility]) // User's worksheets by visibility
+}
+
+model Folder {
+  id          String   @id @default(cuid())
+  name        String   @db.VarChar(255)
+  description String?  @db.Text
+  parentId    String? // For nested folders
+  userId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent     Folder?     @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children   Folder[]    @relation("FolderHierarchy")
+  worksheets Worksheet[]
+
+  @@unique([userId, name, parentId]) // Prevent duplicate folder names
+  @@map("folders")
+  @@index([userId])
+  @@index([parentId])
+}
+
+enum SharePermission {
+  VIEW // Can view worksheet
+  EDIT // Can edit worksheet
+}
+
+model WorksheetShare {
+  id          String          @id @default(cuid())
+  worksheetId String
+  sharedWith  String          @db.VarChar(255) // Email or user ID
+  permission  SharePermission @default(VIEW)
+  createdAt   DateTime        @default(now())
+
+  worksheet Worksheet @relation(fields: [worksheetId], references: [id], onDelete: Cascade)
+
+  @@unique([worksheetId, sharedWith])
+  @@map("worksheet_shares")
+  @@index([worksheetId])
+  @@index([sharedWith])
+}
+
+// ============================================================================
+// CALCULATION HISTORY
+// ============================================================================
+
+model CalculationHistory {
+  id         String   @id @default(cuid())
+  userId     String
+  expression String   @db.Text
+  result     String   @db.Text
+  mode       String   @db.VarChar(50) // "approximate", "exact", "scientific"
+  latex      String?  @db.Text // LaTeX representation
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("calculation_history")
+  @@index([userId])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+}
+
+// ============================================================================
+// FORUM SYSTEM
+// ============================================================================
+
+model ForumPost {
+  id        String    @id @default(cuid())
+  title     String    @db.VarChar(255)
+  content   String    @db.Text
+  tags      String[] // Array of tag strings
+  views     Int       @default(0)
+  isPinned  Boolean   @default(false)
+  isClosed  Boolean   @default(false)
+  userId    String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Soft delete
+
+  // Relations
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments Comment[]
+  upvotes  Upvote[]
+
+  @@map("forum_posts")
+  @@index([userId])
+  @@index([createdAt(sort: Desc)])
+  @@index([isPinned, createdAt(sort: Desc)]) // Pinned posts first
+  @@index([tags]) // PostgreSQL GIN index for array
+  @@index([deletedAt])
+}
+
+model Comment {
+  id        String    @id @default(cuid())
+  content   String    @db.Text
+  postId    String
+  userId    String
+  parentId  String? // For nested comments (replies)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Soft delete
+
+  // Relations
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post    ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies Comment[] @relation("CommentReplies")
+  upvotes Upvote[]
+
+  @@map("comments")
+  @@index([postId])
+  @@index([userId])
+  @@index([parentId])
+  @@index([createdAt(sort: Desc)])
+  @@index([deletedAt])
+  @@index([postId, deletedAt]) // Post comments excluding deleted
+}
+
+enum UpvoteTarget {
+  POST    // Forum post
+  COMMENT // Comment on post
+}
+
+model Upvote {
+  id         String       @id @default(cuid())
+  userId     String
+  targetId   String // ID of post or comment
+  targetType UpvoteTarget
+  createdAt  DateTime     @default(now())
+
+  user    User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post    ForumPost? @relation(fields: [targetId], references: [id], onDelete: Cascade, map: "upvotes_post_fkey")
+  comment Comment?   @relation(fields: [targetId], references: [id], onDelete: Cascade, map: "upvotes_comment_fkey")
+
+  @@unique([userId, targetId, targetType]) // Prevent duplicate upvotes
+  @@map("upvotes")
+  @@index([targetId, targetType]) // For counting upvotes efficiently
+  @@index([userId])
+}
+
+// ============================================================================
+// AUDIT & ANALYTICS
+// ============================================================================
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String? // Null for system actions
+  action    String   @db.VarChar(100) // "create", "update", "delete", "view"
+  entity    String   @db.VarChar(100) // "worksheet", "post", "comment", etc.
+  entityId  String
+  metadata  Json? // Additional context (changes, request info, etc.)
+  ipAddress String?  @db.VarChar(45) // IPv6 support
+  userAgent String?  @db.Text
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([createdAt(sort: Desc)])
+  @@index([action, createdAt(sort: Desc)])
+}
+
+// ============================================================================
+// LEARNING PLATFORM - PROBLEMS & CHALLENGES
+// ============================================================================
+
+enum Difficulty {
+  BEGINNER      // Introductory problems
+  INTERMEDIATE  // Standard problems requiring understanding
+  ADVANCED      // Complex problems requiring deep knowledge
+  MASTER        // Expert-level challenges
+}
+
+model Problem {
+  id            String     @id @default(cuid())
+  title         String     @db.VarChar(255)
+  slug          String     @unique @db.VarChar(255)
+  description   String     @db.Text
+  difficulty    Difficulty
+  content       String     @db.Text // Markdown problem statement
+  solution      String     @db.Text // Step-by-step solution in markdown
+  solutionCode  String?    @db.Text // Optional code solution
+
+  // Metadata
+  estimatedTime Int        @default(15) // Estimated time in minutes
+  points        Int        @default(10) // Points awarded for solving
+  popularity    Int        @default(0) // View count
+  successRate   Float?     // Percentage of successful attempts
+
+  // Timestamps
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  deletedAt     DateTime? // Soft delete
+
+  // Relations
+  topics        ProblemTopic[]
+  hints         Hint[]
+  testCases     TestCase[]
+  attempts      Attempt[]
+  favorites     Favorite[]
+  examples      Example[]
+
+  @@map("problems")
+  @@index([slug])
+  @@index([difficulty])
+  @@index([popularity(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+  @@index([deletedAt])
+  @@index([difficulty, popularity(sort: Desc)]) // Popular problems by difficulty
+}
+
+model Hint {
+  id        String   @id @default(cuid())
+  problemId String
+  content   String   @db.Text
+  order     Int      @default(0) // Display order
+  pointCost Int      @default(5) // Points deducted for using hint
+  createdAt DateTime @default(now())
+
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@map("hints")
+  @@index([problemId, order])
+}
+
+model TestCase {
+  id        String  @id @default(cuid())
+  problemId String
+  input     String  @db.Text
+  expected  String  @db.Text
+  isHidden  Boolean @default(false) // Hidden test cases not shown to users
+  order     Int     @default(0)
+
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@map("test_cases")
+  @@index([problemId])
+}
+
+model Example {
+  id          String  @id @default(cuid())
+  problemId   String?
+  topicId     String?
+  title       String  @db.VarChar(255)
+  description String  @db.Text
+  code        String? @db.Text // Code example
+  explanation String  @db.Text
+  order       Int     @default(0)
+
+  problem Problem? @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  topic   Topic?   @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@map("examples")
+  @@index([problemId])
+  @@index([topicId])
+}
+
+// ============================================================================
+// LEARNING PLATFORM - KNOWLEDGE BASE
+// ============================================================================
+
+enum Category {
+  CALCULUS       // Differential & Integral Calculus
+  ALGEBRA        // Linear & Abstract Algebra
+  TOPOLOGY       // Point-set & Algebraic Topology
+  ANALYSIS       // Real & Complex Analysis
+  GEOMETRY       // Euclidean & Differential Geometry
+  NUMBER_THEORY  // Prime numbers, divisibility, modular arithmetic
+  ALGORITHMS     // Sorting, searching, graph algorithms
+  GAME_THEORY    // Nash equilibrium, mechanism design
+  CHAOS_THEORY   // Dynamical systems, fractals, attractors
+  CRYPTOGRAPHY   // Encryption, signatures, zero-knowledge proofs
+  QUANTUM        // Quantum computing, quantum algorithms
+  OPTIMIZATION   // Linear programming, convex optimization
+  PROBABILITY    // Probability theory, stochastic processes
+  STATISTICS     // Descriptive & inferential statistics
+}
+
+model Topic {
+  id          String   @id @default(cuid())
+  name        String   @db.VarChar(255)
+  slug        String   @unique @db.VarChar(255)
+  category    Category
+  description String?  @db.Text
+  definition  String?  @db.Text // LaTeX/Markdown definition
+
+  // Hierarchy (e.g., Calculus -> Differential Calculus -> Derivatives)
+  parentId    String?
+  parent      Topic?   @relation("TopicHierarchy", fields: [parentId], references: [id])
+  children    Topic[]  @relation("TopicHierarchy")
+
+  // Relations
+  problems      ProblemTopic[]
+  theorems      Theorem[]
+  examples      Example[]
+  resources     Resource[]
+  topicProgress TopicProgress[]
+
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("topics")
+  @@index([slug])
+  @@index([category])
+  @@index([parentId])
+  @@index([category, parentId]) // Topics by category
+}
+
+// Junction table for many-to-many relationship
+model ProblemTopic {
+  problemId String
+  topicId   String
+
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  topic   Topic   @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@id([problemId, topicId])
+  @@map("problem_topics")
+  @@index([topicId])
+  @@index([problemId])
+}
+
+model Theorem {
+  id            String   @id @default(cuid())
+  name          String   @db.VarChar(255)
+  statement     String   @db.Text // LaTeX theorem statement
+  proof         String   @db.Text // Markdown/LaTeX proof
+  intuition     String?  @db.Text // Intuitive explanation
+  applications  String?  @db.Text // Real-world applications
+
+  topicId       String
+  topic         Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  // Theorem dependencies (prerequisites)
+  prerequisites Theorem[] @relation("TheoremDependencies")
+  dependents    Theorem[] @relation("TheoremDependencies")
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("theorems")
+  @@index([topicId])
+}
+
+model Resource {
+  id          String       @id @default(cuid())
+  title       String       @db.VarChar(255)
+  description String?      @db.Text
+  url         String       @db.Text
+  type        ResourceType
+  topicId     String
+
+  topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@map("resources")
+  @@index([topicId])
+  @@index([type])
+}
+
+enum ResourceType {
+  VIDEO      // YouTube, educational videos
+  ARTICLE    // Blog posts, tutorials
+  BOOK       // Textbook references
+  PAPER      // Academic papers
+  INTERACTIVE // Interactive demos
+  COURSE     // Online courses
+}
+
+// ============================================================================
+// LEARNING PLATFORM - ALGORITHMS
+// ============================================================================
+
+enum AlgorithmCategory {
+  SORTING              // QuickSort, MergeSort, HeapSort
+  SEARCHING            // Binary Search, DFS, BFS
+  GRAPH                // Dijkstra, Kruskal, Floyd-Warshall
+  DYNAMIC_PROGRAMMING  // Knapsack, LCS, Edit Distance
+  GREEDY               // Huffman coding, activity selection
+  DIVIDE_CONQUER       // Merge sort, quick sort
+  ML_OPTIMIZATION      // Gradient Descent, Adam, RMSprop
+  CRYPTOGRAPHIC        // RSA, DH, AES, SHA
+  QUANTUM              // Shor's, Grover's, QFT
+  NUMERICAL            // Newton-Raphson, Runge-Kutta
+  STRING               // KMP, Rabin-Karp, suffix arrays
+}
+
+model Algorithm {
+  id                String            @id @default(cuid())
+  name              String            @db.VarChar(255)
+  slug              String            @unique @db.VarChar(255)
+  description       String            @db.Text
+  pseudocode        String            @db.Text
+
+  // Complexity analysis
+  timeComplexity    String            @db.VarChar(100) // e.g., "O(n log n)"
+  spaceComplexity   String            @db.VarChar(100) // e.g., "O(n)"
+  bestCase          String?           @db.VarChar(100)
+  averageCase       String?           @db.VarChar(100)
+  worstCase         String?           @db.VarChar(100)
+
+  category          AlgorithmCategory
+
+  // Visualization
+  visualizationCode String?           @db.Text // TypeScript/React code for viz
+
+  // Relations
+  implementations   Implementation[]
+
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@map("algorithms")
+  @@index([slug])
+  @@index([category])
+}
+
+enum ProgrammingLanguage {
+  TYPESCRIPT
+  PYTHON
+  JAVASCRIPT
+  RUST
+  GO
+  JAVA
+  CPP
+  C
+  HASKELL
+  PSEUDOCODE
+}
+
+model Implementation {
+  id          String              @id @default(cuid())
+  algorithmId String
+  language    ProgrammingLanguage
+  code        String              @db.Text
+  explanation String?             @db.Text
+
+  algorithm Algorithm @relation(fields: [algorithmId], references: [id], onDelete: Cascade)
+
+  @@map("implementations")
+  @@index([algorithmId])
+  @@index([language])
+}
+
+// ============================================================================
+// LEARNING PLATFORM - USER PROGRESS
+// ============================================================================
+
+model UserProgress {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+
+  // Overall statistics
+  problemsSolved Int      @default(0)
+  totalPoints    Int      @default(0)
+  streak         Int      @default(0) // Current daily streak
+  longestStreak  Int      @default(0)
+  lastActive     DateTime @default(now())
+
+  // Experience & Leveling
+  level          Int      @default(1)
+  experience     Int      @default(0)
+
+  // Relations
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topicProgress  TopicProgress[]
+  attempts       Attempt[]
+  favorites      Favorite[]
+  achievements   UserAchievement[]
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("user_progress")
+  @@index([userId])
+  @@index([totalPoints(sort: Desc)]) // Leaderboard
+  @@index([level(sort: Desc)])
+}
+
+model TopicProgress {
+  id               String       @id @default(cuid())
+  userProgressId   String
+  topicId          String
+
+  // Progress metrics
+  masteryLevel     Float        @default(0.0) // 0.0 to 1.0
+  problemsSolved   Int          @default(0)
+  timeSpent        Int          @default(0) // Total time in seconds
+  lastPracticed    DateTime     @default(now())
+
+  userProgress UserProgress @relation(fields: [userProgressId], references: [id], onDelete: Cascade)
+  topic        Topic        @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([userProgressId, topicId])
+  @@map("topic_progress")
+  @@index([topicId])
+  @@index([userProgressId])
+}
+
+model Attempt {
+  id             String   @id @default(cuid())
+  userProgressId String
+  problemId      String
+
+  // Attempt details
+  correct        Boolean
+  timeSpent      Int      @default(0) // Time in seconds
+  hintsUsed      Int      @default(0)
+  submission     String   @db.Text // User's submitted solution
+  feedback       String?  @db.Text // Automated feedback
+
+  // Scoring
+  pointsEarned   Int      @default(0)
+
+  createdAt      DateTime @default(now())
+
+  userProgress UserProgress @relation(fields: [userProgressId], references: [id], onDelete: Cascade)
+  problem      Problem      @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@map("attempts")
+  @@index([userProgressId])
+  @@index([problemId])
+  @@index([userProgressId, problemId]) // User's attempts per problem
+  @@index([createdAt(sort: Desc)])
+}
+
+model Favorite {
+  id             String   @id @default(cuid())
+  userProgressId String
+  problemId      String
+  createdAt      DateTime @default(now())
+
+  userProgress UserProgress @relation(fields: [userProgressId], references: [id], onDelete: Cascade)
+  problem      Problem      @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([userProgressId, problemId])
+  @@map("favorites")
+  @@index([userProgressId])
+  @@index([problemId])
+}
+
+// ============================================================================
+// GAMIFICATION - ACHIEVEMENTS & BADGES
+// ============================================================================
+
+enum AchievementType {
+  PROBLEM_SOLVING  // Solve X problems
+  STREAK           // Maintain streak
+  MASTERY          // Master a topic
+  SPEED            // Solve quickly
+  EXPLORATION      // Try different topics
+  SOCIAL           // Forum participation
+}
+
+model Achievement {
+  id          String          @id @default(cuid())
+  name        String          @db.VarChar(255)
+  description String          @db.Text
+  type        AchievementType
+  icon        String?         @db.VarChar(100) // Icon name or emoji
+
+  // Requirements (stored as JSON for flexibility)
+  requirement Json // e.g., {"problemsSolved": 10, "difficulty": "ADVANCED"}
+
+  // Rewards
+  points      Int             @default(0)
+  badgeUrl    String?         @db.Text
+
+  createdAt   DateTime        @default(now())
+
+  users       UserAchievement[]
+
+  @@map("achievements")
+  @@index([type])
+}
+
+model UserAchievement {
+  id             String   @id @default(cuid())
+  userProgressId String
+  achievementId  String
+
+  earnedAt       DateTime @default(now())
+
+  userProgress UserProgress @relation(fields: [userProgressId], references: [id], onDelete: Cascade)
+  achievement  Achievement  @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userProgressId, achievementId])
+  @@map("user_achievements")
+  @@index([userProgressId])
+  @@index([achievementId])
+}

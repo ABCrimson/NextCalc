@@ -49,6 +49,8 @@ import {
   TIER_CONFIG,
   MOCK_POSTS,
   formatNumber,
+  getStoredUpvotes,
+  setStoredUpvote,
 } from '@/components/forum/forum-shared';
 import { cn } from '@/lib/utils';
 
@@ -105,8 +107,20 @@ export default function ForumPage() {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  // Mock data state (fallback)
-  const [mockPosts, setMockPosts] = useState<MockForumPost[]>(MOCK_POSTS);
+  // Mock data state (fallback) — hydrate upvotes from localStorage
+  const [mockPosts, setMockPosts] = useState<MockForumPost[]>(() => {
+    const stored = getStoredUpvotes();
+    if (Object.keys(stored).length === 0) return MOCK_POSTS;
+    return MOCK_POSTS.map(p => {
+      const wasUpvoted = stored[p.id] === true;
+      if (wasUpvoted === p.hasUpvoted) return p;
+      return {
+        ...p,
+        hasUpvoted: wasUpvoted,
+        upvotes: wasUpvoted ? p.upvotes + 1 : Math.max(0, p.upvotes - 1),
+      };
+    });
+  });
 
   // GraphQL query
   interface ForumPostsQueryData {
@@ -145,13 +159,17 @@ export default function ForumPage() {
     const unpinned = posts.filter(p => !p.isPinned);
 
     switch (sortMode) {
-      case 'hot':
+      case 'hot': {
+        const now = Date.now();
         unpinned.sort((a, b) => {
-          const scoreA = a.upvoteCount * 2 + (a.comments?.length ?? 0) * 3 + a.views * 0.1;
-          const scoreB = b.upvoteCount * 2 + (b.comments?.length ?? 0) * 3 + b.views * 0.1;
+          const hoursA = Math.max(1, (now - new Date(a.createdAt).getTime()) / 3_600_000);
+          const hoursB = Math.max(1, (now - new Date(b.createdAt).getTime()) / 3_600_000);
+          const scoreA = (a.upvoteCount + (a.comments?.length ?? 0) * 0.5) / Math.pow(hoursA + 2, 1.5);
+          const scoreB = (b.upvoteCount + (b.comments?.length ?? 0) * 0.5) / Math.pow(hoursB + 2, 1.5);
           return scoreB - scoreA;
         });
         break;
+      }
       case 'new':
         unpinned.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         break;
@@ -166,11 +184,12 @@ export default function ForumPage() {
   // Client-side sort/filter for mock data (when GraphQL is unavailable)
   const toggleMockUpvote = useCallback((postId: string) => {
     setMockPosts(prev =>
-      prev.map(p =>
-        p.id === postId
-          ? { ...p, hasUpvoted: !p.hasUpvoted, upvotes: p.hasUpvoted ? p.upvotes - 1 : p.upvotes + 1 }
-          : p,
-      ),
+      prev.map(p => {
+        if (p.id !== postId) return p;
+        const newUpvoted = !p.hasUpvoted;
+        setStoredUpvote(postId, newUpvoted);
+        return { ...p, hasUpvoted: newUpvoted, upvotes: newUpvoted ? p.upvotes + 1 : p.upvotes - 1 };
+      }),
     );
   }, []);
 
@@ -195,13 +214,18 @@ export default function ForumPage() {
     const unpinned = filtered.filter(p => !p.isPinned);
 
     switch (sortMode) {
-      case 'hot':
+      case 'hot': {
+        // Hot = upvotes per time — higher score for more upvotes in less time
+        const now = Date.now();
         unpinned.sort((a, b) => {
-          const scoreA = a.upvotes * 2 + a.commentCount * 3 + a.views * 0.1;
-          const scoreB = b.upvotes * 2 + b.commentCount * 3 + b.views * 0.1;
+          const hoursA = Math.max(1, (now - a.createdAt.getTime()) / 3_600_000);
+          const hoursB = Math.max(1, (now - b.createdAt.getTime()) / 3_600_000);
+          const scoreA = (a.upvotes + a.commentCount * 0.5) / Math.pow(hoursA + 2, 1.5);
+          const scoreB = (b.upvotes + b.commentCount * 0.5) / Math.pow(hoursB + 2, 1.5);
           return scoreB - scoreA;
         });
         break;
+      }
       case 'new':
         unpinned.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
         break;

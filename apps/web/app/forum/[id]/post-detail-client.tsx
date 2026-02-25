@@ -41,6 +41,10 @@ import {
   formatNumber,
   getInitials,
   getTierFromRole,
+  getMockPostById,
+  buildMockPostDetail,
+  getStoredUpvotes,
+  setStoredUpvote,
 } from '@/components/forum/forum-shared';
 import { cn } from '@/lib/utils';
 
@@ -103,7 +107,32 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
     fetchPolicy: 'cache-and-network',
   });
 
-  const post: ForumPostDetail | null = data?.forumPost ?? null;
+  // Fall back to mock data when GraphQL is unavailable
+  const post: ForumPostDetail | null = (() => {
+    if (data?.forumPost) return data.forumPost;
+    if (error || (!loading && !data?.forumPost)) {
+      const mockPost = getMockPostById(id);
+      if (mockPost) {
+        const detail = buildMockPostDetail(mockPost);
+        // Apply stored upvote state
+        const stored = getStoredUpvotes();
+        if (stored[id] !== undefined) {
+          const wasOriginallyUpvoted = mockPost.hasUpvoted;
+          const isNowUpvoted = stored[id] === true;
+          if (wasOriginallyUpvoted !== isNowUpvoted) {
+            detail.hasUpvoted = isNowUpvoted;
+            detail.upvoteCount = isNowUpvoted
+              ? mockPost.upvotes + 1
+              : Math.max(0, mockPost.upvotes - 1);
+          }
+        }
+        return detail;
+      }
+    }
+    return null;
+  })();
+
+  const isMockMode = !data?.forumPost && post !== null;
 
   // New comment form state
   const [commentContent, setCommentContent] = useState('');
@@ -164,14 +193,14 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
           {/* Loading */}
           {loading && !post && <DetailSkeleton />}
 
-          {/* Error */}
-          {error && !post && (
+          {/* Error — only show when we have no mock fallback */}
+          {error && !post && !getMockPostById(id) && (
             <div className="rounded-2xl border border-destructive/30 p-6 bg-destructive/10 backdrop-blur-md text-center">
               <AlertCircle className="h-10 w-10 mx-auto text-destructive mb-3" />
-              <p className="text-sm text-destructive">Failed to load post</p>
-              <p className="text-xs text-muted-foreground mt-1">{error.message}</p>
-              <Button variant="outline" className="mt-4" onClick={() => refetch()}>
-                Try again
+              <p className="text-sm text-destructive">Post not found</p>
+              <p className="text-xs text-muted-foreground mt-1">This post may have been deleted or doesn&apos;t exist.</p>
+              <Button variant="outline" className="mt-4" onClick={() => router.push('/forum')}>
+                Back to Forum
               </Button>
             </div>
           )}
@@ -231,6 +260,10 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
                       targetType="POST"
                       initialCount={post.upvoteCount}
                       initialUpvoted={post.hasUpvoted}
+                      {...(isMockMode ? {
+                        mock: true,
+                        onMockToggle: () => setStoredUpvote(post.id, !post.hasUpvoted),
+                      } : {})}
                     />
                   </div>
                 </div>
@@ -318,14 +351,26 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
                   Comments ({post.comments.length})
                 </h2>
 
-                <CommentThread
-                  comments={post.comments}
-                  postId={post.id}
-                  onCommentAdded={handleCommentAdded}
-                />
+                {post.comments.length > 0 && (
+                  <CommentThread
+                    comments={post.comments}
+                    postId={post.id}
+                    onCommentAdded={handleCommentAdded}
+                  />
+                )}
+
+                {isMockMode && post.comments.length === 0 && (
+                  <div className="text-center py-8">
+                    <MessageSquare className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
+                    <p className="text-sm text-muted-foreground">No comments yet</p>
+                    <p className="text-xs text-muted-foreground/60 mt-1">
+                      Comments will be available when the database is connected
+                    </p>
+                  </div>
+                )}
 
                 {/* Add comment form */}
-                {!post.isClosed && (
+                {!post.isClosed && !isMockMode && (
                   <div className="pt-4 border-t border-border/30 space-y-3">
                     <h3 className="text-sm font-semibold text-foreground">Add a comment</h3>
                     {authStatus === 'authenticated' ? (

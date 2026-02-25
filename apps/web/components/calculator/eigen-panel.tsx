@@ -581,8 +581,7 @@ function EigenVectorVisualisation3D({
     return (
       <g key={idx}>
         {/* Eigenvector */}
-        <line x1={cx} y1={cy} x2={ex} y2={ey} stroke={color} strokeWidth={2.5} />
-        <circle cx={ex} cy={ey} r={4} fill={color} />
+        <line x1={cx} y1={cy} x2={ex} y2={ey} stroke={color} strokeWidth={2.5} markerEnd={`url(#arrowhead3d-${idx})`} />
         {/* Transformed (λv) */}
         <line x1={cx} y1={cy} x2={tx} y2={ty} stroke={color} strokeWidth={1.5} strokeDasharray="5 3" opacity={0.55} />
         <text x={ex + 5} y={ey - 4} fontSize={10} fill={color} fontFamily="monospace" aria-hidden="true">
@@ -607,6 +606,22 @@ function EigenVectorVisualisation3D({
         style={{ minWidth: `${W}px` }}
       >
         <title>3D eigenvector visualisation (isometric SVG projection)</title>
+        <defs>
+          {evColors.map((color, i) => (
+            <marker
+              key={`arrowhead3d-${i}`}
+              id={`arrowhead3d-${i}`}
+              markerWidth="10"
+              markerHeight="8"
+              refX="9"
+              refY="4"
+              orient="auto"
+              markerUnits="userSpaceOnUse"
+            >
+              <polygon points="0,0 10,4 0,8" fill={color} />
+            </marker>
+          ))}
+        </defs>
         {axesElems}
         <circle cx={cx} cy={cy} r={3} fill="var(--color-foreground)" />
         {arrows}
@@ -667,8 +682,7 @@ function EigenVectorVisualisation4D({
 
     return (
       <g key={idx}>
-        <line x1={cx} y1={cy} x2={ex} y2={ey} stroke={color} strokeWidth={2} />
-        <circle cx={ex} cy={ey} r={3.5} fill={color} />
+        <line x1={cx} y1={cy} x2={ex} y2={ey} stroke={color} strokeWidth={2} markerEnd={`url(#arrowhead4d-${idx})`} />
         <line x1={cx} y1={cy} x2={tx} y2={ty} stroke={color} strokeWidth={1.2} strokeDasharray="4 2" opacity={0.5} />
         <text x={ex + 4} y={ey - 4} fontSize={10} fill={color} fontFamily="monospace" aria-hidden="true">
           v{idx + 1}
@@ -696,6 +710,22 @@ function EigenVectorVisualisation4D({
           style={{ minWidth: `${W}px` }}
         >
           <title>4D eigenvector projection (first two components)</title>
+          <defs>
+            {evColors.map((color, i) => (
+              <marker
+                key={`arrowhead4d-${i}`}
+                id={`arrowhead4d-${i}`}
+                markerWidth="10"
+                markerHeight="8"
+                refX="9"
+                refY="4"
+                orient="auto"
+                markerUnits="userSpaceOnUse"
+              >
+                <polygon points="0,0 10,4 0,8" fill={color} />
+              </marker>
+            ))}
+          </defs>
           {gridLines}
           <line x1={0} y1={cy} x2={W} y2={cy} stroke="var(--color-muted-foreground)" strokeWidth={1} />
           <line x1={cx} y1={0} x2={cx} y2={H} stroke="var(--color-muted-foreground)" strokeWidth={1} />
