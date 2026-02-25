@@ -14,13 +14,23 @@
 
 'use client';
 
-import { HttpLink, from, CombinedGraphQLErrors } from '@apollo/client';
+import {
+	HttpLink,
+	from,
+	split,
+	ApolloLink,
+	Observable,
+	CombinedGraphQLErrors,
+} from '@apollo/client';
+import { getMainDefinition } from '@apollo/client/utilities';
 import { ErrorLink } from '@apollo/client/link/error';
 import { setContext } from '@apollo/client/link/context';
 import {
 	ApolloClient,
 	InMemoryCache,
 } from '@apollo/client-integration-nextjs';
+import { print } from 'graphql';
+import { createClient } from 'graphql-sse';
 
 /**
  * Merge function for offset-based paginated lists.
@@ -110,6 +120,56 @@ export function makeClient() {
 		}
 	});
 
+	// SSE link for GraphQL subscriptions (graphql-sse 2.6.0)
+	const sseUrl =
+		typeof window !== 'undefined'
+			? `${window.location.origin}/api/graphql/stream`
+			: '/api/graphql/stream';
+
+	const sseClient = createClient({
+		url: sseUrl,
+		singleConnection: true,
+	});
+
+	// Wrap graphql-sse client in an Apollo Link.
+	// graphql-sse ExecutionResult uses Record<string, unknown> while Apollo's
+	// FormattedExecutionResult uses Record<string, any>. Cast through
+	// ApolloLink.Result to bridge the two under exactOptionalPropertyTypes.
+	const sseLink = new ApolloLink((operation) => {
+		return new Observable((observer) => {
+			const { query, variables } = operation;
+			const dispose = sseClient.subscribe(
+				{
+					query: print(query),
+					...(variables ? { variables } : {}),
+				},
+				{
+					next: (value) =>
+						observer.next(value as unknown as ApolloLink.Result),
+					error: (err) =>
+						observer.error(
+							err instanceof Error ? err : new Error(String(err)),
+						),
+					complete: () => observer.complete(),
+				},
+			);
+			return () => dispose();
+		});
+	});
+
+	// Split: subscriptions -> SSE, everything else -> HTTP
+	const splitLink = split(
+		({ query }) => {
+			const definition = getMainDefinition(query);
+			return (
+				definition.kind === 'OperationDefinition' &&
+				definition.operation === 'subscription'
+			);
+		},
+		sseLink,
+		from([errorLink, authLink, httpLink]),
+	);
+
 	return new ApolloClient({
 		cache: new InMemoryCache({
 			typePolicies: {
@@ -136,7 +196,7 @@ export function makeClient() {
 				Comment: { keyFields: ['id'] },
 			},
 		}),
-		link: from([errorLink, authLink, httpLink]),
+		link: splitLink,
 		defaultOptions: {
 			watchQuery: {
 				// AC4: errorPolicy 'all' returns both partial data and errors
