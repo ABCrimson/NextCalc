@@ -3,93 +3,92 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
     },
     "./parser": {
-      "types": "./dist/parser/index.d.ts",
-      "import": "./dist/parser/index.js"
+      "types": "./src/parser/index.ts",
+      "default": "./src/parser/index.ts"
     },
     "./wasm": {
-      "types": "./dist/wasm/index.d.ts",
-      "import": "./dist/wasm/index.js"
+      "types": "./src/wasm/index.ts",
+      "default": "./src/wasm/index.ts"
     },
     "./units": {
-      "types": "./dist/units/index.d.ts",
-      "import": "./dist/units/index.js"
+      "types": "./src/units/index.ts",
+      "default": "./src/units/index.ts"
     },
     "./symbolic": {
-      "types": "./dist/symbolic/index.d.ts",
-      "import": "./dist/symbolic/index.js"
+      "types": "./src/symbolic/index.ts",
+      "default": "./src/symbolic/index.ts"
     },
     "./matrix": {
-      "types": "./dist/matrix/index.d.ts",
-      "import": "./dist/matrix/index.js"
+      "types": "./src/matrix/index.ts",
+      "default": "./src/matrix/index.ts"
     },
     "./solver": {
-      "types": "./dist/solver/index.d.ts",
-      "import": "./dist/solver/index.js"
+      "types": "./src/solver/index.ts",
+      "default": "./src/solver/index.ts"
     },
     "./stats": {
-      "types": "./dist/stats/index.d.ts",
-      "import": "./dist/stats/index.js"
+      "types": "./src/stats/index.ts",
+      "default": "./src/stats/index.ts"
     },
     "./complex": {
-      "types": "./dist/complex/index.d.ts",
-      "import": "./dist/complex/index.js"
+      "types": "./src/complex/index.ts",
+      "default": "./src/complex/index.ts"
     },
     "./knowledge": {
-      "types": "./dist/knowledge/index.d.ts",
-      "import": "./dist/knowledge/index.js"
+      "types": "./src/knowledge/index.ts",
+      "default": "./src/knowledge/index.ts"
     },
     "./algorithms": {
-      "types": "./dist/algorithms/index.d.ts",
-      "import": "./dist/algorithms/index.js"
+      "types": "./src/algorithms/index.ts",
+      "default": "./src/algorithms/index.ts"
     },
     "./differential": {
-      "types": "./dist/differential/index.d.ts",
-      "import": "./dist/differential/index.js"
+      "types": "./src/differential/index.ts",
+      "default": "./src/differential/index.ts"
     },
     "./problems": {
-      "types": "./dist/problems/index.d.ts",
-      "import": "./dist/problems/index.js"
+      "types": "./src/problems/index.ts",
+      "default": "./src/problems/index.ts"
     },
     "./prover": {
-      "types": "./dist/prover/index.d.ts",
-      "import": "./dist/prover/index.js"
+      "types": "./src/prover/index.ts",
+      "default": "./src/prover/index.ts"
     },
     "./content": {
-      "types": "./dist/content/index.d.ts",
-      "import": "./dist/content/index.js"
+      "types": "./src/content/index.ts",
+      "default": "./src/content/index.ts"
     },
     "./cas": {
-      "types": "./dist/cas/index.d.ts",
-      "import": "./dist/cas/index.js"
+      "types": "./src/cas/index.ts",
+      "default": "./src/cas/index.ts"
     },
     "./calculus": {
-      "types": "./dist/calculus/index.d.ts",
-      "import": "./dist/calculus/index.js"
+      "types": "./src/calculus/index.ts",
+      "default": "./src/calculus/index.ts"
     },
     "./chaos/chaos-theory": {
-      "types": "./dist/chaos/chaos-theory.d.ts",
-      "import": "./dist/chaos/chaos-theory.js"
+      "types": "./src/chaos/chaos-theory.ts",
+      "default": "./src/chaos/chaos-theory.ts"
     },
     "./fourier": {
-      "types": "./dist/fourier/index.d.ts",
-      "import": "./dist/fourier/index.js"
+      "types": "./src/fourier/index.ts",
+      "default": "./src/fourier/index.ts"
     },
     "./game-theory/game-theory": {
-      "types": "./dist/game-theory/game-theory.d.ts",
-      "import": "./dist/game-theory/game-theory.js"
+      "types": "./src/game-theory/game-theory.ts",
+      "default": "./src/game-theory/game-theory.ts"
     },
     "./graph-theory": {
-      "types": "./dist/graph-theory/index.d.ts",
-      "import": "./dist/graph-theory/index.js"
+      "types": "./src/graph-theory/index.ts",
+      "default": "./src/graph-theory/index.ts"
     }
   },
   "scripts": {

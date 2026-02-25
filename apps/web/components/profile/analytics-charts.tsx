@@ -108,10 +108,12 @@ function AccuracyTrendChart({ data }: { data: TrendPoint[] }) {
     const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
 
     const bottom = PADDING.top + plotH;
+    const firstPt = pts[0]!;
+    const lastPt = pts[pts.length - 1]!;
     const fillPath = [
-      `M ${pts[0].x.toFixed(1)} ${bottom}`,
+      `M ${firstPt.x.toFixed(1)} ${bottom}`,
       ...pts.map((p) => `L ${p.x.toFixed(1)} ${p.y.toFixed(1)}`),
-      `L ${pts[pts.length - 1].x.toFixed(1)} ${bottom}`,
+      `L ${lastPt.x.toFixed(1)} ${bottom}`,
       'Z',
     ].join(' ');
 

@@ -3,33 +3,32 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
     },
     "./renderers": {
-      "types": "./dist/renderers/index.d.ts",
-      "import": "./dist/renderers/index.js"
+      "types": "./src/renderers/index.ts",
+      "default": "./src/renderers/index.ts"
     },
     "./sampling": {
-      "types": "./dist/sampling/index.d.ts",
-      "import": "./dist/sampling/index.js"
+      "types": "./src/sampling/index.ts",
+      "default": "./src/sampling/index.ts"
     },
     "./export": {
-      "types": "./dist/export/index.d.ts",
-      "import": "./dist/export/index.js"
+      "types": "./src/export/index.ts",
+      "default": "./src/export/index.ts"
     },
     "./controls": {
-      "types": "./dist/controls/index.d.ts",
-      "import": "./dist/controls/index.js"
+      "types": "./src/controls/index.ts",
+      "default": "./src/controls/index.ts"
     },
     "./types": {
-      "types": "./dist/types/index.d.ts",
-      "import": "./dist/types/index.js"
+      "types": "./src/types/index.ts",
+      "default": "./src/types/index.ts"
     }
   },
   "scripts": {

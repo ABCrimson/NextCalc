@@ -77,7 +77,7 @@ export function ActivityCalendar({ data }: ActivityCalendarProps) {
 
         const month = date.getMonth();
         if (month !== lastMonth && inRange) {
-          monthPos.push({ label: MONTH_LABELS[month], weekIndex: w });
+          monthPos.push({ label: MONTH_LABELS[month] ?? '', weekIndex: w });
           lastMonth = month;
         }
 
