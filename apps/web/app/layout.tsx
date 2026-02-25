@@ -1,8 +1,6 @@
 import { type ReactNode } from 'react';
 import type { Metadata, Viewport } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
-import { Navigation } from '@/components/layout/navigation';
-import { ApolloWrapper } from '@/components/providers/apollo-provider';
 import './globals.css';
 
 const inter = Inter({
@@ -95,13 +93,19 @@ export const viewport: Viewport = {
   ],
 };
 
+/**
+ * Root layout — thin shell for <html>, <head>, and <body>.
+ *
+ * All providers (Apollo, next-intl, etc.) and the Navigation component
+ * live in the [locale] layout so they have access to the current locale.
+ */
 export default function RootLayout({
   children,
 }: Readonly<{
   children: ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html suppressHydrationWarning>
       <head>
         <link rel="apple-touch-icon" href="/icon-192.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -118,10 +122,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.variable} ${jetbrainsMono.variable} antialiased`} suppressHydrationWarning>
-        <ApolloWrapper>
-          <Navigation />
-          {children}
-        </ApolloWrapper>
+        {children}
       </body>
     </html>
   );
