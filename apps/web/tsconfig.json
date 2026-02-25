@@ -1,6 +1,9 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "verbatimModuleSyntax": true,
+    "types": ["@serwist/next/typings"],
+    "lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker"],
     "plugins": [
       {
         "name": "next"
@@ -14,10 +17,13 @@
         "../../packages/types/src"
       ],
       "@nextcalc/math-engine": [
-        "../../packages/math-engine/src"
+        "../../packages/math-engine/dist"
+      ],
+      "@nextcalc/math-engine/*": [
+        "../../packages/math-engine/dist/*"
       ],
       "@nextcalc/plot-engine": [
-        "../../packages/plot-engine/src"
+        "../../packages/plot-engine/dist"
       ],
       "@nextcalc/ui": [
         "../../packages/ui/src"
@@ -32,6 +38,7 @@
     ".next/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "**/*.stories.tsx"
   ]
 }
