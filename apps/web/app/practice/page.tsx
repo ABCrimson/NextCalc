@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useActionState, useRef, useEffect } from 'react';
 import type { CSSProperties } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { PracticeMode, type PracticeMetrics } from '@/components/math/practice-mode';
@@ -16,6 +16,9 @@ import {
   type Problem,
 } from '@nextcalc/math-engine/problems';
 import type { MathTopic } from '@nextcalc/math-engine/knowledge';
+import { savePracticeAttempt, completePracticeSession } from '@/app/actions/practice';
+import type { PracticeAttemptResult, PracticeSessionResult } from '@/app/actions/practice';
+import type { ActionResult } from '@/app/actions/problems';
 
 /**
  * Practice configuration state
@@ -293,6 +296,17 @@ export default function PracticePage() {
     adaptiveDifficulty: false,
   });
 
+  const [_attemptState, saveAttemptAction] = useActionState<ActionResult<PracticeAttemptResult>, FormData>(
+    savePracticeAttempt,
+    { success: false },
+  );
+  const [_sessionResult, completeSessionAction] = useActionState<ActionResult<PracticeSessionResult>, FormData>(
+    completePracticeSession,
+    { success: false },
+  );
+  const sessionIdRef = useRef<string | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const prefersReduced = useReducedMotion() ?? false;
 
   // Load problems from math-engine's in-memory problem database.
@@ -324,12 +338,49 @@ export default function PracticePage() {
     setIsConfiguring(false);
   }, [loadProblems]);
 
-  const handleComplete = useCallback(
-    (_metrics: PracticeMetrics) => {
-      // TODO: save metrics to database and show results
-      // router.push('/practice/results');
+  // Ready to wire to PracticeMode once it exposes an onAnswer prop
+  const _handleAnswer = useCallback(
+    (problemId: string, isCorrect: boolean, timeSpentOnProblem: number) => {
+      // Debounce 1.5s to avoid rapid-fire saves
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => {
+        const fd = new FormData();
+        if (sessionIdRef.current) fd.set('sessionId', sessionIdRef.current);
+        fd.set('problemId', problemId);
+        fd.set('answer', isCorrect ? 'correct' : 'incorrect');
+        fd.set('correct', isCorrect.toString());
+        fd.set('timeSpent', timeSpentOnProblem.toString());
+        if (config.topic !== 'all') fd.set('topic', config.topic);
+        if (config.difficulty !== 'all') fd.set('difficulty', config.difficulty.toString());
+        fd.set('questionCount', config.questionCount.toString());
+        if (config.timeLimit > 0) fd.set('timeLimit', config.timeLimit.toString());
+        fd.set('adaptive', config.adaptiveDifficulty.toString());
+        saveAttemptAction(fd);
+      }, 1500);
     },
-    []
+    [config, saveAttemptAction],
+  );
+
+  // Capture sessionId from first attempt response
+  useEffect(() => {
+    if (_attemptState.success && _attemptState.data?.sessionId) {
+      sessionIdRef.current = _attemptState.data.sessionId;
+    }
+  }, [_attemptState]);
+
+  const handleComplete = useCallback(
+    (metrics: PracticeMetrics) => {
+      if (!sessionIdRef.current) return;
+      const fd = new FormData();
+      fd.set('sessionId', sessionIdRef.current);
+      fd.set('score', (metrics.score / 100).toString());
+      fd.set('accuracy', (metrics.accuracy / 100).toString());
+      fd.set('bestStreak', metrics.bestStreak.toString());
+      fd.set('totalTime', metrics.timePerProblem.reduce((a, b) => a + b, 0).toString());
+      fd.set('pointsEarned', metrics.score.toString());
+      completeSessionAction(fd);
+    },
+    [completeSessionAction],
   );
 
   // ── Empty state (no matching problems) ─────────────────────────────────────
