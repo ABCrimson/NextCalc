@@ -74,6 +74,22 @@
     "./calculus": {
       "types": "./dist/calculus/index.d.ts",
       "import": "./dist/calculus/index.js"
+    },
+    "./chaos/chaos-theory": {
+      "types": "./dist/chaos/chaos-theory.d.ts",
+      "import": "./dist/chaos/chaos-theory.js"
+    },
+    "./fourier": {
+      "types": "./dist/fourier/index.d.ts",
+      "import": "./dist/fourier/index.js"
+    },
+    "./game-theory/game-theory": {
+      "types": "./dist/game-theory/game-theory.d.ts",
+      "import": "./dist/game-theory/game-theory.js"
+    },
+    "./graph-theory": {
+      "types": "./dist/graph-theory/index.d.ts",
+      "import": "./dist/graph-theory/index.js"
     }
   },
   "scripts": {

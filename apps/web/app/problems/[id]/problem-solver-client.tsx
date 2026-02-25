@@ -17,6 +17,9 @@ const initialHintState: ActionResult<RequestHintResult> = { success: false };
 export function ProblemSolverClient({ problem, relatedProblemIds }: ProblemSolverClientProps) {
   const [answerState, submitAnswerAction, answerPending] = useActionState(submitAnswer, initialAnswerState);
   const [hintState, requestHintAction, hintPending] = useActionState(requestHint, initialHintState);
+  void answerPending; // Available for loading UI in future enhancement
+  void hintPending;
+  void hintState;
 
   const [revealedHints, setRevealedHints] = useState<number[]>([]);
   const [timeSpent, setTimeSpent] = useState(0);

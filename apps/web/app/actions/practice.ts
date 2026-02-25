@@ -35,8 +35,8 @@ export async function savePracticeAttempt(
     // Boolean and optional fields need manual coercion from FormData strings
     const parsed = PracticeAttemptSchema.parse({
       ...raw,
-      correct: raw.correct === 'true',
-      ...(raw.adaptive !== undefined ? { adaptive: raw.adaptive === 'true' } : {}),
+      correct: raw['correct'] === 'true',
+      ...(raw['adaptive'] !== undefined ? { adaptive: raw['adaptive'] === 'true' } : {}),
     });
 
     const session = await auth();

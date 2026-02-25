@@ -300,10 +300,11 @@ export default function PracticePage() {
     savePracticeAttempt,
     { success: false },
   );
-  const [_sessionResult, completeSessionAction] = useActionState<ActionResult<PracticeSessionResult>, FormData>(
+  const [sessionResult, completeSessionAction] = useActionState<ActionResult<PracticeSessionResult>, FormData>(
     completePracticeSession,
     { success: false },
   );
+  void sessionResult; // Available for displaying completion feedback
   const sessionIdRef = useRef<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -339,7 +340,8 @@ export default function PracticePage() {
   }, [loadProblems]);
 
   // Ready to wire to PracticeMode once it exposes an onAnswer prop
-  const _handleAnswer = useCallback(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- prepared for PracticeMode onAnswer callback
+  const handleAnswer = useCallback(
     (problemId: string, isCorrect: boolean, timeSpentOnProblem: number) => {
       // Debounce 1.5s to avoid rapid-fire saves
       if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -360,6 +362,7 @@ export default function PracticePage() {
     },
     [config, saveAttemptAction],
   );
+  void handleAnswer;
 
   // Capture sessionId from first attempt response
   useEffect(() => {
