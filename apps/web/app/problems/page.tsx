@@ -1,9 +1,11 @@
 'use client';
 
 import { ProblemBrowser } from '@/components/problems/problem-browser';
-import { useMemo } from 'react';
+import { useActionState, useMemo } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import type { Problem } from '@/types/problems';
+import { toggleFavorite } from '@/app/actions/problems';
+import type { ActionResult, ToggleFavoriteResult } from '@/app/actions/problems';
 
 /**
  * Mock problem data - In production, fetch from API
@@ -116,6 +118,11 @@ const QUICK_STATS = [
  * - Landmark regions are properly labelled.
  */
 export default function ProblemsPage() {
+  const [_favoriteState, toggleFavoriteAction] = useActionState<ActionResult<ToggleFavoriteResult>, FormData>(
+    toggleFavorite,
+    { success: false },
+  );
+
   const problems = useMemo(() => mockProblems, []);
   const prefersReducedMotion = useReducedMotion();
 
@@ -330,8 +337,10 @@ export default function ProblemsPage() {
               onProblemSelect={(problem) => {
                 window.location.href = `/problems/${problem.id}`;
               }}
-              onToggleFavorite={(_problemId) => {
-                // TODO: integrate bookmark toggle with auth/database
+              onToggleFavorite={(problemId) => {
+                const fd = new FormData();
+                fd.set('problemId', problemId);
+                toggleFavoriteAction(fd);
               }}
               showFavorites
             />
