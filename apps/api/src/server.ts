@@ -23,6 +23,7 @@ import type { GraphQLFormattedError } from 'graphql';
 import { typeDefs } from './graphql/schema';
 import { resolvers } from './graphql/resolvers';
 import type { GraphQLContext } from './lib/context';
+import { createDataLoaders } from './lib/dataloaders';
 import {
 	performanceMonitoringPlugin,
 	responseCachingPlugin,
@@ -142,3 +143,7 @@ if (process.env.NODE_ENV === 'production') {
 	process.on('SIGTERM', shutdown);
 	process.on('SIGINT', shutdown);
 }
+
+/** Re-exports for SSE/subscription consumers */
+export { createDataLoaders };
+export type { GraphQLContext };
