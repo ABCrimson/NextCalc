@@ -13,7 +13,13 @@ export const metadata: Metadata = {
     'Jupyter-like mathematical notebook with math cells, markdown notes, and inline 2D plots. Variables persist across cells.',
 };
 
-export default function WorksheetPage() {
+export default async function WorksheetPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ id?: string }>;
+}) {
+  const { id: worksheetId } = await searchParams;
+
   return (
     <main
       className="min-h-screen relative"
@@ -42,7 +48,7 @@ export default function WorksheetPage() {
       />
       <div className="fixed inset-0 -z-10 noise pointer-events-none" aria-hidden="true" />
 
-      <WorksheetClientWrapper />
+      <WorksheetClientWrapper {...(worksheetId ? { worksheetId } : {})} />
     </main>
   );
 }
