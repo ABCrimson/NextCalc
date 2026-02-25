@@ -53,6 +53,7 @@
   "nav.algorithmsMenu": "Algorithms menu",
   "nav.home": "NextCalc Pro - Home",
 
+  "common.language": "Language",
   "common.loading": "Loading...",
   "common.loadingApp": "Loading NextCalc Pro",
   "common.initializing": "Initializing calculator engine...",

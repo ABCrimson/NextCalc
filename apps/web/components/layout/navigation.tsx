@@ -1,8 +1,8 @@
 'use client';
 
 import { type ComponentType } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useTranslations, useLocale } from 'next-intl';
+import { Link, useRouter, usePathname } from '@/i18n/navigation';
 import {
 	Calculator,
 	TrendingUp,
@@ -27,6 +27,8 @@ import {
 	BookOpen,
 	MessageSquare,
 	Box,
+	Globe,
+	Check,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -43,128 +45,138 @@ import { useSession, signIn, signOut } from '@/lib/auth/hooks';
 
 interface NavLink {
 	href: string;
-	label: string;
+	labelKey: string;
+	descKey: string;
 	icon: ComponentType<{ className?: string }>;
-	description: string;
 }
+
+type LocaleCode = 'en' | 'ru' | 'es' | 'uk' | 'de';
+
+const LOCALE_NAMES: Record<LocaleCode, string> = {
+	en: 'English',
+	ru: 'Русский',
+	es: 'Español',
+	uk: 'Українська',
+	de: 'Deutsch',
+} as const;
 
 const coreNavigationLinks: NavLink[] = [
 	{
 		href: '/',
-		label: 'Calculator',
+		labelKey: 'nav.calculator',
+		descKey: 'nav.calculator.description',
 		icon: Calculator,
-		description: 'Scientific calculator with history',
 	},
 	{
 		href: '/plot',
-		label: 'Plot',
+		labelKey: 'nav.plot',
+		descKey: 'nav.plot.description',
 		icon: TrendingUp,
-		description: '2D and 3D function plotting',
 	},
 	{
 		href: '/symbolic',
-		label: 'Symbolic',
+		labelKey: 'nav.symbolic',
+		descKey: 'nav.symbolic.description',
 		icon: Variable,
-		description: 'Differentiation and integration',
 	},
 	{
 		href: '/matrix',
-		label: 'Matrix',
+		labelKey: 'nav.matrix',
+		descKey: 'nav.matrix.description',
 		icon: Grid3x3,
-		description: 'Linear algebra operations',
 	},
 	{
 		href: '/solver',
-		label: 'Solver',
+		labelKey: 'nav.solver',
+		descKey: 'nav.solver.description',
 		icon: Square,
-		description: 'Equation solving',
 	},
 	{
 		href: '/units',
-		label: 'Units',
+		labelKey: 'nav.units',
+		descKey: 'nav.units.description',
 		icon: Ruler,
-		description: 'Unit conversion',
 	},
 	{
 		href: '/stats',
-		label: 'Stats',
+		labelKey: 'nav.stats',
+		descKey: 'nav.stats.description',
 		icon: BarChart2,
-		description: 'Descriptive statistics and regression',
 	},
 	{
 		href: '/complex',
-		label: 'Complex',
+		labelKey: 'nav.complex',
+		descKey: 'nav.complex.description',
 		icon: Infinity,
-		description: 'Complex number arithmetic and visualization',
 	},
 	{
 		href: '/worksheet',
-		label: 'Worksheet',
+		labelKey: 'nav.worksheet',
+		descKey: 'nav.worksheet.description',
 		icon: BookOpen,
-		description: 'Jupyter-like math notebook with plots',
 	},
 	{
 		href: '/forum',
-		label: 'Forum',
+		labelKey: 'nav.forum',
+		descKey: 'nav.forum.description',
 		icon: MessageSquare,
-		description: 'Community discussions and Q&A',
 	},
 ];
 
 const algorithmLinks: NavLink[] = [
 	{
 		href: '/algorithms',
-		label: 'Overview',
+		labelKey: 'nav.algorithms',
+		descKey: 'nav.algorithms.description',
 		icon: Sparkles,
-		description: 'Algorithm hub and categories',
 	},
 	{
 		href: '/fourier',
-		label: 'Fourier',
+		labelKey: 'nav.fourier',
+		descKey: 'nav.fourier.description',
 		icon: Activity,
-		description: 'FFT and frequency analysis',
 	},
 	{
 		href: '/game-theory',
-		label: 'Game Theory',
+		labelKey: 'nav.gameTheory',
+		descKey: 'nav.gameTheory.description',
 		icon: Trophy,
-		description: 'Nash equilibrium',
 	},
 	{
 		href: '/chaos',
-		label: 'Chaos',
+		labelKey: 'nav.chaos',
+		descKey: 'nav.chaos.description',
 		icon: Wind,
-		description: 'Lorenz attractors',
 	},
 	{
 		href: '/pde',
-		label: 'PDE',
+		labelKey: 'nav.pde',
+		descKey: 'nav.pde.description',
 		icon: Flame,
-		description: 'Partial differential equations',
 	},
 	{
 		href: '/pde/3d',
-		label: 'PDE 3D',
+		labelKey: 'nav.pde3d',
+		descKey: 'nav.pde3d.description',
 		icon: Box,
-		description: '3D PDE solver with isosurface visualization',
 	},
 	{
 		href: '/solver/ode',
-		label: 'ODE',
+		labelKey: 'nav.ode',
+		descKey: 'nav.ode.description',
 		icon: Activity,
-		description: 'ODE solver with phase plane',
 	},
 	{
 		href: '/graphs-full',
-		label: 'Graphs',
+		labelKey: 'nav.graphs',
+		descKey: 'nav.graphs.description',
 		icon: Network,
-		description: 'Graph algorithms',
 	},
 	{
 		href: '/ml-algorithms',
-		label: 'ML',
+		labelKey: 'nav.ml',
+		descKey: 'nav.ml.description',
 		icon: Brain,
-		description: 'Machine learning',
 	},
 ];
 
@@ -214,7 +226,55 @@ function UserAvatar({
 	);
 }
 
+function LanguageSwitcher() {
+	const t = useTranslations();
+	const locale = useLocale() as LocaleCode;
+	const router = useRouter();
+	const pathname = usePathname();
+
+	const locales = Object.keys(LOCALE_NAMES) as LocaleCode[];
+
+	const handleLocaleChange = (newLocale: LocaleCode) => {
+		router.replace(pathname, { locale: newLocale });
+	};
+
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger asChild>
+				<button
+					type="button"
+					className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+					aria-label={`Language: ${LOCALE_NAMES[locale]}`}
+				>
+					<Globe className="h-4 w-4 shrink-0" aria-hidden="true" />
+					<span className="hidden sm:inline font-medium">{LOCALE_NAMES[locale]}</span>
+				</button>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent
+				align="end"
+				className="w-44 glass-heavy border-border/50"
+			>
+				{locales.map((loc) => (
+					<DropdownMenuItem
+						key={loc}
+						onSelect={() => handleLocaleChange(loc)}
+						className="flex items-center justify-between gap-2 cursor-pointer"
+					>
+						<span className={cn('font-medium', loc === locale && 'text-primary')}>
+							{LOCALE_NAMES[loc]}
+						</span>
+						{loc === locale && (
+							<Check className="h-3.5 w-3.5 text-primary shrink-0" aria-hidden="true" />
+						)}
+					</DropdownMenuItem>
+				))}
+			</DropdownMenuContent>
+		</DropdownMenu>
+	);
+}
+
 export function Navigation() {
+	const t = useTranslations();
 	const pathname = usePathname();
 	const { session, status } = useSession();
 
@@ -230,7 +290,7 @@ export function Navigation() {
 	return (
 		<nav
 			className="sticky top-0 z-50 w-full glass-heavy shadow-sm"
-			aria-label="Main navigation"
+			aria-label={t('accessibility.mainNavigation' as Parameters<typeof t>[0])}
 		>
 			{/* Subtle gradient border at bottom */}
 			<div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
@@ -241,7 +301,7 @@ export function Navigation() {
 					<Link
 						href="/"
 						className="mr-6 flex items-center gap-2.5 transition-all duration-300 hover:opacity-80 group"
-						aria-label="NextCalc Pro - Home"
+						aria-label={t('nav.home' as Parameters<typeof t>[0])}
 					>
 						<div className="relative">
 							<Calculator
@@ -261,6 +321,8 @@ export function Navigation() {
 					{coreNavigationLinks.map((link) => {
 						const Icon = link.icon;
 						const isActive = isLinkActive(link.href);
+						const label = t(link.labelKey as Parameters<typeof t>[0]);
+						const description = t(link.descKey as Parameters<typeof t>[0]);
 
 						return (
 							<Link
@@ -272,7 +334,7 @@ export function Navigation() {
 										? 'text-primary-foreground bg-gradient-to-r from-primary to-primary/80 shadow-md shadow-primary/20'
 										: 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
 								)}
-								aria-label={`${link.label} - ${link.description}`}
+								aria-label={`${label} - ${description}`}
 								aria-current={isActive ? 'page' : undefined}
 							>
 								<Icon
@@ -282,7 +344,7 @@ export function Navigation() {
 									)}
 									aria-hidden="true"
 								/>
-								{link.label}
+								{label}
 							</Link>
 						);
 					})}
@@ -299,7 +361,7 @@ export function Navigation() {
 										? 'text-primary-foreground bg-gradient-to-r from-calculator-special to-primary shadow-md shadow-primary/20'
 										: 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
 								)}
-								aria-label="Algorithms menu"
+								aria-label={t('nav.algorithmsMenu' as Parameters<typeof t>[0])}
 							>
 								<Sparkles
 									className={cn(
@@ -309,7 +371,7 @@ export function Navigation() {
 									)}
 									aria-hidden="true"
 								/>
-								Algorithms
+								{t('nav.algorithms' as Parameters<typeof t>[0])}
 							</button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent
@@ -326,9 +388,9 @@ export function Navigation() {
 								>
 									<Sparkles className="h-4 w-4" aria-hidden="true" />
 									<div className="flex flex-col">
-										<span className="font-medium">All Algorithms</span>
+										<span className="font-medium">{t('nav.algorithms.all' as Parameters<typeof t>[0])}</span>
 										<span className="text-xs text-muted-foreground">
-											Browse all visualizations
+											{t('nav.algorithms.browse' as Parameters<typeof t>[0])}
 										</span>
 									</div>
 								</Link>
@@ -337,6 +399,8 @@ export function Navigation() {
 							{algorithmLinks.filter(l => l.href !== '/algorithms').map((link) => {
 								const Icon = link.icon;
 								const isActive = isLinkActive(link.href);
+								const label = t(link.labelKey as Parameters<typeof t>[0]);
+								const description = t(link.descKey as Parameters<typeof t>[0]);
 
 								return (
 									<DropdownMenuItem key={link.href} asChild>
@@ -350,9 +414,9 @@ export function Navigation() {
 										>
 											<Icon className="h-4 w-4" aria-hidden="true" />
 											<div className="flex flex-col">
-												<span className="font-medium">{link.label}</span>
+												<span className="font-medium">{label}</span>
 												<span className="text-xs text-muted-foreground">
-													{link.description}
+													{description}
 												</span>
 											</div>
 										</Link>
@@ -370,7 +434,7 @@ export function Navigation() {
 							<Button
 								variant="ghost"
 								size="icon"
-								aria-label="Open navigation menu"
+								aria-label={t('nav.openMenu' as Parameters<typeof t>[0])}
 							>
 								<Menu className="h-5 w-5" aria-hidden="true" />
 							</Button>
@@ -382,6 +446,8 @@ export function Navigation() {
 							{coreNavigationLinks.map((link) => {
 								const Icon = link.icon;
 								const isActive = isLinkActive(link.href);
+								const label = t(link.labelKey as Parameters<typeof t>[0]);
+								const description = t(link.descKey as Parameters<typeof t>[0]);
 
 								return (
 									<DropdownMenuItem key={link.href} asChild>
@@ -395,9 +461,9 @@ export function Navigation() {
 										>
 											<Icon className="h-4 w-4" aria-hidden="true" />
 											<div className="flex flex-col">
-												<span className="font-medium">{link.label}</span>
+												<span className="font-medium">{label}</span>
 												<span className="text-xs text-muted-foreground">
-													{link.description}
+													{description}
 												</span>
 											</div>
 										</Link>
@@ -411,6 +477,8 @@ export function Navigation() {
 							{algorithmLinks.map((link) => {
 								const Icon = link.icon;
 								const isActive = isLinkActive(link.href);
+								const label = t(link.labelKey as Parameters<typeof t>[0]);
+								const description = t(link.descKey as Parameters<typeof t>[0]);
 
 								return (
 									<DropdownMenuItem key={link.href} asChild>
@@ -424,9 +492,9 @@ export function Navigation() {
 										>
 											<Icon className="h-4 w-4" aria-hidden="true" />
 											<div className="flex flex-col">
-												<span className="font-medium">{link.label}</span>
+												<span className="font-medium">{label}</span>
 												<span className="text-xs text-muted-foreground">
-													{link.description}
+													{description}
 												</span>
 											</div>
 										</Link>
@@ -447,9 +515,9 @@ export function Navigation() {
 								>
 									<Settings className="h-4 w-4" aria-hidden="true" />
 									<div className="flex flex-col">
-										<span className="font-medium">Settings</span>
+										<span className="font-medium">{t('nav.settings' as Parameters<typeof t>[0])}</span>
 										<span className="text-xs text-muted-foreground">
-											Profile, appearance, defaults
+											{t('nav.settings.description' as Parameters<typeof t>[0])}
 										</span>
 									</div>
 								</Link>
@@ -461,8 +529,9 @@ export function Navigation() {
 				{/* Command palette — trigger button (desktop) + global Ctrl+K dialog */}
 				<CommandPalette className="mx-3 shrink-0" />
 
-				{/* Right side: Theme toggle + Auth */}
+				{/* Right side: Language switcher + Theme toggle + Auth */}
 				<div className="flex items-center gap-2 ml-auto shrink-0">
+					<LanguageSwitcher />
 					<ThemeToggle />
 
 					{/* Auth state */}
@@ -474,7 +543,7 @@ export function Navigation() {
 								<button
 									type="button"
 									className="rounded-full transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-									aria-label="User menu"
+									aria-label={t('nav.userMenu' as Parameters<typeof t>[0])}
 								>
 									<UserAvatar
 										{...(session.user.name ? { name: session.user.name } : {})}
@@ -499,7 +568,7 @@ export function Navigation() {
 										className="flex items-center gap-2"
 									>
 										<User className="h-4 w-4" aria-hidden="true" />
-										Profile
+										{t('nav.profile' as Parameters<typeof t>[0])}
 									</Link>
 								</DropdownMenuItem>
 								<DropdownMenuItem asChild>
@@ -508,7 +577,7 @@ export function Navigation() {
 										className="flex items-center gap-2"
 									>
 										<Settings className="h-4 w-4" aria-hidden="true" />
-										Settings
+										{t('nav.settings' as Parameters<typeof t>[0])}
 									</Link>
 								</DropdownMenuItem>
 								<DropdownMenuSeparator />
@@ -519,7 +588,7 @@ export function Navigation() {
 										onClick={() => signOut('/')}
 									>
 										<LogOut className="h-4 w-4" aria-hidden="true" />
-										Sign out
+										{t('nav.signOut' as Parameters<typeof t>[0])}
 									</button>
 								</DropdownMenuItem>
 							</DropdownMenuContent>
@@ -530,7 +599,7 @@ export function Navigation() {
 								variant="ghost"
 								size="icon"
 								asChild
-								aria-label="Settings"
+								aria-label={t('nav.settings' as Parameters<typeof t>[0])}
 								className="text-muted-foreground hover:text-foreground"
 							>
 								<Link href="/settings">
@@ -544,7 +613,7 @@ export function Navigation() {
 								onClick={() => signIn()}
 							>
 								<LogIn className="h-4 w-4" aria-hidden="true" />
-								<span className="hidden sm:inline">Sign in</span>
+								<span className="hidden sm:inline">{t('nav.signIn' as Parameters<typeof t>[0])}</span>
 							</Button>
 						</div>
 					)}

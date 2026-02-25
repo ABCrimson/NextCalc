@@ -2,7 +2,8 @@
 
 import { Suspense, type CSSProperties } from 'react';
 import dynamic from 'next/dynamic';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { motion } from 'framer-motion';
 import { InstallPWA } from '@/components/install-pwa';
 import { TrendingUp, Variable, Grid3x3, Square, Ruler, Sparkles, Infinity } from 'lucide-react';
@@ -25,12 +26,22 @@ const Calculator = dynamic(() => import('@/components/calculator/calculator').th
   ),
 });
 
-const featureCards = [
+type FeatureCard = {
+  href: string;
+  icon: typeof TrendingUp;
+  titleKey: string;
+  subtitleKey: string;
+  accentClass: string;
+  iconBg: string;
+  glowColor: string;
+};
+
+const featureCards: FeatureCard[] = [
   {
     href: '/plot',
     icon: TrendingUp,
-    title: 'Plot Functions',
-    subtitle: '2D & 3D Graphing',
+    titleKey: 'home.feature.plotFunctions',
+    subtitleKey: 'home.feature.plotFunctions.subtitle',
     accentClass: 'text-blue-300',
     iconBg: 'bg-blue-500/20 group-hover:bg-blue-500/30',
     glowColor: 'rgba(59,130,246,0.35)',
@@ -38,8 +49,8 @@ const featureCards = [
   {
     href: '/symbolic',
     icon: Variable,
-    title: 'Symbolic Math',
-    subtitle: 'Differentiation & Integration',
+    titleKey: 'home.feature.symbolicMath',
+    subtitleKey: 'home.feature.symbolicMath.subtitle',
     accentClass: 'text-purple-300',
     iconBg: 'bg-purple-500/20 group-hover:bg-purple-500/30',
     glowColor: 'rgba(168,85,247,0.35)',
@@ -47,8 +58,8 @@ const featureCards = [
   {
     href: '/matrix',
     icon: Grid3x3,
-    title: 'Matrix Operations',
-    subtitle: 'Linear Algebra',
+    titleKey: 'home.feature.matrixOps',
+    subtitleKey: 'home.feature.matrixOps.subtitle',
     accentClass: 'text-emerald-300',
     iconBg: 'bg-emerald-500/20 group-hover:bg-emerald-500/30',
     glowColor: 'rgba(16,185,129,0.35)',
@@ -56,8 +67,8 @@ const featureCards = [
   {
     href: '/solver',
     icon: Square,
-    title: 'Equation Solver',
-    subtitle: 'Linear, Quadratic & More',
+    titleKey: 'home.feature.equationSolver',
+    subtitleKey: 'home.feature.equationSolver.subtitle',
     accentClass: 'text-rose-300',
     iconBg: 'bg-rose-500/20 group-hover:bg-rose-500/30',
     glowColor: 'rgba(244,63,94,0.35)',
@@ -65,8 +76,8 @@ const featureCards = [
   {
     href: '/units',
     icon: Ruler,
-    title: 'Unit Converter',
-    subtitle: 'Length, Mass, Time & More',
+    titleKey: 'home.feature.unitConverter',
+    subtitleKey: 'home.feature.unitConverter.subtitle',
     accentClass: 'text-amber-300',
     iconBg: 'bg-amber-500/20 group-hover:bg-amber-500/30',
     glowColor: 'rgba(245,158,11,0.35)',
@@ -74,8 +85,8 @@ const featureCards = [
   {
     href: '/algorithms',
     icon: Sparkles,
-    title: 'Algorithms',
-    subtitle: 'Visualizations & Simulations',
+    titleKey: 'home.feature.algorithms',
+    subtitleKey: 'home.feature.algorithms.subtitle',
     accentClass: 'text-cyan-300',
     iconBg: 'bg-cyan-500/20 group-hover:bg-cyan-500/30',
     glowColor: 'rgba(6,182,212,0.35)',
@@ -83,13 +94,13 @@ const featureCards = [
   {
     href: '/complex',
     icon: Infinity,
-    title: 'Complex Numbers',
-    subtitle: 'Argand Diagram & Forms',
+    titleKey: 'home.feature.complexNumbers',
+    subtitleKey: 'home.feature.complexNumbers.subtitle',
     accentClass: 'text-violet-300',
     iconBg: 'bg-violet-500/20 group-hover:bg-violet-500/30',
     glowColor: 'rgba(139,92,246,0.35)',
   },
-] as const;
+];
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -130,6 +141,8 @@ const badgeVariants = {
 };
 
 export default function Home() {
+  const t = useTranslations();
+
   return (
     <main className="min-h-screen py-12 px-4 relative overflow-hidden">
       {/* Mesh gradient background with animated layers */}
@@ -156,14 +169,19 @@ export default function Home() {
         >
           <div className="inline-block mb-4 relative">
             <h1 className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-primary via-calculator-operator to-calculator-equals bg-clip-text text-transparent animate-gradient bg-[length:200%_auto] drop-shadow-[0_0_30px_rgba(59,130,246,0.3)]">
-              NextCalc Pro
+              {t('home.hero.title' as Parameters<typeof t>[0])}
             </h1>
             <div className="h-1.5 w-full bg-gradient-to-r from-primary via-calculator-operator to-calculator-equals rounded-full mt-3 shadow-lg shadow-primary/50 animate-pulse" />
           </div>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Modern scientific calculator powered by{' '}
-            <span className="font-semibold text-foreground">React 19.3.0</span> +{' '}
-            <span className="font-semibold text-foreground">Next.js 16.2.0</span>
+            {t.rich('home.hero.subtitle' as Parameters<typeof t>[0], {
+              react: (chunks) => (
+                <span className="font-semibold text-foreground">React 19.3.0</span>
+              ),
+              nextjs: (chunks) => (
+                <span className="font-semibold text-foreground">Next.js 16.2.0</span>
+              ),
+            })}
           </p>
 
           {/* Tech Badges with staggered entrance and shimmer */}
@@ -179,7 +197,7 @@ export default function Home() {
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
               <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-              <span className="relative z-10">Live</span>
+              <span className="relative z-10">{t('common.live' as Parameters<typeof t>[0])}</span>
             </motion.div>
             <motion.div
               variants={badgeVariants}
@@ -229,9 +247,11 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <h2 className="text-2xl font-semibold mb-2">Explore Advanced Features</h2>
+            <h2 className="text-2xl font-semibold mb-2">
+              {t('home.explore.title' as Parameters<typeof t>[0])}
+            </h2>
             <p className="text-muted-foreground">
-              Beyond basic calculations - visualize, analyze, solve, and convert
+              {t('home.explore.subtitle' as Parameters<typeof t>[0])}
             </p>
           </motion.div>
 
@@ -286,9 +306,11 @@ export default function Home() {
                       </div>
                       <div className="flex flex-col items-start">
                         <span className={`font-semibold ${card.accentClass} group-hover:brightness-125 transition-all duration-300`}>
-                          {card.title}
+                          {t(card.titleKey as Parameters<typeof t>[0])}
                         </span>
-                        <span className="text-xs text-muted-foreground mt-0.5">{card.subtitle}</span>
+                        <span className="text-xs text-muted-foreground mt-0.5">
+                          {t(card.subtitleKey as Parameters<typeof t>[0])}
+                        </span>
                       </div>
                     </div>
                   </Link>
@@ -302,7 +324,7 @@ export default function Home() {
         <footer className="mt-16">
           <div className="h-px w-full bg-gradient-to-r from-transparent via-primary/40 to-transparent mb-6" />
           <p className="text-center text-sm text-muted-foreground">
-            Built with cutting-edge web technologies
+            {t('app.footer' as Parameters<typeof t>[0])}
           </p>
         </footer>
       </div>

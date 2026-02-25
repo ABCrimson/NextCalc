@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -13,6 +14,8 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useTranslations();
+
   useEffect(() => {
     // Log to console in development
     if (process.env.NODE_ENV === 'development') {
@@ -64,10 +67,10 @@ export default function Error({
             {/* Error Message */}
             <div>
               <h2 className="text-2xl font-bold text-foreground mb-2">
-                Something went wrong
+                {t('error.title' as Parameters<typeof t>[0])}
               </h2>
               <p className="text-muted-foreground">
-                An unexpected error occurred. Please try again.
+                {t('error.description' as Parameters<typeof t>[0])}
               </p>
             </div>
 
@@ -80,7 +83,7 @@ export default function Error({
                 {error.stack && (
                   <details className="mt-2">
                     <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground/80">
-                      View stack trace
+                      {t('error.viewStackTrace' as Parameters<typeof t>[0])}
                     </summary>
                     <pre className="text-xs text-muted-foreground/70 mt-2 overflow-x-auto max-h-32 overflow-y-auto">
                       {error.stack}
@@ -89,7 +92,7 @@ export default function Error({
                 )}
                 {error.digest && (
                   <p className="text-xs text-muted-foreground/70 mt-2">
-                    Error ID: {error.digest}
+                    {t('error.errorId' as Parameters<typeof t>[0], { id: error.digest })}
                   </p>
                 )}
               </Card>
@@ -101,14 +104,14 @@ export default function Error({
                 onClick={reset}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
               >
-                Try again
+                {t('error.tryAgain' as Parameters<typeof t>[0])}
               </Button>
               <Button
                 variant="outline"
                 onClick={() => (window.location.href = '/')}
                 className="border-border text-foreground/80 hover:bg-muted/50"
               >
-                Go home
+                {t('error.goHome' as Parameters<typeof t>[0])}
               </Button>
             </div>
           </div>

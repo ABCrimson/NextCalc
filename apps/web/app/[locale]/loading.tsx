@@ -1,8 +1,11 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 
 export default function Loading() {
+  const t = useTranslations();
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-background/95 to-background">
       <motion.div
@@ -29,7 +32,7 @@ export default function Loading() {
         {/* Loading Text */}
         <div>
           <h2 className="text-xl font-semibold text-foreground mb-2">
-            Loading NextCalc Pro
+            {t('common.loadingApp' as Parameters<typeof t>[0])}
           </h2>
           <motion.p
             animate={{ opacity: [0.5, 1, 0.5] }}
@@ -40,7 +43,7 @@ export default function Loading() {
             }}
             className="text-muted-foreground"
           >
-            Initializing calculator engine...
+            {t('common.initializing' as Parameters<typeof t>[0])}
           </motion.p>
         </div>
 

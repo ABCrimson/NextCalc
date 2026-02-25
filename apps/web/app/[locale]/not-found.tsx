@@ -15,12 +15,15 @@
  * @see https://nextjs.org/docs/app/api-reference/file-conventions/not-found
  */
 
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Home, Calculator, TrendingUp, Variable } from 'lucide-react';
 
 export default function NotFound() {
+  const t = useTranslations();
+
   return (
     <div className="flex min-h-screen items-center justify-center p-4 bg-gradient-to-br from-background via-background/95 to-background relative overflow-hidden">
       {/* Animated background elements */}
@@ -34,7 +37,7 @@ export default function NotFound() {
           {/* Large 404 */}
           <div className="space-y-4">
             <h1 className="text-9xl font-bold bg-gradient-to-r from-primary via-calculator-operator to-calculator-equals bg-clip-text text-transparent">
-              404
+              {t('error.notFound.code' as Parameters<typeof t>[0])}
             </h1>
             <div className="h-1 w-32 mx-auto bg-gradient-to-r from-primary via-calculator-operator to-calculator-equals rounded-full" />
           </div>
@@ -42,17 +45,17 @@ export default function NotFound() {
           {/* Error Message */}
           <div className="space-y-2">
             <h2 className="text-3xl font-bold text-foreground">
-              Page Not Found
+              {t('error.notFound.title' as Parameters<typeof t>[0])}
             </h2>
             <p className="text-muted-foreground text-lg">
-              The page you're looking for doesn't exist or has been moved.
+              {t('error.notFound.description' as Parameters<typeof t>[0])}
             </p>
           </div>
 
           {/* Suggested Actions */}
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground/70 font-medium">
-              Here are some helpful links:
+              {t('error.notFound.helpfulLinks' as Parameters<typeof t>[0])}
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -63,7 +66,7 @@ export default function NotFound() {
                   size="lg"
                 >
                   <Home className="h-5 w-5 mr-2" />
-                  <span>Home</span>
+                  <span>{t('error.notFound.home' as Parameters<typeof t>[0])}</span>
                 </Button>
               </Link>
 
@@ -74,7 +77,7 @@ export default function NotFound() {
                   size="lg"
                 >
                   <TrendingUp className="h-5 w-5 mr-2" />
-                  <span>Plot Functions</span>
+                  <span>{t('error.notFound.plotFunctions' as Parameters<typeof t>[0])}</span>
                 </Button>
               </Link>
 
@@ -85,7 +88,7 @@ export default function NotFound() {
                   size="lg"
                 >
                   <Variable className="h-5 w-5 mr-2" />
-                  <span>Symbolic Math</span>
+                  <span>{t('error.notFound.symbolicMath' as Parameters<typeof t>[0])}</span>
                 </Button>
               </Link>
 
@@ -96,7 +99,7 @@ export default function NotFound() {
                   size="lg"
                 >
                   <Calculator className="h-5 w-5 mr-2" />
-                  <span>Calculator</span>
+                  <span>{t('error.notFound.calculator' as Parameters<typeof t>[0])}</span>
                 </Button>
               </Link>
             </div>
@@ -109,7 +112,7 @@ export default function NotFound() {
               className="bg-gradient-to-r from-primary via-calculator-operator to-calculator-equals hover:opacity-90 transition-opacity"
               size="lg"
             >
-              Go Back
+              {t('error.notFound.goBack' as Parameters<typeof t>[0])}
             </Button>
           </div>
         </div>
