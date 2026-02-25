@@ -308,3 +308,84 @@ export const HEALTH_QUERY = gql`
     }
   }
 `;
+
+// ============================================================================
+// USER PROFILE & ANALYTICS QUERIES
+// ============================================================================
+
+/** Get a user's full profile dashboard data */
+export const USER_PROFILE_QUERY = gql`
+  query UserProfile($userId: ID!) {
+    userProfile(userId: $userId) {
+      user {
+        id
+        name
+        image
+        bio
+        createdAt
+      }
+      progress {
+        id
+        problemsSolved
+        totalPoints
+        streak
+        longestStreak
+        level
+        experience
+        lastActive
+      }
+      recentAchievements {
+        id
+        name
+        description
+        type
+        icon
+        points
+        badgeUrl
+        earnedAt
+      }
+      worksheetCount
+      forumPostCount
+      calculationCount
+    }
+  }
+`;
+
+/** Get a user's activity heatmap data */
+export const USER_ACTIVITY_QUERY = gql`
+  query UserActivity($userId: ID!, $days: Int) {
+    userActivity(userId: $userId, days: $days) {
+      date
+      count
+    }
+  }
+`;
+
+/** Get a user's detailed analytics */
+export const USER_ANALYTICS_QUERY = gql`
+  query UserAnalytics($userId: ID!) {
+    userAnalytics(userId: $userId) {
+      topicMastery {
+        topic
+        mastery
+        problemsSolved
+      }
+      accuracyTrend {
+        date
+        accuracy
+      }
+      practiceHistory {
+        id
+        topic
+        score
+        accuracy
+        totalTime
+        completedAt
+      }
+      streakHistory {
+        date
+        streak
+      }
+    }
+  }
+`;
