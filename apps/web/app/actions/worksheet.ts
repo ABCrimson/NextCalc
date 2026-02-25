@@ -42,7 +42,16 @@ export async function saveWorksheet(
       return { success: false, error: 'Sign in to save worksheets' };
     }
 
-    const cells = JSON.parse(data.cells);
+    let cells: unknown;
+    try {
+      cells = JSON.parse(data.cells);
+    } catch {
+      return { success: false, error: 'Invalid cells JSON' };
+    }
+
+    if (!Array.isArray(cells)) {
+      return { success: false, error: 'Cells must be an array' };
+    }
 
     // Create new worksheet
     if (!data.worksheetId) {
@@ -62,47 +71,49 @@ export async function saveWorksheet(
       };
     }
 
-    // Update existing worksheet
-    const existing = await prisma.worksheet.findUnique({
-      where: { id: data.worksheetId },
-      select: { userId: true, version: true, deletedAt: true },
-    });
-
-    if (!existing || existing.deletedAt) {
-      return { success: false, error: 'Worksheet not found' };
-    }
-
-    if (existing.userId !== session.user.id) {
-      return { success: false, error: 'Unauthorized' };
-    }
-
-    // Optimistic concurrency check
-    if (existing.version !== data.expectedVersion) {
-      return {
-        success: false,
-        error: 'Worksheet was modified elsewhere',
-        data: {
-          worksheetId: data.worksheetId,
-          version: existing.version,
-          conflict: true,
-          serverVersion: existing.version,
+    // Atomic update with ownership + version check in WHERE clause (prevents TOCTOU)
+    try {
+      const updated = await prisma.worksheet.update({
+        where: {
+          id: data.worksheetId,
+          userId: session.user.id,
+          version: data.expectedVersion,
+          deletedAt: null,
         },
+        data: {
+          title: data.title,
+          content: cells,
+          version: { increment: 1 },
+        },
+      });
+
+      return {
+        success: true,
+        data: { worksheetId: updated.id, version: updated.version },
       };
+    } catch (e) {
+      // Prisma P2025: record not found (version mismatch, deleted, or wrong owner)
+      if (typeof e === 'object' && e !== null && 'code' in e && (e as { code: string }).code === 'P2025') {
+        const current = await prisma.worksheet.findUnique({
+          where: { id: data.worksheetId },
+          select: { version: true },
+        });
+        if (current) {
+          return {
+            success: false,
+            error: 'Worksheet was modified elsewhere',
+            data: {
+              worksheetId: data.worksheetId,
+              version: current.version,
+              conflict: true,
+              serverVersion: current.version,
+            },
+          };
+        }
+        return { success: false, error: 'Worksheet not found' };
+      }
+      throw e;
     }
-
-    const updated = await prisma.worksheet.update({
-      where: { id: data.worksheetId },
-      data: {
-        title: data.title,
-        content: cells,
-        version: { increment: 1 },
-      },
-    });
-
-    return {
-      success: true,
-      data: { worksheetId: updated.id, version: updated.version },
-    };
   } catch (error) {
     console.error('saveWorksheet error:', error);
     return { success: false, error: 'Failed to save worksheet' };

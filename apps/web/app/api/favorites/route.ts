@@ -35,6 +35,7 @@ export async function GET(_request: NextRequest) {
       where: { userId: session.user.id },
       include: {
         favorites: {
+          where: { resourceType: 'PROBLEM' },
           include: {
             problem: {
               select: {

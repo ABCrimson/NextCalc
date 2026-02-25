@@ -400,6 +400,9 @@ export const useWorksheetStore = create<WorksheetStore>()(
         resetWorksheet: () => {
           set((draft) => {
             draft.worksheet = createWorksheet();
+            draft.worksheetId = null;
+            draft.version = 0;
+            draft.isDirty = false;
           });
         },
 

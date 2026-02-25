@@ -430,7 +430,8 @@ export const worksheetResolvers = {
      * Filters updates to only send events for the specific worksheet being watched
      */
     worksheetUpdated: {
-      subscribe: (_parent: unknown, _args: { worksheetId: string }) => {
+      subscribe: (_parent: unknown, _args: { worksheetId: string }, context: GraphQLContext) => {
+        requireAuth(context);
         return pubsub.asyncIterableIterator([SUBSCRIPTION_EVENTS.WORKSHEET_UPDATED]);
       },
       resolve: (

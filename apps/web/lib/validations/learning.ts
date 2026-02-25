@@ -64,7 +64,7 @@ export const FavoriteToggleSchema = z.object({
 });
 
 export const BookmarkToggleSchema = z.object({
-  definitionId: z.string().min(1),
+  definitionId: z.string().min(1).max(255),
 });
 
 // ============================================================================
