@@ -81,7 +81,7 @@ export default auth((req) => {
   securityHeaders.set('permissions-policy', 'camera=(), microphone=(), geolocation=()');
 
   // Protected routes that require authentication
-  const protectedRoutes = ['/dashboard', '/worksheets', '/settings', '/forum/new'];
+  const protectedRoutes = ['/dashboard', '/worksheets', '/settings', '/forum/new', '/profile'];
 
   // Check if current path is protected
   const isProtectedRoute = protectedRoutes.some((route) =>
