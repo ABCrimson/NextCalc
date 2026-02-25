@@ -77,6 +77,8 @@ export default auth((req) => {
 
   // Generate security headers for this request
   const securityHeaders = nosecone(noseconeConfig);
+  // Nosecone 1.1.0 doesn't support Permissions-Policy natively — add it manually
+  securityHeaders.set('permissions-policy', 'camera=(), microphone=(), geolocation=()');
 
   // Protected routes that require authentication
   const protectedRoutes = ['/dashboard', '/worksheets', '/settings', '/forum/new'];
