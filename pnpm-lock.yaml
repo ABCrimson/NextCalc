@@ -187,6 +187,9 @@ importers:
       '@nextcalc/plot-engine':
         specifier: workspace:*
         version: link:../../packages/plot-engine
+      '@nosecone/next':
+        specifier: 1.1.0
+        version: 1.1.0(next@16.2.0-canary.56(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.0-alpha-2026-02-19)(react-dom@19.3.0-canary-ab18f33d-20260220(react@19.3.0-canary-ab18f33d-20260220))(react@19.3.0-canary-ab18f33d-20260220))
       '@serwist/next':
         specifier: 9.5.6
         version: 9.5.6(next@16.2.0-canary.56(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.0-alpha-2026-02-19)(react-dom@19.3.0-canary-ab18f33d-20260220(react@19.3.0-canary-ab18f33d-20260220))(react@19.3.0-canary-ab18f33d-20260220))(react@19.3.0-canary-ab18f33d-20260220)(typescript@6.0.0-dev.20260223)
@@ -229,6 +232,9 @@ importers:
       next-intl:
         specifier: 4.8.3
         version: 4.8.3(next@16.2.0-canary.56(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.0-alpha-2026-02-19)(react-dom@19.3.0-canary-ab18f33d-20260220(react@19.3.0-canary-ab18f33d-20260220))(react@19.3.0-canary-ab18f33d-20260220))(react@19.3.0-canary-ab18f33d-20260220)(typescript@6.0.0-dev.20260223)
+      nosecone:
+        specifier: 1.1.0
+        version: 1.1.0
       radix-ui:
         specifier: 1.4.4-rc.1766004502650
         version: 1.4.4-rc.1766004502650(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.3.0-canary-ab18f33d-20260220(react@19.3.0-canary-ab18f33d-20260220))(react@19.3.0-canary-ab18f33d-20260220)
@@ -2313,6 +2319,12 @@ packages:
   '@nodelib/fs.walk@1.2.8':
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
+
+  '@nosecone/next@1.1.0':
+    resolution: {integrity: sha512-dc9gXjKnIQAssS2WA8GJSkVTCvCmyERP5qNaf0JHs+WOwzEp182jlyTcLPzmG/dgbyhdyW4htdmZJjDy53wfhA==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      next: '>=14'
 
   '@opentelemetry/api-logs@0.57.2':
     resolution: {integrity: sha512-uIX52NnTM0iBh84MShlpouI7UKqkZ7MrUszTmaypHBu4r7NofznSnQRfJ+uUeDtQDj6w8eFGg5KBLDAwAPz1+A==}
@@ -5960,6 +5972,10 @@ packages:
     resolution: {integrity: sha512-3pKJwH184Xo/lnH6oyP1q2pMd7HcypqqmRs91/6/i2CGtWwIKGCkOOMTm/zXbgTEWHw1uNpNi/igc3ePOYHb6w==}
     engines: {node: '>=0.10.0'}
 
+  nosecone@1.1.0:
+    resolution: {integrity: sha512-h5ohM73+elGG/I8KmkIiTUQ4IbIx0Q0k4ng67YJfWo6NfOVX1FMW2q2ipwmZEmB+B7K/ZuXdi5lAiaHXTJ2gHg==}
+    engines: {node: '>=20'}
+
   nullthrows@1.1.1:
     resolution: {integrity: sha512-2vPPEi+Z7WqML2jZYddDIfy5Dqb0r2fze2zTxNNknZaFpVHU3mFB3R+DWeJWGVx0ecvttSGlJTI+WG+8Z4cDWw==}
 
@@ -8905,6 +8921,11 @@ snapshots:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.1
+
+  '@nosecone/next@1.1.0(next@16.2.0-canary.56(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.0-alpha-2026-02-19)(react-dom@19.3.0-canary-ab18f33d-20260220(react@19.3.0-canary-ab18f33d-20260220))(react@19.3.0-canary-ab18f33d-20260220))':
+    dependencies:
+      next: 16.2.0-canary.56(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.0-alpha-2026-02-19)(react-dom@19.3.0-canary-ab18f33d-20260220(react@19.3.0-canary-ab18f33d-20260220))(react@19.3.0-canary-ab18f33d-20260220)
+      nosecone: 1.1.0
 
   '@opentelemetry/api-logs@0.57.2':
     dependencies:
@@ -12718,6 +12739,8 @@ snapshots:
   normalize-path@2.1.1:
     dependencies:
       remove-trailing-separator: 1.1.0
+
+  nosecone@1.1.0: {}
 
   nullthrows@1.1.1: {}
 
