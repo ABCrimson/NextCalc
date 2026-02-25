@@ -78,6 +78,105 @@ export const typeDefs = gql`
   }
 
   # ============================================================================
+  # PROFILE & ANALYTICS TYPES
+  # ============================================================================
+
+  """
+  Full user profile with aggregated stats
+  """
+  type UserProfile {
+    user: User!
+    progress: UserProgress
+    recentAchievements: [UserAchievement!]!
+    worksheetCount: Int!
+    forumPostCount: Int!
+    calculationCount: Int!
+  }
+
+  """
+  User learning progress and streak data
+  """
+  type UserProgress {
+    id: ID!
+    problemsSolved: Int!
+    totalPoints: Int!
+    streak: Int!
+    longestStreak: Int!
+    level: Int!
+    experience: Int!
+    lastActive: DateTime
+  }
+
+  """
+  Achievement earned by a user
+  """
+  type UserAchievement {
+    id: ID!
+    name: String!
+    description: String!
+    type: String!
+    icon: String!
+    points: Int!
+    badgeUrl: String
+    earnedAt: DateTime!
+  }
+
+  """
+  Single day of user activity (for heatmap)
+  """
+  type ActivityDay {
+    date: String!
+    count: Int!
+  }
+
+  """
+  Topic mastery entry for analytics
+  """
+  type TopicMasteryEntry {
+    topic: String!
+    mastery: Float!
+    problemsSolved: Int!
+  }
+
+  """
+  Accuracy data point over time
+  """
+  type AccuracyPoint {
+    date: String!
+    accuracy: Float!
+  }
+
+  """
+  Summary of a practice session
+  """
+  type PracticeSessionSummary {
+    id: ID!
+    topic: String!
+    score: Int!
+    accuracy: Float!
+    totalTime: Int!
+    completedAt: DateTime
+  }
+
+  """
+  Streak data point over time
+  """
+  type StreakPoint {
+    date: String!
+    streak: Int!
+  }
+
+  """
+  Aggregated user analytics data
+  """
+  type UserAnalytics {
+    topicMastery: [TopicMasteryEntry!]!
+    accuracyTrend: [AccuracyPoint!]!
+    practiceHistory: [PracticeSessionSummary!]!
+    streakHistory: [StreakPoint!]!
+  }
+
+  # ============================================================================
   # WORKSHEET TYPES
   # ============================================================================
 
@@ -528,6 +627,21 @@ export const typeDefs = gql`
       limit: Int = 50
       offset: Int = 0
     ): [CalculationHistory!]!
+
+    """
+    Get full user profile with stats
+    """
+    userProfile(userId: ID!): UserProfile
+
+    """
+    Get user activity data for heatmap
+    """
+    userActivity(userId: ID!, days: Int = 365): [ActivityDay!]!
+
+    """
+    Get user analytics (mastery, accuracy, practice history)
+    """
+    userAnalytics(userId: ID!): UserAnalytics
 
     """
     Health check endpoint
