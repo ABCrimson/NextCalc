@@ -3,6 +3,8 @@
  * Provides TypeScript bindings for the C++ WASM module
  */
 
+import { createMockWASM } from './mock';
+
 /**
  * WASM Module Interface
  */
@@ -289,4 +291,30 @@ export function getWASMManager(): MPFRWASMManager {
     wasmManager = new MPFRWASMManager();
   }
   return wasmManager;
+}
+
+/**
+ * Get high-precision arithmetic module, preferring WASM over mock.
+ *
+ * Resolution order:
+ * 1. Check WebAssembly runtime availability
+ * 2. Attempt to load the compiled MPFR WASM module
+ * 3. Fall back to JavaScript BigInt-based mock on failure
+ *
+ * @returns MPFRModule instance (real WASM or mock fallback)
+ */
+export async function getHighPrecision(): Promise<MPFRModule> {
+  if (typeof WebAssembly === 'undefined') {
+    console.debug('[WASM] WebAssembly not available, using mock fallback');
+    return createMockWASM() as unknown as MPFRModule;
+  }
+
+  try {
+    const manager = getWASMManager();
+    const module = await manager.initialize();
+    return module;
+  } catch (err) {
+    console.debug('[WASM] WASM load failed, using mock fallback:', err);
+    return createMockWASM() as unknown as MPFRModule;
+  }
 }

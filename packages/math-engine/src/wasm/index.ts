@@ -11,7 +11,7 @@
  */
 
 // Original WASM bindings
-export { getWASMManager, MPFRWASMManager, MPFRNumber, type MPFRModule } from './loader';
+export { getWASMManager, getHighPrecision, MPFRWASMManager, MPFRNumber, type MPFRModule } from './loader';
 
 // Enhanced wrapper with better API
 export {
