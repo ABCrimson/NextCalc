@@ -67,6 +67,25 @@ export const BookmarkToggleSchema = z.object({
   definitionId: z.string().min(1),
 });
 
+// ============================================================================
+// Worksheet Schemas
+// ============================================================================
+
+export const SaveWorksheetSchema = z.object({
+  worksheetId: z.string().optional(),
+  title: z.string().min(1).max(255),
+  cells: z.string().min(2), // JSON string, minimum "[]"
+  expectedVersion: z.coerce.number().int().min(0).default(0),
+});
+
+export const LoadWorksheetSchema = z.object({
+  worksheetId: z.string().min(1),
+});
+
+export const DeleteWorksheetSchema = z.object({
+  worksheetId: z.string().min(1),
+});
+
 export const PracticeAttemptSchema = z.object({
   sessionId: z.string().optional(),
   problemId: z.string().min(1),
@@ -123,3 +142,6 @@ export type FavoriteToggle = z.infer<typeof FavoriteToggleSchema>;
 export type BookmarkToggle = z.infer<typeof BookmarkToggleSchema>;
 export type PracticeAttempt = z.infer<typeof PracticeAttemptSchema>;
 export type PracticeSessionComplete = z.infer<typeof PracticeSessionCompleteSchema>;
+export type SaveWorksheet = z.infer<typeof SaveWorksheetSchema>;
+export type LoadWorksheet = z.infer<typeof LoadWorksheetSchema>;
+export type DeleteWorksheet = z.infer<typeof DeleteWorksheetSchema>;
