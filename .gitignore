@@ -13,6 +13,9 @@ build/
 # Prisma generated client (regenerated on install via postinstall)
 packages/database/src/generated/
 
+# WASM compiled output (built via Docker or Emscripten)
+packages/math-engine/src/wasm/compiled/
+
 # Serwist generated service worker (built from apps/web/app/sw.ts)
 public/sw.js
 public/sw.js.map

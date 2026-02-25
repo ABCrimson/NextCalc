@@ -94,6 +94,7 @@
   "scripts": {
     "build": "tsc",
     "build:wasm": "./src/wasm/native/build.sh",
+    "wasm:docker": "docker build -f Dockerfile.wasm -o ./src/wasm/compiled .",
     "clean": "rm -rf dist *.tsbuildinfo",
     "rebuild": "pnpm clean && pnpm build",
     "test": "vitest",

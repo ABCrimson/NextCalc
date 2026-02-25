@@ -1,0 +1,30 @@
+# WASM Build Environment for NextCalc Math Engine
+# Uses Emscripten SDK to compile MPFR/GMP bindings to WebAssembly
+#
+# Usage:
+#   docker build -f Dockerfile.wasm -o ./src/wasm/compiled .
+#
+# Output:
+#   mpfr.js + mpfr.wasm in the output directory
+
+FROM emscripten/emsdk:3.1.51 AS builder
+
+WORKDIR /build
+
+# Copy build script and source
+COPY wasm-build.sh ./
+COPY src/wasm/native/ ./src/wasm/native/
+
+# Make build script executable
+RUN chmod +x wasm-build.sh
+
+# Create output directory
+RUN mkdir -p src/wasm/compiled
+
+# Run the release build
+RUN ./wasm-build.sh release
+
+# Output stage -- only the compiled artifacts
+FROM scratch AS output
+COPY --from=builder /build/src/wasm/compiled/mpfr.js /
+COPY --from=builder /build/src/wasm/compiled/mpfr.wasm /
