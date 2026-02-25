@@ -2,9 +2,10 @@
  * Next.js 16 Proxy (formerly Middleware)
  *
  * Handles:
- * 1. Security headers (CSP with nonce, HSTS, X-Content-Type-Options, etc.)
+ * 1. Locale detection and URL rewriting via next-intl
+ * 2. Security headers (CSP with nonce, HSTS, X-Content-Type-Options, etc.)
  *    via Nosecone
- * 2. Authentication and authorization for protected routes via NextAuth
+ * 3. Authentication and authorization for protected routes via NextAuth
  *
  * NOTE: Next.js 16 Beta Change
  * This file was renamed from 'middleware.ts' to 'proxy.ts' as required by Next.js 16 beta.
@@ -20,6 +21,8 @@
 import NextAuth from 'next-auth';
 import { nosecone } from '@nosecone/next';
 import type { Options } from 'nosecone';
+import createIntlMiddleware from 'next-intl/middleware';
+import { routing } from '@/i18n/routing';
 import { authConfig } from './auth.config';
 
 /**
@@ -69,50 +72,71 @@ const noseconeConfig: Options = {
   },
 };
 
+/** next-intl locale middleware — resolves locale from Accept-Language, cookie, or default */
+const handleI18nRouting = createIntlMiddleware(routing);
+
+/** Protected routes that require authentication (without locale prefix) */
+const protectedRoutes = ['/dashboard', '/worksheets', '/settings', '/forum/new', '/profile'];
+
 const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const { pathname } = req.nextUrl;
 
-  // Generate security headers for this request
+  // ---- Step 1: Run locale middleware ----
+  // next-intl handles locale detection from Accept-Language header, NEXT_LOCALE
+  // cookie, or URL prefix. It returns a response with rewrite/redirect headers.
+  const intlResponse = handleI18nRouting(req);
+
+  // ---- Step 2: Generate security headers ----
   const securityHeaders = nosecone(noseconeConfig);
-  // Nosecone 1.1.0 doesn't support Permissions-Policy natively — add it manually
   securityHeaders.set('permissions-policy', 'camera=(), microphone=(), geolocation=()');
 
-  // Protected routes that require authentication
-  const protectedRoutes = ['/dashboard', '/worksheets', '/settings', '/forum/new', '/profile'];
+  // ---- Step 3: Strip locale prefix for route matching ----
+  // Paths may be locale-prefixed (e.g., /en/dashboard, /es/settings).
+  // Strip the locale prefix to match against our protected routes list.
+  const localePattern = /^\/(?:en|ru|es|uk|de)(\/|$)/;
+  const pathnameWithoutLocale = pathname.replace(localePattern, '/');
 
-  // Check if current path is protected
+  // ---- Step 4: Auth checks ----
   const isProtectedRoute = protectedRoutes.some((route) =>
-    pathname.startsWith(route)
+    pathnameWithoutLocale.startsWith(route)
   );
 
-  // Redirect to sign-in if accessing protected route without auth
   if (isProtectedRoute && !isLoggedIn) {
     const signInUrl = new URL('/auth/signin', req.url);
     signInUrl.searchParams.set('callbackUrl', pathname);
     const redirectResponse = Response.redirect(signInUrl);
-    // Attach security headers to redirect response
+    // Attach both intl and security headers to redirect response
+    intlResponse.headers.forEach((value, key) => {
+      redirectResponse.headers.set(key, value);
+    });
     securityHeaders.forEach((value, key) => {
       redirectResponse.headers.set(key, value);
     });
     return redirectResponse;
   }
 
-  // Redirect to dashboard if authenticated user tries to access auth pages
-  if (isLoggedIn && pathname.startsWith('/auth/')) {
+  if (isLoggedIn && pathnameWithoutLocale.startsWith('/auth/')) {
     const redirectResponse = Response.redirect(new URL('/dashboard', req.url));
-    // Attach security headers to redirect response
+    intlResponse.headers.forEach((value, key) => {
+      redirectResponse.headers.set(key, value);
+    });
     securityHeaders.forEach((value, key) => {
       redirectResponse.headers.set(key, value);
     });
     return redirectResponse;
   }
 
-  // Continue with security headers applied via x-middleware-next
-  securityHeaders.set('x-middleware-next', '1');
-  return new Response(null, { headers: securityHeaders });
+  // ---- Step 5: Merge security headers into the intl response ----
+  // The intl response already contains rewrite/redirect headers from next-intl.
+  // Layer the CSP and other security headers on top.
+  securityHeaders.forEach((value, key) => {
+    intlResponse.headers.set(key, value);
+  });
+
+  return intlResponse;
 });
 
 export const config = {
@@ -123,7 +147,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico, sw.js, manifest.json, icons (static assets)
+     * - wasm (WebAssembly binaries)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|sw.js|sw.js.map|swe-worker|manifest.json|icon).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|sw.js|sw.js.map|swe-worker|manifest.json|icon|wasm).*)',
   ],
 };
