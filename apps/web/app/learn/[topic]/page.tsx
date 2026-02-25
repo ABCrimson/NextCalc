@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { KnowledgeExplorer } from '@/components/math/knowledge-explorer';
+import { auth } from '@/auth';
+import { prisma } from '@/lib/prisma';
+import { BookmarkExplorerClient } from './bookmark-explorer-client';
 import { getDefinitionsByTopic, MathTopic } from '@nextcalc/math-engine/knowledge';
 import { getProblemsByTopic } from '@nextcalc/math-engine/problems';
 import { Button } from '@/components/ui/button';
@@ -69,6 +71,27 @@ export default async function TopicPage({
 
   const definitions = await getDefinitionsByTopic(topic);
   const problems = await getProblemsByTopic(topic);
+
+  // Fetch user's bookmarked definition IDs
+  let bookmarkedIds: string[] = [];
+  const session = await auth();
+  if (session?.user?.id) {
+    const userProgress = await prisma.userProgress.findUnique({
+      where: { userId: session.user.id },
+      select: { id: true },
+    });
+    if (userProgress) {
+      const bookmarks = await prisma.favorite.findMany({
+        where: {
+          userProgressId: userProgress.id,
+          resourceType: 'DEFINITION',
+          definitionId: { not: null },
+        },
+        select: { definitionId: true },
+      });
+      bookmarkedIds = bookmarks.map((b) => b.definitionId).filter((id): id is string => id !== null);
+    }
+  }
 
   // Calculate difficulty distribution
   const difficultyDistribution = definitions.reduce(
@@ -181,15 +204,9 @@ export default async function TopicPage({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <KnowledgeExplorer
+          <BookmarkExplorerClient
             definitions={definitions}
-            bookmarkedIds={[]}
-            onSelectDefinition={(_definition) => {
-              // TODO: handle definition selection
-            }}
-            onToggleBookmark={(_definitionId) => {
-              // TODO: integrate bookmark toggle with auth/database
-            }}
+            bookmarkedIds={bookmarkedIds}
           />
         </CardContent>
       </Card>
