@@ -13,7 +13,6 @@
  */
 
 import { PDFDocument } from 'pdf-lib';
-import { Resvg } from '@cf-wasm/resvg/workerd';
 
 import { generateSvgFromLatex, type SvgOptions } from './svg-internal.js';
 import { convertSvgToPng } from './png.js';
@@ -25,11 +24,6 @@ import {
   type UploadResult,
   type R2Bucket,
 } from '../utils/r2.js';
-
-// ---------------------------------------------------------------------------
-// Shared encoder — avoids creating a new instance on every call.
-// ---------------------------------------------------------------------------
-const encoder = new TextEncoder();
 
 // ---------------------------------------------------------------------------
 // Page sizes in PDF points (1 point = 1/72 inch)
@@ -77,9 +71,8 @@ export interface PdfExportResult extends UploadResult {
  *
  * Pipeline:
  *   1. Generate SVG from LaTeX (doubled fontSize for print quality)
- *   2. Convert SVG to PNG at 300 DPI via resvg
- *   3. Get rendered pixel dimensions via a separate Resvg pass
- *   4. Create a PDFDocument, set metadata, add a page
+ *   2. Convert SVG to PNG at 300 DPI via resvg (single render pass for bytes + dimensions)
+ *   3. Create a PDFDocument, set metadata, add a page
  *   5. Embed the PNG, scale to fit margins preserving aspect ratio
  *   6. Centre horizontally, place near the top of the page
  *
@@ -117,23 +110,12 @@ async function generatePdfFromLatex(
   const svgString = await generateSvgFromLatex(latex, svgOptions);
 
   // ------------------------------------------------------------------
-  // Step 2: SVG -> PNG at 300 DPI for print
+  // Step 2: SVG -> PNG at 300 DPI for print (single render pass)
   // ------------------------------------------------------------------
-  const pngBuffer = await convertSvgToPng(svgString, 300, 'transparent');
+  const { png, width: imgWidth, height: imgHeight } = await convertSvgToPng(svgString, 300, 'transparent');
 
   // ------------------------------------------------------------------
-  // Step 3: Get rendered pixel dimensions via Resvg
-  // ------------------------------------------------------------------
-  const resvg = await Resvg.async(encoder.encode(svgString), {
-    dpi: 300,
-    fitTo: { mode: 'original' as const },
-  });
-  const rendered = resvg.render();
-  const imgWidth = rendered.width;
-  const imgHeight = rendered.height;
-
-  // ------------------------------------------------------------------
-  // Step 4: Create PDFDocument with metadata
+  // Step 3: Create PDFDocument with metadata
   // ------------------------------------------------------------------
   const doc = await PDFDocument.create();
 
@@ -147,11 +129,11 @@ async function generatePdfFromLatex(
   }
 
   // ------------------------------------------------------------------
-  // Step 5: Add page, embed PNG, scale to fit margins
+  // Step 4: Add page, embed PNG, scale to fit margins
   // ------------------------------------------------------------------
   const pdfPage = doc.addPage([page.width, page.height]);
 
-  const pngImage = await doc.embedPng(pngBuffer);
+  const pngImage = await doc.embedPng(png);
 
   // Available drawing area after margins
   const availableWidth = page.width - marginPt * 2;
@@ -185,7 +167,7 @@ async function generatePdfFromLatex(
   });
 
   // ------------------------------------------------------------------
-  // Step 6: Serialise
+  // Step 5: Serialise
   // ------------------------------------------------------------------
   return doc.save();
 }
@@ -234,7 +216,7 @@ export async function exportToPdf(
   const uploadResult = await uploadToR2(
     bucket,
     key,
-    pdfBytes.buffer as ArrayBuffer,
+    pdfBytes,
     getMimeType('pdf'),
     {
       latex,
@@ -313,21 +295,12 @@ export async function batchExportToPdf(
 
     const svgString = await generateSvgFromLatex(latex, svgOptions);
 
-    // Step 2: SVG -> PNG at 300 DPI
-    const pngBuffer = await convertSvgToPng(svgString, 300, 'transparent');
+    // Step 2: SVG -> PNG at 300 DPI (single render pass)
+    const { png, width: imgWidth, height: imgHeight } = await convertSvgToPng(svgString, 300, 'transparent');
 
-    // Step 3: Get rendered dimensions
-    const resvg = await Resvg.async(encoder.encode(svgString), {
-      dpi: 300,
-      fitTo: { mode: 'original' as const },
-    });
-    const rendered = resvg.render();
-    const imgWidth = rendered.width;
-    const imgHeight = rendered.height;
-
-    // Step 4: Add page, embed PNG, scale to fit
+    // Step 3: Add page, embed PNG, scale to fit
     const pdfPage = doc.addPage([page.width, page.height]);
-    const pngImage = await doc.embedPng(pngBuffer);
+    const pngImage = await doc.embedPng(png);
 
     let drawWidth = imgWidth;
     let drawHeight = imgHeight;
@@ -366,7 +339,7 @@ export async function batchExportToPdf(
   const uploadResult = await uploadToR2(
     bucket,
     key,
-    pdfBytes.buffer as ArrayBuffer,
+    pdfBytes,
     getMimeType('pdf'),
     {
       latex: expressions.join(' | '),

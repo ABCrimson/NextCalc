@@ -60,6 +60,18 @@ export interface PngExportResult extends UploadResult {
   dpi: number;
 }
 
+/**
+ * Result from a raw SVG → PNG conversion (no R2 upload).
+ */
+export interface PngConversionResult {
+  /** Rendered PNG bytes. */
+  png: Uint8Array;
+  /** Width in pixels. */
+  width: number;
+  /** Height in pixels. */
+  height: number;
+}
+
 // ---------------------------------------------------------------------------
 // Core export function
 // ---------------------------------------------------------------------------
@@ -108,22 +120,12 @@ export async function exportToPng(
   // ------------------------------------------------------------------
   // Step 2 + 3: SVG → PNG and extract dimensions (single render pass)
   // ------------------------------------------------------------------
-  const resvg = await Resvg.async(encoder.encode(svgString), {
-    dpi,
-    fitTo: { mode: 'original' as const },
-    ...(backgroundColor !== 'transparent' ? { background: backgroundColor } : {}),
-  });
-
-  const rendered = resvg.render();
-  const width = rendered.width;
-  const height = rendered.height;
-  const pngData = rendered.asPng();
-  const pngBuffer: ArrayBuffer = pngData.buffer as ArrayBuffer;
+  const { png, width, height } = await convertSvgToPng(svgString, dpi, backgroundColor);
 
   // ------------------------------------------------------------------
   // Step 4: Validate size
   // ------------------------------------------------------------------
-  validateFileSize(pngBuffer.byteLength, maxFileSize);
+  validateFileSize(png.byteLength, maxFileSize);
 
   // ------------------------------------------------------------------
   // Step 5: Upload to R2
@@ -133,7 +135,7 @@ export async function exportToPng(
   const uploadResult = await uploadToR2(
     bucket,
     key,
-    pngBuffer,
+    png,
     getMimeType('png'),
     {
       latex,
@@ -158,26 +160,33 @@ export async function exportToPng(
 // ---------------------------------------------------------------------------
 
 /**
- * Converts an SVG string to a PNG ArrayBuffer using resvg (WASM).
+ * Converts an SVG string to PNG using resvg (WASM).
+ *
+ * Returns the rasterised bytes together with the rendered pixel dimensions
+ * in a single render pass — callers never need a second Resvg instantiation.
  *
  * @param svgString       - Complete SVG markup
  * @param dpi             - Rasterisation DPI (e.g. 144 for Retina)
  * @param backgroundColor - Background colour; 'transparent' for alpha channel
- * @returns PNG image data as an ArrayBuffer
+ * @returns PNG bytes and rendered dimensions
  */
 export async function convertSvgToPng(
   svgString: string,
   dpi: number,
   backgroundColor: string,
-): Promise<ArrayBuffer> {
+): Promise<PngConversionResult> {
   const resvg = await Resvg.async(encoder.encode(svgString), {
     dpi,
     fitTo: { mode: 'original' as const },
     ...(backgroundColor !== 'transparent' ? { background: backgroundColor } : {}),
   });
 
-  const pngData = resvg.render().asPng();
-  return pngData.buffer as ArrayBuffer;
+  const rendered = resvg.render();
+  return {
+    png: rendered.asPng(),
+    width: rendered.width,
+    height: rendered.height,
+  };
 }
 
 // ---------------------------------------------------------------------------
