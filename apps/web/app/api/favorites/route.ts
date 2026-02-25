@@ -138,6 +138,7 @@ export async function POST(request: NextRequest) {
     const favorite = await prisma.favorite.create({
       data: {
         userProgressId: userProgress.id,
+        resourceType: 'PROBLEM',
         problemId
       },
       include: {

@@ -46,6 +46,7 @@ export async function GET(_request: NextRequest) {
           }
         },
         favorites: {
+          where: { resourceType: 'PROBLEM' },
           include: {
             problem: {
               select: {
@@ -85,6 +86,7 @@ export async function GET(_request: NextRequest) {
             }
           },
           favorites: {
+            where: { resourceType: 'PROBLEM' },
             include: {
               problem: {
                 select: {
