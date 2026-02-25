@@ -44,6 +44,49 @@ export const FavoriteCreateSchema = z.object({
 });
 
 // ============================================================================
+// Server Action Schemas
+// ============================================================================
+
+export const AnswerSubmissionSchema = z.object({
+  problemId: z.string().min(1),
+  answer: z.string().min(1),
+  timeSpent: z.coerce.number().int().min(0).default(0),
+  hintsUsed: z.coerce.number().int().min(0).default(0),
+});
+
+export const HintRequestSchema = z.object({
+  problemId: z.string().min(1),
+  hintOrder: z.coerce.number().int().min(1),
+});
+
+export const FavoriteToggleSchema = z.object({
+  problemId: z.string().min(1),
+});
+
+export const PracticeAttemptSchema = z.object({
+  sessionId: z.string().optional(),
+  problemId: z.string().min(1),
+  answer: z.string(),
+  correct: z.boolean(),
+  timeSpent: z.coerce.number().int().min(0).default(0),
+  // Session config (used to create session on first attempt)
+  topic: z.string().optional(),
+  difficulty: z.string().optional(),
+  questionCount: z.coerce.number().int().min(1).default(5),
+  timeLimit: z.coerce.number().int().min(0).optional(),
+  adaptive: z.boolean().default(false),
+});
+
+export const PracticeSessionCompleteSchema = z.object({
+  sessionId: z.string().min(1),
+  score: z.coerce.number().min(0).max(1),
+  accuracy: z.coerce.number().min(0).max(1),
+  bestStreak: z.coerce.number().int().min(0),
+  totalTime: z.coerce.number().int().min(0),
+  pointsEarned: z.coerce.number().int().min(0),
+});
+
+// ============================================================================
 // Knowledge Base Schemas
 // ============================================================================
 
@@ -70,3 +113,8 @@ export type AttemptCreate = z.infer<typeof AttemptCreateSchema>;
 export type FavoriteCreate = z.infer<typeof FavoriteCreateSchema>;
 export type TopicQuery = z.infer<typeof TopicQuerySchema>;
 export type SearchQuery = z.infer<typeof SearchQuerySchema>;
+export type AnswerSubmission = z.infer<typeof AnswerSubmissionSchema>;
+export type HintRequest = z.infer<typeof HintRequestSchema>;
+export type FavoriteToggle = z.infer<typeof FavoriteToggleSchema>;
+export type PracticeAttempt = z.infer<typeof PracticeAttemptSchema>;
+export type PracticeSessionComplete = z.infer<typeof PracticeSessionCompleteSchema>;
