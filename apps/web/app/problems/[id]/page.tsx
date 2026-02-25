@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { InteractiveSolver } from '@/components/math/interactive-solver';
+import { ProblemSolverClient } from './problem-solver-client';
 import { getProblemById, getRelatedProblems } from '@nextcalc/math-engine/problems';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -64,25 +64,9 @@ export default async function ProblemPage({
       </div>
 
       {/* Main content */}
-      <InteractiveSolver
+      <ProblemSolverClient
         problem={problem}
-        userAnswer=""
-        onSubmitAnswer={(_answer) => {
-          // TODO: integrate answer submission with backend
-        }}
-        onRequestHint={(_hintIndex) => {
-          // TODO: integrate hint request with backend
-        }}
-        revealedHints={[]}
-        answerChecked={false}
-        isCorrect={false}
-        {...(relatedProblems.length > 0 && relatedProblems[0] ? {
-          onNextProblem: () => {
-            window.location.href = `/problems/${relatedProblems[0]!.id}`;
-          }
-        } : {})}
-        currentScore={0}
-        timeSpent={0}
+        relatedProblemIds={relatedProblems.map((p) => p.id)}
       />
 
       {/* Related Problems Section */}
