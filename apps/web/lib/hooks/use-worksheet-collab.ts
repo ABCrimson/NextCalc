@@ -2,11 +2,13 @@
  * useWorksheetCollab — real-time collaboration sync hook
  *
  * Transport hierarchy:
- *   1. BroadcastChannel (same-origin tabs, offline-capable, primary)
- *   2. WebSocket via graphql-ws (cross-device, requires API server)
- *   3. Polling fallback (cross-device, no WS support)
+ *   1. BroadcastChannel (same-origin tabs, offline-capable, primary for presence)
+ *   2. graphql-sse SSE (cross-device data sync via worksheetUpdated subscription)
  *
- * Protocol (JSON messages over BroadcastChannel / WS payload):
+ * BroadcastChannel handles: presence (heartbeat), join/leave, patches (same-device)
+ * SSE handles: cross-device worksheet data sync (worksheetUpdated subscription)
+ *
+ * Protocol (JSON messages over BroadcastChannel):
  *
  *   { type: 'join',       peer, worksheetSessionId, worksheet }
  *   { type: 'heartbeat',  peer, worksheetSessionId, activeCellId }
@@ -28,6 +30,7 @@
 'use client';
 
 import { useEffect, useRef, useCallback } from 'react';
+import { createClient } from 'graphql-sse';
 import {
   useCollabStore,
   useCollabActions,
@@ -94,7 +97,14 @@ type CollabMessage =
 const HEARTBEAT_INTERVAL_MS = 4_000;
 const STALE_PEER_TIMEOUT_MS = 12_000;
 const PRUNE_INTERVAL_MS = 6_000;
-const WS_ENDPOINT = process.env['NEXT_PUBLIC_WS_URL'] ?? 'ws://localhost:4000/graphql';
+
+// SSE client for cross-device subscription (graphql-sse 2.6.0)
+const sseClient = typeof window !== 'undefined'
+  ? createClient({
+      url: `${window.location.origin}/api/graphql/stream`,
+      singleConnection: true,
+    })
+  : null;
 
 // ---------------------------------------------------------------------------
 // Colour assignment for unknown peers
@@ -128,12 +138,10 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
   const actions = useCollabActions();
   const channelRef = useRef<BroadcastChannel | null>(null);
 
-  // WebSocket fallback refs
-  const wsRef = useRef<WebSocket | null>(null);
-  const wsRetryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const wsRetriesRef = useRef(0);
+  // SSE subscription dispose ref
+  const sseDisposeRef = useRef<(() => void) | null>(null);
 
-  // Polling fallback refs (cross-device without WS)
+  // Polling fallback refs (cross-device without SSE)
   const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Heartbeat timer
@@ -157,9 +165,7 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
   // ---------------------------------------------------------------------------
 
   const dispatch = useCallback((msg: CollabMessage) => {
-    const raw = JSON.stringify(msg);
-
-    // BroadcastChannel (primary)
+    // BroadcastChannel (primary — same-device sync)
     if (channelRef.current) {
       try {
         channelRef.current.postMessage(msg);
@@ -168,10 +174,7 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
       }
     }
 
-    // WebSocket (secondary)
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      wsRef.current.send(raw);
-    }
+    // SSE is receive-only (cross-device sync comes from worksheetUpdated subscription)
   }, []);
 
   // ---------------------------------------------------------------------------
@@ -325,61 +328,73 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
   );
 
   // ---------------------------------------------------------------------------
-  // WebSocket transport (optional, gracefully degrades)
+  // SSE transport (cross-device data sync via graphql-sse)
   // ---------------------------------------------------------------------------
 
-  const openWebSocket = useCallback(
-    (sessionId: string) => {
-      if (typeof WebSocket === 'undefined') return;
-      if (wsRetriesRef.current > 3) return; // give up after 3 retries
+  const connectSSE = useCallback(
+    (worksheetId: string) => {
+      if (!sseClient) return;
 
-      try {
-        const ws = new WebSocket(`${WS_ENDPOINT}?collab=${sessionId}`);
-        wsRef.current = ws;
+      // Dispose previous subscription if any
+      sseDisposeRef.current?.();
 
-        ws.onopen = () => {
-          wsRetriesRef.current = 0;
-          actions.markLive();
-        };
+      const dispose = sseClient.subscribe(
+        {
+          query: `subscription WorksheetUpdated($worksheetId: ID!) {
+            worksheetUpdated(worksheetId: $worksheetId) {
+              id title content version updatedAt
+            }
+          }`,
+          variables: { worksheetId },
+        },
+        {
+          next: (result) => {
+            const updated = (result.data as Record<string, unknown> | null)?.['worksheetUpdated'] as {
+              id: string;
+              title: string;
+              content: unknown;
+              version: number;
+              updatedAt: string;
+            } | undefined;
+            if (!updated) return;
 
-        ws.onmessage = (event) => {
-          try {
-            const data: unknown = JSON.parse(event.data as string);
-            receive(data, sessionId);
-          } catch {
-            // Malformed message — ignore
-          }
-        };
+            // Apply incoming worksheet data using LWW
+            const localStore = useWorksheetStore.getState();
+            const localUpdatedAt = localStore.worksheet.updatedAt;
+            const incomingUpdatedAt = new Date(updated.updatedAt).getTime();
 
-        ws.onerror = () => {
-          // WS failed — BroadcastChannel is still active so collab continues
-          // for same-device tabs; cross-device falls back to polling.
-          ws.close();
-        };
+            if (incomingUpdatedAt > localUpdatedAt) {
+              // The SSE update is newer — hydrate from it
+              if (Array.isArray(updated.content)) {
+                const cells = updated.content as WorksheetCell[];
+                localStore.hydrate({
+                  worksheetId: updated.id,
+                  title: updated.title,
+                  cells,
+                  version: updated.version,
+                });
+              }
+            }
+          },
+          error: (err) => {
+            console.error('SSE subscription error:', err);
+          },
+          complete: () => {
+            // SSE connection closed — no automatic retry (graphql-sse handles reconnection)
+          },
+        },
+      );
 
-        ws.onclose = () => {
-          wsRef.current = null;
-          if (wsRetriesRef.current < 3) {
-            wsRetriesRef.current++;
-            wsRetryTimerRef.current = setTimeout(
-              () => openWebSocket(sessionId),
-              1000 * 2 ** wsRetriesRef.current
-            );
-          }
-        };
-      } catch {
-        // WS constructor can throw in restricted environments — silently skip
-      }
+      sseDisposeRef.current = dispose;
     },
-    [actions, receive]
+    []
   );
 
   // ---------------------------------------------------------------------------
-  // Polling fallback (cross-device, no WS)
+  // Polling fallback (cross-device, no SSE)
   // ---------------------------------------------------------------------------
-  // This is a stub that integrates with the existing GraphQL HTTP endpoint.
-  // In a real deployment, replace with a proper HTTP long-poll or SSE endpoint.
-  // For now it's a no-op placeholder that keeps the hook interface stable.
+  // This is a stub placeholder that keeps the hook interface stable.
+  // SSE via graphql-sse is the primary cross-device transport.
   const openPollingFallback = useCallback(
     (_sessionId: string) => {
       // Polling is deferred to a future implementation.
@@ -438,8 +453,13 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
       actions.startSession(sessionId, 'broadcastchannel');
 
       const hasBc = openBroadcastChannel(sessionId);
-      openWebSocket(sessionId);
       openPollingFallback(sessionId);
+
+      // Connect SSE for cross-device data sync (if we have a worksheet DB ID)
+      const worksheetId = useWorksheetStore.getState().worksheetId;
+      if (worksheetId) {
+        connectSSE(worksheetId);
+      }
 
       if (hasBc) {
         // Immediately mark as live for BC (no handshake needed within same origin)
@@ -469,7 +489,7 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
         PRUNE_INTERVAL_MS
       );
     },
-    [actions, openBroadcastChannel, openWebSocket, openPollingFallback, dispatch, sendHeartbeat]
+    [actions, openBroadcastChannel, connectSSE, openPollingFallback, dispatch, sendHeartbeat]
   );
 
   const stopCollab = useCallback(
@@ -486,13 +506,12 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
       // Tear down transports
       channelRef.current?.close();
       channelRef.current = null;
-      wsRef.current?.close();
-      wsRef.current = null;
+      sseDisposeRef.current?.();
+      sseDisposeRef.current = null;
 
       // Clear timers
       if (heartbeatTimerRef.current) clearInterval(heartbeatTimerRef.current);
       if (pruneTimerRef.current) clearInterval(pruneTimerRef.current);
-      if (wsRetryTimerRef.current) clearTimeout(wsRetryTimerRef.current);
       if (pollTimerRef.current) clearInterval(pollTimerRef.current);
 
       isHostRef.current = false;
@@ -511,7 +530,12 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
       actions.startSession(sessionId, 'broadcastchannel');
 
       const hasBc = openBroadcastChannel(sessionId);
-      openWebSocket(sessionId);
+
+      // Connect SSE for cross-device data sync (if we have a worksheet DB ID)
+      const worksheetId = useWorksheetStore.getState().worksheetId;
+      if (worksheetId) {
+        connectSSE(worksheetId);
+      }
 
       if (hasBc) {
         actions.markLive();
@@ -538,7 +562,7 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
         PRUNE_INTERVAL_MS
       );
     },
-    [actions, openBroadcastChannel, openWebSocket, dispatch, sendHeartbeat]
+    [actions, openBroadcastChannel, connectSSE, dispatch, sendHeartbeat]
   );
 
   // ---------------------------------------------------------------------------
@@ -550,11 +574,10 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
       // Cleanup on component unmount without explicit stopCollab call
       channelRef.current?.close();
       channelRef.current = null;
-      wsRef.current?.close();
-      wsRef.current = null;
+      sseDisposeRef.current?.();
+      sseDisposeRef.current = null;
       if (heartbeatTimerRef.current) clearInterval(heartbeatTimerRef.current);
       if (pruneTimerRef.current) clearInterval(pruneTimerRef.current);
-      if (wsRetryTimerRef.current) clearTimeout(wsRetryTimerRef.current);
       if (pollTimerRef.current) clearInterval(pollTimerRef.current);
     };
   }, []);
