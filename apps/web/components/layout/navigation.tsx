@@ -21,6 +21,7 @@ import {
 	LogIn,
 	LogOut,
 	Settings,
+	User,
 	BarChart2,
 	Infinity,
 	BookOpen,
@@ -492,6 +493,15 @@ export function Navigation() {
 									</p>
 								</div>
 								<DropdownMenuSeparator />
+								<DropdownMenuItem asChild>
+									<Link
+										href="/profile"
+										className="flex items-center gap-2"
+									>
+										<User className="h-4 w-4" aria-hidden="true" />
+										Profile
+									</Link>
+								</DropdownMenuItem>
 								<DropdownMenuItem asChild>
 									<Link
 										href="/settings"
