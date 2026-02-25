@@ -9,10 +9,10 @@
  * - Export to LaTeX format
  */
 
-import type { Formula } from './logic-core.js';
-import { toString } from './logic-core.js';
-import type { Proof } from './proof-search.js';
-import { verifyProof } from './proof-search.js';
+import type { Formula } from './logic-core';
+import { toString } from './logic-core';
+import type { Proof } from './proof-search';
+import { verifyProof } from './proof-search';
 
 /**
  * Stored theorem with proof and metadata

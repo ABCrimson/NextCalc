@@ -9,8 +9,8 @@
  * - Chain rule and other derived rules
  */
 
-import type { Formula, Term } from './logic-core.js';
-import { and, or, not, implies, atom } from './logic-core.js';
+import type { Formula, Term } from './logic-core';
+import { and, or, not, implies, atom } from './logic-core';
 
 /**
  * Inference rule interface

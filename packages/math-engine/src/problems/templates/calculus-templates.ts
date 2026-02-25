@@ -10,7 +10,7 @@
  * - Area and volume
  */
 
-import { createTemplate, type ProblemTemplate, narrow } from './template-engine.js';
+import { createTemplate, type ProblemTemplate, narrow } from './template-engine';
 
 /**
  * Power rule derivative

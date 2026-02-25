@@ -9,7 +9,7 @@
  * - Coordinate geometry
  */
 
-import { createTemplate, type ProblemTemplate, narrow } from './template-engine.js';
+import { createTemplate, type ProblemTemplate, narrow } from './template-engine';
 
 /**
  * Pythagorean theorem

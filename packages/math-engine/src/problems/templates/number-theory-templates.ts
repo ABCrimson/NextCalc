@@ -8,7 +8,7 @@
  * - Diophantine equations
  */
 
-import { createTemplate, type ProblemTemplate, narrow } from './template-engine.js';
+import { createTemplate, type ProblemTemplate, narrow } from './template-engine';
 
 /**
  * Prime factorization

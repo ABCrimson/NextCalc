@@ -9,9 +9,9 @@
  * - Depth-limited and iterative deepening search
  */
 
-import type { Formula } from './logic-core.js';
-import { not } from './logic-core.js';
-import { applyAnyRule } from './inference-rules.js';
+import type { Formula } from './logic-core';
+import { not } from './logic-core';
+import { applyAnyRule } from './inference-rules';
 
 /**
  * Proof step in a derivation

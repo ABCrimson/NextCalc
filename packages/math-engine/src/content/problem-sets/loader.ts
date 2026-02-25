@@ -8,7 +8,7 @@
  * - Metadata
  */
 
-import { parseMarkdown, type ParsedMarkdown, type MarkdownSection } from '../markdown/parser.js';
+import { parseMarkdown, type ParsedMarkdown, type MarkdownSection } from '../markdown/parser';
 
 /**
  * Problem set structure

@@ -4,19 +4,19 @@
  * @module problems/templates
  */
 
-export * from './template-engine.js';
-export * from './algebra-templates.js';
-export * from './calculus-templates.js';
-export * from './geometry-templates.js';
-export * from './number-theory-templates.js';
-export * from './probability-templates.js';
+export * from './template-engine';
+export * from './algebra-templates';
+export * from './calculus-templates';
+export * from './geometry-templates';
+export * from './number-theory-templates';
+export * from './probability-templates';
 
-import { templateEngine } from './template-engine.js';
-import { algebraTemplates } from './algebra-templates.js';
-import { calculusTemplates } from './calculus-templates.js';
-import { geometryTemplates } from './geometry-templates.js';
-import { numberTheoryTemplates } from './number-theory-templates.js';
-import { probabilityTemplates } from './probability-templates.js';
+import { templateEngine } from './template-engine';
+import { algebraTemplates } from './algebra-templates';
+import { calculusTemplates } from './calculus-templates';
+import { geometryTemplates } from './geometry-templates';
+import { numberTheoryTemplates } from './number-theory-templates';
+import { probabilityTemplates } from './probability-templates';
 
 /**
  * Register all templates with the global engine

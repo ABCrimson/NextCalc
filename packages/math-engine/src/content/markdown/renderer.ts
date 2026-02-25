@@ -8,7 +8,7 @@
  * - Table of contents
  */
 
-import type { ParsedMarkdown, MarkdownSection, MathBlock } from './parser.js';
+import type { ParsedMarkdown, MarkdownSection, MathBlock } from './parser';
 
 /**
  * Render options

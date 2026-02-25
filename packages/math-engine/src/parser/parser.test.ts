@@ -3,8 +3,8 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { parse, isValidExpression, extractVariables } from './parser.js';
-import { NodeType, type OperatorNode, type FunctionNode } from './ast.js';
+import { parse, isValidExpression, extractVariables } from './parser';
+import { NodeType, type OperatorNode, type FunctionNode } from './ast';
 
 describe('Parser', () => {
   describe('parse', () => {

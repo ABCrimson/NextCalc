@@ -8,7 +8,7 @@
  * - Metadata completeness
  */
 
-import type { ProblemSet, Problem } from './loader.js';
+import type { ProblemSet, Problem } from './loader';
 
 /**
  * Validation result

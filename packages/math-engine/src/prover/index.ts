@@ -66,7 +66,7 @@ export {
   // Utilities
   toString,
   parse,
-} from './logic-core.js';
+} from './logic-core';
 
 // Inference rules exports
 export {
@@ -84,7 +84,7 @@ export {
   INFERENCE_RULES,
   applyAnyRule,
   findApplicableRules,
-} from './inference-rules.js';
+} from './inference-rules';
 
 // Proof search exports
 export {
@@ -99,7 +99,7 @@ export {
   iterativeDeepeningProof,
   verifyProof,
   formulasEqual,
-} from './proof-search.js';
+} from './proof-search';
 
 // Theorem database exports
 export {
@@ -108,7 +108,7 @@ export {
   createTheorem,
   theoremDB,
   loadStandardTheorems,
-} from './theorem-database.js';
+} from './theorem-database';
 
 // Natural deduction exports
 export {
@@ -119,4 +119,4 @@ export {
   formatNDProof,
   validateNDProof,
   ndProofToLatex,
-} from './natural-deduction.js';
+} from './natural-deduction';

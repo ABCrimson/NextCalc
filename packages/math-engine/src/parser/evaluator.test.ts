@@ -5,8 +5,8 @@
 
 import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
-import { parse } from './parser.js';
-import { evaluate } from './evaluator.js';
+import { parse } from './parser';
+import { evaluate } from './evaluator';
 
 describe('Evaluator - Property-Based Tests', () => {
   describe('Commutativity', () => {

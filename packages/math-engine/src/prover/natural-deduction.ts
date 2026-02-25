@@ -9,9 +9,9 @@
  * - Educational mode with explanations
  */
 
-import type { Formula } from './logic-core.js';
-import { toString, and, or, not, implies } from './logic-core.js';
-import { formulasEqual } from './proof-search.js';
+import type { Formula } from './logic-core';
+import { toString, and, or, not, implies } from './logic-core';
+import { formulasEqual } from './proof-search';
 
 /**
  * Natural deduction rule types

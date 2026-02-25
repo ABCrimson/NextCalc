@@ -3,8 +3,8 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { parse } from './parser.js';
-import { NodeType, type OperatorNode, type FunctionNode } from './ast.js';
+import { parse } from './parser';
+import { NodeType, type OperatorNode, type FunctionNode } from './ast';
 
 describe('Parser - Critical Missing Features', () => {
   describe('exp() function', () => {
