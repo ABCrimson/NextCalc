@@ -56,7 +56,7 @@ async function evaluateExpression(
     mod._mpfr_set_default_precision(precision);
   }
 
-  return HighPrecisionScope.run(mod, (scope) => {
+  return HighPrecisionScope.run(mod, (scope: InstanceType<typeof HighPrecisionScope>) => {
     const num = scope.create(expression);
     return num.toString(10, 0);
   });
