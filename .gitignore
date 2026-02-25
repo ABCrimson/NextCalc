@@ -17,3 +17,6 @@ packages/database/src/generated/
 public/sw.js
 public/sw.js.map
 public/swe-worker*
+
+# Git worktrees
+.worktrees/
