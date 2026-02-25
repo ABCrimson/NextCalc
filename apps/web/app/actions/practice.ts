@@ -3,6 +3,7 @@
 /**
  * Server Actions for Practice Mode Persistence
  *
+ * - startPracticeSession: eagerly creates a PracticeSession when the user clicks Start
  * - savePracticeAttempt: saves each answer during a session (lazy-creates the session)
  * - completePracticeSession: finalises session with aggregate metrics
  */
@@ -13,6 +14,7 @@ import {
   PracticeAttemptSchema,
   PracticeSessionCompleteSchema,
 } from '@/lib/validations/learning';
+import { getOrCreateUserProgress } from './problems';
 import type { ActionResult } from './problems';
 
 // ---------------------------------------------------------------------------
@@ -45,18 +47,21 @@ export async function savePracticeAttempt(
     }
 
     // Get or create user progress
-    let userProgress = await prisma.userProgress.findUnique({
-      where: { userId: session.user.id },
-    });
-
-    if (!userProgress) {
-      userProgress = await prisma.userProgress.create({
-        data: { userId: session.user.id },
-      });
-    }
+    const userProgress = await getOrCreateUserProgress(session.user.id);
 
     // Lazy-create PracticeSession on first attempt
     let sessionId = parsed.sessionId;
+
+    // Verify session belongs to this user
+    if (sessionId) {
+      const existing = await prisma.practiceSession.findUnique({
+        where: { id: sessionId },
+        select: { userProgressId: true },
+      });
+      if (!existing || existing.userProgressId !== userProgress.id) {
+        return { success: false, error: 'Invalid session' };
+      }
+    }
 
     if (!sessionId) {
       const practiceSession = await prisma.practiceSession.create({
@@ -211,5 +216,47 @@ export async function completePracticeSession(
   } catch (error) {
     console.error('completePracticeSession error:', error);
     return { success: false, error: 'Failed to save practice session' };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// startPracticeSession
+// ---------------------------------------------------------------------------
+
+export interface StartSessionResult {
+  sessionId: string;
+}
+
+export async function startPracticeSession(
+  _prevState: ActionResult<StartSessionResult>,
+  formData: FormData,
+): Promise<ActionResult<StartSessionResult>> {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { success: false, error: 'Sign in to save practice progress' };
+    }
+
+    const userProgress = await getOrCreateUserProgress(session.user.id);
+
+    const raw = Object.fromEntries(formData.entries());
+    const practiceSession = await prisma.practiceSession.create({
+      data: {
+        userProgressId: userProgress.id,
+        ...(raw['topic'] && raw['topic'] !== 'all' ? { topic: raw['topic'] as string } : {}),
+        ...(raw['difficulty'] && raw['difficulty'] !== 'all' ? { difficulty: raw['difficulty'] as string } : {}),
+        questionCount: Number(raw['questionCount']) || 5,
+        ...(raw['timeLimit'] && Number(raw['timeLimit']) > 0 ? { timeLimit: Number(raw['timeLimit']) } : {}),
+        adaptive: raw['adaptive'] === 'true',
+      },
+    });
+
+    return {
+      success: true,
+      data: { sessionId: practiceSession.id },
+    };
+  } catch (error) {
+    console.error('startPracticeSession error:', error);
+    return { success: false, error: 'Failed to start practice session' };
   }
 }

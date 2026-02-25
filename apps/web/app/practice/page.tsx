@@ -16,8 +16,8 @@ import {
   type Problem,
 } from '@nextcalc/math-engine/problems';
 import type { MathTopic } from '@nextcalc/math-engine/knowledge';
-import { savePracticeAttempt, completePracticeSession } from '@/app/actions/practice';
-import type { PracticeAttemptResult, PracticeSessionResult } from '@/app/actions/practice';
+import { savePracticeAttempt, completePracticeSession, startPracticeSession } from '@/app/actions/practice';
+import type { PracticeAttemptResult, PracticeSessionResult, StartSessionResult } from '@/app/actions/practice';
 import type { ActionResult } from '@/app/actions/problems';
 
 /**
@@ -304,6 +304,10 @@ export default function PracticePage() {
     completePracticeSession,
     { success: false },
   );
+  const [startState, startSessionAction] = useActionState<ActionResult<StartSessionResult>, FormData>(
+    startPracticeSession,
+    { success: false },
+  );
   void sessionResult; // Available for displaying completion feedback
   const sessionIdRef = useRef<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -337,7 +341,16 @@ export default function PracticePage() {
     const loaded = loadProblems();
     setProblems(loaded);
     setIsConfiguring(false);
-  }, [loadProblems]);
+
+    // Eagerly create the practice session in the database
+    const fd = new FormData();
+    if (config.topic !== 'all') fd.set('topic', config.topic);
+    if (config.difficulty !== 'all') fd.set('difficulty', config.difficulty.toString());
+    fd.set('questionCount', config.questionCount.toString());
+    if (config.timeLimit > 0) fd.set('timeLimit', config.timeLimit.toString());
+    fd.set('adaptive', config.adaptiveDifficulty.toString());
+    startSessionAction(fd);
+  }, [loadProblems, config, startSessionAction]);
 
   // Ready to wire to PracticeMode once it exposes an onAnswer prop
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- prepared for PracticeMode onAnswer callback
@@ -364,7 +377,14 @@ export default function PracticePage() {
   );
   void handleAnswer;
 
-  // Capture sessionId from first attempt response
+  // Capture sessionId from eager session creation
+  useEffect(() => {
+    if (startState.success && startState.data?.sessionId) {
+      sessionIdRef.current = startState.data.sessionId;
+    }
+  }, [startState]);
+
+  // Capture sessionId from first attempt response (fallback)
   useEffect(() => {
     if (_attemptState.success && _attemptState.data?.sessionId) {
       sessionIdRef.current = _attemptState.data.sessionId;

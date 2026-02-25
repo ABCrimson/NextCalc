@@ -30,18 +30,12 @@ export interface ActionResult<T = unknown> {
 // Helper: get-or-create UserProgress
 // ---------------------------------------------------------------------------
 
-async function getOrCreateUserProgress(userId: string) {
-  let progress = await prisma.userProgress.findUnique({
+export async function getOrCreateUserProgress(userId: string) {
+  return prisma.userProgress.upsert({
     where: { userId },
+    update: {},
+    create: { userId },
   });
-
-  if (!progress) {
-    progress = await prisma.userProgress.create({
-      data: { userId },
-    });
-  }
-
-  return progress;
 }
 
 // ---------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useState, useCallback, useRef } from 'react';
+import { useActionState, useState, useCallback, useRef, useEffect } from 'react';
 import { InteractiveSolver } from '@/components/math/interactive-solver';
 import { submitAnswer, requestHint } from '@/app/actions/problems';
 import type { ActionResult, SubmitAnswerResult, RequestHintResult } from '@/app/actions/problems';
@@ -25,12 +25,11 @@ export function ProblemSolverClient({ problem, relatedProblemIds }: ProblemSolve
   const [timeSpent, setTimeSpent] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval>>(null);
 
-  // Start timer on mount
-  if (!timerRef.current) {
-    timerRef.current = setInterval(() => {
-      setTimeSpent((t) => t + 1);
-    }, 1000);
-  }
+  useEffect(() => {
+    const id = setInterval(() => setTimeSpent((t) => t + 1), 1000);
+    timerRef.current = id;
+    return () => clearInterval(id);
+  }, []);
 
   const handleSubmitAnswer = useCallback(
     (answer: string) => {
