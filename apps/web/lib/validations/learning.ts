@@ -63,6 +63,10 @@ export const FavoriteToggleSchema = z.object({
   problemId: z.string().min(1),
 });
 
+export const BookmarkToggleSchema = z.object({
+  definitionId: z.string().min(1),
+});
+
 export const PracticeAttemptSchema = z.object({
   sessionId: z.string().optional(),
   problemId: z.string().min(1),
@@ -116,5 +120,6 @@ export type SearchQuery = z.infer<typeof SearchQuerySchema>;
 export type AnswerSubmission = z.infer<typeof AnswerSubmissionSchema>;
 export type HintRequest = z.infer<typeof HintRequestSchema>;
 export type FavoriteToggle = z.infer<typeof FavoriteToggleSchema>;
+export type BookmarkToggle = z.infer<typeof BookmarkToggleSchema>;
 export type PracticeAttempt = z.infer<typeof PracticeAttemptSchema>;
 export type PracticeSessionComplete = z.infer<typeof PracticeSessionCompleteSchema>;
