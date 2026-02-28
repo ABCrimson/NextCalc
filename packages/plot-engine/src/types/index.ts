@@ -139,6 +139,8 @@ export interface Plot2DPolarConfig {
   }>;
   thetaRange: { min: number; max: number };
   rRange: { min: number; max: number };
+  /** Center offset for panning the polar plot (defaults to {x:0, y:0}) */
+  center?: { x: number; y: number };
   title?: string;
 }
 

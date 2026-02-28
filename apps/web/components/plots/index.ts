@@ -16,6 +16,8 @@ export { PlotAnalysisPanel } from './PlotAnalysisPanel';
 export { PolarAnalysisPanel } from './PolarAnalysisPanel';
 export { WebGLHeatmap } from './webgl-heatmap';
 export { WebGPUHeatmap } from './webgpu-heatmap';
+export { Annotations } from './Annotations';
+export { AnnotationToolbar } from './AnnotationToolbar';
 
 export type { Plot2DProps } from './Plot2D';
 export type { Plot3DProps } from './Plot3D';
@@ -29,3 +31,5 @@ export type { PlotExportToolbarProps } from './PlotExportToolbar';
 export type { PlotAnalysisPanelProps, AnalysisFunction } from './PlotAnalysisPanel';
 export type { PolarAnalysisPanelProps, PolarAnalysisFunction } from './PolarAnalysisPanel';
 export type { WebGPUHeatmapProps } from './webgpu-heatmap';
+export type { AnnotationsProps, Annotation, TextAnnotation, ArrowAnnotation, Viewport } from './Annotations';
+export type { AnnotationToolbarProps, AnnotationMode } from './AnnotationToolbar';

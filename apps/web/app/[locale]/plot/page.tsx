@@ -700,6 +700,7 @@ export default function PlotsExamplesPage() {
                     <Plot2D
                       config={cartesianConfig}
                       enableInteractions={true}
+                      enableAnnotations={true}
                       onCanvasReady={handleCartesianCanvasReady}
                       onViewportChange={setCartesianViewport}
                     />

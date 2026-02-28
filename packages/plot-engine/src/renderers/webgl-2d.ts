@@ -328,12 +328,14 @@ export class WebGL2DRenderer implements IRenderer {
   private renderPolar(config: Plot2DPolarConfig): void {
     if (!this.gl || !this.shaderCache || !this.bufferPool) return;
 
-    // Calculate viewport from polar ranges
+    // Calculate viewport from polar ranges with optional center offset for panning
+    const cx = config.center?.x ?? 0;
+    const cy = config.center?.y ?? 0;
     const viewport: Viewport = {
-      xMin: -config.rRange.max,
-      xMax: config.rRange.max,
-      yMin: -config.rRange.max,
-      yMax: config.rRange.max,
+      xMin: cx - config.rRange.max,
+      xMax: cx + config.rRange.max,
+      yMin: cy - config.rRange.max,
+      yMax: cy + config.rRange.max,
     };
 
     this.updateViewMatrix(viewport);

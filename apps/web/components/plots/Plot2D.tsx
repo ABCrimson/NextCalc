@@ -6,13 +6,16 @@
  * Fix 1: Debounced auto-refresh when config (function expressions) changes
  * Fix 2: Axis labels receive live viewport state so they rescale on zoom/pan
  * Fix 3: Polar wheel zoom via rRange scaling
+ * Fix 4: Annotation system — text labels and arrows via HTML overlay + toolbar
  * @module components/plots/Plot2D
  */
 
-import { useEffect, useRef, useState, useTransition, useCallback } from 'react';
+import { useEffect, useRef, useState, useTransition, useCallback, useId } from 'react';
 import { WebGL2DRenderer, Plot2DController, type PlotConfig, type Plot2DCartesianConfig, type Plot2DParametricConfig, type Plot2DPolarConfig, type ControlEvent } from '@nextcalc/plot-engine';
 import { AxisLabels } from './AxisLabels';
 import { PolarAxisLabels } from './PolarAxisLabels';
+import { Annotations, type Annotation, type Viewport } from './Annotations';
+import { AnnotationToolbar, type AnnotationMode } from './AnnotationToolbar';
 
 export interface Plot2DProps {
   config: PlotConfig;
@@ -23,6 +26,8 @@ export interface Plot2DProps {
   onViewportChange?: (viewport: { xMin: number; xMax: number; yMin: number; yMax: number }) => void;
   /** Callback fired when the canvas element is ready. Use this to access the canvas for export. */
   onCanvasReady?: (canvas: HTMLCanvasElement) => void;
+  /** When true, renders the annotation toolbar and overlay. Defaults to false. */
+  enableAnnotations?: boolean;
 }
 
 /**
@@ -36,6 +41,7 @@ export function Plot2D({
   enableInteractions = true,
   onViewportChange,
   onCanvasReady,
+  enableAnnotations = false,
 }: Plot2DProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -56,6 +62,15 @@ export function Plot2D({
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [canvasSize, setCanvasSize] = useState({ width, height });
+
+  // --- Annotation system state ---
+  const annotationIdCounter = useRef(0);
+  const instanceId = useId();
+  const [annotations, setAnnotations] = useState<Annotation[]>([]);
+  const [annotationMode, setAnnotationMode] = useState<AnnotationMode>('idle');
+  const [selectedAnnotationId, setSelectedAnnotationId] = useState<string | null>(null);
+  // For arrow placement: stores the tail point (math-space) after first click.
+  const arrowTailRef = useRef<{ x: number; y: number } | null>(null);
 
   // --- Fix 2: live viewport state drives AxisLabels so ticks update on zoom/pan ---
   const initialCartesianViewport = (
@@ -155,6 +170,125 @@ export function Plot2D({
       canvas.removeEventListener('wheel', handlePolarWheel);
     };
   }, [isReady, enableInteractions, config.type, renderWithConfig]);
+
+  // --- Annotation click handler ---
+  // Converts a canvas click to math-space coordinates and creates the
+  // appropriate annotation or advances the arrow-placement state machine.
+  // We keep liveViewport in a ref to avoid recreating the listener every frame.
+  const liveViewportRef = useRef(liveViewport);
+  liveViewportRef.current = liveViewport;
+
+  const annotationModeRef = useRef(annotationMode);
+  annotationModeRef.current = annotationMode;
+
+  const handleCanvasAnnotationClick = useCallback(
+    (e: MouseEvent) => {
+      const currentMode = annotationModeRef.current;
+      if (currentMode === 'idle') return;
+      if (e.button !== 0) return; // left-click only
+
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const px = e.clientX - rect.left;
+      const py = e.clientY - rect.top;
+      const vp = liveViewportRef.current;
+
+      // Convert pixel -> math-space (Y is inverted).
+      const mx = vp.xMin + (px / rect.width) * (vp.xMax - vp.xMin);
+      const my = vp.yMax - (py / rect.height) * (vp.yMax - vp.yMin);
+
+      if (currentMode === 'placing-label') {
+        const newId = `${instanceId}-ann-${++annotationIdCounter.current}`;
+        const defaultText = `(${mx.toFixed(2)}, ${my.toFixed(2)})`;
+        const newAnnotation: Annotation = {
+          kind: 'text',
+          id: newId,
+          x: mx,
+          y: my,
+          text: defaultText,
+          color: '#06b6d4',
+        };
+        setAnnotations((prev) => [...prev, newAnnotation]);
+        setSelectedAnnotationId(newId);
+        setAnnotationMode('idle');
+        return;
+      }
+
+      if (currentMode === 'placing-arrow-tail') {
+        // Store the tail and wait for the head click.
+        arrowTailRef.current = { x: mx, y: my };
+        setAnnotationMode('placing-arrow-head');
+        return;
+      }
+
+      if (currentMode === 'placing-arrow-head') {
+        const tail = arrowTailRef.current;
+        if (!tail) {
+          setAnnotationMode('idle');
+          return;
+        }
+        const newId = `${instanceId}-ann-${++annotationIdCounter.current}`;
+        const newAnnotation: Annotation = {
+          kind: 'arrow',
+          id: newId,
+          x1: tail.x,
+          y1: tail.y,
+          x2: mx,
+          y2: my,
+          color: '#a78bfa',
+        };
+        setAnnotations((prev) => [...prev, newAnnotation]);
+        setSelectedAnnotationId(newId);
+        arrowTailRef.current = null;
+        setAnnotationMode('idle');
+        return;
+      }
+    },
+    [instanceId]
+  );
+
+  // Attach / detach the annotation click listener on the canvas.
+  useEffect(() => {
+    if (!isReady || !enableAnnotations) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    canvas.addEventListener('click', handleCanvasAnnotationClick);
+    return () => {
+      canvas.removeEventListener('click', handleCanvasAnnotationClick);
+    };
+  }, [isReady, enableAnnotations, handleCanvasAnnotationClick]);
+
+  // Delete the selected annotation when the Delete / Backspace key is pressed
+  // and no text input is focused.
+  useEffect(() => {
+    if (!enableAnnotations) return;
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (!selectedAnnotationId) return;
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault();
+        setAnnotations((prev) => prev.filter((a) => a.id !== selectedAnnotationId));
+        setSelectedAnnotationId(null);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [enableAnnotations, selectedAnnotationId]);
+
+  // Annotation management callbacks
+  const handleDeleteAnnotation = useCallback((id: string) => {
+    setAnnotations((prev) => prev.filter((a) => a.id !== id));
+    setSelectedAnnotationId((prev) => (prev === id ? null : prev));
+  }, []);
+
+  const handleClearAllAnnotations = useCallback(() => {
+    setAnnotations([]);
+    setSelectedAnnotationId(null);
+    setAnnotationMode('idle');
+  }, []);
 
   // Initialize Cartesian/Parametric interaction controller
   useEffect(() => {
@@ -295,14 +429,65 @@ export function Plot2D({
     }
   }, [canvasSize.width, canvasSize.height, isReady, config]);
 
+  // Derive the canvas cursor style based on annotation mode.
+  const canvasCursor =
+    annotationMode === 'placing-label'
+      ? 'crosshair'
+      : annotationMode === 'placing-arrow-tail' || annotationMode === 'placing-arrow-head'
+        ? 'cell'
+        : undefined;
+
+  // The annotation overlay needs the live Cartesian/Parametric viewport.
+  // For polar plots annotations use a synthetic ±rMax viewport so the math
+  // coordinates still map sensibly onto screen pixels.
+  const annotationViewport: Viewport =
+    config.type === '2d-cartesian' || config.type === '2d-parametric'
+      ? liveViewport
+      : {
+          xMin: -liveRRange.max,
+          xMax: liveRRange.max,
+          yMin: -liveRRange.max,
+          yMax: liveRRange.max,
+        };
+
   return (
-    <div ref={containerRef} className={`relative w-full h-full min-h-[400px] ${className}`}>
+    <div
+      ref={containerRef}
+      className={`relative w-full h-full min-h-[400px] ${className}`}
+    >
+      {/* ------------------------------------------------------------------ */}
+      {/* Annotation toolbar — rendered above the canvas, inside the wrapper  */}
+      {/* ------------------------------------------------------------------ */}
+      {enableAnnotations && isReady && !error && (
+        <div className="absolute top-2 left-2 right-2 z-30 pointer-events-none">
+          <div className="pointer-events-auto">
+            <div className="
+              px-3 py-2 rounded-xl
+              bg-background/80 backdrop-blur-md
+              border border-border
+              shadow-[0_4px_16px_rgba(0,0,0,0.4)]
+            ">
+              <AnnotationToolbar
+                mode={annotationMode}
+                onModeChange={setAnnotationMode}
+                onClearAll={handleClearAllAnnotations}
+                annotationCount={annotations.length}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       <canvas
         ref={canvasRef}
         width={canvasSize.width}
         height={canvasSize.height}
         className="absolute inset-0 w-full h-full border border-border rounded-lg shadow-[0_0_20px_rgba(6,182,212,0.15)]"
-        style={{ width: '100%', height: '100%' }}
+        style={{
+          width: '100%',
+          height: '100%',
+          ...(canvasCursor ? { cursor: canvasCursor } : {}),
+        }}
         aria-label={config.type === '2d-cartesian' && config.title ? config.title : '2D mathematical plot'}
         role="img"
       />
@@ -334,6 +519,21 @@ export function Plot2D({
         />
       )}
 
+      {/* ------------------------------------------------------------------ */}
+      {/* Annotation overlay — Fix 4                                          */}
+      {/* ------------------------------------------------------------------ */}
+      {enableAnnotations && isReady && !error && annotations.length > 0 && (
+        <Annotations
+          annotations={annotations}
+          viewport={annotationViewport}
+          width={canvasSize.width}
+          height={canvasSize.height}
+          selectedId={selectedAnnotationId}
+          onSelect={setSelectedAnnotationId}
+          onDelete={handleDeleteAnnotation}
+        />
+      )}
+
       {error && (
         <div className="absolute inset-0 flex items-center justify-center bg-red-950/90 rounded-lg border border-red-800">
           <div className="text-center p-4">
@@ -361,7 +561,7 @@ export function Plot2D({
       {enableInteractions && isReady && (
         <div className="absolute bottom-2 left-2 bg-background/90 backdrop-blur-sm p-2 rounded shadow-lg text-xs text-foreground/80 border border-border">
           {config.type === '2d-polar'
-            ? 'Scroll to zoom | Drag to pan (coming soon)'
+            ? 'Scroll to zoom | Drag to pan | R to reset'
             : 'Drag to pan | Scroll to zoom | R to reset'}
         </div>
       )}
