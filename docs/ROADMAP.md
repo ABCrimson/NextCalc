@@ -153,8 +153,8 @@
 
 ### Phase 3: Testing & Quality
 
-- [ ] Expand E2E tests with Playwright for critical user flows
-- [x] Expand math-engine tests for untested modules
+- [x] Playwright E2E tests -- 27 spec files covering calculator, navigation, plots, accessibility, forum, solver, stats, units, matrix, symbolic, mobile, settings
+- [x] Expand math-engine tests for untested modules -- 296 new tests across 5 modules
 
 ### Phase 4: Deployment
 
