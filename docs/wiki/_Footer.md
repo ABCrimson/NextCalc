@@ -1,0 +1,1 @@
+[Home](Home) | [Getting Started](Getting-Started) | [Architecture](Architecture) | [API Reference](GraphQL-API) | [Deployment](Deployment) | [GitHub](https://github.com/ABCrimson/NextCalc) | [Live Demo](https://nextcalc.io)

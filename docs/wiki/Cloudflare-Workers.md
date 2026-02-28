@@ -1,0 +1,95 @@
+# Cloudflare Workers
+
+Three edge microservices deployed to Cloudflare's global network for sub-50ms response times.
+
+## Services
+
+| Worker | URL | Purpose | Bindings |
+|:-------|:----|:--------|:---------|
+| CAS Service | `cas.nextcalc.io` | Symbolic math (solve, diff, integrate) | -- |
+| Export Service | `export.nextcalc.io` | LaTeX to PDF/PNG/SVG | R2 bucket |
+| Rate Limiter | `ratelimit.nextcalc.io` | API quota enforcement | KV namespace |
+
+**Tech**: Hono 4.12, Wrangler 4.67, Zod, TypeScript strict mode
+
+---
+
+## CAS Service
+
+**Endpoints:**
+- `POST /solve` -- Solve algebraic equations
+- `POST /differentiate` -- Compute derivatives
+- `POST /integrate` -- Compute integrals
+- `POST /arc-length` -- Calculate curve arc length
+- `GET /health` -- Health check
+
+**Example:**
+```bash
+curl -X POST https://cas.nextcalc.io/solve \
+  -H "Content-Type: application/json" \
+  -d '{"expression": "2x + 5 = 13", "variable": "x", "precision": 10}'
+```
+
+**Performance:** Equation solving 10-50ms, differentiation 5-20ms, integration 15-100ms
+
+---
+
+## Export Service
+
+**Endpoints:**
+- `POST /export/pdf` -- Export to PDF
+- `POST /export/png` -- Export to PNG
+- `POST /export/svg` -- Export to SVG
+- `GET /export/dpi/:useCase` -- Recommended DPI
+- `GET /health` -- Health check
+
+**Example:**
+```bash
+curl -X POST https://export.nextcalc.io/export/svg \
+  -H "Content-Type: application/json" \
+  -d '{"latex": "E = mc^2", "options": {"fontSize": 24}}'
+```
+
+**Performance:** SVG 20-50ms, PNG 100-500ms, PDF 200-1000ms
+
+---
+
+## Rate Limiter
+
+**Endpoints:**
+- `POST /check` -- Check and consume rate limit
+- `GET /status/:identifier` -- Current status
+- `DELETE /reset/:identifier` -- Reset (admin only)
+- `GET /configs` -- Tier configurations
+- `GET /health` -- Health check
+
+**Tiers:**
+| Tier | Requests/Hour | Burst |
+|:-----|:-------------|:------|
+| Free | 100 | 20 |
+| Pro | 1000 | 50 |
+| Enterprise | Unlimited | 1000 |
+
+**Performance:** Check 1-5ms, status 1-3ms
+
+---
+
+## Local Development
+
+```bash
+cd apps/workers/cas-service && pnpm dev      # Port 8787
+cd apps/workers/export-service && pnpm dev   # Port 8788
+cd apps/workers/rate-limiter && pnpm dev     # Port 8789
+```
+
+## Deployment
+
+```bash
+cd apps/workers/cas-service && pnpm deploy
+cd apps/workers/export-service && pnpm deploy
+cd apps/workers/rate-limiter && pnpm deploy
+```
+
+## Monitoring
+
+All workers have OpenTelemetry observability enabled in `wrangler.toml`. Monitor via Cloudflare Dashboard > Workers & Pages.

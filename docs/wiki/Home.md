@@ -1,0 +1,55 @@
+# NextCalc Pro
+
+**Scientific Calculator & Mathematical Visualization Platform**
+
+[Live Demo](https://nextcalc.io) | [GitHub Repository](https://github.com/ABCrimson/NextCalc) | [Releases](https://github.com/ABCrimson/NextCalc/releases)
+
+---
+
+## Overview
+
+NextCalc Pro is a comprehensive scientific calculator and mathematical visualization platform built as a monorepo with Next.js 16, React 19, TypeScript 6, and GPU-accelerated rendering.
+
+### Key Numbers
+
+- **47** page routes
+- **8** languages (en, ru, es, uk, de, fr, ja, zh)
+- **18** math engine modules
+- **3** Cloudflare Workers
+- **33** GraphQL queries + **24** mutations
+- **6** colormaps + **5** HDR cubemap themes
+
+---
+
+## Quick Links
+
+| Topic | Description |
+|:------|:------------|
+| [[Getting Started]] | Install, configure, and run locally |
+| [[Architecture]] | System design, data flow, and design decisions |
+| [[Math Engine]] | 18 computation modules with usage examples |
+| [[Plot Engine]] | GPU rendering pipeline and colormaps |
+| [[GraphQL API]] | Full API reference (queries, mutations, types) |
+| [[Cloudflare Workers]] | Edge microservices (CAS, export, rate limiter) |
+| [[Database Schema]] | Prisma models, relationships, and enums |
+| [[Internationalization]] | i18n setup and translation workflow |
+| [[Deployment]] | Vercel, Cloudflare, and CI/CD |
+| [[FAQ]] | Common issues and solutions |
+
+---
+
+## Tech Stack
+
+| Category | Technology |
+|:---------|:-----------|
+| Framework | Next.js 16.2 + React 19.3 |
+| Language | TypeScript 6.0 |
+| Styling | Tailwind CSS 4.2 (OKLCH) |
+| State | Zustand 5.0 |
+| 3D | Three.js 0.183 |
+| ORM | Prisma 7.5 |
+| GraphQL | Apollo Server 5.4 / Client 4.2 |
+| Cache | Upstash Redis |
+| Workers | Hono 4.12 on Cloudflare |
+| Build | Turborepo 2.8 |
+| Linting | Biome 2.4.4 |
