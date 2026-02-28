@@ -2,3 +2,14 @@ packages:
   - 'apps/*'
   - 'apps/workers/*'
   - 'packages/*'
+
+allowBuilds:
+  '@apollo/protobufjs': true
+  '@parcel/watcher': true
+  '@prisma/engines': true
+  '@sentry/cli': true
+  '@swc/core': true
+  esbuild: true
+  prisma: true
+  sharp: true
+  workerd: true

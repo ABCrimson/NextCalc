@@ -27,7 +27,7 @@
   },
   "packageManager": "pnpm@11.0.0-alpha.11",
   "engines": {
-    "node": ">=25.0.0-0",
+    "node": ">=20.0.0",
     "pnpm": ">=11.0.0-alpha.1"
   },
   "dependencies": {
