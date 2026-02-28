@@ -42,6 +42,8 @@
   "nav.graphs.description": "Algoritmos de grafos",
   "nav.ml": "ML",
   "nav.ml.description": "Aprendizaje automático",
+  "nav.formulas": "Fórmulas",
+  "nav.formulas.description": "Biblioteca de fórmulas LaTeX con búsqueda",
   "nav.profile": "Perfil",
   "nav.settings": "Configuración",
   "nav.settings.description": "Perfil, apariencia, valores predeterminados",
@@ -1208,5 +1210,18 @@
   "accessibility.mainNavigation": "Navegación principal",
   "accessibility.calculatorDisplay": "Pantalla de la calculadora",
   "accessibility.calculatorKeyboard": "Teclado de la calculadora",
-  "accessibility.skipToContent": "Saltar al contenido"
+  "accessibility.skipToContent": "Saltar al contenido",
+
+  "templates.skipToContent": "Saltar a las plantillas",
+  "templates.badge": "Fórmulas listas para usar",
+  "templates.heroTitle": "Plantillas de Cálculo",
+  "templates.heroDescription": "Resuelva problemas reales de finanzas, ciencia, ingeniería, estadística y educación. Complete los campos y haga clic en Calcular.",
+  "templates.filterLabel": "Filtrar:",
+  "templates.clearFilters": "Limpiar filtros",
+  "templates.noResults": "Ninguna plantilla coincide con los filtros actuales.",
+  "templates.howToTitle": "Cómo usar las plantillas",
+  "templates.howToDescription": "Ingrese valores en los campos etiquetados y presione Enter o haga clic en Calcular para ver el resultado.",
+
+  "nav.templates": "Plantillas",
+  "nav.templates.description": "Plantillas de cálculo listas para usar"
 }

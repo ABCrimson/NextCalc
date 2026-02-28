@@ -29,6 +29,7 @@ import {
 	Box,
 	Globe,
 	Check,
+	Library,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -120,6 +121,12 @@ const coreNavigationLinks: NavLink[] = [
 		labelKey: 'nav.forum',
 		descKey: 'nav.forum.description',
 		icon: MessageSquare,
+	},
+	{
+		href: '/formulas',
+		labelKey: 'nav.formulas',
+		descKey: 'nav.formulas.description',
+		icon: Library,
 	},
 ];
 

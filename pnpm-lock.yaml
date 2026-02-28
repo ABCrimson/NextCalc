@@ -190,6 +190,12 @@ importers:
       '@upstash/redis':
         specifier: 1.37.0-rc.12
         version: 1.37.0-rc.12
+      '@vercel/analytics':
+        specifier: ^1.6.1
+        version: 1.6.1(next@16.2.0-canary.56(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.0-alpha-2026-02-19)(react-dom@19.3.0-canary-ab18f33d-20260220(react@19.3.0-canary-ab18f33d-20260220))(react@19.3.0-canary-ab18f33d-20260220))(react@19.3.0-canary-ab18f33d-20260220)
+      '@vercel/speed-insights':
+        specifier: ^1.3.1
+        version: 1.3.1(next@16.2.0-canary.56(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.0-alpha-2026-02-19)(react-dom@19.3.0-canary-ab18f33d-20260220(react@19.3.0-canary-ab18f33d-20260220))(react@19.3.0-canary-ab18f33d-20260220))(react@19.3.0-canary-ab18f33d-20260220)
       class-variance-authority:
         specifier: 0.7.1
         version: 0.7.1
@@ -4590,6 +4596,55 @@ packages:
 
   '@upstash/redis@1.37.0-rc.12':
     resolution: {integrity: sha512-yawVnHWw1y0ZgUUd6rlvz50eCed91+0N3JoK1ICHEPYPCIbFoeRqJLiOR50v3sZqEJQ64e/2b+S8vay0rbcoag==}
+
+  '@vercel/analytics@1.6.1':
+    resolution: {integrity: sha512-oH9He/bEM+6oKlv3chWuOOcp8Y6fo6/PSro8hEkgCW3pu9/OiCXiUpRUogDh3Fs3LH2sosDrx8CxeOLBEE+afg==}
+    peerDependencies:
+      '@remix-run/react': ^2
+      '@sveltejs/kit': ^1 || ^2
+      next: '>= 13'
+      react: ^18 || ^19 || ^19.0.0-rc
+      svelte: '>= 4'
+      vue: ^3
+      vue-router: ^4
+    peerDependenciesMeta:
+      '@remix-run/react':
+        optional: true
+      '@sveltejs/kit':
+        optional: true
+      next:
+        optional: true
+      react:
+        optional: true
+      svelte:
+        optional: true
+      vue:
+        optional: true
+      vue-router:
+        optional: true
+
+  '@vercel/speed-insights@1.3.1':
+    resolution: {integrity: sha512-PbEr7FrMkUrGYvlcLHGkXdCkxnylCWePx7lPxxq36DNdfo9mcUjLOmqOyPDHAOgnfqgGGdmE3XI9L/4+5fr+vQ==}
+    peerDependencies:
+      '@sveltejs/kit': ^1 || ^2
+      next: '>= 13'
+      react: ^18 || ^19 || ^19.0.0-rc
+      svelte: '>= 4'
+      vue: ^3
+      vue-router: ^4
+    peerDependenciesMeta:
+      '@sveltejs/kit':
+        optional: true
+      next:
+        optional: true
+      react:
+        optional: true
+      svelte:
+        optional: true
+      vue:
+        optional: true
+      vue-router:
+        optional: true
 
   '@vitest/expect@4.1.0-beta.4':
     resolution: {integrity: sha512-50CzsTy9kVrlI7V0Ot63jPb5q069r1Xn/z489q/pWmFImEUC30oiO9gaRInkWUmgHpSZTO8E9rSdu6jFZwRHjg==}
@@ -12095,6 +12150,16 @@ snapshots:
   '@upstash/redis@1.37.0-rc.12':
     dependencies:
       uncrypto: 0.1.3
+
+  '@vercel/analytics@1.6.1(next@16.2.0-canary.56(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.0-alpha-2026-02-19)(react-dom@19.3.0-canary-ab18f33d-20260220(react@19.3.0-canary-ab18f33d-20260220))(react@19.3.0-canary-ab18f33d-20260220))(react@19.3.0-canary-ab18f33d-20260220)':
+    optionalDependencies:
+      next: 16.2.0-canary.56(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.0-alpha-2026-02-19)(react-dom@19.3.0-canary-ab18f33d-20260220(react@19.3.0-canary-ab18f33d-20260220))(react@19.3.0-canary-ab18f33d-20260220)
+      react: 19.3.0-canary-ab18f33d-20260220
+
+  '@vercel/speed-insights@1.3.1(next@16.2.0-canary.56(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.0-alpha-2026-02-19)(react-dom@19.3.0-canary-ab18f33d-20260220(react@19.3.0-canary-ab18f33d-20260220))(react@19.3.0-canary-ab18f33d-20260220))(react@19.3.0-canary-ab18f33d-20260220)':
+    optionalDependencies:
+      next: 16.2.0-canary.56(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.59.0-alpha-2026-02-19)(react-dom@19.3.0-canary-ab18f33d-20260220(react@19.3.0-canary-ab18f33d-20260220))(react@19.3.0-canary-ab18f33d-20260220)
+      react: 19.3.0-canary-ab18f33d-20260220
 
   '@vitest/expect@4.1.0-beta.4':
     dependencies:

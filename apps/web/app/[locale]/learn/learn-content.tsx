@@ -5,8 +5,9 @@ import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BookOpen, TrendingUp, Award, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { BookOpen, TrendingUp, Award, ArrowRight, CheckCircle2, Bookmark } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useBookmarksStore } from '@/lib/stores/bookmarks-store';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -296,6 +297,9 @@ function TopicCard({ topic, definitionCount, shouldReduceMotion }: TopicCardProp
   const t = useTranslations('learn');
   const config = TOPIC_CONFIG[topic];
   const href = `/learn/${topic.toLowerCase().replace(/\s+/g, '-')}`;
+  const bookmarkId = `topic:${topic.toLowerCase().replace(/\s+/g, '-')}`;
+  const toggleBookmark = useBookmarksStore((s) => s.toggleBookmark);
+  const isBookmarked = useBookmarksStore((s) => s.bookmarks.some((b) => b.id === bookmarkId));
 
   const hoverProps = shouldReduceMotion
     ? {}
@@ -306,8 +310,8 @@ function TopicCard({ topic, definitionCount, shouldReduceMotion }: TopicCardProp
       {...hoverProps}
       transition={{ duration: 0.2, ease: [0, 0, 0.2, 1] }}
     >
-      <Link href={href} className="block h-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded-xl">
-        <Card className="h-full cursor-pointer relative overflow-hidden backdrop-blur-md bg-card/50 border-border group">
+      <div className="block h-full rounded-xl">
+        <Card className="h-full relative overflow-hidden backdrop-blur-md bg-card/50 border-border group">
           {/* Subtle gradient wash on hover */}
           <div
             className={`absolute inset-0 opacity-0 group-hover:opacity-8 transition-opacity duration-300 bg-gradient-to-br ${config.color}`}
@@ -316,7 +320,7 @@ function TopicCard({ topic, definitionCount, shouldReduceMotion }: TopicCardProp
 
           <CardHeader>
             <div className="flex items-start justify-between">
-              <div className="flex-1">
+              <Link href={href} className="flex-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded">
                 <div className="flex items-center gap-3 mb-2">
                   {/* Gradient icon badge with glow on hover */}
                   <div
@@ -339,33 +343,54 @@ function TopicCard({ topic, definitionCount, shouldReduceMotion }: TopicCardProp
                     </Badge>
                   </div>
                 </div>
+              </Link>
+              <div className="flex items-center gap-1 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => toggleBookmark({
+                    id: bookmarkId,
+                    type: 'topic',
+                    title: topic,
+                    path: `/learn/${topic.toLowerCase().replace(/\s+/g, '-')}`,
+                  })}
+                  className="p-1.5 rounded-md hover:bg-muted/60 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                  aria-label={isBookmarked ? `Remove ${topic} bookmark` : `Bookmark ${topic}`}
+                >
+                  <Bookmark
+                    className={`h-4 w-4 transition-colors ${isBookmarked ? 'fill-primary text-primary' : 'text-muted-foreground'}`}
+                  />
+                </button>
+                <Link href={href} className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded">
+                  <ArrowRight
+                    className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-200"
+                    aria-hidden="true"
+                  />
+                </Link>
               </div>
-              <ArrowRight
-                className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-200 shrink-0"
-                aria-hidden="true"
-              />
             </div>
             <CardDescription className="mt-2">{config.description}</CardDescription>
           </CardHeader>
 
-          <CardContent>
-            <ul className="space-y-2" aria-label={t('availableContent', { topic })}>
-              <li className="flex items-center gap-2 text-sm">
-                <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0" aria-hidden="true" />
-                <span className="text-muted-foreground">{t('coreDefinitions')}</span>
-              </li>
-              <li className="flex items-center gap-2 text-sm">
-                <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0" aria-hidden="true" />
-                <span className="text-muted-foreground">{t('keyTheorems')}</span>
-              </li>
-              <li className="flex items-center gap-2 text-sm">
-                <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0" aria-hidden="true" />
-                <span className="text-muted-foreground">{t('practiceProblems')}</span>
-              </li>
-            </ul>
-          </CardContent>
+          <Link href={href} className="cursor-pointer">
+            <CardContent>
+              <ul className="space-y-2" aria-label={t('availableContent', { topic })}>
+                <li className="flex items-center gap-2 text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0" aria-hidden="true" />
+                  <span className="text-muted-foreground">{t('coreDefinitions')}</span>
+                </li>
+                <li className="flex items-center gap-2 text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0" aria-hidden="true" />
+                  <span className="text-muted-foreground">{t('keyTheorems')}</span>
+                </li>
+                <li className="flex items-center gap-2 text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0" aria-hidden="true" />
+                  <span className="text-muted-foreground">{t('practiceProblems')}</span>
+                </li>
+              </ul>
+            </CardContent>
+          </Link>
         </Card>
-      </Link>
+      </div>
     </motion.div>
   );
 }

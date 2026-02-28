@@ -42,6 +42,8 @@
   "nav.graphs.description": "Алгоритмы на графах",
   "nav.ml": "МО",
   "nav.ml.description": "Машинное обучение",
+  "nav.formulas": "Формулы",
+  "nav.formulas.description": "Поисковая библиотека формул LaTeX",
   "nav.profile": "Профиль",
   "nav.settings": "Настройки",
   "nav.settings.description": "Профиль, оформление, настройки по умолчанию",
@@ -1208,5 +1210,18 @@
   "accessibility.mainNavigation": "Основная навигация",
   "accessibility.calculatorDisplay": "Дисплей калькулятора",
   "accessibility.calculatorKeyboard": "Клавиатура калькулятора",
-  "accessibility.skipToContent": "Перейти к содержимому"
+  "accessibility.skipToContent": "Перейти к содержимому",
+
+  "templates.skipToContent": "Перейти к шаблонам",
+  "templates.badge": "Готовые формулы",
+  "templates.heroTitle": "Шаблоны вычислений",
+  "templates.heroDescription": "Решайте реальные задачи по финансам, науке, инженерии, статистике и образованию. Заполните поля и нажмите «Вычислить».",
+  "templates.filterLabel": "Фильтр:",
+  "templates.clearFilters": "Сбросить фильтры",
+  "templates.noResults": "Шаблоны не найдены для текущих фильтров.",
+  "templates.howToTitle": "Как использовать шаблоны",
+  "templates.howToDescription": "Введите значения в поля с подписями и нажмите Enter или кнопку «Вычислить», чтобы увидеть результат.",
+
+  "nav.templates": "Шаблоны",
+  "nav.templates.description": "Готовые шаблоны вычислений"
 }

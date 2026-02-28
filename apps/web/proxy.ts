@@ -96,7 +96,7 @@ export default auth((req) => {
   // ---- Step 3: Strip locale prefix for route matching ----
   // Paths may be locale-prefixed (e.g., /en/dashboard, /es/settings).
   // Strip the locale prefix to match against our protected routes list.
-  const localePattern = /^\/(?:en|ru|es|uk|de)(\/|$)/;
+  const localePattern = /^\/(?:en|ru|es|uk|de|fr|ja|zh)(\/|$)/;
   const pathnameWithoutLocale = pathname.replace(localePattern, '/');
 
   // ---- Step 4: Auth checks ----

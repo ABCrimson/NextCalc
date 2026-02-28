@@ -42,6 +42,8 @@
   "nav.graphs.description": "Graphenalgorithmen",
   "nav.ml": "ML",
   "nav.ml.description": "Maschinelles Lernen",
+  "nav.formulas": "Formeln",
+  "nav.formulas.description": "Durchsuchbare LaTeX-Formelsammlung",
   "nav.profile": "Profil",
   "nav.settings": "Einstellungen",
   "nav.settings.description": "Profil, Erscheinungsbild, Standardwerte",
@@ -1210,5 +1212,18 @@
   "accessibility.mainNavigation": "Hauptnavigation",
   "accessibility.calculatorDisplay": "Rechneranzeige",
   "accessibility.calculatorKeyboard": "Rechnertastatur",
-  "accessibility.skipToContent": "Zum Inhalt springen"
+  "accessibility.skipToContent": "Zum Inhalt springen",
+
+  "templates.skipToContent": "Zu den Vorlagen springen",
+  "templates.badge": "Gebrauchsfertige Formeln",
+  "templates.heroTitle": "Berechnungsvorlagen",
+  "templates.heroDescription": "Lösen Sie reale Probleme aus Finanzen, Wissenschaft, Technik, Statistik und Bildung. Felder ausfüllen, Berechnen klicken.",
+  "templates.filterLabel": "Filter:",
+  "templates.clearFilters": "Filter zurücksetzen",
+  "templates.noResults": "Keine Vorlagen entsprechen den aktuellen Filtern.",
+  "templates.howToTitle": "So verwenden Sie Vorlagen",
+  "templates.howToDescription": "Geben Sie Werte in die beschrifteten Eingabefelder ein und drücken Sie Enter oder klicken Sie auf Berechnen.",
+
+  "nav.templates": "Vorlagen",
+  "nav.templates.description": "Gebrauchsfertige Berechnungsvorlagen"
 }

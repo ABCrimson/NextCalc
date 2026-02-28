@@ -42,6 +42,8 @@
   "nav.graphs.description": "Алгоритми на графах",
   "nav.ml": "МН",
   "nav.ml.description": "Машинне навчання",
+  "nav.formulas": "Формули",
+  "nav.formulas.description": "Бібліотека формул LaTeX з пошуком",
   "nav.profile": "Профіль",
   "nav.settings": "Налаштування",
   "nav.settings.description": "Профіль, зовнішній вигляд, стандартні значення",
@@ -1210,5 +1212,18 @@
   "accessibility.mainNavigation": "Основна навігація",
   "accessibility.calculatorDisplay": "Дисплей калькулятора",
   "accessibility.calculatorKeyboard": "Клавіатура калькулятора",
-  "accessibility.skipToContent": "Перейти до вмісту"
+  "accessibility.skipToContent": "Перейти до вмісту",
+
+  "templates.skipToContent": "Перейти до шаблонів",
+  "templates.badge": "Готові формули",
+  "templates.heroTitle": "Шаблони обчислень",
+  "templates.heroDescription": "Вирішуйте реальні завдання з фінансів, науки, інженерії, статистики та освіти. Заповніть поля та натисніть «Обчислити».",
+  "templates.filterLabel": "Фільтр:",
+  "templates.clearFilters": "Скинути фільтри",
+  "templates.noResults": "Шаблони не знайдено для поточних фільтрів.",
+  "templates.howToTitle": "Як використовувати шаблони",
+  "templates.howToDescription": "Введіть значення в поля з підписами та натисніть Enter або кнопку «Обчислити», щоб побачити результат.",
+
+  "nav.templates": "Шаблони",
+  "nav.templates.description": "Готові шаблони обчислень"
 }

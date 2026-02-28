@@ -35,6 +35,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { evaluate } from '@nextcalc/math-engine';
 import { Zap, Activity, Layers, Maximize2 } from 'lucide-react';
+import { VariableSliders } from '@/components/plot/variable-sliders';
 
 // ---------------------------------------------------------------------------
 // Preset data  (Fix 5: 10 per category)
@@ -334,6 +335,11 @@ export default function PlotsExamplesPage() {
     { id: 'param-y-1', expression: 'sin(t) * (2 + cos(5 * t))', label: 'y(t)', color: '#059669', isValid: true },
   ]);
 
+  // Slider parameter values for each tab — keyed by parameter name, value is number
+  const [cartesianSliderValues, setCartesianSliderValues] = useState<Record<string, number>>({});
+  const [polarSliderValues, setPolarSliderValues] = useState<Record<string, number>>({});
+  const [parametricSliderValues, setParametricSliderValues] = useState<Record<string, number>>({});
+
   // Active preset labels for visual indication
   const [activeCartesian, setActiveCartesian] = useState<string | null>(null);
   const [activePolar, setActivePolar] = useState<string | null>(null);
@@ -362,26 +368,26 @@ export default function PlotsExamplesPage() {
       .filter(fn => fn.isValid && fn.expression.trim())
       .map(fn => ({
         fn: (x: number) => {
-          const result = evaluate(fn.expression, { variables: { x } });
+          const result = evaluate(fn.expression, { variables: { x, ...cartesianSliderValues } });
           return result.success ? Number(result.value) : NaN;
         },
         label: fn.label,
         style: { line: { width: 2, color: fn.color } },
       }));
-  }, [customFunctions]);
+  }, [customFunctions, cartesianSliderValues]);
 
   const customPolarPlotFunctions = useMemo(() => {
     return polarFunctions
       .filter(fn => fn.isValid && fn.expression.trim())
       .map(fn => ({
         fn: (theta: number) => {
-          const result = evaluate(fn.expression, { variables: { theta } });
+          const result = evaluate(fn.expression, { variables: { theta, ...polarSliderValues } });
           return result.success ? Number(result.value) : NaN;
         },
         label: fn.label,
         style: { line: { width: 2, color: fn.color } },
       }));
-  }, [polarFunctions]);
+  }, [polarFunctions, polarSliderValues]);
 
   // Convert parametric functions to plot config
   const customParametricPlotFunctions = useMemo(() => {
@@ -399,17 +405,17 @@ export default function PlotsExamplesPage() {
 
     return [{
       x: (t: number) => {
-        const result = evaluate(xFn.expression, { variables: { t } });
+        const result = evaluate(xFn.expression, { variables: { t, ...parametricSliderValues } });
         return result.success ? Number(result.value) : NaN;
       },
       y: (t: number) => {
-        const result = evaluate(yFn.expression, { variables: { t } });
+        const result = evaluate(yFn.expression, { variables: { t, ...parametricSliderValues } });
         return result.success ? Number(result.value) : NaN;
       },
       label: xFn.label || 'Parametric curve',
       style: { line: { width: 2, color: xFn.color } },
     }];
-  }, [parametricFunctionsX, parametricFunctionsY]);
+  }, [parametricFunctionsX, parametricFunctionsY, parametricSliderValues]);
 
   // Fix 4: Analysis panel functions — memoised AnalysisFunction arrays
   const cartesianAnalysisFunctions = useMemo<AnalysisFunction[]>(() => {
@@ -417,13 +423,13 @@ export default function PlotsExamplesPage() {
       .filter(fn => fn.isValid && fn.expression.trim())
       .map(fn => ({
         fn: (x: number) => {
-          const result = evaluate(fn.expression, { variables: { x } });
+          const result = evaluate(fn.expression, { variables: { x, ...cartesianSliderValues } });
           return result.success ? Number(result.value) : NaN;
         },
         label: fn.label,
         color: fn.color,
       }));
-  }, [customFunctions]);
+  }, [customFunctions, cartesianSliderValues]);
 
   // Polar analysis functions — memoised PolarAnalysisFunction arrays
   const polarAnalysisFunctions = useMemo<PolarAnalysisFunction[]>(() => {
@@ -431,14 +437,14 @@ export default function PlotsExamplesPage() {
       .filter(fn => fn.isValid && fn.expression.trim())
       .map(fn => ({
         fn: (theta: number) => {
-          const result = evaluate(fn.expression, { variables: { theta } });
+          const result = evaluate(fn.expression, { variables: { theta, ...polarSliderValues } });
           return result.success ? Number(result.value) : NaN;
         },
         label: fn.label,
         color: fn.color,
         expression: fn.expression,
       }));
-  }, [polarFunctions]);
+  }, [polarFunctions, polarSliderValues]);
 
   // Configs
   const cartesianConfig: Plot2DCartesianConfig = {
@@ -672,6 +678,12 @@ export default function PlotsExamplesPage() {
                       />
                     </div>
                   </div>
+
+                  {/* Variable sliders — shown only when free parameters are detected */}
+                  <VariableSliders
+                    expressions={customFunctions.map(fn => fn.expression)}
+                    onChange={setCartesianSliderValues}
+                  />
                 </div>
               </div>
 
@@ -767,6 +779,12 @@ const config = {
                       />
                     </div>
                   </div>
+
+                  {/* Variable sliders — shown only when free parameters are detected */}
+                  <VariableSliders
+                    expressions={polarFunctions.map(fn => fn.expression)}
+                    onChange={setPolarSliderValues}
+                  />
                 </div>
               </div>
 
@@ -877,6 +895,15 @@ const config = {
                       />
                     </div>
                   </div>
+
+                  {/* Variable sliders — shown only when free parameters are detected */}
+                  <VariableSliders
+                    expressions={[
+                      ...parametricFunctionsX.map(fn => fn.expression),
+                      ...parametricFunctionsY.map(fn => fn.expression),
+                    ]}
+                    onChange={setParametricSliderValues}
+                  />
                 </div>
               </div>
 
@@ -907,7 +934,7 @@ const config = {
                   if (xFn?.isValid && xFn.expression.trim()) {
                     analysisFns.push({
                       fn: (t: number) => {
-                        const r = evaluate(xFn.expression, { variables: { t } });
+                        const r = evaluate(xFn.expression, { variables: { t, ...parametricSliderValues } });
                         return r.success ? Number(r.value) : NaN;
                       },
                       label: `x(t): ${xFn.label || xFn.expression}`,
@@ -917,7 +944,7 @@ const config = {
                   if (yFn?.isValid && yFn.expression.trim()) {
                     analysisFns.push({
                       fn: (t: number) => {
-                        const r = evaluate(yFn.expression, { variables: { t } });
+                        const r = evaluate(yFn.expression, { variables: { t, ...parametricSliderValues } });
                         return r.success ? Number(r.value) : NaN;
                       },
                       label: `y(t): ${yFn.label || yFn.expression}`,
