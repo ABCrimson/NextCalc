@@ -40,11 +40,11 @@
   "dependencies": {
     "@nextcalc/math-engine": "workspace:*",
     "d3": "7.9.0",
-    "three": "0.183.1"
+    "three": "0.183.2"
   },
   "devDependencies": {
     "@types/d3": "7.4.3",
-    "@types/node": "25.3.0",
+    "@types/node": "25.3.3",
     "@types/three": "0.183.1",
     "fast-check": "4.5.3",
     "typescript": "6.0.0-dev.20260223",
