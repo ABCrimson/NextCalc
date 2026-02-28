@@ -1355,5 +1355,31 @@
   "templates.howToDescription": "Enter values into the labelled input fields — you can type any numeric expression. Press Enter or click Calculate to see the result. Every template shows the underlying formula so you can verify the mathematics. Use the category filter bar to focus on a particular domain.",
 
   "nav.templates": "Templates",
-  "nav.templates.description": "Ready-to-use calculation templates"
+  "nav.templates.description": "Ready-to-use calculation templates",
+
+  "worksheets.title": "My Worksheets",
+  "worksheets.subtitle": "Your saved mathematical notebooks",
+  "worksheets.newWorksheet": "New Worksheet",
+  "worksheets.searchPlaceholder": "Search worksheets...",
+  "worksheets.sortDirection": "Toggle sort direction",
+  "worksheets.sortUpdated": "Last updated",
+  "worksheets.sortCreated": "Date created",
+  "worksheets.sortTitle": "Title",
+  "worksheets.gridView": "Grid view",
+  "worksheets.listView": "List view",
+  "worksheets.emptyTitle": "No worksheets yet",
+  "worksheets.emptyDescription": "Create your first mathematical notebook to get started.",
+  "worksheets.createFirst": "Create Worksheet",
+  "worksheets.noResults": "No worksheets match your search.",
+  "worksheets.deleteConfirm": "Are you sure you want to delete this worksheet?",
+  "worksheets.delete": "Delete worksheet",
+  "worksheets.cellCount": "{count, plural, one {# cell} other {# cells}}",
+  "worksheets.views": "views",
+  "worksheets.justNow": "just now",
+  "worksheets.minutesAgo": "{count, plural, one {# minute ago} other {# minutes ago}}",
+  "worksheets.hoursAgo": "{count, plural, one {# hour ago} other {# hours ago}}",
+  "worksheets.daysAgo": "{count, plural, one {# day ago} other {# days ago}}",
+
+  "nav.worksheets": "My Worksheets",
+  "nav.worksheets.description": "View and manage your saved worksheets"
 }

@@ -577,26 +577,187 @@ function VisualizationRenderer({
     );
   }
 
-  // Enhanced placeholder for tree and graph visualizations
+  // Tree visualization — binary tree layout
+  if (type === 'tree') {
+    const flatElements = elements.flat() as (string | number)[];
+    // Layout nodes as a binary tree (0-indexed array → level-order)
+    const levels: { value: string | number; index: number; x: number; y: number }[][] = [];
+    let idx = 0;
+    let level = 0;
+    while (idx < flatElements.length) {
+      const count = Math.pow(2, level);
+      const row: typeof levels[0] = [];
+      for (let i = 0; i < count && idx < flatElements.length; i++, idx++) {
+        const totalWidth = 600;
+        const spacing = totalWidth / (count + 1);
+        row.push({
+          value: flatElements[idx] ?? '',
+          index: idx,
+          x: spacing * (i + 1),
+          y: 50 + level * 80,
+        });
+      }
+      levels.push(row);
+      level++;
+    }
+
+    const maxY = levels.length * 80 + 50;
+    return (
+      <div className="flex justify-center p-4" role="img" aria-label="Tree visualization">
+        <svg width={600} height={maxY} viewBox={`0 0 600 ${maxY}`} className="max-w-full">
+          {/* Edges */}
+          {levels.map((row, lvl) =>
+            row.map((node, i) => {
+              if (lvl === 0) return null;
+              const parentLvl = levels[lvl - 1];
+              const parentIdx = Math.floor(i / 2);
+              const parent = parentLvl?.[parentIdx];
+              if (!parent) return null;
+              return (
+                <motion.line
+                  key={`edge-${lvl}-${i}`}
+                  x1={parent.x}
+                  y1={parent.y}
+                  x2={node.x}
+                  y2={node.y}
+                  stroke="rgba(100, 116, 139, 0.4)"
+                  strokeWidth={2}
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  animate={{ pathLength: 1, opacity: 1 }}
+                  transition={{ delay: lvl * 0.15, duration: 0.4 }}
+                />
+              );
+            }),
+          )}
+          {/* Nodes */}
+          {levels.map((row) =>
+            row.map((node) => {
+              const isHL = highlighted.includes(node.index);
+              const isCmp = compared.includes(node.index);
+              return (
+                <motion.g
+                  key={`node-${node.index}`}
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: node.index * 0.06, duration: 0.3 }}
+                >
+                  <circle
+                    cx={node.x}
+                    cy={node.y}
+                    r={24}
+                    fill={isHL ? 'rgb(99, 102, 241)' : isCmp ? 'rgb(251, 191, 36)' : 'rgb(30, 41, 59)'}
+                    stroke={isHL ? 'rgba(165, 180, 252, 0.8)' : isCmp ? 'rgba(252, 211, 77, 0.8)' : 'rgba(100, 116, 139, 0.4)'}
+                    strokeWidth={2}
+                  />
+                  <text
+                    x={node.x}
+                    y={node.y + 5}
+                    textAnchor="middle"
+                    fill={isHL || isCmp ? '#ffffff' : '#94a3b8'}
+                    fontSize={14}
+                    fontWeight={600}
+                    fontFamily="monospace"
+                  >
+                    {node.value}
+                  </text>
+                </motion.g>
+              );
+            }),
+          )}
+        </svg>
+      </div>
+    );
+  }
+
+  // Graph visualization — force-directed-like layout
+  const flatElements = elements.flat() as (string | number)[];
+  const nodeCount = flatElements.length;
+  const radius = Math.min(200, nodeCount * 30);
+  const cx = 300;
+  const cy = 220;
+  const nodes = flatElements.map((value, i) => {
+    const angle = (2 * Math.PI * i) / nodeCount - Math.PI / 2;
+    return {
+      value,
+      index: i,
+      x: cx + radius * Math.cos(angle),
+      y: cy + radius * Math.sin(angle),
+    };
+  });
+
+  // Create edges between consecutive highlighted pairs or sequential nodes
+  const edges: { from: number; to: number }[] = [];
+  for (let i = 0; i < highlighted.length - 1; i += 2) {
+    const fromIdx = highlighted[i];
+    const toIdx = highlighted[i + 1];
+    if (fromIdx !== undefined && toIdx !== undefined) {
+      edges.push({ from: fromIdx, to: toIdx });
+    }
+  }
+  // If no edges from highlights, connect all nodes in a ring
+  if (edges.length === 0) {
+    for (let i = 0; i < nodeCount; i++) {
+      edges.push({ from: i, to: (i + 1) % nodeCount });
+    }
+  }
+
   return (
-    <div className="text-center p-12">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="inline-block px-6 py-4 rounded-xl"
-        style={{
-          background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(51, 65, 85, 0.6) 100%)',
-          backdropFilter: 'blur(8px)',
-          border: '1px solid rgba(100, 116, 139, 0.3)',
-        }}
-      >
-        <div className="text-lg font-semibold text-foreground/80 mb-2">
-          {type.charAt(0).toUpperCase() + type.slice(1)} Visualization
-        </div>
-        <div className="text-sm text-muted-foreground">
-          Advanced {type} rendering coming soon
-        </div>
-      </motion.div>
+    <div className="flex justify-center p-4" role="img" aria-label="Graph visualization">
+      <svg width={600} height={440} viewBox="0 0 600 440" className="max-w-full">
+        {/* Edges */}
+        {edges.map((edge, i) => {
+          const from = nodes[edge.from];
+          const to = nodes[edge.to];
+          if (!from || !to) return null;
+          return (
+            <motion.line
+              key={`gedge-${i}`}
+              x1={from.x}
+              y1={from.y}
+              x2={to.x}
+              y2={to.y}
+              stroke="rgba(100, 116, 139, 0.35)"
+              strokeWidth={2}
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={{ pathLength: 1, opacity: 1 }}
+              transition={{ delay: i * 0.08, duration: 0.4 }}
+            />
+          );
+        })}
+        {/* Nodes */}
+        {nodes.map((node) => {
+          const isHL = highlighted.includes(node.index);
+          const isCmp = compared.includes(node.index);
+          return (
+            <motion.g
+              key={`gnode-${node.index}`}
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: node.index * 0.08, duration: 0.3, type: 'spring', stiffness: 200 }}
+            >
+              <circle
+                cx={node.x}
+                cy={node.y}
+                r={26}
+                fill={isHL ? 'rgb(99, 102, 241)' : isCmp ? 'rgb(251, 191, 36)' : 'rgb(30, 41, 59)'}
+                stroke={isHL ? 'rgba(165, 180, 252, 0.8)' : isCmp ? 'rgba(252, 211, 77, 0.8)' : 'rgba(100, 116, 139, 0.4)'}
+                strokeWidth={2}
+              />
+              <text
+                x={node.x}
+                y={node.y + 5}
+                textAnchor="middle"
+                fill={isHL || isCmp ? '#ffffff' : '#94a3b8'}
+                fontSize={13}
+                fontWeight={600}
+                fontFamily="monospace"
+              >
+                {node.value}
+              </text>
+            </motion.g>
+          );
+        })}
+      </svg>
     </div>
   );
 }

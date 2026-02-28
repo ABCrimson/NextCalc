@@ -128,6 +128,12 @@ const coreNavigationLinks: NavLink[] = [
 		descKey: 'nav.formulas.description',
 		icon: Library,
 	},
+	{
+		href: '/templates',
+		labelKey: 'nav.templates',
+		descKey: 'nav.templates.description',
+		icon: Box,
+	},
 ];
 
 const algorithmLinks: NavLink[] = [

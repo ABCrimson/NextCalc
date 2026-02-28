@@ -1,20 +1,20 @@
 'use client';
 
-import { useState, useCallback, useId } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
+  AlertCircle,
+  BarChart2,
+  Calculator,
+  CheckCircle2,
+  ChevronRight,
   DollarSign,
   FlaskConical,
-  Wrench,
-  BarChart2,
   GraduationCap,
-  ChevronRight,
-  Calculator,
-  AlertCircle,
-  CheckCircle2,
   type LucideIcon,
+  Wrench,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useCallback, useId, useState } from 'react';
 
 // ---------------------------------------------------------------------------
 // Type definitions
@@ -98,7 +98,7 @@ interface Category {
 // stripping trailing zeros.
 // ---------------------------------------------------------------------------
 function fmt(value: number, dp = 4): string {
-  if (!isFinite(value)) return 'Undefined';
+  if (!Number.isFinite(value)) return 'Undefined';
   if (Number.isNaN(value)) return 'Invalid';
   // Use exponential notation for very large / very small values
   if (Math.abs(value) >= 1e12 || (Math.abs(value) < 1e-4 && value !== 0)) {
@@ -143,7 +143,7 @@ const CATEGORIES: Category[] = [
           const t = get('t');
           if (n <= 0) throw new Error('Compounds per year must be positive.');
           if (t < 0) throw new Error('Time must be non-negative.');
-          return P * Math.pow(1 + r / 100 / n, n * t);
+          return P * (1 + r / 100 / n) ** (n * t);
         },
         formatResult: (v) => v.toFixed(2),
       },
@@ -166,8 +166,8 @@ const CATEGORIES: Category[] = [
           const monthly = r / 100 / 12;
           if (n <= 0) throw new Error('Term must be positive.');
           if (monthly === 0) return P / n;
-          const top = monthly * Math.pow(1 + monthly, n);
-          const bot = Math.pow(1 + monthly, n) - 1;
+          const top = monthly * (1 + monthly) ** n;
+          const bot = (1 + monthly) ** n - 1;
           return P * (top / bot);
         },
         formatResult: (v) => v.toFixed(2),
@@ -194,7 +194,7 @@ const CATEGORIES: Category[] = [
       {
         id: 'present-value',
         title: 'Present Value',
-        description: 'Discount a future cash flow back to today\'s value.',
+        description: "Discount a future cash flow back to today's value.",
         formula: 'PV = FV / (1 + r)^n',
         fields: [
           { key: 'FV', label: 'Future value (FV)', placeholder: '5000', unit: '$' },
@@ -207,7 +207,7 @@ const CATEGORIES: Category[] = [
           const FV = get('FV');
           const r = get('r');
           const n = get('n');
-          return FV / Math.pow(1 + r / 100, n);
+          return FV / (1 + r / 100) ** n;
         },
         formatResult: (v) => v.toFixed(2),
       },
@@ -283,7 +283,7 @@ const CATEGORIES: Category[] = [
       {
         id: 'gravitational-force',
         title: 'Gravitational Force',
-        description: 'Newton\'s law of universal gravitation between two masses.',
+        description: "Newton's law of universal gravitation between two masses.",
         formula: 'F = G·m₁m₂ / r²',
         fields: [
           { key: 'm1', label: 'Mass 1 (m₁)', placeholder: '5.97e24', unit: 'kg' },
@@ -351,7 +351,7 @@ const CATEGORIES: Category[] = [
           const E = get('E');
           const I = get('I');
           if (E <= 0 || I <= 0) throw new Error('E and I must be positive.');
-          return (P * Math.pow(L, 3)) / (48 * E * I);
+          return (P * L ** 3) / (48 * E * I);
         },
       },
       {
@@ -541,7 +541,7 @@ const CATEGORIES: Category[] = [
           const y1 = get('y1');
           const x2 = get('x2');
           const y2 = get('y2');
-          return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+          return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
         },
       },
       {
@@ -615,19 +615,16 @@ function TemplateCard({ template, accent, text, iconBg, animationDelay }: Templa
     computed: false,
   });
 
-  const handleChange = useCallback(
-    (key: string, raw: string) => {
-      setState((prev) => ({
-        ...prev,
-        inputs: { ...prev.inputs, [key]: raw },
-        // Reset result when inputs change
-        result: null,
-        error: null,
-        computed: false,
-      }));
-    },
-    [],
-  );
+  const handleChange = useCallback((key: string, raw: string) => {
+    setState((prev) => ({
+      ...prev,
+      inputs: { ...prev.inputs, [key]: raw },
+      // Reset result when inputs change
+      result: null,
+      error: null,
+      computed: false,
+    }));
+  }, []);
 
   const handleCalculate = useCallback(() => {
     // Parse all fields into a Map (typed getter avoids TS6 exactOptionalPropertyTypes widening)
@@ -673,8 +670,11 @@ function TemplateCard({ template, accent, text, iconBg, animationDelay }: Templa
     if (state.result === null) return '';
     if (template.id === 'quadratic') {
       // re-derive roots from stored inputs
+      // biome-ignore lint/complexity/useLiteralKeys: noPropertyAccessFromIndexSignature requires bracket notation
       const a = parseFloat(state.inputs['a'] ?? '0');
+      // biome-ignore lint/complexity/useLiteralKeys: noPropertyAccessFromIndexSignature requires bracket notation
       const b = parseFloat(state.inputs['b'] ?? '0');
+      // biome-ignore lint/complexity/useLiteralKeys: noPropertyAccessFromIndexSignature requires bracket notation
       const c = parseFloat(state.inputs['c'] ?? '0');
       const disc = b * b - 4 * a * c;
       const x1 = (-b + Math.sqrt(disc)) / (2 * a);
@@ -707,9 +707,7 @@ function TemplateCard({ template, accent, text, iconBg, animationDelay }: Templa
             <Calculator className={`h-4 w-4 ${text}`} />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className={`text-sm font-semibold ${text} leading-tight`}>
-              {template.title}
-            </h3>
+            <h3 className={`text-sm font-semibold ${text} leading-tight`}>{template.title}</h3>
             <p className="text-xs text-muted-foreground mt-0.5 leading-snug">
               {template.description}
             </p>
@@ -718,10 +716,7 @@ function TemplateCard({ template, accent, text, iconBg, animationDelay }: Templa
 
         {/* Formula chip */}
         <div className="mt-3">
-          <code
-            className="text-xs font-mono px-2.5 py-1 rounded-md bg-muted/60 text-foreground/80 inline-block break-all"
-            aria-label={`Formula: ${template.formula}`}
-          >
+          <code className="text-xs font-mono px-2.5 py-1 rounded-md bg-muted/60 text-foreground/80 inline-block break-all">
             {template.formula}
           </code>
         </div>
@@ -736,18 +731,15 @@ function TemplateCard({ template, accent, text, iconBg, animationDelay }: Templa
               template.fields.length === 2
                 ? 'repeat(2, minmax(0, 1fr))'
                 : template.fields.length >= 4
-                ? 'repeat(2, minmax(0, 1fr))'
-                : '1fr',
+                  ? 'repeat(2, minmax(0, 1fr))'
+                  : '1fr',
           }}
         >
           {template.fields.map((field) => {
             const fieldId = `${baseId}-${field.key}`;
             return (
               <div key={field.key} className="flex flex-col gap-1">
-                <label
-                  htmlFor={fieldId}
-                  className="text-xs font-medium text-muted-foreground"
-                >
+                <label htmlFor={fieldId} className="text-xs font-medium text-muted-foreground">
                   {field.label}
                 </label>
                 <div className="relative flex items-center">
@@ -849,21 +841,14 @@ function TemplateCard({ template, accent, text, iconBg, animationDelay }: Templa
               className={`flex items-center gap-2 px-3 py-2.5 rounded-lg bg-${accent}-500/10 border border-${accent}-500/25`}
               role="status"
               aria-live="polite"
-              aria-label={`Result: ${template.resultLabel} = ${resultStr}${template.resultUnit ? ' ' + template.resultUnit : ''}`}
+              aria-label={`Result: ${template.resultLabel} = ${resultStr}${template.resultUnit ? ` ${template.resultUnit}` : ''}`}
             >
-              <CheckCircle2
-                className={`h-4 w-4 ${text} shrink-0`}
-                aria-hidden="true"
-              />
+              <CheckCircle2 className={`h-4 w-4 ${text} shrink-0`} aria-hidden="true" />
               <div className="flex-1 min-w-0">
                 <span className="text-xs text-muted-foreground">{template.resultLabel}: </span>
-                <span className={`text-sm font-semibold font-mono ${text}`}>
-                  {resultStr}
-                </span>
+                <span className={`text-sm font-semibold font-mono ${text}`}>{resultStr}</span>
                 {template.resultUnit && (
-                  <span className="text-xs text-muted-foreground ml-1">
-                    {template.resultUnit}
-                  </span>
+                  <span className="text-xs text-muted-foreground ml-1">{template.resultUnit}</span>
                 )}
               </div>
             </motion.div>
@@ -901,10 +886,7 @@ function CategorySection({ category, baseDelay }: CategorySectionProps) {
         >
           <Icon className={`h-5 w-5 ${category.text}`} />
         </div>
-        <h2
-          id={`cat-heading-${category.id}`}
-          className={`text-xl font-bold ${category.text}`}
-        >
+        <h2 id={`cat-heading-${category.id}`} className={`text-xl font-bold ${category.text}`}>
           {category.label}
         </h2>
         <span className="text-xs text-muted-foreground bg-muted/40 px-2 py-0.5 rounded-full">
@@ -1075,9 +1057,8 @@ export default function TemplatesPage() {
       </section>
 
       {/* ── Sticky category filter bar ─────────────────────────────────────── */}
-      <div
+      <nav
         className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border py-3 px-4"
-        role="navigation"
         aria-label="Filter templates by category"
       >
         <div className="max-w-5xl mx-auto flex items-center gap-2 flex-wrap">
@@ -1104,7 +1085,7 @@ export default function TemplatesPage() {
             </motion.button>
           )}
         </div>
-      </div>
+      </nav>
 
       {/* ── Main content ──────────────────────────────────────────────────── */}
       <main
@@ -1116,11 +1097,7 @@ export default function TemplatesPage() {
           const isVisible = showAll || activeCategories.has(category.id);
           if (!isVisible) return null;
           return (
-            <CategorySection
-              key={category.id}
-              category={category}
-              baseDelay={catIdx * 0.05}
-            />
+            <CategorySection key={category.id} category={category} baseDelay={catIdx * 0.05} />
           );
         })}
 
