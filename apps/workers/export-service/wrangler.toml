@@ -46,28 +46,6 @@ name = "nextcalc-export-service-dev"
 [env.production]
 name = "nextcalc-export-service-prod"
 
-# Resource limits
-#
-# TODO: Review and raise cpu_ms once MathJax is integrated.
-#
-# MathJax 4.x SVG rendering is CPU-intensive, especially on first call
-# (font data loading + SVG path generation).  The current 100ms ceiling
-# will cause the Worker to be killed on complex expressions.
-#
-# Recommended values:
-#   - Simple expressions (e.g. "E = mc^2"): ~150–300ms
-#   - Complex expressions (integrals, sums, matrices): ~500–1500ms
-#   - First cold-start request (MathJax init): ~1000–3000ms
-#
-# Start with 5000ms and tune down based on observed P99 latencies in
-# the Cloudflare Workers analytics dashboard.
-#
-# Note: cpu_ms only counts actual CPU time, not I/O wait, so MathJax's
-# async font-loading promises do not count toward this limit while they
-# are awaiting network I/O.
-[limits]
-cpu_ms = 5000
-
 # CORS configuration
 [vars]
 ALLOWED_ORIGINS = "http://localhost:3020,https://nextcalc.pro"

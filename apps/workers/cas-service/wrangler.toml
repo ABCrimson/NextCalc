@@ -16,10 +16,6 @@ name = "nextcalc-cas-service-dev"
 [env.production]
 name = "nextcalc-cas-service-prod"
 
-# Resource limits
-[limits]
-cpu_ms = 50
-
 # Build configuration
 [build]
 command = ""
