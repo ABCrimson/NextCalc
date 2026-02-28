@@ -1,33 +1,28 @@
 /**
- * Internal SVG generation utilities
- * Shared between SVG and PNG export handlers
+ * Internal SVG generation — KaTeX 0.16.33 server-side rendering.
  *
- * Uses MathJax 4.x to render LaTeX expressions to real SVG output.
+ * Uses KaTeX's `renderToString` for high-fidelity LaTeX rendering
+ * entirely in JavaScript — no filesystem, no Node.js globals, fully
+ * compatible with Cloudflare Workers.
  *
- * MathJax 4 provides a component-based API via the `mathjax` npm package.
- * The `init()` function sets up a fully configured MathJax instance with
- * TeX input and SVG output jax, plus the liteAdaptor (a minimal DOM shim
- * that works without a browser or Node DOM).
+ * Two rendering modes:
  *
- * Cloudflare Workers compatibility notes:
- * - Dynamic import() is not supported; all imports must be static.
- * - The `global` object does not exist; use `globalThis` instead.
- * - Worker threads (used by MathJax for font loading) are not available.
- *   MathJax 4 still works because `tex2svgPromise` handles font loading
- *   internally without spawning actual OS threads in the lite path.
- * - CPU time limit is raised to 5000ms in wrangler.toml to accommodate
- *   MathJax's first-call initialization cost; see the [limits] section.
+ * 1. **Rich SVG** (`generateSvgFromLatex`): Produces a standalone SVG with
+ *    `<foreignObject>` embedding KaTeX HTML + inlined CSS.  Renders
+ *    perfectly in browsers and can be saved as `.svg`.
+ *
+ * 2. **Rasterisable SVG** (`generateRasterSvgFromLatex`): Produces a pure
+ *    SVG with `<text>` elements using Unicode symbols converted from LaTeX.
+ *    Suitable for resvg (WASM) rasterisation in the PNG/PDF pipeline.
  */
 
-// MathJax 4.x component-based API.
-// The default export is the MathJax object itself; calling `.init()` loads
-// the requested component bundles and returns the same object once ready.
-// Type declarations live in src/types/mathjax.d.ts.
-import MathJax, { type MathJaxObject } from 'mathjax';
+import katex from 'katex';
 
-/**
- * SVG generation options
- */
+// ---------------------------------------------------------------------------
+// Public types
+// ---------------------------------------------------------------------------
+
+/** Options accepted by both SVG generation modes. */
 export interface SvgOptions {
   fontSize: number;
   color: string;
@@ -35,149 +30,248 @@ export interface SvgOptions {
   inline: boolean;
 }
 
-/**
- * Singleton: one initialized MathJax instance reused across requests.
- *
- * We initialize lazily on the first call so that the Worker startup
- * (which runs before any request is received) stays fast and does not
- * block if MathJax has deferred font-loading work to perform.
- */
-let mathJaxInstance: MathJaxObject | null = null;
+// ---------------------------------------------------------------------------
+// KaTeX CSS — minimal inline stylesheet for Workers (no font files).
+//
+// Font files (woff2/woff/ttf) cannot be bundled into a Worker script.
+// KaTeX's HTML output still renders correctly using system math fonts
+// (STIX Two Math, Cambria Math, Times New Roman) which cover virtually
+// all math symbols. The CSS below captures KaTeX's layout rules.
+// ---------------------------------------------------------------------------
 
-/**
- * Returns a fully initialized MathJax instance, creating it on first call.
- *
- * Subsequent calls return the cached singleton without re-initializing.
- */
-async function getMathJax(): Promise<MathJaxObject> {
-  if (mathJaxInstance !== null) {
-    return mathJaxInstance;
-  }
+const KATEX_CSS = `
+.katex{font:normal 1.21em 'STIX Two Math','Cambria Math','Latin Modern Math','Times New Roman',serif;line-height:1.2;text-indent:0;text-rendering:auto;direction:ltr}
+.katex-display{display:block;margin:1em 0;text-align:center}
+.katex-display>.katex{display:block;text-align:center;white-space:nowrap}
+.katex .katex-html{display:inline-block}
+.katex .base{position:relative;display:inline-block;white-space:nowrap;width:min-content}
+.katex .strut{display:inline-block}
+.katex .mord{padding:0 .03em}
+.katex .mbin{margin:0 .22222em}
+.katex .mrel{margin:0 .27778em}
+.katex .mpunct{margin-right:.16667em}
+.katex .mopen,.katex .mclose{margin:0 .05556em}
+.katex .minner{padding:0 .16667em}
+.katex .frac-line{border-bottom-style:solid;border-bottom-width:0.04em;width:100%}
+.katex .mfrac>span>span{text-align:center}
+.katex .mfrac .frac-line{width:100%}
+.katex .sqrt{display:inline-block}
+.katex .sqrt>.sqrt-sign{position:relative}
+.katex .sqrt>.root{position:absolute}
+.katex .overline .overline-line,.katex .underline .underline-line{border-bottom-style:solid;border-bottom-width:0.04em}
+.katex .stretchy{width:100%;display:block;position:relative;overflow:hidden}
+.katex .vlist-t{display:inline-table;table-layout:fixed;border-collapse:collapse}
+.katex .vlist-r{display:table-row}
+.katex .vlist{display:table-cell;vertical-align:bottom;position:relative}
+.katex .vlist>span{display:block;height:0;position:relative}
+.katex .vlist>span>span{display:inline-block}
+.katex .vlist-s{display:table-cell;vertical-align:bottom;font-size:1px;width:1px;min-width:1px}
+.katex .msupsub{text-align:left}
+.katex .delimsizing.size1{font-family:'STIX Two Math','Cambria Math',serif}
+.katex .delimsizing.size2{font-family:'STIX Two Math','Cambria Math',serif}
+.katex .delimsizing.size3{font-family:'STIX Two Math','Cambria Math',serif}
+.katex .delimsizing.size4{font-family:'STIX Two Math','Cambria Math',serif}
+.katex .op-symbol{position:relative}
+.katex .op-symbol.large-op{font-size:1.5em}
+.katex .op-symbol.small-op{font-size:1em}
+.katex .accent>.vlist-t{text-align:center}
+.katex .accent .accent-body{position:relative}
+.katex .mtable .vertical-separator{display:inline-block;min-width:1px}
+.katex .mtable .arraycolsep{display:inline-block}
+.katex .enclosing{display:inline-block;position:relative}
+`;
 
-  // `MathJax.init()` loads the requested component bundles and returns the
-  // same MathJax object once everything is ready.  We pass only the
-  // components we need to minimise bundle size and initialization time.
-  mathJaxInstance = await MathJax.init({
-    // The `loader` section tells MathJax which component bundles to load.
-    // `input/tex`      - processes LaTeX/TeX math notation.
-    // `output/svg`     - serialises typeset results to SVG.
-    // `adaptors/liteDOM` - lightweight DOM shim for non-browser environments
-    //                    (Node, Cloudflare Workers); avoids importing jsdom.
-    loader: {
-      load: ['input/tex', 'output/svg', 'adaptors/liteDOM'],
-    },
+// ---------------------------------------------------------------------------
+// XML / HTML helpers
+// ---------------------------------------------------------------------------
 
-    tex: {
-      // `base` is always included.  Adding `ams` and `newcommand` covers
-      // the vast majority of mathematics typeset with LaTeX.
-      packages: ['base', 'ams', 'newcommand'],
-      // MathJax operates on bare LaTeX strings here (no surrounding
-      // $ delimiters required), but specifying delimiters prevents the
-      // parser from choking if users include them in their input.
-      inlineMath: [['$', '$'], ['\\(', '\\)']],
-      displayMath: [['$$', '$$'], ['\\[', '\\]']],
-    },
-
-    svg: {
-      // 'global' stores font path data once per document rather than
-      // embedding it into every individual <svg> element.  Since each
-      // Worker invocation renders into a single document context, this is
-      // safe and produces smaller per-expression output.
-      fontCache: 'global',
-    },
-
-    startup: {
-      // We drive typesetting ourselves via tex2svgPromise; suppress the
-      // automatic page-level scan that normally runs on init.
-      typeset: false,
-    },
-  });
-
-  return mathJaxInstance;
+function escapeXml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
 }
 
+// ---------------------------------------------------------------------------
+// 1. Rich SVG via KaTeX (browser-renderable, <foreignObject>)
+// ---------------------------------------------------------------------------
+
 /**
- * Renders a LaTeX expression to an SVG string using MathJax 4.x.
+ * Renders LaTeX to a standalone SVG string using KaTeX 0.16.33.
  *
- * The returned SVG is a complete, standalone `<svg>` element suitable for
- * embedding directly in HTML or saving as a `.svg` file.  It does NOT
- * include an XML declaration so it embeds cleanly without escaping.
+ * The SVG embeds KaTeX's HTML output inside a `<foreignObject>` together
+ * with inlined CSS, making it fully self-contained — no external
+ * stylesheets or fonts needed when viewed in a browser.
  *
- * @param latex - LaTeX expression (bare, e.g. `\\frac{1}{2}` or `$x^2$`)
- * @param options - Rendering options (fontSize, color, background, mode)
- * @returns Full SVG markup string
- * @throws Error if MathJax fails to initialize or the LaTeX is invalid
+ * KaTeX 0.16.33 options used:
+ * - `output: "htmlAndMathml"` — dual output for accessibility
+ * - `displayMode`             — block vs inline rendering
+ * - `throwOnError: false`     — graceful fallback for bad input
+ * - `errorColor`              — visible error indicator
+ * - `strict: "ignore"`        — permissive parsing
+ * - `trust: true`             — allow all LaTeX commands
+ * - `globalGroup: false`      — isolated macro scope per render
+ * - `maxExpand: 1000`         — generous macro expansion limit
+ * - `maxSize: Infinity`       — no size restrictions
+ * - `minRuleThickness: 0.04`  — crisp fraction/rule lines
+ *
+ * @param latex   — LaTeX expression (bare or delimited)
+ * @param options — rendering configuration
+ * @returns standalone SVG markup string
  */
 export async function generateSvgFromLatex(
   latex: string,
-  options: SvgOptions
+  options: SvgOptions,
 ): Promise<string> {
   const { fontSize, color, backgroundColor, inline } = options;
 
-  // MathJax uses `em` as the primary font-size unit and `ex` (x-height) for
-  // vertical sizing.  A typical ex/em ratio for math fonts is ~0.44.
-  const em = fontSize;
-  const ex = Math.round(fontSize * 0.44);
-  // Generous container width keeps MathJax from inserting line breaks.
-  const containerWidth = 1200;
+  // Strip surrounding delimiters if present
+  let cleanLatex = latex.trim();
+  cleanLatex = cleanLatex.replace(/^\$\$|\$\$$/g, '');
+  cleanLatex = cleanLatex.replace(/^\$|\$$/g, '');
+  cleanLatex = cleanLatex.replace(/^\\\[|\\\]$/g, '');
+  cleanLatex = cleanLatex.replace(/^\\\(|\\\)$/g, '');
 
-  let mathJax: MathJaxObject;
-  try {
-    mathJax = await getMathJax();
-  } catch (initError) {
-    // Surface a clear error if MathJax cannot load its bundles (e.g. the
-    // Worker bundler stripped them or a component path is wrong).
-    const message = initError instanceof Error ? initError.message : String(initError);
-    throw new Error(`MathJax initialization failed: ${message}`);
-  }
+  // Render with KaTeX 0.16.33 — full feature set
+  const katexHtml = katex.renderToString(cleanLatex, {
+    displayMode: !inline,
+    output: 'htmlAndMathml',
+    throwOnError: false,
+    errorColor: '#cc0000',
+    strict: 'ignore',
+    trust: true,
+    globalGroup: false,
+    maxExpand: 1000,
+    maxSize: Infinity,
+    minRuleThickness: 0.04,
+    colorIsTextColor: false,
+    fleqn: false,
+    leqno: false,
+    macros: {
+      '\\RR': '\\mathbb{R}',
+      '\\CC': '\\mathbb{C}',
+      '\\ZZ': '\\mathbb{Z}',
+      '\\NN': '\\mathbb{N}',
+      '\\QQ': '\\mathbb{Q}',
+    },
+  });
 
-  let node: unknown;
-  try {
-    // tex2svgPromise handles asynchronous font loading internally and is
-    // the recommended method in MathJax 4.  It resolves with a lite DOM
-    // node containing the rendered <svg> as a child element.
-    node = await mathJax.tex2svgPromise(latex, {
-      display: !inline,
-      em,
-      ex,
-      containerWidth,
-    });
-  } catch (renderError) {
-    // MathJax throws on parse errors (unknown commands, unbalanced braces,
-    // etc.).  Wrap the error so the route handler can return a 400.
-    const message = renderError instanceof Error ? renderError.message : String(renderError);
-    throw new Error(`LaTeX render error: ${message}`);
-  }
+  // Size estimation: KaTeX HTML width scales roughly with expression length
+  const estimatedChars = cleanLatex.length;
+  const baseFontPx = fontSize * 1.21; // KaTeX default scaling
+  const charWidth = baseFontPx * 0.55;
+  const svgWidth = Math.max(Math.ceil(estimatedChars * charWidth + baseFontPx * 4), 200);
+  const svgHeight = inline
+    ? Math.ceil(baseFontPx * 2.5)
+    : Math.ceil(baseFontPx * 4);
 
-  const adaptor = mathJax.startup.adaptor;
+  const bgRect =
+    backgroundColor !== 'transparent'
+      ? `<rect width="100%" height="100%" fill="${escapeXml(backgroundColor)}"/>`
+      : '';
 
-  // `tex2svgPromise` returns a container node; the actual <svg> is the
-  // first child element with tag name 'svg'.
-  const svgNodes = adaptor.tags(node, 'svg');
-  const firstSvg = svgNodes[0];
+  // Font face references stripped from CSS — KaTeX will fall back to
+  // system serif fonts (Times New Roman, etc.) which cover the vast
+  // majority of math symbols.  The HTML includes MathML as well for
+  // screen-reader accessibility.
+  const cssWithColor = `${KATEX_CSS}
+.katex { font-size: ${fontSize}px !important; color: ${color}; }
+.katex-display { margin: 0 !important; }`;
 
-  if (firstSvg === undefined) {
-    throw new Error('MathJax produced no SVG output for the given expression');
-  }
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="${svgWidth}" height="${svgHeight}"
+     viewBox="0 0 ${svgWidth} ${svgHeight}">
+  <title>${escapeXml(latex)}</title>
+  ${bgRect}
+  <foreignObject x="0" y="0" width="100%" height="100%">
+    <div xmlns="http://www.w3.org/1999/xhtml"
+         style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;padding:8px;box-sizing:border-box;">
+      <style>${cssWithColor}</style>
+      ${katexHtml}
+    </div>
+  </foreignObject>
+</svg>`;
+}
 
-  let svgString = adaptor.serializeXML(firstSvg);
+// ---------------------------------------------------------------------------
+// 2. Rasterisable SVG (for resvg WASM — pure SVG text, no foreignObject)
+// ---------------------------------------------------------------------------
 
-  // Apply the requested foreground color.
-  // MathJax emits `currentColor` on path fills by default; setting the
-  // `color` CSS property on the root <svg> element cascades to all paths.
-  if (color !== '#000000') {
-    svgString = svgString.replace(/^<svg /, `<svg color="${color}" `);
-  }
+/**
+ * LaTeX command → Unicode mapping for the text-based fallback renderer.
+ */
+const LATEX_UNICODE: ReadonlyArray<readonly [RegExp, string]> = [
+  // Greek
+  [/\\alpha/g, '\u03B1'], [/\\beta/g, '\u03B2'], [/\\gamma/g, '\u03B3'],
+  [/\\delta/g, '\u03B4'], [/\\epsilon/g, '\u03B5'], [/\\zeta/g, '\u03B6'],
+  [/\\eta/g, '\u03B7'], [/\\theta/g, '\u03B8'], [/\\iota/g, '\u03B9'],
+  [/\\kappa/g, '\u03BA'], [/\\lambda/g, '\u03BB'], [/\\mu/g, '\u03BC'],
+  [/\\nu/g, '\u03BD'], [/\\xi/g, '\u03BE'], [/\\pi/g, '\u03C0'],
+  [/\\rho/g, '\u03C1'], [/\\sigma/g, '\u03C3'], [/\\tau/g, '\u03C4'],
+  [/\\phi/g, '\u03C6'], [/\\chi/g, '\u03C7'], [/\\psi/g, '\u03C8'],
+  [/\\omega/g, '\u03C9'], [/\\Gamma/g, '\u0393'], [/\\Delta/g, '\u0394'],
+  [/\\Theta/g, '\u0398'], [/\\Lambda/g, '\u039B'], [/\\Pi/g, '\u03A0'],
+  [/\\Sigma/g, '\u03A3'], [/\\Phi/g, '\u03A6'], [/\\Psi/g, '\u03A8'],
+  [/\\Omega/g, '\u03A9'],
+  // Operators
+  [/\\times/g, '\u00D7'], [/\\div/g, '\u00F7'], [/\\pm/g, '\u00B1'],
+  [/\\cdot/g, '\u00B7'], [/\\leq/g, '\u2264'], [/\\geq/g, '\u2265'],
+  [/\\neq/g, '\u2260'], [/\\approx/g, '\u2248'], [/\\equiv/g, '\u2261'],
+  [/\\infty/g, '\u221E'], [/\\partial/g, '\u2202'], [/\\nabla/g, '\u2207'],
+  [/\\int/g, '\u222B'], [/\\sum/g, '\u2211'], [/\\prod/g, '\u220F'],
+  [/\\sqrt/g, '\u221A'], [/\\forall/g, '\u2200'], [/\\exists/g, '\u2203'],
+  [/\\in/g, '\u2208'], [/\\cup/g, '\u222A'], [/\\cap/g, '\u2229'],
+  [/\\rightarrow/g, '\u2192'], [/\\leftarrow/g, '\u2190'],
+  [/\\Rightarrow/g, '\u21D2'], [/\\Leftarrow/g, '\u21D0'],
+  // Structure — simplify
+  [/\\frac\{([^}]*)\}\{([^}]*)\}/g, '($1)/($2)'],
+  [/\\text\{([^}]*)\}/g, '$1'], [/\\mathrm\{([^}]*)\}/g, '$1'],
+  [/\^{([^}]*)}/g, '^($1)'], [/_{([^}]*)}/g, '_($1)'],
+  [/\\[,;:!]\s?/g, ' '], [/\\quad/g, '  '],
+  [/\\[a-zA-Z]+/g, ''], [/[{}]/g, ''],
+] as const;
 
-  // Apply background color when not transparent.
-  // We insert a <rect> covering 100% of the SVG area immediately after the
-  // opening tag so it renders behind all math content.
-  if (backgroundColor !== 'transparent') {
-    svgString = svgString.replace(
-      /(<svg[^>]*>)/,
-      `$1<rect width="100%" height="100%" fill="${backgroundColor}"/>`
-    );
-  }
+function latexToUnicode(latex: string): string {
+  let r = latex.trim().replace(/^\$+|\$+$/g, '').replace(/^\\\[|\\\]$/g, '');
+  for (const [p, s] of LATEX_UNICODE) r = r.replace(p, s);
+  return r.replace(/\s{2,}/g, ' ').trim();
+}
 
-  return svgString;
+/**
+ * Produces a pure SVG with `<text>` — compatible with resvg rasterisation.
+ *
+ * Used internally by the PNG and PDF export pipelines where `<foreignObject>`
+ * is not supported by the rasteriser.
+ */
+export async function generateRasterSvgFromLatex(
+  latex: string,
+  options: SvgOptions,
+): Promise<string> {
+  const { fontSize, color, backgroundColor, inline } = options;
+  const display = latexToUnicode(latex);
+  const escaped = escapeXml(display);
+  const escapedLatex = escapeXml(latex);
+
+  const charW = fontSize * 0.62;
+  const padding = fontSize;
+  const w = Math.max(Math.ceil(display.length * charW + padding * 2), fontSize * 4);
+  const h = inline ? Math.ceil(fontSize * 2) : Math.ceil(fontSize * 3.5);
+
+  const bg =
+    backgroundColor !== 'transparent'
+      ? `<rect width="100%" height="100%" fill="${escapeXml(backgroundColor)}"/>`
+      : '';
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+  <title>${escapedLatex}</title>
+  ${bg}
+  <text x="${Math.ceil(w / 2)}" y="${Math.ceil(h / 2)}"
+    text-anchor="middle" dominant-baseline="central"
+    font-family="'STIX Two Math','Cambria Math','Latin Modern Math',serif"
+    font-size="${fontSize}" fill="${escapeXml(color)}">${escaped}</text>
+</svg>`;
 }

@@ -14,7 +14,7 @@
 
 import { Resvg } from '@cf-wasm/resvg/workerd';
 
-import { generateSvgFromLatex, type SvgOptions } from './svg-internal.js';
+import { generateRasterSvgFromLatex, type SvgOptions } from './svg-internal.js';
 import {
   uploadToR2,
   generateExportKey,
@@ -115,7 +115,7 @@ export async function exportToPng(
     inline: false,
   };
 
-  const svgString = await generateSvgFromLatex(latex, svgOptions);
+  const svgString = await generateRasterSvgFromLatex(latex, svgOptions);
 
   // ------------------------------------------------------------------
   // Step 2 + 3: SVG → PNG and extract dimensions (single render pass)

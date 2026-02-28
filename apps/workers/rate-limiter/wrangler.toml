@@ -14,6 +14,11 @@ binding = "RATE_LIMITS"
 id = "65390e47b1ca4604bd58e5c4078e063b"
 preview_id = "65390e47b1ca4604bd58e5c4078e063b" # Using production namespace for preview; create a separate preview namespace if needed
 
+# Custom domain routing
+[[routes]]
+pattern = "ratelimit.nextcalc.io"
+custom_domain = true
+
 # Development configuration
 [env.development]
 name = "nextcalc-rate-limiter-dev"
@@ -32,5 +37,5 @@ id = "65390e47b1ca4604bd58e5c4078e063b"
 
 # CORS configuration and shared variables
 [vars]
-ALLOWED_ORIGINS = "http://localhost:3020,https://nextcalc.pro"
+ALLOWED_ORIGINS = "http://localhost:3020,https://nextcalc.io,https://nextcalc.pro"
 ADMIN_KEY = "" # TODO: Set via wrangler secret put ADMIN_KEY

@@ -14,7 +14,7 @@
 
 import { createPdf, PageSizes } from 'modern-pdf-lib';
 
-import { generateSvgFromLatex, type SvgOptions } from './svg-internal.js';
+import { generateRasterSvgFromLatex, type SvgOptions } from './svg-internal.js';
 import { convertSvgToPng } from './png.js';
 import {
   uploadToR2,
@@ -114,7 +114,7 @@ async function generatePdfFromLatex(
     inline: false,
   };
 
-  const svgString = await generateSvgFromLatex(latex, svgOptions);
+  const svgString = await generateRasterSvgFromLatex(latex, svgOptions);
 
   // ------------------------------------------------------------------
   // Step 2: SVG -> PNG at 300 DPI for print (single render pass)
@@ -300,7 +300,7 @@ export async function batchExportToPdf(
       inline: false,
     };
 
-    const svgString = await generateSvgFromLatex(latex, svgOptions);
+    const svgString = await generateRasterSvgFromLatex(latex, svgOptions);
 
     // Step 2: SVG -> PNG at 300 DPI (single render pass)
     const { png, width: imgWidth, height: imgHeight } = await convertSvgToPng(svgString, 300, 'transparent');

@@ -160,18 +160,18 @@
 
 - [ ] Set up Neon production database branch
 - [x] Configure production environment variables on Vercel (ENABLE_EXPERIMENTAL_COREPACK, NEXTAUTH_SECRET, DATABASE_URL, NEXT_PUBLIC_APP_URL)
-- [x] Deploy web app to Vercel -- live at https://nextcalc-pro.vercel.app
-- [ ] Create Cloudflare R2 buckets (requires R2 enabled in dashboard)
-- [ ] Register workers.dev subdomain (Cloudflare dashboard onboarding)
+- [x] Deploy web app to Vercel -- live at https://nextcalc.io
+- [x] Create Cloudflare R2 buckets -- 4 buckets (public/private + dev) in ENAM region
+- [x] Register workers.dev subdomain (albert-r-badalov.workers.dev)
 - [ ] Set ADMIN_KEY secret via `wrangler secret put ADMIN_KEY`
-- [ ] Deploy 3 Cloudflare Workers to production
-- [ ] Configure custom domain + SSL
+- [x] Deploy 3 Cloudflare Workers to production -- cas.nextcalc.io, ratelimit.nextcalc.io, export.nextcalc.io
+- [x] Configure custom domain + SSL -- nextcalc.io (Vercel), worker subdomains (Cloudflare)
 
 ---
 
 ## Known Technical Debt
 
-- Export service uses MathJax placeholder -- needs production-grade rendering
+- Export service SVG uses KaTeX 0.16.33 HTML in foreignObject; PNG/PDF pipeline uses Unicode text fallback
 - Some WebGPU features have Canvas 2D fallback but not all browsers support WebGPU yet
 - `vitest.setup.ts` still contains `React.forwardRef` in mocks (acceptable for test code)
 - 4 biome-ignored `as any` casts remain in API package for adapter/handler type incompatibilities

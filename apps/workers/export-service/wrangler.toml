@@ -38,6 +38,11 @@ binding = "EXPORTS_PRIVATE"
 bucket_name = "nextcalc-exports-private"
 preview_bucket_name = "nextcalc-exports-private-dev"
 
+# Custom domain routing
+[[routes]]
+pattern = "export.nextcalc.io"
+custom_domain = true
+
 # Development configuration
 [env.development]
 name = "nextcalc-export-service-dev"
@@ -48,6 +53,6 @@ name = "nextcalc-export-service-prod"
 
 # CORS configuration
 [vars]
-ALLOWED_ORIGINS = "http://localhost:3020,https://nextcalc.pro"
+ALLOWED_ORIGINS = "http://localhost:3020,https://nextcalc.io,https://nextcalc.pro"
 SIGNED_URL_EXPIRY = "3600"
 MAX_FILE_SIZE = "5242880"

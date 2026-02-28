@@ -15,7 +15,7 @@
   "dependencies": {
     "@cf-wasm/resvg": "0.3.3",
     "hono": "4.12.2",
-    "mathjax": "4.1.1",
+    "katex": "0.16.33",
     "modern-pdf-lib": "0.12.1",
     "zod": "4.4.0-canary.20260125T215152"
   },

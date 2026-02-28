@@ -8,6 +8,11 @@ compatibility_flags = ["nodejs_compat"]
 [observability]
 enabled = true
 
+# Custom domain routing
+[[routes]]
+pattern = "cas.nextcalc.io"
+custom_domain = true
+
 # Development configuration
 [env.development]
 name = "nextcalc-cas-service-dev"
@@ -22,4 +27,4 @@ command = ""
 
 # CORS configuration for API access
 [vars]
-ALLOWED_ORIGINS = "http://localhost:3020,https://nextcalc.pro"
+ALLOWED_ORIGINS = "http://localhost:3020,https://nextcalc.io,https://nextcalc.pro"
