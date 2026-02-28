@@ -158,14 +158,15 @@
 
 ### Phase 4: Deployment
 
-- [ ] Set up Neon production database branch
-- [x] Configure production environment variables on Vercel (ENABLE_EXPERIMENTAL_COREPACK, NEXTAUTH_SECRET, DATABASE_URL, NEXT_PUBLIC_APP_URL)
+- [x] Set up Neon production database -- schema pushed to ep-cool-dew-aex6zq7t (US East 2)
+- [x] Configure production environment variables on Vercel -- DATABASE_URL, OAuth, Redis, AUTH_SECRET, NEXTAUTH_URL
 - [x] Deploy web app to Vercel -- live at https://nextcalc.io
 - [x] Create Cloudflare R2 buckets -- 4 buckets (public/private + dev) in ENAM region
 - [x] Register workers.dev subdomain (albert-r-badalov.workers.dev)
-- [ ] Set ADMIN_KEY secret via `wrangler secret put ADMIN_KEY`
+- [x] Set ADMIN_KEY secret via `wrangler secret put ADMIN_KEY`
 - [x] Deploy 3 Cloudflare Workers to production -- cas.nextcalc.io, ratelimit.nextcalc.io, export.nextcalc.io
 - [x] Configure custom domain + SSL -- nextcalc.io (Vercel), worker subdomains (Cloudflare)
+- [x] Configure Google + GitHub OAuth for production (redirect URIs on nextcalc.io)
 
 ---
 
