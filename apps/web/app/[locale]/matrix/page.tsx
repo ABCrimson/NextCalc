@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { MatrixPanel } from '@/components/calculator/matrix-panel';
 import { EigenPanel } from '@/components/calculator/eigen-panel';
 import { MatrixFeatureCards } from '@/components/calculator/matrix-feature-cards';
@@ -8,7 +9,8 @@ export const metadata: Metadata = {
   description: 'Linear algebra with matrices - add, multiply, determinant, inverse, eigenvalues, and more',
 };
 
-export default function MatrixPage() {
+export default async function MatrixPage() {
+  const t = await getTranslations('matrix');
   return (
     <main className="relative min-h-screen">
       {/* ─── Animated gradient background ─────────────────────────────── */}
@@ -100,10 +102,10 @@ export default function MatrixPage() {
             <div>
               {/* Gradient heading */}
               <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
-                Matrix Operations
+                {t('pageTitle')}
               </h1>
               <p className="text-base text-muted-foreground mt-1">
-                Linear algebra computations with full matrix support
+                {t('pageSubtitle')}
               </p>
             </div>
           </div>
@@ -112,10 +114,10 @@ export default function MatrixPage() {
           <div className="flex flex-wrap gap-2 mt-4">
             {(
               [
-                { label: 'LU Decomposition', hue: 264 },
-                { label: 'Eigenvalues & Eigenvectors', hue: 290 },
-                { label: 'Gauss-Jordan Elimination', hue: 155 },
-                { label: 'Complex Matrices', hue: 30 },
+                { label: t('badge.lu'), hue: 264 },
+                { label: t('badge.eigen'), hue: 290 },
+                { label: t('badge.gaussJordan'), hue: 155 },
+                { label: t('badge.complex'), hue: 30 },
               ] as const
             ).map(({ label, hue }) => (
               <span
@@ -157,7 +159,7 @@ export default function MatrixPage() {
             >
               λ
             </span>
-            Eigenvalues &amp; Eigenvectors
+            {t('eigenSection')}
           </h2>
           {/* Glass morphism wrapper for eigen panel */}
           <div className="rounded-xl border border-border backdrop-blur-md bg-card/50 shadow-lg overflow-hidden">
@@ -176,7 +178,7 @@ export default function MatrixPage() {
               color: 'transparent',
             }}
           >
-            Features
+            {t('features')}
           </h2>
 
           {/* Client component: staggered Framer Motion entrance animations */}
@@ -195,7 +197,7 @@ export default function MatrixPage() {
               color: 'transparent',
             }}
           >
-            Example Usage
+            {t('exampleUsage')}
           </h2>
 
           <div className="space-y-3">

@@ -52,6 +52,7 @@ import {
   getStoredUpvotes,
   setStoredUpvote,
 } from '@/components/forum/forum-shared';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 
 // ============================================================================
@@ -91,6 +92,8 @@ function PostSkeleton() {
 // ============================================================================
 
 export default function ForumPage() {
+  const t = useTranslations('forum');
+  const tCommon = useTranslations('common');
   const prefersReduced = useReducedMotion();
   const router = useRouter();
   const { status: authStatus } = useSession();
@@ -284,10 +287,10 @@ export default function ForumPage() {
               </div>
               <div>
                 <h1 className="text-5xl font-extrabold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent tracking-tight">
-                  Community
+                  {t('title')}
                 </h1>
                 <p className="text-muted-foreground mt-1">
-                  Share ideas, ask questions, and explore mathematics together
+                  {t('subtitle')}
                 </p>
               </div>
             </div>
@@ -296,19 +299,19 @@ export default function ForumPage() {
             <div className="flex flex-wrap gap-3 mt-5">
               <Badge variant="outline" className="gap-1.5 py-1 px-3 backdrop-blur-sm bg-muted/30 border-border text-foreground">
                 <MessageSquare className="w-3.5 h-3.5 text-indigo-400" />
-                {totalPosts} discussions
+                {t('discussions', { count: totalPosts })}
               </Badge>
               <Badge variant="outline" className="gap-1.5 py-1 px-3 backdrop-blur-sm bg-muted/30 border-border text-foreground">
                 <Users className="w-3.5 h-3.5 text-purple-400" />
-                {totalContributors} contributors
+                {t('contributors', { count: totalContributors })}
               </Badge>
               <Badge variant="outline" className="gap-1.5 py-1 px-3 backdrop-blur-sm bg-muted/30 border-border text-foreground">
                 <MessageSquare className="w-3.5 h-3.5 text-pink-400" />
-                {totalComments} replies
+                {t('replies', { count: totalComments })}
               </Badge>
               <Badge variant="outline" className="gap-1.5 py-1 px-3 backdrop-blur-sm bg-emerald-500/10 border-emerald-500/30 text-emerald-400">
                 <Sparkles className="w-3.5 h-3.5" />
-                Real-time
+                {tCommon('realTime')}
               </Badge>
             </div>
           </motion.header>
@@ -334,7 +337,7 @@ export default function ForumPage() {
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search discussions..."
+                    placeholder={t('search')}
                     value={searchInput}
                     onChange={e => setSearchInput(e.target.value)}
                     className="pl-9 bg-card/50 backdrop-blur-md border-border"
@@ -344,9 +347,9 @@ export default function ForumPage() {
                 {/* Sort tabs */}
                 <div className="flex rounded-xl bg-muted/30 backdrop-blur-sm border border-border p-1 gap-1">
                   {([
-                    { mode: 'hot' as const, icon: Flame, label: 'Hot' },
-                    { mode: 'new' as const, icon: Clock, label: 'New' },
-                    { mode: 'top' as const, icon: TrendingUp, label: 'Top' },
+                    { mode: 'hot' as const, icon: Flame, label: t('sort.hot') },
+                    { mode: 'new' as const, icon: Clock, label: t('sort.new') },
+                    { mode: 'top' as const, icon: TrendingUp, label: t('sort.top') },
                   ]).map(({ mode, icon: Icon, label }) => (
                     <button
                       key={mode}
@@ -371,7 +374,7 @@ export default function ForumPage() {
                   className="gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-[0_4px_24px_oklch(0.55_0.27_264/0.3)] hover:shadow-[0_6px_32px_oklch(0.55_0.27_264/0.45)] transition-all"
                 >
                   <Plus className="h-4 w-4" />
-                  New Post
+                  {t('newPost')}
                 </Button>
               </motion.div>
 
@@ -385,13 +388,13 @@ export default function ForumPage() {
                     className="flex items-center gap-2"
                   >
                     <Filter className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">Filtering by:</span>
+                    <span className="text-xs text-muted-foreground">{tCommon('filterBy')}</span>
                     <TagPill name={selectedTag} />
                     <button
                       onClick={() => setSelectedTag(null)}
                       className="text-xs text-muted-foreground hover:text-foreground underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                     >
-                      Clear
+                      {tCommon('clear')}
                     </button>
                   </motion.div>
                 )}
@@ -427,9 +430,9 @@ export default function ForumPage() {
                   {(useGraphQL ? sortedGraphqlPosts : sortedMockPosts).length === 0 && !loading && (
                     <div className="text-center py-16">
                       <Search className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
-                      <p className="text-muted-foreground">No discussions found</p>
+                      <p className="text-muted-foreground">{t('noDiscussions')}</p>
                       <p className="text-xs text-muted-foreground/60 mt-1">
-                        Try adjusting your search or filter
+                        {t('noDiscussionsHint')}
                       </p>
                     </div>
                   )}
@@ -441,7 +444,7 @@ export default function ForumPage() {
                 <div className="text-center pt-4">
                   <Button variant="outline" className="backdrop-blur-sm bg-card/50">
                     <Loader2 className="h-4 w-4 mr-2" />
-                    Load more
+                    {t('loadMore')}
                   </Button>
                 </div>
               )}
@@ -463,7 +466,7 @@ export default function ForumPage() {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2">
                     <Hash className="h-4 w-4 text-indigo-400" />
-                    Popular Topics
+                    {t('popularTopics')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -492,15 +495,15 @@ export default function ForumPage() {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2 text-indigo-300">
                     <Sparkles className="h-4 w-4" />
-                    Community Guidelines
+                    {t('communityGuidelines')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2.5">
                   {[
-                    { icon: ThumbsUp, text: 'Be respectful and constructive' },
-                    { icon: MessageSquare, text: 'Show your work and reasoning' },
-                    { icon: Award, text: 'Give credit for solutions' },
-                    { icon: Zap, text: 'Use LaTeX for math notation' },
+                    { icon: ThumbsUp, text: t('guideline.respectful') },
+                    { icon: MessageSquare, text: t('guideline.showWork') },
+                    { icon: Award, text: t('guideline.giveCredit') },
+                    { icon: Zap, text: t('guideline.useLatex') },
                   ].map(({ icon: Icon, text }) => (
                     <div key={text} className="flex items-start gap-2">
                       <Icon className="h-3.5 w-3.5 mt-0.5 text-indigo-400/80 shrink-0" />
@@ -515,7 +518,7 @@ export default function ForumPage() {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2">
                     <Award className="h-4 w-4 text-amber-400" />
-                    Top Contributors
+                    {t('topContributors')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -565,15 +568,15 @@ export default function ForumPage() {
               {/* Quick links */}
               <Card className="backdrop-blur-md bg-card/50 border-border">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm">Quick Links</CardTitle>
+                  <CardTitle className="text-sm">{t('quickLinks')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-1">
                   {[
-                    { label: 'Calculator', href: '/' },
-                    { label: 'Fourier Analysis', href: '/fourier' },
-                    { label: 'Complex Numbers', href: '/complex' },
-                    { label: 'PDE Solver', href: '/pde' },
-                    { label: 'Practice Problems', href: '/practice' },
+                    { label: t('link.calculator'), href: '/' },
+                    { label: t('link.fourier'), href: '/fourier' },
+                    { label: t('link.complex'), href: '/complex' },
+                    { label: t('link.pde'), href: '/pde' },
+                    { label: t('link.practice'), href: '/practice' },
                   ].map(link => (
                     <Link
                       key={link.href}

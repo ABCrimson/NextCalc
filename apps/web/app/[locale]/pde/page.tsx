@@ -17,6 +17,7 @@
  */
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -173,6 +174,7 @@ function solveWavePDE2D(
 // ============================================================================
 
 export default function PDESolverPage() {
+  const t = useTranslations('pde');
   // Solver state
   const [equationType, setEquationType] = useState<EquationType>('heat');
   const [gridSize, setGridSize] = useState(80);
@@ -531,20 +533,20 @@ export default function PDESolverPage() {
             </div>
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 bg-clip-text text-transparent">
-                PDE Solver Studio
+                {t('studioTitle')}
               </h1>
               <p className="text-sm text-muted-foreground mt-1">
-                GPU-accelerated partial differential equation visualization
+                {t('description')}
               </p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2 mt-4">
             <Badge variant="outline" className="gap-1 backdrop-blur-sm bg-muted/50 border-border">
               <Zap className="w-3 h-3 text-yellow-400" />
-              WebGPU Accelerated
+              {t('webgpuAccelerated')}
             </Badge>
             <Badge variant="outline" className="backdrop-blur-sm bg-muted/50 border-border">
-              60 FPS Rendering
+              {t('rendering60fps')}
             </Badge>
             <Badge variant="outline" className="backdrop-blur-sm bg-muted/50 border-border">
               {gridSize}×{gridSize} Grid
@@ -555,7 +557,7 @@ export default function PDESolverPage() {
             {computeTime > 0 && (
               <Badge variant="outline" className="gap-1 backdrop-blur-sm bg-emerald-500/10 border-emerald-500/30 text-emerald-400">
                 <Sparkles className="w-3 h-3" />
-                Solved in {computeTime.toFixed(0)}ms
+                {t('solvedIn', { ms: computeTime.toFixed(0) })}
               </Badge>
             )}
           </div>
@@ -568,30 +570,30 @@ export default function PDESolverPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Settings className="w-5 h-5 text-blue-400" />
-                  Solver Configuration
+                  {t('solverConfiguration')}
                 </CardTitle>
-                <CardDescription>Configure your PDE simulation</CardDescription>
+                <CardDescription>{t('solverConfigurationDesc')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Equation Type */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Equation Type</Label>
+                  <Label className="text-sm font-medium">{t('equationType')}</Label>
                   <Tabs value={equationType} onValueChange={(v) => setEquationType(v as EquationType)}>
                     <TabsList className="grid w-full grid-cols-2 bg-muted/50">
                       <TabsTrigger value="heat" className="gap-2">
                         <Flame className="w-4 h-4" />
-                        Heat
+                        {t('heat')}
                       </TabsTrigger>
                       <TabsTrigger value="wave" className="gap-2">
                         <Radio className="w-4 h-4" />
-                        Wave
+                        {t('wave')}
                       </TabsTrigger>
                     </TabsList>
                   </Tabs>
                   <p className="text-xs text-muted-foreground font-mono">
                     {equationType === 'heat'
-                      ? '∂u/∂t = α∇²u (heat diffusion)'
-                      : '∂²u/∂t² = c²∇²u (wave propagation)'}
+                      ? t('heatFormula')
+                      : t('waveFormula')}
                   </p>
                 </div>
 
@@ -610,7 +612,7 @@ export default function PDESolverPage() {
                     className="py-2"
                   />
                   <p className="text-xs text-muted-foreground">
-                    GPU acceleration enables high-resolution simulations
+                    {t('gpuHighRes')}
                   </p>
                 </div>
 
@@ -646,7 +648,7 @@ export default function PDESolverPage() {
                       className="py-2"
                     />
                     <p className="text-xs text-muted-foreground">
-                      Higher values = faster heat diffusion
+                      {t('higherDiffusion')}
                     </p>
                   </div>
                 ) : (
@@ -664,7 +666,7 @@ export default function PDESolverPage() {
                       className="py-2"
                     />
                     <p className="text-xs text-muted-foreground">
-                      Propagation speed of waves
+                      {t('propagationSpeed')}
                     </p>
                   </div>
                 )}
@@ -690,7 +692,7 @@ export default function PDESolverPage() {
             {/* Initial Conditions */}
             <Card className="backdrop-blur-md bg-card/50 border-border">
               <CardHeader>
-                <CardTitle className="text-sm">Initial Condition Presets</CardTitle>
+                <CardTitle className="text-sm">{t('initialConditionPresets')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-2">
@@ -700,7 +702,7 @@ export default function PDESolverPage() {
                     className={`justify-start text-sm h-auto py-2 backdrop-blur-sm border-border hover:bg-muted/50 ${initialCondition === 'center' ? 'bg-muted/60 ring-1 ring-primary/40' : 'bg-muted/30'}`}
                     disabled={isComputing}
                   >
-                    Center Spot
+                    {t('preset.centerSpot')}
                   </Button>
                   <Button
                     variant="outline"
@@ -708,7 +710,7 @@ export default function PDESolverPage() {
                     className={`justify-start text-sm h-auto py-2 backdrop-blur-sm border-border hover:bg-muted/50 ${initialCondition === 'line' ? 'bg-muted/60 ring-1 ring-primary/40' : 'bg-muted/30'}`}
                     disabled={isComputing}
                   >
-                    Hot Line
+                    {t('preset.hotLine')}
                   </Button>
                   <Button
                     variant="outline"
@@ -716,7 +718,7 @@ export default function PDESolverPage() {
                     className={`justify-start text-sm h-auto py-2 backdrop-blur-sm border-border hover:bg-muted/50 ${initialCondition === 'corners' ? 'bg-muted/60 ring-1 ring-primary/40' : 'bg-muted/30'}`}
                     disabled={isComputing}
                   >
-                    Corners
+                    {t('preset.corners')}
                   </Button>
                   <Button
                     variant="outline"
@@ -724,7 +726,7 @@ export default function PDESolverPage() {
                     className={`justify-start text-sm h-auto py-2 backdrop-blur-sm border-border hover:bg-muted/50 ${initialCondition === 'ring' ? 'bg-muted/60 ring-1 ring-primary/40' : 'bg-muted/30'}`}
                     disabled={isComputing}
                   >
-                    Ring
+                    {t('preset.ring')}
                   </Button>
                   <Button
                     variant="outline"
@@ -732,7 +734,7 @@ export default function PDESolverPage() {
                     className={`justify-start text-sm h-auto py-2 backdrop-blur-sm border-border hover:bg-muted/50 ${initialCondition === 'cross' ? 'bg-muted/60 ring-1 ring-primary/40' : 'bg-muted/30'}`}
                     disabled={isComputing}
                   >
-                    Cross
+                    {t('preset.cross')}
                   </Button>
                   <Button
                     variant="outline"
@@ -740,7 +742,7 @@ export default function PDESolverPage() {
                     className={`justify-start text-sm h-auto py-2 backdrop-blur-sm border-border hover:bg-muted/50 ${initialCondition === 'gaussian' ? 'bg-muted/60 ring-1 ring-primary/40' : 'bg-muted/30'}`}
                     disabled={isComputing}
                   >
-                    Gaussian
+                    {t('preset.gaussian')}
                   </Button>
                   <Button
                     variant="outline"
@@ -748,7 +750,7 @@ export default function PDESolverPage() {
                     className={`justify-start text-sm h-auto py-2 backdrop-blur-sm border-border hover:bg-muted/50 ${initialCondition === 'doubleGaussian' ? 'bg-muted/60 ring-1 ring-primary/40' : 'bg-muted/30'}`}
                     disabled={isComputing}
                   >
-                    Double Gaussian
+                    {t('preset.doubleGaussian')}
                   </Button>
                   <Button
                     variant="outline"
@@ -756,7 +758,7 @@ export default function PDESolverPage() {
                     className={`justify-start text-sm h-auto py-2 backdrop-blur-sm border-border hover:bg-muted/50 ${initialCondition === 'sawtooth' ? 'bg-muted/60 ring-1 ring-primary/40' : 'bg-muted/30'}`}
                     disabled={isComputing}
                   >
-                    Sawtooth
+                    {t('preset.sawtooth')}
                   </Button>
                   <Button
                     variant="outline"
@@ -764,7 +766,7 @@ export default function PDESolverPage() {
                     className={`justify-start text-sm h-auto py-2 backdrop-blur-sm border-border hover:bg-muted/50 ${initialCondition === 'squarePulse' ? 'bg-muted/60 ring-1 ring-primary/40' : 'bg-muted/30'}`}
                     disabled={isComputing}
                   >
-                    Square Pulse
+                    {t('preset.squarePulse')}
                   </Button>
                   <Button
                     variant="outline"
@@ -772,7 +774,7 @@ export default function PDESolverPage() {
                     className={`justify-start text-sm h-auto py-2 backdrop-blur-sm border-border hover:bg-muted/50 ${initialCondition === 'sinc' ? 'bg-muted/60 ring-1 ring-primary/40' : 'bg-muted/30'}`}
                     disabled={isComputing}
                   >
-                    Sinc Function
+                    {t('preset.sincFunction')}
                   </Button>
                 </div>
               </CardContent>
@@ -786,7 +788,7 @@ export default function PDESolverPage() {
                 <div>
                   <CardTitle className="flex items-center gap-2">
                     <Zap className="w-5 h-5 text-yellow-400" />
-                    Solution Heatmap
+                    {t('solutionHeatmap')}
                   </CardTitle>
                   <CardDescription className="mt-1">
                     Frame {currentStep + 1} / {simulationData.length || 1}
@@ -801,7 +803,7 @@ export default function PDESolverPage() {
                   <div className="flex items-center justify-center w-full py-16">
                     <div className="text-center space-y-4">
                       <div className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto" />
-                      <p className="text-sm text-muted-foreground">Computing PDE solution...</p>
+                      <p className="text-sm text-muted-foreground">{t('computingPDE')}</p>
                     </div>
                   </div>
                 ) : (
@@ -831,12 +833,12 @@ export default function PDESolverPage() {
                       {isPlaying ? (
                         <>
                           <Pause className="w-4 h-4 mr-2" />
-                          Pause
+                          {t('pause')}
                         </>
                       ) : (
                         <>
                           <Play className="w-4 h-4 mr-2" />
-                          Play
+                          {t('play')}
                         </>
                       )}
                     </Button>
@@ -867,7 +869,7 @@ export default function PDESolverPage() {
                   {/* Rendering Options */}
                   <div className="flex items-center justify-between p-3 rounded-lg backdrop-blur-sm bg-muted/30 border border-border">
                     <Label htmlFor="smooth-rendering" className="text-sm font-medium">
-                      Smooth Interpolation
+                      {t('smoothInterpolation')}
                     </Label>
                     <input
                       id="smooth-rendering"
@@ -882,7 +884,7 @@ export default function PDESolverPage() {
 
               {/* Color Scale Legend */}
               <div className="space-y-2">
-                <Label className="text-xs text-muted-foreground">Color Scale</Label>
+                <Label className="text-xs text-muted-foreground">{t('colorScale')}</Label>
                 <div className="h-8 rounded-lg border border-border" style={{
                   background: equationType === 'heat'
                     // Inferno-inspired: near-black → deep purple → vivid magenta → hot orange → pale yellow
@@ -904,49 +906,41 @@ export default function PDESolverPage() {
         <section className="mt-12 space-y-6">
           <div className="flex items-center gap-2 mb-4">
             <Info className="w-5 h-5 text-blue-400" />
-            <h2 className="text-2xl font-semibold">About PDEs</h2>
+            <h2 className="text-2xl font-semibold">{t('aboutTitle')}</h2>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
             <div className="group relative p-6 rounded-lg bg-gradient-to-br from-orange-950/40 to-orange-900/40 border border-orange-500/40 hover:border-orange-400/70 transition-all duration-300 backdrop-blur-sm">
               <h3 className="text-lg font-semibold mb-2 text-orange-300 flex items-center gap-2">
                 <Flame className="w-5 h-5" />
-                Heat Equation
+                {t('heatEquation')}
               </h3>
               <p className="text-sm text-orange-200/80">
-                The heat equation describes how temperature distributes over time in a given space.
-                It's a parabolic PDE that models diffusion processes - heat naturally flows from
-                hot to cold regions until equilibrium is reached.
+                {t('heatAbout')}
               </p>
             </div>
 
             <div className="group relative p-6 rounded-lg bg-gradient-to-br from-blue-950/40 to-blue-900/40 border border-blue-500/40 hover:border-blue-400/70 transition-all duration-300 backdrop-blur-sm">
               <h3 className="text-lg font-semibold mb-2 text-blue-300 flex items-center gap-2">
                 <Radio className="w-5 h-5" />
-                Wave Equation
+                {t('waveEquation')}
               </h3>
               <p className="text-sm text-blue-200/80">
-                The wave equation describes oscillations and vibrations. It's a hyperbolic PDE
-                that models sound waves, electromagnetic waves, vibrating strings, and water waves.
-                Unlike heat, waves propagate without dissipation.
+                {t('waveAbout')}
               </p>
             </div>
 
             <div className="group relative p-6 rounded-lg bg-gradient-to-br from-purple-950/40 to-purple-900/40 border border-purple-500/40 hover:border-purple-400/70 transition-all duration-300 backdrop-blur-sm">
-              <h3 className="text-lg font-semibold mb-2 text-purple-300">Finite Difference Method</h3>
+              <h3 className="text-lg font-semibold mb-2 text-purple-300">{t('finiteDifference')}</h3>
               <p className="text-sm text-purple-200/80">
-                This numerical technique approximates derivatives using discrete grid points.
-                We replace continuous derivatives with difference quotients, converting PDEs
-                into systems of algebraic equations that computers can solve efficiently.
+                {t('finiteDifferenceAbout')}
               </p>
             </div>
 
             <div className="group relative p-6 rounded-lg bg-gradient-to-br from-emerald-950/40 to-emerald-900/40 border border-emerald-500/40 hover:border-emerald-400/70 transition-all duration-300 backdrop-blur-sm">
-              <h3 className="text-lg font-semibold mb-2 text-emerald-300">Applications</h3>
+              <h3 className="text-lg font-semibold mb-2 text-emerald-300">{t('applicationsTitle')}</h3>
               <p className="text-sm text-emerald-200/80">
-                PDEs are fundamental to physics and engineering: weather prediction,
-                fluid dynamics, quantum mechanics, image processing, financial modeling
-                (Black-Scholes), and materials science.
+                {t('applicationsAbout')}
               </p>
             </div>
           </div>

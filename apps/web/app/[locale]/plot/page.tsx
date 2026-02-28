@@ -16,6 +16,7 @@
  */
 
 import { useState, useMemo, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import {
   Plot2D,
@@ -286,6 +287,7 @@ function PresetChip({ label, onClick, accentGradient, isActive = false }: Preset
 // ---------------------------------------------------------------------------
 
 export default function PlotsExamplesPage() {
+  const t = useTranslations('plots');
   const [activeTab, setActiveTab] = useState('2d-cartesian');
 
   // Canvas refs for export — populated by Plot2D's onCanvasReady callback
@@ -567,25 +569,25 @@ export default function PlotsExamplesPage() {
                     <Layers className="h-6 w-6 text-cyan-400" />
                   </div>
                   <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-300 via-blue-300 to-purple-300 bg-clip-text text-transparent">
-                    Interactive Plots
+                    {t('pageTitle')}
                   </h1>
                 </div>
                 <p className="text-muted-foreground text-sm md:text-base ml-14">
-                  GPU-accelerated mathematical visualization with real-time interactions
+                  {t('subtitle')}
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 ml-14 md:ml-0">
                 <Badge variant="outline" className="border-cyan-500/30 text-cyan-300 bg-cyan-500/10">
                   <Zap className="h-3 w-3 mr-1" />
-                  60+ FPS
+                  {t('badge.fps')}
                 </Badge>
                 <Badge variant="outline" className="border-purple-500/30 text-purple-300 bg-purple-500/10">
                   <Activity className="h-3 w-3 mr-1" />
-                  Interactive
+                  {t('badge.interactive')}
                 </Badge>
                 <Badge variant="outline" className="border-blue-500/30 text-blue-300 bg-blue-500/10">
                   <Maximize2 className="h-3 w-3 mr-1" />
-                  Responsive
+                  {t('badge.responsive')}
                 </Badge>
               </div>
             </div>
@@ -604,25 +606,25 @@ export default function PlotsExamplesPage() {
                 value="2d-cartesian"
                 className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-cyan-900/50 data-[state=active]:to-blue-900/50 data-[state=active]:text-cyan-100 data-[state=active]:border data-[state=active]:border-cyan-500/50 data-[state=active]:shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all duration-200"
               >
-                2D Cartesian
+                {t('tab.2dCartesian')}
               </TabsTrigger>
               <TabsTrigger
                 value="2d-polar"
                 className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-900/50 data-[state=active]:to-pink-900/50 data-[state=active]:text-purple-100 data-[state=active]:border data-[state=active]:border-purple-500/50 data-[state=active]:shadow-[0_0_15px_rgba(168,85,247,0.3)] transition-all duration-200"
               >
-                2D Polar
+                {t('tab.2dPolar')}
               </TabsTrigger>
               <TabsTrigger
                 value="2d-parametric"
                 className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-900/50 data-[state=active]:to-teal-900/50 data-[state=active]:text-green-100 data-[state=active]:border data-[state=active]:border-green-500/50 data-[state=active]:shadow-[0_0_15px_rgba(5,150,105,0.3)] transition-all duration-200"
               >
-                2D Parametric
+                {t('tab.2dParametric')}
               </TabsTrigger>
               <TabsTrigger
                 value="3d-surface"
                 className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-orange-900/50 data-[state=active]:to-red-900/50 data-[state=active]:text-orange-100 data-[state=active]:border data-[state=active]:border-orange-500/50 data-[state=active]:shadow-[0_0_15px_rgba(251,146,60,0.3)] transition-all duration-200"
               >
-                3D Surface
+                {t('tab.3dSurface')}
               </TabsTrigger>
             </TabsList>
           </motion.div>

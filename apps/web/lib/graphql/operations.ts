@@ -285,6 +285,60 @@ export const CLEAR_CALCULATION_HISTORY_MUTATION = gql`
 `;
 
 // ============================================================================
+// SHARED CALCULATION QUERIES & MUTATIONS
+// ============================================================================
+
+/** Share a calculation and receive a short code */
+export const SHARE_CALCULATION_MUTATION = gql`
+  mutation ShareCalculation(
+    $latex: String!
+    $expression: String!
+    $title: String
+    $description: String
+    $result: String
+  ) {
+    shareCalculation(
+      latex: $latex
+      expression: $expression
+      title: $title
+      description: $description
+      result: $result
+    ) {
+      id
+      shortCode
+      latex
+      expression
+      title
+      description
+      result
+      createdAt
+    }
+  }
+`;
+
+/** Get a shared calculation by short code */
+export const SHARED_CALCULATION_QUERY = gql`
+  query SharedCalculation($shortCode: String!) {
+    sharedCalculation(shortCode: $shortCode) {
+      id
+      shortCode
+      latex
+      expression
+      title
+      description
+      result
+      createdAt
+      expiresAt
+      user {
+        id
+        name
+        image
+      }
+    }
+  }
+`;
+
+// ============================================================================
 // HEALTH QUERY
 // ============================================================================
 

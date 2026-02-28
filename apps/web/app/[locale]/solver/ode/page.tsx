@@ -17,6 +17,7 @@
  */
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -1570,6 +1571,7 @@ function presetToGpuEquationType(key: string): FieldEquationType {
 }
 
 export default function ODESolverPage() {
+  const t = useTranslations('solver');
   const [odeType, setODEType] = useState<ODEType>('first-order');
   const [method, setMethod] = useState<NumericalMethod>('rk4');
   const [equation, setEquation] = useState('y*(1-y)');
@@ -1733,26 +1735,26 @@ export default function ODESolverPage() {
             </div>
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-violet-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                ODE Solver
+                {t('odeTitle')}
               </h1>
               <p className="text-sm text-muted-foreground mt-1">
-                Numerical solutions with phase plane visualization
+                {t('odeSubtitle')}
               </p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2 mt-4">
             <Badge variant="outline" className="gap-1 backdrop-blur-sm bg-muted/50 border-border">
               <Zap className="w-3 h-3 text-yellow-400" />
-              RK4 &amp; Euler Methods
+              {t('ode.rk4Euler')}
             </Badge>
             <Badge variant="outline" className="backdrop-blur-sm bg-muted/50 border-border">
-              Phase Plane
+              {t('ode.phasePlane')}
             </Badge>
             <Badge variant="outline" className="backdrop-blur-sm bg-muted/50 border-border">
-              Direction Field
+              {t('ode.directionField')}
             </Badge>
             <Badge variant="outline" className="backdrop-blur-sm bg-muted/50 border-border">
-              CSV Export
+              {t('ode.csvExport')}
             </Badge>
             {supportsWebGPU && (
               <Badge variant="outline" className="gap-1 backdrop-blur-sm bg-violet-500/10 border-violet-500/40 text-violet-300">
@@ -2297,7 +2299,7 @@ export default function ODESolverPage() {
         <section className="mt-12 space-y-6">
           <div className="flex items-center gap-2 mb-4">
             <Info className="w-5 h-5 text-blue-400" />
-            <h2 className="text-2xl font-semibold">About Numerical ODE Methods</h2>
+            <h2 className="text-2xl font-semibold">{t('ode.aboutTitle')}</h2>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">

@@ -6,7 +6,9 @@ import { Card } from '@/components/ui/card';
 import { LaTeXRenderer } from '@/components/math/latex-renderer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ShareButton } from './share-button';
+import { ExportMenu } from './export-menu';
 import type { ShareMode, ShareAngleMode } from '@/lib/share';
+import { useThousandsSeparator, formatResultWithSeparators } from '@/lib/stores/settings-store';
 
 interface DisplayProps {
   expression: string;
@@ -38,13 +40,20 @@ export function Display({
   angle,
 }: DisplayProps) {
   const latex = convertToLatex(expression);
+  const thousandsSeparator = useThousandsSeparator();
 
   // Show loading indicator when pending
   const displayResult = isPending && result !== 'Calculating...' ? 'Calculating...' : result;
 
+  // Format the display result with thousands separators when enabled
+  const formattedResult = useMemo(
+    () => formatResultWithSeparators(displayResult, thousandsSeparator),
+    [displayResult, thousandsSeparator],
+  );
+
   // Determine aria-live announcement
   const liveAnnouncement = displayResult !== null
-    ? `Result: ${displayResult}`
+    ? `Result: ${formattedResult}`
     : expression
     ? `Expression: ${expression}`
     : 'Calculator ready';
@@ -134,10 +143,10 @@ export function Display({
                   {...resultVariants}
                   className="text-5xl font-bold font-mono min-h-[3.5rem] bg-gradient-to-br from-sky-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent overflow-x-auto whitespace-nowrap scrollbar-none"
                   role="status"
-                  aria-label={displayResult !== null ? `Result: ${displayResult}` : 'No result'}
+                  aria-label={displayResult !== null ? `Result: ${formattedResult}` : 'No result'}
                   aria-busy={isPending}
                 >
-                  {displayResult !== null ? String(displayResult) : '\u00A0'}
+                  {displayResult !== null ? formattedResult : '\u00A0'}
                 </motion.div>
               </motion.div>
             </TabsContent>
@@ -163,20 +172,21 @@ export function Display({
                     {...resultVariants}
                     className="text-5xl font-bold font-mono bg-gradient-to-br from-sky-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent overflow-x-auto whitespace-nowrap scrollbar-none"
                     role="status"
-                    aria-label={`Result: ${displayResult}`}
+                    aria-label={`Result: ${formattedResult}`}
                     aria-busy={isPending}
                   >
-                    = {String(displayResult)}
+                    = {formattedResult}
                   </motion.div>
                 )}
               </motion.div>
             </TabsContent>
           </Tabs>
 
-          {/* Share button — floated to the top-right of the display card.
+          {/* Share + Export buttons — floated to the top-right of the display card.
               exactOptionalPropertyTypes: use conditional spread so we never
               pass `undefined` to an optional prop typed without `undefined`. */}
-          <div className="flex-shrink-0 self-start">
+          <div className="flex-shrink-0 self-start flex items-center gap-1">
+            <ExportMenu latex={latex} />
             <ShareButton
               expression={expression}
               {...(shareResult !== undefined ? { result: shareResult } : {})}

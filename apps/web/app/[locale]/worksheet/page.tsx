@@ -5,6 +5,7 @@
  */
 
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { WorksheetClientWrapper } from './client-wrapper';
 
 export const metadata: Metadata = {
@@ -18,12 +19,13 @@ export default async function WorksheetPage({
 }: {
   searchParams: Promise<{ id?: string }>;
 }) {
+  const t = await getTranslations('worksheet');
   const { id: worksheetId } = await searchParams;
 
   return (
     <main
       className="min-h-screen relative"
-      aria-label="Mathematical worksheet editor"
+      aria-label={t('editorLabel')}
     >
       {/* Enhanced multi-stop radial gradient background */}
       <div

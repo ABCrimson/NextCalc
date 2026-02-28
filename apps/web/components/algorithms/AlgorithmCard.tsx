@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight, type LucideIcon } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 
 /**
@@ -145,6 +146,13 @@ const difficultyColors: Record<DifficultyLevel, string> = {
  * />
  * ```
  */
+const difficultyKeyMap: Record<DifficultyLevel, string> = {
+  beginner: 'beginner',
+  intermediate: 'intermediate',
+  advanced: 'advanced',
+  expert: 'expert',
+};
+
 export function AlgorithmCard({
   title,
   description,
@@ -155,6 +163,7 @@ export function AlgorithmCard({
   timeComplexity,
   disabled = false,
 }: AlgorithmCardProps) {
+  const t = useTranslations('algorithms');
   const styles = categoryStyles[category];
 
   const cardContent = (
@@ -199,9 +208,9 @@ export function AlgorithmCard({
                 'px-2 py-1 text-xs font-medium rounded-md border whitespace-nowrap',
                 difficultyColors[difficulty]
               )}
-              aria-label={`Difficulty: ${difficulty}`}
+              aria-label={`${t('page.difficulty')}: ${t(`difficulty.${difficultyKeyMap[difficulty]}`)}`}
             >
-              {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+              {t(`difficulty.${difficultyKeyMap[difficulty]}`)}
             </span>
 
             {/* Time complexity badge */}
@@ -234,7 +243,7 @@ export function AlgorithmCard({
             'group-hover:translate-x-2 transition-transform duration-300'
           )}
         >
-          <span>Explore</span>
+          <span>{t('card.explore')}</span>
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </div>
 
@@ -242,7 +251,7 @@ export function AlgorithmCard({
         {disabled && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/50 rounded-xl">
             <span className="text-sm font-medium text-foreground/80">
-              Coming Soon
+              {t('card.comingSoon')}
             </span>
           </div>
         )}

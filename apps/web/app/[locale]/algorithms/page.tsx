@@ -17,6 +17,7 @@ import {
   Box,
   type LucideIcon,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { AlgorithmCard, type AlgorithmCategory, type DifficultyLevel } from '@/components/algorithms/AlgorithmCard';
 import { CategoryFilter } from '@/components/algorithms/CategoryFilter';
 
@@ -25,8 +26,8 @@ import { CategoryFilter } from '@/components/algorithms/CategoryFilter';
  */
 interface Algorithm {
   id: string;
-  title: string;
-  description: string;
+  /** Translation key under algorithms.landing.* */
+  translationKey: string;
   category: AlgorithmCategory;
   difficulty: DifficultyLevel;
   href: string;
@@ -36,25 +37,21 @@ interface Algorithm {
 }
 
 /**
- * All available algorithms
+ * All available algorithms (static metadata only; titles and descriptions come from translations)
  */
-const algorithms: Algorithm[] = [
+const algorithmDefs: Algorithm[] = [
   {
     id: 'transformers',
-    title: 'Transformer Attention',
-    description:
-      'Explore how transformers process sequences with self-attention mechanisms. Visualize query, key, and value matrices in real-time.',
+    translationKey: 'transformers',
     category: 'machine-learning',
     difficulty: 'intermediate',
     href: '/algorithms/transformers',
     icon: Brain,
-    timeComplexity: 'O(n²d)',
+    timeComplexity: 'O(n\u00b2d)',
   },
   {
     id: 'meta-learning',
-    title: 'Meta-Learning (MAML)',
-    description:
-      'Discover Model-Agnostic Meta-Learning and how models learn to learn. Train on tasks and adapt to new ones quickly.',
+    translationKey: 'metaLearning',
     category: 'machine-learning',
     difficulty: 'advanced',
     href: '/algorithms/meta-learning',
@@ -63,9 +60,7 @@ const algorithms: Algorithm[] = [
   },
   {
     id: 'zkp',
-    title: 'Zero-Knowledge Proofs',
-    description:
-      'Understand cryptographic protocols that prove knowledge without revealing information. Interactive Schnorr protocol demonstration.',
+    translationKey: 'zkp',
     category: 'cryptography',
     difficulty: 'advanced',
     href: '/algorithms/crypto',
@@ -74,20 +69,16 @@ const algorithms: Algorithm[] = [
   },
   {
     id: 'quantum',
-    title: "Quantum Simulation",
-    description:
-      "Build quantum circuits with gates like Hadamard, CNOT, and Toffoli. Visualize superposition and entanglement.",
+    translationKey: 'quantum',
     category: 'quantum',
     difficulty: 'expert',
     href: '/algorithms/quantum',
     icon: Atom,
-    timeComplexity: 'O(2ⁿ)',
+    timeComplexity: 'O(2\u207f)',
   },
   {
     id: 'pagerank',
-    title: 'PageRank Algorithm',
-    description:
-      "Explore Google's original ranking algorithm. Build graphs, adjust damping, and watch scores converge iteratively.",
+    translationKey: 'pagerank',
     category: 'graph-theory',
     difficulty: 'intermediate',
     href: '/algorithms/graphs',
@@ -96,9 +87,7 @@ const algorithms: Algorithm[] = [
   },
   {
     id: 'fourier',
-    title: 'Fourier Analysis',
-    description:
-      'Transform time-domain signals to frequency domain using FFT and DFT. Visualize magnitude and phase spectrums.',
+    translationKey: 'fourier',
     category: 'signal-processing',
     difficulty: 'intermediate',
     href: '/fourier',
@@ -107,20 +96,16 @@ const algorithms: Algorithm[] = [
   },
   {
     id: 'game-theory',
-    title: 'Game Theory',
-    description:
-      'Analyze strategic interactions using Nash equilibrium. Explore classic games like Prisoner\'s Dilemma and Battle of the Sexes.',
+    translationKey: 'gameTheory',
     category: 'game-theory',
     difficulty: 'intermediate',
     href: '/game-theory',
     icon: Trophy,
-    timeComplexity: 'O(n²)',
+    timeComplexity: 'O(n\u00b2)',
   },
   {
     id: 'chaos',
-    title: 'Chaos Theory',
-    description:
-      'Visualize chaotic systems including Lorenz attractors and logistic maps. Explore strange attractors and bifurcation diagrams.',
+    translationKey: 'chaos',
     category: 'dynamical-systems',
     difficulty: 'advanced',
     href: '/chaos',
@@ -129,31 +114,25 @@ const algorithms: Algorithm[] = [
   },
   {
     id: 'pde',
-    title: 'PDE Solver',
-    description:
-      'Solve partial differential equations numerically. Simulate heat diffusion and wave propagation with finite difference methods.',
+    translationKey: 'pde',
     category: 'numerical-analysis',
     difficulty: 'advanced',
     href: '/pde',
     icon: Flame,
-    timeComplexity: 'O(n²t)',
+    timeComplexity: 'O(n\u00b2t)',
   },
   {
     id: 'pde-3d',
-    title: 'PDE Solver 3D',
-    description:
-      'Three-dimensional PDE visualization with isosurface rendering, slice planes, and point clouds. Solve Heat and Wave equations on voxel grids.',
+    translationKey: 'pde3d',
     category: 'numerical-analysis',
     difficulty: 'expert',
     href: '/pde/3d',
     icon: Box,
-    timeComplexity: 'O(n³t)',
+    timeComplexity: 'O(n\u00b3t)',
   },
   {
     id: 'graphs-full',
-    title: 'Graph Algorithms',
-    description:
-      'Explore graph traversal and shortest path algorithms. Visualize BFS, DFS, Dijkstra, and A* on custom graphs.',
+    translationKey: 'graphsFull',
     category: 'graph-theory',
     difficulty: 'intermediate',
     href: '/graphs-full',
@@ -162,14 +141,12 @@ const algorithms: Algorithm[] = [
   },
   {
     id: 'ml-algorithms',
-    title: 'ML Algorithms',
-    description:
-      'Interactive visualizations of machine learning algorithms including neural networks, decision trees, and clustering.',
+    translationKey: 'mlAlgorithms',
     category: 'machine-learning',
     difficulty: 'intermediate',
     href: '/ml-algorithms',
     icon: Brain,
-    timeComplexity: 'O(n²)',
+    timeComplexity: 'O(n\u00b2)',
   },
 ];
 
@@ -195,13 +172,16 @@ const algorithms: Algorithm[] = [
  * - Screen reader announcements
  */
 export default function AlgorithmsPage() {
+  const t = useTranslations('algorithms');
   const [selectedCategories, setSelectedCategories] = useState<AlgorithmCategory[]>([]);
   const [selectedDifficulties, setSelectedDifficulties] = useState<DifficultyLevel[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
+  const tl = useTranslations('algorithms.landing');
+
   // Filter algorithms based on selection
   const filteredAlgorithms = useMemo(() => {
-    return algorithms.filter((algorithm) => {
+    return algorithmDefs.filter((algorithm) => {
       // Category filter
       if (
         selectedCategories.length > 0 &&
@@ -221,14 +201,16 @@ export default function AlgorithmsPage() {
       // Search filter
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
-        const matchesTitle = algorithm.title.toLowerCase().includes(query);
-        const matchesDescription = algorithm.description.toLowerCase().includes(query);
+        const title = tl(`${algorithm.translationKey}.title`);
+        const description = tl(`${algorithm.translationKey}.description`);
+        const matchesTitle = title.toLowerCase().includes(query);
+        const matchesDescription = description.toLowerCase().includes(query);
         return matchesTitle || matchesDescription;
       }
 
       return true;
     });
-  }, [selectedCategories, selectedDifficulties, searchQuery]);
+  }, [selectedCategories, selectedDifficulties, searchQuery, tl]);
 
   return (
     <div className="min-h-screen">
@@ -248,35 +230,33 @@ export default function AlgorithmsPage() {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary border border-primary/20 mb-6">
               <BookOpen className="h-4 w-4" aria-hidden="true" />
-              <span className="text-sm font-medium">Interactive Learning</span>
+              <span className="text-sm font-medium">{t('interactiveLearning')}</span>
             </div>
 
             <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">
-              Algorithm Visualizations
+              {t('heroTitle')}
             </h1>
 
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-8">
-              Explore cutting-edge algorithms through interactive visualizations.
-              From machine learning transformers to quantum circuits, understand
-              complex concepts with hands-on experimentation.
+              {t('heroDescription')}
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
               <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20">
                 <Brain className="h-4 w-4" aria-hidden="true" />
-                <span>Machine Learning</span>
+                <span>{t('category.machineLearning')}</span>
               </div>
               <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20">
                 <Shield className="h-4 w-4" aria-hidden="true" />
-                <span>Cryptography</span>
+                <span>{t('category.cryptography')}</span>
               </div>
               <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
                 <Atom className="h-4 w-4" aria-hidden="true" />
-                <span>Quantum Computing</span>
+                <span>{t('category.quantumComputing')}</span>
               </div>
               <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20">
                 <Network className="h-4 w-4" aria-hidden="true" />
-                <span>Graph Theory</span>
+                <span>{t('category.graphTheory')}</span>
               </div>
             </div>
           </motion.div>
@@ -305,13 +285,14 @@ export default function AlgorithmsPage() {
             {/* Results count */}
             <div className="mb-6">
               <h2 className="text-2xl font-semibold mb-2">
-                {filteredAlgorithms.length === algorithms.length
-                  ? 'All Algorithms'
-                  : 'Filtered Results'}
+                {filteredAlgorithms.length === algorithmDefs.length
+                  ? t('allAlgorithms')
+                  : t('filteredResults')}
               </h2>
               <p className="text-muted-foreground">
-                {filteredAlgorithms.length} algorithm
-                {filteredAlgorithms.length !== 1 ? 's' : ''} found
+                {filteredAlgorithms.length !== 1
+                  ? t('algorithmCountPlural', { count: filteredAlgorithms.length })
+                  : t('algorithmCount', { count: filteredAlgorithms.length })}
               </p>
             </div>
 
@@ -326,8 +307,8 @@ export default function AlgorithmsPage() {
                     transition={{ duration: 0.3, delay: index * 0.1 }}
                   >
                     <AlgorithmCard
-                      title={algorithm.title}
-                      description={algorithm.description}
+                      title={tl(`${algorithm.translationKey}.title`)}
+                      description={tl(`${algorithm.translationKey}.description`)}
                       category={algorithm.category}
                       difficulty={algorithm.difficulty}
                       href={algorithm.href}
@@ -346,9 +327,9 @@ export default function AlgorithmsPage() {
                 className="text-center py-16"
               >
                 <TrendingUp className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" aria-hidden="true" />
-                <h3 className="text-xl font-semibold mb-2">No algorithms found</h3>
+                <h3 className="text-xl font-semibold mb-2">{t('noAlgorithmsFound')}</h3>
                 <p className="text-muted-foreground mb-6">
-                  Try adjusting your filters or search query
+                  {t('noAlgorithmsHint')}
                 </p>
                 <button
                   onClick={() => {
@@ -358,7 +339,7 @@ export default function AlgorithmsPage() {
                   }}
                   className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 >
-                  Clear all filters
+                  {t('clearAllFilters')}
                 </button>
               </motion.div>
             )}
@@ -381,14 +362,10 @@ export default function AlgorithmsPage() {
             </div>
             <div className="flex-1">
               <h3 className="text-xl font-semibold mb-2">
-                Learning Through Interaction
+                {t('learningTitle')}
               </h3>
               <p className="text-muted-foreground leading-relaxed">
-                Each algorithm visualization includes step-by-step explanations,
-                adjustable parameters, and real-time feedback. Experiment with
-                different inputs to develop intuition for how these algorithms work.
-                All visualizations are built with modern web technologies and are
-                fully accessible.
+                {t('learningDescription')}
               </p>
             </div>
           </div>

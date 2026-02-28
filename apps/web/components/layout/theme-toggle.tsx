@@ -46,6 +46,9 @@ export function ThemeToggle() {
     const initialTheme = storedTheme || systemTheme;
     setTheme(initialTheme);
 
+    // Sync cookie with localStorage for server-side persistence
+    document.cookie = `theme=${initialTheme};path=/;max-age=${60 * 60 * 24 * 365};SameSite=Lax`;
+
     // Tailwind 4.x: Set data-theme attribute instead of class
     document.documentElement.setAttribute('data-theme', initialTheme);
   }, []);
@@ -84,6 +87,9 @@ export function ThemeToggle() {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
+
+    // Set cookie for server-side theme persistence (prevents flash on reload)
+    document.cookie = `theme=${newTheme};path=/;max-age=${60 * 60 * 24 * 365};SameSite=Lax`;
 
     // Tailwind 4.x: Set data-theme attribute instead of class
     document.documentElement.setAttribute('data-theme', newTheme);

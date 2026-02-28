@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { UnitConverter } from '@/components/calculator/unit-converter';
 import { UnitsBackground, UnitsCategories } from './units-client';
 
@@ -184,7 +185,8 @@ const EXAMPLE_CONVERSIONS = [
   { accent: 'text-teal-400',    category: 'Angle',       text: '1 radian = 180/π ≈ 57.296°' },
 ];
 
-export default function UnitsPage() {
+export default async function UnitsPage() {
+  const t = await getTranslations('units');
   return (
     <main className="relative min-h-screen">
       {/* Animated gradient background with floating orbs and noise texture */}
@@ -214,11 +216,10 @@ export default function UnitsPage() {
 
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
-                Unit Converter
+                {t('pageTitle')}
               </h1>
               <p className="text-base text-muted-foreground mt-1">
-                Convert between 80+ units across 12 measurement categories with high-precision,
-                SI-based calculations.
+                {t('pageSubtitle')}
               </p>
             </div>
           </div>
@@ -226,10 +227,10 @@ export default function UnitsPage() {
           {/* Feature badges */}
           <div className="flex flex-wrap gap-2 mt-4">
             {[
-              { label: '12 Categories', hue: '230' },
-              { label: '80+ Units', hue: '175' },
-              { label: 'High Precision', hue: '264' },
-              { label: 'WCAG 2.2 AAA', hue: '155' },
+              { label: t('badge.categories'), hue: '230' },
+              { label: t('badge.units'), hue: '175' },
+              { label: t('badge.precision'), hue: '264' },
+              { label: t('badge.accessibility'), hue: '155' },
             ].map(({ label, hue }) => (
               <span
                 key={label}
@@ -263,7 +264,7 @@ export default function UnitsPage() {
               color: 'transparent',
             }}
           >
-            Supported Categories
+            {t('supportedCategories')}
           </h2>
 
           {/* Staggered animated grid — client component */}
@@ -282,7 +283,7 @@ export default function UnitsPage() {
               color: 'transparent',
             }}
           >
-            Example Conversions
+            {t('exampleConversions')}
           </h2>
           <div className="grid gap-2 sm:grid-cols-2">
             {EXAMPLE_CONVERSIONS.map(({ accent, category, text }) => (
@@ -311,7 +312,7 @@ export default function UnitsPage() {
               color: 'transparent',
             }}
           >
-            Features
+            {t('featuresTitle')}
           </h2>
           <div
             className="group relative p-6 rounded-xl overflow-hidden border backdrop-blur-md transition-all duration-300 hover:border-indigo-400/70"
@@ -340,14 +341,14 @@ export default function UnitsPage() {
             />
             <ul className="relative space-y-2">
               {[
-                ['Live Conversion',    'Results update automatically as you type'],
-                ['12 Categories',      '80+ units covering all common measurement needs'],
-                ['Conversion Formula', 'See the exact factor or formula used for each conversion'],
-                ['Searchable Units',   'Filter units by name, symbol, or abbreviation'],
-                ['Recent History',     'Quickly re-apply previous conversions'],
-                ['Swap Button',        'Reverse the conversion direction instantly'],
-                ['High Precision',     'SI-based conversions with up to 10 significant figures'],
-                ['Accessible',         'Full keyboard navigation and screen reader support (WCAG 2.2 AAA)'],
+                [t('feature.liveConversion'),    t('feature.liveConversionDesc')],
+                [t('feature.categories'),      t('feature.categoriesDesc')],
+                [t('feature.formula'), t('feature.formulaDesc')],
+                [t('feature.searchable'),   t('feature.searchableDesc')],
+                [t('feature.history'),     t('feature.historyDesc')],
+                [t('feature.swap'),        t('feature.swapDesc')],
+                [t('feature.highPrecision'),     t('feature.highPrecisionDesc')],
+                [t('feature.accessible'),         t('feature.accessibleDesc')],
               ].map(([title, detail]) => (
                 <li key={title} className="text-sm" style={{ color: 'oklch(0.75 0.08 264)' }}>
                   <strong style={{ color: 'oklch(0.78 0.18 264)' }}>{title}: </strong>

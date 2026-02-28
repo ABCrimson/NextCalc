@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { TaylorSeriesVisualizer } from '@/components/math/taylor-series-visualizer';
 
 export const metadata: Metadata = {
@@ -7,7 +8,8 @@ export const metadata: Metadata = {
     'Interactive visualization of Taylor and Maclaurin series expansions. Animate term-by-term approximation of sin, cos, exp, ln, arctan, and custom functions.',
 };
 
-export default function TaylorSeriesPage() {
+export default async function TaylorSeriesPage() {
+  const t = await getTranslations('symbolic');
   return (
     <main className="min-h-screen py-8 px-4">
       <div className="container mx-auto max-w-7xl">
@@ -16,18 +18,17 @@ export default function TaylorSeriesPage() {
             <span className="text-3xl select-none" aria-hidden>
               ~
             </span>
-            <h1 className="text-4xl font-bold">Taylor Series Visualizer</h1>
+            <h1 className="text-4xl font-bold">{t('taylorTitle')}</h1>
           </div>
           <p className="text-lg text-muted-foreground max-w-2xl">
-            Watch how polynomial approximations converge to transcendental functions, term by term.
-            Explore Taylor and Maclaurin series with interactive controls and animated plots.
+            {t('taylorSubtitle')}
           </p>
         </header>
 
         <TaylorSeriesVisualizer />
 
         <section className="mt-12 space-y-6">
-          <h2 className="text-2xl font-semibold">Taylor Series Formula</h2>
+          <h2 className="text-2xl font-semibold">{t('taylorFormula')}</h2>
 
           {/* General formula card */}
           <div
@@ -35,7 +36,7 @@ export default function TaylorSeriesPage() {
               bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md"
           >
             <p className="text-sm text-muted-foreground mb-4">
-              The Taylor series of a function f(x) around a point a is defined as:
+              {t('taylorFormulaDesc')}
             </p>
             <div className="font-mono text-sm bg-muted/30 rounded-lg p-4 overflow-x-auto border border-border/40">
               f(x) = f(a) + f&apos;(a)(x-a) + f&apos;&apos;(a)/2! &middot; (x-a)&sup2; + f&apos;&apos;&apos;(a)/3! &middot; (x-a)&sup3; + &hellip;

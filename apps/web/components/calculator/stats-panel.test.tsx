@@ -117,7 +117,7 @@ vi.mock('@nextcalc/math-engine/stats', () => ({
   },
   predict: (regression: Record<string, number>, x: number) => {
     if ('slope' in regression) {
-      return regression.slope * x + regression.intercept;
+      return (regression['slope'] ?? 0) * x + (regression['intercept'] ?? 0);
     }
     return 0;
   },

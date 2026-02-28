@@ -1,6 +1,7 @@
 'use client';
 
 import { Clock, Layers, Calendar, Tag } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import type { AlgorithmCategory, DifficultyLevel } from './AlgorithmCard';
 
@@ -21,15 +22,22 @@ export interface AlgorithmMetadataProps {
   className?: string;
 }
 
-const categoryLabels: Record<AlgorithmCategory, string> = {
-  'machine-learning': 'Machine Learning',
-  cryptography: 'Cryptography',
-  quantum: 'Quantum Computing',
-  'graph-theory': 'Graph Theory',
-  'signal-processing': 'Signal Processing',
-  'game-theory': 'Game Theory',
-  'dynamical-systems': 'Dynamical Systems',
-  'numerical-analysis': 'Numerical Analysis',
+const categoryKeyMap: Record<AlgorithmCategory, string> = {
+  'machine-learning': 'machineLearning',
+  cryptography: 'cryptography',
+  quantum: 'quantumComputing',
+  'graph-theory': 'graphTheory',
+  'signal-processing': 'signalProcessing',
+  'game-theory': 'gameTheory',
+  'dynamical-systems': 'dynamicalSystems',
+  'numerical-analysis': 'numericalAnalysis',
+};
+
+const difficultyKeyMap: Record<DifficultyLevel, string> = {
+  beginner: 'beginner',
+  intermediate: 'intermediate',
+  advanced: 'advanced',
+  expert: 'expert',
 };
 
 const difficultyColors: Record<DifficultyLevel, string> = {
@@ -72,6 +80,8 @@ export function AlgorithmMetadata({
   tags,
   className,
 }: AlgorithmMetadataProps) {
+  const t = useTranslations('algorithms');
+
   return (
     <div
       className={cn(
@@ -79,23 +89,23 @@ export function AlgorithmMetadata({
         className
       )}
     >
-      <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Algorithm Information</h3>
+      <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">{t('page.algorithmInfo')}</h3>
 
       <dl className="space-y-3 sm:space-y-4">
         {/* Category */}
         <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3">
           <dt className="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm sm:min-w-[100px]">
             <Layers className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" aria-hidden="true" />
-            <span>Category</span>
+            <span>{t('page.category')}</span>
           </dt>
-          <dd className="font-medium text-sm sm:text-base pl-5 sm:pl-0 min-w-0 break-words">{categoryLabels[category]}</dd>
+          <dd className="font-medium text-sm sm:text-base pl-5 sm:pl-0 min-w-0 break-words">{t(`category.${categoryKeyMap[category]}`)}</dd>
         </div>
 
         {/* Difficulty */}
         <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3">
           <dt className="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm sm:min-w-[100px]">
             <Layers className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" aria-hidden="true" />
-            <span>Difficulty</span>
+            <span>{t('page.difficulty')}</span>
           </dt>
           <dd className="pl-5 sm:pl-0 min-w-0">
             <span
@@ -104,7 +114,7 @@ export function AlgorithmMetadata({
                 difficultyColors[difficulty]
               )}
             >
-              {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+              {t(`difficulty.${difficultyKeyMap[difficulty]}`)}
             </span>
           </dd>
         </div>
@@ -113,7 +123,7 @@ export function AlgorithmMetadata({
         <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3">
           <dt className="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm sm:min-w-[100px]">
             <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" aria-hidden="true" />
-            <span>Time Complexity</span>
+            <span>{t('page.timeComplexity')}</span>
           </dt>
           <dd className="font-mono text-xs sm:text-sm bg-muted/20 px-2 py-1 rounded border border-border inline-block ml-5 sm:ml-0 max-w-full overflow-x-auto whitespace-nowrap">
             {timeComplexity}
@@ -124,7 +134,7 @@ export function AlgorithmMetadata({
         <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3">
           <dt className="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm sm:min-w-[100px]">
             <Layers className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" aria-hidden="true" />
-            <span>Space Complexity</span>
+            <span>{t('page.spaceComplexity')}</span>
           </dt>
           <dd className="font-mono text-xs sm:text-sm bg-muted/20 px-2 py-1 rounded border border-border inline-block ml-5 sm:ml-0 max-w-full overflow-x-auto whitespace-nowrap">
             {spaceComplexity}
@@ -136,7 +146,7 @@ export function AlgorithmMetadata({
           <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3">
             <dt className="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm sm:min-w-[100px]">
               <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" aria-hidden="true" />
-              <span>Year Introduced</span>
+              <span>{t('page.yearIntroduced')}</span>
             </dt>
             <dd className="font-medium text-sm sm:text-base pl-5 sm:pl-0">{yearIntroduced}</dd>
           </div>
@@ -147,7 +157,7 @@ export function AlgorithmMetadata({
           <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3">
             <dt className="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm sm:min-w-[100px] shrink-0">
               <Tag className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" aria-hidden="true" />
-              <span>Tags</span>
+              <span>{t('page.tags')}</span>
             </dt>
             <dd className="flex flex-wrap gap-1.5 sm:gap-2 pl-5 sm:pl-0">
               {tags.map((tag) => (

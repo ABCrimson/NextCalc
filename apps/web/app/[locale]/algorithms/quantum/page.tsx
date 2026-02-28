@@ -3,24 +3,28 @@
 import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
 import { QuantumSimulator } from '@/components/algorithms/QuantumSimulator';
 import { Atom } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function QuantumPage() {
+  const t = useTranslations('algorithms.quantum');
+  const ta = useTranslations('algorithms');
+
   return (
     <AlgorithmPage
-      title="Quantum Circuit Simulation"
+      title={t('title')}
       icon={Atom}
       category="quantum"
       difficulty="expert"
-      timeComplexity="O(2ⁿ)"
-      spaceComplexity="O(2ⁿ)"
+      timeComplexity="O(2\u207f)"
+      spaceComplexity="O(2\u207f)"
       yearIntroduced={1980}
       tags={['quantum', 'qubits', 'superposition', 'entanglement', 'gates']}
       breadcrumbs={[
-        { label: 'Algorithms', href: '/algorithms' },
-        { label: 'Quantum Computing', href: '/algorithms?category=quantum' },
-        { label: 'Quantum Simulation' },
+        { label: ta('title'), href: '/algorithms' },
+        { label: t('breadcrumbCategory'), href: '/algorithms?category=quantum' },
+        { label: t('breadcrumbCurrent') },
       ]}
-      description="Quantum circuits are the quantum analog of classical logic circuits. They consist of quantum gates applied to qubits, enabling operations that leverage superposition and entanglement. This simulator lets you build and visualize quantum circuits."
+      description={t('description')}
       applications={[
         'Quantum Cryptography (QKD)',
         'Quantum Search (Grover\'s Algorithm)',

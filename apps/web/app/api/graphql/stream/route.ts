@@ -10,7 +10,7 @@
  */
 
 import { createHandler } from 'graphql-sse/lib/use/fetch';
-import { schema, createDataLoaders } from '@nextcalc/api/server';
+import { schema, createDataLoaders, rateLimit, RateLimitError } from '@nextcalc/api/server';
 import type { GraphQLContext } from '@nextcalc/api/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
@@ -55,8 +55,71 @@ const handler = createHandler({
   },
 });
 
+/**
+ * Rate limiting for SSE endpoint.
+ * 200 req/min authenticated, 50 req/min anonymous.
+ * Lower than the main GraphQL endpoint since subscriptions are long-lived.
+ * Fails open if Redis is unavailable.
+ */
+async function enforceRateLimit(req: Request): Promise<Response | null> {
+  const session = await auth();
+  const ip =
+    req.headers.get('x-forwarded-for') ||
+    req.headers.get('x-real-ip') ||
+    'anonymous';
+  const identifier = session?.user?.id || ip;
+  const limit = session?.user?.id ? 200 : 50;
+  const window = 60;
+
+  try {
+    const result = await rateLimit(identifier, limit, window);
+
+    if (!result.allowed) {
+      const retryAfter = Math.ceil(
+        (result.resetAt.getTime() - Date.now()) / 1000,
+      );
+      return new Response(
+        JSON.stringify({
+          errors: [
+            {
+              message: `Rate limit exceeded. Try again in ${retryAfter} seconds.`,
+              extensions: {
+                code: 'RATE_LIMIT_EXCEEDED',
+                retryAfter,
+              },
+            },
+          ],
+        }),
+        {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json',
+            'Retry-After': String(retryAfter),
+          },
+        },
+      );
+    }
+  } catch (error) {
+    if (error instanceof RateLimitError) {
+      return new Response(
+        JSON.stringify({
+          errors: [{ message: error.message, extensions: error.extensions }],
+        }),
+        { status: 429, headers: { 'Content-Type': 'application/json' } },
+      );
+    }
+    // Redis down — fail open
+    console.error('SSE rate limit check failed:', error);
+  }
+
+  return null;
+}
+
 export const GET = async (req: Request) => {
   try {
+    const rateLimitResponse = await enforceRateLimit(req);
+    if (rateLimitResponse) return rateLimitResponse;
+
     return await handler(req);
   } catch (err) {
     console.error('GraphQL SSE error:', err);
@@ -66,6 +129,9 @@ export const GET = async (req: Request) => {
 
 export const POST = async (req: Request) => {
   try {
+    const rateLimitResponse = await enforceRateLimit(req);
+    if (rateLimitResponse) return rateLimitResponse;
+
     return await handler(req);
   } catch (err) {
     console.error('GraphQL SSE error:', err);

@@ -28,7 +28,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
+import { useThousandsSeparator, useSetThousandsSeparator } from '@/lib/stores/settings-store';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -238,10 +240,13 @@ function ThemeOption({
  *  - Keyboard-operable theme selector (aria-pressed toggles)
  */
 export default function SettingsPage() {
+  const t = useTranslations('settings');
   const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>({ type: 'idle' });
   const [historyCount, setHistoryCount] = useState(0);
   const [clearConfirm, setClearConfirm] = useState(false);
+  const thousandsSeparator = useThousandsSeparator();
+  const setThousandsSeparator = useSetThousandsSeparator();
 
   // Hydrate from localStorage on mount
   useEffect(() => {
@@ -376,11 +381,11 @@ export default function SettingsPage() {
               <Settings className="h-6 w-6 text-violet-400" aria-hidden="true" />
             </div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-300 via-indigo-300 to-sky-300 bg-clip-text text-transparent">
-              Settings
+              {t('title')}
             </h1>
           </div>
           <p className="text-muted-foreground text-sm ml-[52px]">
-            Manage your profile, appearance, and calculator defaults.
+            {t('subtitle')}
           </p>
         </motion.div>
 
@@ -396,17 +401,17 @@ export default function SettingsPage() {
                     <User className="h-4 w-4 text-sky-400" aria-hidden="true" />
                   </div>
                   <CardTitle className="text-base font-semibold text-foreground">
-                    Profile
+                    {t('profile')}
                   </CardTitle>
                 </div>
                 <CardDescription className="text-muted-foreground text-sm ml-9">
-                  Your display identity across NextCalc Pro. Stored locally for now.
+                  {t('profileDescription')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="username" className="text-sm text-foreground">
-                    Username
+                    {t('username')}
                   </Label>
                   <Input
                     id="username"
@@ -418,12 +423,12 @@ export default function SettingsPage() {
                     aria-describedby="username-hint"
                   />
                   <p id="username-hint" className="text-xs text-muted-foreground">
-                    Used to identify you in shared worksheets and forums.
+                    {t('usernameHint')}
                   </p>
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="displayName" className="text-sm text-foreground">
-                    Display name
+                    {t('displayName')}
                   </Label>
                   <Input
                     id="displayName"
@@ -435,7 +440,7 @@ export default function SettingsPage() {
                     aria-describedby="displayname-hint"
                   />
                   <p id="displayname-hint" className="text-xs text-muted-foreground">
-                    The name shown in comments and the navigation bar.
+                    {t('displayNameHint')}
                   </p>
                 </div>
               </CardContent>
@@ -453,17 +458,17 @@ export default function SettingsPage() {
                     <Palette className="h-4 w-4 text-violet-400" aria-hidden="true" />
                   </div>
                   <CardTitle className="text-base font-semibold text-foreground">
-                    Appearance
+                    {t('appearance')}
                   </CardTitle>
                 </div>
                 <CardDescription className="text-muted-foreground text-sm ml-9">
-                  Choose how NextCalc Pro looks. "System" follows your OS preference.
+                  {t('appearanceDescription')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <fieldset>
                   <legend className="text-sm font-medium text-foreground mb-3">
-                    Color theme
+                    {t('colorTheme')}
                   </legend>
                   <div
                     className="grid grid-cols-3 gap-3"
@@ -508,11 +513,11 @@ export default function SettingsPage() {
                     <Calculator className="h-4 w-4 text-emerald-400" aria-hidden="true" />
                   </div>
                   <CardTitle className="text-base font-semibold text-foreground">
-                    Calculator Defaults
+                    {t('calculatorDefaults')}
                   </CardTitle>
                 </div>
                 <CardDescription className="text-muted-foreground text-sm ml-9">
-                  These values pre-populate the calculator on every session.
+                  {t('calculatorDefaultsDescription')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -578,30 +583,26 @@ export default function SettingsPage() {
                   </Select>
                 </div>
 
-                {/* Auto-evaluate toggle */}
+                {/* Thousands separator toggle */}
                 <div className="flex items-center justify-between gap-4">
                   <div className="space-y-0.5">
                     <Label
-                      htmlFor="autoEval"
+                      htmlFor="thousandsSep"
                       className="text-sm font-medium text-foreground"
                     >
-                      Show thousands separator
+                      {t('calcDefaults.thousandsSeparator')}
                     </Label>
                     <p className="text-xs text-muted-foreground">
-                      Format large results with commas (e.g., 1,000,000).
+                      {t('calcDefaults.thousandsSeparatorHint')}
                     </p>
                   </div>
                   <Switch
-                    id="autoEval"
-                    checked={false}
-                    disabled
-                    aria-label="Show thousands separator (coming soon)"
-                    aria-describedby="autoEval-hint"
+                    id="thousandsSep"
+                    checked={thousandsSeparator}
+                    onCheckedChange={setThousandsSeparator}
+                    aria-label={t('calcDefaults.thousandsSeparator')}
                   />
                 </div>
-                <p id="autoEval-hint" className="text-xs text-muted-foreground -mt-4">
-                  Coming soon.
-                </p>
               </CardContent>
             </Card>
           </SettingsSection>
@@ -617,11 +618,11 @@ export default function SettingsPage() {
                     <Download className="h-4 w-4 text-amber-400" aria-hidden="true" />
                   </div>
                   <CardTitle className="text-base font-semibold text-foreground">
-                    Data
+                    {t('data')}
                   </CardTitle>
                 </div>
                 <CardDescription className="text-muted-foreground text-sm ml-9">
-                  Manage your locally stored calculation history.
+                  {t('dataDescription')}
                   {historyCount > 0 && (
                     <span className="ml-1 text-foreground font-medium">
                       ({historyCount} {historyCount === 1 ? 'entry' : 'entries'})
@@ -639,7 +640,7 @@ export default function SettingsPage() {
                     aria-label="Export calculation history as JSON file"
                   >
                     <Download className="h-4 w-4" aria-hidden="true" />
-                    Export history as JSON
+                    {t('exportHistory')}
                   </Button>
 
                   <Button
@@ -658,13 +659,13 @@ export default function SettingsPage() {
                     aria-live="polite"
                   >
                     <Trash2 className="h-4 w-4" aria-hidden="true" />
-                    {clearConfirm ? 'Confirm clear?' : 'Clear history'}
+                    {clearConfirm ? t('confirmClear') : t('clearHistory')}
                   </Button>
                 </div>
 
                 {historyCount === 0 && (
                   <p className="mt-3 text-xs text-muted-foreground">
-                    No calculation history found. Start using the calculator to build a history.
+                    {t('noHistory')}
                   </p>
                 )}
               </CardContent>
@@ -682,11 +683,11 @@ export default function SettingsPage() {
                     <Keyboard className="h-4 w-4 text-rose-400" aria-hidden="true" />
                   </div>
                   <CardTitle className="text-base font-semibold text-foreground">
-                    Keyboard Shortcuts
+                    {t('keyboardShortcuts')}
                   </CardTitle>
                 </div>
                 <CardDescription className="text-muted-foreground text-sm ml-9">
-                  Quick reference for all global keyboard bindings.
+                  {t('keyboardShortcutsDescription')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -720,7 +721,7 @@ export default function SettingsPage() {
                     className="flex items-center gap-1.5 text-sm text-emerald-400 font-medium"
                   >
                     <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-                    Settings saved
+                    {t('settingsSaved')}
                   </motion.span>
                 )}
                 {saveStatus.type === 'error' && (
@@ -730,13 +731,12 @@ export default function SettingsPage() {
                     className="flex items-center gap-1.5 text-sm text-destructive font-medium"
                   >
                     <AlertCircle className="h-4 w-4" aria-hidden="true" />
-                    Failed to save
+                    {t('failedToSave')}
                   </motion.span>
                 )}
                 {saveStatus.type === 'idle' && (
                   <span className="text-xs text-muted-foreground">
-                    Profile and calculator defaults are auto-saved on change. Use this button
-                    to confirm all settings.
+                    {t('autoSaveHint')}
                   </span>
                 )}
               </div>
@@ -747,7 +747,7 @@ export default function SettingsPage() {
                 aria-label="Save all settings"
               >
                 <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-                Save settings
+                {t('saveSettings')}
               </Button>
             </div>
           </SettingsSection>

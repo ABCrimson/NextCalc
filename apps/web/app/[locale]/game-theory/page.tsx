@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -389,6 +390,7 @@ function MatrixCell({ row, col, payoffs, isNashEquilibrium, onUpdate }: MatrixCe
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function GameTheoryPage() {
+  const t = useTranslations('gameTheory');
   const [gridSize, setGridSize] = useState<2 | 3>(2);
   const [payoffMatrix, setPayoffMatrix] = useState<number[][][]>([
     [[3, 3], [0, 5]],
@@ -508,10 +510,10 @@ export default function GameTheoryPage() {
             </div>
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-[oklch(0.65_0.22_200)] to-[oklch(0.63_0.20_300)] bg-clip-text text-transparent leading-tight">
-                Game Theory
+                {t('title')}
               </h1>
               <p className="text-base text-muted-foreground mt-0.5">
-                Analyze strategic interactions and find Nash equilibria
+                {t('subtitle')}
               </p>
             </div>
           </div>
@@ -521,21 +523,21 @@ export default function GameTheoryPage() {
               className="border-primary/40 text-primary bg-primary/8 text-xs"
             >
               <Target className="w-3 h-3 mr-1.5" aria-hidden="true" />
-              Nash Equilibrium
+              {t('nashEquilibriumBadge')}
             </Badge>
             <Badge
               variant="outline"
               className="border-[oklch(0.65_0.20_155)]/40 text-[oklch(0.65_0.20_155)] bg-[oklch(0.65_0.20_155)]/8 text-xs"
             >
               <TrendingUp className="w-3 h-3 mr-1.5" aria-hidden="true" />
-              Dominated Strategies
+              {t('dominatedStrategies')}
             </Badge>
             <Badge
               variant="outline"
               className="border-[oklch(0.63_0.20_300)]/40 text-[oklch(0.63_0.20_300)] bg-[oklch(0.63_0.20_300)]/8 text-xs"
             >
               <Users className="w-3 h-3 mr-1.5" aria-hidden="true" />
-              2-Player Normal Form
+              {t('twoPlayerNormalForm')}
             </Badge>
           </div>
         </motion.header>
@@ -551,22 +553,22 @@ export default function GameTheoryPage() {
           >
             <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] h-full">
               <CardHeader className="pb-4">
-                <CardTitle className="text-foreground text-lg">Game Setup</CardTitle>
-                <CardDescription>Select a preset or configure your own matrix</CardDescription>
+                <CardTitle className="text-foreground text-lg">{t('gameSetup')}</CardTitle>
+                <CardDescription>{t('gameSetupDesc')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-5">
                 {/* Matrix size tabs */}
                 <div className="space-y-2">
                   <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Matrix Size
+                    {t('matrixSize')}
                   </Label>
                   <Tabs
                     value={gridSize.toString()}
                     onValueChange={(v) => changeGridSize(Number(v) as 2 | 3)}
                   >
                     <TabsList className="grid w-full grid-cols-2 bg-muted/50 border border-border">
-                      <TabsTrigger value="2" className="text-sm">2×2 Game</TabsTrigger>
-                      <TabsTrigger value="3" className="text-sm">3×3 Game</TabsTrigger>
+                      <TabsTrigger value="2" className="text-sm">{t('twoByTwo')}</TabsTrigger>
+                      <TabsTrigger value="3" className="text-sm">{t('threeByThree')}</TabsTrigger>
                     </TabsList>
                   </Tabs>
                 </div>
@@ -574,7 +576,7 @@ export default function GameTheoryPage() {
                 {/* Preset list */}
                 <div className="space-y-2">
                   <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Classic Games
+                    {t('classicGames')}
                   </Label>
                   <motion.div
                     key={gridSize}
@@ -604,7 +606,7 @@ export default function GameTheoryPage() {
                   size="lg"
                 >
                   <Target className="w-4 h-4 mr-2" aria-hidden="true" />
-                  Find Nash Equilibrium
+                  {t('findNashEquilibrium')}
                 </Button>
               </CardContent>
             </Card>
@@ -622,7 +624,7 @@ export default function GameTheoryPage() {
                   <div>
                     <CardTitle className="flex items-center gap-2 text-foreground text-lg">
                       <Users className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
-                      Payoff Matrix
+                      {t('payoffMatrix')}
                     </CardTitle>
                     <CardDescription className="mt-1">
                       Each cell shows{' '}
@@ -652,11 +654,11 @@ export default function GameTheoryPage() {
                 <div className="flex items-center gap-4 mb-4 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-primary/70 inline-block" aria-hidden="true" />
-                    Player 1 (rows)
+                    {t('playerRows')}
                   </span>
                   <span className="flex items-center gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-[oklch(0.63_0.20_300)]/70 inline-block" aria-hidden="true" />
-                    Player 2 (columns)
+                    {t('playerCols')}
                   </span>
                   {result && result.nashEquilibria.length > 0 && (
                     <span className="flex items-center gap-1.5">
@@ -752,10 +754,10 @@ export default function GameTheoryPage() {
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <div className="w-2 h-2 rounded-full bg-primary shrink-0" aria-hidden="true" />
-                    Nash Equilibria
+                    {t('nashEquilibria')}
                   </CardTitle>
                   <CardDescription>
-                    Strategy profiles where no player can benefit by unilaterally deviating
+                    {t('nashDesc')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -827,10 +829,10 @@ export default function GameTheoryPage() {
                       </div>
                       <div>
                         <div className="text-sm font-medium text-foreground">
-                          No pure strategy Nash equilibrium
+                          {t('noPureNash')}
                         </div>
                         <div className="text-xs text-muted-foreground mt-1 max-w-xs">
-                          This game may have a mixed strategy equilibrium not shown here
+                          {t('mixedStrategyHint')}
                         </div>
                       </div>
                     </motion.div>
@@ -843,10 +845,10 @@ export default function GameTheoryPage() {
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <div className="w-2 h-2 rounded-full bg-destructive shrink-0" aria-hidden="true" />
-                    Dominated Strategies
+                    {t('dominatedStrategies')}
                   </CardTitle>
                   <CardDescription>
-                    Strategies always worse than alternatives regardless of opponent play
+                    {t('dominatedDesc')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -889,7 +891,7 @@ export default function GameTheoryPage() {
                           </div>
                         ) : (
                           <div className="text-sm text-muted-foreground">
-                            No dominated strategies found
+                            {t('noDominated')}
                           </div>
                         )}
                       </div>
@@ -918,7 +920,7 @@ export default function GameTheoryPage() {
           aria-labelledby="about-heading"
         >
           <h2 id="about-heading" className="text-2xl font-semibold text-foreground">
-            About Game Theory
+            {t('aboutTitle')}
           </h2>
 
           <div className="grid gap-4 sm:grid-cols-2">

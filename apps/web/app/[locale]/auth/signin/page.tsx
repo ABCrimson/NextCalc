@@ -22,6 +22,7 @@ import { type ComponentType, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Calculator, Github, Chrome, AlertCircle, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 
 type OAuthProvider = 'github' | 'google';
@@ -36,45 +37,46 @@ interface ProviderConfig {
 const PROVIDERS: ProviderConfig[] = [
   {
     id: 'github',
-    label: 'Continue with GitHub',
+    label: 'auth.continueWithGithub',
     icon: Github,
     colorClasses:
       'bg-[#24292e] text-white hover:bg-[#2f363d] dark:bg-[#f0f6ff]/10 dark:text-foreground dark:hover:bg-[#f0f6ff]/20 border border-transparent dark:border-border/50',
   },
   {
     id: 'google',
-    label: 'Continue with Google',
+    label: 'auth.continueWithGoogle',
     icon: Chrome,
     colorClasses:
       'bg-white text-[#3c4043] hover:bg-gray-50 dark:bg-foreground/5 dark:text-foreground dark:hover:bg-foreground/10 border border-[#dadce0] dark:border-border/50',
   },
 ];
 
-/** Error codes from NextAuth that may appear in the ?error= query param. */
-const AUTH_ERROR_MESSAGES: Record<string, string> = {
-  OAuthSignin: 'An error occurred while starting the sign-in process. Please try again.',
-  OAuthCallback: 'An error occurred during the OAuth callback. Please try again.',
-  OAuthCreateAccount: 'Unable to create your account. Please try again.',
-  EmailCreateAccount: 'Unable to create your account. Please try again.',
-  Callback: 'An error occurred during authentication. Please try again.',
-  OAuthAccountNotLinked:
-    'This email is already linked to a different sign-in method. Please use the same provider you signed up with.',
-  EmailSignin: 'Failed to send sign-in email. Please try again.',
-  CredentialsSignin: 'Invalid credentials. Please check and try again.',
-  SessionRequired: 'You must be signed in to access that page.',
-  Default: 'An unexpected error occurred. Please try again.',
+/** Known error codes from NextAuth. */
+const AUTH_ERROR_KEYS: Record<string, string> = {
+  OAuthSignin: 'error.OAuthSignin',
+  OAuthCallback: 'error.OAuthCallback',
+  OAuthCreateAccount: 'error.OAuthCreateAccount',
+  EmailCreateAccount: 'error.EmailCreateAccount',
+  Callback: 'error.Callback',
+  OAuthAccountNotLinked: 'error.OAuthAccountNotLinked',
+  EmailSignin: 'error.EmailSignin',
+  CredentialsSignin: 'error.CredentialsSignin',
+  SessionRequired: 'error.SessionRequired',
+  Default: 'error.Default',
 };
 
-function resolveError(errorCode: string | null): string | null {
+function resolveErrorKey(errorCode: string | null): string | null {
   if (!errorCode) return null;
-  return AUTH_ERROR_MESSAGES[errorCode] ?? AUTH_ERROR_MESSAGES['Default'] ?? null;
+  return AUTH_ERROR_KEYS[errorCode] ?? AUTH_ERROR_KEYS['Default'] ?? null;
 }
 
 export default function SignInPage() {
+  const t = useTranslations('auth');
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') ?? '/';
   const errorCode = searchParams.get('error');
-  const errorMessage = resolveError(errorCode);
+  const errorKey = resolveErrorKey(errorCode);
+  const errorMessage = errorKey ? t(errorKey) : null;
 
   const [loadingProvider, setLoadingProvider] = useState<OAuthProvider | null>(null);
 
@@ -114,7 +116,7 @@ export default function SignInPage() {
   return (
     <main
       className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12"
-      aria-label="Sign in to NextCalc Pro"
+      aria-label={t('signInLabel')}
     >
       <div className="w-full max-w-sm space-y-8">
         {/* Logo + heading */}
@@ -122,7 +124,7 @@ export default function SignInPage() {
           <Link
             href="/"
             className="group flex items-center gap-2.5 transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring rounded-md"
-            aria-label="NextCalc Pro - go to home page"
+            aria-label={t('goHome')}
           >
             <div className="relative">
               <Calculator
@@ -138,10 +140,10 @@ export default function SignInPage() {
 
           <div className="space-y-1 text-center">
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-              Welcome back
+              {t('welcomeBack')}
             </h1>
             <p className="text-sm text-muted-foreground">
-              Sign in to save your work and access all features
+              {t('signInSubtitle')}
             </p>
           </div>
         </div>
@@ -161,7 +163,7 @@ export default function SignInPage() {
         {/* Provider buttons */}
         <div
           className="space-y-3"
-          aria-label="Sign in options"
+          aria-label={t('signInOptions')}
         >
           {PROVIDERS.map(({ id, label, icon: Icon, colorClasses }) => {
             const isLoading = loadingProvider === id;
@@ -173,7 +175,7 @@ export default function SignInPage() {
                 type="button"
                 onClick={() => handleProviderSignIn(id)}
                 disabled={isDisabled}
-                aria-label={label}
+                aria-label={t(label)}
                 aria-busy={isLoading}
                 className={cn(
                   'relative flex w-full items-center justify-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium',
@@ -191,7 +193,7 @@ export default function SignInPage() {
                 ) : (
                   <Icon className="h-4 w-4" aria-hidden="true" />
                 )}
-                <span>{isLoading ? 'Redirecting...' : label}</span>
+                <span>{isLoading ? t('redirecting') : t(label)}</span>
               </button>
             );
           })}
@@ -204,7 +206,7 @@ export default function SignInPage() {
           </div>
           <div className="relative flex justify-center">
             <span className="bg-background px-3 text-xs text-muted-foreground">
-              No account required for basic use
+              {t('noAccountRequired')}
             </span>
           </div>
         </div>
@@ -219,16 +221,16 @@ export default function SignInPage() {
               'transition-colors duration-200',
             )}
           >
-            Continue without signing in
+            {t('continueWithout')}
           </Link>
         </div>
 
         {/* Legal */}
         <p className="text-center text-xs text-muted-foreground/70">
-          By signing in you agree to our{' '}
-          <span className="text-muted-foreground">Terms of Service</span>{' '}
-          and{' '}
-          <span className="text-muted-foreground">Privacy Policy</span>.
+          {t('legalPrefix')}{' '}
+          <span className="text-muted-foreground">{t('termsOfService')}</span>
+          {' & '}
+          <span className="text-muted-foreground">{t('privacyPolicy')}</span>.
         </p>
       </div>
     </main>

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { ComplexPanel } from '@/components/calculator/complex-panel';
 
 export const metadata: Metadata = {
@@ -7,7 +8,8 @@ export const metadata: Metadata = {
     'Complex number calculator with support for rectangular, polar, and exponential forms. Perform arithmetic, functions, and visualize on the Argand diagram.',
 };
 
-export default function ComplexPage() {
+export default async function ComplexPage() {
+  const t = await getTranslations('complex');
   return (
     <main className="relative min-h-screen">
       {/* Animated gradient background matching other pages */}
@@ -86,10 +88,10 @@ export default function ComplexPage() {
                     'linear-gradient(90deg, oklch(0.75 0.22 264), oklch(0.68 0.22 300), oklch(0.72 0.20 155))',
                 }}
               >
-                Complex Number Calculator
+                {t('pageTitle')}
               </h1>
               <p className="text-base text-muted-foreground mt-1">
-                Arithmetic, functions, and Argand diagram visualization for complex numbers
+                {t('pageSubtitle')}
               </p>
             </div>
           </div>
@@ -97,10 +99,10 @@ export default function ComplexPage() {
           {/* Feature badges */}
           <div className="flex flex-wrap gap-2 mt-4">
             {[
-              { label: 'Rectangular & Polar', color: '264' },
-              { label: 'Argand Diagram', color: '300' },
-              { label: 'LaTeX Rendering', color: '155' },
-              { label: 'Operation History', color: '30' },
+              { label: t('badge.rectPolar'), color: '264' },
+              { label: t('badge.argand'), color: '300' },
+              { label: t('badge.latex'), color: '155' },
+              { label: t('badge.history'), color: '30' },
             ].map(({ label, color }) => (
               <span
                 key={label}
@@ -132,7 +134,7 @@ export default function ComplexPage() {
               color: 'transparent',
             }}
           >
-            Supported Operations
+            {t('supportedOps')}
           </h2>
 
           <div className="grid gap-5 md:grid-cols-2">
@@ -159,7 +161,7 @@ export default function ComplexPage() {
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-2 h-2 rounded-full" style={{ background: 'oklch(0.65 0.22 264)', boxShadow: '0 0 8px oklch(0.65 0.22 264 / 0.8)' }} />
                   <h3 className="text-lg font-semibold" style={{ color: 'oklch(0.78 0.18 264)' }}>
-                    Binary Operations
+                    {t('binaryOps')}
                   </h3>
                 </div>
                 <ul className="text-sm space-y-1.5" style={{ color: 'oklch(0.75 0.08 264)' }}>
@@ -210,7 +212,7 @@ export default function ComplexPage() {
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-2 h-2 rounded-full" style={{ background: 'oklch(0.63 0.20 300)', boxShadow: '0 0 8px oklch(0.63 0.20 300 / 0.8)' }} />
                   <h3 className="text-lg font-semibold" style={{ color: 'oklch(0.78 0.16 300)' }}>
-                    Unary Functions
+                    {t('unaryFunctions')}
                   </h3>
                 </div>
                 <ul className="text-sm space-y-1.5" style={{ color: 'oklch(0.75 0.08 300)' }}>
@@ -246,7 +248,7 @@ export default function ComplexPage() {
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-2 h-2 rounded-full" style={{ background: 'oklch(0.65 0.18 155)', boxShadow: '0 0 8px oklch(0.65 0.18 155 / 0.8)' }} />
                   <h3 className="text-lg font-semibold" style={{ color: 'oklch(0.78 0.15 155)' }}>
-                    Number Forms
+                    {t('numberForms')}
                   </h3>
                 </div>
                 <ul className="text-sm space-y-1.5" style={{ color: 'oklch(0.75 0.07 155)' }}>
@@ -282,7 +284,7 @@ export default function ComplexPage() {
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-2 h-2 rounded-full" style={{ background: 'oklch(0.65 0.20 30)', boxShadow: '0 0 8px oklch(0.65 0.20 30 / 0.8)' }} />
                   <h3 className="text-lg font-semibold" style={{ color: 'oklch(0.78 0.16 30)' }}>
-                    Argand Diagram
+                    {t('argandDiagram')}
                   </h3>
                 </div>
                 <ul className="text-sm space-y-1.5" style={{ color: 'oklch(0.75 0.07 30)' }}>
@@ -309,7 +311,7 @@ export default function ComplexPage() {
               color: 'transparent',
             }}
           >
-            Example Calculations
+            {t('exampleCalcs')}
           </h2>
           <div className="space-y-3">
             {[
@@ -388,7 +390,7 @@ export default function ComplexPage() {
               color: 'transparent',
             }}
           >
-            Tips
+            {t('tips')}
           </h2>
           <div
             className="relative p-6 rounded-xl border overflow-hidden"

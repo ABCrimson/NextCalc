@@ -1,6 +1,7 @@
 import { type ReactNode } from 'react';
 import type { Metadata, Viewport } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
+import { cookies } from 'next/headers';
 import './globals.css';
 
 const inter = Inter({
@@ -98,26 +99,36 @@ export const viewport: Viewport = {
  *
  * All providers (Apollo, next-intl, etc.) and the Navigation component
  * live in the [locale] layout so they have access to the current locale.
+ *
+ * Reads the `theme` cookie server-side to set the initial data-theme attribute
+ * on <html>, preventing a flash of wrong theme on first load. The inline script
+ * still runs as a fallback for first-time visitors who don't have a cookie yet.
  */
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const themeCookie = cookieStore.get('theme')?.value;
+  // Only use known valid values; fall back to inline script detection otherwise
+  const serverTheme = themeCookie === 'light' || themeCookie === 'dark' ? themeCookie : undefined;
+
   return (
-    <html suppressHydrationWarning>
+    <html suppressHydrationWarning {...(serverTheme ? { 'data-theme': serverTheme } : {})}>
       <head>
         <link rel="apple-touch-icon" href="/icon-192.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="NextCalc Pro" />
         <meta name="mobile-web-app-capable" content="yes" />
-        {/* Theme initialization — plain script with suppressHydrationWarning avoids
-            browser-extension-induced mismatch (extensions can modify script tags) */}
+        {/* Theme initialization — inline script as fallback for first-time visitors
+            without a theme cookie. Also syncs localStorage → cookie for persistence.
+            suppressHydrationWarning avoids browser-extension-induced mismatch. */}
         <script
           suppressHydrationWarning
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t)}catch(e){}})()`
+            __html: `(function(){try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);document.cookie='theme='+t+';path=/;max-age=31536000;SameSite=Lax'}catch(e){}})()`
           }}
         />
       </head>

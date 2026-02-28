@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, BookOpen, Code, Puzzle } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 
 /**
  * Topic slug to MathTopic mapping
@@ -62,6 +63,7 @@ export default async function TopicPage({
 }: {
   params: Promise<{ topic: string }>;
 }) {
+  const t = await getTranslations('learn');
   const { topic: topicSlug } = await params;
   const topic = TOPIC_SLUG_MAP[topicSlug];
 
@@ -109,7 +111,7 @@ export default async function TopicPage({
         <Button variant="ghost" asChild>
           <Link href="/learn">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Learning Hub
+            {t('backToLearningHub')}
           </Link>
         </Button>
       </div>
@@ -122,7 +124,7 @@ export default async function TopicPage({
           </span>
         </h1>
         <p className="text-lg text-muted-foreground">
-          Comprehensive knowledge base for {topic}
+          {t('knowledgeBase', { topic })}
         </p>
       </div>
 
@@ -132,7 +134,7 @@ export default async function TopicPage({
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <BookOpen className="h-5 w-5 text-blue-500" />
-              Definitions
+              {t('definitions')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -156,17 +158,17 @@ export default async function TopicPage({
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Puzzle className="h-5 w-5 text-purple-500" />
-              Practice Problems
+              {t('practiceProblems')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{problems.length}</div>
             <p className="text-sm text-muted-foreground mt-2">
-              Ready to solve
+              {t('readyToSolve')}
             </p>
             <Button asChild variant="outline" size="sm" className="mt-3 w-full">
               <Link href={`/problems?topic=${encodeURIComponent(topic)}`}>
-                Browse Problems
+                {t('browseProblems')}
               </Link>
             </Button>
           </CardContent>
@@ -176,7 +178,7 @@ export default async function TopicPage({
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Code className="h-5 w-5 text-green-500" />
-              Algorithms
+              {t('algorithms')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -184,11 +186,11 @@ export default async function TopicPage({
               {topic === MathTopic.Calculus ? '8' : topic === MathTopic.LinearAlgebra ? '12' : '6'}
             </div>
             <p className="text-sm text-muted-foreground mt-2">
-              With visualizations
+              {t('withVisualizations')}
             </p>
             <Button asChild variant="outline" size="sm" className="mt-3 w-full">
               <Link href={`/algorithms?topic=${encodeURIComponent(topic)}`}>
-                Explore Algorithms
+                {t('exploreAlgorithms')}
               </Link>
             </Button>
           </CardContent>
@@ -198,9 +200,9 @@ export default async function TopicPage({
       {/* Knowledge Explorer */}
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle>Definitions & Concepts</CardTitle>
+          <CardTitle>{t('definitionsAndConcepts')}</CardTitle>
           <CardDescription>
-            Explore fundamental definitions and build your understanding
+            {t('definitionsAndConceptsHint')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -214,9 +216,9 @@ export default async function TopicPage({
       {/* Learning Resources */}
       <Card>
         <CardHeader>
-          <CardTitle>Learning Resources</CardTitle>
+          <CardTitle>{t('learningResources')}</CardTitle>
           <CardDescription>
-            Additional materials to enhance your understanding
+            {t('learningResourcesHint')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -225,9 +227,9 @@ export default async function TopicPage({
               href={`/problems?topic=${encodeURIComponent(topic)}&difficulty=1`}
               className="p-4 border rounded-lg hover:shadow-md transition-shadow"
             >
-              <h3 className="font-semibold mb-2">Beginner Problems</h3>
+              <h3 className="font-semibold mb-2">{t('beginnerProblems')}</h3>
               <p className="text-sm text-muted-foreground">
-                Start with foundational problems to build your skills
+                {t('beginnerProblemsHint')}
               </p>
             </Link>
 
@@ -235,9 +237,9 @@ export default async function TopicPage({
               href={`/practice?topic=${encodeURIComponent(topic)}`}
               className="p-4 border rounded-lg hover:shadow-md transition-shadow"
             >
-              <h3 className="font-semibold mb-2">Practice Mode</h3>
+              <h3 className="font-semibold mb-2">{t('practiceMode')}</h3>
               <p className="text-sm text-muted-foreground">
-                Timed practice sessions to test your knowledge
+                {t('practiceModeHint')}
               </p>
             </Link>
 
@@ -245,16 +247,16 @@ export default async function TopicPage({
               href={`/algorithms?topic=${encodeURIComponent(topic)}`}
               className="p-4 border rounded-lg hover:shadow-md transition-shadow"
             >
-              <h3 className="font-semibold mb-2">Algorithm Visualizations</h3>
+              <h3 className="font-semibold mb-2">{t('algorithmVisualizations')}</h3>
               <p className="text-sm text-muted-foreground">
-                Interactive visualizations of key algorithms
+                {t('algorithmVisualizationsHint')}
               </p>
             </Link>
 
             <div className="p-4 border rounded-lg bg-muted/50">
-              <h3 className="font-semibold mb-2">Coming Soon: Video Lectures</h3>
+              <h3 className="font-semibold mb-2">{t('videoLectures')}</h3>
               <p className="text-sm text-muted-foreground">
-                Step-by-step video explanations of core concepts
+                {t('videoLecturesHint')}
               </p>
             </div>
           </div>

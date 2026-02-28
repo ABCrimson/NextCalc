@@ -3,6 +3,7 @@
 import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
 import { GraphTraversalVisualizer } from '@/components/algorithms/GraphTraversalVisualizer';
 import { GitBranch } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 /**
  * Graph Traversal Page (BFS & DFS)
@@ -11,9 +12,12 @@ import { GitBranch } from 'lucide-react';
  * Educational visualization showing the differences between the two approaches.
  */
 export default function GraphTraversalPage() {
+  const t = useTranslations('algorithms.graphTraversal');
+  const ta = useTranslations('algorithms');
+
   return (
     <AlgorithmPage
-      title="Graph Traversal: BFS vs DFS"
+      title={t('title')}
       icon={GitBranch}
       category="graph-theory"
       difficulty="beginner"
@@ -22,11 +26,11 @@ export default function GraphTraversalPage() {
       yearIntroduced={1959}
       tags={['graph theory', 'traversal', 'search', 'fundamentals']}
       breadcrumbs={[
-        { label: 'Algorithms', href: '/algorithms' },
-        { label: 'Graph Theory', href: '/algorithms?category=graph-theory' },
-        { label: 'BFS & DFS' },
+        { label: ta('title'), href: '/algorithms' },
+        { label: t('breadcrumbCategory'), href: '/algorithms?category=graph-theory' },
+        { label: t('breadcrumbCurrent') },
       ]}
-      description="Graph traversal algorithms systematically visit all vertices in a graph. Breadth-First Search (BFS) explores level by level using a queue, while Depth-First Search (DFS) dives deep using a stack. Both are fundamental to many graph algorithms and have distinct use cases."
+      description={t('description')}
       applications={[
         'Web Crawling',
         'Social Network Friend Suggestions',

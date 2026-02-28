@@ -4,11 +4,12 @@
  * ShareButton — Calculator share control
  *
  * Renders a Share button in the calculator display area. On click it opens a
- * small popover with two actions:
- *   1. "Copy Link" — copies the shareable URL to the clipboard and shows a
- *      brief inline toast confirmation.
- *   2. "Share" — opens the native Web Share sheet when the API is available.
- *      Rendered only when `navigator.share` is detected.
+ * small popover that persists the calculation to the database via the
+ * `shareCalculation` GraphQL mutation. The resulting permalink is shown and
+ * can be copied to the clipboard or shared via the native Web Share API.
+ *
+ * Falls back to a query-param-based share URL when the mutation fails
+ * (e.g. the API is unreachable).
  *
  * Accessibility:
  *   - All interactive elements are keyboard-reachable (Tab / Enter / Space).
@@ -22,15 +23,18 @@
 import { useState, useCallback, useId, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Popover as PopoverPrimitive } from 'radix-ui';
-import { Share2, Copy, Check, ExternalLink } from 'lucide-react';
+import { Share2, Copy, Check, ExternalLink, Loader2 } from 'lucide-react';
+import { useMutation } from '@apollo/client/react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import {
   createShareUrl,
+  createPermalinkUrl,
+  copyPermalinkUrl,
   copyShareUrl,
-  shareViaWebAPI,
   type SharePayload,
 } from '@/lib/share';
+import { SHARE_CALCULATION_MUTATION } from '@/lib/graphql/operations';
 import { useReducedMotion } from '@/lib/hooks/use-reduced-motion';
 
 // ---------------------------------------------------------------------------
@@ -56,13 +60,56 @@ export interface ShareButtonProps {
 // ---------------------------------------------------------------------------
 
 type CopyStatus = 'idle' | 'copying' | 'copied' | 'error';
+type ShareState = 'idle' | 'creating' | 'ready' | 'fallback';
+
+/** Mutation response shape for shareCalculation. */
+interface ShareCalculationData {
+  shareCalculation: {
+    id: string;
+    shortCode: string;
+    latex: string;
+    expression: string;
+    title: string | null;
+    description: string | null;
+    result: string | null;
+    createdAt: string;
+  } | null;
+}
+
+// ---------------------------------------------------------------------------
+// LaTeX conversion (mirrors display.tsx)
+// ---------------------------------------------------------------------------
+
+function convertToLatex(expr: string): string {
+  return expr
+    .replace(/\*/g, '\\cdot ')
+    .replace(/\^/g, '^')
+    .replace(/sqrt\((.*?)\)/g, '\\sqrt{$1}')
+    .replace(/pi/g, '\\pi')
+    .replace(/sin\((.*?)\)/g, '\\sin($1)')
+    .replace(/cos\((.*?)\)/g, '\\cos($1)')
+    .replace(/tan\((.*?)\)/g, '\\tan($1)');
+}
 
 // ---------------------------------------------------------------------------
 // Sub-components
 // ---------------------------------------------------------------------------
 
 /** Inline status line shown below the URL preview. */
-function StatusLine({ status }: { status: CopyStatus }) {
+function StatusLine({ status, shareState }: { status: CopyStatus; shareState: ShareState }) {
+  if (shareState === 'creating') {
+    return (
+      <p
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="text-xs mt-1 font-medium text-muted-foreground"
+      >
+        Creating share link...
+      </p>
+    );
+  }
+
   const messages: Record<CopyStatus, string | null> = {
     idle: null,
     copying: 'Copying...',
@@ -91,16 +138,25 @@ function StatusLine({ status }: { status: CopyStatus }) {
 }
 
 /** Small URL preview badge inside the popover. */
-function UrlPreview({ url }: { url: string }) {
+function UrlPreview({ url, isLoading }: { url: string; isLoading: boolean }) {
   return (
     <div className="rounded-lg bg-muted/60 border border-border px-3 py-2">
-      <p
-        className="text-xs font-mono text-muted-foreground truncate select-all"
-        title={url}
-        aria-label="Shareable URL"
-      >
-        {url}
-      </p>
+      {isLoading ? (
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" aria-hidden="true" />
+          <p className="text-xs font-mono text-muted-foreground">
+            Generating permalink...
+          </p>
+        </div>
+      ) : (
+        <p
+          className="text-xs font-mono text-muted-foreground truncate select-all"
+          title={url}
+          aria-label="Shareable URL"
+        >
+          {url}
+        </p>
+      )}
     </div>
   );
 }
@@ -120,7 +176,9 @@ export function ShareButton({
 
   const [open, setOpen] = useState(false);
   const [copyStatus, setCopyStatus] = useState<CopyStatus>('idle');
+  const [shareState, setShareState] = useState<ShareState>('idle');
   const [hasWebShare, setHasWebShare] = useState(false);
+  const [shortCode, setShortCode] = useState<string | null>(null);
 
   // Detect Web Share API availability (browser-side only)
   useEffect(() => {
@@ -130,6 +188,9 @@ export function ShareButton({
   // Unique ID for the aria-describedby relationship
   const descId = useId();
 
+  // Apollo mutation for persisting the share
+  const [shareCalculation] = useMutation<ShareCalculationData>(SHARE_CALCULATION_MUTATION);
+
   // Build the payload from current props
   const buildPayload = useCallback((): SharePayload => ({
     expression,
@@ -138,17 +199,50 @@ export function ShareButton({
     ...(angle !== undefined ? { angle } : {}),
   }), [expression, result, mode, angle]);
 
-  // Derived URL shown in the preview (recomputed when popover opens)
+  // Derived URL shown in the preview
   const [previewUrl, setPreviewUrl] = useState('');
 
-  // Update the preview URL when the popover opens
-  const handleOpenChange = useCallback((nextOpen: boolean) => {
+  // When the popover opens, call the mutation to persist and get a short code
+  const handleOpenChange = useCallback(async (nextOpen: boolean) => {
     setOpen(nextOpen);
     if (nextOpen) {
-      setPreviewUrl(createShareUrl(buildPayload()));
       setCopyStatus('idle');
+      setShareState('creating');
+      setShortCode(null);
+
+      // Show fallback URL while mutation is in-flight
+      const fallbackUrl = createShareUrl(buildPayload());
+      setPreviewUrl(fallbackUrl);
+
+      try {
+        const latex = convertToLatex(expression);
+        const { data } = await shareCalculation({
+          variables: {
+            latex,
+            expression,
+            ...(result !== undefined ? { result } : {}),
+          },
+        });
+
+        if (data?.shareCalculation?.shortCode) {
+          const code = data.shareCalculation.shortCode;
+          const permalink = createPermalinkUrl(code);
+          setShortCode(code);
+          setPreviewUrl(permalink);
+          setShareState('ready');
+        } else {
+          // Mutation returned but no data — use fallback
+          setShareState('fallback');
+        }
+      } catch {
+        // API unreachable — use URL-param fallback
+        setShareState('fallback');
+      }
+    } else {
+      setShareState('idle');
+      setShortCode(null);
     }
-  }, [buildPayload]);
+  }, [buildPayload, expression, result, shareCalculation]);
 
   // Reset timer ref — cleared on unmount and before each new reset
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -156,7 +250,16 @@ export function ShareButton({
   // Copy to clipboard
   const handleCopy = useCallback(async () => {
     setCopyStatus('copying');
-    const success = await copyShareUrl(buildPayload());
+
+    let success: boolean;
+    if (shortCode) {
+      // Copy the permalink
+      success = await copyPermalinkUrl(shortCode);
+    } else {
+      // Fallback: copy the URL-param link
+      success = await copyShareUrl(buildPayload());
+    }
+
     setCopyStatus(success ? 'copied' : 'error');
 
     if (success) {
@@ -167,7 +270,7 @@ export function ShareButton({
         resetTimerRef.current = null;
       }, 2500);
     }
-  }, [buildPayload]);
+  }, [buildPayload, shortCode]);
 
   // Clear the reset timer when the component unmounts
   useEffect(() => {
@@ -178,12 +281,31 @@ export function ShareButton({
 
   // Web Share API
   const handleWebShare = useCallback(async () => {
-    await shareViaWebAPI(buildPayload(), 'NextCalc Pro Calculation');
+    if (typeof navigator === 'undefined' || !navigator.share) return;
+
+    const url = shortCode ? createPermalinkUrl(shortCode) : createShareUrl(buildPayload());
+    const shareText = expression
+      ? `${expression}${result ? ` = ${result}` : ''}`
+      : 'Check out this calculation on NextCalc Pro!';
+
+    try {
+      await navigator.share({
+        title: 'NextCalc Pro Calculation',
+        text: shareText,
+        url,
+      });
+    } catch (err) {
+      // AbortError means the user dismissed — not a true failure
+      if (!(err instanceof DOMException && err.name === 'AbortError')) {
+        // silently ignore other errors
+      }
+    }
     // Close popover after sharing regardless of result
     setOpen(false);
-  }, [buildPayload]);
+  }, [buildPayload, expression, result, shortCode]);
 
   const isDisabled = expression.trim() === '';
+  const isCreating = shareState === 'creating';
 
   // Animation variants respecting prefers-reduced-motion
   const popoverVariants = prefersReducedMotion
@@ -261,15 +383,19 @@ export function ShareButton({
                     Share Calculation
                   </h3>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Anyone with this link can view your calculation.
+                    {shareState === 'ready'
+                      ? 'Anyone with this link can view your calculation.'
+                      : shareState === 'creating'
+                        ? 'Creating a permanent share link...'
+                        : 'Anyone with this link can view your calculation.'}
                   </p>
                 </div>
 
                 {/* URL Preview */}
-                <UrlPreview url={previewUrl} />
+                <UrlPreview url={previewUrl} isLoading={isCreating} />
 
                 {/* Status announcement */}
-                <StatusLine status={copyStatus} />
+                <StatusLine status={copyStatus} shareState={shareState} />
 
                 {/* Actions */}
                 <div className="mt-3 flex flex-col gap-2">
@@ -277,7 +403,7 @@ export function ShareButton({
                   <button
                     type="button"
                     onClick={handleCopy}
-                    disabled={copyStatus === 'copying'}
+                    disabled={copyStatus === 'copying' || isCreating}
                     autoFocus
                     className={cn(
                       'flex items-center justify-center gap-2 w-full rounded-xl px-3 py-2.5',
@@ -307,6 +433,18 @@ export function ShareButton({
                           <Check className="h-4 w-4" aria-hidden="true" />
                           Copied!
                         </motion.span>
+                      ) : isCreating ? (
+                        <motion.span
+                          key="loading"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: prefersReducedMotion ? 0 : 0.12 }}
+                          className="flex items-center gap-2"
+                        >
+                          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                          Creating...
+                        </motion.span>
                       ) : (
                         <motion.span
                           key="copy"
@@ -328,12 +466,14 @@ export function ShareButton({
                     <button
                       type="button"
                       onClick={handleWebShare}
+                      disabled={isCreating}
                       className={cn(
                         'flex items-center justify-center gap-2 w-full rounded-xl px-3 py-2.5',
                         'text-sm font-medium transition-all duration-200',
                         'border border-border bg-background text-foreground',
                         'hover:bg-accent hover:border-accent-foreground/20 hover:shadow-md',
                         'active:scale-[0.98]',
+                        'disabled:pointer-events-none disabled:opacity-60',
                         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
                       )}
                       aria-label="Share via system share sheet"

@@ -3,11 +3,15 @@
 import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
 import { MetaLearningPlayground } from '@/components/algorithms/MetaLearningPlayground';
 import { Sparkles } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function MetaLearningPage() {
+  const t = useTranslations('algorithms.metaLearning');
+  const ta = useTranslations('algorithms');
+
   return (
     <AlgorithmPage
-      title="Meta-Learning (MAML)"
+      title={t('title')}
       icon={Sparkles}
       category="machine-learning"
       difficulty="advanced"
@@ -16,11 +20,11 @@ export default function MetaLearningPage() {
       yearIntroduced={2017}
       tags={['meta-learning', 'few-shot', 'transfer learning', 'optimization']}
       breadcrumbs={[
-        { label: 'Algorithms', href: '/algorithms' },
-        { label: 'Machine Learning', href: '/algorithms?category=machine-learning' },
-        { label: 'Meta-Learning' },
+        { label: ta('title'), href: '/algorithms' },
+        { label: t('breadcrumbCategory'), href: '/algorithms?category=machine-learning' },
+        { label: t('breadcrumbCurrent') },
       ]}
-      description="Model-Agnostic Meta-Learning (MAML) trains models to quickly adapt to new tasks with minimal data. Instead of learning a specific task, MAML learns an initialization that can be rapidly fine-tuned."
+      description={t('description')}
       applications={[
         'Few-Shot Image Classification',
         'Rapid Robot Adaptation',

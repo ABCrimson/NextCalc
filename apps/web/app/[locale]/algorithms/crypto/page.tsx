@@ -3,6 +3,7 @@
 import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
 import { ZKPDemo } from '@/components/algorithms/ZKPDemo';
 import { Shield } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 /**
  * Crypto/Zero-Knowledge Proofs Page
@@ -11,9 +12,12 @@ import { Shield } from 'lucide-react';
  * Demonstrates zero-knowledge proofs using the Schnorr protocol.
  */
 export default function CryptoPage() {
+  const t = useTranslations('algorithms.zkp');
+  const ta = useTranslations('algorithms');
+
   return (
     <AlgorithmPage
-      title="Zero-Knowledge Proofs"
+      title={t('title')}
       icon={Shield}
       category="cryptography"
       difficulty="advanced"
@@ -22,11 +26,11 @@ export default function CryptoPage() {
       yearIntroduced={1989}
       tags={['cryptography', 'privacy', 'blockchain', 'Schnorr']}
       breadcrumbs={[
-        { label: 'Algorithms', href: '/algorithms' },
-        { label: 'Cryptography', href: '/algorithms?category=cryptography' },
-        { label: 'Zero-Knowledge Proofs' },
+        { label: ta('title'), href: '/algorithms' },
+        { label: t('breadcrumbCategory'), href: '/algorithms?category=cryptography' },
+        { label: t('breadcrumbCurrent') },
       ]}
-      description="Zero-knowledge proofs allow one party (the prover) to prove to another party (the verifier) that they know a value, without revealing any information about the value itself. This powerful cryptographic primitive enables privacy-preserving authentication and verification."
+      description={t('description')}
       applications={[
         'Cryptocurrency Privacy (Zcash, Monero)',
         'Anonymous Authentication',

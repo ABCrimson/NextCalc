@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { StatsPanel } from '@/components/calculator/stats-panel';
 import { BarChart3 } from 'lucide-react';
 
@@ -18,7 +19,8 @@ export const metadata = {
  *
  * Fully accessible with WCAG 2.2 AAA compliance.
  */
-export default function StatsPage() {
+export default async function StatsPage() {
+  const t = await getTranslations('stats');
   return (
     <main className="min-h-screen bg-background relative overflow-hidden">
       {/* Ambient mesh gradient background — matches the app-wide design language */}
@@ -70,7 +72,7 @@ export default function StatsPage() {
                   'linear-gradient(135deg, oklch(0.65 0.22 264) 0%, oklch(0.63 0.20 300) 50%, oklch(0.65 0.18 155) 100%)',
               }}
             >
-              Statistical Analysis
+              {t('pageTitle')}
             </h1>
 
             {/* Gradient underline accent */}
@@ -84,8 +86,7 @@ export default function StatsPage() {
             />
 
             <p className="text-muted-foreground text-base max-w-xl mx-auto leading-relaxed">
-              Compute descriptive statistics, run regression analysis, visualize
-              distributions, and generate predictions from your data.
+              {t('pageSubtitle')}
             </p>
 
             {/* Feature pill badges */}
@@ -95,10 +96,10 @@ export default function StatsPage() {
             >
               {(
                 [
-                  { label: 'Descriptive Stats', color: 'oklch(0.65 0.22 264)' },
-                  { label: 'Regression Analysis', color: 'oklch(0.63 0.20 300)' },
-                  { label: 'Box Plot', color: 'oklch(0.65 0.18 155)' },
-                  { label: 'Predictions', color: 'oklch(0.78 0.18 80)' },
+                  { label: t('badge.descriptive'), color: 'oklch(0.65 0.22 264)' },
+                  { label: t('badge.regression'), color: 'oklch(0.63 0.20 300)' },
+                  { label: t('badge.boxPlot'), color: 'oklch(0.65 0.18 155)' },
+                  { label: t('badge.predictions'), color: 'oklch(0.78 0.18 80)' },
                 ] as const
               ).map(({ label, color }) => (
                 <span
@@ -132,7 +133,7 @@ export default function StatsPage() {
               aria-hidden="true"
             />
             <p className="text-center text-xs text-muted-foreground">
-              All calculations run client-side for instant, private analysis
+              {t('footerNote')}
             </p>
           </footer>
         </div>

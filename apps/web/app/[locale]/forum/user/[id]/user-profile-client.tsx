@@ -27,6 +27,7 @@ import { UserProfileCard } from '@/components/forum/user-profile-card';
 import { TagPill } from '@/components/forum/post-card';
 import { ForumBackground } from '@/components/forum/forum-background';
 import { USER_PROFILE_QUERY } from '@/lib/graphql/forum-operations';
+import { useTranslations } from 'next-intl';
 import {
   type UserProfileData,
   getPostHue,
@@ -71,6 +72,7 @@ interface UserProfileClientProps {
 }
 
 export function UserProfileClient({ params }: UserProfileClientProps) {
+  const t = useTranslations('forum');
   const { id } = use(params);
   const prefersReduced = useReducedMotion();
   const router = useRouter();
@@ -114,7 +116,7 @@ export function UserProfileClient({ params }: UserProfileClientProps) {
               className="gap-2 text-muted-foreground hover:text-foreground"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to Forum
+              {t('backToForum')}
             </Button>
           </motion.div>
 
@@ -125,10 +127,10 @@ export function UserProfileClient({ params }: UserProfileClientProps) {
           {error && !user && !getMockUser(id) && (
             <div className="rounded-2xl border border-destructive/30 p-6 bg-destructive/10 backdrop-blur-md text-center">
               <AlertCircle className="h-10 w-10 mx-auto text-destructive mb-3" />
-              <p className="text-sm text-destructive">User not found</p>
-              <p className="text-xs text-muted-foreground mt-1">This profile doesn&apos;t exist.</p>
+              <p className="text-sm text-destructive">{t('userNotFound')}</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('userNotFoundHint')}</p>
               <Button variant="outline" className="mt-4" onClick={() => router.push('/forum')}>
-                Back to Forum
+                {t('backToForum')}
               </Button>
             </div>
           )}
@@ -153,11 +155,11 @@ export function UserProfileClient({ params }: UserProfileClientProps) {
                 <TabsList className="backdrop-blur-sm bg-muted/30 border border-border w-full justify-start">
                   <TabsTrigger value="posts" className="gap-1.5">
                     <MessageSquare className="h-3.5 w-3.5" />
-                    Posts ({user.forumPosts.length})
+                    {t('postsCount', { count: user.forumPosts.length })}
                   </TabsTrigger>
                   <TabsTrigger value="activity" className="gap-1.5">
                     <Clock className="h-3.5 w-3.5" />
-                    Activity
+                    {t('activityTab')}
                   </TabsTrigger>
                 </TabsList>
 
@@ -165,7 +167,7 @@ export function UserProfileClient({ params }: UserProfileClientProps) {
                   {user.forumPosts.length === 0 ? (
                     <div className="text-center py-12">
                       <MessageSquare className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
-                      <p className="text-sm text-muted-foreground">No posts yet</p>
+                      <p className="text-sm text-muted-foreground">{t('noPostsYet')}</p>
                     </div>
                   ) : (
                     user.forumPosts.map((post, i) => {
@@ -232,10 +234,10 @@ export function UserProfileClient({ params }: UserProfileClientProps) {
                   <div className="rounded-2xl border border-border p-6 backdrop-blur-md bg-card/50 text-center">
                     <Clock className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
                     <p className="text-sm text-muted-foreground">
-                      Activity feed coming soon
+                      {t('activityComingSoon')}
                     </p>
                     <p className="text-xs text-muted-foreground/60 mt-1">
-                      Track comments, upvotes, and achievements
+                      {t('activityComingSoonHint')}
                     </p>
                   </div>
                 </TabsContent>

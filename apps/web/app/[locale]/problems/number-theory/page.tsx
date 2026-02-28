@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { MathRenderer, DisplayMath } from '@/components/ui/math-renderer';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 
 // =============================================================================
@@ -3053,8 +3054,9 @@ type TabId = typeof TABS[number]['id'];
 // =============================================================================
 
 export default function NumberTheoryPage() {
+  const t = useTranslations('numberTheory');
   const [activeTab, setActiveTab] = useState<TabId>('prime');
-  const ActiveComponent = TABS.find((t) => t.id === activeTab)?.component ?? PrimeChecker;
+  const ActiveComponent = TABS.find((tab) => tab.id === activeTab)?.component ?? PrimeChecker;
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-5xl">
@@ -3067,21 +3069,20 @@ export default function NumberTheoryPage() {
           <div>
             <h1 className="text-4xl font-bold">
               <span className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 bg-clip-text text-transparent">
-                Number Theory Explorer
+                {t('title')}
               </span>
             </h1>
           </div>
         </div>
         <p className="text-muted-foreground text-lg max-w-2xl">
-          Interactive tools for primes, divisibility, modular arithmetic, and classic sequences.
-          All computations use exact bigint arithmetic.
+          {t('description')}
         </p>
 
         <div className="flex flex-wrap gap-2 mt-4">
           <DisplayMath expression="\mathbb{Z} / n\mathbb{Z} \quad \varphi(n) \quad \gcd(a,b) \quad p \in \mathbb{P}" />
           {supportsWebGPU && (
             <Badge variant="outline" className="gap-1 backdrop-blur-sm bg-violet-500/10 border-violet-500/40 text-violet-300 text-xs">
-              WebGPU visualizations active
+              {t('webgpuActive')}
             </Badge>
           )}
         </div>

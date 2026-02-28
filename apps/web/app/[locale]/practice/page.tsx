@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Target, Timer, Zap, TrendingUp, Play, Settings } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import {
   getAllProblems,
   getProblemsByTopic,
@@ -65,9 +66,9 @@ const heroVariants = {
 // ─── Stat Card Data ────────────────────────────────────────────────────────────
 
 interface StatCardData {
-  label: string;
+  labelKey: string;
   value: string;
-  subLabel: string;
+  subLabelKey: string;
   Icon: typeof Target;
   /** OKLCH hue for the icon accent */
   hue: number;
@@ -77,33 +78,33 @@ interface StatCardData {
 
 const STAT_CARDS: StatCardData[] = [
   {
-    label: 'Your Best',
+    labelKey: 'yourBest',
     value: '95%',
-    subLabel: 'Accuracy',
+    subLabelKey: 'accuracy',
     Icon: Target,
     hue: 55,
     chroma: 0.22,
   },
   {
-    label: 'Sessions',
+    labelKey: 'sessions',
     value: '23',
-    subLabel: 'Completed',
+    subLabelKey: 'completed',
     Icon: Timer,
     hue: 25,
     chroma: 0.22,
   },
   {
-    label: 'Streak',
+    labelKey: 'streak',
     value: '7',
-    subLabel: 'Days',
+    subLabelKey: 'days',
     Icon: Zap,
     hue: 300,
     chroma: 0.20,
   },
   {
-    label: 'Improvement',
+    labelKey: 'improvement',
     value: '+15%',
-    subLabel: 'This week',
+    subLabelKey: 'thisWeek',
     Icon: TrendingUp,
     hue: 145,
     chroma: 0.20,
@@ -217,7 +218,10 @@ function AnimatedBackground({ prefersReduced }: { prefersReduced: boolean }) {
 // ─── Stat Card ────────────────────────────────────────────────────────────────
 
 function StatCard({ data }: { data: StatCardData }) {
-  const { Icon, label, value, subLabel, hue, chroma } = data;
+  const t = useTranslations('practice');
+  const { Icon, labelKey, value, subLabelKey, hue, chroma } = data;
+  const label = t(labelKey);
+  const subLabel = t(subLabelKey);
 
   const iconBg = `oklch(0.72 ${chroma} ${hue} / 0.15)`;
   const iconBorder = `oklch(0.72 ${chroma} ${hue} / 0.25)`;
@@ -286,6 +290,7 @@ function StatCard({ data }: { data: StatCardData }) {
  * - Screen reader announcements via aria-live on the empty-state region
  */
 export default function PracticePage() {
+  const t = useTranslations('practice');
   const [isConfiguring, setIsConfiguring] = useState(true);
   const [problems, setProblems] = useState<ReadonlyArray<Problem>>([]);
   const [config, setConfig] = useState<PracticeConfig>({
@@ -416,14 +421,14 @@ export default function PracticePage() {
           aria-live="polite"
         >
           <p className="text-lg text-muted-foreground mb-4">
-            No problems found for the selected filters. Try a different topic or difficulty.
+            {t('noProblemsFound')}
           </p>
           <Button
             onClick={() => setIsConfiguring(true)}
             variant="outline"
             className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
-            Back to Configuration
+            {t('backToConfig')}
           </Button>
         </div>
       );
@@ -479,7 +484,7 @@ export default function PracticePage() {
               className="text-sm font-medium"
               style={{ color: 'oklch(0.72 0.22 55)' }}
             >
-              Skill Training
+              {t('skillTraining')}
             </span>
           </div>
 
@@ -499,7 +504,7 @@ export default function PracticePage() {
           />
 
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Test your skills with timed practice sessions. Track your progress and improve your problem-solving speed.
+            {t('heroDescription')}
           </p>
         </motion.div>
 
@@ -514,10 +519,10 @@ export default function PracticePage() {
                 viewport: { once: true },
                 variants: containerVariants,
               })}
-          aria-label="Your practice statistics"
+          aria-label={t('practiceStats')}
         >
           {STAT_CARDS.map((data) => (
-            <StatCard key={data.label} data={data} />
+            <StatCard key={data.labelKey} data={data} />
           ))}
         </motion.div>
 
@@ -570,17 +575,17 @@ export default function PracticePage() {
                       style={{ color: 'oklch(0.72 0.22 55)' }}
                     />
                   </span>
-                  Configure Practice Session
+                  {t('configurePracticeSession')}
                 </CardTitle>
                 <CardDescription>
-                  Customize your practice session to match your learning goals
+                  {t('configureDescription')}
                 </CardDescription>
               </CardHeader>
 
               <CardContent className="space-y-6">
                 {/* Topic Selection */}
                 <div className="space-y-2">
-                  <Label htmlFor="topic">Topic</Label>
+                  <Label htmlFor="topic">{t('topic')}</Label>
                   <Select
                     value={config.topic}
                     onValueChange={(value) =>
@@ -591,7 +596,7 @@ export default function PracticePage() {
                       id="topic"
                       className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                     >
-                      <SelectValue placeholder="Select topic" />
+                      <SelectValue placeholder={t('selectTopic')} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Topics</SelectItem>
@@ -607,7 +612,7 @@ export default function PracticePage() {
 
                 {/* Difficulty Selection */}
                 <div className="space-y-2">
-                  <Label htmlFor="difficulty">Difficulty Level</Label>
+                  <Label htmlFor="difficulty">{t('difficultyLevel')}</Label>
                   <Select
                     value={String(config.difficulty)}
                     onValueChange={(value) =>
@@ -621,7 +626,7 @@ export default function PracticePage() {
                       id="difficulty"
                       className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                     >
-                      <SelectValue placeholder="Select difficulty" />
+                      <SelectValue placeholder={t('selectDifficulty')} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Levels</SelectItem>
@@ -636,7 +641,7 @@ export default function PracticePage() {
 
                 {/* Question Count */}
                 <div className="space-y-2">
-                  <Label htmlFor="questionCount">Number of Questions</Label>
+                  <Label htmlFor="questionCount">{t('numberOfQuestions')}</Label>
                   <Select
                     value={String(config.questionCount)}
                     onValueChange={(value) =>
@@ -647,21 +652,21 @@ export default function PracticePage() {
                       id="questionCount"
                       className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                     >
-                      <SelectValue placeholder="Select question count" />
+                      <SelectValue placeholder={t('selectQuestionCount')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="5">5 Questions</SelectItem>
-                      <SelectItem value="10">10 Questions</SelectItem>
-                      <SelectItem value="15">15 Questions</SelectItem>
-                      <SelectItem value="20">20 Questions</SelectItem>
-                      <SelectItem value="25">25 Questions</SelectItem>
+                      <SelectItem value="5">{t('questions', { count: 5 })}</SelectItem>
+                      <SelectItem value="10">{t('questions', { count: 10 })}</SelectItem>
+                      <SelectItem value="15">{t('questions', { count: 15 })}</SelectItem>
+                      <SelectItem value="20">{t('questions', { count: 20 })}</SelectItem>
+                      <SelectItem value="25">{t('questions', { count: 25 })}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 {/* Time Limit */}
                 <div className="space-y-2">
-                  <Label htmlFor="timeLimit">Time Limit per Question (seconds)</Label>
+                  <Label htmlFor="timeLimit">{t('timeLimitPerQuestion')}</Label>
                   <Select
                     value={String(config.timeLimit)}
                     onValueChange={(value) =>
@@ -672,15 +677,15 @@ export default function PracticePage() {
                       id="timeLimit"
                       className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                     >
-                      <SelectValue placeholder="Select time limit" />
+                      <SelectValue placeholder={t('selectTimeLimit')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="0">No Limit</SelectItem>
-                      <SelectItem value="30">30 seconds</SelectItem>
-                      <SelectItem value="60">60 seconds</SelectItem>
-                      <SelectItem value="90">90 seconds</SelectItem>
-                      <SelectItem value="120">2 minutes</SelectItem>
-                      <SelectItem value="180">3 minutes</SelectItem>
+                      <SelectItem value="0">{t('noLimit')}</SelectItem>
+                      <SelectItem value="30">{t('seconds', { count: 30 })}</SelectItem>
+                      <SelectItem value="60">{t('seconds', { count: 60 })}</SelectItem>
+                      <SelectItem value="90">{t('seconds', { count: 90 })}</SelectItem>
+                      <SelectItem value="120">{t('minutes', { count: 2 })}</SelectItem>
+                      <SelectItem value="180">{t('minutes', { count: 3 })}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -698,9 +703,9 @@ export default function PracticePage() {
                   />
                   <Label htmlFor="adaptive" className="cursor-pointer">
                     <div>
-                      <div className="font-semibold">Adaptive Difficulty</div>
+                      <div className="font-semibold">{t('adaptiveDifficulty')}</div>
                       <div className="text-sm text-muted-foreground">
-                        Automatically adjust difficulty based on your performance
+                        {t('adaptiveDifficultyDescription')}
                       </div>
                     </div>
                   </Label>
@@ -714,7 +719,7 @@ export default function PracticePage() {
                   }}
                 >
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-lg">Session Summary</CardTitle>
+                    <CardTitle className="text-lg">{t('sessionSummary')}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <div className="flex justify-between text-sm">
@@ -741,8 +746,8 @@ export default function PracticePage() {
                       <span className="text-muted-foreground">Time Limit:</span>
                       <span className="font-semibold text-foreground">
                         {config.timeLimit === 0
-                          ? 'Unlimited'
-                          : `${config.timeLimit} seconds per question`}
+                          ? t('unlimited')
+                          : t('secondsPerQuestion', { count: config.timeLimit })}
                       </span>
                     </div>
                     {config.adaptiveDifficulty && (
@@ -766,7 +771,7 @@ export default function PracticePage() {
                           style={{ color: 'oklch(0.65 0.22 264)' }}
                           aria-hidden="true"
                         />
-                        <span className="text-sm text-foreground">Adaptive difficulty enabled</span>
+                        <span className="text-sm text-foreground">{t('adaptiveDifficultyEnabled')}</span>
                       </motion.div>
                     )}
                   </CardContent>
@@ -792,7 +797,7 @@ export default function PracticePage() {
                     }}
                   >
                     <Play className="h-5 w-5 mr-2" aria-hidden="true" />
-                    Start Practice Session
+                    {t('startPracticeSession')}
                   </Button>
                 </motion.div>
               </CardContent>

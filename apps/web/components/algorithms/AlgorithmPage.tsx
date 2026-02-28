@@ -3,6 +3,7 @@
 import { type ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { Share2, type LucideIcon } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { AlgorithmBreadcrumb, type BreadcrumbItem } from './AlgorithmBreadcrumb';
 import { AlgorithmMetadata } from './AlgorithmMetadata';
 import type { AlgorithmCategory, DifficultyLevel } from './AlgorithmCard';
@@ -89,6 +90,8 @@ export function AlgorithmPage({
   relatedAlgorithms,
   children,
 }: AlgorithmPageProps) {
+  const t = useTranslations('algorithms.page');
+
   const handleShare = async () => {
     if (navigator.share) {
       try {
@@ -140,7 +143,7 @@ export function AlgorithmPage({
           <button
             onClick={handleShare}
             className="p-2.5 sm:p-3 rounded-lg border border-border bg-card hover:bg-accent transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring shrink-0"
-            aria-label="Share this algorithm"
+            aria-label={t('shareAlgorithm')}
           >
             <Share2 className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden="true" />
           </button>
@@ -164,7 +167,7 @@ export function AlgorithmPage({
             {/* Related algorithms */}
             {relatedAlgorithms && relatedAlgorithms.length > 0 && (
               <div className="p-4 sm:p-6 rounded-lg border border-border bg-card/50 backdrop-blur-sm">
-                <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Related Algorithms</h3>
+                <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">{t('relatedAlgorithms')}</h3>
                 <ul className="space-y-2">
                   {relatedAlgorithms.map((algo) => (
                     <li key={algo.href}>
@@ -191,7 +194,7 @@ export function AlgorithmPage({
             transition={{ duration: 0.5, delay: 0.2 }}
             className="p-4 sm:p-6 rounded-xl border border-border bg-card/50 backdrop-blur-sm overflow-hidden"
           >
-            <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Try It Yourself</h2>
+            <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">{t('tryItYourself')}</h2>
             <div className="min-w-0 overflow-x-auto">
               {children}
             </div>
@@ -205,7 +208,7 @@ export function AlgorithmPage({
             transition={{ duration: 0.5 }}
             className="p-4 sm:p-6 rounded-lg border border-border bg-card/50 backdrop-blur-sm"
           >
-            <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Real-World Applications</h2>
+            <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">{t('realWorldApplications')}</h2>
             <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
               {applications.map((app, index) => (
                 <li
@@ -228,7 +231,7 @@ export function AlgorithmPage({
               transition={{ duration: 0.5 }}
               className="p-4 sm:p-6 rounded-lg border border-border bg-card/50 backdrop-blur-sm"
             >
-              <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">References</h2>
+              <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">{t('references')}</h2>
               <ul className="space-y-2 sm:space-y-3">
                 {references.map((ref, index) => (
                   <li key={index} className="text-xs sm:text-sm">

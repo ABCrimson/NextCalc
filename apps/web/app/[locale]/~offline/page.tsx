@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 
 export const metadata: Metadata = {
   title: 'Offline — NextCalc Pro',
@@ -15,7 +16,8 @@ const cachedPages = [
   { name: 'Symbolic', href: '/symbolic' },
 ];
 
-export default function OfflinePage() {
+export default async function OfflinePage() {
+  const t = await getTranslations('offline');
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background px-4 text-foreground">
       <div className="mx-auto max-w-md text-center">
@@ -23,13 +25,12 @@ export default function OfflinePage() {
           &#x1F4F4;
         </div>
         <h1 className="mb-3 text-2xl font-bold tracking-tight">
-          You&apos;re offline
+          {t('title')}
         </h1>
         <p className="mb-8 text-muted-foreground">
-          Check your internet connection and try again. Some pages may still be
-          available from cache:
+          {t('description')}
         </p>
-        <nav aria-label="Cached pages">
+        <nav aria-label={t('cachedPages')}>
           <ul className="space-y-2">
             {cachedPages.map((page) => (
               <li key={page.href}>

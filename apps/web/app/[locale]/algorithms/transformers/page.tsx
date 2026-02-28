@@ -3,6 +3,7 @@
 import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
 import { TransformerVisualizer } from '@/components/algorithms/TransformerVisualizer';
 import { Brain } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 /**
  * Transformers Algorithm Page
@@ -11,22 +12,25 @@ import { Brain } from 'lucide-react';
  * Shows query, key, and value matrix operations in real-time.
  */
 export default function TransformersPage() {
+  const t = useTranslations('algorithms.transformers');
+  const ta = useTranslations('algorithms');
+
   return (
     <AlgorithmPage
-      title="Transformer Attention"
+      title={t('title')}
       icon={Brain}
       category="machine-learning"
       difficulty="intermediate"
-      timeComplexity="O(n²d)"
-      spaceComplexity="O(n²)"
+      timeComplexity="O(n\u00b2d)"
+      spaceComplexity="O(n\u00b2)"
       yearIntroduced={2017}
       tags={['attention', 'neural networks', 'NLP', 'deep learning']}
       breadcrumbs={[
-        { label: 'Algorithms', href: '/algorithms' },
-        { label: 'Machine Learning', href: '/algorithms?category=machine-learning' },
-        { label: 'Transformers' },
+        { label: ta('title'), href: '/algorithms' },
+        { label: t('breadcrumbCategory'), href: '/algorithms?category=machine-learning' },
+        { label: t('breadcrumbCurrent') },
       ]}
-      description="The transformer architecture revolutionized natural language processing and sequence modeling. At its heart is the self-attention mechanism, which allows the model to weigh the importance of different positions in a sequence when processing each element."
+      description={t('description')}
       applications={[
         'Natural Language Processing (GPT, BERT, T5)',
         'Machine Translation (Google Translate)',

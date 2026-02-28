@@ -52,13 +52,13 @@ describe('Accessibility Tests (WCAG 2.2 Level AAA)', () => {
         id: '1',
         expression: '2+2',
         result: '4',
-        timestamp: new Date(),
+        timestamp: Date.now(),
       },
       {
         id: '2',
         expression: '5*3',
         result: '15',
-        timestamp: new Date(),
+        timestamp: Date.now(),
       },
     ];
 
@@ -151,7 +151,7 @@ describe('Accessibility Tests (WCAG 2.2 Level AAA)', () => {
         id: '1',
         expression: '10+5',
         result: '15',
-        timestamp: new Date(),
+        timestamp: Date.now(),
       },
     ];
 

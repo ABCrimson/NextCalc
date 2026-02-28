@@ -5,6 +5,7 @@ import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
 import { ZKPDemo } from '@/components/algorithms/ZKPDemo';
 import { ZKPComputeVisualizer } from '@/components/algorithms/ZKPComputeVisualizer';
 import { Shield, Zap, Cpu } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 /** Glass-morphism card style used across NextCalc chaos/algorithm pages. */
@@ -14,6 +15,7 @@ const GLASS_CARD =
   'shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]';
 
 function ZeroKnowledgeContent() {
+  const t = useTranslations('algorithms.zkp');
   const [activeTab, setActiveTab] = useState<'interactive' | 'gpu'>('interactive');
 
   return (
@@ -22,19 +24,17 @@ function ZeroKnowledgeContent() {
       <div
         className={`${GLASS_CARD} rounded-2xl p-4 flex items-start gap-3`}
         role="note"
-        aria-label="GPU acceleration feature note"
+        aria-label={t('webgpuAvailable')}
       >
         <div className="p-2 rounded-lg bg-indigo-500/15 border border-indigo-500/25 shrink-0">
           <Zap className="w-4 h-4 text-indigo-400" aria-hidden="true" />
         </div>
         <div className="min-w-0">
           <p className="text-sm font-semibold text-foreground">
-            WebGPU Compute Acceleration Available
+            {t('webgpuAvailable')}
           </p>
           <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-            The &ldquo;GPU Acceleration&rdquo; tab runs Schnorr batch verification entirely on the
-            GPU using WebGPU compute shaders — parallelising modular exponentiation across
-            all rounds simultaneously. Falls back to CPU automatically if unavailable.
+            {t('webgpuDescription')}
           </p>
         </div>
       </div>
@@ -58,14 +58,14 @@ function ZeroKnowledgeContent() {
             className="flex items-center gap-1.5 py-2.5 text-xs sm:text-sm rounded-lg data-[state=active]:bg-white/10 data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=inactive]:text-muted-foreground"
           >
             <Shield className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-            Interactive Protocols
+            {t('interactiveProtocols')}
           </TabsTrigger>
           <TabsTrigger
             value="gpu"
             className="flex items-center gap-1.5 py-2.5 text-xs sm:text-sm rounded-lg data-[state=active]:bg-white/10 data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=inactive]:text-muted-foreground"
           >
             <Zap className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-            GPU Acceleration
+            {t('gpuAcceleration')}
           </TabsTrigger>
         </TabsList>
 
@@ -88,7 +88,7 @@ function ZeroKnowledgeContent() {
               <div className="flex items-center gap-2 mb-2">
                 <Zap className="w-4 h-4 text-emerald-400" aria-hidden="true" />
                 <span className="text-sm font-semibold text-foreground">
-                  WebGPU Compute (Primary)
+                  {t('webgpuPrimary')}
                 </span>
               </div>
               <ul className="space-y-1 text-xs text-muted-foreground list-none">
@@ -122,7 +122,7 @@ function ZeroKnowledgeContent() {
               <div className="flex items-center gap-2 mb-2">
                 <Cpu className="w-4 h-4 text-amber-400" aria-hidden="true" />
                 <span className="text-sm font-semibold text-foreground">
-                  CPU Fallback (TypeScript)
+                  {t('cpuFallback')}
                 </span>
               </div>
               <ul className="space-y-1 text-xs text-muted-foreground list-none">
@@ -152,9 +152,12 @@ function ZeroKnowledgeContent() {
 }
 
 export default function ZeroKnowledgePage() {
+  const t = useTranslations('algorithms.zkp');
+  const ta = useTranslations('algorithms');
+
   return (
     <AlgorithmPage
-      title="Zero-Knowledge Proofs"
+      title={t('title')}
       icon={Shield}
       category="cryptography"
       difficulty="advanced"
@@ -163,11 +166,11 @@ export default function ZeroKnowledgePage() {
       yearIntroduced={1989}
       tags={['cryptography', 'privacy', 'blockchain', 'Schnorr', 'WebGPU']}
       breadcrumbs={[
-        { label: 'Algorithms', href: '/algorithms' },
-        { label: 'Cryptography', href: '/algorithms?category=cryptography' },
-        { label: 'Zero-Knowledge Proofs' },
+        { label: ta('title'), href: '/algorithms' },
+        { label: t('breadcrumbCategory'), href: '/algorithms?category=cryptography' },
+        { label: t('breadcrumbCurrent') },
       ]}
-      description="Zero-knowledge proofs allow one party (the prover) to prove to another party (the verifier) that they know a value, without revealing any information about the value itself. This page includes an interactive step-by-step protocol demo and a WebGPU-accelerated batch verifier that runs modular exponentiation in parallel across all rounds simultaneously."
+      description={t('fullDescription')}
       applications={[
         'Cryptocurrency Privacy (Zcash, Monero)',
         'Anonymous Authentication',

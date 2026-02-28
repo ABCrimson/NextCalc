@@ -3,6 +3,7 @@
 import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
 import { PageRankExplorer } from '@/components/algorithms/PageRankExplorer';
 import { Network } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 /**
  * Graphs/PageRank Page
@@ -11,22 +12,25 @@ import { Network } from 'lucide-react';
  * Demonstrates the PageRank algorithm with interactive graph visualization.
  */
 export default function GraphsPage() {
+  const t = useTranslations('algorithms.pagerank');
+  const ta = useTranslations('algorithms');
+
   return (
     <AlgorithmPage
-      title="PageRank Algorithm"
+      title={t('title')}
       icon={Network}
       category="graph-theory"
       difficulty="intermediate"
       timeComplexity="O(kn)"
-      spaceComplexity="O(n²)"
+      spaceComplexity="O(n\u00b2)"
       yearIntroduced={1998}
       tags={['graph theory', 'link analysis', 'eigenvectors', 'markov chains']}
       breadcrumbs={[
-        { label: 'Algorithms', href: '/algorithms' },
-        { label: 'Graph Theory', href: '/algorithms?category=graph-theory' },
-        { label: 'PageRank' },
+        { label: ta('title'), href: '/algorithms' },
+        { label: t('breadcrumbCategory'), href: '/algorithms?category=graph-theory' },
+        { label: t('breadcrumbCurrent') },
       ]}
-      description="PageRank is the algorithm that powered Google's early search engine. It assigns importance scores to web pages based on link structure, treating the web as a graph where links are edges. Pages linked by many important pages receive higher scores."
+      description={t('description')}
       applications={[
         'Web Search Ranking (Google)',
         'Social Network Analysis',

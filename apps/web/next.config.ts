@@ -1,5 +1,6 @@
 import { resolve } from 'node:path';
 import type { NextConfig } from 'next';
+import { withSentryConfig } from '@sentry/nextjs';
 import createNextIntlPlugin from 'next-intl/plugin';
 import withSerwistInit from '@serwist/next';
 
@@ -117,4 +118,28 @@ const withSerwist = withSerwistInit({
   disable: process.env.NODE_ENV === 'development',
 });
 
-export default withSerwist(withNextIntl(nextConfig));
+export default withSentryConfig(withSerwist(withNextIntl(nextConfig)), {
+  // Sentry webpack plugin options
+  // https://github.com/getsentry/sentry-webpack-plugin#options
+
+  // Suppress source map upload logs during build
+  silent: true,
+
+  // Upload source maps to Sentry for better stack traces
+  // Requires SENTRY_AUTH_TOKEN to be set
+  ...(process.env['SENTRY_AUTH_TOKEN']
+    ? { authToken: process.env['SENTRY_AUTH_TOKEN'] }
+    : {}),
+
+  // Tree-shake Sentry debug logging statements to reduce bundle size
+  webpack: {
+    treeshake: {
+      removeDebugLogging: true,
+    },
+  },
+
+  // Prevent source maps from being sent to the client
+  sourcemaps: {
+    deleteSourcemapsAfterUpload: true,
+  },
+});

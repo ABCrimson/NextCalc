@@ -6,6 +6,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import type { Problem } from '@/types/problems';
 import { toggleFavorite } from '@/app/actions/problems';
 import type { ActionResult, ToggleFavoriteResult } from '@/app/actions/problems';
+import { useTranslations } from 'next-intl';
 
 /**
  * Mock problem data - In production, fetch from API
@@ -118,6 +119,7 @@ const QUICK_STATS = [
  * - Landmark regions are properly labelled.
  */
 export default function ProblemsPage() {
+  const t = useTranslations('problems');
   const [_favoriteState, toggleFavoriteAction] = useActionState<ActionResult<ToggleFavoriteResult>, FormData>(
     toggleFavorite,
     { success: false },
@@ -273,7 +275,7 @@ export default function ProblemsPage() {
                     'linear-gradient(135deg, oklch(0.72 0.20 264) 0%, oklch(0.70 0.20 230) 50%, oklch(0.75 0.18 200) 100%)',
                 }}
               >
-                Problem Library
+                {t('title')}
               </span>
             </h1>
 
@@ -289,8 +291,7 @@ export default function ProblemsPage() {
 
             {/* Description */}
             <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed mb-6">
-              Explore our comprehensive collection of mathematical problems. Filter by topic,
-              difficulty, and type to find the perfect challenge.
+              {t('heroDescription')}
             </p>
 
             {/* Quick stats badges */}

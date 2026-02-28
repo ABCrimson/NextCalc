@@ -88,6 +88,7 @@ export function makeClient() {
 	const MOCK_FALLBACK_OPS = new Set([
 		'ForumPosts', 'ForumPost', 'CreateForumPost', 'ToggleUpvote',
 		'CreateComment', 'DeleteComment', 'UserProfile',
+		'ShareCalculation', 'SharedCalculation',
 	]);
 
 	// AC4 ErrorLink: uses CombinedGraphQLErrors.is() for type-safe
@@ -194,6 +195,7 @@ export function makeClient() {
 				Folder: { keyFields: ['id'] },
 				ForumPost: { keyFields: ['id'] },
 				Comment: { keyFields: ['id'] },
+				SharedCalculation: { keyFields: ['id'] },
 			},
 		}),
 		link: splitLink,

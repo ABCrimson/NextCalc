@@ -76,74 +76,100 @@ export interface AnalyticsService {
 }
 
 // ============================================================================
+// Structured Log Helper (browser-safe JSON logging)
+// ============================================================================
+
+type WebLogLevel = 'debug' | 'info' | 'warn' | 'error';
+
+function structuredLog(level: WebLogLevel, message: string, meta?: Record<string, unknown>): void {
+  const entry = {
+    level,
+    message,
+    timestamp: new Date().toISOString(),
+    service: 'nextcalc-web',
+    ...(meta ?? {}),
+  };
+
+  const output = JSON.stringify(entry);
+
+  if (level === 'error') {
+    console.error(output);
+  } else if (level === 'warn') {
+    console.warn(output);
+  } else if (level === 'debug') {
+    console.debug(output);
+  } else {
+    console.log(output);
+  }
+}
+
+// ============================================================================
 // Default Console Implementation (Development/Fallback)
 // ============================================================================
 
 class ConsoleErrorTracking implements ErrorTrackingService {
   async captureError(error: Error, context?: ErrorContext): Promise<void> {
-    console.error('[ErrorTracking] Error captured:', {
-      name: error.name,
-      message: error.message,
+    structuredLog('error', 'Error captured', {
+      errorName: error.name,
+      errorMessage: error.message,
       stack: error.stack,
-      ...context,
-      timestamp: new Date().toISOString(),
+      ...(context ?? {}),
     });
   }
 
   async captureMessage(message: string, context?: ErrorContext): Promise<void> {
-    const logFn = context?.level === 'error' || context?.level === 'fatal'
-      ? console.error
-      : context?.level === 'warning'
-        ? console.warn
-        : console.info;
+    const level: WebLogLevel =
+      context?.level === 'error' || context?.level === 'fatal'
+        ? 'error'
+        : context?.level === 'warning'
+          ? 'warn'
+          : 'info';
 
-    logFn('[ErrorTracking] Message:', {
-      message,
-      ...context,
-      timestamp: new Date().toISOString(),
-    });
+    structuredLog(level, message, context ? { ...context } : undefined);
   }
 
   setUser(userId: string, userData?: Record<string, unknown>): void {
-    console.debug('[ErrorTracking] User set:', { userId, ...userData });
+    structuredLog('debug', 'User context set', { userId, ...userData });
   }
 
   addBreadcrumb(message: string, data?: Record<string, unknown>): void {
-    console.debug('[ErrorTracking] Breadcrumb:', { message, ...data });
+    structuredLog('debug', `Breadcrumb: ${message}`, data);
   }
 }
 
 class ConsoleMetrics implements MetricsService {
   async recordMetric(metric: PerformanceMetric): Promise<void> {
-    console.debug('[Metrics] Recorded:', {
+    structuredLog('debug', 'Metric recorded', {
       ...metric,
       timestamp: metric.timestamp || new Date().toISOString(),
     });
   }
 
   async recordHistogram(name: string, value: number, tags?: Record<string, string>): Promise<void> {
-    console.debug('[Metrics] Histogram:', { name, value, tags });
+    structuredLog('debug', 'Histogram recorded', { name, value, ...(tags ? { tags } : {}) });
   }
 
   async incrementCounter(name: string, tags?: Record<string, string>): Promise<void> {
-    console.debug('[Metrics] Counter incremented:', { name, tags });
+    structuredLog('debug', 'Counter incremented', { name, ...(tags ? { tags } : {}) });
   }
 }
 
 class ConsoleAnalytics implements AnalyticsService {
   async trackEvent(event: AnalyticsEvent): Promise<void> {
-    console.debug('[Analytics] Event:', {
-      ...event,
+    structuredLog('debug', 'Analytics event', {
+      eventName: event.name,
+      ...(event.properties ? { properties: event.properties } : {}),
+      ...(event.userId ? { userId: event.userId } : {}),
       timestamp: event.timestamp || new Date().toISOString(),
     });
   }
 
   identifyUser(userId: string, traits?: Record<string, unknown>): void {
-    console.debug('[Analytics] User identified:', { userId, ...traits });
+    structuredLog('debug', 'User identified', { userId, ...(traits ?? {}) });
   }
 
   trackPageView(path: string, properties?: Record<string, unknown>): void {
-    console.debug('[Analytics] Page view:', { path, ...properties });
+    structuredLog('debug', 'Page view', { path, ...(properties ?? {}) });
   }
 }
 
@@ -189,7 +215,7 @@ export async function captureError(error: Error, context?: ErrorContext): Promis
     await errorTrackingService.captureError(error, context);
   } catch (e) {
     // Fail silently to avoid cascading errors
-    console.error('Failed to capture error:', e);
+    structuredLog('error', 'Failed to capture error', { error: e instanceof Error ? e.message : String(e) });
   }
 }
 
@@ -200,7 +226,7 @@ export async function captureMessage(message: string, context?: ErrorContext): P
   try {
     await errorTrackingService.captureMessage(message, context);
   } catch (e) {
-    console.error('Failed to capture message:', e);
+    structuredLog('error', 'Failed to capture message', { error: e instanceof Error ? e.message : String(e) });
   }
 }
 
@@ -212,7 +238,7 @@ export function setUser(userId: string, userData?: Record<string, unknown>): voi
     errorTrackingService.setUser(userId, userData);
     analyticsService.identifyUser(userId, userData);
   } catch (e) {
-    console.error('Failed to set user:', e);
+    structuredLog('error', 'Failed to set user', { error: e instanceof Error ? e.message : String(e) });
   }
 }
 
@@ -223,7 +249,7 @@ export function addBreadcrumb(message: string, data?: Record<string, unknown>): 
   try {
     errorTrackingService.addBreadcrumb(message, data);
   } catch (e) {
-    console.error('Failed to add breadcrumb:', e);
+    structuredLog('error', 'Failed to add breadcrumb', { error: e instanceof Error ? e.message : String(e) });
   }
 }
 
@@ -234,7 +260,7 @@ export async function recordMetric(metric: PerformanceMetric): Promise<void> {
   try {
     await metricsService.recordMetric(metric);
   } catch (e) {
-    console.error('Failed to record metric:', e);
+    structuredLog('error', 'Failed to record metric', { error: e instanceof Error ? e.message : String(e) });
   }
 }
 
@@ -249,7 +275,7 @@ export async function recordHistogram(
   try {
     await metricsService.recordHistogram(name, value, tags);
   } catch (e) {
-    console.error('Failed to record histogram:', e);
+    structuredLog('error', 'Failed to record histogram', { error: e instanceof Error ? e.message : String(e) });
   }
 }
 
@@ -260,7 +286,7 @@ export async function incrementCounter(name: string, tags?: Record<string, strin
   try {
     await metricsService.incrementCounter(name, tags);
   } catch (e) {
-    console.error('Failed to increment counter:', e);
+    structuredLog('error', 'Failed to increment counter', { error: e instanceof Error ? e.message : String(e) });
   }
 }
 
@@ -271,7 +297,7 @@ export async function trackEvent(event: AnalyticsEvent): Promise<void> {
   try {
     await analyticsService.trackEvent(event);
   } catch (e) {
-    console.error('Failed to track event:', e);
+    structuredLog('error', 'Failed to track event', { error: e instanceof Error ? e.message : String(e) });
   }
 }
 
@@ -282,7 +308,7 @@ export function trackPageView(path: string, properties?: Record<string, unknown>
   try {
     analyticsService.trackPageView(path, properties);
   } catch (e) {
-    console.error('Failed to track page view:', e);
+    structuredLog('error', 'Failed to track page view', { error: e instanceof Error ? e.message : String(e) });
   }
 }
 

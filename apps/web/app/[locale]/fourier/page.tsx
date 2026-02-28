@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,6 +27,7 @@ interface AlgorithmTiming {
 }
 
 export default function FourierAnalysisPage() {
+  const t = useTranslations('fourier');
   const [sampleSize, setSampleSize] = useState<number>(128);
   const [sampleRate, setSampleRate] = useState<number>(44100);
   const [algorithm, setAlgorithm] = useState<'fft' | 'dft'>('fft');
@@ -187,11 +189,11 @@ export default function FourierAnalysisPage() {
               <Activity className="w-8 h-8 text-emerald-400" />
             </div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
-              Fourier Analysis
+              {t('title')}
             </h1>
           </div>
           <p className="text-lg text-foreground/80">
-            GPU-accelerated time-frequency domain analysis with interactive visualizations
+            {t('subtitle')}
           </p>
           <div className="flex gap-2 mt-4 flex-wrap">
             <Badge variant="outline" className="border-emerald-500/50 text-emerald-400 bg-emerald-500/10">
@@ -211,9 +213,9 @@ export default function FourierAnalysisPage() {
           {/* Control Panel */}
           <Card className="lg:col-span-1 bg-gradient-to-br from-background/90 to-card/90 border-border backdrop-blur-xl">
             <CardHeader>
-              <CardTitle className="text-emerald-400">Signal Generator</CardTitle>
+              <CardTitle className="text-emerald-400">{t('signalGenerator')}</CardTitle>
               <CardDescription className="text-muted-foreground">
-                Configure and generate time-domain signals
+                {t('signalGeneratorDesc')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -232,7 +234,7 @@ export default function FourierAnalysisPage() {
                   className="w-full"
                 />
                 <p className="text-xs text-muted-foreground/70">
-                  Higher values = better frequency resolution
+                  {t('higherValues')}
                 </p>
               </div>
 
@@ -257,7 +259,7 @@ export default function FourierAnalysisPage() {
 
               {/* Frequency Controls */}
               <div className="space-y-4 p-4 rounded-lg bg-muted/50 border border-border">
-                <h3 className="text-sm font-semibold text-emerald-400">Frequency Components</h3>
+                <h3 className="text-sm font-semibold text-emerald-400">{t('frequencyComponents')}</h3>
 
                 <div className="space-y-2">
                   <Label htmlFor="freq1" className="text-foreground/80">
@@ -322,19 +324,19 @@ export default function FourierAnalysisPage() {
 
               {/* Algorithm Selection */}
               <div className="space-y-2">
-                <Label className="text-foreground/80">Algorithm</Label>
+                <Label className="text-foreground/80">{t('algorithm')}</Label>
                 <Tabs value={algorithm} onValueChange={(v) => setAlgorithm(v as 'fft' | 'dft')}>
                   <TabsList className="grid w-full grid-cols-2 bg-muted/50">
                     <TabsTrigger value="fft" className="data-[state=active]:bg-emerald-500/20">
-                      FFT (Fast)
+                      {t('fftFast')}
                     </TabsTrigger>
                     <TabsTrigger value="dft" className="data-[state=active]:bg-emerald-500/20">
-                      DFT (Naive)
+                      {t('dftNaive')}
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
                 <p className="text-xs text-muted-foreground/70">
-                  FFT: O(n log n) — DFT: O(n²) — switching re-runs analysis
+                  {t('algorithmComplexity')}
                 </p>
                 {algorithmTiming && (
                   <div className="flex items-center gap-2 mt-1 px-3 py-2 rounded-lg bg-muted/60 border border-border">
@@ -356,7 +358,7 @@ export default function FourierAnalysisPage() {
 
               {/* Preset Signals */}
               <div className="space-y-2">
-                <Label className="text-foreground/80">Preset Signals</Label>
+                <Label className="text-foreground/80">{t('presetSignals')}</Label>
                 <div className="grid grid-cols-2 gap-2">
                   <Button
                     variant="outline"
@@ -364,7 +366,7 @@ export default function FourierAnalysisPage() {
                     disabled={processing}
                     className="border-emerald-500/50 hover:bg-emerald-500/10 hover:text-emerald-400"
                   >
-                    Dual Sine
+                    {t('dualSine')}
                   </Button>
                   <Button
                     variant="outline"
@@ -372,7 +374,7 @@ export default function FourierAnalysisPage() {
                     disabled={processing}
                     className="border-cyan-500/50 hover:bg-cyan-500/10 hover:text-cyan-400"
                   >
-                    Square
+                    {t('square')}
                   </Button>
                   <Button
                     variant="outline"
@@ -380,7 +382,7 @@ export default function FourierAnalysisPage() {
                     disabled={processing}
                     className="border-indigo-500/50 hover:bg-indigo-500/10 hover:text-indigo-400"
                   >
-                    Sawtooth
+                    {t('sawtooth')}
                   </Button>
                   <Button
                     variant="outline"
@@ -388,7 +390,7 @@ export default function FourierAnalysisPage() {
                     disabled={processing}
                     className="border-purple-500/50 hover:bg-purple-500/10 hover:text-purple-400"
                   >
-                    Music
+                    {t('music')}
                   </Button>
                   <Button
                     variant="outline"
@@ -396,7 +398,7 @@ export default function FourierAnalysisPage() {
                     disabled={processing}
                     className="col-span-2 border-pink-500/50 hover:bg-pink-500/10 hover:text-pink-400"
                   >
-                    White Noise
+                    {t('whiteNoise')}
                   </Button>
                 </div>
               </div>
@@ -404,7 +406,7 @@ export default function FourierAnalysisPage() {
               {/* Custom Input */}
               <div className="space-y-2">
                 <Label htmlFor="custom-signal" className="text-foreground/80">
-                  Custom Signal (comma-separated)
+                  {t('customSignal')}
                 </Label>
                 <Input
                   id="custom-signal"
@@ -423,7 +425,7 @@ export default function FourierAnalysisPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-cyan-400">
                   <Waves className="w-5 h-5" />
-                  Time Domain Signal
+                  {t('timeDomainSignal')}
                 </CardTitle>
                 <CardDescription className="text-muted-foreground">
                   {signal.length} samples @ {sampleRate} Hz • Duration: {(signal.length / sampleRate * 1000).toFixed(2)} ms
@@ -435,7 +437,7 @@ export default function FourierAnalysisPage() {
                     <TimeDomainRenderer signal={signal} sampleRate={sampleRate} />
                   ) : (
                     <div className="h-full flex items-center justify-center text-muted-foreground/70">
-                      Generate or input a signal to visualize
+                      {t('generateOrInput')}
                     </div>
                   )}
                 </div>
@@ -448,7 +450,7 @@ export default function FourierAnalysisPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-purple-400">
                     <Waves className="w-5 h-5" />
-                    Frequency Spectrum
+                    {t('frequencySpectrum')}
                   </CardTitle>
                   <CardDescription className="text-muted-foreground">
                     {frequencyData.frequencies.length} frequency bins • Resolution: {(sampleRate / signal.length).toFixed(2)} Hz/bin
@@ -458,10 +460,10 @@ export default function FourierAnalysisPage() {
                   <Tabs defaultValue="magnitude" className="w-full">
                     <TabsList className="grid w-full grid-cols-2 bg-muted/50">
                       <TabsTrigger value="magnitude" className="data-[state=active]:bg-purple-500/20">
-                        Magnitude Spectrum
+                        {t('magnitudeSpectrum')}
                       </TabsTrigger>
                       <TabsTrigger value="phase" className="data-[state=active]:bg-purple-500/20">
-                        Phase Spectrum
+                        {t('phaseSpectrum')}
                       </TabsTrigger>
                     </TabsList>
 
@@ -497,38 +499,34 @@ export default function FourierAnalysisPage() {
 
         {/* Educational Content */}
         <section className="mt-12 space-y-6">
-          <h2 className="text-2xl font-semibold text-foreground">About Fourier Analysis</h2>
+          <h2 className="text-2xl font-semibold text-foreground">{t('aboutTitle')}</h2>
 
           <div className="grid gap-6 md:grid-cols-2">
             <div className="group relative p-6 rounded-lg bg-gradient-to-br from-emerald-950/40 to-emerald-900/40 border border-emerald-500/40 hover:border-emerald-400/70 transition-all duration-300">
-              <h3 className="text-lg font-semibold mb-2 text-emerald-300">Fast Fourier Transform (FFT)</h3>
+              <h3 className="text-lg font-semibold mb-2 text-emerald-300">{t('fftTitle')}</h3>
               <p className="text-sm text-emerald-200/80">
-                The FFT is an efficient O(n log n) algorithm for computing the Discrete Fourier Transform.
-                It's essential for real-time signal processing, audio analysis, and scientific computing.
+                {t('fftAbout')}
               </p>
             </div>
 
             <div className="group relative p-6 rounded-lg bg-gradient-to-br from-purple-950/40 to-purple-900/40 border border-purple-500/40 hover:border-purple-400/70 transition-all duration-300">
-              <h3 className="text-lg font-semibold mb-2 text-purple-300">Applications</h3>
+              <h3 className="text-lg font-semibold mb-2 text-purple-300">{t('applicationsTitle')}</h3>
               <p className="text-sm text-purple-200/80">
-                Used in MP3 compression, image processing (JPEG), telecommunications,
-                radar systems, earthquake analysis, and quantum computing algorithms.
+                {t('applicationsAbout')}
               </p>
             </div>
 
             <div className="group relative p-6 rounded-lg bg-gradient-to-br from-cyan-950/40 to-cyan-900/40 border border-cyan-500/40 hover:border-cyan-400/70 transition-all duration-300">
-              <h3 className="text-lg font-semibold mb-2 text-cyan-300">Frequency Resolution</h3>
+              <h3 className="text-lg font-semibold mb-2 text-cyan-300">{t('frequencyResolution')}</h3>
               <p className="text-sm text-cyan-200/80">
-                The frequency resolution is determined by the sample rate divided by the number of samples.
-                More samples provide better resolution but require more computation time.
+                {t('frequencyResolutionAbout')}
               </p>
             </div>
 
             <div className="group relative p-6 rounded-lg bg-gradient-to-br from-indigo-950/40 to-indigo-900/40 border border-indigo-500/40 hover:border-indigo-400/70 transition-all duration-300">
-              <h3 className="text-lg font-semibold mb-2 text-indigo-300">Nyquist Theorem</h3>
+              <h3 className="text-lg font-semibold mb-2 text-indigo-300">{t('nyquistTheorem')}</h3>
               <p className="text-sm text-indigo-200/80">
-                To accurately reconstruct a signal, the sampling rate must be at least twice
-                the highest frequency present in the signal (Nyquist frequency).
+                {t('nyquistTheoremAbout')}
               </p>
             </div>
           </div>

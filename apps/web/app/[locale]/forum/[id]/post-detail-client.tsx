@@ -46,6 +46,7 @@ import {
   getStoredUpvotes,
   setStoredUpvote,
 } from '@/components/forum/forum-shared';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 
 // ============================================================================
@@ -97,6 +98,8 @@ interface PostDetailClientProps {
 }
 
 export function PostDetailClient({ params }: PostDetailClientProps) {
+  const t = useTranslations('forum');
+  const tAuth = useTranslations('auth');
   const { id } = use(params);
   const prefersReduced = useReducedMotion();
   const router = useRouter();
@@ -186,7 +189,7 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
               className="gap-2 text-muted-foreground hover:text-foreground"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to Forum
+              {t('backToForum')}
             </Button>
           </motion.div>
 
@@ -197,10 +200,10 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
           {error && !post && !getMockPostById(id) && (
             <div className="rounded-2xl border border-destructive/30 p-6 bg-destructive/10 backdrop-blur-md text-center">
               <AlertCircle className="h-10 w-10 mx-auto text-destructive mb-3" />
-              <p className="text-sm text-destructive">Post not found</p>
-              <p className="text-xs text-muted-foreground mt-1">This post may have been deleted or doesn&apos;t exist.</p>
+              <p className="text-sm text-destructive">{t('postNotFound')}</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('postNotFoundHint')}</p>
               <Button variant="outline" className="mt-4" onClick={() => router.push('/forum')}>
-                Back to Forum
+                {t('backToForum')}
               </Button>
             </div>
           )}
@@ -239,13 +242,13 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
                       {post.isPinned && (
                         <Badge variant="outline" className="gap-1 text-[10px] py-0 h-5 bg-amber-500/10 border-amber-500/30 text-amber-400">
                           <Pin className="h-2.5 w-2.5" />
-                          Pinned
+                          {t('pinned')}
                         </Badge>
                       )}
                       {post.isClosed && (
                         <Badge variant="outline" className="gap-1 text-[10px] py-0 h-5 bg-red-500/10 border-red-500/30 text-red-400">
                           <Lock className="h-2.5 w-2.5" />
-                          Closed
+                          {t('closed')}
                         </Badge>
                       )}
                     </div>
@@ -279,11 +282,11 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Eye className="h-3 w-3" />
-                    {formatNumber(post.views)} views
+                    {t('viewsCount', { count: formatNumber(post.views) })}
                   </span>
                   <span className="flex items-center gap-1">
                     <MessageSquare className="h-3 w-3" />
-                    {post.comments.length} comments
+                    {t('commentsCount', { count: post.comments.length })}
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
@@ -313,7 +316,7 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
                       {post.user.image ? (
                         <img
                           src={post.user.image}
-                          alt={post.user.name ?? 'User'}
+                          alt={post.user.name ?? t('anonymous')}
                           className="h-full w-full rounded-full object-cover"
                         />
                       ) : (
@@ -323,7 +326,7 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
                     <div>
                       <div className="flex items-center gap-1.5">
                         <span className="text-sm font-semibold text-foreground group-hover/author:text-indigo-400 transition-colors">
-                          {post.user.name ?? 'Anonymous'}
+                          {post.user.name ?? t('anonymous')}
                         </span>
                         {(() => {
                           const tier = getTierFromRole(post.user.role);
@@ -337,7 +340,7 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
                         {post.user.bio && (
                           <span className="truncate max-w-48">{post.user.bio}</span>
                         )}
-                        <span>Joined {formatDate(post.user.createdAt)}</span>
+                        <span>{t('joined', { date: formatDate(post.user.createdAt) })}</span>
                       </div>
                     </div>
                   </Link>
@@ -348,7 +351,7 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
               <div className="rounded-2xl border border-border p-6 backdrop-blur-md bg-card/50 space-y-4">
                 <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
                   <MessageSquare className="h-5 w-5 text-indigo-400" />
-                  Comments ({post.comments.length})
+                  {t('commentsCount', { count: post.comments.length })}
                 </h2>
 
                 {post.comments.length > 0 && (
@@ -362,9 +365,9 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
                 {isMockMode && post.comments.length === 0 && (
                   <div className="text-center py-8">
                     <MessageSquare className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
-                    <p className="text-sm text-muted-foreground">No comments yet</p>
+                    <p className="text-sm text-muted-foreground">{t('noCommentsYet')}</p>
                     <p className="text-xs text-muted-foreground/60 mt-1">
-                      Comments will be available when the database is connected
+                      {t('noCommentsHint')}
                     </p>
                   </div>
                 )}
@@ -372,13 +375,13 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
                 {/* Add comment form */}
                 {!post.isClosed && !isMockMode && (
                   <div className="pt-4 border-t border-border/30 space-y-3">
-                    <h3 className="text-sm font-semibold text-foreground">Add a comment</h3>
+                    <h3 className="text-sm font-semibold text-foreground">{t('addComment')}</h3>
                     {authStatus === 'authenticated' ? (
                       <>
                         <Textarea
                           value={commentContent}
                           onChange={e => setCommentContent(e.target.value)}
-                          placeholder="Share your thoughts..."
+                          placeholder={t('commentPlaceholder')}
                           className="bg-card/50 backdrop-blur-md border-border min-h-[80px]"
                           rows={3}
                         />
@@ -393,7 +396,7 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
                             ) : (
                               <Send className="h-4 w-4" />
                             )}
-                            Comment
+                            {t('comment')}
                           </Button>
                         </div>
                       </>
@@ -406,9 +409,9 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
                             }}
                             className="text-indigo-400 hover:text-indigo-300 underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                           >
-                            Sign in
+                            {tAuth('signIn')}
                           </button>
-                          {' '}to join the discussion
+                          {' '}{t('signInToDiscuss')}
                         </p>
                       </div>
                     )}
@@ -418,7 +421,7 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
                 {post.isClosed && (
                   <div className="text-center py-4 text-sm text-muted-foreground flex items-center justify-center gap-2">
                     <Lock className="h-4 w-4" />
-                    This discussion is closed
+                    {t('discussionClosed')}
                   </div>
                 )}
               </div>

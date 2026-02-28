@@ -14,8 +14,11 @@ import { Button } from '@/components/ui/button';
 import { PostForm } from '@/components/forum/post-form';
 import { ForumBackground } from '@/components/forum/forum-background';
 import { useRequireAuth } from '@/lib/auth/hooks';
+import { useTranslations } from 'next-intl';
 
 export function NewPostClient() {
+  const t = useTranslations('forum');
+  const tAuth = useTranslations('auth');
   const prefersReduced = useReducedMotion();
   const router = useRouter();
   const user = useRequireAuth('/forum/new');
@@ -28,7 +31,7 @@ export function NewPostClient() {
         <div className="relative z-10 flex items-center justify-center min-h-screen">
           <div className="text-center">
             <div className="h-8 w-8 mx-auto border-2 border-indigo-400 border-t-transparent rounded-full animate-spin mb-4" />
-            <p className="text-sm text-muted-foreground">Checking authentication...</p>
+            <p className="text-sm text-muted-foreground">{tAuth('checkingAuth')}</p>
           </div>
         </div>
       </main>
@@ -59,7 +62,7 @@ export function NewPostClient() {
               className="gap-2 text-muted-foreground hover:text-foreground"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to Forum
+              {t('backToForum')}
             </Button>
           </motion.div>
 
@@ -79,9 +82,9 @@ export function NewPostClient() {
                 <PenLine className="w-6 h-6 text-indigo-400" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">New Discussion</h1>
+                <h1 className="text-2xl font-bold text-foreground">{t('newDiscussion')}</h1>
                 <p className="text-sm text-muted-foreground">
-                  Share your question, idea, or discovery with the community
+                  {t('newDiscussionSubtitle')}
                 </p>
               </div>
             </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { Search, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,22 +24,22 @@ export interface CategoryFilterProps {
   className?: string;
 }
 
-const categories: { value: AlgorithmCategory; label: string; color: string }[] = [
-  { value: 'machine-learning', label: 'Machine Learning', color: 'bg-blue-500' },
-  { value: 'cryptography', label: 'Cryptography', color: 'bg-purple-500' },
-  { value: 'quantum', label: 'Quantum Computing', color: 'bg-emerald-500' },
-  { value: 'graph-theory', label: 'Graph Theory', color: 'bg-amber-500' },
-  { value: 'signal-processing', label: 'Signal Processing', color: 'bg-cyan-500' },
-  { value: 'game-theory', label: 'Game Theory', color: 'bg-rose-500' },
-  { value: 'dynamical-systems', label: 'Dynamical Systems', color: 'bg-indigo-500' },
-  { value: 'numerical-analysis', label: 'Numerical Analysis', color: 'bg-orange-500' },
+const categoryItems: { value: AlgorithmCategory; key: string; color: string }[] = [
+  { value: 'machine-learning', key: 'machineLearning', color: 'bg-blue-500' },
+  { value: 'cryptography', key: 'cryptography', color: 'bg-purple-500' },
+  { value: 'quantum', key: 'quantumComputing', color: 'bg-emerald-500' },
+  { value: 'graph-theory', key: 'graphTheory', color: 'bg-amber-500' },
+  { value: 'signal-processing', key: 'signalProcessing', color: 'bg-cyan-500' },
+  { value: 'game-theory', key: 'gameTheory', color: 'bg-rose-500' },
+  { value: 'dynamical-systems', key: 'dynamicalSystems', color: 'bg-indigo-500' },
+  { value: 'numerical-analysis', key: 'numericalAnalysis', color: 'bg-orange-500' },
 ];
 
-const difficulties: { value: DifficultyLevel; label: string; color: string }[] = [
-  { value: 'beginner', label: 'Beginner', color: 'bg-green-500' },
-  { value: 'intermediate', label: 'Intermediate', color: 'bg-blue-500' },
-  { value: 'advanced', label: 'Advanced', color: 'bg-orange-500' },
-  { value: 'expert', label: 'Expert', color: 'bg-red-500' },
+const difficultyItems: { value: DifficultyLevel; key: string; color: string }[] = [
+  { value: 'beginner', key: 'beginner', color: 'bg-green-500' },
+  { value: 'intermediate', key: 'intermediate', color: 'bg-blue-500' },
+  { value: 'advanced', key: 'advanced', color: 'bg-orange-500' },
+  { value: 'expert', key: 'expert', color: 'bg-red-500' },
 ];
 
 /**
@@ -80,6 +81,7 @@ export function CategoryFilter({
   onSearchChange,
   className,
 }: CategoryFilterProps) {
+  const t = useTranslations('algorithms');
   const toggleCategory = (category: AlgorithmCategory) => {
     if (selectedCategories.includes(category)) {
       onCategoriesChange(selectedCategories.filter((c) => c !== category));
@@ -116,15 +118,15 @@ export function CategoryFilter({
     >
       {/* Header with clear button */}
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold">Filter Algorithms</h3>
+        <h3 className="text-lg font-semibold">{t('filter.title')}</h3>
         {hasActiveFilters && (
           <button
             onClick={clearAll}
             className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded-sm px-2 py-1"
-            aria-label="Clear all filters"
+            aria-label={t('clearAllFilters')}
           >
             <X className="h-4 w-4" aria-hidden="true" />
-            Clear all
+            {t('filter.clearAll')}
           </button>
         )}
       </div>
@@ -132,7 +134,7 @@ export function CategoryFilter({
       {/* Search */}
       <div className="mb-6">
         <Label htmlFor="algorithm-search" className="text-sm font-medium mb-2 block">
-          Search
+          {t('filter.search')}
         </Label>
         <div className="relative">
           <Search
@@ -142,21 +144,22 @@ export function CategoryFilter({
           <Input
             id="algorithm-search"
             type="text"
-            placeholder="Search algorithms..."
+            placeholder={t('filter.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-10"
-            aria-label="Search algorithms by name or description"
+            aria-label={t('filter.searchAriaLabel')}
           />
         </div>
       </div>
 
       {/* Category filters */}
       <div className="mb-6">
-        <Label className="text-sm font-medium mb-3 block">Categories</Label>
+        <Label className="text-sm font-medium mb-3 block">{t('filter.categories')}</Label>
         <div className="flex flex-wrap gap-2">
-          {categories.map((category) => {
+          {categoryItems.map((category) => {
             const isSelected = selectedCategories.includes(category.value);
+            const label = t(`category.${category.key}`);
             return (
               <button
                 key={category.value}
@@ -169,9 +172,9 @@ export function CategoryFilter({
                     : 'bg-background text-foreground border-border hover:border-foreground/50'
                 )}
                 aria-pressed={isSelected}
-                aria-label={`Filter by ${category.label}`}
+                aria-label={label}
               >
-                {category.label}
+                {label}
               </button>
             );
           })}
@@ -180,10 +183,11 @@ export function CategoryFilter({
 
       {/* Difficulty filters */}
       <div>
-        <Label className="text-sm font-medium mb-3 block">Difficulty</Label>
+        <Label className="text-sm font-medium mb-3 block">{t('filter.difficulty')}</Label>
         <div className="flex flex-wrap gap-2">
-          {difficulties.map((difficulty) => {
+          {difficultyItems.map((difficulty) => {
             const isSelected = selectedDifficulties.includes(difficulty.value);
+            const label = t(`difficulty.${difficulty.key}`);
             return (
               <button
                 key={difficulty.value}
@@ -196,9 +200,9 @@ export function CategoryFilter({
                     : 'bg-background text-foreground border-border hover:border-foreground/50'
                 )}
                 aria-pressed={isSelected}
-                aria-label={`Filter by ${difficulty.label} difficulty`}
+                aria-label={label}
               >
-                {difficulty.label}
+                {label}
               </button>
             );
           })}
@@ -211,14 +215,15 @@ export function CategoryFilter({
           <p className="text-sm text-muted-foreground">
             {selectedCategories.length + selectedDifficulties.length > 0 && (
               <span>
-                {selectedCategories.length + selectedDifficulties.length} filter
-                {selectedCategories.length + selectedDifficulties.length !== 1 ? 's' : ''} active
+                {selectedCategories.length + selectedDifficulties.length !== 1
+                  ? t('filter.filtersActivePlural', { count: selectedCategories.length + selectedDifficulties.length })
+                  : t('filter.filtersActive', { count: selectedCategories.length + selectedDifficulties.length })}
               </span>
             )}
             {searchQuery && (
               <span>
                 {selectedCategories.length + selectedDifficulties.length > 0 && ' • '}
-                Searching for "{searchQuery}"
+                {t('filter.searchingFor', { query: searchQuery })}
               </span>
             )}
           </p>

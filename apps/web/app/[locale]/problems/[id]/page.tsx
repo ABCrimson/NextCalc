@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Share2 } from 'lucide-react';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 
 /**
  * Generate metadata for individual problem page
@@ -42,6 +43,7 @@ export default async function ProblemPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const t = await getTranslations('problems');
   const { id } = await params;
   const problem = await getProblemById(id);
 
@@ -58,7 +60,7 @@ export default async function ProblemPage({
         <Button variant="ghost" asChild>
           <Link href="/problems">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Problems
+            {t('backToProblems')}
           </Link>
         </Button>
       </div>
@@ -74,9 +76,9 @@ export default async function ProblemPage({
         <div className="mt-12">
           <Card>
             <CardHeader>
-              <CardTitle>Related Problems</CardTitle>
+              <CardTitle>{t('relatedProblems')}</CardTitle>
               <CardDescription>
-                Continue learning with these related problems
+                {t('relatedProblemsHint')}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -113,7 +115,7 @@ export default async function ProblemPage({
       <div className="mt-6 flex justify-center">
         <Button variant="outline" size="sm">
           <Share2 className="h-4 w-4 mr-2" />
-          Share Problem
+          {t('shareProblem')}
         </Button>
       </div>
     </div>

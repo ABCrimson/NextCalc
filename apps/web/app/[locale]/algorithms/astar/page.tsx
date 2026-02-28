@@ -3,6 +3,7 @@
 import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
 import { AStarVisualizer } from '@/components/algorithms/AStarVisualizer';
 import { Compass } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 /**
  * A* Search Algorithm Page
@@ -11,9 +12,12 @@ import { Compass } from 'lucide-react';
  * Shows how heuristics improve search efficiency.
  */
 export default function AStarPage() {
+  const t = useTranslations('algorithms.astar');
+  const ta = useTranslations('algorithms');
+
   return (
     <AlgorithmPage
-      title="A* Search Algorithm"
+      title={t('title')}
       icon={Compass}
       category="graph-theory"
       difficulty="advanced"
@@ -22,11 +26,11 @@ export default function AStarPage() {
       yearIntroduced={1968}
       tags={['graph theory', 'pathfinding', 'heuristic search', 'AI']}
       breadcrumbs={[
-        { label: 'Algorithms', href: '/algorithms' },
-        { label: 'Graph Theory', href: '/algorithms?category=graph-theory' },
-        { label: 'A* Search' },
+        { label: ta('title'), href: '/algorithms' },
+        { label: t('breadcrumbCategory'), href: '/algorithms?category=graph-theory' },
+        { label: t('breadcrumbCurrent') },
       ]}
-      description="A* (A-star) is an informed search algorithm that uses heuristics to find optimal paths efficiently. It combines the benefits of Dijkstra's algorithm (guaranteed optimality) with greedy best-first search (speed through heuristics), making it ideal for pathfinding in games and robotics."
+      description={t('description')}
       applications={[
         'Video Game Pathfinding',
         'Robot Navigation',

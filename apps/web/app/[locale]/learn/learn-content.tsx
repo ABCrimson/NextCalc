@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BookOpen, TrendingUp, Award, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -292,6 +293,7 @@ interface TopicCardProps {
 }
 
 function TopicCard({ topic, definitionCount, shouldReduceMotion }: TopicCardProps) {
+  const t = useTranslations('learn');
   const config = TOPIC_CONFIG[topic];
   const href = `/learn/${topic.toLowerCase().replace(/\s+/g, '-')}`;
 
@@ -333,7 +335,7 @@ function TopicCard({ topic, definitionCount, shouldReduceMotion }: TopicCardProp
                       {topic}
                     </CardTitle>
                     <Badge variant="outline" className="mt-1">
-                      {definitionCount} concepts
+                      {t('concepts', { count: definitionCount })}
                     </Badge>
                   </div>
                 </div>
@@ -347,18 +349,18 @@ function TopicCard({ topic, definitionCount, shouldReduceMotion }: TopicCardProp
           </CardHeader>
 
           <CardContent>
-            <ul className="space-y-2" aria-label={`Available content for ${topic}`}>
+            <ul className="space-y-2" aria-label={t('availableContent', { topic })}>
               <li className="flex items-center gap-2 text-sm">
                 <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0" aria-hidden="true" />
-                <span className="text-muted-foreground">Core definitions</span>
+                <span className="text-muted-foreground">{t('coreDefinitions')}</span>
               </li>
               <li className="flex items-center gap-2 text-sm">
                 <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0" aria-hidden="true" />
-                <span className="text-muted-foreground">Key theorems</span>
+                <span className="text-muted-foreground">{t('keyTheorems')}</span>
               </li>
               <li className="flex items-center gap-2 text-sm">
                 <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0" aria-hidden="true" />
-                <span className="text-muted-foreground">Practice problems</span>
+                <span className="text-muted-foreground">{t('practiceProblems')}</span>
               </li>
             </ul>
           </CardContent>
@@ -389,6 +391,7 @@ function TopicCard({ topic, definitionCount, shouldReduceMotion }: TopicCardProp
  * - No custom keyboard handlers required (native link semantics).
  */
 export function LearnContent({ topics, definitionCounts }: LearnContentProps) {
+  const t = useTranslations('learn');
   const shouldReduceMotion = useReducedMotion() ?? false;
 
   const knownTopics = topics.filter(isKnownTopic);
@@ -409,12 +412,11 @@ export function LearnContent({ topics, definitionCounts }: LearnContentProps) {
         >
           <h1 className="text-5xl font-bold mb-4">
             <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-              Learning Hub
+              {t('title')}
             </span>
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Master mathematical concepts through our comprehensive knowledge base. Explore
-            definitions, theorems, and build a solid foundation.
+            {t('heroDescription')}
           </p>
         </motion.div>
 
@@ -429,27 +431,27 @@ export function LearnContent({ topics, definitionCounts }: LearnContentProps) {
           <motion.div variants={statsItemVariants}>
             <StatCard
               icon={<BookOpen className="h-5 w-5 text-blue-400" aria-hidden="true" />}
-              title="Topics Covered"
+              title={t('topicsCovered')}
               value={topics.length}
-              label="Mathematical domains"
+              label={t('mathematicalDomains')}
             />
           </motion.div>
 
           <motion.div variants={statsItemVariants}>
             <StatCard
               icon={<TrendingUp className="h-5 w-5 text-purple-400" aria-hidden="true" />}
-              title="Definitions"
+              title={t('definitions')}
               value={totalDefinitions}
-              label="Concepts to explore"
+              label={t('conceptsToExplore')}
             />
           </motion.div>
 
           <motion.div variants={statsItemVariants}>
             <StatCard
               icon={<Award className="h-5 w-5 text-green-400" aria-hidden="true" />}
-              title="Learning Paths"
+              title={t('learningPaths')}
               value={12}
-              label="Structured courses"
+              label={t('structuredCourses')}
             />
           </motion.div>
         </motion.div>
@@ -460,7 +462,7 @@ export function LearnContent({ topics, definitionCounts }: LearnContentProps) {
             id="topics-heading"
             className="text-3xl font-bold mb-6 text-foreground"
           >
-            Explore by Topic
+            {t('exploreByTopic')}
           </h2>
 
           <motion.div
@@ -493,20 +495,20 @@ export function LearnContent({ topics, definitionCounts }: LearnContentProps) {
           <Card className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-border backdrop-blur-md bg-card/50">
             <CardContent className="pt-6">
               <h2 className="text-2xl font-bold mb-2 text-foreground">
-                Ready to start learning?
+                {t('readyToStart')}
               </h2>
               <p className="text-muted-foreground mb-4">
-                Choose a topic above or explore our problem library
+                {t('readyToStartHint')}
               </p>
               <div className="flex gap-3 justify-center flex-wrap">
                 <Button asChild>
                   <Link href="/problems">
-                    Browse Problems
+                    {t('browseProblems')}
                     <ArrowRight className="h-4 w-4 ml-2" aria-hidden="true" />
                   </Link>
                 </Button>
                 <Button variant="outline" asChild>
-                  <Link href="/practice">Start Practice Session</Link>
+                  <Link href="/practice">{t('startPractice')}</Link>
                 </Button>
               </div>
             </CardContent>

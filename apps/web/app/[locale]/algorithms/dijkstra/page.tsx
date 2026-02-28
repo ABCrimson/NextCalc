@@ -3,6 +3,7 @@
 import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
 import { DijkstraVisualizer } from '@/components/algorithms/DijkstraVisualizer';
 import { Navigation } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 /**
  * Dijkstra's Algorithm Page
@@ -11,9 +12,12 @@ import { Navigation } from 'lucide-react';
  * Demonstrates optimal pathfinding in weighted graphs.
  */
 export default function DijkstraPage() {
+  const t = useTranslations('algorithms.dijkstra');
+  const ta = useTranslations('algorithms');
+
   return (
     <AlgorithmPage
-      title="Dijkstra's Shortest Path Algorithm"
+      title={t('title')}
       icon={Navigation}
       category="graph-theory"
       difficulty="intermediate"
@@ -22,11 +26,11 @@ export default function DijkstraPage() {
       yearIntroduced={1956}
       tags={['graph theory', 'shortest path', 'greedy', 'priority queue']}
       breadcrumbs={[
-        { label: 'Algorithms', href: '/algorithms' },
-        { label: 'Graph Theory', href: '/algorithms?category=graph-theory' },
-        { label: 'Dijkstra' },
+        { label: ta('title'), href: '/algorithms' },
+        { label: t('breadcrumbCategory'), href: '/algorithms?category=graph-theory' },
+        { label: t('breadcrumbCurrent') },
       ]}
-      description="Dijkstra's algorithm finds the shortest path between nodes in a weighted graph. It uses a greedy approach with a priority queue to efficiently explore paths, guaranteeing optimal results for graphs with non-negative edge weights."
+      description={t('description')}
       applications={[
         'GPS Navigation Systems',
         'Network Routing Protocols',

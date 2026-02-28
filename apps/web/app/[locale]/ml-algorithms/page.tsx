@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -48,6 +49,7 @@ function attentionTextColor(score: number): string {
 }
 
 export default function MLAlgorithmsPage() {
+  const t = useTranslations('ml');
   const [temperature, setTemperature] = useState(0.5);
   const [batchSize, setBatchSize] = useState(4);
   const [embeddingDim, setEmbeddingDim] = useState(8);
@@ -263,11 +265,11 @@ export default function MLAlgorithmsPage() {
               <Brain className="w-8 h-8" style={{ color: 'oklch(0.75 0.20 290)' }} />
             </div>
             <h1 className="text-4xl font-bold min-w-0 break-words bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-              Modern ML Algorithms
+              {t('title')}
             </h1>
           </div>
           <p className="text-lg text-muted-foreground">
-            Explore contrastive learning and advanced attention mechanisms
+            {t('subtitle')}
           </p>
           <div className="flex flex-wrap gap-2 mt-4">
             <Badge
@@ -275,19 +277,19 @@ export default function MLAlgorithmsPage() {
               className="border-blue-500/50 text-blue-400 bg-blue-500/10"
             >
               <Zap className="w-3 h-3 mr-1" />
-              SimCLR
+              {t('simclr')}
             </Badge>
             <Badge
               variant="outline"
               className="border-purple-500/50 text-purple-400 bg-purple-500/10"
             >
-              AliBI Attention
+              {t('alibiAttention')}
             </Badge>
             <Badge
               variant="outline"
               className="border-pink-500/50 text-pink-400 bg-pink-500/10"
             >
-              Self-Supervised
+              {t('selfSupervised')}
             </Badge>
           </div>
         </header>
@@ -299,14 +301,14 @@ export default function MLAlgorithmsPage() {
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500/20 data-[state=active]:to-purple-500/20 data-[state=active]:text-foreground data-[state=active]:border-blue-500/30"
             >
               <Zap className="w-4 h-4 mr-2" />
-              SimCLR
+              {t('simclr')}
             </TabsTrigger>
             <TabsTrigger
               value="alibi"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 data-[state=active]:text-foreground data-[state=active]:border-purple-500/30"
             >
               <Eye className="w-4 h-4 mr-2" />
-              AliBI Attention
+              {t('alibiAttention')}
             </TabsTrigger>
           </TabsList>
 
@@ -316,16 +318,16 @@ export default function MLAlgorithmsPage() {
               {/* SimCLR Controls */}
               <Card className="backdrop-blur-md bg-card/50 border-border">
                 <CardHeader>
-                  <CardTitle className="text-blue-400">SimCLR Parameters</CardTitle>
+                  <CardTitle className="text-blue-400">{t('simclrParameters')}</CardTitle>
                   <CardDescription>
-                    Contrastive learning configuration
+                    {t('simclrParametersDesc')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Temperature */}
                   <div className="space-y-2">
                     <Label htmlFor="temperature">
-                      Temperature:{' '}
+                      {t('temperature')}:{' '}
                       <span className="text-blue-400 font-mono">{temperature.toFixed(2)}</span>
                     </Label>
                     <Slider
@@ -344,7 +346,7 @@ export default function MLAlgorithmsPage() {
                   {/* Batch Size */}
                   <div className="space-y-2">
                     <Label htmlFor="batch-size">
-                      Batch Size:{' '}
+                      {t('batchSize')}:{' '}
                       <span className="text-blue-400 font-mono">{batchSize}</span>
                     </Label>
                     <Slider
@@ -363,7 +365,7 @@ export default function MLAlgorithmsPage() {
                   {/* Embedding Dimension */}
                   <div className="space-y-2">
                     <Label htmlFor="embedding-dim">
-                      Embedding Dimension:{' '}
+                      {t('embeddingDim')}:{' '}
                       <span className="text-blue-400 font-mono">{embeddingDim}</span>
                     </Label>
                     <Slider
@@ -381,7 +383,7 @@ export default function MLAlgorithmsPage() {
                     className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white border-0"
                     size="lg"
                   >
-                    Compute Contrastive Loss
+                    {t('runSimCLR')}
                   </Button>
 
                   {contrastiveResult && (
@@ -498,16 +500,16 @@ export default function MLAlgorithmsPage() {
               {/* AliBI Controls */}
               <Card className="backdrop-blur-md bg-card/50 border-border">
                 <CardHeader>
-                  <CardTitle className="text-purple-400">AliBI Parameters</CardTitle>
+                  <CardTitle className="text-purple-400">{t('alibiParameters')}</CardTitle>
                   <CardDescription>
-                    Attention with Linear Biases configuration
+                    {t('alibiParametersDesc')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Sequence Length */}
                   <div className="space-y-2">
                     <Label htmlFor="seq-length">
-                      Sequence Length:{' '}
+                      {t('seqLength')}:{' '}
                       <span className="text-purple-400 font-mono">{seqLength}</span>
                     </Label>
                     <Slider
@@ -526,7 +528,7 @@ export default function MLAlgorithmsPage() {
                   {/* Number of Heads */}
                   <div className="space-y-2">
                     <Label htmlFor="num-heads">
-                      Number of Heads:{' '}
+                      {t('numHeads')}:{' '}
                       <span className="text-purple-400 font-mono">{numHeads}</span>
                     </Label>
                     <Slider
@@ -547,7 +549,7 @@ export default function MLAlgorithmsPage() {
                     className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white border-0"
                     size="lg"
                   >
-                    Compute Attention
+                    {t('runAliBI')}
                   </Button>
 
                   {attentionResult && (
@@ -678,7 +680,7 @@ export default function MLAlgorithmsPage() {
             id="ml-innovations-heading"
             className="text-2xl font-semibold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent"
           >
-            Modern ML Innovations
+            {t('aboutTitle')}
           </h2>
 
           <div className="grid gap-6 md:grid-cols-2">

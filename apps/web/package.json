@@ -21,6 +21,7 @@
     "@nextcalc/math-engine": "workspace:*",
     "@nextcalc/plot-engine": "workspace:*",
     "@nosecone/next": "1.1.0",
+    "@sentry/nextjs": "^10.40.0",
     "@serwist/next": "9.5.6",
     "@tanstack/react-virtual": "3.13.18",
     "@upstash/redis": "1.37.0-rc.12",

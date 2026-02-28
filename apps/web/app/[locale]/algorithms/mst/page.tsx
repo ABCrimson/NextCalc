@@ -3,6 +3,7 @@
 import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
 import { MSTVisualizer } from '@/components/algorithms/MSTVisualizer';
 import { GitMerge } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 /**
  * Minimum Spanning Tree Page (Kruskal's Algorithm)
@@ -11,9 +12,12 @@ import { GitMerge } from 'lucide-react';
  * the minimum spanning tree of a weighted graph.
  */
 export default function MSTPage() {
+  const t = useTranslations('algorithms.mst');
+  const ta = useTranslations('algorithms');
+
   return (
     <AlgorithmPage
-      title="Minimum Spanning Tree (Kruskal's Algorithm)"
+      title={t('title')}
       icon={GitMerge}
       category="graph-theory"
       difficulty="intermediate"
@@ -22,11 +26,11 @@ export default function MSTPage() {
       yearIntroduced={1956}
       tags={['graph theory', 'greedy', 'union-find', 'spanning tree']}
       breadcrumbs={[
-        { label: 'Algorithms', href: '/algorithms' },
-        { label: 'Graph Theory', href: '/algorithms?category=graph-theory' },
-        { label: 'MST' },
+        { label: ta('title'), href: '/algorithms' },
+        { label: t('breadcrumbCategory'), href: '/algorithms?category=graph-theory' },
+        { label: t('breadcrumbCurrent') },
       ]}
-      description="Kruskal's algorithm finds a minimum spanning tree (MST) for a weighted undirected graph. It uses a greedy approach: sort edges by weight, then add edges to the MST if they don't create a cycle. Uses the Union-Find data structure for efficient cycle detection."
+      description={t('description')}
       applications={[
         'Network Design (minimize cable costs)',
         'Approximation Algorithms for NP-hard problems',

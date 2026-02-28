@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 
 export const metadata: Metadata = {
   title: {
@@ -46,11 +47,13 @@ export const metadata: Metadata = {
  *
  * @param children - Child route components
  */
-export default function AlgorithmsLayout({
+export default async function AlgorithmsLayout({
   children,
 }: {
   children: ReactNode;
 }) {
+  const t = await getTranslations('algorithms');
+
   return (
     <div className="min-h-screen bg-background">
       {/* Skip to main content link for keyboard users */}
@@ -58,7 +61,7 @@ export default function AlgorithmsLayout({
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md"
       >
-        Skip to main content
+        {t('skipToContent')}
       </a>
 
       {/* Main content area */}

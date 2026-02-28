@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { ChevronRight, Home } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 
 export interface BreadcrumbItem {
@@ -46,6 +47,8 @@ export function AlgorithmBreadcrumb({
   items,
   className,
 }: AlgorithmBreadcrumbProps) {
+  const t = useTranslations('algorithms.page');
+
   return (
     <nav
       aria-label="Breadcrumb navigation"
@@ -57,10 +60,10 @@ export function AlgorithmBreadcrumb({
           <Link
             href="/"
             className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded-sm"
-            aria-label="Home"
+            aria-label={t('breadcrumbHome')}
           >
             <Home className="h-4 w-4" aria-hidden="true" />
-            <span className="sr-only">Home</span>
+            <span className="sr-only">{t('breadcrumbHome')}</span>
           </Link>
         </li>
 

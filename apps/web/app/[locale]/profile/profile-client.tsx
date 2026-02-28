@@ -15,6 +15,7 @@ import {
   USER_ANALYTICS_QUERY,
 } from '@/lib/graphql/operations';
 import { useSession, signIn } from '@/lib/auth/hooks';
+import { useTranslations } from 'next-intl';
 
 // ---------------------------------------------------------------------------
 // Types matching the GraphQL schema operations
@@ -133,20 +134,21 @@ interface ErrorStateProps {
 }
 
 function ErrorState({ message, onRetry }: ErrorStateProps) {
+  const tError = useTranslations('error');
   return (
     <div
       role="alert"
       className="flex flex-col items-center justify-center rounded-xl border border-destructive/30 bg-destructive/5 py-16 text-center"
     >
       <span className="mb-3 text-4xl" aria-hidden="true">⚠️</span>
-      <p className="text-base font-semibold text-foreground">Failed to load profile</p>
+      <p className="text-base font-semibold text-foreground">{tError('title')}</p>
       <p className="mt-1 max-w-sm text-sm text-muted-foreground">{message}</p>
       <button
         type="button"
         onClick={onRetry}
         className="mt-4 inline-flex items-center rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
       >
-        Try again
+        {tError('tryAgain')}
       </button>
     </div>
   );
@@ -157,6 +159,9 @@ function ErrorState({ message, onRetry }: ErrorStateProps) {
 // ---------------------------------------------------------------------------
 
 function SignInPrompt() {
+  const tAuth = useTranslations('auth');
+  const tProfile = useTranslations('profile');
+  const tError = useTranslations('error');
   return (
     <div className="flex flex-col items-center justify-center py-24 text-center">
       <motion.div
@@ -175,9 +180,9 @@ function SignInPrompt() {
           <span className="text-4xl">👤</span>
         </div>
 
-        <h2 className="text-2xl font-bold text-foreground">Sign in to view your profile</h2>
+        <h2 className="text-2xl font-bold text-foreground">{tProfile('signInToView')}</h2>
         <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-          Track your progress, achievements, and analytics by signing in to your account.
+          {tProfile('signInToViewHint')}
         </p>
 
         <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
@@ -190,13 +195,13 @@ function SignInPrompt() {
                 'linear-gradient(135deg, oklch(0.55 0.27 264), oklch(0.60 0.25 300))',
             }}
           >
-            Sign in
+            {tAuth('signIn')}
           </button>
           <Link
             href="/"
             className="inline-flex items-center rounded-lg border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
-            Go home
+            {tError('goHome')}
           </Link>
         </div>
       </motion.div>
@@ -245,6 +250,7 @@ interface ProfileDashboardProps {
 }
 
 function ProfileDashboard({ userId }: ProfileDashboardProps) {
+  const tProfile = useTranslations('profile');
   const {
     data: profileData,
     loading: profileLoading,
@@ -300,7 +306,7 @@ function ProfileDashboard({ userId }: ProfileDashboardProps) {
   if (!profile) {
     return (
       <ErrorState
-        message="Profile data could not be loaded. Please try again."
+        message={tProfile('profileNotLoaded')}
         onRetry={() => {
           void refetchProfile();
           void refetchActivity();
@@ -331,7 +337,7 @@ function ProfileDashboard({ userId }: ProfileDashboardProps) {
           role="status"
           className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-sm text-amber-600 dark:text-amber-400"
         >
-          Some analytics data could not be loaded. Partial data is shown.
+          {tProfile('partialData')}
         </div>
       )}
 
@@ -389,6 +395,7 @@ function ProfileDashboard({ userId }: ProfileDashboardProps) {
 // ---------------------------------------------------------------------------
 
 export function ProfileClient() {
+  const t = useTranslations('profile');
   const { session, status } = useSession();
 
   return (
@@ -410,10 +417,10 @@ export function ProfileClient() {
             color: 'transparent',
           }}
         >
-          My Profile
+          {t('myProfile')}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Your stats, achievements, and learning analytics
+          {t('myProfileSubtitle')}
         </p>
       </motion.header>
 

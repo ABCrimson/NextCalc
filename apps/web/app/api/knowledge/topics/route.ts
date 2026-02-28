@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { KnowledgeBaseManager } from '@/lib/cms/knowledge-base';
 import { TopicQuerySchema } from '@/lib/validations/learning';
 import { z } from 'zod';
-// import { Category } from '@nextcalc/database'; // TODO: Enable when needed
+import type { Category } from '@nextcalc/database';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     const { category } = TopicQuerySchema.parse(queryParams);
 
     // Get topic tree
-    const topicTree = await KnowledgeBaseManager.getTopicTree(category || undefined);
+    const topicTree = await KnowledgeBaseManager.getTopicTree(category as Category | undefined);
 
     return NextResponse.json({
       success: true,

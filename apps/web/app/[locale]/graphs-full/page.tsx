@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect, useId } from 'react';
+import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -1453,6 +1454,7 @@ function ContextMenu({ target, onDeleteNode, onDeleteEdge, onClose }: ContextMen
 // MAIN PAGE
 // ============================================================================
 export default function GraphAlgorithmsPage() {
+  const t = useTranslations('graphs');
   const prefersReducedMotion = useReducedMotion();
   const gradientId = useId();
   const pathGradientId = useId();
@@ -2131,10 +2133,10 @@ export default function GraphAlgorithmsPage() {
             <div className="p-2 rounded-xl bg-primary/10 border border-primary/20 shrink-0">
               <Network className="w-8 h-8 text-primary" />
             </div>
-            <h1 className="text-4xl font-bold tracking-tight min-w-0 break-words bg-gradient-to-r from-emerald-400 via-teal-400 to-blue-400 bg-clip-text text-transparent">Graph Algorithms</h1>
+            <h1 className="text-4xl font-bold tracking-tight min-w-0 break-words bg-gradient-to-r from-emerald-400 via-teal-400 to-blue-400 bg-clip-text text-transparent">{t('title')}</h1>
           </div>
           <p className="text-lg text-muted-foreground ml-1">
-            Visualize traversal, shortest paths, spanning trees, and structural analysis
+            {t('subtitle')}
           </p>
           <div className="flex gap-2 mt-4 flex-wrap">
             {ALGORITHMS.map((a) => (
@@ -3052,7 +3054,7 @@ export default function GraphAlgorithmsPage() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.3 }}
         >
-          <h2 className="text-2xl font-semibold tracking-tight">About Graph Algorithms</h2>
+          <h2 className="text-2xl font-semibold tracking-tight">{t('aboutTitle')}</h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {[
               {

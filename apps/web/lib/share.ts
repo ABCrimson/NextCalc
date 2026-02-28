@@ -174,6 +174,33 @@ export function parseShareParams(searchParams: URLSearchParams): ParsedSharePayl
 }
 
 // ---------------------------------------------------------------------------
+// Permalink URLs (backed by database via GraphQL mutation)
+// ---------------------------------------------------------------------------
+
+/**
+ * Build a permalink URL from a short code.
+ * Format: `{origin}/share/{shortCode}`
+ */
+export function createPermalinkUrl(shortCode: string): string {
+  const base = getBaseUrl();
+  return `${base}/share/${shortCode}`;
+}
+
+/**
+ * Copy a permalink URL to the clipboard.
+ * Returns `true` on success.
+ */
+export async function copyPermalinkUrl(shortCode: string): Promise<boolean> {
+  try {
+    const url = createPermalinkUrl(shortCode);
+    await navigator.clipboard.writeText(url);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Clipboard & Web Share API
 // ---------------------------------------------------------------------------
 

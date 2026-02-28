@@ -5,6 +5,7 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import type { HistoryEntry } from '@nextcalc/types';
+import { useThousandsSeparator, formatResultWithSeparators } from '@/lib/stores/settings-store';
 
 interface HistoryProps {
   entries: readonly HistoryEntry[];
@@ -15,12 +16,16 @@ interface HistoryProps {
 const HistoryItem = memo(function HistoryItem({
   entry,
   index,
-  onSelect
+  onSelect,
+  thousandsSeparator,
 }: {
   entry: HistoryEntry;
   index: number;
   onSelect?: (entry: HistoryEntry) => void;
+  thousandsSeparator: boolean;
 }) {
+  const formattedResult = formatResultWithSeparators(entry.result, thousandsSeparator);
+
   return (
     <motion.button
       key={entry.id}
@@ -36,7 +41,7 @@ const HistoryItem = memo(function HistoryItem({
       whileTap={{ scale: 0.98 }}
       onClick={() => onSelect?.(entry)}
       className="w-full text-left p-4 rounded-xl glass backdrop-blur-md border border-white/10 shadow-sm hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 group ring-1 ring-white/5 hover:ring-white/10"
-      aria-label={`Load calculation: ${entry.expression} equals ${entry.result}`}
+      aria-label={`Load calculation: ${entry.expression} equals ${formattedResult}`}
     >
       <div className="flex items-center gap-2 mb-1">
         <span className="text-xs text-muted-foreground/60 font-medium tracking-wide uppercase" suppressHydrationWarning>
@@ -47,7 +52,7 @@ const HistoryItem = memo(function HistoryItem({
         {entry.expression}
       </div>
       <div className="text-lg font-mono font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-        = {entry.result}
+        = {formattedResult}
       </div>
     </motion.button>
   );
@@ -56,6 +61,7 @@ const HistoryItem = memo(function HistoryItem({
 export function History({ entries, onSelect }: HistoryProps) {
   // React 19: useDeferredValue keeps UI responsive during expensive history renders
   const deferredEntries = useDeferredValue(entries);
+  const thousandsSeparator = useThousandsSeparator();
 
   // Ref for the parent scrollable element
   const parentRef = useRef<HTMLDivElement>(null);
@@ -125,6 +131,7 @@ export function History({ entries, onSelect }: HistoryProps) {
                     <HistoryItem
                       entry={entry}
                       index={virtualItem.index}
+                      thousandsSeparator={thousandsSeparator}
                       {...(onSelect ? { onSelect } : {})}
                     />
                   </div>
