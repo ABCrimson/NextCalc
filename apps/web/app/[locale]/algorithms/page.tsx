@@ -47,7 +47,7 @@ const algorithmDefs: Algorithm[] = [
     difficulty: 'intermediate',
     href: '/algorithms/transformers',
     icon: Brain,
-    timeComplexity: 'O(n\u00b2d)',
+    timeComplexity: 'O(n²d)',
   },
   {
     id: 'meta-learning',
@@ -74,7 +74,7 @@ const algorithmDefs: Algorithm[] = [
     difficulty: 'expert',
     href: '/algorithms/quantum',
     icon: Atom,
-    timeComplexity: 'O(2\u207f)',
+    timeComplexity: 'O(2ⁿ)',
   },
   {
     id: 'pagerank',
@@ -101,7 +101,7 @@ const algorithmDefs: Algorithm[] = [
     difficulty: 'intermediate',
     href: '/game-theory',
     icon: Trophy,
-    timeComplexity: 'O(n\u00b2)',
+    timeComplexity: 'O(n²)',
   },
   {
     id: 'chaos',
@@ -119,7 +119,7 @@ const algorithmDefs: Algorithm[] = [
     difficulty: 'advanced',
     href: '/pde',
     icon: Flame,
-    timeComplexity: 'O(n\u00b2t)',
+    timeComplexity: 'O(n²t)',
   },
   {
     id: 'pde-3d',
@@ -128,7 +128,7 @@ const algorithmDefs: Algorithm[] = [
     difficulty: 'expert',
     href: '/pde/3d',
     icon: Box,
-    timeComplexity: 'O(n\u00b3t)',
+    timeComplexity: 'O(n³t)',
   },
   {
     id: 'graphs-full',
@@ -146,7 +146,7 @@ const algorithmDefs: Algorithm[] = [
     difficulty: 'intermediate',
     href: '/ml-algorithms',
     icon: Brain,
-    timeComplexity: 'O(n\u00b2)',
+    timeComplexity: 'O(n²)',
   },
 ];
 

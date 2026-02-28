@@ -22,7 +22,7 @@ export default function GraphsPage() {
       category="graph-theory"
       difficulty="intermediate"
       timeComplexity="O(kn)"
-      spaceComplexity="O(n\u00b2)"
+      spaceComplexity="O(n²)"
       yearIntroduced={1998}
       tags={['graph theory', 'link analysis', 'eigenvectors', 'markov chains']}
       breadcrumbs={[

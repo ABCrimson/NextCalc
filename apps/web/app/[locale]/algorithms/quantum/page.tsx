@@ -14,8 +14,8 @@ export default function QuantumPage() {
       icon={Atom}
       category="quantum"
       difficulty="expert"
-      timeComplexity="O(2\u207f)"
-      spaceComplexity="O(2\u207f)"
+      timeComplexity="O(2ⁿ)"
+      spaceComplexity="O(2ⁿ)"
       yearIntroduced={1980}
       tags={['quantum', 'qubits', 'superposition', 'entanglement', 'gates']}
       breadcrumbs={[

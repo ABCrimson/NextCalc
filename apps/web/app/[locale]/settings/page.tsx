@@ -721,7 +721,7 @@ export default function SettingsPage() {
                     className="flex items-center gap-1.5 text-sm text-emerald-400 font-medium"
                   >
                     <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-                    {t('settingsSaved')}
+                    {t('saved')}
                   </motion.span>
                 )}
                 {saveStatus.type === 'error' && (
@@ -731,12 +731,12 @@ export default function SettingsPage() {
                     className="flex items-center gap-1.5 text-sm text-destructive font-medium"
                   >
                     <AlertCircle className="h-4 w-4" aria-hidden="true" />
-                    {t('failedToSave')}
+                    {t('saveFailed')}
                   </motion.span>
                 )}
                 {saveStatus.type === 'idle' && (
                   <span className="text-xs text-muted-foreground">
-                    {t('autoSaveHint')}
+                    {t('saveAutoHint')}
                   </span>
                 )}
               </div>
@@ -747,7 +747,7 @@ export default function SettingsPage() {
                 aria-label="Save all settings"
               >
                 <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-                {t('saveSettings')}
+                {t('saveAll')}
               </Button>
             </div>
           </SettingsSection>

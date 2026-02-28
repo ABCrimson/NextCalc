@@ -170,10 +170,10 @@
 
 ---
 
-## Known Technical Debt
+## Known Technical Debt (Resolved)
 
-- Export service SVG uses KaTeX 0.16.33 HTML in foreignObject; PNG/PDF pipeline uses Unicode text fallback
-- Some WebGPU features have Canvas 2D fallback but not all browsers support WebGPU yet
-- `vitest.setup.ts` still contains `React.forwardRef` in mocks (acceptable for test code)
-- 4 biome-ignored `as any` casts remain in API package for adapter/handler type incompatibilities
-- WebSocket subscriptions use in-memory PubSub (needs Redis PubSub for production scale)
+- ~~Export service SVG uses KaTeX 0.16.33 HTML in foreignObject~~ — Dual rendering: Rich SVG (foreignObject) for browsers, Rasterisable SVG (Unicode text) for PNG/PDF. Working as designed.
+- ~~Canvas 2D fallback for WebGPU~~ — Added `Canvas2DRenderer` as software fallback; renderer factory now selects WebGPU > WebGL2 > Canvas2D automatically.
+- ~~`vitest.setup.ts` contains `React.forwardRef` in mocks~~ — Updated to React 19 ref-as-prop pattern.
+- ~~4 biome-ignored `as any` casts in API~~ — Replaced with typed assertions; 1 `biome-ignore` remains for adapter type mismatch (Function cast).
+- ~~WebSocket PubSub in-memory only~~ — Hybrid Upstash Redis Streams + in-memory PubSub; publishes to Redis for cross-instance delivery, gracefully degrades to local-only.

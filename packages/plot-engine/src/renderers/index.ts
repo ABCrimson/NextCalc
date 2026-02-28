@@ -5,6 +5,7 @@
 
 export * from './webgl-2d';
 export * from './webgpu-2d';
+export * from './canvas-2d';
 export * from './shaders';
 export * from './wgsl-shaders';
 
@@ -19,14 +20,16 @@ import type { IRenderer } from '../types/index';
 import { detectBestBackend } from '../utils/gpu-detection';
 import { WebGPU2DRenderer } from './webgpu-2d';
 import { WebGL2DRenderer } from './webgl-2d';
+import { Canvas2DRenderer } from './canvas-2d';
 
 /**
  * Creates and returns the best available 2D renderer for the current
  * environment.
  *
  * Selection order:
- *   1. WebGPU  – when navigator.gpu is present and a GPU adapter is obtainable
- *   2. WebGL 2 – universal fallback for all modern browsers
+ *   1. WebGPU   – when navigator.gpu is present and a GPU adapter is obtainable
+ *   2. WebGL 2  – universal fallback for all modern browsers
+ *   3. Canvas2D – minimal fallback when no GPU API is available
  *
  * The returned renderer has NOT been initialized yet.
  * Call `renderer.initialize()` before rendering.
@@ -46,9 +49,11 @@ export async function createBest2DRenderer(canvas: HTMLCanvasElement): Promise<I
     return new WebGPU2DRenderer(canvas);
   }
 
-  // 'webgl2' and 'canvas2d' both fall through to WebGL2DRenderer.
-  // The WebGL2DRenderer constructor and initialize() already handle the
-  // canvas2d scenario gracefully by throwing a descriptive error if WebGL2
-  // is unavailable, letting the caller decide how to proceed.
-  return new WebGL2DRenderer(canvas);
+  if (backend === 'webgl2') {
+    return new WebGL2DRenderer(canvas);
+  }
+
+  // Canvas 2D — software fallback for environments without GPU acceleration.
+  // Supports Cartesian, polar, and parametric 2D plots.
+  return new Canvas2DRenderer(canvas);
 }

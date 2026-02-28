@@ -329,7 +329,7 @@ export function Navigation() {
 				</div>
 
 				{/* Desktop Navigation */}
-				<div className="hidden md:flex md:flex-1 md:items-center md:gap-1 md:text-sm md:font-medium min-w-0 overflow-hidden">
+				<div className="hidden md:flex md:flex-1 md:items-center md:gap-1 md:text-sm md:font-medium min-w-0 overflow-x-auto scrollbar-none">
 					{coreNavigationLinks.map((link) => {
 						const Icon = link.icon;
 						const isActive = isLinkActive(link.href);
@@ -341,7 +341,7 @@ export function Navigation() {
 								key={link.href}
 								href={link.href}
 								className={cn(
-									'flex shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-200 relative group whitespace-nowrap',
+									'flex shrink-0 items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all duration-200 relative group whitespace-nowrap text-[13px]',
 									isActive
 										? 'text-primary-foreground bg-gradient-to-r from-primary to-primary/80 shadow-md shadow-primary/20'
 										: 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
@@ -367,7 +367,7 @@ export function Navigation() {
 							<button
 								type="button"
 								className={cn(
-									'flex shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-200 relative group whitespace-nowrap',
+									'flex shrink-0 items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all duration-200 relative group whitespace-nowrap text-[13px]',
 									'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
 									isAlgorithmActive
 										? 'text-primary-foreground bg-gradient-to-r from-calculator-special to-primary shadow-md shadow-primary/20'
@@ -453,7 +453,7 @@ export function Navigation() {
 						</DropdownMenuTrigger>
 						<DropdownMenuContent
 							align="end"
-							className="w-56 glass-heavy border-border/50"
+							className="w-56 max-h-[80vh] overflow-y-auto glass-heavy border-border/50"
 						>
 							{coreNavigationLinks.map((link) => {
 								const Icon = link.icon;
@@ -483,8 +483,11 @@ export function Navigation() {
 								);
 							})}
 
-							{/* Divider */}
+							{/* Algorithms section */}
 							<div className="my-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+							<div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider">
+								{t('nav.algorithms' as Parameters<typeof t>[0])}
+							</div>
 
 							{algorithmLinks.map((link) => {
 								const Icon = link.icon;

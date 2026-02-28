@@ -37,14 +37,14 @@ interface ProviderConfig {
 const PROVIDERS: ProviderConfig[] = [
   {
     id: 'github',
-    label: 'auth.continueWithGithub',
+    label: 'continueWithGithub',
     icon: Github,
     colorClasses:
       'bg-[#24292e] text-white hover:bg-[#2f363d] dark:bg-[#f0f6ff]/10 dark:text-foreground dark:hover:bg-[#f0f6ff]/20 border border-transparent dark:border-border/50',
   },
   {
     id: 'google',
-    label: 'auth.continueWithGoogle',
+    label: 'continueWithGoogle',
     icon: Chrome,
     colorClasses:
       'bg-white text-[#3c4043] hover:bg-gray-50 dark:bg-foreground/5 dark:text-foreground dark:hover:bg-foreground/10 border border-[#dadce0] dark:border-border/50',
@@ -87,30 +87,37 @@ export default function SignInPage() {
     }
   }, [errorCode]);
 
-  const handleProviderSignIn = (providerId: OAuthProvider) => {
+  const handleProviderSignIn = async (providerId: OAuthProvider) => {
     setLoadingProvider(providerId);
-    // POST to NextAuth's built-in sign-in endpoint, which the [...nextauth]
-    // route handler services. NextAuth then issues the OAuth redirect.
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = `/api/auth/signin/${providerId}`;
+    try {
+      // Fetch the CSRF token from NextAuth's endpoint
+      const csrfRes = await fetch('/api/auth/csrf');
+      const { csrfToken } = (await csrfRes.json()) as { csrfToken: string };
 
-    const csrfInput = document.createElement('input');
-    csrfInput.type = 'hidden';
-    csrfInput.name = 'csrfToken';
-    // NextAuth v5 reads the CSRF token from the cookie automatically
-    csrfInput.value = '';
-    form.appendChild(csrfInput);
+      // POST to NextAuth's built-in sign-in endpoint with the real CSRF token.
+      // NextAuth then issues the OAuth redirect to the provider.
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = `/api/auth/signin/${providerId}`;
 
-    const callbackInput = document.createElement('input');
-    callbackInput.type = 'hidden';
-    callbackInput.name = 'callbackUrl';
-    callbackInput.value = callbackUrl;
-    form.appendChild(callbackInput);
+      const csrfInput = document.createElement('input');
+      csrfInput.type = 'hidden';
+      csrfInput.name = 'csrfToken';
+      csrfInput.value = csrfToken;
+      form.appendChild(csrfInput);
 
-    document.body.appendChild(form);
-    form.submit();
-    document.body.removeChild(form);
+      const callbackInput = document.createElement('input');
+      callbackInput.type = 'hidden';
+      callbackInput.name = 'callbackUrl';
+      callbackInput.value = callbackUrl;
+      form.appendChild(callbackInput);
+
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
+    } catch {
+      setLoadingProvider(null);
+    }
   };
 
   return (

@@ -133,16 +133,17 @@ async function rateLimitMiddleware(
 
 /**
  * Build the Next.js route handler with context factory and rate limiting.
+ * Returns a unified handler function (not separate GET/POST) per @as-integrations/next API.
  */
 function buildHandler() {
-	// biome-ignore lint/suspicious/noExplicitAny: @as-integrations/next type signatures don't match our NextRequest type
-	return (startServerAndCreateNextHandler as any)(server, {
+	// biome-ignore lint: adapter type mismatch between our NextRequest and the library's
+	return (startServerAndCreateNextHandler as Function)(server, {
 		context: async (req: NextRequest): Promise<GraphQLContext> => {
 			const context = await createContext(req);
 			await rateLimitMiddleware(req, context);
 			return context;
 		},
-	});
+	}) as (req: NextRequest) => Promise<Response>;
 }
 
 // Default handler (uses stub auth — for testing or standalone use)
@@ -153,9 +154,9 @@ const defaultHandler = buildHandler();
  * These use the stub auth (always returns null user).
  */
 export const GET = (req: NextRequest, _ctx: RouteContext): Promise<Response> =>
-	defaultHandler.GET(req);
+	defaultHandler(req);
 export const POST = (req: NextRequest, _ctx: RouteContext): Promise<Response> =>
-	defaultHandler.POST(req);
+	defaultHandler(req);
 
 /**
  * Handler factory with auth injection.
@@ -187,9 +188,9 @@ export function createHandler(options: HandlerOptions) {
 
 	return {
 		GET: (req: NextRequest, _ctx: RouteContext): Promise<Response> =>
-			handler.GET(req),
+			handler(req),
 		POST: (req: NextRequest, _ctx: RouteContext): Promise<Response> =>
-			handler.POST(req),
+			handler(req),
 	};
 }
 

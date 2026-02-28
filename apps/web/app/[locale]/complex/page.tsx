@@ -318,30 +318,30 @@ export default async function ComplexPage() {
               {
                 accent: '264',
                 label: 'Multiplication',
-                expression: '(3+4i) \u00d7 (1\u22122i)',
-                result: '11\u22122i',
-                detail: '|z| = \u221a125 \u2248 11.18 \u00a0|\u00a0 arg \u2248 \u221210.3\u00b0',
+                expression: '(3+4i) × (1−2i)',
+                result: '11−2i',
+                detail: '|z| = √125 ≈ 11.18 | arg ≈ −10.3°',
               },
               {
                 accent: '300',
                 label: 'Division',
-                expression: '(1+i) \u00f7 (1\u2212i)',
+                expression: '(1+i) ÷ (1−i)',
                 result: 'i',
-                detail: '|z| = 1 \u00a0|\u00a0 arg = 90\u00b0',
+                detail: '|z| = 1 | arg = 90°',
               },
               {
                 accent: '155',
                 label: "Euler's Identity",
-                expression: 'e^(i\u03c0) using exp on 0+\u03c0i',
-                result: '\u22121 + 0i',
+                expression: 'e^(iπ) using exp on 0+πi',
+                result: '−1 + 0i',
                 detail: 'The most beautiful equation in mathematics',
               },
               {
                 accent: '30',
                 label: 'Square Root of -1',
-                expression: '\u221a(\u22121) = i',
+                expression: '√(−1) = i',
                 result: '0+i',
-                detail: 'Polar: 1 \u2220 90\u00b0',
+                detail: 'Polar: 1 ∠ 90°',
               },
             ].map(({ accent, label, expression, result, detail }) => (
               <div
@@ -423,11 +423,11 @@ export default async function ComplexPage() {
                 },
                 {
                   title: 'Polar Input',
-                  body: 'Switch to r\u2220\u03b8 mode and enter magnitude and angle in degrees',
+                  body: 'Switch to r∠\u03b8 mode and enter magnitude and angle in degrees',
                 },
                 {
                   title: 'Mode Conversion',
-                  body: 'Click a+bi or r\u2220\u03b8 to switch mode \u2014 values are automatically converted',
+                  body: 'Click a+bi or r∠\u03b8 to switch mode \u2014 values are automatically converted',
                 },
                 {
                   title: 'Power',

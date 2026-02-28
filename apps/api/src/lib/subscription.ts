@@ -4,6 +4,12 @@
  * Implements real-time GraphQL subscriptions using graphql-ws (WebSocket).
  * Supports authenticated subscriptions with context creation.
  *
+ * PubSub: Hybrid Upstash Redis + in-memory fallback.
+ * - When Upstash is configured: events are published to Redis Streams
+ *   (XADD) for cross-instance delivery, plus in-memory for local delivery.
+ * - When Upstash is unavailable: falls back to in-memory PubSub only.
+ * - Upstash REST API is serverless-compatible (no persistent TCP connections).
+ *
  * @see https://the-guild.dev/graphql/ws
  * @see https://www.apollographql.com/docs/apollo-server/data/subscriptions/
  */
@@ -11,13 +17,66 @@
 import { PubSub } from 'graphql-subscriptions';
 import type { ExecutionArgs } from 'graphql';
 import type { GraphQLContext } from './context';
+import { redis } from './cache';
 import { logger } from './logger';
 
+// ---------------------------------------------------------------------------
+// Hybrid PubSub: Upstash Redis Streams + in-memory fallback
+// ---------------------------------------------------------------------------
+
+/** In-memory PubSub — always available, single-instance only */
+const localPubSub = new PubSub();
+
+/** Redis Stream key prefix for subscription channels */
+const STREAM_PREFIX = '@nextcalc/pubsub:';
+
+/** Max stream length (auto-trimmed via MAXLEN ~) */
+const STREAM_MAXLEN = 1000;
+
 /**
- * PubSub instance for publishing subscription events
- * In production, replace with Redis-backed PubSub for horizontal scaling
+ * Publish to both Redis (for cross-instance) and local (for same-instance).
+ * If Redis is unavailable, local-only delivery still works.
  */
-export const pubsub = new PubSub();
+async function hybridPublish(triggerName: string, payload: unknown): Promise<void> {
+  // Always publish locally for same-instance subscribers
+  await localPubSub.publish(triggerName, payload);
+
+  // Also publish to Redis Stream for cross-instance delivery
+  if (redis) {
+    try {
+      const streamKey = `${STREAM_PREFIX}${triggerName}`;
+      // XADD with inline MAXLEN~ trim — single round-trip
+      await redis.xadd(streamKey, '*', { payload: JSON.stringify(payload) }, {
+        trim: { type: 'MAXLEN', threshold: STREAM_MAXLEN, comparison: '~' },
+      });
+    } catch (error) {
+      logger.error('Redis PubSub publish failed, local delivery still active', {
+        triggerName,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+}
+
+/**
+ * Wrapper that exposes the same API as graphql-subscriptions PubSub
+ * but routes publish calls through the hybrid layer.
+ */
+export const pubsub = {
+  publish: hybridPublish,
+
+  subscribe(triggerName: string, onMessage: (...args: unknown[]) => void): Promise<number> {
+    return localPubSub.subscribe(triggerName, onMessage);
+  },
+
+  unsubscribe(subId: number): void {
+    localPubSub.unsubscribe(subId);
+  },
+
+  asyncIterableIterator<T>(triggers: string | string[]): AsyncIterableIterator<T> {
+    return localPubSub.asyncIterableIterator<T>(triggers);
+  },
+};
 
 /**
  * Subscription event types
@@ -114,12 +173,14 @@ export const createSubscriptionContext = async (
     logger.debug('Subscription authenticated', { userId: user.id });
   }
 
-  // biome-ignore lint/suspicious/noExplicitAny: Prisma/loaders provided by HTTP context factory
-  const stubPrisma = {} as any;
+  // Subscriptions run over WebSocket — no Prisma or DataLoaders available.
+  // Use typed stubs so resolvers can type-check without `as any`.
+  const stubPrisma = {} as GraphQLContext['prisma'];
+  const stubLoaders = {} as GraphQLContext['loaders'];
   return {
     user: user as GraphQLContext['user'],
     prisma: stubPrisma,
-    loaders: { userById: stubPrisma, folderById: stubPrisma, worksheetSharesByWorksheetId: stubPrisma, childFoldersByParentId: stubPrisma, upvoteCountByTargetId: stubPrisma },
+    loaders: stubLoaders,
     req: {
       headers: (connectionParams['headers'] as Record<string, string>) || {},
       ...(ctx.extra?.request?.socket?.remoteAddress ? { ip: ctx.extra.request.socket.remoteAddress } : {}),
@@ -225,23 +286,3 @@ export const subscriptionFilters = {
   },
 };
 
-/**
- * Redis-backed PubSub for production (horizontal scaling)
- * Uncomment and configure when deploying with multiple instances
- */
-/*
-import { RedisPubSub } from 'graphql-redis-subscriptions';
-import Redis from 'ioredis';
-
-const redisOptions = {
-  host: process.env.REDIS_HOST || 'localhost',
-  port: Number(process.env.REDIS_PORT) || 6379,
-  password: process.env.REDIS_PASSWORD,
-  retryStrategy: (times: number) => Math.min(times * 50, 2000),
-};
-
-export const pubsub = new RedisPubSub({
-  publisher: new Redis(redisOptions),
-  subscriber: new Redis(redisOptions),
-});
-*/

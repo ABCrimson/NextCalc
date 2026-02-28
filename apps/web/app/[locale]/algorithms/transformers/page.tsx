@@ -21,8 +21,8 @@ export default function TransformersPage() {
       icon={Brain}
       category="machine-learning"
       difficulty="intermediate"
-      timeComplexity="O(n\u00b2d)"
-      spaceComplexity="O(n\u00b2)"
+      timeComplexity="O(n²d)"
+      spaceComplexity="O(n²)"
       yearIntroduced={2017}
       tags={['attention', 'neural networks', 'NLP', 'deep learning']}
       breadcrumbs={[

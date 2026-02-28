@@ -936,10 +936,10 @@ function getProofContent(
         steps,
         explanation:
           algoId === 'bellman-ford'
-            ? 'Bellman-Ford relaxes every edge V\u22121 times. If no negative-weight cycle exists, each node is finalized with its shortest distance.'
+            ? 'Bellman-Ford relaxes every edge V−1 times. If no negative-weight cycle exists, each node is finalized with its shortest distance.'
             : algoId === 'astar'
               ? 'A* combines actual path cost g(n) with a heuristic estimate h(n). With an admissible heuristic, the first path found to the goal is optimal.'
-              : 'By the greedy property of Dijkstra\u2019s algorithm, each node is finalized with its shortest distance when extracted from the priority queue.',
+              : "By the greedy property of Dijkstra\u2019s algorithm, each node is finalized with its shortest distance when extracted from the priority queue.",
       };
     }
 
@@ -1040,11 +1040,11 @@ function getProofContent(
       steps.push(`MST total weight: ${totalWeight}.`);
       const isKruskal = algoId === 'kruskal';
       return {
-        title: isKruskal ? "Kruskal\u2019s Edge Selection Trace" : "Prim\u2019s Growth Trace",
+        title: isKruskal ? "Kruskal's Edge Selection Trace" : "Prim's Growth Trace",
         steps,
         explanation: isKruskal
-          ? 'Kruskal\u2019s algorithm uses a Union-Find data structure to efficiently detect cycles. Each edge is considered in weight order; if its endpoints are in different components, it is added to the MST.'
-          : 'Prim\u2019s algorithm grows the MST from a starting vertex, always adding the cheapest edge that connects the current tree to a new vertex.',
+          ? "Kruskal\u2019s algorithm uses a Union-Find data structure to efficiently detect cycles. Each edge is considered in weight order; if its endpoints are in different components, it is added to the MST."
+          : "Prim\u2019s algorithm grows the MST from a starting vertex, always adding the cheapest edge that connects the current tree to a new vertex.",
       };
     }
 
@@ -1074,7 +1074,7 @@ function getProofContent(
         title: 'Topological Order Verification',
         steps,
         explanation:
-          'For each directed edge u\u2192v in the graph, u appears before v in the ordering. This is guaranteed by the DFS-based (Kahn\u2019s) algorithm that processes nodes with in-degree zero first.',
+          "For each directed edge u\u2192v in the graph, u appears before v in the ordering. This is guaranteed by the DFS-based (Kahn's) algorithm that processes nodes with in-degree zero first.",
       };
     }
 
@@ -1091,10 +1091,10 @@ function getProofContent(
         steps.push('All components are singletons: no strongly connected cycles exist.');
       }
       return {
-        title: "Tarjan\u2019s SCC Discovery",
+        title: "Tarjan's SCC Discovery",
         steps,
         explanation:
-          'Tarjan\u2019s algorithm uses a single DFS pass with a stack. Each node receives an index (discovery time) and a lowlink (lowest index reachable). When a node\u2019s lowlink equals its index, it is the root of a strongly connected component, and all nodes above it on the stack form that SCC.',
+          "Tarjan's algorithm uses a single DFS pass with a stack. Each node receives an index (discovery time) and a lowlink (lowest index reachable). When a node's lowlink equals its index, it is the root of a strongly connected component, and all nodes above it on the stack form that SCC.",
       };
     }
 

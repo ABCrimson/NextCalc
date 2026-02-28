@@ -149,9 +149,9 @@ export default function ForumPage() {
     fetchPolicy: 'cache-and-network',
   });
 
-  // Determine data source
-  const useGraphQL = !error && data?.forumPosts?.nodes && data.forumPosts.nodes.length > 0;
-  const graphqlPosts: ForumPostNode[] = useGraphQL ? data.forumPosts.nodes : [];
+  // Determine data source — fall back to mock only on actual errors, not empty data
+  const useGraphQL = !error && !!data?.forumPosts;
+  const graphqlPosts: ForumPostNode[] = useGraphQL ? (data.forumPosts.nodes ?? []) : [];
 
   // Client-side sort for GraphQL data
   const sortedGraphqlPosts = useMemo(() => {

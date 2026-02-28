@@ -58,7 +58,7 @@ const featureCards: FeatureCard[] = [
     accentChroma: 0.22,
   },
   {
-    formula: 'ax\u00b2 + bx + c = 0',
+    formula: 'ax² + bx + c = 0',
     title: 'Quadratic Equations',
     description:
       'Uses the quadratic formula. Handles real and complex solutions automatically.',
@@ -69,15 +69,15 @@ const featureCards: FeatureCard[] = [
     formula: 'f(x) = 0',
     title: 'Transcendental Equations',
     description:
-      'Uses Newton\u2013Raphson for equations involving trigonometric, exponential, and logarithmic functions.',
+      'Uses Newton–Raphson for equations involving trigonometric, exponential, and logarithmic functions.',
     accentHue: 155,
     accentChroma: 0.18,
   },
   {
-    formula: '\u2102 — Complex Solutions',
+    formula: 'ℂ — Complex Solutions',
     title: 'Complex Solutions',
     description:
-      'Automatically handles complex numbers when real solutions don\u2019t exist. Displays in a\u202f+\u202fbi form.',
+      "Automatically handles complex numbers when real solutions don\u2019t exist. Displays in a+bi form.",
     accentHue: 30,
     accentChroma: 0.20,
   },
@@ -104,20 +104,20 @@ const examples: Example[] = [
   {
     accentHue: 300,
     label: 'Quadratic',
-    equation: 'x^2 \u2212 5*x + 6 = 0',
+    equation: 'x^2 − 5*x + 6 = 0',
     solution: 'x = 2, x = 3',
   },
   {
     accentHue: 30,
     label: 'Complex',
     equation: 'x^2 + 1 = 0',
-    solution: 'x = i, x = \u2212i',
+    solution: 'x = i, x = −i',
   },
   {
     accentHue: 155,
     label: 'Transcendental',
-    equation: 'sin(x) \u2212 0.5 = 0',
-    solution: 'x \u2248 0.5236 (Newton\u2013Raphson)',
+    equation: 'sin(x) − 0.5 = 0',
+    solution: 'x ≈ 0.5236 (Newton–Raphson)',
   },
 ];
 
@@ -136,7 +136,7 @@ const tips: { title: string; body: string }[] = [
   },
   {
     title: 'Complex',
-    body: 'Solutions with imaginary parts are displayed as a\u202f+\u202fbi',
+    body: 'Solutions with imaginary parts are displayed as a+bi',
   },
   {
     title: 'Precision',
@@ -347,7 +347,7 @@ export function SolverPageContent() {
           <div className="flex flex-wrap gap-2 mt-4">
             {[
               { label: 'Linear & Quadratic', hue: 155 },
-              { label: 'Newton\u2013Raphson', hue: 200 },
+              { label: 'Newton–Raphson', hue: 200 },
               { label: 'Complex Roots', hue: 300 },
               { label: 'Step-by-Step', hue: 30 },
             ].map(({ label, hue }) => (

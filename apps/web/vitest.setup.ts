@@ -209,15 +209,12 @@ vi.mock('framer-motion', () => {
 
   return {
     motion: {
-      div: React.forwardRef(({ children, ...props }: any, ref: any) =>
-        React.createElement('div', { ...filterMotionProps(props), ref }, children)
-      ),
-      button: React.forwardRef(({ children, ...props }: any, ref: any) =>
-        React.createElement('button', { ...filterMotionProps(props), ref }, children)
-      ),
-      span: React.forwardRef(({ children, ...props }: any, ref: any) =>
-        React.createElement('span', { ...filterMotionProps(props), ref }, children)
-      ),
+      div: ({ children, ref, ...props }: any) =>
+        React.createElement('div', { ...filterMotionProps(props), ref }, children),
+      button: ({ children, ref, ...props }: any) =>
+        React.createElement('button', { ...filterMotionProps(props), ref }, children),
+      span: ({ children, ref, ...props }: any) =>
+        React.createElement('span', { ...filterMotionProps(props), ref }, children),
     },
     AnimatePresence: ({ children }: any) => children,
     useAnimation: () => ({

@@ -118,7 +118,7 @@ function toPolar(z: Complex): string {
 function toExponential(z: Complex): string {
   const r = fmt(z.magnitude);
   const thetaRad = fmt(z.argument);
-  return `${r}\u00b7e^(i\u00b7${thetaRad})`;
+  return `${r}·e^(i·${thetaRad})`;
 }
 
 function toLatexRectangular(z: Complex): string {
@@ -1077,7 +1077,7 @@ const UNARY_EXAMPLES: Array<{ label: string; z: string; op: UnaryOp }> = [
   { label: 'Conjugate of 3+4i', z: '3+4i', op: 'conjugate' },
   { label: '|3+4i| = 5', z: '3+4i', op: 'modulus' },
   { label: 'sqrt(-1) = i', z: '-1', op: 'sqrt' },
-  { label: 'e^(i\u03c0) = -1', z: '0+3.14159i', op: 'exp' },
+  { label: 'e^(iπ) = -1', z: '0+3.14159i', op: 'exp' },
 ];
 
 // ---------------------------------------------------------------------------
@@ -1086,22 +1086,22 @@ const UNARY_EXAMPLES: Array<{ label: string; z: string; op: UnaryOp }> = [
 
 const BINARY_OP_LABELS: Record<BinaryOp, string> = {
   add: '+',
-  subtract: '\u2212',
-  multiply: '\u00d7',
-  divide: '\u00f7',
+  subtract: '−',
+  multiply: '×',
+  divide: '÷',
   power: '^',
 };
 
 const UNARY_OP_LABELS: Record<UnaryOp, string> = {
-  conjugate: 'Conjugate z\u0305',
+  conjugate: 'Conjugate z̅',
   modulus: 'Modulus |z|',
   argument: 'Argument arg(z)',
-  sqrt: 'Square Root \u221az',
+  sqrt: 'Square Root √z',
   exp: 'Exponential e^z',
   ln: 'Natural Log ln(z)',
   sin: 'Sine sin(z)',
   cos: 'Cosine cos(z)',
-  negate: 'Negate \u2212z',
+  negate: 'Negate −z',
 };
 
 // ---------------------------------------------------------------------------
@@ -1928,17 +1928,17 @@ export function ComplexPanel() {
                   items: [
                     'Rectangular: a + bi',
                     'Polar: r\u2220\u03b8 (r=|z|, \u03b8=arg z)',
-                    'Exponential: r\u00b7e^(i\u03b8)',
+                    'Exponential: r·e^(i\u03b8)',
                   ],
                 },
                 {
                   hue: '300',
                   title: 'Key Identities',
                   items: [
-                    'i\u00b2 = \u22121',
-                    'e^(i\u03c0) = \u22121 (Euler)',
-                    '|z| = \u221a(a\u00b2+b\u00b2)',
-                    'z\u00b7\u03b6 = |z||\u03b6|\u2220(\u03b8+\u03c6)',
+                    'i² = −1',
+                    'e^(iπ) = −1 (Euler)',
+                    '|z| = √(a²+b²)',
+                    'z·ζ = |z||ζ|\u2220(\u03b8+\u03c6)',
                   ],
                 },
                 {
@@ -1946,7 +1946,7 @@ export function ComplexPanel() {
                   title: 'Arithmetic Rules',
                   items: [
                     'Add: real and imag parts separately',
-                    'Multiply: FOIL then use i\u00b2=\u22121',
+                    'Multiply: FOIL then use i²=−1',
                     'Divide: multiply by conjugate of denominator',
                   ],
                 },
@@ -1954,9 +1954,9 @@ export function ComplexPanel() {
                   hue: '30',
                   title: 'Conjugate & Modulus',
                   items: [
-                    '\u03b6 of a+bi = a\u2212bi',
-                    'z\u00b7\u03b6 = |z|\u00b2',
-                    'arg(z) \u2208 (\u2212\u03c0, \u03c0]',
+                    'ζ of a+bi = a−bi',
+                    'z·ζ = |z|²',
+                    'arg(z) ∈ (−π, π]',
                   ],
                 },
               ].map(({ hue, title, items }) => (
