@@ -9,6 +9,11 @@ import { requireAuth, requireOwnership } from '../../lib/context';
 import type { ForumPost } from '@nextcalc/database';
 import { NotFoundError } from '../../lib/errors';
 import { validate, createForumPostSchema, updateForumPostSchema } from '../../lib/validation';
+import {
+  buildCursorParams,
+  buildConnection,
+  type CursorPaginationArgs,
+} from '../../lib/cursor-pagination';
 
 export const forumResolvers = {
   Query: {
@@ -79,6 +84,46 @@ export const forumResolvers = {
           totalPages: Math.ceil(totalCount / limit),
         },
       };
+    },
+
+    /**
+     * Cursor-paginated forum posts (Relay-style)
+     */
+    forumPostsConnection: async (
+      _parent: unknown,
+      args: CursorPaginationArgs & {
+        tags?: string[];
+        searchQuery?: string;
+      },
+      context: GraphQLContext
+    ) => {
+      const where: Record<string, unknown> = { deletedAt: null };
+
+      if (args.tags?.length) {
+        where['tags'] = { hasSome: args.tags };
+      }
+
+      if (args.searchQuery) {
+        where['OR'] = [
+          { title: { contains: args.searchQuery, mode: 'insensitive' } },
+          { content: { contains: args.searchQuery, mode: 'insensitive' } },
+        ];
+      }
+
+      const params = buildCursorParams(args);
+
+      const [items, totalCount] = await Promise.all([
+        context.prisma.forumPost.findMany({
+          where,
+          take: params.take,
+          skip: params.skip,
+          ...(params.cursor ? { cursor: params.cursor } : {}),
+          orderBy: [{ isPinned: 'desc' }, { createdAt: 'desc' }],
+        }),
+        context.prisma.forumPost.count({ where }),
+      ]);
+
+      return buildConnection(items, params, totalCount);
     },
   },
 

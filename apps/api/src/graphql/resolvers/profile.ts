@@ -6,6 +6,7 @@
 
 import type { GraphQLContext } from '../../lib/context';
 import { requireAuth } from '../../lib/context';
+import { ForbiddenError } from '../../lib/errors';
 
 export const profileResolvers = {
 	Query: {
@@ -15,6 +16,10 @@ export const profileResolvers = {
 			context: GraphQLContext,
 		) => {
 			requireAuth(context);
+
+			if (args.userId !== context.user!.id) {
+				throw new ForbiddenError('You can only view your own profile data');
+			}
 
 			const dbUser = await context.prisma.user.findUnique({
 				where: { id: args.userId },
@@ -72,6 +77,11 @@ export const profileResolvers = {
 			context: GraphQLContext,
 		) => {
 			requireAuth(context);
+
+			if (args.userId !== context.user!.id) {
+				throw new ForbiddenError('You can only view your own profile data');
+			}
+
 			const since = new Date();
 			since.setDate(since.getDate() - args.days);
 
@@ -112,6 +122,10 @@ export const profileResolvers = {
 			context: GraphQLContext,
 		) => {
 			requireAuth(context);
+
+			if (args.userId !== context.user!.id) {
+				throw new ForbiddenError('You can only view your own profile data');
+			}
 
 			const userProgress = await context.prisma.userProgress.findUnique({
 				where: { userId: args.userId },

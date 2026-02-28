@@ -226,11 +226,11 @@ mutation UpvotePost($postId: ID!) {
    - Create project at: https://console.cloud.google.com
    - Enable Google+ API
    - Create OAuth 2.0 credentials
-   - Set authorized redirect URI: `http://localhost:3000/api/auth/callback/google`
+   - Set authorized redirect URI: `http://localhost:3005/api/auth/callback/google`
 
 2. **GitHub OAuth**
    - Register app at: https://github.com/settings/developers
-   - Set authorization callback URL: `http://localhost:3000/api/auth/callback/github`
+   - Set authorization callback URL: `http://localhost:3005/api/auth/callback/github`
 
 ### Session Management
 
@@ -267,15 +267,10 @@ mutation UpvotePost($postId: ID!) {
 
 ### Limits by User Type
 
-- **Anonymous:** 10 requests/minute
-- **Authenticated:** 100 requests/minute
-- **Premium:** 500 requests/minute
+- **Anonymous:** 100 requests/minute (configurable via `RATE_LIMIT_ANON`)
+- **Authenticated:** 1000 requests/minute (configurable via `RATE_LIMIT_AUTH`)
 
-### Per-Endpoint Limits
-
-- **Worksheet creation:** 10/hour
-- **Forum post creation:** 20/hour
-- **Comment creation:** 60/hour
+Rate limiting is Redis-backed (Upstash) with a 60-second sliding window. Fails open if Redis is unavailable.
 
 ## Testing
 

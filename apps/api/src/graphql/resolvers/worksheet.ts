@@ -25,6 +25,17 @@ import {
   publishUserWorksheetsChanged,
   subscriptionFilters,
 } from '../../lib/subscription';
+import {
+  buildCursorParams,
+  buildConnection,
+  type CursorPaginationArgs,
+} from '../../lib/cursor-pagination';
+import {
+  validate,
+  createWorksheetSchema,
+  updateWorksheetSchema,
+  shareWorksheetSchema,
+} from '../../lib/validation';
 
 export const worksheetResolvers = {
   Query: {
@@ -183,6 +194,97 @@ export const worksheetResolvers = {
         },
       };
     },
+
+    /**
+     * Cursor-paginated worksheets with filtering (Relay-style)
+     */
+    worksheetsConnection: async (
+      _parent: unknown,
+      args: CursorPaginationArgs & {
+        visibility?: WorksheetVisibility;
+        userId?: string;
+        folderId?: string;
+        searchQuery?: string;
+      },
+      context: GraphQLContext
+    ) => {
+      const user = requireAuth(context);
+
+      const where: Record<string, unknown> = {
+        deletedAt: null,
+        userId: args.userId || user.id,
+      };
+
+      if (args.visibility) {
+        where['visibility'] = args.visibility;
+      }
+
+      if (args.folderId) {
+        where['folderId'] = args.folderId;
+      }
+
+      if (args.searchQuery) {
+        where['OR'] = [
+          { title: { contains: args.searchQuery, mode: 'insensitive' } },
+          { description: { contains: args.searchQuery, mode: 'insensitive' } },
+        ];
+      }
+
+      const params = buildCursorParams(args);
+
+      const [items, totalCount] = await Promise.all([
+        context.prisma.worksheet.findMany({
+          where,
+          take: params.take,
+          skip: params.skip,
+          ...(params.cursor ? { cursor: params.cursor } : {}),
+          orderBy: { updatedAt: 'desc' },
+          include: { user: true, folder: true },
+        }),
+        context.prisma.worksheet.count({ where }),
+      ]);
+
+      return buildConnection(items, params, totalCount);
+    },
+
+    /**
+     * Cursor-paginated public worksheets (Relay-style)
+     */
+    publicWorksheetsConnection: async (
+      _parent: unknown,
+      args: CursorPaginationArgs & {
+        searchQuery?: string;
+      },
+      context: GraphQLContext
+    ) => {
+      const where: Record<string, unknown> = {
+        deletedAt: null,
+        visibility: 'PUBLIC',
+      };
+
+      if (args.searchQuery) {
+        where['OR'] = [
+          { title: { contains: args.searchQuery, mode: 'insensitive' } },
+          { description: { contains: args.searchQuery, mode: 'insensitive' } },
+        ];
+      }
+
+      const params = buildCursorParams(args);
+
+      const [items, totalCount] = await Promise.all([
+        context.prisma.worksheet.findMany({
+          where,
+          take: params.take,
+          skip: params.skip,
+          ...(params.cursor ? { cursor: params.cursor } : {}),
+          orderBy: [{ views: 'desc' }, { updatedAt: 'desc' }],
+          include: { user: true },
+        }),
+        context.prisma.worksheet.count({ where }),
+      ]);
+
+      return buildConnection(items, params, totalCount);
+    },
   },
 
   Mutation: {
@@ -203,25 +305,26 @@ export const worksheetResolvers = {
       context: GraphQLContext
     ) => {
       const user = requireAuth(context);
+      const input = validate(createWorksheetSchema, args.input);
 
       // Validate folder ownership if provided
-      if (args.input.folderId) {
+      if (input.folderId) {
         const folder = await context.prisma.folder.findUnique({
-          where: { id: args.input.folderId },
+          where: { id: input.folderId },
         });
 
         if (!folder || folder.userId !== user.id) {
-          throw new Error('Invalid folder');
+          throw new NotFoundError('Folder', input.folderId);
         }
       }
 
       const worksheet = await context.prisma.worksheet.create({
         data: {
-          title: args.input.title,
-          ...(args.input.description ? { description: args.input.description } : {}),
-          content: args.input.content as object,
-          visibility: args.input.visibility || 'PRIVATE',
-          ...(args.input.folderId ? { folderId: args.input.folderId } : {}),
+          title: input.title,
+          ...(input.description ? { description: input.description } : {}),
+          content: input.content as object,
+          visibility: input.visibility || 'PRIVATE',
+          ...(input.folderId ? { folderId: input.folderId } : {}),
           userId: user.id,
         },
         include: {
@@ -261,13 +364,14 @@ export const worksheetResolvers = {
       context: GraphQLContext
     ) => {
       requireAuth(context);
+      const input = validate(updateWorksheetSchema, args.input);
 
       const worksheet = await context.prisma.worksheet.findUnique({
         where: { id: args.id },
       });
 
       if (!worksheet || worksheet.deletedAt) {
-        throw new Error('Worksheet not found');
+        throw new NotFoundError('Worksheet', args.id);
       }
 
       requireOwnership(context, worksheet.userId);
@@ -275,11 +379,11 @@ export const worksheetResolvers = {
       const updated = await context.prisma.worksheet.update({
         where: { id: args.id },
         data: {
-          ...(args.input.title ? { title: args.input.title } : {}),
-          ...(args.input.description ? { description: args.input.description } : {}),
-          ...(args.input.content ? { content: args.input.content as object } : {}),
-          ...(args.input.visibility ? { visibility: args.input.visibility } : {}),
-          ...(args.input.folderId ? { folderId: args.input.folderId } : {}),
+          ...(input.title ? { title: input.title } : {}),
+          ...(input.description ? { description: input.description } : {}),
+          ...(input.content ? { content: input.content as object } : {}),
+          ...(input.visibility ? { visibility: input.visibility } : {}),
+          ...(input.folderId ? { folderId: input.folderId } : {}),
         },
         include: {
           user: true,
@@ -313,7 +417,7 @@ export const worksheetResolvers = {
       });
 
       if (!worksheet || worksheet.deletedAt) {
-        throw new Error('Worksheet not found');
+        throw new NotFoundError('Worksheet', args.id);
       }
 
       requireOwnership(context, worksheet.userId);
@@ -355,22 +459,23 @@ export const worksheetResolvers = {
       context: GraphQLContext
     ) => {
       requireAuth(context);
+      const input = validate(shareWorksheetSchema, args.input);
 
       const worksheet = await context.prisma.worksheet.findUnique({
-        where: { id: args.input.worksheetId },
+        where: { id: input.worksheetId },
       });
 
       if (!worksheet || worksheet.deletedAt) {
-        throw new Error('Worksheet not found');
+        throw new NotFoundError('Worksheet', input.worksheetId);
       }
 
       requireOwnership(context, worksheet.userId);
 
       const share = await context.prisma.worksheetShare.create({
         data: {
-          worksheetId: args.input.worksheetId,
-          sharedWith: args.input.sharedWith,
-          permission: args.input.permission || 'VIEW',
+          worksheetId: input.worksheetId,
+          sharedWith: input.sharedWith,
+          permission: input.permission || 'VIEW',
         },
         include: {
           worksheet: true,
@@ -395,7 +500,7 @@ export const worksheetResolvers = {
       });
 
       if (!worksheet || worksheet.deletedAt) {
-        throw new Error('Worksheet not found');
+        throw new NotFoundError('Worksheet', args.worksheetId);
       }
 
       requireOwnership(context, worksheet.userId);

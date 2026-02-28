@@ -7,6 +7,13 @@
 import type { GraphQLContext } from '../../lib/context';
 import { requireAuth, requireOwnership } from '../../lib/context';
 import type { Folder } from '@nextcalc/database';
+import { NotFoundError, ForbiddenError, ValidationError } from '../../lib/errors';
+import { validate, createFolderSchema, updateFolderSchema } from '../../lib/validation';
+import {
+  buildCursorParams,
+  buildConnection,
+  type CursorPaginationArgs,
+} from '../../lib/cursor-pagination';
 
 export const folderResolvers = {
   Query: {
@@ -25,12 +32,12 @@ export const folderResolvers = {
       });
 
       if (!folder) {
-        throw new Error('Folder not found');
+        throw new NotFoundError('Folder', args.id);
       }
 
       // Only owner or admin can view folder
       if (folder.userId !== user.id && user.role !== 'ADMIN') {
-        throw new Error('You do not have permission to access this folder');
+        throw new ForbiddenError('You do not have permission to access this folder');
       }
 
       return folder;
@@ -49,13 +56,48 @@ export const folderResolvers = {
 
       // Only allow viewing own folders unless admin
       if (targetUserId !== user.id && user.role !== 'ADMIN') {
-        throw new Error('Insufficient permissions');
+        throw new ForbiddenError('You do not have permission to access other users\' folders');
       }
 
       return context.prisma.folder.findMany({
         where: { userId: targetUserId },
         orderBy: { name: 'asc' },
       });
+    },
+
+    /**
+     * Cursor-paginated folders (Relay-style)
+     */
+    foldersConnection: async (
+      _parent: unknown,
+      args: CursorPaginationArgs & {
+        userId?: string;
+      },
+      context: GraphQLContext
+    ) => {
+      const user = requireAuth(context);
+      const targetUserId = args.userId || user.id;
+
+      // Only allow viewing own folders unless admin
+      if (targetUserId !== user.id && user.role !== 'ADMIN') {
+        throw new ForbiddenError('You do not have permission to access other users\' folders');
+      }
+
+      const where = { userId: targetUserId };
+      const params = buildCursorParams(args);
+
+      const [items, totalCount] = await Promise.all([
+        context.prisma.folder.findMany({
+          where,
+          take: params.take,
+          skip: params.skip,
+          ...(params.cursor ? { cursor: params.cursor } : {}),
+          orderBy: { name: 'asc' },
+        }),
+        context.prisma.folder.count({ where }),
+      ]);
+
+      return buildConnection(items, params, totalCount);
     },
   },
 
@@ -75,15 +117,16 @@ export const folderResolvers = {
       context: GraphQLContext
     ) => {
       const user = requireAuth(context);
+      const input = validate(createFolderSchema, args.input);
 
       // Validate parent folder if provided
-      if (args.input.parentId) {
+      if (input.parentId) {
         const parent = await context.prisma.folder.findUnique({
-          where: { id: args.input.parentId },
+          where: { id: input.parentId },
         });
 
         if (!parent || parent.userId !== user.id) {
-          throw new Error('Invalid parent folder');
+          throw new NotFoundError('Folder', input.parentId);
         }
       }
 
@@ -91,20 +134,20 @@ export const folderResolvers = {
       const existing = await context.prisma.folder.findFirst({
         where: {
           userId: user.id,
-          name: args.input.name,
-          parentId: args.input.parentId || null,
+          name: input.name,
+          parentId: input.parentId || null,
         },
       });
 
       if (existing) {
-        throw new Error('A folder with this name already exists in this location');
+        throw new ValidationError('A folder with this name already exists in this location', 'name');
       }
 
       return context.prisma.folder.create({
         data: {
-          name: args.input.name,
-          ...(args.input.description ? { description: args.input.description } : {}),
-          ...(args.input.parentId ? { parentId: args.input.parentId } : {}),
+          name: input.name,
+          ...(input.description ? { description: input.description } : {}),
+          ...(input.parentId ? { parentId: input.parentId } : {}),
           userId: user.id,
         },
       });
@@ -126,31 +169,32 @@ export const folderResolvers = {
       context: GraphQLContext
     ) => {
       const user = requireAuth(context);
+      const input = validate(updateFolderSchema, args.input);
 
       const folder = await context.prisma.folder.findUnique({
         where: { id: args.id },
       });
 
       if (!folder) {
-        throw new Error('Folder not found');
+        throw new NotFoundError('Folder', args.id);
       }
 
       requireOwnership(context, folder.userId);
 
       // Prevent circular references
-      if (args.input.parentId) {
-        if (args.input.parentId === args.id) {
-          throw new Error('A folder cannot be its own parent');
+      if (input.parentId) {
+        if (input.parentId === args.id) {
+          throw new ValidationError('A folder cannot be its own parent', 'parentId');
         }
 
         // Check if new parent is a descendant of current folder
         let current = await context.prisma.folder.findUnique({
-          where: { id: args.input.parentId },
+          where: { id: input.parentId },
         });
 
         while (current?.parentId) {
           if (current.parentId === args.id) {
-            throw new Error('Cannot move folder to a descendant');
+            throw new ValidationError('Cannot move folder to a descendant', 'parentId');
           }
           current = await context.prisma.folder.findUnique({
             where: { id: current.parentId },
@@ -159,27 +203,27 @@ export const folderResolvers = {
       }
 
       // Check for duplicate name if renaming
-      if (args.input.name && args.input.name !== folder.name) {
+      if (input.name && input.name !== folder.name) {
         const existing = await context.prisma.folder.findFirst({
           where: {
             userId: user.id,
-            name: args.input.name,
-            parentId: args.input.parentId !== undefined ? args.input.parentId : folder.parentId,
+            name: input.name,
+            parentId: input.parentId !== undefined ? input.parentId : folder.parentId,
             id: { not: args.id },
           },
         });
 
         if (existing) {
-          throw new Error('A folder with this name already exists in this location');
+          throw new ValidationError('A folder with this name already exists in this location', 'name');
         }
       }
 
       return context.prisma.folder.update({
         where: { id: args.id },
         data: {
-          ...(args.input.name ? { name: args.input.name } : {}),
-          ...(args.input.description ? { description: args.input.description } : {}),
-          ...(args.input.parentId ? { parentId: args.input.parentId } : {}),
+          ...(input.name ? { name: input.name } : {}),
+          ...(input.description ? { description: input.description } : {}),
+          ...(input.parentId ? { parentId: input.parentId } : {}),
         },
       });
     },
@@ -203,18 +247,18 @@ export const folderResolvers = {
       });
 
       if (!folder) {
-        throw new Error('Folder not found');
+        throw new NotFoundError('Folder', args.id);
       }
 
       requireOwnership(context, folder.userId);
 
       // Check if folder has worksheets or subfolders
       if (folder.worksheets.length > 0) {
-        throw new Error('Cannot delete folder containing worksheets');
+        throw new ValidationError('Cannot delete folder containing worksheets', 'id');
       }
 
       if (folder.children.length > 0) {
-        throw new Error('Cannot delete folder containing subfolders');
+        throw new ValidationError('Cannot delete folder containing subfolders', 'id');
       }
 
       await context.prisma.folder.delete({

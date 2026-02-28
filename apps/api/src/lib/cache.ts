@@ -15,6 +15,7 @@
 
 import { Redis } from '@upstash/redis';
 import { Ratelimit } from '@upstash/ratelimit';
+import { logger } from './logger';
 
 const isConfigured = !!(
 	process.env['UPSTASH_REDIS_REST_URL'] && process.env['UPSTASH_REDIS_REST_TOKEN']
@@ -22,9 +23,10 @@ const isConfigured = !!(
 const isDev = process.env['NODE_ENV'] !== 'production';
 
 if (!isConfigured) {
-	console.warn(
-		'Upstash Redis not configured (UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN missing). ' +
-			'Caching and rate limiting disabled.',
+	logger.warn(
+		'Upstash Redis not configured — caching and rate limiting disabled', {
+			missingVars: ['UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN'],
+		},
 	);
 }
 
@@ -93,7 +95,9 @@ export async function rateLimit(
 
 	// Fire-and-forget analytics
 	if (pending) {
-		pending.catch((err: unknown) => console.error('Ratelimit analytics error:', err));
+		pending.catch((err: unknown) => logger.error('Ratelimit analytics error', {
+			error: err instanceof Error ? err.message : String(err),
+		}));
 	}
 
 	return { allowed: success, remaining, resetAt: new Date(reset) };
@@ -135,7 +139,7 @@ export const queryCache = {
 			// automaticDeserialization handles JSON parsing
 			return await redis.get<T>(key);
 		} catch (error) {
-			console.error('queryCache.get error:', error);
+			logger.error('queryCache.get error', { error: error instanceof Error ? error.message : String(error) });
 			return null;
 		}
 	},
@@ -146,7 +150,7 @@ export const queryCache = {
 			// automaticDeserialization handles JSON stringifying
 			await redis.set(key, value, { ex: ttlSeconds });
 		} catch (error) {
-			console.error('queryCache.set error:', error);
+			logger.error('queryCache.set error', { error: error instanceof Error ? error.message : String(error) });
 		}
 	},
 
@@ -155,7 +159,7 @@ export const queryCache = {
 		try {
 			await redis.del(key);
 		} catch (error) {
-			console.error('queryCache.invalidate error:', error);
+			logger.error('queryCache.invalidate error', { error: error instanceof Error ? error.message : String(error) });
 		}
 	},
 };
@@ -281,7 +285,7 @@ export async function checkRedisConnection(): Promise<boolean> {
 		await redis.ping();
 		return true;
 	} catch (error) {
-		console.error('Redis connection failed:', error);
+		logger.error('Redis connection check failed', { error: error instanceof Error ? error.message : String(error) });
 		return false;
 	}
 }

@@ -20,6 +20,7 @@ import type { GraphQLContext } from './lib/context';
 import { createDataLoaders } from './lib/dataloaders';
 import { auth as authStub, setAuthFunction } from './lib/auth-stub';
 import { RateLimitError } from './lib/errors';
+import { logger } from './lib/logger';
 
 interface NextRequest {
 	headers: Headers;
@@ -78,7 +79,10 @@ async function createContext(req: NextRequest): Promise<GraphQLContext> {
 			},
 		};
 	} catch (error) {
-		console.error('Context creation error:', error);
+		logger.error('Context creation error', {
+			error: error instanceof Error ? error.message : String(error),
+			stack: error instanceof Error ? error.stack : undefined,
+		});
 		return {
 			user: null,
 			prisma,
@@ -90,15 +94,19 @@ async function createContext(req: NextRequest): Promise<GraphQLContext> {
 
 /**
  * Rate limiting middleware.
- * 1000 req/min authenticated, 100 req/min anonymous.
+ * Configurable via RATE_LIMIT_AUTH and RATE_LIMIT_ANON env vars.
+ * Defaults: 1000 req/min authenticated, 100 req/min anonymous.
  * Fails open if Redis is unavailable.
  */
+const authRateLimit = parseInt(process.env['RATE_LIMIT_AUTH'] ?? '1000', 10);
+const anonRateLimit = parseInt(process.env['RATE_LIMIT_ANON'] ?? '100', 10);
+
 async function rateLimitMiddleware(
 	_req: NextRequest,
 	context: GraphQLContext,
 ): Promise<void> {
 	const identifier = context.user?.id || context.req.ip || 'anonymous';
-	const limit = context.user ? 1000 : 100;
+	const limit = context.user ? authRateLimit : anonRateLimit;
 	const window = 60;
 
 	try {
@@ -116,7 +124,10 @@ async function rateLimitMiddleware(
 	} catch (error) {
 		if (error instanceof RateLimitError) throw error;
 		// Redis down — fail open
-		console.error('Rate limit check failed:', error);
+		logger.error('Rate limit check failed, failing open', {
+			error: error instanceof Error ? error.message : String(error),
+			identifier,
+		});
 	}
 }
 

@@ -13,6 +13,7 @@ import { forumResolvers } from './forum';
 import { commentResolvers } from './comment';
 import { upvoteResolvers } from './upvote';
 import { profileResolvers } from './profile';
+import { sharedCalculationResolvers } from './shared-calculation';
 import { GraphQLDateTime, GraphQLJSON } from 'graphql-scalars';
 
 export const resolvers = {
@@ -29,6 +30,7 @@ export const resolvers = {
     ...forumResolvers.Query,
     ...commentResolvers.Query,
     ...profileResolvers.Query,
+    ...sharedCalculationResolvers.Query,
   },
 
   // Mutation resolvers
@@ -39,6 +41,7 @@ export const resolvers = {
     ...forumResolvers.Mutation,
     ...commentResolvers.Mutation,
     ...upvoteResolvers.Mutation,
+    ...sharedCalculationResolvers.Mutation,
   },
 
   // Subscription resolvers

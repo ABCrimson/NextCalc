@@ -344,11 +344,11 @@ export const typeDefs = gql`
   }
 
   # ============================================================================
-  # PAGINATION TYPES
+  # PAGINATION TYPES (offset-based, legacy)
   # ============================================================================
 
   """
-  Pagination information
+  Offset-based pagination information (legacy)
   """
   type PageInfo {
     hasNextPage: Boolean!
@@ -359,11 +359,97 @@ export const typeDefs = gql`
   }
 
   """
-  Paginated worksheet list
+  Offset-paginated worksheet list (legacy)
   """
   type WorksheetConnection {
     nodes: [Worksheet!]!
     pageInfo: PageInfo!
+  }
+
+  # ============================================================================
+  # CURSOR-BASED PAGINATION TYPES (Relay-style)
+  # ============================================================================
+
+  """
+  Cursor-based pagination information following the Relay specification
+  """
+  type CursorPageInfo {
+    "Whether there are more items after the last edge"
+    hasNextPage: Boolean!
+    "Whether there are more items before the first edge"
+    hasPreviousPage: Boolean!
+    "Cursor of the first edge in the current page"
+    startCursor: String
+    "Cursor of the last edge in the current page"
+    endCursor: String
+  }
+
+  """
+  Cursor-paginated worksheet list
+  """
+  type WorksheetCursorConnection {
+    edges: [WorksheetEdge!]!
+    pageInfo: CursorPageInfo!
+    totalCount: Int!
+  }
+
+  """
+  A worksheet edge in a cursor-paginated connection
+  """
+  type WorksheetEdge {
+    node: Worksheet!
+    cursor: String!
+  }
+
+  """
+  Cursor-paginated folder list
+  """
+  type FolderCursorConnection {
+    edges: [FolderEdge!]!
+    pageInfo: CursorPageInfo!
+    totalCount: Int!
+  }
+
+  """
+  A folder edge in a cursor-paginated connection
+  """
+  type FolderEdge {
+    node: Folder!
+    cursor: String!
+  }
+
+  """
+  Cursor-paginated forum post list
+  """
+  type ForumPostCursorConnection {
+    edges: [ForumPostEdge!]!
+    pageInfo: CursorPageInfo!
+    totalCount: Int!
+  }
+
+  """
+  A forum post edge in a cursor-paginated connection
+  """
+  type ForumPostEdge {
+    node: ForumPost!
+    cursor: String!
+  }
+
+  """
+  Cursor-paginated calculation history list
+  """
+  type CalculationHistoryCursorConnection {
+    edges: [CalculationHistoryEdge!]!
+    pageInfo: CursorPageInfo!
+    totalCount: Int!
+  }
+
+  """
+  A calculation history edge in a cursor-paginated connection
+  """
+  type CalculationHistoryEdge {
+    node: CalculationHistory!
+    cursor: String!
   }
 
   # ============================================================================
@@ -516,6 +602,26 @@ export const typeDefs = gql`
   }
 
   # ============================================================================
+  # SHARED CALCULATION TYPES
+  # ============================================================================
+
+  """
+  A publicly shared calculation with a short URL code
+  """
+  type SharedCalculation {
+    id: ID!
+    shortCode: String!
+    latex: String!
+    expression: String!
+    title: String
+    description: String
+    result: String
+    createdAt: DateTime!
+    expiresAt: DateTime
+    user: PublicUser
+  }
+
+  # ============================================================================
   # ERROR TYPES
   # ============================================================================
 
@@ -644,9 +750,96 @@ export const typeDefs = gql`
     userAnalytics(userId: ID!): UserAnalytics
 
     """
+    Get a shared calculation by its short code
+    """
+    sharedCalculation(shortCode: String!): SharedCalculation
+
+    """
     Health check endpoint
     """
     health: HealthStatus!
+
+    # ------------------------------------------------------------------
+    # Cursor-based pagination queries (Relay-style)
+    # ------------------------------------------------------------------
+
+    """
+    Get cursor-paginated worksheets with filtering
+    """
+    worksheetsConnection(
+      "Number of items to fetch (max 100)"
+      first: Int = 20
+      "Cursor to start fetching after"
+      after: String
+      "Number of items to fetch before the cursor"
+      last: Int
+      "Cursor to start fetching before"
+      before: String
+      visibility: WorksheetVisibility
+      userId: ID
+      folderId: ID
+      searchQuery: String
+    ): WorksheetCursorConnection!
+
+    """
+    Get cursor-paginated public worksheets (gallery)
+    """
+    publicWorksheetsConnection(
+      "Number of items to fetch (max 100)"
+      first: Int = 20
+      "Cursor to start fetching after"
+      after: String
+      "Number of items to fetch before the cursor"
+      last: Int
+      "Cursor to start fetching before"
+      before: String
+      searchQuery: String
+    ): WorksheetCursorConnection!
+
+    """
+    Get cursor-paginated folders
+    """
+    foldersConnection(
+      "Number of items to fetch (max 100)"
+      first: Int = 20
+      "Cursor to start fetching after"
+      after: String
+      "Number of items to fetch before the cursor"
+      last: Int
+      "Cursor to start fetching before"
+      before: String
+      userId: ID
+    ): FolderCursorConnection!
+
+    """
+    Get cursor-paginated forum posts
+    """
+    forumPostsConnection(
+      "Number of items to fetch (max 100)"
+      first: Int = 20
+      "Cursor to start fetching after"
+      after: String
+      "Number of items to fetch before the cursor"
+      last: Int
+      "Cursor to start fetching before"
+      before: String
+      tags: [String!]
+      searchQuery: String
+    ): ForumPostCursorConnection!
+
+    """
+    Get cursor-paginated calculation history
+    """
+    calculationHistoryConnection(
+      "Number of items to fetch (max 100)"
+      first: Int = 50
+      "Cursor to start fetching after"
+      after: String
+      "Number of items to fetch before the cursor"
+      last: Int
+      "Cursor to start fetching before"
+      before: String
+    ): CalculationHistoryCursorConnection!
   }
 
   # ============================================================================
@@ -738,6 +931,18 @@ export const typeDefs = gql`
     Clear calculation history
     """
     clearCalculationHistory: Boolean!
+
+    """
+    Share a calculation and receive a short link code.
+    Does not require authentication — anonymous shares are allowed.
+    """
+    shareCalculation(
+      latex: String!
+      expression: String!
+      title: String
+      description: String
+      result: String
+    ): SharedCalculation!
 
     """
     Increment worksheet view count

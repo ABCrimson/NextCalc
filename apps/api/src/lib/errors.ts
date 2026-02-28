@@ -8,6 +8,7 @@
  */
 
 import { GraphQLError, type GraphQLErrorOptions } from 'graphql';
+import { logger } from './logger';
 
 /**
  * Base error class for all GraphQL errors
@@ -138,8 +139,11 @@ export class InternalServerError extends BaseGraphQLError {
     });
 
     // Log the original error for debugging but don't expose details to client
-    if (originalError && process.env.NODE_ENV !== 'production') {
-      console.error('Internal Error Details:', originalError);
+    if (originalError) {
+      logger.error('Internal server error details', {
+        originalMessage: originalError.message,
+        stack: originalError.stack,
+      });
     }
   }
 }

@@ -9,6 +9,13 @@ import type { GraphQLContext } from '../../lib/context';
 import { requireAuth } from '../../lib/context';
 import { redisHealthCheck } from '../../lib/cache';
 import { evaluate, format } from 'mathjs';
+import { ValidationError } from '../../lib/errors';
+import { validate, calculationSchema } from '../../lib/validation';
+import {
+  buildCursorParams,
+  buildConnection,
+  type CursorPaginationArgs,
+} from '../../lib/cursor-pagination';
 
 const performCalculation = (
   expression: string,
@@ -23,8 +30,9 @@ const performCalculation = (
       : String(raw);
     return { result, formatted: result };
   } catch (error) {
-    throw new Error(
-      `Calculation error: ${error instanceof Error ? error.message : 'Unknown error'}`
+    throw new ValidationError(
+      `Calculation error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      'expression'
     );
   }
 };
@@ -45,17 +53,19 @@ export const calculationResolvers = {
       },
       _context: GraphQLContext
     ) => {
+      const input = validate(calculationSchema, args.input);
+
       const { result, formatted } = performCalculation(
-        args.input.expression,
-        args.input.variables,
-        args.input.precision
+        input.expression,
+        input.variables,
+        input.precision
       );
 
       return {
-        input: args.input.expression,
+        input: input.expression,
         result,
         formatted,
-        variables: args.input.variables || {},
+        variables: input.variables || {},
         timestamp: new Date(),
       };
     },
@@ -103,6 +113,52 @@ export const calculationResolvers = {
     },
 
     /**
+     * Cursor-paginated calculation history (Relay-style)
+     */
+    calculationHistoryConnection: async (
+      _parent: unknown,
+      args: CursorPaginationArgs,
+      context: GraphQLContext
+    ) => {
+      const user = requireAuth(context);
+      const where = { userId: user.id };
+
+      const params = buildCursorParams(args, 200, 50);
+
+      const [items, totalCount] = await Promise.all([
+        context.prisma.calculationHistory.findMany({
+          where,
+          take: params.take,
+          skip: params.skip,
+          ...(params.cursor ? { cursor: params.cursor } : {}),
+          orderBy: { createdAt: 'desc' },
+          select: {
+            id: true,
+            userId: true,
+            expression: true,
+            result: true,
+            mode: true,
+            latex: true,
+            createdAt: true,
+          },
+        }),
+        context.prisma.calculationHistory.count({ where }),
+      ]);
+
+      // Map rows to the CalculationHistory type shape
+      const mapped = items.map((row) => ({
+        id: row.id,
+        userId: row.userId,
+        expression: row.expression,
+        result: row.result,
+        variables: {},
+        timestamp: row.createdAt,
+      }));
+
+      return buildConnection(mapped, params, totalCount);
+    },
+
+    /**
      * Health check endpoint
      */
     health: async (_parent: unknown, _args: unknown, context: GraphQLContext) => {
@@ -117,14 +173,26 @@ export const calculationResolvers = {
         dbLatency = Date.now() - dbStart;
       } catch (error) {
         dbStatus = 'unhealthy';
+        dbLatency = Date.now() - dbStart;
         dbError = error instanceof Error ? error.message : 'Unknown error';
       }
 
       // Check Redis connection
       const redisHealth = await redisHealthCheck();
 
+      // Determine overall status:
+      // - 'healthy' if DB is healthy and Redis is healthy or unconfigured
+      // - 'degraded' if Redis is unhealthy but DB is healthy
+      // - 'unhealthy' if DB is down
+      const redisOk = redisHealth.status === 'healthy' || redisHealth.status === 'unconfigured';
+      const overallStatus = dbStatus === 'unhealthy'
+        ? 'unhealthy'
+        : redisOk
+          ? 'healthy'
+          : 'degraded';
+
       return {
-        status: dbStatus === 'healthy' && redisHealth.status === 'healthy' ? 'healthy' : 'degraded',
+        status: overallStatus,
         timestamp: new Date(),
         database: {
           status: dbStatus,

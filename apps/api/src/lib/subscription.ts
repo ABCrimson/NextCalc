@@ -11,6 +11,7 @@
 import { PubSub } from 'graphql-subscriptions';
 import type { ExecutionArgs } from 'graphql';
 import type { GraphQLContext } from './context';
+import { logger } from './logger';
 
 /**
  * PubSub instance for publishing subscription events
@@ -64,7 +65,7 @@ async function verifyAuthToken(token: string | undefined): Promise<TokenUser | n
 
       // Check expiration
       if (payload.exp && Date.now() >= payload.exp * 1000) {
-        console.warn('Token expired');
+        logger.warn('WebSocket auth token expired');
         return null;
       }
 
@@ -81,10 +82,12 @@ async function verifyAuthToken(token: string | undefined): Promise<TokenUser | n
 
     // For session tokens, we'd need to query the session store
     // This requires database access which should be set up in context
-    console.debug('Session-based auth not fully implemented for WebSocket');
+    logger.debug('Session-based auth not fully implemented for WebSocket');
     return null;
   } catch (error) {
-    console.error('Token verification failed:', error);
+    logger.error('WebSocket token verification failed', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     return null;
   }
 }
@@ -108,7 +111,7 @@ export const createSubscriptionContext = async (
   const user = await verifyAuthToken(token);
 
   if (user) {
-    console.debug('Subscription authenticated for user:', user.id);
+    logger.debug('Subscription authenticated', { userId: user.id });
   }
 
   // biome-ignore lint/suspicious/noExplicitAny: Prisma/loaders provided by HTTP context factory
@@ -135,8 +138,7 @@ export const getWebSocketServerOptions = () => ({
                        connectionParams['Authorization'] ||
                        connectionParams['authToken']);
 
-    console.info('WebSocket Client Connected:', {
-      timestamp: new Date().toISOString(),
+    logger.info('WebSocket client connected', {
       authenticated: hasAuth,
       connectionParams: Object.keys(connectionParams),
     });
@@ -148,32 +150,26 @@ export const getWebSocketServerOptions = () => ({
 
   // Connection close
   onDisconnect: async (_ctx: unknown, code: number, reason: string) => {
-    console.info('WebSocket Client Disconnected:', {
-      code,
-      reason,
-      timestamp: new Date().toISOString(),
-    });
+    logger.info('WebSocket client disconnected', { code, reason });
   },
 
   // Subscription start
   onSubscribe: async (ctx: { extra?: { user?: { id: string } } }, msg: { payload?: { operationName?: string } }) => {
     const user = ctx.extra?.user;
-    console.debug('Subscription Started:', {
-      operationName: msg.payload?.operationName,
-      userId: user?.id || 'anonymous',
-      timestamp: new Date().toISOString(),
+    logger.debug('Subscription started', {
+      operationName: msg.payload?.operationName ?? 'anonymous',
+      userId: user?.id ?? 'anonymous',
     });
   },
 
   // Handle errors
   onError: (_ctx: unknown, _message: unknown, errors: readonly Error[]) => {
-    errors.forEach((error) => {
-      console.error('WebSocket Subscription Error:', {
+    for (const error of errors) {
+      logger.error('WebSocket subscription error', {
         message: error.message,
-        stack: process.env.NODE_ENV !== 'production' ? error.stack : undefined,
-        timestamp: new Date().toISOString(),
+        stack: error.stack,
       });
-    });
+    }
   },
 });
 

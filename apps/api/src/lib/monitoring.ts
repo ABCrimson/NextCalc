@@ -7,6 +7,8 @@
  * @module apps/api/src/lib/monitoring
  */
 
+import { logger } from './logger';
+
 /**
  * Performance metric interface
  */
@@ -56,53 +58,36 @@ export interface MonitoringService {
 
 class ConsoleMonitoringService implements MonitoringService {
   async sendMetrics(metrics: PerformanceMetric): Promise<void> {
-    if (process.env.NODE_ENV === 'production') {
-      // In production, structure logs for log aggregation services
-      console.log(JSON.stringify({
-        type: 'METRICS',
-        ...metrics,
-        resolverDurations: metrics.resolverDurations
-          ? Object.fromEntries(metrics.resolverDurations)
-          : undefined,
-      }));
-    } else {
-      console.debug('[Metrics]', {
-        operation: metrics.operationName,
-        duration: `${metrics.duration}ms`,
-        errors: metrics.errors,
-      });
-    }
+    logger.info('Performance metrics', {
+      type: 'METRICS',
+      operationName: metrics.operationName ?? 'anonymous',
+      operationType: metrics.operationType,
+      durationMs: metrics.duration,
+      errors: metrics.errors,
+      ...(metrics.resolverDurations
+        ? { resolverDurations: Object.fromEntries(metrics.resolverDurations) }
+        : {}),
+      ...(metrics.tags ? { tags: metrics.tags } : {}),
+    });
   }
 
   async sendError(error: Error, context?: ErrorContext): Promise<void> {
-    if (process.env.NODE_ENV === 'production') {
-      console.log(JSON.stringify({
-        type: 'ERROR',
-        error: {
-          name: error.name,
-          message: error.message,
-          stack: error.stack,
-        },
-        ...context,
-        timestamp: new Date().toISOString(),
-      }));
-    } else {
-      console.error('[ErrorTracking]', {
-        message: error.message,
-        ...context,
-      });
-    }
+    logger.error('Monitoring error captured', {
+      type: 'ERROR',
+      errorName: error.name,
+      errorMessage: error.message,
+      stack: error.stack,
+      ...(context ? context : {}),
+    });
   }
 
   async sendUsage(usage: AnalyticsUsage): Promise<void> {
-    if (process.env.NODE_ENV === 'production') {
-      console.log(JSON.stringify({
-        type: 'USAGE',
-        ...usage,
-      }));
-    } else {
-      console.debug('[Usage]', usage);
-    }
+    logger.debug('Usage analytics', {
+      type: 'USAGE',
+      operationName: usage.operationName ?? 'anonymous',
+      operationType: usage.operationType,
+      ...(usage.userId ? { userId: usage.userId } : {}),
+    });
   }
 }
 
@@ -130,7 +115,7 @@ export async function sendMetrics(metrics: PerformanceMetric): Promise<void> {
   try {
     await monitoringService.sendMetrics(metrics);
   } catch (e) {
-    console.error('Failed to send metrics:', e);
+    logger.error('Failed to send metrics', { error: e instanceof Error ? e.message : String(e) });
   }
 }
 
@@ -141,7 +126,7 @@ export async function sendError(error: Error, context?: ErrorContext): Promise<v
   try {
     await monitoringService.sendError(error, context);
   } catch (e) {
-    console.error('Failed to send error:', e);
+    logger.error('Failed to send error report', { error: e instanceof Error ? e.message : String(e) });
   }
 }
 
@@ -152,7 +137,7 @@ export async function sendUsage(usage: AnalyticsUsage): Promise<void> {
   try {
     await monitoringService.sendUsage(usage);
   } catch (e) {
-    console.error('Failed to send usage:', e);
+    logger.error('Failed to send usage analytics', { error: e instanceof Error ? e.message : String(e) });
   }
 }
 

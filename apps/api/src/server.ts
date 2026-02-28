@@ -24,6 +24,7 @@ import { typeDefs } from './graphql/schema';
 import { resolvers } from './graphql/resolvers';
 import type { GraphQLContext } from './lib/context';
 import { createDataLoaders } from './lib/dataloaders';
+import { logger } from './lib/logger';
 import {
 	performanceMonitoringPlugin,
 	responseCachingPlugin,
@@ -53,15 +54,14 @@ const formatError = (
 ): GraphQLFormattedError => {
 	const originalError = unwrapResolverError(error);
 
-	if (isDevelopment) {
-		console.error('GraphQL Error:', {
-			message: formattedError.message,
-			path: formattedError.path,
-			code: formattedError.extensions?.['code'],
-			original:
-				originalError instanceof Error ? originalError.message : undefined,
-		});
-	}
+	// Always log errors structurally — in production the level filter handles visibility
+	logger.error('GraphQL error in formatError', {
+		message: formattedError.message,
+		path: formattedError.path?.join('.'),
+		code: formattedError.extensions?.['code'] as string | undefined,
+		original:
+			originalError instanceof Error ? originalError.message : undefined,
+	});
 
 	// In production, mask internal server errors to avoid leaking implementation details
 	if (
@@ -105,10 +105,16 @@ export function createApolloServer(httpServer?: import('node:http').Server) {
 			// AS5 error lifecycle hooks
 			{
 				async contextCreationDidFail({ error }) {
-					console.error('Context creation failed:', error);
+					logger.error('Context creation failed', {
+						error: error instanceof Error ? error.message : String(error),
+						stack: error instanceof Error ? error.stack : undefined,
+					});
 				},
 				async unexpectedErrorProcessingRequest({ error }) {
-					console.error('Unexpected Apollo Server error:', error);
+					logger.error('Unexpected Apollo Server error', {
+						error: error instanceof Error ? error.message : String(error),
+						stack: error instanceof Error ? error.stack : undefined,
+					});
 				},
 			},
 
@@ -147,3 +153,5 @@ if (process.env.NODE_ENV === 'production') {
 /** Re-exports for SSE/subscription consumers */
 export { createDataLoaders };
 export type { GraphQLContext };
+export { rateLimit } from './lib/cache';
+export { RateLimitError } from './lib/errors';

@@ -14,8 +14,7 @@ import type {
 } from '@apollo/server';
 import type { GraphQLContext } from '../lib/context';
 import { sendMetrics, sendError, sendUsage } from '../lib/monitoring';
-
-const isDev = process.env.NODE_ENV !== 'production';
+import { logger } from '../lib/logger';
 
 interface PerformanceMetrics {
 	operationName?: string | null;
@@ -39,12 +38,10 @@ export const performanceMonitoringPlugin =
 				async didResolveOperation(
 					requestContext: GraphQLRequestContext<GraphQLContext>,
 				) {
-					if (isDev) {
-						console.debug('GraphQL Operation:', {
-							name: requestContext.operationName,
-							type: requestContext.operation?.operation,
-						});
-					}
+					logger.debug('GraphQL operation resolved', {
+						operationName: requestContext.operationName ?? 'anonymous',
+						operationType: requestContext.operation?.operation,
+					});
 				},
 
 				async executionDidStart() {
@@ -58,9 +55,9 @@ export const performanceMonitoringPlugin =
 								resolverDurations.set(fieldPath, existing + duration);
 
 								if (duration > 100) {
-									console.warn('Slow Resolver:', {
+									logger.warn('Slow resolver detected', {
 										field: fieldPath,
-										duration: `${duration}ms`,
+										durationMs: duration,
 									});
 								}
 							};
@@ -85,12 +82,11 @@ export const performanceMonitoringPlugin =
 
 					const logLevel =
 						errors > 0 ? 'error' : duration > 1000 ? 'warn' : 'info';
-					const logFn = console[logLevel] || console.log;
 
-					logFn('GraphQL Request:', {
-						op: metrics.operationName,
-						type: metrics.operationType,
-						ms: duration,
+					logger[logLevel]('GraphQL request completed', {
+						operationName: metrics.operationName ?? 'anonymous',
+						operationType: metrics.operationType,
+						durationMs: duration,
 						errors,
 					});
 
@@ -99,8 +95,8 @@ export const performanceMonitoringPlugin =
 							.sort((a, b) => b[1] - a[1])
 							.slice(0, 10);
 
-						console.info('Resolver Breakdown:', {
-							op: metrics.operationName,
+						logger.info('Resolver breakdown for slow query', {
+							operationName: metrics.operationName ?? 'anonymous',
 							totalMs: duration,
 							resolvers: top.map(([field, ms]) => ({
 								field,
@@ -136,13 +132,11 @@ export const responseCachingPlugin =
 							maxAge = 300;
 						}
 
-						if (isDev) {
-							console.debug('Cache Hint:', {
-								op: requestContext.operationName,
-								scope,
-								maxAge,
-							});
-						}
+						logger.debug('Cache hint applied', {
+							operationName: requestContext.operationName ?? 'anonymous',
+							scope,
+							maxAge,
+						});
 					}
 				},
 			};
@@ -178,7 +172,10 @@ export const queryComplexityPlugin = (
 export const errorTrackingPlugin =
 	(): ApolloServerPlugin<GraphQLContext> => ({
 		async contextCreationDidFail({ error }) {
-			console.error('Context creation failed:', error);
+			logger.error('Context creation failed in error tracking plugin', {
+				error: error instanceof Error ? error.message : String(error),
+				stack: error instanceof Error ? error.stack : undefined,
+			});
 			await sendError(
 				error instanceof Error ? error : new Error(String(error)),
 				{ operationName: 'contextCreation' },
@@ -186,7 +183,10 @@ export const errorTrackingPlugin =
 		},
 
 		async unexpectedErrorProcessingRequest({ error }) {
-			console.error('Unexpected Apollo Server error:', error);
+			logger.error('Unexpected Apollo Server error', {
+				error: error instanceof Error ? error.message : String(error),
+				stack: error instanceof Error ? error.stack : undefined,
+			});
 			await sendError(
 				error instanceof Error ? error : new Error(String(error)),
 				{ operationName: 'unexpectedError' },
@@ -197,11 +197,11 @@ export const errorTrackingPlugin =
 			return {
 				async didEncounterErrors(requestContext) {
 					for (const error of requestContext.errors ?? []) {
-						console.error('GraphQL Error:', {
+						logger.error('GraphQL resolver error', {
 							message: error.message,
-							path: error.path,
-							code: error.extensions?.['code'],
-							op: requestContext.operationName,
+							path: error.path?.join('.'),
+							code: error.extensions?.['code'] as string | undefined,
+							operationName: requestContext.operationName ?? 'anonymous',
 						});
 
 						await sendError(error, {

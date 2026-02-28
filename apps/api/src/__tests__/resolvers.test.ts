@@ -104,6 +104,7 @@ const mockWorksheet = {
   folderId: null,
   userId: 'user1',
   views: 0,
+  version: 0,
   createdAt: NOW,
   updatedAt: NOW,
   deletedAt: null,

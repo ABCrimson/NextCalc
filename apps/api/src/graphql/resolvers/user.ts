@@ -6,6 +6,7 @@
 
 import type { GraphQLContext } from '../../lib/context';
 import type { User } from '@nextcalc/database';
+import { NotFoundError, ForbiddenError } from '../../lib/errors';
 
 export const userResolvers = {
   Query: {
@@ -35,7 +36,7 @@ export const userResolvers = {
       });
 
       if (!user) {
-        throw new Error('User not found');
+        throw new NotFoundError('User', args.id);
       }
 
       // Only allow viewing if:
@@ -48,7 +49,7 @@ export const userResolvers = {
         return user;
       }
 
-      throw new Error('Insufficient permissions to view this user');
+      throw new ForbiddenError('You do not have permission to view this user');
     },
   },
 

@@ -48,6 +48,7 @@ model User {
   upvotes            Upvote[]
   auditLogs          AuditLog[]
   userProgress       UserProgress?
+  sharedCalculations SharedCalculation[]
 
   @@map("users")
   @@index([email])
@@ -275,6 +276,31 @@ model Upvote {
   @@map("upvotes")
   @@index([targetId, targetType]) // For counting upvotes efficiently
   @@index([userId])
+}
+
+// ============================================================================
+// SHARED CALCULATIONS
+// ============================================================================
+
+model SharedCalculation {
+  id          String    @id @default(cuid())
+  shortCode   String    @unique @db.VarChar(8) // 8-char alphanumeric code
+  latex       String    @db.Text               // LaTeX expression
+  expression  String    @db.Text               // Plain-text expression (for calculator restore)
+  title       String?   @db.VarChar(255)
+  description String?   @db.Text
+  result      String?   @db.Text               // Pre-computed result string
+  userId      String?                          // Optional — anonymous shares allowed
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime?                        // Optional expiry for auto-cleanup
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("shared_calculations")
+  @@index([shortCode])
+  @@index([userId])
+  @@index([createdAt(sort: Desc)])
+  @@index([expiresAt])
 }
 
 // ============================================================================

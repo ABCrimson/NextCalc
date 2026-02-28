@@ -10,6 +10,7 @@
  */
 
 import { z } from 'zod';
+import { ValidationError } from './errors';
 
 // ============================================================================
 // COMMON SCHEMAS
@@ -145,6 +146,32 @@ export const shareWorksheetSchema = z.object({
 export type ShareWorksheetInput = z.infer<typeof shareWorksheetSchema>;
 
 // ============================================================================
+// SHARED CALCULATION SCHEMAS
+// ============================================================================
+
+export const shareCalculationSchema = z.object({
+  latex: z.string().min(1).max(10000).trim(),
+  expression: z.string().min(1).max(10000).trim(),
+  title: z.string().max(255).trim().optional(),
+  description: z.string().max(2000).trim().optional(),
+  result: z.string().max(10000).trim().optional(),
+});
+
+export type ShareCalculationInput = z.infer<typeof shareCalculationSchema>;
+
+// ============================================================================
+// CALCULATION SCHEMAS
+// ============================================================================
+
+export const calculationSchema = z.object({
+  expression: z.string().min(1).max(10000),
+  variables: z.record(z.string(), z.unknown()).optional(),
+  precision: z.number().int().min(1).max(64).optional(),
+});
+
+export type CalculationInput = z.infer<typeof calculationSchema>;
+
+// ============================================================================
 // FILTER SCHEMAS
 // ============================================================================
 
@@ -192,8 +219,14 @@ export function validate<T>(schema: z.ZodSchema<T>, input: unknown): T {
   const result = schema.safeParse(input);
 
   if (!result.success) {
-    const errors = result.error.issues.map((err: z.ZodIssue) => `${err.path.join('.')}: ${err.message}`);
-    throw new Error(`Validation failed: ${errors.join(', ')}`);
+    const fieldErrors: Record<string, string[]> = {};
+    for (const err of result.error.issues) {
+      const path = err.path.join('.') || '_root';
+      if (!fieldErrors[path]) fieldErrors[path] = [];
+      fieldErrors[path].push(err.message);
+    }
+    const summary = result.error.issues.map((err: z.ZodIssue) => `${err.path.join('.')}: ${err.message}`).join(', ');
+    throw new ValidationError(`Validation failed: ${summary}`, undefined, fieldErrors);
   }
 
   return result.data;
