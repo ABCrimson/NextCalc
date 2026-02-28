@@ -65,73 +65,73 @@ const coreNavigationLinks: NavLink[] = [
 	{
 		href: '/',
 		labelKey: 'nav.calculator',
-		descKey: 'nav.calculator.description',
+		descKey: 'nav.calculatorDescription',
 		icon: Calculator,
 	},
 	{
 		href: '/plot',
 		labelKey: 'nav.plot',
-		descKey: 'nav.plot.description',
+		descKey: 'nav.plotDescription',
 		icon: TrendingUp,
 	},
 	{
 		href: '/symbolic',
 		labelKey: 'nav.symbolic',
-		descKey: 'nav.symbolic.description',
+		descKey: 'nav.symbolicDescription',
 		icon: Variable,
 	},
 	{
 		href: '/matrix',
 		labelKey: 'nav.matrix',
-		descKey: 'nav.matrix.description',
+		descKey: 'nav.matrixDescription',
 		icon: Grid3x3,
 	},
 	{
 		href: '/solver',
 		labelKey: 'nav.solver',
-		descKey: 'nav.solver.description',
+		descKey: 'nav.solverDescription',
 		icon: Square,
 	},
 	{
 		href: '/units',
 		labelKey: 'nav.units',
-		descKey: 'nav.units.description',
+		descKey: 'nav.unitsDescription',
 		icon: Ruler,
 	},
 	{
 		href: '/stats',
 		labelKey: 'nav.stats',
-		descKey: 'nav.stats.description',
+		descKey: 'nav.statsDescription',
 		icon: BarChart2,
 	},
 	{
 		href: '/complex',
 		labelKey: 'nav.complex',
-		descKey: 'nav.complex.description',
+		descKey: 'nav.complexDescription',
 		icon: Infinity,
 	},
 	{
 		href: '/worksheet',
 		labelKey: 'nav.worksheet',
-		descKey: 'nav.worksheet.description',
+		descKey: 'nav.worksheetDescription',
 		icon: BookOpen,
 	},
 	{
 		href: '/forum',
 		labelKey: 'nav.forum',
-		descKey: 'nav.forum.description',
+		descKey: 'nav.forumDescription',
 		icon: MessageSquare,
 	},
 	{
 		href: '/formulas',
 		labelKey: 'nav.formulas',
-		descKey: 'nav.formulas.description',
+		descKey: 'nav.formulasDescription',
 		icon: Library,
 	},
 	{
 		href: '/templates',
 		labelKey: 'nav.templates',
-		descKey: 'nav.templates.description',
+		descKey: 'nav.templatesDescription',
 		icon: Box,
 	},
 ];
@@ -140,55 +140,55 @@ const algorithmLinks: NavLink[] = [
 	{
 		href: '/algorithms',
 		labelKey: 'nav.algorithms',
-		descKey: 'nav.algorithms.description',
+		descKey: 'nav.algorithmsDescription',
 		icon: Sparkles,
 	},
 	{
 		href: '/fourier',
 		labelKey: 'nav.fourier',
-		descKey: 'nav.fourier.description',
+		descKey: 'nav.fourierDescription',
 		icon: Activity,
 	},
 	{
 		href: '/game-theory',
 		labelKey: 'nav.gameTheory',
-		descKey: 'nav.gameTheory.description',
+		descKey: 'nav.gameTheoryDescription',
 		icon: Trophy,
 	},
 	{
 		href: '/chaos',
 		labelKey: 'nav.chaos',
-		descKey: 'nav.chaos.description',
+		descKey: 'nav.chaosDescription',
 		icon: Wind,
 	},
 	{
 		href: '/pde',
 		labelKey: 'nav.pde',
-		descKey: 'nav.pde.description',
+		descKey: 'nav.pdeDescription',
 		icon: Flame,
 	},
 	{
 		href: '/pde/3d',
 		labelKey: 'nav.pde3d',
-		descKey: 'nav.pde3d.description',
+		descKey: 'nav.pde3dDescription',
 		icon: Box,
 	},
 	{
 		href: '/solver/ode',
 		labelKey: 'nav.ode',
-		descKey: 'nav.ode.description',
+		descKey: 'nav.odeDescription',
 		icon: Activity,
 	},
 	{
 		href: '/graphs-full',
 		labelKey: 'nav.graphs',
-		descKey: 'nav.graphs.description',
+		descKey: 'nav.graphsDescription',
 		icon: Network,
 	},
 	{
 		href: '/ml-algorithms',
 		labelKey: 'nav.ml',
-		descKey: 'nav.ml.description',
+		descKey: 'nav.mlDescription',
 		icon: Brain,
 	},
 ];
@@ -400,9 +400,9 @@ export function Navigation() {
 								>
 									<Sparkles className="h-4 w-4" aria-hidden="true" />
 									<div className="flex flex-col">
-										<span className="font-medium">{t('nav.algorithms.all' as Parameters<typeof t>[0])}</span>
+										<span className="font-medium">{t('nav.algorithmsAll' as Parameters<typeof t>[0])}</span>
 										<span className="text-xs text-muted-foreground">
-											{t('nav.algorithms.browse' as Parameters<typeof t>[0])}
+											{t('nav.algorithmsBrowse' as Parameters<typeof t>[0])}
 										</span>
 									</div>
 								</Link>
@@ -529,7 +529,7 @@ export function Navigation() {
 									<div className="flex flex-col">
 										<span className="font-medium">{t('nav.settings' as Parameters<typeof t>[0])}</span>
 										<span className="text-xs text-muted-foreground">
-											{t('nav.settings.description' as Parameters<typeof t>[0])}
+											{t('nav.settingsDescription' as Parameters<typeof t>[0])}
 										</span>
 									</div>
 								</Link>

@@ -6,12 +6,11 @@ import { Atom } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export default function QuantumPage() {
-  const t = useTranslations('algorithms.quantum');
-  const ta = useTranslations('algorithms');
+  const t = useTranslations('algorithms');
 
   return (
     <AlgorithmPage
-      title={t('title')}
+      title={t('quantumTitle')}
       icon={Atom}
       category="quantum"
       difficulty="expert"
@@ -20,11 +19,11 @@ export default function QuantumPage() {
       yearIntroduced={1980}
       tags={['quantum', 'qubits', 'superposition', 'entanglement', 'gates']}
       breadcrumbs={[
-        { label: ta('title'), href: '/algorithms' },
-        { label: t('breadcrumbCategory'), href: '/algorithms?category=quantum' },
-        { label: t('breadcrumbCurrent') },
+        { label: t('title'), href: '/algorithms' },
+        { label: t('quantumBreadcrumbCategory'), href: '/algorithms?category=quantum' },
+        { label: t('quantumBreadcrumbCurrent') },
       ]}
-      description={t('description')}
+      description={t('quantumDescription')}
       applications={[
         'Quantum Cryptography (QKD)',
         'Quantum Search (Grover\'s Algorithm)',

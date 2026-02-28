@@ -590,17 +590,17 @@ export default function SettingsPage() {
                       htmlFor="thousandsSep"
                       className="text-sm font-medium text-foreground"
                     >
-                      {t('calcDefaults.thousandsSeparator')}
+                      {t('calcDefaultsThousandsSeparator')}
                     </Label>
                     <p className="text-xs text-muted-foreground">
-                      {t('calcDefaults.thousandsSeparatorHint')}
+                      {t('calcDefaultsThousandsSeparatorHint')}
                     </p>
                   </div>
                   <Switch
                     id="thousandsSep"
                     checked={thousandsSeparator}
                     onCheckedChange={setThousandsSeparator}
-                    aria-label={t('calcDefaults.thousandsSeparator')}
+                    aria-label={t('calcDefaultsThousandsSeparator')}
                   />
                 </div>
               </CardContent>

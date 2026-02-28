@@ -346,8 +346,8 @@ function RecentActivityFeed({ calculations, worksheets, locale }: RecentActivity
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <span className="mb-3 text-4xl" aria-hidden="true">📭</span>
-        <p className="text-sm font-medium text-foreground">{t('recentActivity.empty')}</p>
-        <p className="mt-1 text-xs text-muted-foreground">{t('recentActivity.emptyHint')}</p>
+        <p className="text-sm font-medium text-foreground">{t('recentActivityEmpty')}</p>
+        <p className="mt-1 text-xs text-muted-foreground">{t('recentActivityEmptyHint')}</p>
       </div>
     );
   }
@@ -395,7 +395,7 @@ function RecentActivityFeed({ calculations, worksheets, locale }: RecentActivity
                 </span>
               )}
               <Badge variant="outline" className="flex-shrink-0 text-xs">
-                {entry.kind === 'calculation' ? t('recentActivity.calculation') : t('recentActivity.worksheet')}
+                {entry.kind === 'calculation' ? t('recentActivityCalculation') : t('recentActivityWorksheet')}
               </Badge>
               {entry.kind === 'worksheet' && (
                 <Badge
@@ -881,7 +881,7 @@ export function ProfileOverview({
                   href="/worksheet"
                   className="text-xs text-muted-foreground underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 >
-                  {t('recentActivity.viewAll')}
+                  {t('recentActivityViewAll')}
                 </Link>
               )}
             </div>
