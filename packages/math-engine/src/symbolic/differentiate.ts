@@ -148,8 +148,31 @@ function differentiateOperator(node: OperatorNode, variable: string): Expression
       }
 
       // General case: (f^g)' = f^g * (g' * ln(f) + g * f'/f)
-      // This is complex, for now just handle the special cases above
-      throw new Error('Differentiation of general variable exponents not yet implemented');
+      // Derived via logarithmic differentiation: let y = f^g, then
+      // ln(y) = g*ln(f), differentiate both sides, multiply through by y.
+      return createOperatorNode(
+        '*',
+        'multiply',
+        [
+          node, // f^g
+          createOperatorNode(
+            '+',
+            'add',
+            [
+              // g' * ln(f)
+              createOperatorNode('*', 'multiply', [
+                rightPrime,
+                createFunctionNode('log', [left]),
+              ]),
+              // g * f'/f
+              createOperatorNode('*', 'multiply', [
+                right,
+                createOperatorNode('/', 'divide', [leftPrime, left]),
+              ]),
+            ]
+          ),
+        ]
+      );
 
     default:
       throw new Error(`Unknown operator: ${node.op}`);

@@ -256,36 +256,46 @@ export function topologicalSort(graph: Graph): ReadonlyArray<number> {
 
   const adj = buildAdjacencyList(graph);
   const visited = new Set<number>();
-  const recursionStack = new Set<number>();
+  const onStack = new Set<number>();
   const result: number[] = [];
 
-  // DFS visit function
-  function dfsVisit(v: number): void {
-    if (recursionStack.has(v)) {
-      throw new Error('Graph contains cycle - topological sort not possible');
+  // Iterative DFS to avoid stack overflow on large graphs.
+  // Each stack frame stores the vertex and the index into its neighbor list.
+  for (let startV = 0; startV < vertices; startV++) {
+    if (visited.has(startV)) continue;
+
+    const stack: Array<{ v: number; idx: number }> = [{ v: startV, idx: 0 }];
+    visited.add(startV);
+    onStack.add(startV);
+
+    while (stack.length > 0) {
+      const frame = stack[stack.length - 1]!;
+      const neighbors = adj.get(frame.v) ?? [];
+
+      if (frame.idx < neighbors.length) {
+        const next = neighbors[frame.idx]!.to;
+        frame.idx++;
+
+        if (onStack.has(next)) {
+          throw new Error('Graph contains cycle - topological sort not possible');
+        }
+
+        if (!visited.has(next)) {
+          visited.add(next);
+          onStack.add(next);
+          stack.push({ v: next, idx: 0 });
+        }
+      } else {
+        // All neighbors processed — postorder
+        onStack.delete(frame.v);
+        result.push(frame.v);
+        stack.pop();
+      }
     }
-
-    if (visited.has(v)) return;
-
-    visited.add(v);
-    recursionStack.add(v);
-
-    const neighbors = adj.get(v) ?? [];
-    for (const neighbor of neighbors) {
-      dfsVisit(neighbor.to);
-    }
-
-    recursionStack.delete(v);
-    result.unshift(v); // Add to front (reverse postorder)
   }
 
-  // Visit all vertices
-  for (let v = 0; v < vertices; v++) {
-    if (!visited.has(v)) {
-      dfsVisit(v);
-    }
-  }
-
+  // result is in postorder; reverse for topological order
+  result.reverse();
   return result;
 }
 

@@ -328,11 +328,16 @@ describe('Symbolic Simplification', () => {
       expect(() => simplify(expr)).toThrow('Modulo by zero');
     });
 
-    it.skip('should handle negative exponents (parser limitation)', () => {
-      // Parser doesn't support unary minus yet
-      // const expr = parse('x ^ -1');
-      // const simplified = simplify(expr);
-      // expect(astToString(simplified)).toBeDefined();
+    it('should handle negative exponents', () => {
+      // x ^ -1 parses as OperatorNode(^, [x, UnaryOperatorNode(-, [1])])
+      // The simplifier folds the unary minus into a ConstantNode(-1), producing x^(-1)
+      const expr = parse('x ^ -1');
+      const simplified = simplify(expr);
+      const result = astToString(simplified);
+      // Should produce x raised to the power -1 without error
+      expect(result).toBeDefined();
+      expect(result).toContain('x');
+      expect(result).toContain('-1');
     });
 
     it('should handle fractional exponents', () => {

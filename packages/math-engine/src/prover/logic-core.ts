@@ -213,7 +213,11 @@ export function exists(variable: string, scope: Formula): QuantifiedFormula {
 }
 
 /**
- * Extract all atomic propositions from a formula
+ * Extract all atomic propositions from a formula.
+ *
+ * The built-in logical constants '⊤' (true) and '⊥' (false) are excluded
+ * because they do not need an assignment entry — evaluate() handles them
+ * directly and always returns the correct truth value.
  */
 export function getAtoms(formula: Formula): Set<string> {
   const atoms = new Set<string>();
@@ -221,7 +225,9 @@ export function getAtoms(formula: Formula): Set<string> {
   function traverse(f: Formula): void {
     switch (f.type) {
       case 'atomic':
-        atoms.add(f.symbol);
+        if (f.symbol !== '⊤' && f.symbol !== '⊥') {
+          atoms.add(f.symbol);
+        }
         break;
       case 'not':
         traverse(f.operand);
@@ -285,11 +291,18 @@ export function getFreeVariables(formula: Formula, bound = new Set<string>()): S
 }
 
 /**
- * Evaluate a propositional formula under an assignment
+ * Evaluate a propositional formula under an assignment.
+ *
+ * The logical constants '⊤' (true) and '⊥' (false) are evaluated without
+ * consulting the assignment map — they always return true and false
+ * respectively, matching the semantics of the 'T'/'⊤' and 'F'/'⊥' tokens
+ * emitted by the parser.
  */
 export function evaluate(formula: Formula, assignment: Assignment): boolean {
   switch (formula.type) {
     case 'atomic': {
+      if (formula.symbol === '⊤') return true;
+      if (formula.symbol === '⊥') return false;
       const value = assignment.get(formula.symbol);
       if (value === undefined) {
         throw new Error(`Unassigned variable: ${formula.symbol}`);
@@ -459,12 +472,21 @@ export function toString(formula: Formula, unicode = true): string {
 }
 
 /**
- * Parse a simple formula string (basic implementation)
+ * Parse a formula string supporting propositional and first-order logic.
+ *
+ * Grammar (lowest to highest precedence):
+ *   formula  ::= iff
+ *   iff      ::= implies ('<->' | '↔' | implies)*
+ *   implies  ::= or (('->' | '→' | '=>') or)*
+ *   or       ::= and (('|' | '∨' | 'OR') and)*
+ *   and      ::= not (('&' | '∧' | 'AND') not)*
+ *   not      ::= ('~' | '¬' | 'NOT') not | quantified
+ *   quantified ::= ('forall' | '∀' | 'exists' | '∃') IDENT '.' formula | primary
+ *   primary  ::= '(' formula ')' | IDENT ['(' termList ')'] | 'T' | '⊤' | 'F' | '⊥'
+ *   termList ::= term (',' term)*
+ *   term     ::= IDENT ['(' termList ')']
  */
 export function parse(input: string): Formula {
-  // This is a simplified parser for demonstration
-  // A full implementation would use proper lexing and parsing
-
   const tokens = tokenize(input);
   let position = 0;
 
@@ -475,7 +497,7 @@ export function parse(input: string): Formula {
   function consume(expected?: string): string {
     const token = tokens[position++];
     if (expected !== undefined && token !== expected) {
-      throw new Error(`Expected '${expected}', got '${token}'`);
+      throw new Error(`Expected '${expected}', got '${String(token)}'`);
     }
     if (!token) {
       throw new Error('Unexpected end of input');
@@ -541,30 +563,142 @@ export function parse(input: string): Formula {
       return not(parseNot());
     }
 
+    return parseQuantified();
+  }
+
+  /**
+   * Parse a quantified formula: (forall|∀|exists|∃) variable '.' formula
+   * Falls through to parsePrimary when no quantifier is present.
+   */
+  function parseQuantified(): Formula {
+    const tok = current();
+
+    if (tok === 'forall' || tok === '∀' || tok === 'exists' || tok === '∃') {
+      consume(); // consume the quantifier keyword
+
+      // The bound variable must be a single identifier (may be lower or upper case)
+      const varTok = consume();
+      if (!varTok.match(/^[a-zA-Z][a-zA-Z0-9_]*$/)) {
+        throw new Error(`Expected variable name after quantifier, got '${varTok}'`);
+      }
+
+      // Require a '.' separator between the variable and the scope formula
+      consume('.');
+
+      const scope = parseExpression();
+      const quantifier =
+        tok === 'forall' || tok === '∀'
+          ? LogicalOperator.FORALL
+          : LogicalOperator.EXISTS;
+      return { type: 'quantified', quantifier, variable: varTok, scope };
+    }
+
     return parsePrimary();
   }
 
-  function parsePrimary(): Formula {
+  /**
+   * Parse a term used inside predicate argument lists.
+   *   term ::= IDENT ['(' termList ')']
+   */
+  function parseTerm(): Term {
+    const name = consume();
+    if (!name.match(/^[a-zA-Z][a-zA-Z0-9_]*$/)) {
+      throw new Error(`Expected term, got '${name}'`);
+    }
+
+    // Function term: symbol followed by '('
     if (current() === '(') {
+      consume('(');
+      const args: Term[] = [];
+      if (current() !== ')') {
+        args.push(parseTerm());
+        while (current() === ',') {
+          consume(',');
+          args.push(parseTerm());
+        }
+      }
+      consume(')');
+      return { type: 'function', symbol: name, args };
+    }
+
+    // Variable term: lowercase or single character — treat as variable
+    if (/^[a-z]/.test(name)) {
+      return { type: 'variable', name };
+    }
+
+    // Constant term: uppercase identifier used as a ground constant
+    return { type: 'constant', value: name };
+  }
+
+  function parsePrimary(): Formula {
+    const tok = current();
+
+    // Grouped sub-formula
+    if (tok === '(') {
       consume('(');
       const expr = parseExpression();
       consume(')');
       return expr;
     }
 
-    const symbol = consume();
-    if (symbol.match(/^[A-Z][a-zA-Z0-9]*$/)) {
-      return atom(symbol);
+    // Logical constant TRUE: 'T' or '⊤'
+    if (tok === 'T' || tok === '⊤') {
+      consume();
+      // Represent as P & ~P being false makes no sense; use a tautological atom pair.
+      // Canonical representation: atom('⊤') with no args.
+      return atom('⊤');
     }
 
-    throw new Error(`Invalid symbol: ${symbol}`);
+    // Logical constant FALSE: 'F' or '⊥'
+    if (tok === 'F' || tok === '⊥') {
+      consume();
+      return atom('⊥');
+    }
+
+    // Identifier — may be a proposition or a predicate with arguments
+    const symbol = consume();
+
+    // Allow any identifier: uppercase for propositions/predicates, lowercase for bound vars
+    if (!symbol.match(/^[a-zA-Z][a-zA-Z0-9_]*$/)) {
+      throw new Error(`Invalid symbol: '${symbol}'`);
+    }
+
+    // Predicate with argument list: P(x, y, ...)
+    if (current() === '(') {
+      consume('(');
+      const args: Term[] = [];
+      if (current() !== ')') {
+        args.push(parseTerm());
+        while (current() === ',') {
+          consume(',');
+          args.push(parseTerm());
+        }
+      }
+      consume(')');
+      return atom(symbol, ...args);
+    }
+
+    // Plain proposition or variable reference (no args)
+    return atom(symbol);
   }
 
   return parseExpression();
 }
 
 /**
- * Tokenize input string
+ * Tokenize a logic formula string.
+ *
+ * Produces the following token types:
+ *   - Multi-char operators : '<->', '->', '=>'
+ *   - Keyword operators    : 'AND', 'OR', 'NOT', 'FORALL', 'EXISTS'
+ *   - Quantifier keywords  : 'forall', 'exists'  (lower-case accepted)
+ *   - Unicode operators    : '∧', '∨', '¬', '→', '↔', '∀', '∃', '⊤', '⊥'
+ *   - Identifiers          : sequences of [A-Za-z][A-Za-z0-9_]*
+ *   - Punctuation          : '(', ')', '.', ','
+ *   - Single-char operators: '~', '|', '&'
+ *
+ * Whitespace is skipped.  Unknown characters are emitted as single-char tokens
+ * so that the parser can produce a meaningful error message.
  */
 function tokenize(input: string): string[] {
   const tokens: string[] = [];
@@ -579,7 +713,8 @@ function tokenize(input: string): string[] {
       continue;
     }
 
-    // Multi-character operators
+    // ---- Multi-character ASCII operators (longest match first) ----
+
     if (input.slice(i, i + 3) === '<->') {
       tokens.push('<->');
       i += 3;
@@ -592,39 +727,82 @@ function tokenize(input: string): string[] {
       continue;
     }
 
-    // Keywords
-    if (input.slice(i, i + 3) === 'AND') {
+    // C-style logical operators: &&, ||
+    if (input.slice(i, i + 2) === '&&') {
       tokens.push('AND');
-      i += 3;
+      i += 2;
       continue;
     }
 
-    if (input.slice(i, i + 2) === 'OR') {
+    if (input.slice(i, i + 2) === '||') {
       tokens.push('OR');
       i += 2;
       continue;
     }
 
-    if (input.slice(i, i + 3) === 'NOT') {
-      tokens.push('NOT');
-      i += 3;
+    // C-style NOT: '!' (only when not followed by '=' to avoid confusion)
+    if (char === '!' && input[i + 1] !== '=') {
+      tokens.push('¬');
+      i++;
       continue;
     }
 
-    // Identifiers
-    if (char !== undefined && /[A-Za-z]/.test(char)) {
+    // ---- Identifiers and reserved keywords ----
+    // Identifiers may contain underscores and digits after the first letter.
+    if (char !== undefined && /[A-Za-z_]/.test(char)) {
       let identifier = '';
       let currentChar = input[i];
-      while (i < input.length && currentChar !== undefined && /[A-Za-z0-9]/.test(currentChar)) {
+      while (i < input.length && currentChar !== undefined && /[A-Za-z0-9_]/.test(currentChar)) {
         identifier += currentChar;
         i++;
         currentChar = input[i];
       }
-      tokens.push(identifier);
+
+      // Normalize well-known keywords to their canonical forms so the parser
+      // only needs to check a single spelling.
+      switch (identifier) {
+        case 'AND':
+          tokens.push('AND');
+          break;
+        case 'OR':
+          tokens.push('OR');
+          break;
+        case 'NOT':
+          tokens.push('NOT');
+          break;
+        case 'FORALL':
+          // Uppercase variant treated identically to the lower-case keyword
+          tokens.push('forall');
+          break;
+        case 'EXISTS':
+          tokens.push('exists');
+          break;
+        case 'forall':
+        case 'exists':
+          tokens.push(identifier);
+          break;
+        default:
+          tokens.push(identifier);
+      }
       continue;
     }
 
-    // Single character tokens
+    // ---- Unicode single-codepoint tokens ----
+    // Use codePointAt so surrogate pairs are handled correctly.
+    const cp = input.codePointAt(i);
+    const cpLen = cp !== undefined && cp > 0xffff ? 2 : 1;
+
+    if (char === '∧') { tokens.push('∧'); i += cpLen; continue; }
+    if (char === '∨') { tokens.push('∨'); i += cpLen; continue; }
+    if (char === '¬') { tokens.push('¬'); i += cpLen; continue; }
+    if (char === '→') { tokens.push('→'); i += cpLen; continue; }
+    if (char === '↔') { tokens.push('↔'); i += cpLen; continue; }
+    if (char === '∀') { tokens.push('∀'); i += cpLen; continue; }
+    if (char === '∃') { tokens.push('∃'); i += cpLen; continue; }
+    if (char === '⊤') { tokens.push('⊤'); i += cpLen; continue; }
+    if (char === '⊥') { tokens.push('⊥'); i += cpLen; continue; }
+
+    // ---- Single-character punctuation and operators ----
     if (char !== undefined) {
       tokens.push(char);
     }

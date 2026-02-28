@@ -305,7 +305,10 @@ describe('Differential Privacy', () => {
       const noisyMean = privateMean(values, bounds, epsilon);
 
       const trueMean = 30;
-      expect(Math.abs(noisyMean - trueMean)).toBeLessThan(50); // Reasonable error
+      // Laplace noise with scale = (max-min)/n / epsilon = 20. Tolerance must
+      // be large enough so P(|noise| > tol) is negligible (exp(-tol/scale)).
+      // 120 gives failure probability exp(-6) ≈ 0.0025, safe for CI.
+      expect(Math.abs(noisyMean - trueMean)).toBeLessThan(120);
     });
 
     it('should clamp values to bounds', () => {
@@ -316,8 +319,9 @@ describe('Differential Privacy', () => {
       const noisyMean = privateMean(values, bounds, epsilon);
 
       // Mean should be computed on clamped values: [5, 10, 100]
+      // Laplace scale = (max-min)/n / epsilon = 100/3 ≈ 33.3
       const clampedMean = (5 + 10 + 100) / 3;
-      expect(Math.abs(noisyMean - clampedMean)).toBeLessThan(50);
+      expect(Math.abs(noisyMean - clampedMean)).toBeLessThan(200);
     });
 
     it('should have smaller noise with larger dataset', () => {
@@ -369,9 +373,11 @@ describe('Differential Privacy', () => {
 
       expect(histogram).toHaveLength(bins);
 
-      // Total count should be roughly preserved (with noise)
+      // Total count should be roughly preserved (with noise).
+      // Each of 10 bins gets Laplace noise with scale = 1/(ε/bins) = 10,
+      // and negative counts are clipped to 0, adding positive bias.
       const totalCount = histogram.reduce((a, b) => a + b, 0);
-      expect(Math.abs(totalCount - 100)).toBeLessThan(50);
+      expect(Math.abs(totalCount - 100)).toBeLessThan(200);
     });
 
     it('should round counts to integers', () => {

@@ -275,6 +275,35 @@ describe('Exponential with Constant Base', () => {
   });
 });
 
+describe('General Variable Exponent Differentiation', () => {
+  it('differentiates x^x using the logarithmic differentiation formula', () => {
+    // (x^x)' = x^x * (1 * ln(x) + x * 1/x)
+    //         = x^x * (ln(x) + 1)
+    // At x = 1: 1^1 * (ln(1) + 1) = 1 * (0 + 1) = 1
+    const expr = parse('x^x');
+    const derivative = differentiate(expr, 'x');
+    const result = evaluate(derivative, { variables: { x: 1 } });
+    expect(result.value).toBeCloseTo(1, 10);
+  });
+
+  it('x^x derivative at x=2 equals 4*(ln(2)+1)', () => {
+    // (x^x)' at x=2: 2^2 * (ln(2) + 1) = 4 * (ln(2) + 1)
+    const expr = parse('x^x');
+    const derivative = differentiate(expr, 'x');
+    const result = evaluate(derivative, { variables: { x: 2 } });
+    expect(result.value).toBeCloseTo(4 * (Math.log(2) + 1), 10);
+  });
+
+  it('simplifies x^x derivative correctly', () => {
+    // After simplifyDerivative the structure is still numerically equivalent
+    const expr = parse('x^x');
+    const derivative = differentiate(expr, 'x');
+    const simplified = simplifyDerivative(derivative);
+    const result = evaluate(simplified, { variables: { x: 2 } });
+    expect(result.value).toBeCloseTo(4 * (Math.log(2) + 1), 10);
+  });
+});
+
 describe('Chain Rule', () => {
   it('differentiates sin(2*x)', () => {
     const expr = parse('sin(2*x)');

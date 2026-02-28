@@ -14,15 +14,18 @@ import type {
   ExpressionNode,
   OperatorNode,
   FunctionNode,
+  UnaryOperatorNode,
 } from '../parser/ast';
 import {
   createConstantNode,
   createSymbolNode,
   createOperatorNode,
+  createUnaryOperatorNode,
   createFunctionNode,
   isConstantNode,
   isSymbolNode,
   isOperatorNode,
+  isUnaryOperatorNode,
   isFunctionNode,
 } from '../parser/ast';
 
@@ -83,6 +86,10 @@ function astEquals(a: ExpressionNode, b: ExpressionNode): boolean {
     );
   }
 
+  if (isUnaryOperatorNode(a) && isUnaryOperatorNode(b)) {
+    return a.op === b.op && astEquals(a.args[0], b.args[0]);
+  }
+
   if (isFunctionNode(a) && isFunctionNode(b)) {
     if (a.fn !== b.fn || a.args.length !== b.args.length) return false;
     return a.args.every((arg, i) => {
@@ -104,6 +111,14 @@ function cloneNode(node: ExpressionNode): ExpressionNode {
 
   if (isSymbolNode(node)) {
     return createSymbolNode(node.name);
+  }
+
+  if (isUnaryOperatorNode(node)) {
+    return createUnaryOperatorNode(
+      node.op,
+      node.fn,
+      [cloneNode(node.args[0])] as const
+    );
   }
 
   if (isOperatorNode(node)) {
@@ -224,6 +239,10 @@ function simplifyOnce(expr: ExpressionNode): ExpressionNode {
     return expr;
   }
 
+  if (isUnaryOperatorNode(expr)) {
+    return simplifyUnaryOperator(expr);
+  }
+
   if (isOperatorNode(expr)) {
     return simplifyOperator(expr);
   }
@@ -233,6 +252,36 @@ function simplifyOnce(expr: ExpressionNode): ExpressionNode {
   }
 
   return expr;
+}
+
+/**
+ * Simplify unary operator nodes
+ *
+ * Folds unary minus/plus applied directly to a constant into a ConstantNode so
+ * that downstream rules (e.g. simplifyPower) can extract a numeric value via
+ * getNumericValue().  For non-constant operands the operand is simplified
+ * recursively and the unary node is preserved.
+ */
+function simplifyUnaryOperator(node: UnaryOperatorNode): ExpressionNode {
+  const operand = simplifyOnce(node.args[0]);
+
+  if (node.op === '-') {
+    // Constant folding: -(3) → -3
+    const val = getNumericValue(operand);
+    if (val !== null) {
+      return createConstantNode(-val);
+    }
+    // Preserve as unary minus with simplified operand
+    return createUnaryOperatorNode('-', node.fn, [operand] as const);
+  }
+
+  if (node.op === '+') {
+    // Unary plus is a no-op: +(x) → x
+    return operand;
+  }
+
+  // Unknown unary op — return with simplified operand
+  return createUnaryOperatorNode(node.op, node.fn, [operand] as const);
 }
 
 /**
@@ -1268,7 +1317,7 @@ function extractSquareRoot(expr: ExpressionNode): ExpressionNode | null {
 
 /**
  * Factor quadratic: ax^2 + bx + c
- * TODO: Implement complete quadratic factoring with coefficient extraction
+ * Factors over the integers when the discriminant is a perfect square.
  */
 function factorQuadratic(
   expr: ExpressionNode,

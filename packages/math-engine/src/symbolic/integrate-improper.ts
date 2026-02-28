@@ -104,7 +104,7 @@ function substituteVariable(
 
 /**
  * Check if function appears to decay exponentially
- * TODO: Currently unused but planned for future optimization of infinite integrals
+ * Planned: optimize infinite integrals by detecting exponential decay in the integrand
  */
 // function hasExponentialDecay(
 //   expr: ExpressionNode,
@@ -474,7 +474,7 @@ function integrateAroundSingularity(
  * Filon's method for oscillatory integrals
  *
  * Efficient for integrals of the form: ∫ f(x) * sin(ωx) dx or ∫ f(x) * cos(ωx) dx
- * TODO: Currently unused but planned for automatic detection and handling of oscillatory integrals
+ * Planned: automatic detection and handling of oscillatory integrals using Filon's method
  */
 // function integrateOscillatory(
 //   expr: ExpressionNode,

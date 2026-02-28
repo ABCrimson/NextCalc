@@ -267,6 +267,8 @@ export class NormalFormGame {
   eliminateDominatedStrategies(): {
     game: NormalFormGame;
     eliminated: Array<{ player: number; strategy: number }>;
+    reducedPayoffA: PayoffMatrix;
+    reducedPayoffB: PayoffMatrix;
   } {
     const eliminated: Array<{ player: number; strategy: number }> = [];
     let currentGame: NormalFormGame = this;
@@ -298,7 +300,12 @@ export class NormalFormGame {
       }
     }
 
-    return { game: currentGame, eliminated };
+    return {
+      game: currentGame,
+      eliminated,
+      reducedPayoffA: currentGame.payoffs[0] ?? [],
+      reducedPayoffB: currentGame.payoffs[1] ?? [],
+    };
   }
 
   /**

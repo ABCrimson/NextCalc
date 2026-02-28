@@ -26,6 +26,7 @@ import {
   isConstantNode,
   isSymbolNode,
   isOperatorNode,
+  isUnaryOperatorNode,
   isFunctionNode,
 } from '../parser/ast';
 import { parse } from '../parser/parser';
@@ -1251,6 +1252,11 @@ export function astToString(node: ExpressionNode): string {
 
   if (isSymbolNode(node)) {
     return node.name;
+  }
+
+  if (isUnaryOperatorNode(node)) {
+    const operandStr = astToString(node.args[0]);
+    return `${node.op}(${operandStr})`;
   }
 
   if (isOperatorNode(node)) {

@@ -1,6 +1,37 @@
 /**
  * @nextcalc/math-engine
  * High-performance mathematical computation engine with arbitrary precision
+ *
+ * NOTE: This root entry point re-exports from all submodules for convenience.
+ * For optimal tree-shaking, consumers should import from subpath exports instead:
+ *
+ *   // Prefer this (only pulls in the parser module):
+ *   import { parse } from '@nextcalc/math-engine/parser';
+ *
+ *   // Instead of this (pulls in everything):
+ *   import { parse } from '@nextcalc/math-engine';
+ *
+ * Available subpath exports:
+ *   @nextcalc/math-engine/parser
+ *   @nextcalc/math-engine/wasm
+ *   @nextcalc/math-engine/units
+ *   @nextcalc/math-engine/symbolic
+ *   @nextcalc/math-engine/matrix
+ *   @nextcalc/math-engine/solver
+ *   @nextcalc/math-engine/stats
+ *   @nextcalc/math-engine/complex
+ *   @nextcalc/math-engine/knowledge
+ *   @nextcalc/math-engine/algorithms
+ *   @nextcalc/math-engine/differential
+ *   @nextcalc/math-engine/problems
+ *   @nextcalc/math-engine/prover
+ *   @nextcalc/math-engine/content
+ *   @nextcalc/math-engine/cas
+ *   @nextcalc/math-engine/calculus
+ *   @nextcalc/math-engine/fourier
+ *   @nextcalc/math-engine/graph-theory
+ *   @nextcalc/math-engine/chaos/chaos-theory
+ *   @nextcalc/math-engine/game-theory/game-theory
  */
 
 export * from './parser/index';
@@ -57,6 +88,14 @@ export {
   getVariables,
   getPolynomialDegree,
   solveWithSteps,
+  // Series & LaTeX
+  taylorSeries,
+  maclaurinSeries,
+  getKnownSeries,
+  computeBernoulliNumbers,
+  astToLatex,
+  type SeriesConfig,
+  type SeriesResult,
   type EnhancedExpression,
   type ExpressionType,
 } from './symbolic/index';

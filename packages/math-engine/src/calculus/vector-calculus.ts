@@ -201,7 +201,11 @@ export function laplacian(
   point: Vector3D,
   config: GradientConfig = {}
 ): number {
-  const h = config.h ?? 1e-8;
+  // For second derivatives the optimal step size is h ~ eps^(1/4) ≈ 1e-4
+  // (balancing O(h²) truncation error with O(eps/h²) round-off error).
+  // The default 1e-8 used for first derivatives causes catastrophic
+  // cancellation in the central-difference second-derivative stencil.
+  const h = config.h ?? 1e-4;
 
   // Compute ∂²f/∂x² + ∂²f/∂y² + ∂²f/∂z²
   const d2fdx2 = secondDerivative(expr, 'x', point, h);
