@@ -103,21 +103,32 @@
 
 ---
 
+## Recently Completed
+
+### Math Engine Completeness (all done)
+- [x] General variable exponent differentiation (f^g) -- logarithmic differentiation
+- [x] Unary minus parser fix
+- [x] Partial fraction decomposition -- real/complex pole handling
+- [x] Series expansion for limits -- ratio/root/comparison tests
+- [x] Bernoulli numbers for exact Taylor coefficients
+- [x] LaTeX AST serialization
+- [x] Logic formula parser (AND, OR, NOT, IMPLIES)
+- [x] CAS pattern matching with recursive simplifyChildren
+- [x] Proof search (BFS, DFS, iterative deepening)
+
+### Feature Integration (all done)
+- [x] Calculation sharing backend -- short code generation + /share/[code] pages
+- [x] Export to PDF/LaTeX -- export menu wired to export-service Worker
+- [x] Thousands separator formatting -- Zustand store + Intl.NumberFormat
+- [x] Sentry observability -- client/server configs, instrumentation, global error handler
+- [x] CAS solver rewrite -- polynomial root finding with Durand-Kerner method
+- [x] AI-generated translations for ru, es, uk, de (1200+ keys each)
+
+---
+
 ## Remaining Work
 
-### Phase 1: Math Engine Completeness
-
-- [ ] General variable exponent differentiation (f^g) -- `differentiate.ts:152` throws "not yet implemented"
-- [ ] Unary minus parser fix -- skipped test in `simplify.test.ts:331`
-- [ ] Partial fraction decomposition -- `computer-algebra-system.ts:685` stub
-- [ ] Series expansion for limits -- `limits.ts:209` placeholder
-- [ ] Bernoulli numbers for exact Taylor coefficients -- `series.ts:445`
-- [ ] LaTeX AST serialization -- `series.ts:690`
-- [ ] Logic formula parser improvement -- `logic-core.ts:466` simplified
-- [ ] CAS pattern matching improvement -- `cas-core.ts:393` simplified
-- [ ] Proof search completeness -- `proof-search.ts:488,497` simplified stubs
-
-### Phase 2: Planned Features (design + plan docs in `docs/plans/`)
+### Phase 1: Planned Features
 
 - [ ] User profile dashboard (`profile-i18n-wasm-plan`)
 - [ ] Learning bookmarks (`bookmarks-worksheet-collab-plan`)
@@ -125,14 +136,7 @@
 - [ ] Problem submission & grading (`problem-grading-practice-metrics-plan`)
 - [ ] Practice metrics persistence (`problem-grading-practice-metrics-plan`)
 
-### Phase 3: Feature Integration
-
-- [ ] Calculation sharing backend -- share button exists, need URL generation + preview cards
-- [ ] Export to PDF/LaTeX -- wire export-service Worker to web app
-- [ ] KaTeX server-side rendering -- replace client-side placeholder (`katex-wrapper.ts:45`)
-- [ ] Thousands separator formatting -- settings toggle disabled (`settings/page.tsx:598`)
-
-### Phase 4: New Features
+### Phase 2: New Features
 
 - [ ] Variable sliders (Desmos-style) -- interactive parameter sliders on plots
 - [ ] Graph annotations -- labels, arrows, and notes on plots
@@ -141,26 +145,24 @@
 - [ ] Formula library -- searchable reference of common formulas
 - [ ] Calculation templates -- pre-built templates for common problems
 - [ ] Step-by-step solutions expansion -- expand solver intermediate steps
+- [ ] KaTeX server-side rendering -- replace client-side placeholder (`katex-wrapper.ts:45`)
 
-### Phase 5: Testing & Quality
+### Phase 3: Testing & Quality
 
 - [ ] Expand E2E tests with Playwright for critical user flows
 - [ ] Expand math-engine tests for untested modules (prover, problems, algebra, knowledge, content, differential, units)
 
-### Phase 6: Pre-Deployment
+### Phase 4: Pre-Deployment
 
-- [ ] Install `@sentry/nextjs` + set DSN (stubs ready)
 - [ ] Enable Vercel Analytics
 - [ ] Enable Dependabot for dependency vulnerability scanning
 - [ ] Export-service MathJax → production renderer
-- [ ] Professional translations for ru/es/uk/de (currently English placeholder values)
 
-### Phase 7: Deployment
+### Phase 5: Deployment
 
 - [ ] Set up Neon production database branch
 - [ ] Configure production environment variables on Vercel
 - [ ] Deploy web app to Vercel (see [DEPLOYMENT.md](./DEPLOYMENT.md))
-- [ ] Create Cloudflare KV namespaces (replace 4 placeholder IDs in rate-limiter wrangler.toml)
 - [ ] Create Cloudflare R2 buckets (nextcalc-exports-public + nextcalc-exports-private)
 - [ ] Set ADMIN_KEY secret via `wrangler secret put ADMIN_KEY`
 - [ ] Deploy 3 Cloudflare Workers to production
