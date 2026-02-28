@@ -99,7 +99,10 @@
 - [x] Sentry stub configs (activate with DSN + @sentry/nextjs)
 - [x] Content Security Policy (CSP) headers -- Nosecone with nonces, HSTS, permissions policy
 - [x] Rate limiter wired to GraphQL SSE stream endpoint
-- [x] `next-intl` configured with 1203 translation keys across 40+ pages (en, ru, es, uk, de)
+- [x] `next-intl` configured with 1203 translation keys across 40+ pages (en, ru, es, uk, de, fr, ja, zh)
+- [x] Vercel Analytics + Speed Insights
+- [x] Dependabot for dependency vulnerability scanning
+- [x] Bookmarks store (Zustand + localStorage persistence)
 
 ---
 
@@ -122,47 +125,42 @@
 - [x] Thousands separator formatting -- Zustand store + Intl.NumberFormat
 - [x] Sentry observability -- client/server configs, instrumentation, global error handler
 - [x] CAS solver rewrite -- polynomial root finding with Durand-Kerner method
-- [x] AI-generated translations for ru, es, uk, de (1200+ keys each)
+- [x] AI-generated translations for ru, es, uk, de, fr, ja, zh (1200+ keys each)
+- [x] User profile dashboard -- edit dialog, stats grid, activity feed, quick actions
+- [x] Variable sliders (Desmos-style) -- interactive parameter sliders on plots
+- [x] Formula library -- 70+ formulas across 7 categories, search/filter, KaTeX rendering
+- [x] Calculation templates -- 20 interactive templates across 5 categories
+- [x] Learning bookmarks -- topic cards with bookmark toggle
 
 ---
 
 ## Remaining Work
 
-### Phase 1: Planned Features
+### Phase 1: Data Persistence & Grading (all done)
 
-- [ ] User profile dashboard (`profile-i18n-wasm-plan`)
-- [ ] Learning bookmarks (`bookmarks-worksheet-collab-plan`)
-- [ ] Worksheet DB persistence (`bookmarks-worksheet-collab-plan`)
-- [ ] Problem submission & grading (`problem-grading-practice-metrics-plan`)
-- [ ] Practice metrics persistence (`problem-grading-practice-metrics-plan`)
+- [x] Worksheet DB persistence -- save/load/delete server actions with autosave + version conflict detection
+- [x] Problem submission & grading -- test case validation, hint deduction, attempt recording, topic progress
+- [x] Practice metrics persistence -- session tracking, per-attempt saving, completion finalization
 
-### Phase 2: New Features
+### Phase 2: Visualization & UX Polish
 
-- [ ] Variable sliders (Desmos-style) -- interactive parameter sliders on plots
-- [ ] Graph annotations -- labels, arrows, and notes on plots
-- [ ] Polar plot drag-to-pan -- `Plot2D.tsx:364` "coming soon"
-- [ ] Tree/graph visualization renderers -- `algorithm-visualizer.tsx:597` "coming soon"
-- [ ] Formula library -- searchable reference of common formulas
-- [ ] Calculation templates -- pre-built templates for common problems
-- [ ] Step-by-step solutions expansion -- expand solver intermediate steps
-- [ ] KaTeX server-side rendering -- replace client-side placeholder (`katex-wrapper.ts:45`)
+- [x] Graph annotations -- text labels + arrow annotations with placement toolbar
+- [x] Polar plot drag-to-pan -- center offset added to Plot2DPolarConfig
+- [x] Tree/graph visualization renderers -- SVG-based binary tree + circular graph layouts
+- [x] Step-by-step solutions expansion -- SymbolicPanel with Show Steps toggle, category badges, collapsible cards
+- [x] KaTeX rendering -- MathRenderer component with MathML accessibility, display/inline modes
+- [x] My Worksheets listing page -- grid/list view with search, sort, and delete
 
 ### Phase 3: Testing & Quality
 
 - [ ] Expand E2E tests with Playwright for critical user flows
-- [ ] Expand math-engine tests for untested modules (prover, problems, algebra, knowledge, content, differential, units)
+- [x] Expand math-engine tests for untested modules
 
-### Phase 4: Pre-Deployment
-
-- [ ] Enable Vercel Analytics
-- [ ] Enable Dependabot for dependency vulnerability scanning
-- [ ] Export-service MathJax → production renderer
-
-### Phase 5: Deployment
+### Phase 4: Deployment
 
 - [ ] Set up Neon production database branch
 - [ ] Configure production environment variables on Vercel
-- [ ] Deploy web app to Vercel (see [DEPLOYMENT.md](./DEPLOYMENT.md))
+- [ ] Deploy web app to Vercel
 - [ ] Create Cloudflare R2 buckets (nextcalc-exports-public + nextcalc-exports-private)
 - [ ] Set ADMIN_KEY secret via `wrangler secret put ADMIN_KEY`
 - [ ] Deploy 3 Cloudflare Workers to production
