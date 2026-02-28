@@ -265,10 +265,19 @@ npx shadcn@latest add dialog
 
 ### Adding a Route
 
-Create `apps/web/app/[route]/page.tsx`:
+Create `apps/web/app/[locale]/[route]/page.tsx`:
 
 ```tsx
+import { useTranslations } from 'next-intl';
+
 export default function Page() {
-  return <div>Content</div>;
+  const t = useTranslations('myRoute');
+  return <div>{t('title')}</div>;
 }
 ```
+
+### Adding Translations
+
+1. Add keys to `apps/web/messages/en.json`
+2. Add the same keys to all other locale files (`ru.json`, `es.json`, etc.)
+3. Use `useTranslations('namespace')` in components

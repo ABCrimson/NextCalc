@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" width="1200" height="300">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a"/>
+      <stop offset="50%" style="stop-color:#1e1b4b"/>
+      <stop offset="100%" style="stop-color:#0c0a09"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#38bdf8"/>
+      <stop offset="50%" style="stop-color:#a78bfa"/>
+      <stop offset="100%" style="stop-color:#f472b6"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#38bdf8;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#a78bfa;stop-opacity:0.3"/>
+    </linearGradient>
+    <filter id="blur1">
+      <feGaussianBlur stdDeviation="40"/>
+    </filter>
+    <filter id="blur2">
+      <feGaussianBlur stdDeviation="2"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="300" fill="url(#bg)"/>
+
+  <!-- Ambient glow orbs -->
+  <circle cx="200" cy="150" r="120" fill="#38bdf8" opacity="0.08" filter="url(#blur1)"/>
+  <circle cx="1000" cy="150" r="120" fill="#a78bfa" opacity="0.08" filter="url(#blur1)"/>
+  <circle cx="600" cy="80" r="80" fill="#f472b6" opacity="0.05" filter="url(#blur1)"/>
+
+  <!-- Grid pattern -->
+  <g stroke="#38bdf8" stroke-opacity="0.06" stroke-width="0.5">
+    <line x1="0" y1="60" x2="1200" y2="60"/>
+    <line x1="0" y1="120" x2="1200" y2="120"/>
+    <line x1="0" y1="180" x2="1200" y2="180"/>
+    <line x1="0" y1="240" x2="1200" y2="240"/>
+    <line x1="120" y1="0" x2="120" y2="300"/>
+    <line x1="240" y1="0" x2="240" y2="300"/>
+    <line x1="360" y1="0" x2="360" y2="300"/>
+    <line x1="480" y1="0" x2="480" y2="300"/>
+    <line x1="600" y1="0" x2="600" y2="300"/>
+    <line x1="720" y1="0" x2="720" y2="300"/>
+    <line x1="840" y1="0" x2="840" y2="300"/>
+    <line x1="960" y1="0" x2="960" y2="300"/>
+    <line x1="1080" y1="0" x2="1080" y2="300"/>
+  </g>
+
+  <!-- Decorative math curve (sine wave) -->
+  <path d="M 0 200 Q 75 140, 150 200 T 300 200 T 450 200 T 600 200 T 750 200 T 900 200 T 1050 200 T 1200 200"
+        fill="none" stroke="url(#accent)" stroke-width="1.5" stroke-opacity="0.15"/>
+  <path d="M 0 220 Q 100 160, 200 220 T 400 220 T 600 220 T 800 220 T 1000 220 T 1200 220"
+        fill="none" stroke="#a78bfa" stroke-width="1" stroke-opacity="0.1"/>
+
+  <!-- Floating math symbols -->
+  <g fill="#38bdf8" opacity="0.12" font-family="'Georgia', serif">
+    <text x="80" y="70" font-size="28">∫</text>
+    <text x="180" y="260" font-size="22">∑</text>
+    <text x="320" y="55" font-size="20">∂</text>
+    <text x="440" y="270" font-size="24">∞</text>
+    <text x="750" y="50" font-size="22">∇</text>
+    <text x="870" y="265" font-size="26">π</text>
+    <text x="1020" y="60" font-size="20">λ</text>
+    <text x="1100" y="250" font-size="24">Σ</text>
+  </g>
+  <g fill="#a78bfa" opacity="0.1" font-family="'Georgia', serif">
+    <text x="140" y="180" font-size="18">dx</text>
+    <text x="560" y="50" font-size="20">f(x)</text>
+    <text x="680" y="270" font-size="18">lim</text>
+    <text x="950" y="170" font-size="20">∆</text>
+  </g>
+
+  <!-- Accent line -->
+  <rect x="350" y="108" width="500" height="2" rx="1" fill="url(#accent)" opacity="0.4"/>
+
+  <!-- Main title -->
+  <text x="600" y="145" text-anchor="middle" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="56" font-weight="700" fill="white" letter-spacing="-1">
+    NextCalc Pro
+  </text>
+
+  <!-- Title glow -->
+  <text x="600" y="145" text-anchor="middle" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="56" font-weight="700" fill="url(#accent)" opacity="0.3" filter="url(#blur2)" letter-spacing="-1">
+    NextCalc Pro
+  </text>
+
+  <!-- Subtitle -->
+  <text x="600" y="185" text-anchor="middle" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="18" fill="#94a3b8" letter-spacing="3">
+    SCIENTIFIC CALCULATOR &amp; VISUALIZATION PLATFORM
+  </text>
+
+  <!-- Bottom accent line -->
+  <rect x="350" y="200" width="500" height="1" rx="0.5" fill="url(#accent)" opacity="0.25"/>
+
+  <!-- Version badge -->
+  <g transform="translate(540, 220)">
+    <rect width="120" height="24" rx="12" fill="#38bdf8" fill-opacity="0.1" stroke="#38bdf8" stroke-opacity="0.3" stroke-width="0.5"/>
+    <text x="60" y="16" text-anchor="middle" font-family="'Segoe UI', system-ui, sans-serif" font-size="11" fill="#38bdf8" letter-spacing="1">v1.0.0</text>
+  </g>
+
+  <!-- Corner accents -->
+  <path d="M 0 0 L 40 0 L 0 40 Z" fill="#38bdf8" opacity="0.15"/>
+  <path d="M 1200 0 L 1160 0 L 1200 40 Z" fill="#a78bfa" opacity="0.15"/>
+  <path d="M 0 300 L 40 300 L 0 260 Z" fill="#a78bfa" opacity="0.15"/>
+  <path d="M 1200 300 L 1160 300 L 1200 260 Z" fill="#f472b6" opacity="0.15"/>
+</svg>

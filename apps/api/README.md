@@ -10,7 +10,7 @@ Backend GraphQL API for NextCalc Pro, built with Apollo Server, Prisma, and Next
 - **Caching:** Upstash Redis
 - **Rate Limiting:** Upstash Rate Limit
 - **Connection Pooling:** Neon Serverless Driver
-- **Linting/Formatting:** Biome 2.4.3
+- **Linting/Formatting:** Biome 2.4.4
 
 ## Prerequisites
 
@@ -46,13 +46,13 @@ cp .env.example .env
 
 ```bash
 # Generate Prisma Client
-pnpm --filter web db:generate
+pnpm --filter @nextcalc/database db:generate
 
 # Push schema to database
-pnpm --filter web db:push
+pnpm --filter @nextcalc/database db:push
 
 # Seed database with sample data (optional)
-pnpm --filter web db:seed
+pnpm --filter @nextcalc/database db:seed
 ```
 
 ### 4. Start Development Server
@@ -61,39 +61,36 @@ pnpm --filter web db:seed
 pnpm dev
 ```
 
-GraphQL Playground will be available at: http://localhost:4000/api/graphql
+GraphQL Playground will be available at: http://localhost:3005/api/graphql
 
 ## Project Structure
 
 ```
 apps/api/
-├── prisma/
-│   ├── schema.prisma       # Database schema
-│   ├── migrations/         # Migration files
-│   └── seed.ts            # Seed data script
 ├── src/
-│   ├── schema/
-│   │   ├── schema.graphql # GraphQL schema
-│   │   ├── types.ts       # TypeScript types
-│   │   ├── scalars.ts     # Custom scalars
-│   │   └── directives.ts  # Custom directives
-│   ├── resolvers/
-│   │   ├── users.ts       # User resolvers
-│   │   ├── worksheets.ts  # Worksheet resolvers
-│   │   ├── forum.ts       # Forum resolvers
-│   │   └── index.ts       # Combined resolvers
+│   ├── graphql/
+│   │   ├── schema.ts          # GraphQL type definitions (SDL)
+│   │   └── resolvers/
+│   │       ├── index.ts       # Combined resolvers
+│   │       ├── user.ts        # User queries/mutations
+│   │       ├── worksheet.ts   # Worksheet CRUD
+│   │       ├── folder.ts      # Folder organization
+│   │       ├── calculation.ts # Calculation history
+│   │       ├── forum.ts       # Forum posts
+│   │       ├── profile.ts     # User profile + analytics
+│   │       └── shared-calculation.ts  # Shared calculations
 │   ├── lib/
-│   │   ├── prisma.ts      # Prisma client
-│   │   ├── cache.ts       # Redis caching
-│   │   ├── ratelimit.ts   # Rate limiting
-│   │   └── validation.ts  # Zod schemas
-│   ├── middleware/
-│   │   ├── auth.ts        # Authentication
-│   │   ├── validation.ts  # Input validation
-│   │   └── security.ts    # Security headers
-│   ├── context.ts         # GraphQL context
-│   ├── dataloaders.ts     # DataLoader instances
-│   └── index.ts           # Apollo Server setup
+│   │   ├── cache.ts           # Upstash Redis caching
+│   │   ├── errors.ts          # Custom error classes
+│   │   ├── validation.ts      # Zod input schemas
+│   │   ├── subscription.ts    # Hybrid Redis + in-memory PubSub
+│   │   ├── cursor-pagination.ts # Relay-style connections
+│   │   ├── monitoring.ts      # Request logging
+│   │   └── logger.ts          # Structured JSON logger
+│   ├── plugins/
+│   │   └── performance-monitoring.ts  # Apollo plugin
+│   ├── server.ts              # Apollo Server setup + context
+│   └── index.ts               # Next.js route handler exports
 ├── package.json
 ├── tsconfig.json
 └── README.md
@@ -289,13 +286,13 @@ pnpm test --watch
 
 ```bash
 # View database in browser
-pnpm --filter web db:studio
+pnpm --filter @nextcalc/database db:studio
 
 # Push schema changes
-pnpm --filter web db:push
+pnpm --filter @nextcalc/database db:push
 
 # Generate Prisma client after schema changes
-pnpm --filter web db:generate
+pnpm --filter @nextcalc/database db:generate
 
 # Reset database (DANGER - dev only)
 pnpm prisma migrate reset
@@ -398,7 +395,7 @@ Set in Vercel dashboard:
 
 - Architecture: [ARCHITECTURE.md](../../ARCHITECTURE.md)
 - Development: [DEVELOPMENT.md](../../DEVELOPMENT.md)
-- Issues: [GitHub Issues](https://github.com/your-org/nextcalc/issues)
+- Issues: [GitHub Issues](https://github.com/ABCrimson/NextCalc/issues)
 
 ## License
 

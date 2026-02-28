@@ -44,22 +44,22 @@ DIRECT_DATABASE_URL="postgresql://user:password@host.neon.tech:5432/database?ssl
 
 ```bash
 pnpm install
-pnpm --filter web prisma generate
-pnpm --filter web prisma db push        # Development
+pnpm --filter @nextcalc/database db:generate
+pnpm --filter @nextcalc/database db:push        # Development
 # OR
-pnpm --filter web prisma migrate dev --name init  # Production
+pnpm --filter @nextcalc/database db:migrate  # Production
 ```
 
 ### Step 4: Verify
 
 ```bash
-pnpm --filter web prisma studio  # Opens at http://localhost:5555
+pnpm --filter @nextcalc/database db:studio  # Opens at http://localhost:5555
 ```
 
 ### Step 5: Seed Data (Optional)
 
 ```bash
-pnpm --filter web prisma db seed
+pnpm --filter @nextcalc/database db:seed
 ```
 
 ---
@@ -125,8 +125,8 @@ openssl rand -base64 32
 ### Production OAuth
 
 Create **separate** OAuth apps for production:
-- Google: redirect URI `https://yourdomain.com/api/auth/callback/google`
-- GitHub: callback URL `https://yourdomain.com/api/auth/callback/github`
+- Google: redirect URI `https://nextcalc.io/api/auth/callback/google`
+- GitHub: callback URL `https://nextcalc.io/api/auth/callback/github`
 - Update `NEXTAUTH_URL` to production domain
 
 ---
@@ -165,7 +165,7 @@ Create **separate** OAuth apps for production:
 | "Can't reach database server" | Check connection string, ensure `?sslmode=require`, wake Neon project |
 | "P3014: Could not create shadow database" | Use `prisma db push` instead of `migrate dev` for Neon |
 | Connection pooling issues | Use pooled connection string: `?sslmode=require&pgbouncer=true` |
-| Missing Prisma client | Run `pnpm --filter web prisma generate` |
+| Missing Prisma client | Run `pnpm --filter @nextcalc/database db:generate` |
 
 ### OAuth
 

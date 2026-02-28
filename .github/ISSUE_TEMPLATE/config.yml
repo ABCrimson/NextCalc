@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Wiki & Documentation
+    url: https://github.com/ABCrimson/NextCalc/wiki
+    about: Check the wiki for guides, API reference, and common questions.
+  - name: Live Demo
+    url: https://nextcalc.io
+    about: Try NextCalc Pro at nextcalc.io

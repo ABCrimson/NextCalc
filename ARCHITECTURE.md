@@ -2,30 +2,35 @@
 
 ## High-Level Architecture
 
-```
-                        +-----------------------+
-                        |    Browser Client      |
-                        |  (Next.js 16 + React)  |
-                        +----------+------------+
-                                   |
-                    +--------------+--------------+
-                    |              |              |
-               +----v----+  +-----v-----+  +-----v-----+
-               |  Vercel  |  | Cloudflare |  | Cloudflare |
-               | Next.js  |  | Workers    |  | Workers    |
-               | App      |  | (CAS,      |  | (Rate      |
-               | + API    |  |  Export)    |  |  Limiter)  |
-               +----+-----+  +-----+------+  +-----+------+
-                    |               |               |
-               +----v-----+   +----v----+     +----v----+
-               |  Neon     |   |  R2     |     |  KV     |
-               | PostgreSQL|   | Bucket  |     | Store   |
-               +----+------+   +---------+     +---------+
-                    |
-               +----v------+
-               | Upstash   |
-               | Redis     |
-               +-----------+
+```mermaid
+graph TB
+    subgraph Client["Browser Client"]
+        A["Next.js 16 + React 19.3"]
+    end
+    subgraph Vercel["Vercel Edge Network"]
+        B["App Router + SSR"]
+        C["GraphQL API (Apollo 5.4)"]
+    end
+    subgraph CF["Cloudflare Workers"]
+        D["CAS Service"]
+        E["Export Service"]
+        F["Rate Limiter"]
+    end
+    subgraph Storage
+        G[("Neon PostgreSQL")]
+        H[("Upstash Redis")]
+        I[("R2 Bucket")]
+        J[("KV Store")]
+    end
+    A --> B
+    A --> D
+    A --> E
+    B --> C
+    C --> G
+    C --> H
+    D --> F
+    E --> I
+    F --> J
 ```
 
 ## Package Dependency Graph
@@ -149,50 +154,40 @@ Three edge microservices deployed to Cloudflare's global network:
 
 ### Client-Side Calculation
 
-```
-User Input -> Calculator Component -> Math Engine (client-side)
-                                        |
-                                        v
-                                   Display Result
-                                        |
-                                        v
-                              Save to History (Zustand store)
-                                        |
-                                        v (if authenticated)
-                              GraphQL Mutation -> Prisma -> Neon PostgreSQL
+```mermaid
+flowchart LR
+    A[User Input] --> B[Calculator Component]
+    B --> C[Math Engine]
+    C --> D[Display Result]
+    D --> E[Zustand History]
+    E -->|if authenticated| F[GraphQL Mutation]
+    F --> G[Prisma]
+    G --> H[(Neon PostgreSQL)]
 ```
 
 ### Server-Side (GraphQL)
 
-```
-Apollo Client -> Next.js API Route (/api/graphql)
-                    |
-                    v
-               Apollo Server
-                    |
-                    v
-               Auth Check (NextAuth session)
-                    |
-                    v
-               DataLoaders (batch + cache)
-                    |
-                    v
-               Prisma Client -> Neon PostgreSQL
+```mermaid
+flowchart TD
+    A[Apollo Client] --> B["API Route (/api/graphql)"]
+    B --> C[Apollo Server]
+    C --> D[Auth Check]
+    D --> E[DataLoaders]
+    E --> F[Prisma Client]
+    F --> G[(Neon PostgreSQL)]
 ```
 
 ### Edge Worker Flow
 
-```
-Client -> Cloudflare Worker (global edge)
-              |
-              v
-         Rate Limit Check (KV)
-              |
-              v
-         Process Request (CAS / Export)
-              |
-              v (if export)
-         Store to R2 -> Return URL
+```mermaid
+flowchart TD
+    A[Client] --> B[Cloudflare Worker]
+    B --> C{Rate Limit Check}
+    C -->|Allowed| D[Process Request]
+    D -->|CAS| E[Return Result]
+    D -->|Export| F[Store to R2]
+    F --> G[Return URL]
+    C -->|Denied| H[429 Too Many Requests]
 ```
 
 ## Authentication Flow
@@ -275,17 +270,31 @@ export const useStore = create<State>()(
 
 | Pattern | Purpose |
 |---------|---------|
-| `app/**/page.tsx` | Route pages |
-| `app/**/layout.tsx` | Layouts |
-| `app/**/loading.tsx` | Loading UI (Suspense) |
-| `app/**/error.tsx` | Error boundary |
-| `app/**/not-found.tsx` | 404 page |
+| `app/[locale]/**/page.tsx` | Route pages (i18n) |
+| `app/[locale]/**/layout.tsx` | Layouts |
+| `app/[locale]/**/loading.tsx` | Loading UI (Suspense) |
+| `app/[locale]/**/error.tsx` | Error boundary |
+| `app/[locale]/**/not-found.tsx` | 404 page |
 | `components/ui/*.tsx` | shadcn/ui components |
 | `components/calculator/*.tsx` | Calculator feature components |
 | `components/plots/*.tsx` | Plot visualization components |
 | `lib/stores/*.ts` | Zustand stores |
 | `lib/hooks/*.ts` | Custom React hooks |
 | `lib/workers/*.ts` | Web Worker scripts |
+
+## Internationalization (i18n)
+
+- **Library:** `next-intl` with App Router integration
+- **Locales:** en, ru, es, uk, de, fr, ja, zh (8 languages)
+- **Translation files:** `apps/web/messages/{locale}.json` (1200+ keys per locale)
+- **Routing:** `[locale]` dynamic segment (e.g., `/en/plot`, `/ru/matrix`)
+- **Middleware:** Locale detection + redirect in `apps/web/middleware.ts`
+
+### Adding a Language
+
+1. Create `apps/web/messages/{code}.json` (copy from `en.json`)
+2. Add locale to `apps/web/i18n/config.ts`
+3. Translate all keys
 
 ## Performance Targets
 

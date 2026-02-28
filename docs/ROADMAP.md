@@ -170,10 +170,24 @@
 
 ---
 
-## Known Technical Debt (Resolved)
+## Technical Debt (All Resolved)
 
-- ~~Export service SVG uses KaTeX 0.16.33 HTML in foreignObject~~ — Dual rendering: Rich SVG (foreignObject) for browsers, Rasterisable SVG (Unicode text) for PNG/PDF. Working as designed.
-- ~~Canvas 2D fallback for WebGPU~~ — Added `Canvas2DRenderer` as software fallback; renderer factory now selects WebGPU > WebGL2 > Canvas2D automatically.
-- ~~`vitest.setup.ts` contains `React.forwardRef` in mocks~~ — Updated to React 19 ref-as-prop pattern.
-- ~~4 biome-ignored `as any` casts in API~~ — Replaced with typed assertions; 1 `biome-ignore` remains for adapter type mismatch (Function cast).
-- ~~WebSocket PubSub in-memory only~~ — Hybrid Upstash Redis Streams + in-memory PubSub; publishes to Redis for cross-instance delivery, gracefully degrades to local-only.
+All technical debt items have been addressed as of v1.0.0:
+
+- Export SVG: Dual rendering (foreignObject for browsers, Unicode text for rasterization)
+- Canvas 2D fallback: `Canvas2DRenderer` added; factory selects WebGPU > WebGL2 > Canvas2D
+- Test mocks: Updated to React 19 ref-as-prop pattern
+- API type safety: `as any` replaced with typed assertions (1 `biome-ignore` for adapter type mismatch)
+- PubSub: Hybrid Upstash Redis Streams + in-memory; graceful degradation
+
+---
+
+## Future Ideas
+
+- [ ] WASM arbitrary precision (Emscripten build for native performance)
+- [ ] Collaborative worksheets (real-time multiplayer via WebSocket)
+- [ ] Plugin system for custom math modules
+- [ ] Mobile app (React Native or PWA enhancements)
+- [ ] AI-powered step-by-step explanations
+- [ ] LaTeX document editor with live preview
+- [ ] API key system for third-party integrations

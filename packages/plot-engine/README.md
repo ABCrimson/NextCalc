@@ -6,9 +6,13 @@ GPU-accelerated mathematical visualization engine for NextCalc Pro.
 
 - **Custom WebGL 2D Renderer**: Lightweight (<15KB) renderer optimized for mathematical functions
 - **Three.js 3D Renderer**: Full-featured 3D surface and parametric plot rendering (lazy-loaded)
+- **Canvas 2D Fallback**: Software renderer for browsers without WebGL/WebGPU support
 - **Adaptive Sampling**: Intelligent function sampling with recursive subdivision
 - **Web Worker Support**: Non-blocking sampling for complex functions
 - **Interactive Controls**: Pan, zoom, and rotate with mouse, touch, and keyboard
+- **6 Colormaps**: viridis, inferno, coolwarm, cividis, magma, spectral
+- **HDR Cubemap Themes**: 5 procedural space cubemap backgrounds with configurable resolution
+- **SSAO Post-Processing**: Screen-space ambient occlusion via GTAONode for 3D plots
 - **Multiple Export Formats**: PNG, SVG, and CSV export capabilities
 - **TypeScript-first**: Full type safety with strict mode
 
@@ -256,12 +260,29 @@ function MyPlot() {
 - **Memory Usage**: <20MB per 2D plot, <100MB per 3D plot
 - **Bundle Size**: 15KB (2D), 563KB (3D with Three.js lazy-loaded)
 
+## Renderer Selection
+
+The engine automatically selects the best available renderer:
+
+| Priority | Backend | Use Case |
+|----------|---------|----------|
+| 1 | WebGPU | PDE/ODE compute shaders, bifurcation diagrams |
+| 2 | WebGL 2 | Primary 2D rendering with GLSL shaders |
+| 3 | Canvas 2D | Software fallback for legacy browsers |
+
+```typescript
+import { createBest2DRenderer } from '@nextcalc/plot-engine';
+
+const renderer = await createBest2DRenderer(canvas);
+// Automatically picks WebGPU > WebGL2 > Canvas2D
+```
+
 ## Architecture
 
 ```
 @nextcalc/plot-engine
 ├── types/           # TypeScript type definitions
-├── renderers/       # WebGL 2D and Three.js 3D renderers
+├── renderers/       # WebGL 2D, Three.js 3D, Canvas 2D fallback
 ├── sampling/        # Adaptive sampling algorithms
 ├── controls/        # Interactive controls (pan, zoom, rotate)
 ├── export/          # PNG, SVG, CSV export

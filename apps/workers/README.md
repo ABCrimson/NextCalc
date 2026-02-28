@@ -51,7 +51,7 @@ NextCalc Pro uses a microservices architecture deployed to Cloudflare's global e
 
 **Example Usage:**
 ```bash
-curl -X POST https://cas.nextcalc.pro/solve \
+curl -X POST https://cas.nextcalc.io/solve \
   -H "Content-Type: application/json" \
   -d '{
     "expression": "2x + 5 = 13",
@@ -98,7 +98,7 @@ curl -X POST https://cas.nextcalc.pro/solve \
 
 **Example Usage:**
 ```bash
-curl -X POST https://export.nextcalc.pro/export/svg \
+curl -X POST https://export.nextcalc.io/export/svg \
   -H "Content-Type: application/json" \
   -d '{
     "latex": "E = mc^2",
@@ -116,7 +116,7 @@ curl -X POST https://export.nextcalc.pro/export/svg \
   "success": true,
   "data": {
     "key": "public/2025-10-16/abc123.svg",
-    "url": "https://exports.nextcalc.pro/public/2025-10-16/abc123.svg",
+    "url": "https://exports.nextcalc.io/public/2025-10-16/abc123.svg",
     "size": 2048,
     "contentType": "image/svg+xml",
     "expiresAt": "2025-10-16T11:00:00.000Z",
@@ -156,7 +156,7 @@ curl -X POST https://export.nextcalc.pro/export/svg \
 
 **Example Usage:**
 ```bash
-curl -X POST https://ratelimit.nextcalc.pro/check \
+curl -X POST https://ratelimit.nextcalc.io/check \
   -H "Content-Type: application/json" \
   -d '{
     "identifier": "user-123",
@@ -329,9 +329,9 @@ Before deploying to production:
 Each worker exposes a `/health` endpoint:
 
 ```bash
-curl https://cas.nextcalc.pro/health
-curl https://export.nextcalc.pro/health
-curl https://ratelimit.nextcalc.pro/health
+curl https://cas.nextcalc.io/health
+curl https://export.nextcalc.io/health
+curl https://ratelimit.nextcalc.io/health
 ```
 
 ### Cloudflare Dashboard
@@ -390,14 +390,14 @@ wrangler r2 bucket create nextcalc-exports-public
 Solution: Verify `ALLOWED_ORIGINS` in `wrangler.toml`:
 ```toml
 [vars]
-ALLOWED_ORIGINS = "http://localhost:3020,https://nextcalc.pro"
+ALLOWED_ORIGINS = "http://localhost:3020,https://nextcalc.io"
 ```
 
 **4. Rate Limit Always 429**
 
 Solution: Reset rate limit:
 ```bash
-curl -X DELETE https://ratelimit.nextcalc.pro/reset/your-identifier
+curl -X DELETE https://ratelimit.nextcalc.io/reset/your-identifier
 ```
 
 ### Debug Mode
@@ -470,7 +470,7 @@ Typical performance metrics:
 ### Code Style
 
 - TypeScript strict mode required
-- Biome 2.4.3 for linting and formatting
+- Biome 2.4.4 for linting and formatting
 - Single quotes, 2-space indent, trailing commas
 - JSDoc comments for all public functions
 
@@ -496,13 +496,9 @@ MIT License - see LICENSE file
 
 ## Support
 
-- Documentation: https://docs.nextcalc.pro
-- Issues: https://github.com/nextcalc/nextcalc-pro/issues
-- Discord: https://discord.gg/nextcalc
-- Email: support@nextcalc.pro
+- Wiki: [github.com/ABCrimson/NextCalc/wiki](https://github.com/ABCrimson/NextCalc/wiki)
+- Issues: [github.com/ABCrimson/NextCalc/issues](https://github.com/ABCrimson/NextCalc/issues)
 
 ---
-
-**Built with ❤️ by the NextCalc Pro Team**
 
 Powered by Cloudflare Workers, delivering sub-50ms response times globally.

@@ -2,7 +2,7 @@
 
 All notable changes to NextCalc Pro are documented in this file.
 
-## [Unreleased]
+## [1.0.0] - 2026-02-28
 
 ### 2026-02-24
 
@@ -65,3 +65,6 @@ All notable changes to NextCalc Pro are documented in this file.
 ---
 
 _This changelog is generated from the git history. Commit hashes reference the short SHA for each change._
+
+[1.0.0]: https://github.com/ABCrimson/NextCalc/releases/tag/v1.0.0
+[0.1.0]: https://github.com/ABCrimson/NextCalc/releases/tag/v0.1.0

@@ -214,7 +214,7 @@ Redis is used for:
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `DATABASE_URL` | Neon PostgreSQL connection string | `postgresql://user:pass@host.neon.tech/db?sslmode=require` |
-| `NEXTAUTH_URL` | Production URL of your app | `https://nextcalc.com` |
+| `NEXTAUTH_URL` | Production URL of your app | `https://nextcalc.io` |
 | `NEXTAUTH_SECRET` | Encryption secret (32+ chars) | Generate with `openssl rand -base64 32` |
 
 ### OAuth (Required for Authentication)
@@ -241,8 +241,8 @@ Redis is used for:
 
 Create **separate** OAuth apps for production:
 
-- **Google:** `https://yourdomain.com/api/auth/callback/google`
-- **GitHub:** `https://yourdomain.com/api/auth/callback/github`
+- **Google:** `https://nextcalc.io/api/auth/callback/google`
+- **GitHub:** `https://nextcalc.io/api/auth/callback/github`
 
 ---
 
@@ -300,11 +300,11 @@ After deploying, verify:
 ### Vercel
 
 1. Go to Project > Settings > Domains
-2. Add your domain (e.g., `nextcalc.com`)
+2. Add your domain (e.g., `nextcalc.io`)
 3. Configure DNS:
    - **A Record:** `76.76.21.21`
    - **CNAME (www):** `cname.vercel-dns.com`
-4. Update `NEXTAUTH_URL` to `https://nextcalc.com`
+4. Update `NEXTAUTH_URL` to `https://nextcalc.io`
 5. Update OAuth redirect URIs to use the new domain
 6. SSL is provisioned automatically by Vercel
 
@@ -314,7 +314,7 @@ Configure custom domains via Cloudflare Dashboard or `wrangler.toml`:
 
 ```toml
 routes = [
-  { pattern = "cas.nextcalc.com/*", zone_name = "nextcalc.com" }
+  { pattern = "cas.nextcalc.io/*", zone_name = "nextcalc.io" }
 ]
 ```
 
@@ -348,3 +348,47 @@ routes = [
 - [ ] Environment variables are not committed to code
 - [ ] CORS origins configured in Workers
 - [ ] Rate limiting enabled
+
+---
+
+## Deployment Methods Summary
+
+| # | Method | Trigger | Speed | Use Case |
+|---|--------|---------|-------|----------|
+| 1 | `git push origin main` | Automatic (Vercel Git integration) | ~2-3 min | Standard workflow |
+| 2 | Open Pull Request | Automatic (Vercel preview deploy) | ~2-3 min | Review before production |
+| 3 | `vercel --prod` | Manual CLI | ~2-3 min | Emergency / manual deploy |
+| 4 | `gh workflow run ci.yml` | Manual GitHub Action trigger | ~5-8 min | Full CI + deploy |
+
+### Method 1: Git Push (Recommended)
+
+With Vercel connected to the `ABCrimson/NextCalc` GitHub repository:
+
+```bash
+git add -A && git commit -m "feat: your changes"
+git push origin main
+# Vercel automatically deploys to nextcalc.io
+```
+
+### Method 2: Pull Request Preview
+
+```bash
+git checkout -b feat/my-feature
+# ... make changes ...
+git push origin feat/my-feature
+# Open PR on GitHub -- Vercel creates a preview URL automatically
+# Merge to main -- Vercel deploys to production
+```
+
+### Method 3: Vercel CLI
+
+```bash
+npm install -g vercel
+vercel login
+cd apps/web
+vercel --prod    # Direct production deploy
+```
+
+### Method 4: GitHub Actions
+
+The CI workflow (`.github/workflows/ci.yml`) runs lint, typecheck, test, and build on every push. Workers are deployed via `.github/workflows/deploy-workers.yml` on changes to `apps/workers/`.
