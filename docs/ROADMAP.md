@@ -159,9 +159,10 @@
 ### Phase 4: Deployment
 
 - [ ] Set up Neon production database branch
-- [ ] Configure production environment variables on Vercel
-- [ ] Deploy web app to Vercel
-- [ ] Create Cloudflare R2 buckets (nextcalc-exports-public + nextcalc-exports-private)
+- [x] Configure production environment variables on Vercel (ENABLE_EXPERIMENTAL_COREPACK, NEXTAUTH_SECRET, DATABASE_URL, NEXT_PUBLIC_APP_URL)
+- [x] Deploy web app to Vercel -- live at https://nextcalc-pro.vercel.app
+- [ ] Create Cloudflare R2 buckets (requires R2 enabled in dashboard)
+- [ ] Register workers.dev subdomain (Cloudflare dashboard onboarding)
 - [ ] Set ADMIN_KEY secret via `wrangler secret put ADMIN_KEY`
 - [ ] Deploy 3 Cloudflare Workers to production
 - [ ] Configure custom domain + SSL
