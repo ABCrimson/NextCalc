@@ -14,21 +14,15 @@
       <stop offset="0%" style="stop-color:#38bdf8;stop-opacity:0.3"/>
       <stop offset="100%" style="stop-color:#a78bfa;stop-opacity:0.3"/>
     </linearGradient>
-    <filter id="blur1">
-      <feGaussianBlur stdDeviation="40"/>
-    </filter>
-    <filter id="blur2">
-      <feGaussianBlur stdDeviation="2"/>
-    </filter>
   </defs>
 
   <!-- Background -->
   <rect width="1200" height="300" fill="url(#bg)"/>
 
   <!-- Ambient glow orbs -->
-  <circle cx="200" cy="150" r="120" fill="#38bdf8" opacity="0.08" filter="url(#blur1)"/>
-  <circle cx="1000" cy="150" r="120" fill="#a78bfa" opacity="0.08" filter="url(#blur1)"/>
-  <circle cx="600" cy="80" r="80" fill="#f472b6" opacity="0.05" filter="url(#blur1)"/>
+  <circle cx="200" cy="150" r="120" fill="#38bdf8" opacity="0.08"/>
+  <circle cx="1000" cy="150" r="120" fill="#a78bfa" opacity="0.08"/>
+  <circle cx="600" cy="80" r="80" fill="#f472b6" opacity="0.05"/>
 
   <!-- Grid pattern -->
   <g stroke="#38bdf8" stroke-opacity="0.06" stroke-width="0.5">
@@ -80,7 +74,7 @@
   </text>
 
   <!-- Title glow -->
-  <text x="600" y="145" text-anchor="middle" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="56" font-weight="700" fill="url(#accent)" opacity="0.3" filter="url(#blur2)" letter-spacing="-1">
+  <text x="600" y="145" text-anchor="middle" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="56" font-weight="700" fill="url(#accent)" opacity="0.3" letter-spacing="-1">
     NextCalc Pro
   </text>
 

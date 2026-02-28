@@ -362,18 +362,18 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
                   />
                 )}
 
-                {isMockMode && post.comments.length === 0 && (
+                {post.comments.length === 0 && (
                   <div className="text-center py-8">
                     <MessageSquare className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
                     <p className="text-sm text-muted-foreground">{t('noCommentsYet')}</p>
                     <p className="text-xs text-muted-foreground/60 mt-1">
-                      {t('noCommentsHint')}
+                      {t('beFirstComment')}
                     </p>
                   </div>
                 )}
 
                 {/* Add comment form */}
-                {!post.isClosed && !isMockMode && (
+                {!post.isClosed && (
                   <div className="pt-4 border-t border-border/30 space-y-3">
                     <h3 className="text-sm font-semibold text-foreground">{t('addComment')}</h3>
                     {authStatus === 'authenticated' ? (

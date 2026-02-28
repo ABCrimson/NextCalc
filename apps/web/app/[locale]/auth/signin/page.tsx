@@ -79,6 +79,7 @@ export default function SignInPage() {
   const errorMessage = errorKey ? t(errorKey) : null;
 
   const [loadingProvider, setLoadingProvider] = useState<OAuthProvider | null>(null);
+  const [redirectError, setRedirectError] = useState<string | null>(null);
 
   // Reset loading state if page re-renders after a failed redirect
   useEffect(() => {
@@ -87,11 +88,25 @@ export default function SignInPage() {
     }
   }, [errorCode]);
 
+  // Timeout: reset loading state if redirect takes too long
+  useEffect(() => {
+    if (!loadingProvider) return;
+    const timeout = setTimeout(() => {
+      setLoadingProvider(null);
+      setRedirectError(t('error.redirectTimeout'));
+    }, 12000);
+    return () => clearTimeout(timeout);
+  }, [loadingProvider, t]);
+
   const handleProviderSignIn = async (providerId: OAuthProvider) => {
     setLoadingProvider(providerId);
+    setRedirectError(null);
     try {
       // Fetch the CSRF token from NextAuth's endpoint
       const csrfRes = await fetch('/api/auth/csrf');
+      if (!csrfRes.ok) {
+        throw new Error(`CSRF fetch failed: ${csrfRes.status}`);
+      }
       const { csrfToken } = (await csrfRes.json()) as { csrfToken: string };
 
       // POST to NextAuth's built-in sign-in endpoint with the real CSRF token.
@@ -117,6 +132,7 @@ export default function SignInPage() {
       document.body.removeChild(form);
     } catch {
       setLoadingProvider(null);
+      setRedirectError(t('error.redirectFailed'));
     }
   };
 
@@ -156,14 +172,14 @@ export default function SignInPage() {
         </div>
 
         {/* Error message */}
-        {errorMessage && (
+        {(errorMessage || redirectError) && (
           <div
             role="alert"
             aria-live="assertive"
             className="flex items-start gap-3 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
           >
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-            <p>{errorMessage}</p>
+            <p>{errorMessage || redirectError}</p>
           </div>
         )}
 

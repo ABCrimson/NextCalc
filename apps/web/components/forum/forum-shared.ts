@@ -396,7 +396,7 @@ export const MOCK_POSTS: MockForumPost[] = [
     isPinned: false,
     isClosed: false,
     createdAt: new Date(Date.now() - 1000 * 60 * 120),
-    hasUpvoted: true,
+    hasUpvoted: false,
   },
   {
     id: '3',
@@ -452,7 +452,7 @@ export const MOCK_POSTS: MockForumPost[] = [
     isPinned: false,
     isClosed: false,
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48),
-    hasUpvoted: true,
+    hasUpvoted: false,
   },
   {
     id: '7',

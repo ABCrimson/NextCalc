@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="docs/assets/banner.svg" alt="NextCalc Pro" width="100%" />
+  <img src="https://raw.githubusercontent.com/ABCrimson/NextCalc/main/docs/assets/banner.svg" alt="NextCalc Pro" width="100%" />
 </div>
 
 <p align="center">

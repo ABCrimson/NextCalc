@@ -61,13 +61,30 @@ const LOCALE_NAMES: Record<LocaleCode, string> = {
 	de: 'Deutsch',
 } as const;
 
-const coreNavigationLinks: NavLink[] = [
+/** Direct top-level nav links */
+const directLinks: NavLink[] = [
 	{
 		href: '/',
 		labelKey: 'nav.calculator',
 		descKey: 'nav.calculatorDescription',
 		icon: Calculator,
 	},
+	{
+		href: '/worksheet',
+		labelKey: 'nav.worksheet',
+		descKey: 'nav.worksheetDescription',
+		icon: BookOpen,
+	},
+	{
+		href: '/forum',
+		labelKey: 'nav.forum',
+		descKey: 'nav.forumDescription',
+		icon: MessageSquare,
+	},
+];
+
+/** Tools dropdown links (mathematical tools & utilities) */
+const toolLinks: NavLink[] = [
 	{
 		href: '/plot',
 		labelKey: 'nav.plot',
@@ -111,18 +128,6 @@ const coreNavigationLinks: NavLink[] = [
 		icon: Infinity,
 	},
 	{
-		href: '/worksheet',
-		labelKey: 'nav.worksheet',
-		descKey: 'nav.worksheetDescription',
-		icon: BookOpen,
-	},
-	{
-		href: '/forum',
-		labelKey: 'nav.forum',
-		descKey: 'nav.forumDescription',
-		icon: MessageSquare,
-	},
-	{
 		href: '/formulas',
 		labelKey: 'nav.formulas',
 		descKey: 'nav.formulasDescription',
@@ -135,6 +140,11 @@ const coreNavigationLinks: NavLink[] = [
 		icon: Box,
 	},
 ];
+
+const toolPaths = toolLinks.map(l => l.href);
+
+/** All links for mobile menu */
+const allCoreLinks: NavLink[] = [...directLinks, ...toolLinks];
 
 const algorithmLinks: NavLink[] = [
 	{
@@ -299,6 +309,10 @@ export function Navigation() {
 		pathname.startsWith(p),
 	);
 
+	const isToolActive = toolPaths.some((p) =>
+		pathname.startsWith(p),
+	);
+
 	return (
 		<nav
 			className="sticky top-0 z-50 w-full glass-heavy shadow-sm"
@@ -329,8 +343,8 @@ export function Navigation() {
 				</div>
 
 				{/* Desktop Navigation */}
-				<div className="hidden md:flex md:flex-1 md:items-center md:gap-1 md:text-sm md:font-medium min-w-0 overflow-x-auto scrollbar-none">
-					{coreNavigationLinks.map((link) => {
+				<div className="hidden md:flex md:flex-1 md:items-center md:gap-1 md:text-sm md:font-medium min-w-0">
+					{directLinks.map((link) => {
 						const Icon = link.icon;
 						const isActive = isLinkActive(link.href);
 						const label = t(link.labelKey as Parameters<typeof t>[0]);
@@ -361,13 +375,71 @@ export function Navigation() {
 						);
 					})}
 
+					{/* Tools dropdown */}
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<button
+								type="button"
+								className={cn(
+									'flex shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-200 relative group whitespace-nowrap text-[13px]',
+									'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+									isToolActive
+										? 'text-primary-foreground bg-gradient-to-r from-primary to-primary/80 shadow-md shadow-primary/20'
+										: 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
+								)}
+								aria-label={t('nav.toolsMenu' as Parameters<typeof t>[0])}
+							>
+								<Grid3x3
+									className={cn(
+										'h-3.5 w-3.5 transition-transform duration-200',
+										!isToolActive && 'group-hover:scale-110',
+									)}
+									aria-hidden="true"
+								/>
+								{t('nav.tools' as Parameters<typeof t>[0])}
+							</button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent
+							align="start"
+							className="w-64 glass-heavy border-border/50"
+						>
+							{toolLinks.map((link) => {
+								const Icon = link.icon;
+								const isActive = isLinkActive(link.href);
+								const label = t(link.labelKey as Parameters<typeof t>[0]);
+								const description = t(link.descKey as Parameters<typeof t>[0]);
+
+								return (
+									<DropdownMenuItem key={link.href} asChild>
+										<Link
+											href={link.href}
+											className={cn(
+												'flex items-center gap-3 rounded-lg',
+												isActive && 'bg-primary/10 text-primary',
+											)}
+											aria-current={isActive ? 'page' : undefined}
+										>
+											<Icon className="h-4 w-4" aria-hidden="true" />
+											<div className="flex flex-col">
+												<span className="font-medium">{label}</span>
+												<span className="text-xs text-muted-foreground">
+													{description}
+												</span>
+											</div>
+										</Link>
+									</DropdownMenuItem>
+								);
+							})}
+						</DropdownMenuContent>
+					</DropdownMenu>
+
 					{/* Algorithms dropdown */}
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<button
 								type="button"
 								className={cn(
-									'flex shrink-0 items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all duration-200 relative group whitespace-nowrap text-[13px]',
+									'flex shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-200 relative group whitespace-nowrap text-[13px]',
 									'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
 									isAlgorithmActive
 										? 'text-primary-foreground bg-gradient-to-r from-calculator-special to-primary shadow-md shadow-primary/20'
@@ -455,7 +527,7 @@ export function Navigation() {
 							align="end"
 							className="w-56 max-h-[80vh] overflow-y-auto glass-heavy border-border/50"
 						>
-							{coreNavigationLinks.map((link) => {
+							{allCoreLinks.map((link) => {
 								const Icon = link.icon;
 								const isActive = isLinkActive(link.href);
 								const label = t(link.labelKey as Parameters<typeof t>[0]);

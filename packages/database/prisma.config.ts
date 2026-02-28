@@ -18,11 +18,9 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 
 const url = process.env.DIRECT_DATABASE_URL || process.env.DATABASE_URL;
 
-if (!url) {
-	throw new Error(
-		'DIRECT_DATABASE_URL or DATABASE_URL must be set. Check apps/web/.env.local or set env vars directly.',
-	);
-}
+// Allow prisma generate to run without a real database URL (e.g. in CI).
+// Only actual database operations (migrate, push) need a real connection string.
+const datasourceUrl = url || 'postgresql://placeholder:placeholder@localhost:5432/placeholder';
 
 export default defineConfig({
 	schema: path.join(__dirname, 'prisma', 'schema.prisma'),
@@ -30,6 +28,6 @@ export default defineConfig({
 		path: path.join(__dirname, 'prisma', 'migrations'),
 	},
 	datasource: {
-		url,
+		url: datasourceUrl,
 	},
 });

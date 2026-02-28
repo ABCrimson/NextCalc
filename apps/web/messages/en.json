@@ -25,6 +25,8 @@
     "worksheetDescription": "Jupyter-like math notebook with plots",
     "forum": "Forum",
     "forumDescription": "Community discussions and Q&A",
+    "tools": "Tools",
+    "toolsMenu": "Mathematical tools and utilities",
     "algorithms": "Algorithms",
     "algorithmsDescription": "Algorithm hub and categories",
     "algorithmsAll": "All Algorithms",
@@ -295,7 +297,7 @@
     "viewsCount": "{count} views",
     "commentsCount": "{count} comments",
     "noCommentsYet": "No comments yet",
-    "noCommentsHint": "Comments will be available when the database is connected",
+    "beFirstComment": "Be the first to share your thoughts",
     "addComment": "Add a comment",
     "commentPlaceholder": "Share your thoughts...",
     "signInToDiscuss": "to join the discussion",
@@ -1364,7 +1366,9 @@
       "EmailSignin": "Failed to send sign-in email. Please try again.",
       "CredentialsSignin": "Invalid credentials. Please check and try again.",
       "SessionRequired": "You must be signed in to access that page.",
-      "Default": "An unexpected error occurred. Please try again."
+      "Default": "An unexpected error occurred. Please try again.",
+      "redirectTimeout": "Sign-in is taking too long. Please check that OAuth providers are configured and try again.",
+      "redirectFailed": "Unable to start the sign-in process. Please try again later."
     }
   },
   "numberTheory": {

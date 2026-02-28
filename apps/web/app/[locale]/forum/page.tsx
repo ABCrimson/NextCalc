@@ -523,16 +523,20 @@ export default function ForumPage() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {[
-                    { name: 'Alice Chen', rep: 4280, tier: 'legend' },
-                    { name: 'Sofia Rossi', rep: 3100, tier: 'legend' },
-                    { name: 'Priya Sharma', rep: 2150, tier: 'expert' },
-                    { name: 'David Kim', rep: 1670, tier: 'expert' },
-                    { name: 'James Wright', rep: 1200, tier: 'contributor' },
+                    { name: 'Alice Chen', rep: 4280, tier: 'legend', id: 'alice-chen' },
+                    { name: 'Sofia Rossi', rep: 3100, tier: 'legend', id: 'sofia-rossi' },
+                    { name: 'Priya Sharma', rep: 2150, tier: 'expert', id: 'priya-sharma' },
+                    { name: 'David Kim', rep: 1670, tier: 'expert', id: 'david-kim' },
+                    { name: 'James Wright', rep: 1200, tier: 'contributor', id: 'james-wright' },
                   ].map((user, i) => {
                     const tier = TIER_CONFIG[user.tier] ?? TIER_CONFIG['newcomer'] ?? { label: 'Newcomer', color: 'text-zinc-400', icon: null, glow: '' };
                     const TIcon = tier.icon;
                     return (
-                      <div key={user.name} className="flex items-center gap-3">
+                      <Link
+                        key={user.name}
+                        href={`/forum/user/${user.id}`}
+                        className="flex items-center gap-3 rounded-lg px-1 py-0.5 -mx-1 transition-colors hover:bg-accent/50"
+                      >
                         <span className="text-xs font-bold text-muted-foreground w-4 text-right">
                           {i + 1}
                         </span>
@@ -559,7 +563,7 @@ export default function ForumPage() {
                         <span className="text-[10px] font-mono text-muted-foreground">
                           {formatNumber(user.rep)}
                         </span>
-                      </div>
+                      </Link>
                     );
                   })}
                 </CardContent>
