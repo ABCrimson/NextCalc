@@ -10,6 +10,23 @@
 import { gql } from '@apollo/client';
 
 // ============================================================================
+// USER MUTATIONS
+// ============================================================================
+
+/** Update the authenticated user's profile (name, bio) */
+export const UPDATE_PROFILE_MUTATION = gql`
+  mutation UpdateProfile($input: UpdateProfileInput!) {
+    updateProfile(input: $input) {
+      id
+      name
+      bio
+      image
+      updatedAt
+    }
+  }
+`;
+
+// ============================================================================
 // USER QUERIES
 // ============================================================================
 
@@ -333,6 +350,43 @@ export const SHARED_CALCULATION_QUERY = gql`
         id
         name
         image
+      }
+    }
+  }
+`;
+
+// ============================================================================
+// DASHBOARD RECENT ACTIVITY QUERY
+// ============================================================================
+
+/**
+ * Combined recent activity for the profile dashboard.
+ * Fetches last 10 calculations and last 10 worksheets so the client
+ * can merge and sort them into a unified feed.
+ */
+export const DASHBOARD_RECENT_ACTIVITY_QUERY = gql`
+  query DashboardRecentActivity($userId: ID!) {
+    calculationHistory(limit: 10, offset: 0) {
+      id
+      expression
+      result
+      timestamp
+    }
+    worksheets(limit: 10, offset: 0, userId: $userId) {
+      nodes {
+        id
+        title
+        description
+        visibility
+        updatedAt
+        createdAt
+      }
+      pageInfo {
+        totalCount
+        currentPage
+        totalPages
+        hasNextPage
+        hasPreviousPage
       }
     }
   }

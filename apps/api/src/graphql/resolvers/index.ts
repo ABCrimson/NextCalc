@@ -35,6 +35,7 @@ export const resolvers = {
 
   // Mutation resolvers
   Mutation: {
+    ...profileResolvers.Mutation,
     ...worksheetResolvers.Mutation,
     ...folderResolvers.Mutation,
     ...calculationResolvers.Mutation,

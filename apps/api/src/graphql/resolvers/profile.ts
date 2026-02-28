@@ -9,6 +9,25 @@ import { requireAuth } from '../../lib/context';
 import { ForbiddenError } from '../../lib/errors';
 
 export const profileResolvers = {
+	Mutation: {
+		updateProfile: async (
+			_parent: unknown,
+			args: { input: { name?: string; bio?: string } },
+			context: GraphQLContext,
+		) => {
+			requireAuth(context);
+			const { name, bio } = args.input;
+			const updated = await context.prisma.user.update({
+				where: { id: context.user!.id },
+				data: {
+					...(name !== undefined ? { name } : {}),
+					...(bio !== undefined ? { bio } : {}),
+				},
+			});
+			return updated;
+		},
+	},
+
 	Query: {
 		userProfile: async (
 			_parent: unknown,

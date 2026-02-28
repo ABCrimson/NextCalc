@@ -13,6 +13,7 @@ import {
   USER_PROFILE_QUERY,
   USER_ACTIVITY_QUERY,
   USER_ANALYTICS_QUERY,
+  DASHBOARD_RECENT_ACTIVITY_QUERY,
 } from '@/lib/graphql/operations';
 import { useSession, signIn } from '@/lib/auth/hooks';
 import { useTranslations } from 'next-intl';
@@ -76,6 +77,32 @@ interface UserAnalyticsData {
   };
 }
 
+interface DashboardRecentActivityData {
+  calculationHistory: Array<{
+    id: string;
+    expression: string;
+    result: string;
+    timestamp: string;
+  }>;
+  worksheets: {
+    nodes: Array<{
+      id: string;
+      title: string;
+      description: string | null;
+      visibility: 'PRIVATE' | 'UNLISTED' | 'PUBLIC';
+      updatedAt: string;
+      createdAt: string;
+    }>;
+    pageInfo: {
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+      totalCount: number;
+      currentPage: number;
+      totalPages: number;
+    };
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Loading skeleton
 // ---------------------------------------------------------------------------
@@ -96,18 +123,49 @@ function ProfileSkeleton() {
       </div>
 
       {/* Stats grid skeleton */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-        {Array.from({ length: 8 }, (_, i) => (
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {Array.from({ length: 4 }, (_, i) => (
           <div key={i} className="rounded-xl border border-border bg-card p-4">
             <div className="flex items-center gap-3">
-              <Skeleton className="h-8 w-8 rounded" />
+              <Skeleton className="h-9 w-9 rounded-lg" />
               <div className="space-y-1.5">
                 <Skeleton className="h-3 w-16" />
-                <Skeleton className="h-5 w-20" />
+                <Skeleton className="h-6 w-20" />
               </div>
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Quick actions skeleton */}
+      <div className="rounded-xl border border-border bg-card p-6 space-y-3">
+        <Skeleton className="h-5 w-32" />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {Array.from({ length: 3 }, (_, i) => (
+            <Skeleton key={i} className="h-16 rounded-xl" />
+          ))}
+        </div>
+      </div>
+
+      {/* Activity feed + calendar skeleton */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="rounded-xl border border-border bg-card p-6 space-y-3">
+          <Skeleton className="h-5 w-36" />
+          {Array.from({ length: 5 }, (_, i) => (
+            <div key={i} className="flex items-center gap-3 py-2">
+              <Skeleton className="h-8 w-8 rounded-md flex-shrink-0" />
+              <div className="flex-1 space-y-1.5">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-3 w-3/4" />
+              </div>
+              <Skeleton className="h-3 w-12 flex-shrink-0" />
+            </div>
+          ))}
+        </div>
+        <div className="rounded-xl border border-border bg-card p-6 space-y-3">
+          <Skeleton className="h-5 w-20" />
+          <Skeleton className="h-32 w-full rounded" />
+        </div>
       </div>
 
       {/* Tabs list skeleton */}
@@ -230,15 +288,15 @@ type TabId = 'overview' | 'achievements' | 'analytics' | 'history';
 
 interface TabDef {
   id: TabId;
-  label: string;
-  ariaLabel: string;
+  labelKey: string;
+  ariaLabelKey: string;
 }
 
 const TABS: readonly TabDef[] = [
-  { id: 'overview', label: 'Overview', ariaLabel: 'Overview tab' },
-  { id: 'achievements', label: 'Achievements', ariaLabel: 'Achievements tab' },
-  { id: 'analytics', label: 'Analytics', ariaLabel: 'Analytics tab' },
-  { id: 'history', label: 'Practice History', ariaLabel: 'Practice history tab' },
+  { id: 'overview', labelKey: 'tab.overview', ariaLabelKey: 'tab.overview' },
+  { id: 'achievements', labelKey: 'tab.achievements', ariaLabelKey: 'tab.achievements' },
+  { id: 'analytics', labelKey: 'tab.analytics', ariaLabelKey: 'tab.analytics' },
+  { id: 'history', labelKey: 'tab.history', ariaLabelKey: 'tab.history' },
 ] as const;
 
 // ---------------------------------------------------------------------------
@@ -251,6 +309,7 @@ interface ProfileDashboardProps {
 
 function ProfileDashboard({ userId }: ProfileDashboardProps) {
   const tProfile = useTranslations('profile');
+
   const {
     data: profileData,
     loading: profileLoading,
@@ -281,7 +340,16 @@ function ProfileDashboard({ userId }: ProfileDashboardProps) {
     errorPolicy: 'all',
   });
 
-  const isLoading = profileLoading || activityLoading || analyticsLoading;
+  const {
+    data: recentData,
+    loading: recentLoading,
+    error: recentError,
+  } = useQuery<DashboardRecentActivityData>(DASHBOARD_RECENT_ACTIVITY_QUERY, {
+    variables: { userId },
+    errorPolicy: 'all',
+  });
+
+  const isLoading = profileLoading || activityLoading || analyticsLoading || recentLoading;
 
   // Show skeleton while any required query is loading and no data yet
   if (isLoading && !profileData) {
@@ -324,6 +392,9 @@ function ProfileDashboard({ userId }: ProfileDashboardProps) {
   const streakHistory = analytics?.streakHistory ?? [];
   const practiceHistory = analytics?.practiceHistory ?? [];
 
+  const recentCalculations = recentData?.calculationHistory ?? [];
+  const recentWorksheets = recentData?.worksheets?.nodes ?? [];
+
   return (
     <motion.div
       variants={fadeInVariants}
@@ -331,8 +402,8 @@ function ProfileDashboard({ userId }: ProfileDashboardProps) {
       animate="visible"
       className="space-y-6"
     >
-      {/* Activity or analytics error banner */}
-      {(activityError ?? analyticsError) && (
+      {/* Partial-data warning banners */}
+      {(activityError ?? analyticsError ?? recentError) && (
         <div
           role="status"
           className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-sm text-amber-600 dark:text-amber-400"
@@ -347,14 +418,14 @@ function ProfileDashboard({ userId }: ProfileDashboardProps) {
             <TabsTrigger
               key={tab.id}
               value={tab.id}
-              aria-label={tab.ariaLabel}
+              aria-label={tProfile(tab.ariaLabelKey)}
             >
-              {tab.label}
+              {tProfile(tab.labelKey)}
             </TabsTrigger>
           ))}
         </TabsList>
 
-        {/* Overview */}
+        {/* Overview — the primary dashboard tab */}
         <TabsContent value="overview" className="mt-6">
           <ProfileOverview
             user={profile.user}
@@ -364,6 +435,8 @@ function ProfileDashboard({ userId }: ProfileDashboardProps) {
             calculationCount={profile.calculationCount}
             recentAchievements={profile.recentAchievements}
             activityData={activityList}
+            recentCalculations={recentCalculations}
+            recentWorksheets={recentWorksheets}
           />
         </TabsContent>
 

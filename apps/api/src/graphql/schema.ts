@@ -846,7 +846,20 @@ export const typeDefs = gql`
   # MUTATIONS
   # ============================================================================
 
+  """
+  Input for updating user profile information
+  """
+  input UpdateProfileInput {
+    name: String
+    bio: String
+  }
+
   type Mutation {
+    """
+    Update the authenticated user's profile (name, bio)
+    """
+    updateProfile(input: UpdateProfileInput!): User!
+
     """
     Create a new worksheet
     """
