@@ -319,13 +319,14 @@ describe('extractImages', () => {
 // PROBLEM SET LOADER
 // ============================================================================
 
+// NOTE: Problem sections must be TOP-LEVEL headings (##) with no parent # heading above them.
+// The loader's extractProblems() only searches doc.sections (top-level), not subsections.
+// The title comes from YAML frontmatter so no # h1 is needed.
 const sampleProblemSetMd = `---
 title: Basic Calculus Problems
 category: calculus
 description: Problems for beginners
 ---
-
-# Basic Calculus Problems
 
 ## Problem 1
 

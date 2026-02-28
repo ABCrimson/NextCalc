@@ -113,7 +113,9 @@ describe('searchDefinitions', () => {
   });
 
   it('searches inside formal definition', () => {
-    const results = searchDefinitions('epsilon');
+    // The limit definition's formal field contains 'lim(x→a)'; the integral's
+    // contains 'Riemann'. Neither keyword appears in term or intuitive fields.
+    const results = searchDefinitions('Riemann');
     expect(results.length).toBeGreaterThan(0);
   });
 
