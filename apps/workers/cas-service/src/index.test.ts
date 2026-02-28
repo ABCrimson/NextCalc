@@ -184,23 +184,27 @@ describe('POST /solve', () => {
     expect(json.data.solutions[0]).toBe(0);
   });
 
-  it('returns success:false with SOLVE_ERROR for 2*x + 5 = 13 (mathjs 15 lacks solveAll)', async () => {
+  it('solves linear equation 2*x + 5 = 13 and returns x = 4', async () => {
     const res = await postJson('/solve', {
       expression: '2*x + 5 = 13',
       variable: 'x',
     });
-    // The handler returns success:false when the solve attempt fails
-    const json = await res.json() as { success: boolean; error?: { code: string } };
-    expect(json.success).toBe(false);
+    expect(res.status).toBe(200);
+    const json = await res.json() as { success: boolean; data?: { solutions: number[] } };
+    expect(json.success).toBe(true);
+    expect(json.data?.solutions).toContain(4);
   });
 
-  it('returns success:false for quadratic x^2 - 5*x + 6 = 0 (no solveAll)', async () => {
+  it('solves quadratic x^2 - 5*x + 6 = 0 and returns roots 2 and 3', async () => {
     const res = await postJson('/solve', {
       expression: 'x^2 - 5*x + 6 = 0',
       variable: 'x',
     });
-    const json = await res.json() as { success: boolean };
-    expect(json.success).toBe(false);
+    expect(res.status).toBe(200);
+    const json = await res.json() as { success: boolean; data?: { solutions: number[] } };
+    expect(json.success).toBe(true);
+    expect(json.data?.solutions).toContain(2);
+    expect(json.data?.solutions).toContain(3);
   });
 
   it('defaults variable to x when not supplied', async () => {

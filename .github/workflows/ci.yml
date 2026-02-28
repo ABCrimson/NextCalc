@@ -4,35 +4,212 @@ on:
   push:
     branches: [main]
   pull_request:
-    types: [opened, synchronize]
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
 
 env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  NODE_VERSION: '22'
 
 jobs:
-  ci:
-    name: Build, Lint & Test
+  # ---------------------------------------------------------------------------
+  # Install dependencies (shared across jobs via cache)
+  # ---------------------------------------------------------------------------
+  install:
+    name: Install
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
 
       - uses: pnpm/action-setup@v4
+        with:
+          version: 11.0.0-alpha.11
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '25.7.0'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Generate Prisma client
-        run: pnpm --filter @nextcalc/database postinstall
+        run: pnpm --filter @nextcalc/database db:generate
 
-      - name: Lint, typecheck, build & test
-        run: pnpm turbo run lint typecheck build test --affected
+      # Cache the entire node_modules tree (including generated Prisma client)
+      # so downstream jobs don't need to re-install.
+      - name: Save node_modules cache
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            apps/workers/*/node_modules
+            packages/*/node_modules
+            packages/database/src/generated
+          key: nm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+
+  # ---------------------------------------------------------------------------
+  # Lint (Biome)
+  # ---------------------------------------------------------------------------
+  lint:
+    name: Lint
+    needs: install
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.0.0-alpha.11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Restore node_modules cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            apps/workers/*/node_modules
+            packages/*/node_modules
+            packages/database/src/generated
+          key: nm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          fail-on-cache-miss: true
+
+      - name: Run Biome lint
+        run: pnpm turbo run lint
+
+  # ---------------------------------------------------------------------------
+  # Typecheck (tsc --noEmit across all packages via turbo)
+  # ---------------------------------------------------------------------------
+  typecheck:
+    name: Typecheck
+    needs: install
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.0.0-alpha.11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Restore node_modules cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            apps/workers/*/node_modules
+            packages/*/node_modules
+            packages/database/src/generated
+          key: nm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          fail-on-cache-miss: true
+
+      - name: Restore Turbo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-typecheck-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            turbo-typecheck-${{ runner.os }}-
+
+      - name: Run typecheck
+        run: pnpm turbo run typecheck
+
+  # ---------------------------------------------------------------------------
+  # Test (Vitest across math-engine, plot-engine, web, api)
+  # ---------------------------------------------------------------------------
+  test:
+    name: Test
+    needs: install
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.0.0-alpha.11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Restore node_modules cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            apps/workers/*/node_modules
+            packages/*/node_modules
+            packages/database/src/generated
+          key: nm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          fail-on-cache-miss: true
+
+      - name: Restore Turbo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-test-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            turbo-test-${{ runner.os }}-
+
+      - name: Run tests
+        run: pnpm turbo run test
+
+  # ---------------------------------------------------------------------------
+  # Build (full production build via turbo)
+  # ---------------------------------------------------------------------------
+  build:
+    name: Build
+    needs: install
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.0.0-alpha.11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Restore node_modules cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            apps/workers/*/node_modules
+            packages/*/node_modules
+            packages/database/src/generated
+          key: nm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          fail-on-cache-miss: true
+
+      - name: Restore Turbo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-build-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            turbo-build-${{ runner.os }}-
+
+      - name: Build all packages
+        run: pnpm turbo run build

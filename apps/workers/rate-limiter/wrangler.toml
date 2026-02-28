@@ -11,8 +11,8 @@ enabled = true
 # KV namespace bindings for rate limit storage
 [[kv_namespaces]]
 binding = "RATE_LIMITS"
-id = "your-kv-namespace-id" # TODO: Replace with actual KV namespace ID from: wrangler kv namespace create "RATE_LIMITS"
-preview_id = "your-preview-kv-namespace-id" # TODO: Replace with actual preview KV namespace ID from: wrangler kv namespace create "RATE_LIMITS" --preview
+id = "65390e47b1ca4604bd58e5c4078e063b"
+preview_id = "65390e47b1ca4604bd58e5c4078e063b" # Using production namespace for preview; create a separate preview namespace if needed
 
 # Development configuration
 [env.development]
@@ -20,7 +20,7 @@ name = "nextcalc-rate-limiter-dev"
 
 [[env.development.kv_namespaces]]
 binding = "RATE_LIMITS"
-id = "dev-kv-namespace-id" # TODO: Replace with actual KV namespace ID from: wrangler kv namespace create "RATE_LIMITS"
+id = "65390e47b1ca4604bd58e5c4078e063b" # Shared with production; create a separate dev namespace if needed
 
 # Production configuration
 [env.production]
@@ -28,7 +28,7 @@ name = "nextcalc-rate-limiter-prod"
 
 [[env.production.kv_namespaces]]
 binding = "RATE_LIMITS"
-id = "prod-kv-namespace-id" # TODO: Replace with actual KV namespace ID from: wrangler kv namespace create "RATE_LIMITS"
+id = "65390e47b1ca4604bd58e5c4078e063b"
 
 # Resource limits
 [limits]

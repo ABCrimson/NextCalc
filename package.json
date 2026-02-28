@@ -8,16 +8,11 @@
     "test": "turbo run test",
     "lint": "turbo run lint",
     "clean": "turbo run clean && rm -rf node_modules",
-    "codegen": "graphql-codegen",
-    "codegen:watch": "graphql-codegen --watch"
+    "deploy:workers": "pnpm --filter './apps/workers/*' deploy"
   },
   "devDependencies": {
     "@apollo/server": "5.4.0",
     "@biomejs/biome": "2.4.4",
-    "@graphql-codegen/cli": "7.0.0-alpha-20260219135511-f77afdad62fc366fc5f534344fa2a7eb96e1282f",
-    "@graphql-codegen/typescript": "6.0.0-alpha-20260219135511-f77afdad62fc366fc5f534344fa2a7eb96e1282f",
-    "@graphql-codegen/typescript-operations": "6.0.0-alpha-20260219135511-f77afdad62fc366fc5f534344fa2a7eb96e1282f",
-    "@graphql-codegen/typescript-resolvers": "6.0.0-alpha-20260219135511-f77afdad62fc366fc5f534344fa2a7eb96e1282f",
     "@graphql-tools/merge": "9.1.7",
     "@graphql-tools/schema": "10.0.31",
     "chrome-launcher": "^1.2.1",

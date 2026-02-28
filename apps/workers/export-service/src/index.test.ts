@@ -15,9 +15,9 @@
  *   instantiated inside a vitest environment.  The mock's `Resvg.async()`
  *   returns a renderer whose `.render()` yields realistic width/height and
  *   a minimal PNG-like Uint8Array.
- * - `pdf-lib` is mocked because it must interoperate with the resvg mock
- *   (embedPng receives the mock PNG buffer).  The mock's PDFDocument
- *   supports create/setTitle/addPage/embedPng/save.
+ * - `modern-pdf-lib` is mocked because it must interoperate with the resvg mock
+ *   (embedPng receives the mock PNG buffer).  The mock's createPdf
+ *   returns a document supporting setTitle/addPage/embedPng/save.
  * - All validation and routing logic is exercised with the real handler code.
  */
 
@@ -57,12 +57,12 @@ vi.mock('@cf-wasm/resvg/workerd', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Mock pdf-lib — PDFDocument.create() returns a lightweight document mock
+// Mock modern-pdf-lib — createPdf() returns a lightweight document mock
 // that supports the methods used by the PDF handler (setTitle, setAuthor,
 // setSubject, setCreator, setProducer, setCreationDate, addPage, embedPng,
 // save).
 // ---------------------------------------------------------------------------
-vi.mock('pdf-lib', () => {
+vi.mock('modern-pdf-lib', () => {
   const mockPage = {
     drawImage: vi.fn(),
   };
@@ -80,13 +80,16 @@ vi.mock('pdf-lib', () => {
     setProducer: vi.fn(),
     setCreationDate: vi.fn(),
     addPage: vi.fn().mockReturnValue(mockPage),
-    embedPng: vi.fn().mockResolvedValue(mockImage),
+    embedPng: vi.fn().mockReturnValue(mockImage),
     save: vi.fn().mockResolvedValue(new Uint8Array(512)),
   };
 
   return {
-    PDFDocument: {
-      create: vi.fn().mockResolvedValue(mockDoc),
+    createPdf: vi.fn().mockReturnValue(mockDoc),
+    PageSizes: {
+      A4: [595.28, 841.89],
+      Letter: [612, 792],
+      Legal: [612, 1008],
     },
   };
 });

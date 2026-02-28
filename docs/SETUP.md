@@ -69,7 +69,7 @@ pnpm --filter web prisma db seed
 ### Prerequisites
 
 - Database setup complete (above)
-- App running locally at `http://localhost:3000`
+- App running locally at `http://localhost:3005`
 
 ### Google OAuth
 
@@ -81,16 +81,16 @@ pnpm --filter web prisma db seed
    - Scopes: `userinfo.email`, `userinfo.profile`
    - Add your email as test user
 5. Create **OAuth client ID** (Credentials > Create > Web application):
-   - Authorized origins: `http://localhost:3000`
-   - Redirect URI: `http://localhost:3000/api/auth/callback/google`
+   - Authorized origins: `http://localhost:3005`
+   - Redirect URI: `http://localhost:3005/api/auth/callback/google`
 6. Copy Client ID and Client Secret
 
 ### GitHub OAuth
 
 1. Go to [GitHub Developer Settings](https://github.com/settings/developers) > OAuth Apps
 2. Click **New OAuth App**:
-   - Homepage URL: `http://localhost:3000`
-   - Callback URL: `http://localhost:3000/api/auth/callback/github`
+   - Homepage URL: `http://localhost:3005`
+   - Callback URL: `http://localhost:3005/api/auth/callback/github`
 3. Click **Register application**
 4. Generate and copy Client Secret (shown only once)
 
@@ -98,7 +98,7 @@ pnpm --filter web prisma db seed
 
 ```env
 # apps/web/.env.local
-NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_URL="http://localhost:3005"
 NEXTAUTH_SECRET="generate-with-openssl-rand-base64-32"
 
 GOOGLE_CLIENT_ID="xxxxx.apps.googleusercontent.com"
@@ -117,7 +117,7 @@ openssl rand -base64 32
 
 ### Test OAuth Flow
 
-1. `pnpm dev` and open `http://localhost:3000`
+1. `pnpm dev` and open `http://localhost:3005`
 2. Click Sign In > Sign in with Google/GitHub
 3. Authorize and verify redirect back to app
 4. Verify user record created in database via Prisma Studio

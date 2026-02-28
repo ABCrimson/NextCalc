@@ -2,7 +2,7 @@
  * Unit tests for Export service handlers
  *
  * The pdf.ts and png.ts modules import @cf-wasm/resvg/workerd (WASM) and
- * pdf-lib at the top level.  Both must be mocked before any handler import
+ * modern-pdf-lib at the top level.  Both must be mocked before any handler import
  * so the module graph resolves without attempting WASM instantiation.
  */
 
@@ -24,9 +24,9 @@ vi.mock('@cf-wasm/resvg/workerd', () => ({
 }));
 
 // ---------------------------------------------------------------------------
-// Mock pdf-lib — only the PDFDocument class is used.
+// Mock modern-pdf-lib — createPdf() and PageSizes are used.
 // ---------------------------------------------------------------------------
-vi.mock('pdf-lib', () => {
+vi.mock('modern-pdf-lib', () => {
   const mockPage = { drawImage: vi.fn() };
   const mockImage = { width: 200, height: 50 };
   const mockDoc = {
@@ -37,12 +37,15 @@ vi.mock('pdf-lib', () => {
     setProducer: vi.fn(),
     setCreationDate: vi.fn(),
     addPage: vi.fn().mockReturnValue(mockPage),
-    embedPng: vi.fn().mockResolvedValue(mockImage),
+    embedPng: vi.fn().mockReturnValue(mockImage),
     save: vi.fn().mockResolvedValue(new Uint8Array(512)),
   };
   return {
-    PDFDocument: {
-      create: vi.fn().mockResolvedValue(mockDoc),
+    createPdf: vi.fn().mockReturnValue(mockDoc),
+    PageSizes: {
+      A4: [595.28, 841.89],
+      Letter: [612, 792],
+      Legal: [612, 1008],
     },
   };
 });

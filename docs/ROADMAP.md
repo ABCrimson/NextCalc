@@ -8,6 +8,7 @@
 - [x] Keyboard shortcuts
 - [x] LaTeX rendering via KaTeX
 - [x] Share button component
+- [x] Dark mode toggle -- cookie-based server-side theme persistence, no flash of wrong theme
 
 ### Math Engine (`packages/math-engine/`)
 - [x] Expression parser with tokenizer and AST (`src/parser/`)
@@ -38,7 +39,7 @@
 - [x] Export (PNG, SVG, CSV)
 - [x] 5 colormaps (viridis, inferno, coolwarm, cividis, magma, spectral)
 
-### Web App Pages (all in `apps/web/app/`)
+### Web App Pages (all in `apps/web/app/[locale]/`)
 - [x] Calculator home page (`/`)
 - [x] 2D/3D function plotter (`/plot`)
 - [x] Symbolic math -- differentiation and integration (`/symbolic`)
@@ -71,6 +72,11 @@
 - [x] Apollo Client integration in web app
 - [x] DataLoaders for N+1 query prevention
 - [x] Full resolver set (user, worksheet, folder, calculation, forum, comment, upvote)
+- [x] Cursor pagination (Relay-style connections)
+- [x] Custom error classes (AuthenticationError, ForbiddenError, NotFoundError, ValidationError)
+- [x] IDOR protection on profile resolvers
+- [x] Zod input validation on all mutations
+- [x] Configurable rate limiting (RATE_LIMIT_AUTH / RATE_LIMIT_ANON env vars)
 
 ### Cloudflare Workers (`apps/workers/`)
 - [x] CAS Service -- symbolic math on the edge (Hono + mathjs)
@@ -85,100 +91,87 @@
 - [x] Bifurcation diagram with cubic, Gauss, circle maps
 - [x] Procedural space cubemap themes (5 variants)
 
+### Infrastructure
+- [x] CI/CD pipeline (GitHub Actions) -- multi-job CI + worker deploy workflow
+- [x] Structured JSON logging across API and web app
+- [x] Apollo Server request/error logging plugin
+- [x] Next.js instrumentation hooks (register + onRequestError)
+- [x] Sentry stub configs (activate with DSN + @sentry/nextjs)
+- [x] Content Security Policy (CSP) headers -- Nosecone with nonces, HSTS, permissions policy
+- [x] Rate limiter wired to GraphQL SSE stream endpoint
+- [x] `next-intl` configured with 1203 translation keys across 40+ pages (en, ru, es, uk, de)
+
 ---
 
-## P1: Deployment and Testing
+## Remaining Work
 
-### Deployment
-- [ ] Deploy web app to Vercel (see [DEPLOYMENT.md](./DEPLOYMENT.md))
-- [ ] Configure production environment variables
-- [ ] Set up Neon production database branch
-- [ ] Deploy Cloudflare Workers to production
-- [ ] Configure custom domain and SSL
-- [ ] Set up CI/CD pipeline (GitHub Actions)
+### Phase 1: Math Engine Completeness
 
-### Testing Coverage
-- [ ] Expand unit tests for math-engine (target: 90% coverage)
-- [ ] Add integration tests for GraphQL API resolvers
+- [ ] General variable exponent differentiation (f^g) -- `differentiate.ts:152` throws "not yet implemented"
+- [ ] Unary minus parser fix -- skipped test in `simplify.test.ts:331`
+- [ ] Partial fraction decomposition -- `computer-algebra-system.ts:685` stub
+- [ ] Series expansion for limits -- `limits.ts:209` placeholder
+- [ ] Bernoulli numbers for exact Taylor coefficients -- `series.ts:445`
+- [ ] LaTeX AST serialization -- `series.ts:690`
+- [ ] Logic formula parser improvement -- `logic-core.ts:466` simplified
+- [ ] CAS pattern matching improvement -- `cas-core.ts:393` simplified
+- [ ] Proof search completeness -- `proof-search.ts:488,497` simplified stubs
+
+### Phase 2: Planned Features (design + plan docs in `docs/plans/`)
+
+- [ ] User profile dashboard (`profile-i18n-wasm-plan`)
+- [ ] Learning bookmarks (`bookmarks-worksheet-collab-plan`)
+- [ ] Worksheet DB persistence (`bookmarks-worksheet-collab-plan`)
+- [ ] Problem submission & grading (`problem-grading-practice-metrics-plan`)
+- [ ] Practice metrics persistence (`problem-grading-practice-metrics-plan`)
+
+### Phase 3: Feature Integration
+
+- [ ] Calculation sharing backend -- share button exists, need URL generation + preview cards
+- [ ] Export to PDF/LaTeX -- wire export-service Worker to web app
+- [ ] KaTeX server-side rendering -- replace client-side placeholder (`katex-wrapper.ts:45`)
+- [ ] Thousands separator formatting -- settings toggle disabled (`settings/page.tsx:598`)
+
+### Phase 4: New Features
+
+- [ ] Variable sliders (Desmos-style) -- interactive parameter sliders on plots
+- [ ] Graph annotations -- labels, arrows, and notes on plots
+- [ ] Polar plot drag-to-pan -- `Plot2D.tsx:364` "coming soon"
+- [ ] Tree/graph visualization renderers -- `algorithm-visualizer.tsx:597` "coming soon"
+- [ ] Formula library -- searchable reference of common formulas
+- [ ] Calculation templates -- pre-built templates for common problems
+- [ ] Step-by-step solutions expansion -- expand solver intermediate steps
+
+### Phase 5: Testing & Quality
+
 - [ ] Expand E2E tests with Playwright for critical user flows
-- [ ] Add accessibility tests (axe-core) for all pages
-- [ ] Add visual regression tests for plot outputs
-- [ ] Performance benchmarking suite
+- [ ] Expand math-engine tests for untested modules (prover, problems, algebra, knowledge, content, differential, units)
 
----
+### Phase 6: Pre-Deployment
 
-## P2: Enhanced Features
+- [ ] Install `@sentry/nextjs` + set DSN (stubs ready)
+- [ ] Enable Vercel Analytics
+- [ ] Enable Dependabot for dependency vulnerability scanning
+- [ ] Export-service MathJax → production renderer
+- [ ] Professional translations for ru/es/uk/de (currently English placeholder values)
 
-### WASM Native Build
-- [ ] Install Emscripten and build MPFR/GMP WASM module
-- [ ] Replace mock fallback with native arbitrary precision arithmetic
-- [ ] Benchmark native vs JavaScript performance
-- [ ] Web Worker integration for non-blocking computation
+### Phase 7: Deployment
 
-### Internationalization (i18n)
-- [ ] `next-intl` is installed (v4.8.3) but not yet configured with message files
-- [ ] Translate UI to Spanish, French, German, Japanese, Chinese
-- [ ] RTL layout support for Arabic/Hebrew
-- [ ] Locale-specific number formatting
-
----
-
-## P3: Production Hardening
-
-### Monitoring and Observability
-- [ ] OpenTelemetry distributed tracing
-- [ ] Sentry error tracking integration
-- [ ] Vercel Analytics setup
-- [ ] Custom performance dashboard
-- [ ] Alert thresholds for error rates and latency
-
-### Security
-- [ ] Content Security Policy (CSP) headers
-- [ ] Rate limiting tuning based on real traffic
-- [ ] Input sanitization audit
-- [ ] Dependency vulnerability scanning (Snyk/Dependabot)
-- [ ] CORS policy review for Workers
-
----
-
-## Feature Backlog
-
-### High Priority
-
-1. **User profile page** -- View/edit profile, avatar, bio, calculation stats
-2. **Calculation sharing** -- Share calculations via URL with preview cards (share-button component exists but sharing backend is incomplete)
-3. **Worksheet collaboration** -- Real-time collaborative worksheets (WebSocket subscriptions are schema-ready in GraphQL)
-4. **Export to PDF/LaTeX** -- Export calculation sheets and plots (export-service Worker exists but full integration is not wired)
-5. **Keyboard shortcut customization** -- Let users remap shortcuts
-6. **Dark mode toggle** -- Manual dark/light/system theme switcher in navigation
-
-### Medium Priority
-
-7. **Offline support (PWA)** -- Service worker for offline calculator use (install-pwa component exists but service worker is not implemented)
-8. **Calculation templates** -- Pre-built templates for common problems
-9. **Step-by-step solutions** -- Show intermediate steps for symbolic operations (solver step detail exists but could be expanded)
-10. **Formula library** -- Searchable reference of common formulas by topic
-11. **Graph annotations** -- Add labels, arrows, and notes to plots
-12. **Variable sliders** -- Interactive parameter sliders on plots (like Desmos)
-
-### Lower Priority
-
-13. **Mobile app (Capacitor/Expo)** -- Native mobile wrapper
-14. **API rate limit dashboard** -- Show users their API usage
-15. **Calculation history search** -- Full-text search across past calculations
-16. **Custom unit definitions** -- Let users define their own unit conversions
-17. **Matrix visualization** -- Visual matrix operations with step animations
-18. **Statistical distribution plots** -- Interactive PDF/CDF/QQ plots
-19. **Import from Wolfram/MATLAB** -- Parse and convert external notation
-20. **Community problem sets** -- User-submitted practice problems with solutions
+- [ ] Set up Neon production database branch
+- [ ] Configure production environment variables on Vercel
+- [ ] Deploy web app to Vercel (see [DEPLOYMENT.md](./DEPLOYMENT.md))
+- [ ] Create Cloudflare KV namespaces (replace 4 placeholder IDs in rate-limiter wrangler.toml)
+- [ ] Create Cloudflare R2 buckets (nextcalc-exports-public + nextcalc-exports-private)
+- [ ] Set ADMIN_KEY secret via `wrangler secret put ADMIN_KEY`
+- [ ] Deploy 3 Cloudflare Workers to production
+- [ ] Configure custom domain + SSL
 
 ---
 
 ## Known Technical Debt
 
-- WASM module requires Emscripten for native build; currently uses mock fallback
-- `next-intl` is installed as a dependency but i18n is not configured
 - Export service uses MathJax placeholder -- needs production-grade rendering
 - Some WebGPU features have Canvas 2D fallback but not all browsers support WebGPU yet
 - `vitest.setup.ts` still contains `React.forwardRef` in mocks (acceptable for test code)
 - 4 biome-ignored `as any` casts remain in API package for adapter/handler type incompatibilities
+- WebSocket subscriptions use in-memory PubSub (needs Redis PubSub for production scale)

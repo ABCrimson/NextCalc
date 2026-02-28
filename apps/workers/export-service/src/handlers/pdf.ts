@@ -5,14 +5,14 @@
  *
  *   1. LaTeX  -> SVG   (MathJax 4.x, see svg-internal.ts)
  *   2. SVG    -> PNG   (@cf-wasm/resvg, see png.ts)
- *   3. PNG    -> PDF   (pdf-lib, embedded raster image)
+ *   3. PNG    -> PDF   (modern-pdf-lib, embedded raster image)
  *
  * The resulting PDF is a single (or multi-page for batch) document with
  * the math expression centred horizontally near the top of the page,
  * scaled to fit within the configured margins while preserving aspect ratio.
  */
 
-import { PDFDocument } from 'pdf-lib';
+import { createPdf, PageSizes } from 'modern-pdf-lib';
 
 import { generateSvgFromLatex, type SvgOptions } from './svg-internal.js';
 import { convertSvgToPng } from './png.js';
@@ -26,12 +26,19 @@ import {
 } from '../utils/r2.js';
 
 // ---------------------------------------------------------------------------
-// Page sizes in PDF points (1 point = 1/72 inch)
+// Page sizes – modern-pdf-lib provides PageSizes constants for addPage(),
+// but we still need numeric dimensions for margin / scaling calculations.
 // ---------------------------------------------------------------------------
-const PAGE_SIZES = {
+const PAGE_DIMENSIONS = {
   letter: { width: 612, height: 792 },
   a4: { width: 595.28, height: 841.89 },
   legal: { width: 612, height: 1008 },
+} as const;
+
+const PAGE_SIZE_MAP = {
+  letter: PageSizes.Letter,
+  a4: PageSizes.A4,
+  legal: PageSizes.Legal,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -63,7 +70,7 @@ export interface PdfExportResult extends UploadResult {
 }
 
 // ---------------------------------------------------------------------------
-// Private: render a single LaTeX expression into a pdf-lib PDFDocument page
+// Private: render a single LaTeX expression into a modern-pdf-lib document page
 // ---------------------------------------------------------------------------
 
 /**
@@ -72,7 +79,7 @@ export interface PdfExportResult extends UploadResult {
  * Pipeline:
  *   1. Generate SVG from LaTeX (doubled fontSize for print quality)
  *   2. Convert SVG to PNG at 300 DPI via resvg (single render pass for bytes + dimensions)
- *   3. Create a PDFDocument, set metadata, add a page
+ *   3. Create a PDF document via createPdf(), set metadata, add a page
  *   5. Embed the PNG, scale to fit margins preserving aspect ratio
  *   6. Centre horizontally, place near the top of the page
  *
@@ -95,7 +102,7 @@ async function generatePdfFromLatex(
   // Margin in inches -> PDF points (1 inch = 72 points)
   const marginPt = margin * 72;
 
-  const page = PAGE_SIZES[pageSize];
+  const dims = PAGE_DIMENSIONS[pageSize];
 
   // ------------------------------------------------------------------
   // Step 1: LaTeX -> SVG (doubled fontSize for print quality)
@@ -115,29 +122,29 @@ async function generatePdfFromLatex(
   const { png, width: imgWidth, height: imgHeight } = await convertSvgToPng(svgString, 300, 'transparent');
 
   // ------------------------------------------------------------------
-  // Step 3: Create PDFDocument with metadata
+  // Step 3: Create PDF document with metadata
   // ------------------------------------------------------------------
-  const doc = await PDFDocument.create();
+  const doc = createPdf();
 
   if (includeMetadata) {
     doc.setTitle(title);
     doc.setAuthor('NextCalc Pro');
     doc.setSubject('Mathematical Expression Export');
     doc.setCreator('NextCalc Export Service');
-    doc.setProducer('pdf-lib + @cf-wasm/resvg');
+    doc.setProducer('modern-pdf-lib + @cf-wasm/resvg');
     doc.setCreationDate(new Date());
   }
 
   // ------------------------------------------------------------------
   // Step 4: Add page, embed PNG, scale to fit margins
   // ------------------------------------------------------------------
-  const pdfPage = doc.addPage([page.width, page.height]);
+  const pdfPage = doc.addPage(PAGE_SIZE_MAP[pageSize]);
 
-  const pngImage = await doc.embedPng(png);
+  const pngImage = doc.embedPng(png);
 
   // Available drawing area after margins
-  const availableWidth = page.width - marginPt * 2;
-  const availableHeight = page.height - marginPt * 2;
+  const availableWidth = dims.width - marginPt * 2;
+  const availableHeight = dims.height - marginPt * 2;
 
   // Scale the image to fit within the available area, preserving aspect ratio
   let drawWidth = imgWidth;
@@ -157,7 +164,7 @@ async function generatePdfFromLatex(
 
   // Centre horizontally, place near the top of the page
   const x = marginPt + (availableWidth - drawWidth) / 2;
-  const y = page.height - marginPt - drawHeight;
+  const y = dims.height - marginPt - drawHeight;
 
   pdfPage.drawImage(pngImage, {
     x,
@@ -267,22 +274,22 @@ export async function batchExportToPdf(
 
   // Margin in inches -> PDF points
   const marginPt = margin * 72;
-  const page = PAGE_SIZES[pageSize];
+  const dims = PAGE_DIMENSIONS[pageSize];
 
-  const doc = await PDFDocument.create();
+  const doc = createPdf();
 
   if (includeMetadata) {
     doc.setTitle(title);
     doc.setAuthor('NextCalc Pro');
     doc.setSubject('Mathematical Expression Export');
     doc.setCreator('NextCalc Export Service');
-    doc.setProducer('pdf-lib + @cf-wasm/resvg');
+    doc.setProducer('modern-pdf-lib + @cf-wasm/resvg');
     doc.setCreationDate(new Date());
   }
 
   // Available drawing area after margins
-  const availableWidth = page.width - marginPt * 2;
-  const availableHeight = page.height - marginPt * 2;
+  const availableWidth = dims.width - marginPt * 2;
+  const availableHeight = dims.height - marginPt * 2;
 
   for (const latex of expressions) {
     // Step 1: LaTeX -> SVG
@@ -299,8 +306,8 @@ export async function batchExportToPdf(
     const { png, width: imgWidth, height: imgHeight } = await convertSvgToPng(svgString, 300, 'transparent');
 
     // Step 3: Add page, embed PNG, scale to fit
-    const pdfPage = doc.addPage([page.width, page.height]);
-    const pngImage = await doc.embedPng(png);
+    const pdfPage = doc.addPage(PAGE_SIZE_MAP[pageSize]);
+    const pngImage = doc.embedPng(png);
 
     let drawWidth = imgWidth;
     let drawHeight = imgHeight;
@@ -318,7 +325,7 @@ export async function batchExportToPdf(
     }
 
     const x = marginPt + (availableWidth - drawWidth) / 2;
-    const y = page.height - marginPt - drawHeight;
+    const y = dims.height - marginPt - drawHeight;
 
     pdfPage.drawImage(pngImage, {
       x,
