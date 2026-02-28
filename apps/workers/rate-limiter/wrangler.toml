@@ -19,23 +19,7 @@ preview_id = "65390e47b1ca4604bd58e5c4078e063b" # Using production namespace for
 pattern = "ratelimit.nextcalc.io"
 custom_domain = true
 
-# Development configuration
-[env.development]
-name = "nextcalc-rate-limiter-dev"
-
-[[env.development.kv_namespaces]]
-binding = "RATE_LIMITS"
-id = "65390e47b1ca4604bd58e5c4078e063b" # Shared with production; create a separate dev namespace if needed
-
-# Production configuration
-[env.production]
-name = "nextcalc-rate-limiter-prod"
-
-[[env.production.kv_namespaces]]
-binding = "RATE_LIMITS"
-id = "65390e47b1ca4604bd58e5c4078e063b"
-
 # CORS configuration and shared variables
 [vars]
 ALLOWED_ORIGINS = "http://localhost:3020,https://nextcalc.io,https://nextcalc.pro"
-ADMIN_KEY = "" # TODO: Set via wrangler secret put ADMIN_KEY
+# ADMIN_KEY is set via `wrangler secret put ADMIN_KEY` (not in vars)

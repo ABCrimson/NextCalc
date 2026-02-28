@@ -13,14 +13,6 @@ enabled = true
 pattern = "cas.nextcalc.io"
 custom_domain = true
 
-# Development configuration
-[env.development]
-name = "nextcalc-cas-service-dev"
-
-# Production configuration
-[env.production]
-name = "nextcalc-cas-service-prod"
-
 # Build configuration
 [build]
 command = ""

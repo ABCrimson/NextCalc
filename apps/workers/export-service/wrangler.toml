@@ -43,14 +43,6 @@ preview_bucket_name = "nextcalc-exports-private-dev"
 pattern = "export.nextcalc.io"
 custom_domain = true
 
-# Development configuration
-[env.development]
-name = "nextcalc-export-service-dev"
-
-# Production configuration
-[env.production]
-name = "nextcalc-export-service-prod"
-
 # CORS configuration
 [vars]
 ALLOWED_ORIGINS = "http://localhost:3020,https://nextcalc.io,https://nextcalc.pro"
