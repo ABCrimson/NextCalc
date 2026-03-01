@@ -7,7 +7,6 @@ export default defineConfig({
     passWithNoTests: true,
     restoreMocks: true,
     clearMocks: true,
-    mockReset: true,
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
     exclude: ['node_modules', 'dist'],
     coverage: {

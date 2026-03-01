@@ -600,6 +600,7 @@ export function CommandPalette({ className }: CommandPaletteProps) {
       });
       return () => cancelAnimationFrame(raf);
     }
+    return undefined;
   }, [open]);
 
   // Reset activeIndex when results change

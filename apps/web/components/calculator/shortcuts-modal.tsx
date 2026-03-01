@@ -313,6 +313,7 @@ export function ShortcutsModal({ registerGlobalHotkey = true }: ShortcutsModalPr
         }
       };
     }
+    return undefined;
   }, []);
 
   const dismissOnboarding = useCallback(() => {

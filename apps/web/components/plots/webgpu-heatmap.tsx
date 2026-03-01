@@ -890,6 +890,7 @@ export function WebGPUHeatmap({
         { width: cols, height: rows },
       );
     }
+    return undefined;
   }, [data, gpuSolverEnabled, dataVersion]);
 
   // -------------------------------------------------------------------------
@@ -1048,6 +1049,7 @@ export function WebGPUHeatmap({
       size: rows * cols * 4,
       usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST,
     });
+    return undefined;
   }, [gpuSolverEnabled, equationType, gpuAvailable, dataVersion, data, solverAlpha]);
 
   // -------------------------------------------------------------------------

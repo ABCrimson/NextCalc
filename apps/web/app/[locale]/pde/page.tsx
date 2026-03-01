@@ -517,6 +517,7 @@ export default function PDESolverPage() {
         }
       };
     }
+    return undefined;
   }, [isPlaying, simulationData, playbackSpeed]);
 
   /**
