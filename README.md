@@ -127,17 +127,17 @@ graph TB
 | Components | Radix UI (unified) | 1.4 |
 | Animation | Framer Motion | 12.34 |
 | State | Zustand | 5.0 |
-| Math | Math.js | 15.1 |
+| Math | Math.js | 15.2 |
 | 3D Rendering | Three.js | 0.183 |
 | 2D Charts | D3.js | 7.9 |
 | LaTeX | KaTeX | 0.16 |
 | ORM | Prisma | 7.5 |
-| Auth | NextAuth | 5.0 |
+| Auth | NextAuth + jose | 5.0 / 6.1 |
 | GraphQL | Apollo Server / Client | 5.4 / 4.2 |
 | Cache | Upstash Redis | 1.37 |
 | Workers | Hono on Cloudflare | 4.12 |
 | Build | Turborepo | 2.8 |
-| Linting | Biome | 2.4 |
+| Linting | Biome | 2.5 |
 | Testing | Vitest + Playwright | 4.1 |
 
 ---

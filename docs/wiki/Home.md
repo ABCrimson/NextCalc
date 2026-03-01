@@ -52,4 +52,4 @@ NextCalc Pro is a comprehensive scientific calculator and mathematical visualiza
 | Cache | Upstash Redis |
 | Workers | Hono 4.12 on Cloudflare |
 | Build | Turborepo 2.8 |
-| Linting | Biome 2.4.4 |
+| Linting | Biome 2.5.0 |

@@ -10,7 +10,7 @@ Three edge microservices deployed to Cloudflare's global network for sub-50ms re
 | Export Service | `export.nextcalc.io` | LaTeX to PDF/PNG/SVG | R2 bucket |
 | Rate Limiter | `ratelimit.nextcalc.io` | API quota enforcement | KV namespace |
 
-**Tech**: Hono 4.12, Wrangler 4.67, Zod, TypeScript strict mode
+**Tech**: Hono 4.12.3, Wrangler 4.68.0, Zod, TypeScript strict mode
 
 ---
 

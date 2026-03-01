@@ -10,7 +10,9 @@ The API is served at `/api/graphql` via Apollo Server 5.4 integrated into the Ne
 
 - OAuth providers: Google, GitHub (via NextAuth v5)
 - Session: JWT (HTTP-only cookie, 30-day expiry)
+- WebSocket JWT verification via `jose.jwtVerify()` with NEXTAUTH_SECRET
 - Queries marked with `@auth` require a valid session
+- IDOR protection: worksheet queries enforce ownership (admin-only cross-user access)
 
 ---
 
