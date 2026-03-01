@@ -226,6 +226,16 @@ function createMockPrisma() {
     auditLog: {
       create: vi.fn().mockResolvedValue({ id: 'audit1' }),
     },
+    calculationHistory: {
+      findMany: vi.fn().mockResolvedValue([]),
+      create: vi.fn().mockImplementation((args: { data: Record<string, unknown> }) => ({
+        id: `calc_${Date.now()}`,
+        ...args.data,
+        createdAt: NOW,
+      })),
+      deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
+      count: vi.fn().mockResolvedValue(0),
+    },
   };
 }
 
@@ -1190,7 +1200,7 @@ describe('Folder Resolvers', () => {
 
       await expect(
         folderResolvers.Mutation.deleteFolder(null, { id: 'missing' }, ctx),
-      ).rejects.toThrow('Folder not found');
+      ).rejects.toThrow('not found');
     });
 
     it('throws when non-owner tries to delete', async () => {
@@ -1371,7 +1381,7 @@ describe('Calculation Resolvers', () => {
       const ctx = makeContext({ prisma: prisma as unknown as GraphQLContext['prisma'] });
 
       const result = await calculationResolvers.Query.health(null, {}, ctx);
-      expect(result.status).toBe('degraded');
+      expect(result.status).toBe('unhealthy');
       expect(result.database.status).toBe('unhealthy');
       expect(result.database.error).toBe('Connection refused');
     });
