@@ -44,7 +44,7 @@
     "nosecone": "1.1.0",
     "radix-ui": "1.4.4-rc.1766004502650",
     "react": "19.3.0-canary-e0cc7202-20260227",
-    "react-dom": "19.3.0-canary-e0cc7202-20260227",
+    "react-dom": "19.3.0-canary-52684925-20251110",
     "rxjs": "7.8.2",
     "tailwind-merge": "3.5.0",
     "tailwindcss": "4.2.1",
