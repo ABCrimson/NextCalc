@@ -338,9 +338,10 @@ export function topologicalSortKahn(graph: Graph): ReadonlyArray<number> {
   }
 
   const result: number[] = [];
+  let head = 0;
 
-  while (queue.length > 0) {
-    const v = queue.shift()!;
+  while (head < queue.length) {
+    const v = queue[head++]!;
     result.push(v);
 
     const neighbors = adj.get(v) ?? [];
@@ -399,48 +400,70 @@ export function tarjanSCC(graph: Graph): SCCResult {
 
   let time = 0;
 
-  function dfs(v: number): void {
-    // Initialize discovery time and low-link value
-    disc.set(v, time);
-    low.set(v, time);
+  // Iterative Tarjan's DFS to avoid stack overflow on large graphs
+  function dfsIterative(start: number): void {
+    // Each frame: [vertex, neighborIndex]
+    const callStack: Array<{
+      v: number;
+      ni: number;
+      neighbors: ReadonlyArray<{ to: number; weight: number }>;
+    }> = [];
+    disc.set(start, time);
+    low.set(start, time);
     time++;
-    stack.push(v);
-    onStack.add(v);
+    stack.push(start);
+    onStack.add(start);
+    callStack.push({ v: start, ni: 0, neighbors: adj.get(start) ?? [] });
 
-    // Visit neighbors
-    const neighbors = adj.get(v) ?? [];
-    for (const neighbor of neighbors) {
-      const w = neighbor.to;
+    while (callStack.length > 0) {
+      const frame = callStack[callStack.length - 1]!;
+      const { v, neighbors } = frame;
 
-      if (!disc.has(w)) {
-        // Tree edge
-        dfs(w);
-        low.set(v, Math.min(low.get(v) ?? Infinity, low.get(w) ?? Infinity));
-      } else if (onStack.has(w)) {
-        // Back edge
-        low.set(v, Math.min(low.get(v) ?? Infinity, disc.get(w) ?? Infinity));
+      if (frame.ni < neighbors.length) {
+        const w = neighbors[frame.ni]!.to;
+        frame.ni++;
+
+        if (!disc.has(w)) {
+          // Tree edge — "recurse"
+          disc.set(w, time);
+          low.set(w, time);
+          time++;
+          stack.push(w);
+          onStack.add(w);
+          callStack.push({ v: w, ni: 0, neighbors: adj.get(w) ?? [] });
+        } else if (onStack.has(w)) {
+          // Back edge
+          low.set(v, Math.min(low.get(v) ?? Infinity, disc.get(w) ?? Infinity));
+        }
+      } else {
+        // All neighbors visited — "return" from this frame
+        callStack.pop();
+
+        // Update parent's low-link
+        if (callStack.length > 0) {
+          const parent = callStack[callStack.length - 1]!;
+          low.set(parent.v, Math.min(low.get(parent.v) ?? Infinity, low.get(v) ?? Infinity));
+        }
+
+        // If v is root of SCC, pop the Tarjan stack
+        if (low.get(v) === disc.get(v)) {
+          const component: number[] = [];
+          let w: number;
+          do {
+            w = stack.pop()!;
+            onStack.delete(w);
+            component.push(w);
+          } while (w !== v);
+          components.push(component);
+        }
       }
-    }
-
-    // If v is root of SCC, pop the stack
-    if (low.get(v) === disc.get(v)) {
-      const component: number[] = [];
-
-      let w: number;
-      do {
-        w = stack.pop()!;
-        onStack.delete(w);
-        component.push(w);
-      } while (w !== v);
-
-      components.push(component);
     }
   }
 
   // Run DFS from all unvisited vertices
   for (let v = 0; v < vertices; v++) {
     if (!disc.has(v)) {
-      dfs(v);
+      dfsIterative(v);
     }
   }
 

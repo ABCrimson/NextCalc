@@ -463,8 +463,8 @@ export default function PDESolverPage() {
    * Toggle animation playback
    */
   const toggleAnimation = useCallback(() => {
-    setIsPlaying(!isPlaying);
-  }, [isPlaying]);
+    setIsPlaying((prev) => !prev);
+  }, []);
 
   /**
    * Reset to initial frame

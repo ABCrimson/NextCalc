@@ -380,9 +380,16 @@ export function BifurcationDiagramRenderer({
     return () => {
       cancelled = true;
     };
-    // gpuParams changes are intentionally excluded — local state takes priority.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enableGPU, mapType, rMin, rMax, x0]);
+  }, [
+    enableGPU,
+    mapType,
+    rMin,
+    rMax,
+    x0,
+    gpuParams?.rSteps,
+    gpuParams?.warmup,
+    gpuParams?.plotPoints,
+  ]);
 
   // ── Bounds ──────────────────────────────────────────────────────────────────
   const bounds = useMemo(() => {
@@ -457,7 +464,7 @@ export function BifurcationDiagramRenderer({
   // ── Helpers to commit string inputs to numeric state ────────────────────────
   const commitRMin = useCallback(() => {
     const v = parseFloat(rMinStr);
-    if (!isNaN(v) && v < rMax) {
+    if (!Number.isNaN(v) && v < rMax) {
       setRMin(v);
       setZoom({ x: 1, y: 1 });
       setPan({ r: 0, x: 0 });
@@ -468,7 +475,7 @@ export function BifurcationDiagramRenderer({
 
   const commitRMax = useCallback(() => {
     const v = parseFloat(rMaxStr);
-    if (!isNaN(v) && v > rMin) {
+    if (!Number.isNaN(v) && v > rMin) {
       setRMax(v);
       setZoom({ x: 1, y: 1 });
       setPan({ r: 0, x: 0 });
@@ -479,7 +486,7 @@ export function BifurcationDiagramRenderer({
 
   const commitX0 = useCallback(() => {
     const v = parseFloat(x0Str);
-    if (!isNaN(v) && v > 0 && v < 1) {
+    if (!Number.isNaN(v) && v > 0 && v < 1) {
       setX0(v);
     } else {
       setX0Str(String(x0));

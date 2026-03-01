@@ -253,7 +253,7 @@ export function SurfaceEditor3D({
 
         // Test the function
         const testVal = fn(0, 0);
-        if (typeof testVal !== 'number' || isNaN(testVal)) {
+        if (typeof testVal !== 'number' || Number.isNaN(testVal)) {
           throw new Error('Function must return a number');
         }
 

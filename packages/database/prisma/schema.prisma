@@ -297,7 +297,6 @@ model SharedCalculation {
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@map("shared_calculations")
-  @@index([shortCode])
   @@index([userId])
   @@index([createdAt(sort: Desc)])
   @@index([expiresAt])

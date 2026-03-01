@@ -14,7 +14,7 @@
 
 // Plain CSS files (side-effect imports)
 declare module '*.css' {
-  const content: void;
+  const content: undefined;
   export default content;
 }
 
@@ -26,12 +26,12 @@ declare module '*.module.css' {
 
 // Sass/SCSS files
 declare module '*.scss' {
-  const content: void;
+  const content: undefined;
   export default content;
 }
 
 declare module '*.sass' {
-  const content: void;
+  const content: undefined;
   export default content;
 }
 

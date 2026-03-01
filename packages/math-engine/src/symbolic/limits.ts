@@ -73,6 +73,8 @@ export interface LimitConfig {
   maxLhopitalIterations?: number;
   /** Include step-by-step explanation (default: false) */
   includeSteps?: boolean;
+  /** @internal Skip algebraic simplification to prevent recursion */
+  _skipAlgebraic?: boolean;
 }
 
 /**
@@ -161,13 +163,16 @@ export function limit(expr: ExpressionNode, variable: string, config: LimitConfi
     };
   }
 
-  // Step 3: Try algebraic simplification
-  const algebraicResult = tryAlgebraicSimplification(expr, variable, point, steps, includeSteps);
-  if (algebraicResult.success) {
-    return limit(algebraicResult.simplified, variable, {
-      ...config,
-      includeSteps: false,
-    });
+  // Step 3: Try algebraic simplification (skip if already simplified to prevent recursion)
+  if (!config._skipAlgebraic) {
+    const algebraicResult = tryAlgebraicSimplification(expr, variable, point, steps, includeSteps);
+    if (algebraicResult.success) {
+      return limit(algebraicResult.simplified, variable, {
+        ...config,
+        includeSteps: false,
+        _skipAlgebraic: true,
+      });
+    }
   }
 
   // Step 4: Apply L'Hôpital's rule for indeterminate forms
@@ -689,7 +694,7 @@ function extractLeadingTerm(
       if (v1 === null || Math.abs(v1) < 1e-15) continue;
 
       const v2 = evaluateTermNumerically(term, variable, center + h2);
-      if (v2 === null || Math.abs(v1) < 1e-20) continue;
+      if (v2 === null || Math.abs(v2) < 1e-20) continue;
 
       // Estimate the power: ratio = (h2/h1)^power = 2^power
       const ratio = v2 / v1;

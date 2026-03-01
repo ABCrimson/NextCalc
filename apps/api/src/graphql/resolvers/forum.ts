@@ -18,21 +18,15 @@ import { createForumPostSchema, updateForumPostSchema, validate } from '../../li
 export const forumResolvers = {
   Query: {
     forumPost: async (_parent: unknown, args: { id: string }, context: GraphQLContext) => {
-      const post = await context.prisma.forumPost.findUnique({
-        where: { id: args.id },
-      });
-
-      if (!post || post.deletedAt) {
+      try {
+        // Atomic increment + return updated record in a single query
+        return await context.prisma.forumPost.update({
+          where: { id: args.id, deletedAt: null },
+          data: { views: { increment: 1 } },
+        });
+      } catch {
         throw new NotFoundError('ForumPost', args.id);
       }
-
-      // Increment views
-      await context.prisma.forumPost.update({
-        where: { id: args.id },
-        data: { views: { increment: 1 } },
-      });
-
-      return post;
     },
 
     forumPosts: async (

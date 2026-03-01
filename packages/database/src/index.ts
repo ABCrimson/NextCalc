@@ -63,6 +63,7 @@ export {
 	AlgorithmCategory,
 	ProgrammingLanguage,
 	AchievementType,
+	FavoriteType,
 } from './generated/prisma/client';
 
 // Re-export the models barrel (needed for TypeScript declaration emit)

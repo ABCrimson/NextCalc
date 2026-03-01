@@ -289,7 +289,13 @@ export async function computeBifurcationGPU(
     const r = raw[i];
     const x = raw[i + 1];
     // Exclude degenerate values (NaN/Inf) and zero-initialised slots (r=0, x=0)
-    if (r !== undefined && x !== undefined && isFinite(r) && isFinite(x) && (r !== 0 || x !== 0)) {
+    if (
+      r !== undefined &&
+      x !== undefined &&
+      Number.isFinite(r) &&
+      Number.isFinite(x) &&
+      (r !== 0 || x !== 0)
+    ) {
       points.push({ r, x });
     }
   }

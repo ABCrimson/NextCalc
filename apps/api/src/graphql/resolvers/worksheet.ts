@@ -86,10 +86,17 @@ export const worksheetResolvers = {
       const limit = Math.min(args.limit || 20, 100);
       const offset = args.offset || 0;
 
+      // Prevent accessing other users' private worksheets
+      const targetUserId = args.userId || user.id;
+      if (targetUserId !== user.id && user.role !== 'ADMIN') {
+        // Non-admins can only see their own worksheets
+        throw new ForbiddenError("You do not have permission to access other users' worksheets");
+      }
+
       // Build where clause
       const where: Record<string, unknown> = {
         deletedAt: null,
-        userId: args.userId || user.id,
+        userId: targetUserId,
       };
 
       if (args.visibility) {
@@ -200,9 +207,15 @@ export const worksheetResolvers = {
     ) => {
       const user = requireAuth(context);
 
+      // Prevent accessing other users' private worksheets
+      const targetUserId = args.userId || user.id;
+      if (targetUserId !== user.id && user.role !== 'ADMIN') {
+        throw new ForbiddenError("You do not have permission to access other users' worksheets");
+      }
+
       const where: Record<string, unknown> = {
         deletedAt: null,
-        userId: args.userId || user.id,
+        userId: targetUserId,
       };
 
       if (args.visibility) {
@@ -492,7 +505,7 @@ export const worksheetResolvers = {
       requireOwnership(context, worksheet.userId);
 
       await context.prisma.worksheetShare.delete({
-        where: { id: args.shareId },
+        where: { id: args.shareId, worksheetId: args.worksheetId },
       });
 
       return true;
@@ -506,6 +519,15 @@ export const worksheetResolvers = {
       args: { id: string },
       context: GraphQLContext,
     ) => {
+      const worksheet = await context.prisma.worksheet.findUnique({
+        where: { id: args.id },
+        select: { id: true, deletedAt: true },
+      });
+
+      if (!worksheet || worksheet.deletedAt) {
+        throw new NotFoundError('Worksheet', args.id);
+      }
+
       await context.prisma.worksheet.update({
         where: { id: args.id },
         data: { views: { increment: 1 } },

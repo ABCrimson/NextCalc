@@ -73,7 +73,10 @@ function ZeroKnowledgeContent() {
 
           {/* Backend comparison info */}
           <div className="mt-6 grid sm:grid-cols-2 gap-4">
-            <div className={`${GLASS_CARD} rounded-xl p-4`} aria-label="GPU backend description">
+            <section
+              className={`${GLASS_CARD} rounded-xl p-4`}
+              aria-label="GPU backend description"
+            >
               <div className="flex items-center gap-2 mb-2">
                 <Zap className="w-4 h-4 text-emerald-400" aria-hidden="true" />
                 <span className="text-sm font-semibold text-foreground">{t('webgpuPrimary')}</span>
@@ -100,9 +103,12 @@ function ZeroKnowledgeContent() {
                   GPU storage buffer readback via <code className="text-emerald-300">mapAsync</code>
                 </li>
               </ul>
-            </div>
+            </section>
 
-            <div className={`${GLASS_CARD} rounded-xl p-4`} aria-label="CPU fallback description">
+            <section
+              className={`${GLASS_CARD} rounded-xl p-4`}
+              aria-label="CPU fallback description"
+            >
               <div className="flex items-center gap-2 mb-2">
                 <Cpu className="w-4 h-4 text-amber-400" aria-hidden="true" />
                 <span className="text-sm font-semibold text-foreground">{t('cpuFallback')}</span>
@@ -125,7 +131,7 @@ function ZeroKnowledgeContent() {
                   Auto-activated when WebGPU adapter unavailable
                 </li>
               </ul>
-            </div>
+            </section>
           </div>
         </TabsContent>
       </Tabs>

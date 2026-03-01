@@ -392,7 +392,7 @@ function needsParens(node: unknown): boolean {
 function solutionToLatex(sol: { value: unknown }): string {
   const v = sol.value;
   if (typeof v === 'number') {
-    if (!isFinite(v)) return '\\text{infinite solutions}';
+    if (!Number.isFinite(v)) return '\\text{infinite solutions}';
     // Round-trip: trim trailing zeros
     const str = v.toFixed(10).replace(/\.?0+$/, '');
     return str;
@@ -1526,7 +1526,7 @@ function buildFinalLatex(answer: unknown, variable: VariableName): string {
 
   // Number (e.g. numeric evaluation result)
   if (typeof answer === 'number') {
-    if (!isFinite(answer)) return '\\text{Diverges}';
+    if (!Number.isFinite(answer)) return '\\text{Diverges}';
     return answer.toFixed(10).replace(/\.?0+$/, '');
   }
 

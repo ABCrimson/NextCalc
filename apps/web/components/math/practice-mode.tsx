@@ -567,10 +567,9 @@ export function PracticeMode({
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div
-                className="prose prose-sm dark:prose-invert max-w-none"
-                dangerouslySetInnerHTML={{ __html: currentProblem!.statement }}
-              />
+              <div className="prose prose-sm dark:prose-invert max-w-none">
+                {currentProblem!.statement}
+              </div>
 
               {state === 'active' ? (
                 <>

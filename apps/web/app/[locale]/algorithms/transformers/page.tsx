@@ -6,7 +6,10 @@ import { useTranslations } from 'next-intl';
 import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
 
 const TransformerVisualizer = dynamic(
-  () => import('@/components/algorithms/TransformerVisualizer').then((m) => ({ default: m.TransformerVisualizer })),
+  () =>
+    import('@/components/algorithms/TransformerVisualizer').then((m) => ({
+      default: m.TransformerVisualizer,
+    })),
   {
     ssr: false,
     loading: () => (

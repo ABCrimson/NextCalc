@@ -336,6 +336,7 @@ export default function AlgorithmsPage() {
                 <h3 className="text-xl font-semibold mb-2">{t('noAlgorithmsFound')}</h3>
                 <p className="text-muted-foreground mb-6">{t('noAlgorithmsHint')}</p>
                 <button
+                  type="button"
                   onClick={() => {
                     setSelectedCategories([]);
                     setSelectedDifficulties([]);

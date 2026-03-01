@@ -13,8 +13,8 @@
  *   pnpm tsx scripts/setup-database.ts
  */
 
-import { execSync } from 'child_process';
-import * as readline from 'readline';
+import { execSync } from 'node:child_process';
+import * as readline from 'node:readline';
 
 const rl = readline.createInterface({
   input: process.stdin,

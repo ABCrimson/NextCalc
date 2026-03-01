@@ -20,6 +20,27 @@
  */
 
 /**
+ * Generate a random BigInt in [0, max) without overflow.
+ * Uses Math.random() in 32-bit chunks for arbitrary-precision ranges.
+ */
+function randomBigIntBelow(max: bigint): bigint {
+  if (max <= 0n) return 0n;
+  // Determine number of bits needed
+  const bits = max.toString(2).length;
+  const bytes = Math.ceil(bits / 32);
+  let result: bigint;
+  do {
+    result = 0n;
+    for (let i = 0; i < bytes; i++) {
+      result = (result << 32n) | BigInt(Math.floor(Math.random() * 0x100000000));
+    }
+    // Mask to the right number of bits
+    result = result & ((1n << BigInt(bits)) - 1n);
+  } while (result >= max);
+  return result;
+}
+
+/**
  * RSA key pair
  */
 export interface RSAKeyPair {
@@ -134,8 +155,8 @@ export function isProbablyPrime(n: bigint, rounds = 40): boolean {
 
   // Miller-Rabin test
   witnessLoop: for (let i = 0; i < rounds; i++) {
-    // Random witness a in [2, n-2]
-    const a = 2n + BigInt(Math.floor(Math.random() * Number(n - 4n)));
+    // Random witness a in [2, n-2] — safe for large BigInts
+    const a = 2n + randomBigIntBelow(n - 4n);
 
     let x = modPow(a, d, n);
 
@@ -165,8 +186,8 @@ export function generatePrime(bits: number): bigint {
   const max = 2n ** BigInt(bits) - 1n;
 
   while (true) {
-    // Generate random odd number
-    let candidate = min + BigInt(Math.floor(Math.random() * Number(max - min)));
+    // Generate random odd number — safe for large BigInts
+    let candidate = min + randomBigIntBelow(max - min);
     if (candidate % 2n === 0n) candidate++;
 
     if (isProbablyPrime(candidate)) {

@@ -59,7 +59,7 @@ export const useSession = () => {
         const response = await fetch('/api/auth/session');
         if (response.ok) {
           const data = await response.json();
-          if (data && data.user) {
+          if (data?.user) {
             setSession(data as Session);
             setStatus('authenticated');
           } else {

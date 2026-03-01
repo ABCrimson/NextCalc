@@ -610,7 +610,7 @@ function buildPolylinePath(
     const x = xMin + i * step;
     const y = fn(x);
 
-    if (!isFinite(y)) {
+    if (!Number.isFinite(y)) {
       pen = 'M';
       continue;
     }
@@ -693,14 +693,14 @@ function TaylorPlot({
       const x = xMin + i * step;
       if (trueExprEval) {
         const y = trueExprEval(x);
-        if (isFinite(y)) {
+        if (Number.isFinite(y)) {
           yLo = Math.min(yLo, y);
           yHi = Math.max(yHi, y);
         }
       }
       if (terms.length > 0) {
         const y = evaluateTaylorPartialSum(terms, visibleTerms, x, center);
-        if (isFinite(y)) {
+        if (Number.isFinite(y)) {
           yLo = Math.min(yLo, y);
           yHi = Math.max(yHi, y);
         }
@@ -948,7 +948,7 @@ function TaylorPlot({
           )}
 
           {/* Expansion center marker */}
-          {isFinite(cy) && cy > dims.paddingTop && cy < dims.height - dims.paddingBottom && (
+          {Number.isFinite(cy) && cy > dims.paddingTop && cy < dims.height - dims.paddingBottom && (
             <g>
               <circle cx={cx} cy={cy} r="8" fill={preset.color} opacity="0.15" />
               <circle
@@ -1171,7 +1171,7 @@ function ErrorPanel({ terms, visibleTerms, center, trueExprEval, xRange }: Error
     const x = xMin + i * step;
     const trueVal = trueExprEval(x);
     const approxVal = evaluateTaylorPartialSum(terms, visibleTerms, x, center);
-    if (!isFinite(trueVal) || !isFinite(approxVal)) continue;
+    if (!Number.isFinite(trueVal) || !Number.isFinite(approxVal)) continue;
     rows.push({ x, true: trueVal, approx: approxVal, error: Math.abs(trueVal - approxVal) });
   }
 

@@ -4,13 +4,13 @@ Backend GraphQL API for NextCalc Pro, built with Apollo Server, Prisma, and Next
 
 ## Tech Stack
 
-- **Database:** Neon PostgreSQL with Prisma 7.5.0-dev
+- **Database:** Neon PostgreSQL with Prisma 7.5.0-dev.32
 - **API:** GraphQL with Apollo Server 5.4.0
-- **Authentication:** Auth.js v5 (NextAuth 5.0-beta.30) with OAuth
+- **Authentication:** Auth.js v5 (NextAuth 5.0-beta.30) with OAuth + jose 6.1.3 JWT verification
 - **Caching:** Upstash Redis
 - **Rate Limiting:** Upstash Rate Limit
 - **Connection Pooling:** Neon Serverless Driver
-- **Linting/Formatting:** Biome 2.4.4
+- **Linting/Formatting:** Biome 2.5.0
 
 ## Prerequisites
 
@@ -336,20 +336,23 @@ pnpm prisma migrate reset
 
 ### Features
 
-- JWT session tokens (HTTP-only cookies)
-- Input validation with Zod
-- Rate limiting per user
+- JWT session tokens (HTTP-only cookies) with jose signature verification
+- IDOR protection on worksheet and profile resolvers
+- Input validation with Zod on all mutations
+- Rate limiting per user (sliding window + token bucket)
 - CORS configuration
-- SQL injection prevention (Prisma)
-- XSS protection (sanitized inputs)
+- SQL injection prevention (Prisma parameterized queries)
+- Atomic view counters (forum posts, worksheets)
+- Internal error messages never leaked to clients
 
 ### Best Practices
 
-- Never expose internal errors to clients
+- Never expose internal errors to clients (error details stripped in workers and API)
 - Use parameterized queries only
 - Validate all user inputs
-- Implement RBAC for sensitive operations
+- Implement RBAC for sensitive operations (admin-only cross-user access)
 - Log all authentication events
+- Verify JWT signatures on WebSocket connections (jose jwtVerify)
 
 ## Deployment
 

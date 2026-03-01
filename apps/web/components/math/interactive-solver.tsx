@@ -218,10 +218,7 @@ export function InteractiveSolver({
           </div>
         </CardHeader>
         <CardContent>
-          <div
-            className="prose prose-sm dark:prose-invert max-w-none"
-            dangerouslySetInnerHTML={{ __html: problem.statement }}
-          />
+          <div className="prose prose-sm dark:prose-invert max-w-none">{problem.statement}</div>
           {problem.latex && (
             <div className="mt-4 p-4 bg-muted/50 rounded-lg font-mono text-sm overflow-x-auto">
               {problem.latex}

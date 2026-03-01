@@ -68,7 +68,7 @@ const AUTH_ERROR_KEYS: Record<string, string> = {
 
 function resolveErrorKey(errorCode: string | null): string | null {
   if (!errorCode) return null;
-  return AUTH_ERROR_KEYS[errorCode] ?? AUTH_ERROR_KEYS['Default'] ?? null;
+  return AUTH_ERROR_KEYS[errorCode] ?? AUTH_ERROR_KEYS.Default ?? null;
 }
 
 export default function SignInPage() {
@@ -158,7 +158,7 @@ export default function SignInPage() {
         )}
 
         {/* Provider buttons */}
-        <div className="space-y-3" aria-label={t('signInOptions')}>
+        <fieldset className="space-y-3 border-0 p-0 m-0" aria-label={t('signInOptions')}>
           {PROVIDERS.map(({ id, label, icon: Icon, colorClasses }) => {
             const isLoading = loadingProvider === id;
             const isDisabled = loadingProvider !== null;
@@ -188,7 +188,7 @@ export default function SignInPage() {
               </button>
             );
           })}
-        </div>
+        </fieldset>
 
         {/* Divider */}
         <div className="relative" aria-hidden="true">

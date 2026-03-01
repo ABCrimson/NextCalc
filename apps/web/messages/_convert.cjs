@@ -10,8 +10,8 @@
  *   { nav: { calculator: "Calculator", calculatorDescription: "Scientific calculator" } }
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const locales = ['en', 'ru', 'es', 'uk', 'de', 'fr', 'ja', 'zh'];
 

@@ -3002,7 +3002,7 @@ function FibLucasPanel() {
   const compute = useCallback(() => {
     setError('');
     const nNum = parseInt(nInput, 10);
-    if (isNaN(nNum) || nNum < 1) {
+    if (Number.isNaN(nNum) || nNum < 1) {
       setError('Enter a positive integer.');
       return;
     }

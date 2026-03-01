@@ -86,6 +86,18 @@ export async function checkRateLimit(
   const now = Date.now();
   const windowMs = 60 * 60 * 1000; // 1 hour in milliseconds
   const config = RATE_LIMIT_CONFIGS[tier];
+  const limit = config.requestsPerHour;
+
+  // Skip KV storage entirely for unlimited tiers
+  if (limit === Number.MAX_SAFE_INTEGER) {
+    return {
+      allowed: true,
+      remaining: Number.MAX_SAFE_INTEGER,
+      resetAt: now + windowMs,
+      limit,
+      tier,
+    };
+  }
 
   // Generate KV key
   const kvKey = `ratelimit:${identifier}`;
@@ -109,7 +121,6 @@ export async function checkRateLimit(
 
   // Check if limit exceeded
   const currentCount = requests.length;
-  const limit = config.requestsPerHour;
   const allowed = currentCount < limit;
 
   // If allowed, add current timestamp

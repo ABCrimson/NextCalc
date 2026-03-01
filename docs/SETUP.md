@@ -178,6 +178,22 @@ Create **separate** OAuth apps for production:
 
 ---
 
+## Stack Versions (as of March 2026)
+
+| Package | Version |
+|---------|---------|
+| Next.js | 16.2.0-canary.69 |
+| React | 19.3.0-canary |
+| TypeScript | 6.0.0-dev.20260301 |
+| Prisma | 7.5.0-dev.32 |
+| Apollo Server | 5.4.0 |
+| Biome | 2.5.0 |
+| Turborepo | 2.8.12 |
+| Tailwind CSS | 4.2.1 |
+| Hono (workers) | 4.12.3 |
+| Wrangler | 4.68.0 |
+| Vitest | 4.1.0-beta.5 |
+
 ## Next Steps
 
 1. Continue to [DEPLOYMENT.md](./DEPLOYMENT.md) for production deployment

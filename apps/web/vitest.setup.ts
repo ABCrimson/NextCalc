@@ -134,8 +134,6 @@ global.IntersectionObserver = class IntersectionObserver {
   rootMargin: string = '';
   thresholds: readonly number[] = [];
 
-  constructor(_callback: IntersectionObserverCallback, _options?: IntersectionObserverInit) {}
-
   disconnect() {}
   observe() {}
   takeRecords(): IntersectionObserverEntry[] {
@@ -146,7 +144,6 @@ global.IntersectionObserver = class IntersectionObserver {
 
 // Mock ResizeObserver
 global.ResizeObserver = class ResizeObserver {
-  constructor(_callback: ResizeObserverCallback) {}
   disconnect() {}
   observe() {}
   unobserve() {}
@@ -254,6 +251,7 @@ vi.mock('framer-motion', () => {
   const React = require('react');
 
   // Filter out framer-motion specific props that React doesn't recognize
+  // biome-ignore lint/suspicious/noExplicitAny: mock implementation — untyped by design
   const filterMotionProps = (props: Record<string, any>) => {
     const motionProps = [
       'initial',
@@ -278,6 +276,7 @@ vi.mock('framer-motion', () => {
       'inherit',
       'style',
     ];
+    // biome-ignore lint/suspicious/noExplicitAny: mock implementation — untyped by design
     const filtered: Record<string, any> = {};
     for (const [key, value] of Object.entries(props)) {
       if (!motionProps.includes(key)) {
@@ -285,26 +284,31 @@ vi.mock('framer-motion', () => {
       }
     }
     // Restore style if it's valid CSS
-    if (props['style'] && typeof props['style'] === 'object') {
-      filtered['style'] = props['style'];
+    if (props.style && typeof props.style === 'object') {
+      filtered.style = props.style;
     }
     return filtered;
   };
 
   return {
     motion: {
+      // biome-ignore lint/suspicious/noExplicitAny: mock implementation — untyped by design
       div: ({ children, ref, ...props }: any) =>
         React.createElement('div', { ...filterMotionProps(props), ref }, children),
+      // biome-ignore lint/suspicious/noExplicitAny: mock implementation — untyped by design
       button: ({ children, ref, ...props }: any) =>
         React.createElement('button', { ...filterMotionProps(props), ref }, children),
+      // biome-ignore lint/suspicious/noExplicitAny: mock implementation — untyped by design
       span: ({ children, ref, ...props }: any) =>
         React.createElement('span', { ...filterMotionProps(props), ref }, children),
     },
+    // biome-ignore lint/suspicious/noExplicitAny: mock implementation — untyped by design
     AnimatePresence: ({ children }: any) => children,
     useAnimation: () => ({
       start: vi.fn(),
       set: vi.fn(),
     }),
+    // biome-ignore lint/suspicious/noExplicitAny: mock implementation — untyped by design
     useMotionValue: (initial: any) => ({
       get: () => initial,
       set: vi.fn(),
@@ -312,7 +316,9 @@ vi.mock('framer-motion', () => {
     }),
     useReducedMotion: () => false,
     useInView: () => true,
+    // biome-ignore lint/suspicious/noExplicitAny: mock implementation — untyped by design
     useTransform: (value: any, _transformer: any) => value,
+    // biome-ignore lint/suspicious/noExplicitAny: mock implementation — untyped by design
     useSpring: (value: any) => value,
   };
 });

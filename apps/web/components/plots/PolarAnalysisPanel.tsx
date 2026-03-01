@@ -82,7 +82,7 @@ function checkXAxisSymmetry(fn: (theta: number) => number, samples: number): boo
     const r1 = fn(theta);
     const r2 = fn(-theta);
 
-    if (!isFinite(r1) || !isFinite(r2)) continue;
+    if (!Number.isFinite(r1) || !Number.isFinite(r2)) continue;
 
     totalDiff += Math.abs(r1 - r2);
     totalMag += Math.abs(r1) + Math.abs(r2);
@@ -104,7 +104,7 @@ function checkYAxisSymmetry(fn: (theta: number) => number, samples: number): boo
     const r1 = fn(theta);
     const r2 = fn(Math.PI - theta);
 
-    if (!isFinite(r1) || !isFinite(r2)) continue;
+    if (!Number.isFinite(r1) || !Number.isFinite(r2)) continue;
 
     totalDiff += Math.abs(r1 - r2);
     totalMag += Math.abs(r1) + Math.abs(r2);
@@ -128,7 +128,7 @@ function checkOriginSymmetry(fn: (theta: number) => number, samples: number): bo
     const r1 = fn(theta);
     const r2 = fn(theta + Math.PI);
 
-    if (!isFinite(r1) || !isFinite(r2)) continue;
+    if (!Number.isFinite(r1) || !Number.isFinite(r2)) continue;
 
     totalDiffSame += Math.abs(r1 - r2);
     totalDiffNeg += Math.abs(r1 + r2);
@@ -156,7 +156,7 @@ function countPetals(fn: (theta: number) => number, samples: number): number {
     const theta = i * step;
     const r = fn(theta);
 
-    if (!isFinite(r)) continue;
+    if (!Number.isFinite(r)) continue;
 
     const sign = Math.sign(r);
     if (sign !== 0 && sign !== lastSign && lastSign !== 0) {
@@ -190,7 +190,7 @@ function countDistinctLobes(fn: (theta: number) => number, samples: number): num
   for (let i = 1; i <= samples; i++) {
     const theta = i * step;
     const r = fn(theta);
-    if (!isFinite(r) || !isFinite(prevR)) {
+    if (!Number.isFinite(r) || !Number.isFinite(prevR)) {
       prevR = r;
       continue;
     }
@@ -219,7 +219,7 @@ function computeArea(fn: (theta: number) => number, samples: number): number {
     const theta = i * step;
     const r = fn(theta);
 
-    if (!isFinite(r)) continue;
+    if (!Number.isFinite(r)) continue;
 
     area += r * r * step;
   }
@@ -238,7 +238,7 @@ function computeMaxRadius(fn: (theta: number) => number, samples: number): numbe
     const theta = i * step;
     const r = fn(theta);
 
-    if (isFinite(r)) {
+    if (Number.isFinite(r)) {
       maxR = Math.max(maxR, Math.abs(r));
     }
   }
@@ -266,12 +266,12 @@ function classifyCurve(
   for (let i = 1; i <= samples; i++) {
     const theta = i * step;
     const r = fn(theta);
-    if (isFinite(r) && Math.abs(r - firstR) > 0.01 * Math.max(1, Math.abs(firstR))) {
+    if (Number.isFinite(r) && Math.abs(r - firstR) > 0.01 * Math.max(1, Math.abs(firstR))) {
       isConstant = false;
       break;
     }
   }
-  if (isConstant && isFinite(firstR)) return 'Circle';
+  if (isConstant && Number.isFinite(firstR)) return 'Circle';
 
   // Check for spiral: r increases or decreases monotonically with theta
   if (isSpiral(fn, samples)) return 'Spiral';
@@ -322,7 +322,7 @@ function isSpiral(fn: (theta: number) => number, samples: number): boolean {
   for (let i = 1; i <= samples; i++) {
     const theta = i * step;
     const r = fn(theta);
-    if (!isFinite(r) || !isFinite(prevR)) {
+    if (!Number.isFinite(r) || !Number.isFinite(prevR)) {
       prevR = r;
       continue;
     }
@@ -349,7 +349,7 @@ function isCardioid(fn: (theta: number) => number, samples: number): boolean {
   for (let i = 0; i <= samples; i++) {
     const theta = i * step;
     const r = fn(theta);
-    if (!isFinite(r)) continue;
+    if (!Number.isFinite(r)) continue;
 
     if (Math.abs(r) < 0.05) nearZeroCount++;
     minR = Math.min(minR, Math.abs(r));
@@ -369,7 +369,7 @@ function hasInnerLoop(fn: (theta: number) => number, samples: number): boolean {
   for (let i = 0; i <= samples; i++) {
     const theta = i * step;
     const r = fn(theta);
-    if (isFinite(r) && r < -0.01) negativeCount++;
+    if (Number.isFinite(r) && r < -0.01) negativeCount++;
   }
 
   return negativeCount > samples * 0.05;
@@ -386,7 +386,7 @@ function isDimpled(fn: (theta: number) => number, samples: number): boolean {
   for (let i = 0; i <= samples; i++) {
     const theta = i * step;
     const r = fn(theta);
-    if (!isFinite(r)) continue;
+    if (!Number.isFinite(r)) continue;
     minR = Math.min(minR, r);
     maxR = Math.max(maxR, r);
   }
@@ -399,7 +399,7 @@ function isDimpled(fn: (theta: number) => number, samples: number): boolean {
  * Formats a number to a compact readable string.
  */
 function fmt(n: number, decimals = 4): string {
-  if (!isFinite(n)) return '--';
+  if (!Number.isFinite(n)) return '--';
   if (Math.abs(n) < 1e-10) return '0';
   if (Math.abs(n) < 1e-3 && n !== 0) return n.toExponential(3);
   return parseFloat(n.toFixed(decimals)).toString();

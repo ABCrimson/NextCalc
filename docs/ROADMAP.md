@@ -65,7 +65,7 @@
 - [x] Sign-in page (`/auth/signin`)
 
 ### Backend Infrastructure
-- [x] GraphQL API with Apollo Server 5.4 (`apps/api/`)
+- [x] GraphQL API with Apollo Server 5.4 + jose 6.1 JWT verification (`apps/api/`)
 - [x] Prisma 7 shared database package (`packages/database/`)
 - [x] NextAuth v5 with Google + GitHub OAuth
 - [x] Upstash Redis integration (caching + rate limiting)
@@ -74,8 +74,9 @@
 - [x] Full resolver set (user, worksheet, folder, calculation, forum, comment, upvote)
 - [x] Cursor pagination (Relay-style connections)
 - [x] Custom error classes (AuthenticationError, ForbiddenError, NotFoundError, ValidationError)
-- [x] IDOR protection on profile resolvers
+- [x] IDOR protection on profile and worksheet resolvers
 - [x] Zod input validation on all mutations
+- [x] Atomic view counters (forum posts, worksheets)
 - [x] Configurable rate limiting (RATE_LIMIT_AUTH / RATE_LIMIT_ANON env vars)
 
 ### Cloudflare Workers (`apps/workers/`)
@@ -99,10 +100,12 @@
 - [x] Sentry stub configs (activate with DSN + @sentry/nextjs)
 - [x] Content Security Policy (CSP) headers -- Nosecone with nonces, HSTS, permissions policy
 - [x] Rate limiter wired to GraphQL SSE stream endpoint
-- [x] `next-intl` configured with 1203 translation keys across 40+ pages (en, ru, es, uk, de, fr, ja, zh)
+- [x] `next-intl` configured with 1274 translation keys across 40+ pages (en, ru, es, uk, de, fr, ja, zh)
 - [x] Vercel Analytics + Speed Insights
 - [x] Dependabot for dependency vulnerability scanning
 - [x] Bookmarks store (Zustand + localStorage persistence)
+- [x] Comprehensive security audit with IDOR, JWT, and XSS fixes (March 2026)
+- [x] Performance audit: BigInt math, iterative DFS, lazy loading, stack overflow prevention
 
 ---
 
@@ -177,8 +180,33 @@ All technical debt items have been addressed as of v1.0.0:
 - Export SVG: Dual rendering (foreignObject for browsers, Unicode text for rasterization)
 - Canvas 2D fallback: `Canvas2DRenderer` added; factory selects WebGPU > WebGL2 > Canvas2D
 - Test mocks: Updated to React 19 ref-as-prop pattern
-- API type safety: `as any` replaced with typed assertions (1 `biome-ignore` for adapter type mismatch)
+- API type safety: `as any` replaced with typed assertions (4 `biome-ignore` for adapter type mismatch)
 - PubSub: Hybrid Upstash Redis Streams + in-memory; graceful degradation
+
+### Security & Performance Audit (March 2026)
+
+- JWT WebSocket auth: replaced base64 decode with `jose.jwtVerify()` signature verification
+- IDOR fixes: worksheet queries enforce ownership, unshareWorksheet validates worksheetId
+- Profile resolver: fixed `authorId` → `userId` field reference
+- Forum post views: atomic `update({ data: { views: { increment: 1 } } })` replaces read-then-write
+- Worksheet views: existence check before increment
+- Worker error responses: internal `err.message` no longer leaked to clients
+- Rate limiter: unlimited tiers skip KV entirely (no unbounded arrays)
+- Math engine: `modPow`/`lucasLehmer` rewritten with BigInt (overflow-safe for all inputs)
+- RSA: `randomBigIntBelow()` helper replaces unsafe `Number(bigint)` conversion
+- Limits: fixed copy-paste bug (`v1` → `v2`), infinite recursion guard via `_skipAlgebraic`
+- Graph theory: `tarjanSCC` converted to iterative DFS (no stack overflow on large graphs)
+- Graph theory: `topologicalSortKahn` uses index pointer instead of `Array.shift()` (O(V+E) vs O(V²))
+- Web: `Lorenz3DRenderer` lazy-loaded with `next/dynamic` + `ssr: false`
+- Web: `Math.min/max(...largeArray)` replaced with `.reduce()` (no stack overflow)
+- Web: `dangerouslySetInnerHTML` removed for plain-text problem statements
+- Web: PDE `toggleAnimation` stale closure fixed with functional state update
+- Bifurcation renderer: stale `gpuParams` closure fixed
+- `isFinite()`/`isNaN()` → `Number.isFinite()`/`Number.isNaN()` across 12 files
+- Node.js builtins: `node:` import protocol added to 4 files
+- Prisma schema: removed redundant `@@index([shortCode])` (already `@unique`)
+- Database: `FavoriteType` enum exported from `@nextcalc/database`
+- Turbo: Sentry env vars added to build cache keys, `test` depends on `^build`
 
 ---
 

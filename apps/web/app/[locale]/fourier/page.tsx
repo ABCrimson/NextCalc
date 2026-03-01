@@ -156,7 +156,7 @@ export default function FourierAnalysisPage() {
       const values = input
         .split(',')
         .map((v) => parseFloat(v.trim()))
-        .filter((v) => !isNaN(v));
+        .filter((v) => !Number.isNaN(v));
       if (values.length > 0) {
         setSignal(values);
         setSampleSize(values.length);

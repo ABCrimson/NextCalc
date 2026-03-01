@@ -109,14 +109,14 @@ function niceStep(min: number, max: number): number {
 
 /** Format a value for display: up to 4 significant figures, no trailing zeros. */
 function formatValue(v: number): string {
-  if (!isFinite(v)) return String(v);
+  if (!Number.isFinite(v)) return String(v);
   return parseFloat(v.toPrecision(4)).toString();
 }
 
 /** Parse a free-text number input; return `fallback` if invalid. */
 function parseNumber(raw: string, fallback: number): number {
   const n = parseFloat(raw);
-  return isFinite(n) ? n : fallback;
+  return Number.isFinite(n) ? n : fallback;
 }
 
 /**

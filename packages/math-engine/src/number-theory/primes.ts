@@ -105,28 +105,31 @@ export function millerRabin(n: number, rounds = 5): boolean {
 /**
  * Modular exponentiation: (base^exp) mod mod
  *
- * Uses binary exponentiation for efficiency
+ * Uses BigInt to avoid overflow for large numbers.
  * Time Complexity: O(log exp)
  */
 function modPow(base: number, exp: number, mod: number): number {
-  let result = 1;
-  base = base % mod;
+  let b = BigInt(base) % BigInt(mod);
+  let e = BigInt(exp);
+  const m = BigInt(mod);
+  let result = 1n;
 
-  while (exp > 0) {
-    if (exp % 2 === 1) {
-      result = (result * base) % mod;
+  while (e > 0n) {
+    if (e & 1n) {
+      result = (result * b) % m;
     }
-    exp = Math.floor(exp / 2);
-    base = (base * base) % mod;
+    e >>= 1n;
+    b = (b * b) % m;
   }
 
-  return result;
+  return Number(result);
 }
 
 /**
  * Lucas-Lehmer primality test for Mersenne numbers
  *
- * Tests if 2^p - 1 is prime (requires p to be prime)
+ * Tests if 2^p - 1 is prime (requires p to be prime).
+ * Uses BigInt for correctness with large exponents.
  *
  * Time Complexity: O(p²) with optimizations
  *
@@ -142,14 +145,14 @@ export function lucasLehmer(p: number): boolean {
   if (!isPrime(p)) return false;
   if (p === 2) return true;
 
-  const m = 2 ** p - 1;
-  let s = 4;
+  const m = 2n ** BigInt(p) - 1n;
+  let s = 4n;
 
   for (let i = 0; i < p - 2; i++) {
-    s = (s * s - 2) % m;
+    s = (s * s - 2n) % m;
   }
 
-  return s === 0;
+  return s === 0n;
 }
 
 // ============================================================================

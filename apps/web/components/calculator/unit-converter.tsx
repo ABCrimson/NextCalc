@@ -638,7 +638,7 @@ function formatNum(n: number): string {
 
 /** Format a conversion result for display */
 function formatResult(n: number): string {
-  if (!isFinite(n)) return 'Undefined';
+  if (!Number.isFinite(n)) return 'Undefined';
   const abs = Math.abs(n);
   if (abs === 0) return '0';
   if (abs >= 0.0001 && abs < 1e10) {
@@ -803,7 +803,7 @@ export function UnitConverter() {
   const runConversion = useCallback(() => {
     setError(null);
     const num = parseFloat(inputValue);
-    if (inputValue.trim() === '' || isNaN(num)) {
+    if (inputValue.trim() === '' || Number.isNaN(num)) {
       setResult(null);
       return;
     }

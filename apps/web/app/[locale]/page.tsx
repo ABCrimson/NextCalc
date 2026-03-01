@@ -7,9 +7,12 @@ import { useTranslations } from 'next-intl';
 import { type CSSProperties, Suspense } from 'react';
 import { Link } from '@/i18n/navigation';
 
-const InstallPWA = dynamic(() => import('@/components/install-pwa').then((m) => ({ default: m.InstallPWA })), {
-  ssr: false,
-});
+const InstallPWA = dynamic(
+  () => import('@/components/install-pwa').then((m) => ({ default: m.InstallPWA })),
+  {
+    ssr: false,
+  },
+);
 
 // Dynamic import for Calculator with client-only rendering
 // This prevents Radix UI tabs from generating different IDs on server vs client

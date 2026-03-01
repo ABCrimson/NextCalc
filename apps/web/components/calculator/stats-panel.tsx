@@ -88,7 +88,7 @@ function parseNumbers(input: string): number[] {
     .map((s) => s.trim())
     .filter((s) => s.length > 0)
     .map((s) => parseFloat(s))
-    .filter((n) => !isNaN(n));
+    .filter((n) => !Number.isNaN(n));
 }
 
 /**
@@ -100,7 +100,7 @@ function parseMultilineNumbers(input: string): number[] {
     .map((s) => s.trim())
     .filter((s) => s.length > 0)
     .map((s) => parseFloat(s))
-    .filter((n) => !isNaN(n));
+    .filter((n) => !Number.isNaN(n));
 }
 
 /**
@@ -797,7 +797,7 @@ export function StatsPanel() {
     if (!statsModule || !regressionResult) return;
 
     const xValue = parseFloat(predictionInput);
-    if (isNaN(xValue)) {
+    if (Number.isNaN(xValue)) {
       setError('Invalid prediction input');
       return;
     }

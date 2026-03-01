@@ -59,7 +59,7 @@ export const profileResolvers = {
           where: { userId: args.userId, deletedAt: null },
         }),
         context.prisma.forumPost.count({
-          where: { authorId: args.userId, deletedAt: null },
+          where: { userId: args.userId, deletedAt: null },
         }),
         context.prisma.calculationHistory.count({
           where: { userId: args.userId },

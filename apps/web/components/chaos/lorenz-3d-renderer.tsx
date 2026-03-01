@@ -570,7 +570,7 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
         controls.update();
 
         // --- GPU Particle Compute Dispatch ---
-        if (gpuParticleRef.current && gpuParticleRef.current.pointsMesh.visible) {
+        if (gpuParticleRef.current?.pointsMesh.visible) {
           const gp = gpuParticleRef.current;
 
           // Update params uniform buffer

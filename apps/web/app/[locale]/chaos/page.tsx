@@ -2,11 +2,27 @@
 
 import { LogisticMap, LorenzAttractor } from '@nextcalc/math-engine/chaos/chaos-theory';
 import { GitBranch, Wind, Zap } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { BifurcationDiagramRenderer } from '@/components/chaos/bifurcation-diagram-renderer';
 import { LogisticMapRenderer } from '@/components/chaos/logistic-map-renderer';
-import { Lorenz3DRenderer } from '@/components/chaos/lorenz-3d-renderer';
+
+const Lorenz3DRenderer = dynamic(
+  () =>
+    import('@/components/chaos/lorenz-3d-renderer').then((m) => ({
+      default: m.Lorenz3DRenderer,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-full flex items-center justify-center text-muted-foreground">
+        Loading 3D renderer...
+      </div>
+    ),
+  },
+);
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -394,9 +410,13 @@ export default function ChaosTheoryPage() {
                     <div className="p-2 bg-background/50 rounded border border-border">
                       <div className="text-cyan-400 font-semibold">{t('rRange')}</div>
                       <div className="text-muted-foreground font-mono">
-                        {Math.min(...bifurcationData.map((p) => p.r)).toFixed(2)}
+                        {bifurcationData
+                          .reduce((min, p) => (p.r < min ? p.r : min), bifurcationData[0]?.r ?? 0)
+                          .toFixed(2)}
                         {' – '}
-                        {Math.max(...bifurcationData.map((p) => p.r)).toFixed(2)}
+                        {bifurcationData
+                          .reduce((max, p) => (p.r > max ? p.r : max), bifurcationData[0]?.r ?? 0)
+                          .toFixed(2)}
                       </div>
                     </div>
                   </div>

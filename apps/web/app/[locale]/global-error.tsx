@@ -171,6 +171,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
 
               {/* Retry Button */}
               <button
+                type="button"
                 onClick={reset}
                 style={{
                   width: '100%',
@@ -191,7 +192,13 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
                 onMouseOver={(e) => {
                   e.currentTarget.style.backgroundColor = '#2563eb';
                 }}
+                onFocus={(e) => {
+                  e.currentTarget.style.backgroundColor = '#2563eb';
+                }}
                 onMouseOut={(e) => {
+                  e.currentTarget.style.backgroundColor = '#3b82f6';
+                }}
+                onBlur={(e) => {
                   e.currentTarget.style.backgroundColor = '#3b82f6';
                 }}
               >

@@ -101,13 +101,13 @@ function bisect(f: (x: number) => number, a: number, b: number, maxIter = 40): n
   let fa = f(a);
   let fb = f(b);
 
-  if (!isFinite(fa) || !isFinite(fb)) return null;
+  if (!Number.isFinite(fa) || !Number.isFinite(fb)) return null;
   if (fa * fb > 0) return null; // no sign change
 
   for (let i = 0; i < maxIter; i++) {
     const mid = (a + b) / 2;
     const fm = f(mid);
-    if (!isFinite(fm)) return null;
+    if (!Number.isFinite(fm)) return null;
     if (Math.abs(fm) < EPSILON || (b - a) / 2 < EPSILON) return mid;
     if (fa * fm < 0) {
       b = mid;
@@ -139,7 +139,7 @@ function findRoots(
     const x = xMin + i * step;
     const y = f(x);
 
-    if (isFinite(prevY) && isFinite(y) && prevY * y < 0) {
+    if (Number.isFinite(prevY) && Number.isFinite(y) && prevY * y < 0) {
       const root = bisect(f, prevX, x);
       if (root !== null) {
         // Deduplicate roots that are very close together
@@ -182,7 +182,7 @@ function findExtrema(
     const x = xMin + i * step;
     const d = deriv(x);
 
-    if (isFinite(prevD) && isFinite(d) && prevD * d < 0) {
+    if (Number.isFinite(prevD) && Number.isFinite(d) && prevD * d < 0) {
       const root = bisect(deriv, prevX, x);
       if (root !== null) {
         const isDuplicate =
@@ -192,7 +192,7 @@ function findExtrema(
         if (!isDuplicate) {
           // Second derivative sign to classify
           const d2 = (deriv(root + h) - deriv(root - h)) / (2 * h);
-          if (isFinite(d2)) {
+          if (Number.isFinite(d2)) {
             if (d2 > 0) minima.push(root);
             else maxima.push(root);
           }
@@ -231,7 +231,7 @@ function findInflectionPoints(
     const x = xMin + i * step;
     const dd = d2(x);
 
-    if (isFinite(prevD2) && isFinite(dd) && prevD2 * dd < 0) {
+    if (Number.isFinite(prevD2) && Number.isFinite(dd) && prevD2 * dd < 0) {
       const root = bisect(d2, prevX, x);
       if (root !== null) {
         const isDuplicate = inflections.some((r) => Math.abs(r - root) < step * 0.5);
@@ -239,7 +239,7 @@ function findInflectionPoints(
           // Confirm f''(x) actually changes sign (not just a touching zero)
           const leftD2 = d2(root - step * 0.1);
           const rightD2 = d2(root + step * 0.1);
-          if (isFinite(leftD2) && isFinite(rightD2) && leftD2 * rightD2 < 0) {
+          if (Number.isFinite(leftD2) && Number.isFinite(rightD2) && leftD2 * rightD2 < 0) {
             inflections.push(root);
           }
         }
@@ -277,8 +277,10 @@ function findVerticalAsymptotes(
     const y1 = f(x1);
 
     // Detect: one side finite, other infinite — or magnitude blows up with sign change
-    const bothFinite = isFinite(y0) && isFinite(y1);
-    const oneBlow = (isFinite(y0) && !isFinite(y1)) || (!isFinite(y0) && isFinite(y1));
+    const bothFinite = Number.isFinite(y0) && Number.isFinite(y1);
+    const oneBlow =
+      (Number.isFinite(y0) && !Number.isFinite(y1)) ||
+      (!Number.isFinite(y0) && Number.isFinite(y1));
     const largeMagnitudeSignChange =
       bothFinite && Math.abs(y0) > LARGE && Math.abs(y1) > LARGE && y0 * y1 < 0;
 
@@ -289,7 +291,7 @@ function findVerticalAsymptotes(
       for (let iter = 0; iter < 30; iter++) {
         const mid = (lo + hi) / 2;
         const ym = f(mid);
-        if (!isFinite(ym) || Math.abs(ym) > LARGE) {
+        if (!Number.isFinite(ym) || Math.abs(ym) > LARGE) {
           hi = mid;
         } else {
           lo = mid;
@@ -325,7 +327,7 @@ function detectHorizontalAsymptotes(
   for (let i = 1; i <= CHECK_POINTS; i++) {
     const x = xMin + (xMax - xMin) * 0.005 * i;
     const y = f(x);
-    if (isFinite(y)) leftVals.push(y);
+    if (Number.isFinite(y)) leftVals.push(y);
   }
 
   // Evaluate near the right edge
@@ -333,7 +335,7 @@ function detectHorizontalAsymptotes(
   for (let i = 1; i <= CHECK_POINTS; i++) {
     const x = xMax - (xMax - xMin) * 0.005 * i;
     const y = f(x);
-    if (isFinite(y)) rightVals.push(y);
+    if (Number.isFinite(y)) rightVals.push(y);
   }
 
   const isConverging = (vals: number[]): number | null => {
@@ -355,7 +357,7 @@ function detectHorizontalAsymptotes(
  * strips trailing zeros).
  */
 function fmt(n: number): string {
-  if (!isFinite(n)) return '—';
+  if (!Number.isFinite(n)) return '—';
   if (Math.abs(n) < 1e-4 && n !== 0) return n.toExponential(3);
   return parseFloat(n.toPrecision(5)).toString();
 }
@@ -387,7 +389,7 @@ function useAnalysis(
       let yIntercept: FoundPoint | null = null;
       if (xMin <= 0 && 0 <= xMax) {
         const y0 = fn(0);
-        if (isFinite(y0)) {
+        if (Number.isFinite(y0)) {
           yIntercept = { x: 0, y: y0, label: `(0, ${fmt(y0)})` };
         }
       }
@@ -474,7 +476,7 @@ function useAnalysis(
         const roots = findRoots(diff, xMin, xMax, samples);
         for (const x of roots) {
           const y = fi.fn(x);
-          if (!isFinite(y)) continue;
+          if (!Number.isFinite(y)) continue;
           const isDuplicate = intersections.some(
             (pt) => Math.abs(pt.x - x) < (xMax - xMin) / samples,
           );

@@ -116,35 +116,31 @@ async function verifyAuthToken(token: string | undefined): Promise<TokenUser | n
     // Remove 'Bearer ' prefix if present
     const cleanToken = token.startsWith('Bearer ') ? token.slice(7) : token;
 
-    // For session-based auth with NextAuth, validate against session store
-    // This is a simplified implementation - in production, use jose or next-auth validation
-    if (cleanToken.length > 100) {
-      // Looks like a JWT - decode and validate
-      const [, payloadBase64] = cleanToken.split('.');
-      if (!payloadBase64) return null;
+    // Verify JWT signature using the same secret as NextAuth
+    const secret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET;
+    if (!secret) {
+      logger.error('NEXTAUTH_SECRET not set — WebSocket auth unavailable');
+      return null;
+    }
 
-      const payload = JSON.parse(Buffer.from(payloadBase64, 'base64url').toString('utf-8'));
+    if (cleanToken.includes('.')) {
+      // JWT token — verify signature with jose
+      const { jwtVerify } = await import('jose');
+      const secretKey = new TextEncoder().encode(secret);
+      const { payload } = await jwtVerify(cleanToken, secretKey);
 
-      // Check expiration
-      if (payload.exp && Date.now() >= payload.exp * 1000) {
-        logger.warn('WebSocket auth token expired');
-        return null;
-      }
-
-      // Extract user info from payload
       if (payload.sub || payload.userId || payload.id) {
         return {
-          id: payload.sub || payload.userId || payload.id,
-          email: payload.email || '',
-          name: payload.name || null,
-          role: payload.role || 'USER',
+          id: (payload.sub || payload.userId || payload.id) as string,
+          email: (payload.email as string) || '',
+          name: (payload.name as string) || null,
+          role: (payload.role as string) || 'USER',
         };
       }
     }
 
-    // For session tokens, we'd need to query the session store
-    // This requires database access which should be set up in context
-    logger.debug('Session-based auth not fully implemented for WebSocket');
+    // Session tokens require database access not available in WS context
+    logger.debug('Session-based auth not implemented for WebSocket');
     return null;
   } catch (error) {
     logger.error('WebSocket token verification failed', {

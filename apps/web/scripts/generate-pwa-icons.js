@@ -17,7 +17,7 @@
  * 3. Save as icon-192.png and icon-512.png in public/
  */
 
-const path = require('path');
+const path = require('node:path');
 
 async function generateIcons() {
   try {
