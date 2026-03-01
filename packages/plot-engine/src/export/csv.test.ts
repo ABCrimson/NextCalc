@@ -46,25 +46,25 @@ describe('exportToCSV2D', () => {
   it('should format values with the default precision of 6', () => {
     const csv = exportToCSV2D([{ x: 1, y: 2 }]);
     const rows = parseCSV(csv);
-    const dataRow = rows[1]!;
-    expect(dataRow[0]).toBe('1.000000');
-    expect(dataRow[1]).toBe('2.000000');
+    const dataRow = rows[1];
+    expect(dataRow?.[0]).toBe('1.000000');
+    expect(dataRow?.[1]).toBe('2.000000');
   });
 
   it('should respect a custom precision setting', () => {
     const csv = exportToCSV2D([{ x: Math.PI, y: Math.E }], { precision: 2 });
     const rows = parseCSV(csv);
-    const dataRow = rows[1]!;
-    expect(dataRow[0]).toBe('3.14');
-    expect(dataRow[1]).toBe('2.72');
+    const dataRow = rows[1];
+    expect(dataRow?.[0]).toBe('3.14');
+    expect(dataRow?.[1]).toBe('2.72');
   });
 
   it('should respect precision: 0', () => {
     const csv = exportToCSV2D([{ x: 3.9, y: -1.5 }], { precision: 0 });
     const rows = parseCSV(csv);
-    const dataRow = rows[1]!;
-    expect(dataRow[0]).toBe('4');
-    expect(dataRow[1]).toBe('-2');
+    const dataRow = rows[1];
+    expect(dataRow?.[0]).toBe('4');
+    expect(dataRow?.[1]).toBe('-2');
   });
 
   it('should omit the header when includeHeader is false', () => {
@@ -72,22 +72,22 @@ describe('exportToCSV2D', () => {
     const rows = parseCSV(csv);
     // No header: first row is the first data point
     expect(rows).toHaveLength(3);
-    expect(rows[0]![0]).toBe('0.000000');
+    expect(rows[0]?.[0]).toBe('0.000000');
   });
 
   it('should use a semicolon delimiter when specified', () => {
     const csv = exportToCSV2D(points, { delimiter: ';' });
     const rows = parseCSV(csv, ';');
     expect(rows[0]).toEqual(['x', 'y']);
-    expect(rows[1]![0]).toBe('0.000000');
-    expect(rows[1]![1]).toBe('0.000000');
+    expect(rows[1]?.[0]).toBe('0.000000');
+    expect(rows[1]?.[1]).toBe('0.000000');
   });
 
   it('should use a tab delimiter when specified', () => {
     const csv = exportToCSV2D([{ x: 1, y: 2 }], { delimiter: '\t' });
     const rows = parseCSV(csv, '\t');
     expect(rows[0]).toEqual(['x', 'y']);
-    expect(rows[1]![0]).toBe('1.000000');
+    expect(rows[1]?.[0]).toBe('1.000000');
   });
 
   it('should return an empty string for an empty points array with no header', () => {
@@ -103,16 +103,16 @@ describe('exportToCSV2D', () => {
   it('should handle negative coordinates correctly', () => {
     const csv = exportToCSV2D([{ x: -100, y: -0.001 }], { precision: 3 });
     const rows = parseCSV(csv);
-    expect(rows[1]![0]).toBe('-100.000');
-    expect(rows[1]![1]).toBe('-0.001');
+    expect(rows[1]?.[0]).toBe('-100.000');
+    expect(rows[1]?.[1]).toBe('-0.001');
   });
 
   it('should handle very large coordinates', () => {
     const csv = exportToCSV2D([{ x: 1e15, y: -1e15 }], { precision: 2 });
     const rows = parseCSV(csv);
     // toFixed on large numbers produces a fixed decimal string
-    expect(rows[1]![0]).toBe('1000000000000000.00');
-    expect(rows[1]![1]).toBe('-1000000000000000.00');
+    expect(rows[1]?.[0]).toBe('1000000000000000.00');
+    expect(rows[1]?.[1]).toBe('-1000000000000000.00');
   });
 
   it('should produce rows terminated with a newline', () => {
@@ -130,10 +130,10 @@ describe('exportToCSV2D', () => {
     const rows = parseCSV(csv).slice(1); // skip header
     const parsed = rows.map((row) => ({ x: Number(row[0]), y: Number(row[1]) }));
 
-    expect(parsed[0]!.x).toBeCloseTo(0.5, 4);
-    expect(parsed[0]!.y).toBeCloseTo(-0.5, 4);
-    expect(parsed[1]!.x).toBeCloseTo(100, 4);
-    expect(parsed[1]!.y).toBeCloseTo(200, 4);
+    expect(parsed[0]?.x).toBeCloseTo(0.5, 4);
+    expect(parsed[0]?.y).toBeCloseTo(-0.5, 4);
+    expect(parsed[1]?.x).toBeCloseTo(100, 4);
+    expect(parsed[1]?.y).toBeCloseTo(200, 4);
   });
 });
 
@@ -164,19 +164,19 @@ describe('exportToCSV3D', () => {
   it('should format values with the default precision of 6', () => {
     const csv = exportToCSV3D([{ x: 1, y: 2, z: 3 }]);
     const rows = parseCSV(csv);
-    const dataRow = rows[1]!;
-    expect(dataRow[0]).toBe('1.000000');
-    expect(dataRow[1]).toBe('2.000000');
-    expect(dataRow[2]).toBe('3.000000');
+    const dataRow = rows[1];
+    expect(dataRow?.[0]).toBe('1.000000');
+    expect(dataRow?.[1]).toBe('2.000000');
+    expect(dataRow?.[2]).toBe('3.000000');
   });
 
   it('should respect a custom precision setting', () => {
     const csv = exportToCSV3D([{ x: Math.PI, y: Math.E, z: Math.SQRT2 }], { precision: 3 });
     const rows = parseCSV(csv);
-    const dataRow = rows[1]!;
-    expect(dataRow[0]).toBe('3.142');
-    expect(dataRow[1]).toBe('2.718');
-    expect(dataRow[2]).toBe('1.414');
+    const dataRow = rows[1];
+    expect(dataRow?.[0]).toBe('3.142');
+    expect(dataRow?.[1]).toBe('2.718');
+    expect(dataRow?.[2]).toBe('1.414');
   });
 
   it('should omit the header when includeHeader is false', () => {
@@ -184,17 +184,17 @@ describe('exportToCSV3D', () => {
     const rows = parseCSV(csv);
     expect(rows).toHaveLength(3);
     // First row is the first data point, not a header
-    expect(Number(rows[0]![0])).toBe(0);
+    expect(Number(rows[0]?.[0])).toBe(0);
   });
 
   it('should use a semicolon delimiter when specified', () => {
     const csv = exportToCSV3D([{ x: 1, y: 2, z: 3 }], { delimiter: ';' });
     const rows = parseCSV(csv, ';');
     expect(rows[0]).toEqual(['x', 'y', 'z']);
-    const dataRow = rows[1]!;
-    expect(dataRow[0]).toBe('1.000000');
-    expect(dataRow[1]).toBe('2.000000');
-    expect(dataRow[2]).toBe('3.000000');
+    const dataRow = rows[1];
+    expect(dataRow?.[0]).toBe('1.000000');
+    expect(dataRow?.[1]).toBe('2.000000');
+    expect(dataRow?.[2]).toBe('3.000000');
   });
 
   it('should return only the header for an empty points array', () => {
@@ -205,7 +205,7 @@ describe('exportToCSV3D', () => {
   it('should handle negative z coordinates', () => {
     const csv = exportToCSV3D([{ x: 0, y: 0, z: -5.5 }], { precision: 1 });
     const rows = parseCSV(csv);
-    expect(rows[1]![2]).toBe('-5.5');
+    expect(rows[1]?.[2]).toBe('-5.5');
   });
 
   it('should produce rows terminated with a newline', () => {
@@ -217,10 +217,10 @@ describe('exportToCSV3D', () => {
     const original: Point3D[] = [{ x: 1.111, y: 2.222, z: 3.333 }];
     const csv = exportToCSV3D(original, { precision: 3 });
     const rows = parseCSV(csv).slice(1);
-    const row = rows[0]!;
-    expect(Number(row[0])).toBeCloseTo(1.111, 3);
-    expect(Number(row[1])).toBeCloseTo(2.222, 3);
-    expect(Number(row[2])).toBeCloseTo(3.333, 3);
+    const row = rows[0];
+    expect(Number(row?.[0])).toBeCloseTo(1.111, 3);
+    expect(Number(row?.[1])).toBeCloseTo(2.222, 3);
+    expect(Number(row?.[2])).toBeCloseTo(3.333, 3);
   });
 });
 
