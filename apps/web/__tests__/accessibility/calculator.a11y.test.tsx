@@ -12,6 +12,11 @@ import { History } from '@/components/calculator/history';
 import { Keyboard } from '@/components/calculator/keyboard';
 import { resetCalculatorStore } from '@/lib/stores/calculator-store';
 
+// Mock ShareButton to avoid needing ApolloProvider in tests
+vi.mock('@/components/calculator/share-button', () => ({
+  ShareButton: () => null,
+}));
+
 // Mock compute manager
 vi.mock('@/lib/workers/compute-manager', () => ({
   getComputeManager: () => ({
@@ -139,8 +144,8 @@ describe('Accessibility Tests (WCAG 2.2 Level AAA)', () => {
     // Focus first button
     firstButton.focus();
 
-    // Should have visible focus indicator
-    expect(firstButton).toHaveClass(/focus:ring/);
+    // Should have visible focus indicator (focus-visible:outline-ring)
+    expect(firstButton).toHaveClass(/focus-visible:outline/);
   });
 
   it('History items have proper semantic structure', () => {

@@ -9,6 +9,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Calculator } from '@/components/calculator/calculator';
 import { resetCalculatorStore } from '@/lib/stores/calculator-store';
 
+// Mock ShareButton to avoid needing ApolloProvider in tests
+vi.mock('@/components/calculator/share-button', () => ({
+  ShareButton: () => null,
+}));
+
 // Mock the compute manager
 vi.mock('@/lib/workers/compute-manager', () => ({
   getComputeManager: () => ({
@@ -66,9 +71,9 @@ describe('Calculator Integration Tests', () => {
     render(<Calculator />);
 
     // Step 1: Input expression
-    await user.click(screen.getByRole('gridcell', { name: /button 5/i }));
-    await user.click(screen.getByRole('gridcell', { name: /button \+/i }));
-    await user.click(screen.getByRole('gridcell', { name: /button 3/i }));
+    await user.click(screen.getByRole('gridcell', { name: '5' }));
+    await user.click(screen.getByRole('gridcell', { name: /plus/i }));
+    await user.click(screen.getByRole('gridcell', { name: '3' }));
 
     // Verify expression is displayed
     await waitFor(() => {
@@ -76,7 +81,7 @@ describe('Calculator Integration Tests', () => {
     });
 
     // Step 2: Evaluate
-    await user.click(screen.getByRole('gridcell', { name: /button equals/i }));
+    await user.click(screen.getByRole('gridcell', { name: /equals/i }));
 
     // Step 3: Verify result appears
     await waitFor(
@@ -113,7 +118,7 @@ describe('Calculator Integration Tests', () => {
     );
 
     // Clear for next calculation
-    await user.click(screen.getByRole('gridcell', { name: /button clear/i }));
+    await user.click(screen.getByRole('gridcell', { name: /clear all/i }));
 
     // Second calculation: 10 * 5
     await user.keyboard('10*5');
@@ -152,7 +157,7 @@ describe('Calculator Integration Tests', () => {
     );
 
     // Clear calculator
-    await user.click(screen.getByRole('gridcell', { name: /button clear/i }));
+    await user.click(screen.getByRole('gridcell', { name: /clear all/i }));
 
     // Click history item to reload
     // Format: "Load calculation: {expression} equals {result}"
@@ -188,7 +193,7 @@ describe('Calculator Integration Tests', () => {
         { timeout: 3000 },
       );
 
-      await user.click(screen.getByRole('gridcell', { name: /button clear/i }));
+      await user.click(screen.getByRole('gridcell', { name: /clear all/i }));
       await waitFor(() => {
         const expressionElement = screen.getByLabelText(/current expression/i);
         expect(expressionElement.textContent).toBe('\u00A0');
@@ -207,8 +212,8 @@ describe('Calculator Integration Tests', () => {
     render(<Calculator />);
 
     // Input invalid expression (just an operator)
-    await user.click(screen.getByRole('gridcell', { name: /button \+/i }));
-    await user.click(screen.getByRole('gridcell', { name: /button equals/i }));
+    await user.click(screen.getByRole('gridcell', { name: /plus/i }));
+    await user.click(screen.getByRole('gridcell', { name: /equals/i }));
 
     // Should show error or handle gracefully (could show 0, NaN, or Error depending on implementation)
     await waitFor(
@@ -226,10 +231,10 @@ describe('Calculator Integration Tests', () => {
     const { unmount } = render(<Calculator />);
 
     // Perform calculation using button clicks for reliable input
-    await user.click(screen.getByRole('gridcell', { name: /button 6/i }));
-    await user.click(screen.getByRole('gridcell', { name: /button \+/i }));
-    await user.click(screen.getByRole('gridcell', { name: /button 4/i }));
-    await user.click(screen.getByRole('gridcell', { name: /button equals/i }));
+    await user.click(screen.getByRole('gridcell', { name: '6' }));
+    await user.click(screen.getByRole('gridcell', { name: /plus/i }));
+    await user.click(screen.getByRole('gridcell', { name: '4' }));
+    await user.click(screen.getByRole('gridcell', { name: /equals/i }));
 
     await waitFor(
       () => {

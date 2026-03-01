@@ -9,6 +9,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { resetCalculatorStore } from '@/lib/stores/calculator-store';
 import { Calculator } from './calculator';
 
+// Mock ShareButton to avoid needing ApolloProvider in tests
+vi.mock('./share-button', () => ({
+  ShareButton: () => null,
+}));
+
 // Mock the compute manager
 vi.mock('@/lib/workers/compute-manager', () => ({
   getComputeManager: () => ({
@@ -42,8 +47,8 @@ describe('Calculator Component', () => {
     const user = userEvent.setup();
     render(<Calculator />);
 
-    // Click number buttons
-    const button2 = screen.getByRole('gridcell', { name: /button 2/i });
+    // Click number buttons — digit aria-labels are just the digit
+    const button2 = screen.getByRole('gridcell', { name: '2' });
     await user.click(button2);
 
     // Verify display updates
@@ -57,10 +62,10 @@ describe('Calculator Component', () => {
     render(<Calculator />);
 
     // Input: 2 + 2
-    await user.click(screen.getByRole('gridcell', { name: /button 2/i }));
-    await user.click(screen.getByRole('gridcell', { name: /button \+/i }));
-    await user.click(screen.getByRole('gridcell', { name: /button 2/i }));
-    await user.click(screen.getByRole('gridcell', { name: /button equals/i }));
+    await user.click(screen.getByRole('gridcell', { name: '2' }));
+    await user.click(screen.getByRole('gridcell', { name: /plus/i }));
+    await user.click(screen.getByRole('gridcell', { name: '2' }));
+    await user.click(screen.getByRole('gridcell', { name: /equals/i }));
 
     // Wait for calculation result
     await waitFor(
@@ -77,11 +82,11 @@ describe('Calculator Component', () => {
     render(<Calculator />);
 
     // Input some numbers
-    await user.click(screen.getByRole('gridcell', { name: /button 5/i }));
-    await user.click(screen.getByRole('gridcell', { name: /button 6/i }));
+    await user.click(screen.getByRole('gridcell', { name: '5' }));
+    await user.click(screen.getByRole('gridcell', { name: '6' }));
 
     // Click clear button
-    await user.click(screen.getByRole('gridcell', { name: /button clear/i }));
+    await user.click(screen.getByRole('gridcell', { name: /clear all/i }));
 
     // Verify display is cleared
     await waitFor(() => {
@@ -107,10 +112,10 @@ describe('Calculator Component', () => {
     render(<Calculator />);
 
     // Type expression and press Enter - use button clicks for reliable input
-    await user.click(screen.getByRole('gridcell', { name: /button 1/i }));
-    await user.click(screen.getByRole('gridcell', { name: /button 0/i }));
-    await user.click(screen.getByRole('gridcell', { name: /button \*/i }));
-    await user.click(screen.getByRole('gridcell', { name: /button 5/i }));
+    await user.click(screen.getByRole('gridcell', { name: '1' }));
+    await user.click(screen.getByRole('gridcell', { name: '0' }));
+    await user.click(screen.getByRole('gridcell', { name: /multiply/i }));
+    await user.click(screen.getByRole('gridcell', { name: '5' }));
     await user.keyboard('{Enter}');
 
     // Wait for result
@@ -128,8 +133,8 @@ describe('Calculator Component', () => {
     render(<Calculator />);
 
     // Input and evaluate
-    await user.click(screen.getByRole('gridcell', { name: /button 2/i }));
-    await user.click(screen.getByRole('gridcell', { name: /button equals/i }));
+    await user.click(screen.getByRole('gridcell', { name: '2' }));
+    await user.click(screen.getByRole('gridcell', { name: /equals/i }));
 
     // Should show calculating state briefly (or have completed calculation)
     // The aria-busy state might be very brief, so check for either busy or result
@@ -157,8 +162,8 @@ describe('Calculator Component', () => {
     const user = userEvent.setup();
     render(<Calculator />);
 
-    // Click sin button
-    await user.click(screen.getByRole('gridcell', { name: /button sin/i }));
+    // Click sin button — aria-label is "sine"
+    await user.click(screen.getByRole('gridcell', { name: /^sine$/i }));
 
     await waitFor(() => {
       expect(screen.getByLabelText(/current expression/i)).toHaveTextContent('sin');
@@ -182,11 +187,11 @@ describe('Calculator Component', () => {
     const user = userEvent.setup();
     render(<Calculator />);
 
-    await user.click(screen.getByRole('gridcell', { name: /button 5/i }));
-    await user.click(screen.getByRole('gridcell', { name: /button equals/i }));
+    await user.click(screen.getByRole('gridcell', { name: '5' }));
+    await user.click(screen.getByRole('gridcell', { name: /equals/i }));
 
     // Verify buttons have aria-disabled attribute (either true during calculation or false after)
-    const button = screen.getByRole('gridcell', { name: /button 2/i });
+    const button = screen.getByRole('gridcell', { name: '2' });
     expect(button).toHaveAttribute('aria-disabled');
   });
 });

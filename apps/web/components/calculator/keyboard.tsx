@@ -275,7 +275,6 @@ export function Keyboard({
         className={`${getButtonStyle(btn.kind, isAngleToggle && angleMode === 'deg')} w-full text-sm ${isEffectivelyDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
         aria-label={ariaLabel}
         aria-disabled={isEffectivelyDisabled}
-        aria-pressed={isAngleToggle ? true : undefined}
         role="gridcell"
       >
         <span className="relative z-10 leading-none py-2.5 px-1 flex items-center justify-center min-h-[2.25rem]">

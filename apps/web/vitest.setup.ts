@@ -17,6 +17,34 @@ expect.extend(matchers);
 // Extend Vitest's expect with jest-axe matchers (jest-axe 10.x compatible)
 expect.extend(toHaveNoViolations);
 
+// Provide a proper Storage mock when happy-dom doesn't supply one
+function createStorageMock(): Storage {
+  let store: Record<string, string> = {};
+  return {
+    getItem: (key: string) => store[key] ?? null,
+    setItem: (key: string, value: string) => {
+      store[key] = String(value);
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    },
+    get length() {
+      return Object.keys(store).length;
+    },
+    key: (index: number) => Object.keys(store)[index] ?? null,
+  };
+}
+
+if (typeof globalThis.localStorage === 'undefined' || typeof globalThis.localStorage.clear !== 'function') {
+  Object.defineProperty(globalThis, 'localStorage', { value: createStorageMock(), writable: true });
+}
+if (typeof globalThis.sessionStorage === 'undefined' || typeof globalThis.sessionStorage.clear !== 'function') {
+  Object.defineProperty(globalThis, 'sessionStorage', { value: createStorageMock(), writable: true });
+}
+
 // Ensure happy-dom is fully initialized before tests run
 // This prevents race conditions with the first test in each file
 beforeAll(() => {
@@ -38,8 +66,12 @@ beforeAll(() => {
 // Reset Zustand stores before each test for proper isolation
 beforeEach(() => {
   // Clear localStorage to reset persisted Zustand state
-  localStorage.clear();
-  sessionStorage.clear();
+  if (typeof localStorage !== 'undefined' && typeof localStorage.clear === 'function') {
+    localStorage.clear();
+  }
+  if (typeof sessionStorage !== 'undefined' && typeof sessionStorage.clear === 'function') {
+    sessionStorage.clear();
+  }
 });
 
 // Cleanup after each test
@@ -162,6 +194,23 @@ afterEach(() => {
   eventListeners.clear();
 });
 
+// Mock Next.js navigation hooks (not available outside Next.js runtime)
+vi.mock('next/navigation', () => ({
+  useSearchParams: () => new URLSearchParams(),
+  usePathname: () => '/',
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+  useParams: () => ({}),
+  redirect: vi.fn(),
+  notFound: vi.fn(),
+}));
+
 // Mock @tanstack/react-virtual for testing (virtualized lists don't render in tests)
 vi.mock('@tanstack/react-virtual', () => ({
   useVirtualizer: ({
@@ -249,6 +298,8 @@ vi.mock('framer-motion', () => {
       set: vi.fn(),
       onChange: vi.fn(),
     }),
+    useReducedMotion: () => false,
+    useInView: () => true,
     useTransform: (value: any, _transformer: any) => value,
     useSpring: (value: any) => value,
   };

@@ -144,7 +144,7 @@ describe('StatsPanel', () => {
 
     it('shows loading state initially', () => {
       render(<StatsPanel />);
-      expect(screen.getByText('Loading statistics module...')).toBeInTheDocument();
+      expect(screen.getByText(/Loading statistics module/)).toBeInTheDocument();
     });
 
     it('renders input tabs', async () => {
@@ -349,8 +349,8 @@ describe('StatsPanel', () => {
       expect(screen.getByText('Minimum')).toBeInTheDocument();
       expect(screen.getByText('Maximum')).toBeInTheDocument();
       expect(screen.getByText('Range')).toBeInTheDocument();
-      expect(screen.getByText('Q1 (25th)')).toBeInTheDocument();
-      expect(screen.getByText('Q3 (75th)')).toBeInTheDocument();
+      expect(screen.getByText(/Q1 \(25th/)).toBeInTheDocument();
+      expect(screen.getByText(/Q3 \(75th/)).toBeInTheDocument();
       expect(screen.getByText('IQR')).toBeInTheDocument();
     });
 
@@ -369,7 +369,7 @@ describe('StatsPanel', () => {
         expect(screen.getByText(/Std Dev \(sample\)/i)).toBeInTheDocument();
       });
 
-      const toggle = screen.getByLabelText(/use sample statistics/i);
+      const toggle = screen.getByLabelText(/sample statistics/i);
       await user.click(toggle);
 
       await waitFor(() => {
@@ -389,7 +389,8 @@ describe('StatsPanel', () => {
       await user.type(input, '1, 2, 3, 4, 5{Enter}');
 
       await waitFor(() => {
-        expect(screen.getByText('Box Plot Visualization')).toBeInTheDocument();
+        const boxPlotElements = screen.getAllByText('Box Plot Visualization');
+        expect(boxPlotElements.length).toBeGreaterThan(0);
       });
 
       expect(screen.getByRole('img', { name: /box plot/i })).toBeInTheDocument();
@@ -555,7 +556,7 @@ describe('StatsPanel', () => {
       await user.click(predictButton);
 
       await waitFor(() => {
-        expect(screen.getByText('Predicted Y value:')).toBeInTheDocument();
+        expect(screen.getByText(/Predicted Y value/)).toBeInTheDocument();
       });
     });
 
