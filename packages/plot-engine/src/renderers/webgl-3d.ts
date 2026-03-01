@@ -20,20 +20,20 @@
  * @module renderers/webgl-3d
  */
 
-import * as THREE from 'three/webgpu';
-import { WebGPURenderer, RenderPipeline, PCFSoftShadowMap } from 'three/webgpu';
-import { pass, mix, float, mrt, output, normalView } from 'three/tsl';
 import { bloom } from 'three/examples/jsm/tsl/display/BloomNode.js';
 import { ao } from 'three/examples/jsm/tsl/display/GTAONode.js';
+import { float, mix, mrt, normalView, output, pass } from 'three/tsl';
+import * as THREE from 'three/webgpu';
+import { PCFSoftShadowMap, RenderPipeline, WebGPURenderer } from 'three/webgpu';
 import type {
   IRenderer,
-  RenderBackend,
   PerformanceMetrics,
-  PlotConfig,
-  Plot3DSurfaceConfig,
-  Plot3DParametricSurfaceConfig,
   Plot3DCurveConfig,
   Plot3DParametricCurveConfig,
+  Plot3DParametricSurfaceConfig,
+  Plot3DSurfaceConfig,
+  PlotConfig,
+  RenderBackend,
 } from '../types/index';
 import { getColorFromMap } from '../utils/color';
 
@@ -88,11 +88,7 @@ function makeAxisLabelTexture(text: string): THREE.CanvasTexture {
  * Creates a billboard sprite positioned at `position`.
  * `scale` controls the world-space size of the label quad.
  */
-function makeAxisLabelSprite(
-  text: string,
-  position: THREE.Vector3,
-  scale: number,
-): THREE.Sprite {
+function makeAxisLabelSprite(text: string, position: THREE.Vector3, scale: number): THREE.Sprite {
   const texture = makeAxisLabelTexture(text);
   const material = new THREE.SpriteMaterial({
     map: texture,
@@ -170,21 +166,54 @@ export function createProceduralHDRCubeMap(
   }
 
   // Shared: Gaussian blob
-  function gaussian(nx: number, ny: number, nz: number,
-                    cx: number, cy: number, cz: number, falloff: number): number {
+  function gaussian(
+    nx: number,
+    ny: number,
+    nz: number,
+    cx: number,
+    cy: number,
+    cz: number,
+    falloff: number,
+  ): number {
     return Math.exp(-falloff * ((nx - cx) ** 2 + (ny - cy) ** 2 + (nz - cz) ** 2));
   }
 
   // Get direction vector for cubemap face texel
   function getDirection(faceIndex: number, u: number, v: number): [number, number, number] {
-    let wx = 0, wy = 0, wz = 0;
+    let wx = 0,
+      wy = 0,
+      wz = 0;
     switch (faceIndex) {
-      case 0: wx =  1; wy = -v; wz = -u; break;
-      case 1: wx = -1; wy = -v; wz =  u; break;
-      case 2: wx =  u; wy =  1; wz =  v; break;
-      case 3: wx =  u; wy = -1; wz = -v; break;
-      case 4: wx =  u; wy = -v; wz =  1; break;
-      case 5: wx = -u; wy = -v; wz = -1; break;
+      case 0:
+        wx = 1;
+        wy = -v;
+        wz = -u;
+        break;
+      case 1:
+        wx = -1;
+        wy = -v;
+        wz = u;
+        break;
+      case 2:
+        wx = u;
+        wy = 1;
+        wz = v;
+        break;
+      case 3:
+        wx = u;
+        wy = -1;
+        wz = -v;
+        break;
+      case 4:
+        wx = u;
+        wy = -v;
+        wz = 1;
+        break;
+      case 5:
+        wx = -u;
+        wy = -v;
+        wz = -1;
+        break;
     }
     const len = Math.sqrt(wx * wx + wy * wy + wz * wz);
     return [wx / len, wy / len, wz / len];
@@ -201,7 +230,9 @@ export function createProceduralHDRCubeMap(
         const v = (py / (SIZE - 1)) * 2.0 - 1.0;
         const [nx, ny, nz] = getDirection(faceIndex, u, v);
 
-        let r = 0, g = 0, b = 0;
+        let r = 0,
+          g = 0,
+          b = 0;
 
         switch (theme) {
           case 'neutron-star-collision':
@@ -222,7 +253,7 @@ export function createProceduralHDRCubeMap(
         }
 
         const idx = (py * SIZE + px) * 4;
-        data[idx]     = Math.min(255, Math.floor(Math.max(0, r) * 255));
+        data[idx] = Math.min(255, Math.floor(Math.max(0, r) * 255));
         data[idx + 1] = Math.min(255, Math.floor(Math.max(0, g) * 255));
         data[idx + 2] = Math.min(255, Math.floor(Math.max(0, b) * 255));
         data[idx + 3] = 255;
@@ -233,7 +264,12 @@ export function createProceduralHDRCubeMap(
 
   // --- THEME IMPLEMENTATIONS ---
 
-  function paintNeutronStar(nx: number, ny: number, nz: number, _rng: () => number): [number, number, number] {
+  function paintNeutronStar(
+    nx: number,
+    ny: number,
+    nz: number,
+    _rng: () => number,
+  ): [number, number, number] {
     // -----------------------------------------------------------------------
     // NEUTRON STAR COLLISION (kilonova)
     // Based on NASA SVS 14884 supercomputer simulation.
@@ -253,29 +289,37 @@ export function createProceduralHDRCubeMap(
 
     // --- 2. BACKGROUND STARFIELD (dense, blue-white) ---
     const star = starHash(nx, ny, nz);
-    if (star > 0.960) {
-      const bright = (star - 0.960) * 25.0;
-      r += bright * 0.70; g += bright * 0.82; b += bright * 1.0;
+    if (star > 0.96) {
+      const bright = (star - 0.96) * 25.0;
+      r += bright * 0.7;
+      g += bright * 0.82;
+      b += bright * 1.0;
     }
     // Secondary star layer — different hash seed via offset
     const star2 = starHash(nx * 1.618 + 0.414, ny * 2.302 - 0.577, nz * 1.732 + 1.0);
     if (star2 > 0.983) {
       const bright2 = (star2 - 0.983) * 18.0;
-      r += bright2 * 0.55; g += bright2 * 0.70; b += bright2 * 0.90;
+      r += bright2 * 0.55;
+      g += bright2 * 0.7;
+      b += bright2 * 0.9;
     }
 
     // --- 3. TWO NEUTRON STAR CORES (ultra-bright gray/white-hot remnants) ---
     // They orbit in the equatorial plane (ny ≈ 0). The two bodies are
     // separated by ~0.45 units in the xz plane.
-    const ns1x = 0.28, ns1y = 0.08, ns1z = 0.20;
-    const ns2x = -0.22, ns2y = -0.05, ns2z = -0.18;
+    const ns1x = 0.28,
+      ns1y = 0.08,
+      ns1z = 0.2;
+    const ns2x = -0.22,
+      ns2y = -0.05,
+      ns2z = -0.18;
 
     // Each star has a pinpoint core (falloff 200 = radius ~0.07) and
     // a broad hot magnetosphere (falloff 8 = radius ~0.35).
     const core1 = gaussian(nx, ny, nz, ns1x, ns1y, ns1z, 200);
     const core2 = gaussian(nx, ny, nz, ns2x, ns2y, ns2z, 200);
-    const mag1  = gaussian(nx, ny, nz, ns1x, ns1y, ns1z, 8);
-    const mag2  = gaussian(nx, ny, nz, ns2x, ns2y, ns2z, 8);
+    const mag1 = gaussian(nx, ny, nz, ns1x, ns1y, ns1z, 8);
+    const mag2 = gaussian(nx, ny, nz, ns2x, ns2y, ns2z, 8);
 
     // Cores: blinding white-blue (T > 10^9 K)
     r += (core1 + core2) * 6.0;
@@ -285,15 +329,19 @@ export function createProceduralHDRCubeMap(
     // Magnetospheres: hot blue-white halo
     r += (mag1 + mag2) * 0.55;
     g += (mag1 + mag2) * 0.65;
-    b += (mag1 + mag2) * 1.20;
+    b += (mag1 + mag2) * 1.2;
 
     // --- 4. MAGNETIC FIELD INTERACTION ARC between the two stars ---
     // Model as a "tube proximity" function: bright where the current point
     // is close to the line segment connecting ns1 and ns2.
     // Segment parameter t in [0,1], point closest on segment, distance to it.
-    const segDx = ns2x - ns1x, segDy = ns2y - ns1y, segDz = ns2z - ns1z;
+    const segDx = ns2x - ns1x,
+      segDy = ns2y - ns1y,
+      segDz = ns2z - ns1z;
     const segLen2 = segDx * segDx + segDy * segDy + segDz * segDz;
-    const toCx = nx - ns1x, toCy = ny - ns1y, toCz = nz - ns1z;
+    const toCx = nx - ns1x,
+      toCy = ny - ns1y,
+      toCz = nz - ns1z;
     const tParam = Math.max(0, Math.min(1, (toCx * segDx + toCy * segDy + toCz * segDz) / segLen2));
     const closestX = ns1x + tParam * segDx;
     const closestY = ns1y + tParam * segDy;
@@ -310,7 +358,7 @@ export function createProceduralHDRCubeMap(
     // --- 5. KILONOVA EJECTA SHELL (the main visual centrepiece) ---
     // A thick expanding sphere of r-process material centred on the merger point.
     // The shell glows orange-gold (lanthanide-rich ejecta, T~5000 K).
-    const midX = (ns1x + ns2x) * 0.5;  // merger midpoint ≈ (0.03, 0.015, 0.01)
+    const midX = (ns1x + ns2x) * 0.5; // merger midpoint ≈ (0.03, 0.015, 0.01)
     const midY = (ns1y + ns2y) * 0.5;
     const midZ = (ns1z + ns2z) * 0.5;
     const distMid = Math.sqrt((nx - midX) ** 2 + (ny - midY) ** 2 + (nz - midZ) ** 2);
@@ -318,12 +366,12 @@ export function createProceduralHDRCubeMap(
     // Inner ejecta shell: radius 0.38, thickness controlled by falloff 22
     const shellInner = Math.exp(-22 * (distMid - 0.38) ** 2) * 1.05;
     // Outer wind shell: radius 0.62, thicker and dimmer (slower wind component)
-    const shellOuter = Math.exp(-14 * (distMid - 0.62) ** 2) * 0.60;
+    const shellOuter = Math.exp(-14 * (distMid - 0.62) ** 2) * 0.6;
     // The innermost thermal core just outside the merger site
-    const shellCore  = Math.exp(-10 * (distMid - 0.18) ** 2) * 0.80;
+    const shellCore = Math.exp(-10 * (distMid - 0.18) ** 2) * 0.8;
     // Color: deep orange-gold → red at outer edge
     r += shellInner * 2.8 + shellOuter * 1.6 + shellCore * 2.2;
-    g += shellInner * 0.75 + shellOuter * 0.28 + shellCore * 0.60;
+    g += shellInner * 0.75 + shellOuter * 0.28 + shellCore * 0.6;
     b += shellInner * 0.04 + shellOuter * 0.02 + shellCore * 0.05;
 
     // --- 6. CENTRAL MERGER FLASH (blue-white, very tight) ---
@@ -342,8 +390,8 @@ export function createProceduralHDRCubeMap(
     // Proximity to the merger axis (not too close to merger point itself to avoid double-flash)
     const axialDist = Math.sqrt((nx - midX) ** 2 + (nz - midZ) ** 2); // radial from jet axis
     const jetMask = Math.exp(-180 * axialDist ** 2); // tight beam: half-width ~0.075
-    const jetEnv  = Math.exp(-3.0 * Math.abs(ny - Math.sign(ny) * 0.25)); // fades with distance from merger
-    const jetIntensity = Math.max(0, cosFromY - 0.88) / 0.12 * jetMask * jetEnv;
+    const jetEnv = Math.exp(-3.0 * Math.abs(ny - Math.sign(ny) * 0.25)); // fades with distance from merger
+    const jetIntensity = (Math.max(0, cosFromY - 0.88) / 0.12) * jetMask * jetEnv;
     // Jets are intense blue-white (Lorentz-boosted gamma + X-ray)
     r += jetIntensity * 1.8;
     g += jetIntensity * 2.2;
@@ -352,14 +400,19 @@ export function createProceduralHDRCubeMap(
     // --- 8. PURPLE / BLUE NEBULAR HAZE (ionised ejecta cloud) ---
     // Large diffuse region around the merger — purple (N II / O III emission lines).
     const nebulaGlow = gaussian(nx, ny, nz, midX, midY, midZ, 1.0);
-    r += nebulaGlow * 0.30;
+    r += nebulaGlow * 0.3;
     g += nebulaGlow * 0.08;
     b += nebulaGlow * 0.55;
 
     return [r * 2.5, g * 2.5, b * 2.5];
   }
 
-  function paintBlackHole(nx: number, ny: number, nz: number, _rng: () => number): [number, number, number] {
+  function paintBlackHole(
+    nx: number,
+    ny: number,
+    nz: number,
+    _rng: () => number,
+  ): [number, number, number] {
     // -----------------------------------------------------------------------
     // BINARY BLACK HOLE MERGER
     // Based on NASA binary black hole visualisations.
@@ -379,19 +432,26 @@ export function createProceduralHDRCubeMap(
     const star = starHash(nx, ny, nz);
     if (star > 0.968) {
       const bright = (star - 0.968) * 32.0;
-      r += bright * 0.85; g += bright * 0.93; b += bright * 1.0;
+      r += bright * 0.85;
+      g += bright * 0.93;
+      b += bright * 1.0;
     }
 
     // --- 3. TWO BLACK HOLE EVENT HORIZONS ---
     // BH1 (primary, slightly larger): offset to the right in xz plane
     // BH2 (secondary): offset left.  Both in the equatorial plane (ny≈0).
-    const bh1x = 0.38, bh1y = 0.10, bh1z = 0.05;
-    const bh2x = -0.30, bh2y = -0.08, bh2z = 0.12;
+    const bh1x = 0.38,
+      bh1y = 0.1,
+      bh1z = 0.05;
+    const bh2x = -0.3,
+      bh2y = -0.08,
+      bh2z = 0.12;
     const dist1 = Math.sqrt((nx - bh1x) ** 2 + (ny - bh1y) ** 2 + (nz - bh1z) ** 2);
     const dist2 = Math.sqrt((nx - bh2x) ** 2 + (ny - bh2y) ** 2 + (nz - bh2z) ** 2);
 
     // Schwarzschild radius analogues in normalised space
-    const SR1 = 0.13, SR2 = 0.11;
+    const SR1 = 0.13,
+      SR2 = 0.11;
 
     // Hard void: absolute black inside the event horizon
     if (dist1 < SR1 || dist2 < SR2) {
@@ -402,10 +462,10 @@ export function createProceduralHDRCubeMap(
     // models the photon capture radius (1.5× Schwarzschild) pulling light inward.
     const lensCapture1 = Math.exp(-60 * (dist1 - SR1 * 1.5) ** 2);
     const lensCapture2 = Math.exp(-60 * (dist2 - SR2 * 1.5) ** 2);
-    const totalCapture  = Math.min(1.0, lensCapture1 + lensCapture2) * 0.96;
-    r *= (1.0 - totalCapture);
-    g *= (1.0 - totalCapture);
-    b *= (1.0 - totalCapture);
+    const totalCapture = Math.min(1.0, lensCapture1 + lensCapture2) * 0.96;
+    r *= 1.0 - totalCapture;
+    g *= 1.0 - totalCapture;
+    b *= 1.0 - totalCapture;
 
     // --- 4. ACCRETION DISKS — Interstellar-style thin luminous rings ---
     // Each disk lives in the equatorial plane of its BH.  We model it as a
@@ -413,15 +473,17 @@ export function createProceduralHDRCubeMap(
     // "Ring radius" in the xz plane from the BH axis (vertical = y).
 
     // For BH1: radial distance in the plane perpendicular to the BH spin axis (≈Y)
-    const bh1PlaneDx = nx - bh1x, bh1PlaneDz = nz - bh1z;
-    const bh1PlaneR  = Math.sqrt(bh1PlaneDx ** 2 + bh1PlaneDz ** 2); // ring radius
-    const bh1Height  = ny - bh1y; // height above disk plane
+    const bh1PlaneDx = nx - bh1x,
+      bh1PlaneDz = nz - bh1z;
+    const bh1PlaneR = Math.sqrt(bh1PlaneDx ** 2 + bh1PlaneDz ** 2); // ring radius
+    const bh1Height = ny - bh1y; // height above disk plane
     // Toroidal distance from the ring centreline at radius DISK_R1
     const DISK_R1 = 0.22;
     const bh1ToroidDist = Math.sqrt((bh1PlaneR - DISK_R1) ** 2 + bh1Height ** 2 * 4.0);
     // Thin primary ring + ghost ring above/below (lensing double image)
-    const ring1A = Math.exp(-55 * bh1ToroidDist ** 2) * 1.4;  // main ring
-    const ring1B = Math.exp(-55 * ((bh1PlaneR - DISK_R1 * 0.88) ** 2 + (bh1Height + 0.06) ** 2 * 4.0)) * 0.50; // lensed ghost
+    const ring1A = Math.exp(-55 * bh1ToroidDist ** 2) * 1.4; // main ring
+    const ring1B =
+      Math.exp(-55 * ((bh1PlaneR - DISK_R1 * 0.88) ** 2 + (bh1Height + 0.06) ** 2 * 4.0)) * 0.5; // lensed ghost
 
     // Doppler brightening: approaching side (nx > bh1x) glows orange-white,
     // receding side (nx < bh1x) is dimmer and redder.
@@ -431,13 +493,15 @@ export function createProceduralHDRCubeMap(
     const diskColor1B = ring1A * (0.1 + 0.1 * doppler1) + ring1B * 0.1;
 
     // For BH2:
-    const bh2PlaneDx = nx - bh2x, bh2PlaneDz = nz - bh2z;
-    const bh2PlaneR  = Math.sqrt(bh2PlaneDx ** 2 + bh2PlaneDz ** 2);
-    const bh2Height  = ny - bh2y;
+    const bh2PlaneDx = nx - bh2x,
+      bh2PlaneDz = nz - bh2z;
+    const bh2PlaneR = Math.sqrt(bh2PlaneDx ** 2 + bh2PlaneDz ** 2);
+    const bh2Height = ny - bh2y;
     const DISK_R2 = 0.19;
     const bh2ToroidDist = Math.sqrt((bh2PlaneR - DISK_R2) ** 2 + bh2Height ** 2 * 4.0);
     const ring2A = Math.exp(-55 * bh2ToroidDist ** 2) * 1.2;
-    const ring2B = Math.exp(-55 * ((bh2PlaneR - DISK_R2 * 0.88) ** 2 + (bh2Height + 0.055) ** 2 * 4.0)) * 0.45;
+    const ring2B =
+      Math.exp(-55 * ((bh2PlaneR - DISK_R2 * 0.88) ** 2 + (bh2Height + 0.055) ** 2 * 4.0)) * 0.45;
     const doppler2 = 0.5 + 0.5 * Math.tanh((nx - bh2x) * 5.0);
     const diskColor2R = ring2A * (1.4 + 0.9 * doppler2) + ring2B * 0.7;
     const diskColor2G = ring2A * (0.6 + 0.4 * doppler2) + ring2B * 0.35;
@@ -450,19 +514,21 @@ export function createProceduralHDRCubeMap(
     // Outer diffuse accretion corona (broader, dimmer red-orange glow)
     const corona1 = gaussian(nx, ny, nz, bh1x, bh1y, bh1z, 5);
     const corona2 = gaussian(nx, ny, nz, bh2x, bh2y, bh2z, 5);
-    r += (corona1 + corona2) * 0.40;
-    g += (corona1 + corona2) * 0.10;
+    r += (corona1 + corona2) * 0.4;
+    g += (corona1 + corona2) * 0.1;
     b += (corona1 + corona2) * 0.02;
 
     // --- 5. EINSTEIN RING between the two black holes ---
     // An Einstein ring appears as a thin bright circle centred between the pair.
     // We approximate it as a toroid around the merger midpoint axis.
-    const emX = (bh1x + bh2x) * 0.5, emY = (bh1y + bh2y) * 0.5, emZ = (bh1z + bh2z) * 0.5;
+    const emX = (bh1x + bh2x) * 0.5,
+      emY = (bh1y + bh2y) * 0.5,
+      emZ = (bh1z + bh2z) * 0.5;
     const eRingPlaneR = Math.sqrt((nx - emX) ** 2 + (nz - emZ) ** 2);
     const eRingHeight = ny - emY;
     const ERING_R = 0.32;
     const eRingDist = Math.sqrt((eRingPlaneR - ERING_R) ** 2 + eRingHeight ** 2 * 2.0);
-    const eRing = Math.exp(-80 * eRingDist ** 2) * 0.90;
+    const eRing = Math.exp(-80 * eRingDist ** 2) * 0.9;
     // Einstein ring is bright blue-white (blueshifted background light)
     r += eRing * 1.0;
     g += eRing * 1.2;
@@ -475,14 +541,14 @@ export function createProceduralHDRCubeMap(
     // Envelope: bright close to merger, fades at large distance
     const rippleEnv = Math.exp(-1.8 * distMerger) * Math.max(0, distMerger - SR1 * 2.0) * 2.5;
     // Three wave crests, phase-offset to look like expanding rings at different radii
-    const ripple = (
-      Math.max(0, Math.sin(distMerger * 28.0 - 0.8)) +
-      Math.max(0, Math.sin(distMerger * 28.0 - 0.8 - 2.1)) * 0.5
-    ) * rippleEnv;
+    const ripple =
+      (Math.max(0, Math.sin(distMerger * 28.0 - 0.8)) +
+        Math.max(0, Math.sin(distMerger * 28.0 - 0.8 - 2.1)) * 0.5) *
+      rippleEnv;
     // Crests: blue-white (Cherenkov analogue)
     r += ripple * 0.28;
     g += ripple * 0.55;
-    b += ripple * 1.10;
+    b += ripple * 1.1;
 
     // --- 7. MERGER POINT WHITE FLASH (brief intense central burst) ---
     const mergerFlash = gaussian(nx, ny, nz, emX, emY, emZ, 350);
@@ -493,7 +559,12 @@ export function createProceduralHDRCubeMap(
     return [r * 2.5, g * 2.5, b * 2.5];
   }
 
-  function paintGreatAttractor(nx: number, ny: number, nz: number, _rng: () => number): [number, number, number] {
+  function paintGreatAttractor(
+    nx: number,
+    ny: number,
+    nz: number,
+    _rng: () => number,
+  ): [number, number, number] {
     // -----------------------------------------------------------------------
     // THE GREAT ATTRACTOR (Laniakea supercluster bulk flow convergence)
     // Based on Laniakea mapping (Tully et al., Nature 2014) and
@@ -507,13 +578,15 @@ export function createProceduralHDRCubeMap(
     // --- 1. DEEP-SPACE BACKGROUND — dark navy with slight warm gradient ---
     // The attractor sits roughly at nz>0, nx>0, ny~0 in our space.
     // Background is darker toward the void side and warmer toward the attractor.
-    const attX = 0.42, attY = 0.08, attZ = -0.22;  // attractor centre direction
+    const attX = 0.42,
+      attY = 0.08,
+      attZ = -0.22; // attractor centre direction
     const distToAtt = Math.sqrt((nx - attX) ** 2 + (ny - attY) ** 2 + (nz - attZ) ** 2);
     // Proximity weight: 0 far from attractor → 1 at centre
     const proxW = Math.exp(-1.5 * distToAtt);
     let r = 0.018 + proxW * 0.055;
-    let g = 0.010 + proxW * 0.025;
-    let b = 0.035 + proxW * 0.010;
+    let g = 0.01 + proxW * 0.025;
+    let b = 0.035 + proxW * 0.01;
 
     // --- 2. ZONE OF AVOIDANCE — the Milky Way galactic plane blocks the view ---
     // Our galaxy's dust cuts a dark band along ny ≈ 0 (equatorial plane).
@@ -532,14 +605,14 @@ export function createProceduralHDRCubeMap(
       const bright = range > 0 ? ((star - Math.max(0, starThreshold)) / range) * 2.0 : 0;
       // Stars near attractor are warm golden-white (old elliptical galaxy populations)
       r += bright * (0.95 + 0.05 * proxW) * (1.0 - zoaSuppress);
-      g += bright * (0.90 + 0.03 * proxW) * (1.0 - zoaSuppress);
+      g += bright * (0.9 + 0.03 * proxW) * (1.0 - zoaSuppress);
       b += bright * (0.78 - 0.12 * proxW) * (1.0 - zoaSuppress);
     }
 
     // --- 4. NORMA CLUSTER CORE — the densest, brightest region ---
     // Extremely bright warm-white compressed core (analogous to a blazar in brightness)
-    const normaBright = gaussian(nx, ny, nz, attX, attY, attZ, 30) * 1.0;  // tight core
-    const normaGlow   = gaussian(nx, ny, nz, attX, attY, attZ, 4.0) * 0.65; // broad glow
+    const normaBright = gaussian(nx, ny, nz, attX, attY, attZ, 30) * 1.0; // tight core
+    const normaGlow = gaussian(nx, ny, nz, attX, attY, attZ, 4.0) * 0.65; // broad glow
     r += (normaBright * 3.5 + normaGlow * 1.2) * (1.0 - zoaSuppress);
     g += (normaBright * 3.0 + normaGlow * 1.0) * (1.0 - zoaSuppress);
     b += (normaBright * 2.2 + normaGlow * 0.55) * (1.0 - zoaSuppress);
@@ -549,14 +622,14 @@ export function createProceduralHDRCubeMap(
     // Using slightly anisotropic Gaussians via pre-computed stretched coordinates.
     type GalBlob = [number, number, number, number, string]; // cx,cy,cz,falloff,type
     const galaxyBlobs: GalBlob[] = [
-      [0.52,  0.05, -0.08, 20, 'warm'],   // Norma cluster satellite
-      [0.30,  0.15, -0.35, 18, 'warm'],   // PKS 1343-601 direction
-      [0.60, -0.10, -0.12, 22, 'warm'],   // Centaurus cluster
-      [0.38,  0.22, -0.42, 15, 'warm'],   // Hydra-Centaurus filament node
-      [0.20,  0.00, -0.15, 25, 'cool'],   // Puppis cluster
-      [0.55,  0.30, -0.30, 16, 'warm'],   // Indus supercluster spur
-      [0.15,  0.18, -0.45, 20, 'cool'],   // More distant background cluster
-      [0.65, -0.20,  0.05, 19, 'warm'],   // Virgo direction inflow
+      [0.52, 0.05, -0.08, 20, 'warm'], // Norma cluster satellite
+      [0.3, 0.15, -0.35, 18, 'warm'], // PKS 1343-601 direction
+      [0.6, -0.1, -0.12, 22, 'warm'], // Centaurus cluster
+      [0.38, 0.22, -0.42, 15, 'warm'], // Hydra-Centaurus filament node
+      [0.2, 0.0, -0.15, 25, 'cool'], // Puppis cluster
+      [0.55, 0.3, -0.3, 16, 'warm'], // Indus supercluster spur
+      [0.15, 0.18, -0.45, 20, 'cool'], // More distant background cluster
+      [0.65, -0.2, 0.05, 19, 'warm'], // Virgo direction inflow
     ];
     for (const [cx, cy, cz, fo, type] of galaxyBlobs) {
       const g_blob = gaussian(nx, ny, nz, cx, cy, cz, fo) * 0.45;
@@ -574,18 +647,27 @@ export function createProceduralHDRCubeMap(
     //   Parametric: (0.60 - 0.18t, 0.10*sin(t*2.5), -0.12 - 0.30t) for t in [0,1]
     //   Approximate with 5 sample points along the curve
     const fil1Pts: [number, number, number][] = [
-      [0.60, 0.03, -0.12], [0.55, 0.06, -0.19], [0.50, 0.08, -0.22],
-      [0.46, 0.09, -0.24], [0.42, 0.08, -0.22],
+      [0.6, 0.03, -0.12],
+      [0.55, 0.06, -0.19],
+      [0.5, 0.08, -0.22],
+      [0.46, 0.09, -0.24],
+      [0.42, 0.08, -0.22],
     ];
     // Filament 2: flowing down from upper clusters toward Zone of Avoidance
     const fil2Pts: [number, number, number][] = [
-      [0.30, 0.42, -0.35], [0.34, 0.28, -0.36], [0.37, 0.18, -0.36],
-      [0.39, 0.12, -0.30], [0.42, 0.08, -0.22],
+      [0.3, 0.42, -0.35],
+      [0.34, 0.28, -0.36],
+      [0.37, 0.18, -0.36],
+      [0.39, 0.12, -0.3],
+      [0.42, 0.08, -0.22],
     ];
     // Filament 3: a long spur toward the void side
     const fil3Pts: [number, number, number][] = [
-      [0.65, -0.20,  0.05], [0.58, -0.12, -0.05], [0.52, -0.04, -0.12],
-      [0.47,  0.03, -0.18], [0.42,  0.08, -0.22],
+      [0.65, -0.2, 0.05],
+      [0.58, -0.12, -0.05],
+      [0.52, -0.04, -0.12],
+      [0.47, 0.03, -0.18],
+      [0.42, 0.08, -0.22],
     ];
 
     function filamentBrightness(pts: [number, number, number][]): number {
@@ -593,12 +675,23 @@ export function createProceduralHDRCubeMap(
       for (let i = 0; i < pts.length - 1; i++) {
         const pA = pts[i]!;
         const pB = pts[i + 1]!;
-        const ax = pA[0], ay = pA[1], az = pA[2];
-        const bx = pB[0], by = pB[1], bz = pB[2];
-        const sdx = bx - ax, sdy = by - ay, sdz = bz - az;
+        const ax = pA[0],
+          ay = pA[1],
+          az = pA[2];
+        const bx = pB[0],
+          by = pB[1],
+          bz = pB[2];
+        const sdx = bx - ax,
+          sdy = by - ay,
+          sdz = bz - az;
         const slen2 = sdx * sdx + sdy * sdy + sdz * sdz;
-        const t2 = Math.max(0, Math.min(1, ((nx - ax) * sdx + (ny - ay) * sdy + (nz - az) * sdz) / slen2));
-        const dx = nx - ax - t2 * sdx, dy = ny - ay - t2 * sdy, dz = nz - az - t2 * sdz;
+        const t2 = Math.max(
+          0,
+          Math.min(1, ((nx - ax) * sdx + (ny - ay) * sdy + (nz - az) * sdz) / slen2),
+        );
+        const dx = nx - ax - t2 * sdx,
+          dy = ny - ay - t2 * sdy,
+          dz = nz - az - t2 * sdz;
         const d2 = dx * dx + dy * dy + dz * dz;
         if (d2 < minDist2) minDist2 = d2;
       }
@@ -607,7 +700,7 @@ export function createProceduralHDRCubeMap(
 
     const fil1B = filamentBrightness(fil1Pts) * 0.55 * (1.0 - zoaSuppress);
     const fil2B = filamentBrightness(fil2Pts) * 0.45 * (1.0 - zoaSuppress);
-    const fil3B = filamentBrightness(fil3Pts) * 0.40 * (1.0 - zoaSuppress);
+    const fil3B = filamentBrightness(fil3Pts) * 0.4 * (1.0 - zoaSuppress);
     const filTotal = fil1B + fil2B + fil3B;
     // Filaments: warm golden-yellow (old stellar populations in galaxy filaments)
     r += filTotal * 1.8;
@@ -620,23 +713,24 @@ export function createProceduralHDRCubeMap(
     // highlight the streamlines using a periodic function of the azimuthal angle
     // around the attractor axis.
     // In spherical coords centred on the attractor: azimuthal angle phi in [0, 2pi].
-    const relX = nx - attX, relZ = nz - attZ;
+    const relX = nx - attX,
+      relZ = nz - attZ;
     const relXZ = Math.sqrt(relX * relX + relZ * relZ) + 1e-6;
     const phi = Math.atan2(relZ, relX);
     // 8 distinct inflow rivers spaced 45° apart
-    const riverPeriod = Math.pow(Math.max(0, Math.cos(phi * 4.0)), 12); // 8 peaks
+    const riverPeriod = Math.max(0, Math.cos(phi * 4.0)) ** 12; // 8 peaks
     // Envelope: rivers exist at mid-distance (not too close to core, not too far)
     const riverEnv = Math.exp(-1.2 * relXZ) * (1.0 - Math.exp(-8 * relXZ));
-    const riverBright = riverPeriod * riverEnv * 0.30 * (1.0 - zoaSuppress);
+    const riverBright = riverPeriod * riverEnv * 0.3 * (1.0 - zoaSuppress);
     r += riverBright * 1.2;
-    g += riverBright * 0.90;
+    g += riverBright * 0.9;
     b += riverBright * 0.35;
 
     // --- 8. ZONE OF AVOIDANCE — darken ALL content in the galactic plane band ---
     // Apply the suppression that was computed earlier to background and base
-    r *= (1.0 - zoaSuppress * 0.75);
-    g *= (1.0 - zoaSuppress * 0.75);
-    b *= (1.0 - zoaSuppress * 0.75);
+    r *= 1.0 - zoaSuppress * 0.75;
+    g *= 1.0 - zoaSuppress * 0.75;
+    b *= 1.0 - zoaSuppress * 0.75;
     // The ZoA itself has a slight dark-reddish dust lane colour
     r += zoaBand * 0.012;
     g += zoaBand * 0.006;
@@ -645,7 +739,12 @@ export function createProceduralHDRCubeMap(
     return [r * 2.5, g * 2.5, b * 2.5];
   }
 
-  function paintDipoleRepeller(nx: number, ny: number, nz: number, _rng: () => number): [number, number, number] {
+  function paintDipoleRepeller(
+    nx: number,
+    ny: number,
+    nz: number,
+    _rng: () => number,
+  ): [number, number, number] {
     // -----------------------------------------------------------------------
     // DIPOLE REPELLER (Hoffman et al., Nature Astronomy, 2017)
     // Scene: a stark hemisphere split.
@@ -660,27 +759,25 @@ export function createProceduralHDRCubeMap(
     // --- 1. BACKGROUND GRADIENT — warm amber → cold blue-black ---
     // warmCool = 1 on Shapley side, 0 on void side.
     const warmCool = Math.max(0, Math.min(1, (nz + 1.0) * 0.5));
-    let r = 0.010 + warmCool * 0.055;
+    let r = 0.01 + warmCool * 0.055;
     let g = 0.004 + warmCool * 0.018;
-    let b = 0.025 + (1.0 - warmCool) * 0.060;
+    let b = 0.025 + (1.0 - warmCool) * 0.06;
 
     // --- 2. THE REPELLER VOID — absolute darkness, hard-edged ---
     // The void centre is at nz = -0.62 (deep into the repeller hemisphere).
     // We use a hard step inside the void radius and a steep penumbra outside.
-    const vX = 0.04, vY = -0.06, vZ = -0.62;
+    const vX = 0.04,
+      vY = -0.06,
+      vZ = -0.62;
     const voidDist = Math.sqrt((nx - vX) ** 2 + (ny - vY) ** 2 + (nz - vZ) ** 2);
-    const VOID_CORE_R = 0.52;   // the hard void interior
+    const VOID_CORE_R = 0.52; // the hard void interior
     const VOID_FRINGE_R = 0.62; // start of the boundary shell
 
     // Inside the hard void: return near-black immediately (with only the faintest haze)
     if (voidDist < VOID_CORE_R) {
       // Tiny amount of deep blue to show it's a different kind of black than space
       const voidDepth = voidDist / VOID_CORE_R; // 0 at centre, 1 at edge
-      return [
-        0.001 * voidDepth * voidDepth,
-        0.000,
-        0.003 * voidDepth * voidDepth,
-      ];
+      return [0.001 * voidDepth * voidDepth, 0.0, 0.003 * voidDepth * voidDepth];
     }
 
     // Fringe zone: rapid darkening just outside the hard void edge
@@ -706,22 +803,22 @@ export function createProceduralHDRCubeMap(
     const voidSuppression = Math.max(0, Math.min(1, (voidDist - VOID_CORE_R) / 0.45));
     const starThreshold = 0.998 - warmCool * 0.118 * voidSuppression;
     if (star > starThreshold) {
-      const bright = (star - starThreshold) / (1.0 - starThreshold + 1e-4) * 2.2;
+      const bright = ((star - starThreshold) / (1.0 - starThreshold + 1e-4)) * 2.2;
       r += bright * (0.45 + 0.55 * warmCool);
-      g += bright * (0.65 + 0.20 * warmCool);
-      b += bright * (0.95 - 0.70 * warmCool);
+      g += bright * (0.65 + 0.2 * warmCool);
+      b += bright * (0.95 - 0.7 * warmCool);
     }
 
     // --- 5. SHAPLEY ATTRACTOR (dense warm-gold galaxy clusters) ---
     // Multiple clusters on the nz>0 side, representing the attractor direction.
     const shapleyCentreW = warmCool * warmCool; // squared for steeper falloff on void side
-    const shap1 = gaussian(nx, ny, nz, 0.08, 0.05,  0.68, 5.0) * 0.80 * shapleyCentreW;
-    const shap2 = gaussian(nx, ny, nz, 0.20, -0.10, 0.55, 7.0) * 0.60 * shapleyCentreW;
-    const shap3 = gaussian(nx, ny, nz, -0.15, 0.12, 0.72, 6.0) * 0.50 * shapleyCentreW;
+    const shap1 = gaussian(nx, ny, nz, 0.08, 0.05, 0.68, 5.0) * 0.8 * shapleyCentreW;
+    const shap2 = gaussian(nx, ny, nz, 0.2, -0.1, 0.55, 7.0) * 0.6 * shapleyCentreW;
+    const shap3 = gaussian(nx, ny, nz, -0.15, 0.12, 0.72, 6.0) * 0.5 * shapleyCentreW;
     const shapTotal = shap1 + shap2 + shap3;
     r += shapTotal * 2.2;
-    g += shapTotal * 1.30;
-    b += shapTotal * 0.30;
+    g += shapTotal * 1.3;
+    b += shapTotal * 0.3;
 
     // --- 6. COSMIC WEB FILAMENTS — only on the attractor side, absent in void ---
     // Filaments are modelled as segment-based curves (same approach as Great Attractor).
@@ -729,17 +826,25 @@ export function createProceduralHDRCubeMap(
 
     // Filament A: connecting the main Shapley cluster to outlying groups
     const filA_pts: [number, number, number][] = [
-      [0.08, 0.05, 0.68], [0.14, 0.08, 0.62], [0.20, 0.10, 0.56],
-      [0.25, 0.12, 0.48], [0.28, 0.10, 0.40],
+      [0.08, 0.05, 0.68],
+      [0.14, 0.08, 0.62],
+      [0.2, 0.1, 0.56],
+      [0.25, 0.12, 0.48],
+      [0.28, 0.1, 0.4],
     ];
     // Filament B: descending from upper-attractor toward the equatorial plane
     const filB_pts: [number, number, number][] = [
-      [-0.15, 0.45, 0.55], [-0.12, 0.30, 0.60], [-0.10, 0.16, 0.65],
-      [0.00, 0.08, 0.68], [0.08, 0.05, 0.68],
+      [-0.15, 0.45, 0.55],
+      [-0.12, 0.3, 0.6],
+      [-0.1, 0.16, 0.65],
+      [0.0, 0.08, 0.68],
+      [0.08, 0.05, 0.68],
     ];
     // Filament C: horizontal spur
     const filC_pts: [number, number, number][] = [
-      [0.40, -0.05, 0.58], [0.28, -0.02, 0.62], [0.18, 0.02, 0.66],
+      [0.4, -0.05, 0.58],
+      [0.28, -0.02, 0.62],
+      [0.18, 0.02, 0.66],
       [0.08, 0.05, 0.68],
     ];
 
@@ -748,47 +853,66 @@ export function createProceduralHDRCubeMap(
       for (let i = 0; i < pts.length - 1; i++) {
         const pA = pts[i]!;
         const pB = pts[i + 1]!;
-        const ax = pA[0], ay = pA[1], az = pA[2];
-        const bx = pB[0], by = pB[1], bz = pB[2];
-        const ddx = bx - ax, ddy = by - ay, ddz = bz - az;
+        const ax = pA[0],
+          ay = pA[1],
+          az = pA[2];
+        const bx = pB[0],
+          by = pB[1],
+          bz = pB[2];
+        const ddx = bx - ax,
+          ddy = by - ay,
+          ddz = bz - az;
         const dl2 = ddx * ddx + ddy * ddy + ddz * ddz;
-        const t3 = Math.max(0, Math.min(1, ((nx - ax) * ddx + (ny - ay) * ddy + (nz - az) * ddz) / dl2));
-        const ex = nx - ax - t3 * ddx, ey = ny - ay - t3 * ddy, ez = nz - az - t3 * ddz;
+        const t3 = Math.max(
+          0,
+          Math.min(1, ((nx - ax) * ddx + (ny - ay) * ddy + (nz - az) * ddz) / dl2),
+        );
+        const ex = nx - ax - t3 * ddx,
+          ey = ny - ay - t3 * ddy,
+          ez = nz - az - t3 * ddz;
         const d2 = ex * ex + ey * ey + ez * ez;
         if (d2 < minD2) minD2 = d2;
       }
       return Math.exp(-110 * minD2); // tight filament half-width ~0.095
     }
 
-    const filA = dipFilament(filA_pts) * 0.50 * filW;
+    const filA = dipFilament(filA_pts) * 0.5 * filW;
     const filB = dipFilament(filB_pts) * 0.42 * filW;
     const filC = dipFilament(filC_pts) * 0.38 * filW;
     const filSum = filA + filB + filC;
     r += filSum * 2.0;
-    g += filSum * 1.20;
+    g += filSum * 1.2;
     b += filSum * 0.25;
 
     // --- 7. FLOW STREAMLINES — visible arrows of matter pushed away from void ---
     // The dipole repeller pushes matter radially away from the void centre.
     // We visualise this as radial "spokes" emanating from the void, clearly
     // visible on the attractor side where they converge toward Shapley.
-    const toVoidX = nx - vX, toVoidY = ny - vY, toVoidZ = nz - vZ;
+    const toVoidX = nx - vX,
+      toVoidY = ny - vY,
+      toVoidZ = nz - vZ;
     const toVoidLen = Math.sqrt(toVoidX ** 2 + toVoidY ** 2 + toVoidZ ** 2) + 1e-6;
     // Azimuthal angle around the Z axis (void axis)
     const psi = Math.atan2(toVoidY, toVoidX);
     // 6 flow streams
-    const streamPeak = Math.pow(Math.max(0, Math.cos(psi * 3.0)), 10);
+    const streamPeak = Math.max(0, Math.cos(psi * 3.0)) ** 10;
     // Only visible at intermediate distances from void (not inside, not at infinity)
-    const streamEnv = Math.exp(-1.0 * toVoidLen) * Math.max(0, 1.0 - Math.exp(-5.0 * (toVoidLen - VOID_FRINGE_R)));
+    const streamEnv =
+      Math.exp(-1.0 * toVoidLen) * Math.max(0, 1.0 - Math.exp(-5.0 * (toVoidLen - VOID_FRINGE_R)));
     const streamBright = streamPeak * streamEnv * 0.22 * warmCool;
     r += streamBright * 1.4;
-    g += streamBright * 0.80;
-    b += streamBright * 0.20;
+    g += streamBright * 0.8;
+    b += streamBright * 0.2;
 
     return [r * 2.5, g * 2.5, b * 2.5];
   }
 
-  function paintShapleyAttractor(nx: number, ny: number, nz: number, _rng: () => number): [number, number, number] {
+  function paintShapleyAttractor(
+    nx: number,
+    ny: number,
+    nz: number,
+    _rng: () => number,
+  ): [number, number, number] {
     // -----------------------------------------------------------------------
     // SHAPLEY SUPERCLUSTER ATTRACTOR
     // Based on ESA/Planck + Chandra X-ray + optical observations.
@@ -808,41 +932,43 @@ export function createProceduralHDRCubeMap(
     // --- 2. SUPERCLUSTER CENTRE DIRECTION ---
     // The Shapley supercluster occupies a large cone in direction nz>0.
     // Centre is at (scX, scY, scZ); proximity drives all feature intensities.
-    const scX = -0.18, scY = 0.12, scZ = 0.45;
+    const scX = -0.18,
+      scY = 0.12,
+      scZ = 0.45;
     const distSC = Math.sqrt((nx - scX) ** 2 + (ny - scY) ** 2 + (nz - scZ) ** 2);
     // Angular proximity: 0 at scX,scY,scZ → 1 at opposite side
-    const proxSC = Math.exp(-1.2 * distSC);   // broad envelope for the whole supercluster
+    const proxSC = Math.exp(-1.2 * distSC); // broad envelope for the whole supercluster
 
     // --- 3. MASSIVE ICM HALOS — dominant visual element (pink / purple) ---
     // The ICM (intracluster medium) is hot gas emitting X-rays, re-observed in
     // optical as a diffuse pink-purple glow.  These halos are LARGE — each one
     // covers a significant fraction of the sky at this scale.
     // Primary ICM: centred on the core, very broad (falloff 0.9 → radius ~1.05)
-    const icmCore    = gaussian(nx, ny, nz, scX, scY, scZ, 0.9) * 0.65;
+    const icmCore = gaussian(nx, ny, nz, scX, scY, scZ, 0.9) * 0.65;
     // Secondary ICM lobes (adjacent cluster mergers)
-    const icmLobe1   = gaussian(nx, ny, nz, -0.05, 0.22, 0.52, 1.4) * 0.50;
-    const icmLobe2   = gaussian(nx, ny, nz, -0.32, 0.00, 0.38, 1.6) * 0.42;
-    const icmLobe3   = gaussian(nx, ny, nz, -0.10, -0.15, 0.50, 1.8) * 0.38;
+    const icmLobe1 = gaussian(nx, ny, nz, -0.05, 0.22, 0.52, 1.4) * 0.5;
+    const icmLobe2 = gaussian(nx, ny, nz, -0.32, 0.0, 0.38, 1.6) * 0.42;
+    const icmLobe3 = gaussian(nx, ny, nz, -0.1, -0.15, 0.5, 1.8) * 0.38;
     // Outer extended ICM — fills a large area with faint emission
-    const icmOuter   = gaussian(nx, ny, nz, scX, scY, scZ, 0.35) * 0.30;
-    const icmTotal   = icmCore + icmLobe1 + icmLobe2 + icmLobe3 + icmOuter;
+    const icmOuter = gaussian(nx, ny, nz, scX, scY, scZ, 0.35) * 0.3;
+    const icmTotal = icmCore + icmLobe1 + icmLobe2 + icmLobe3 + icmOuter;
     // ICM color: pinkish-purple (thermal bremsstrahlung + Fe-K emission)
     r += icmTotal * 1.45;
     g += icmTotal * 0.28;
-    b += icmTotal * 1.20;
+    b += icmTotal * 1.2;
 
     // --- 4. INDIVIDUAL CLUSTER CORES (warm-white bright knots) ---
     // Abell 3558 analogue — the dominant cluster in the Shapley core
     const a3558 = gaussian(nx, ny, nz, -0.18, 0.12, 0.45, 35) * 0.85;
     // Abell 3562 analogue — the second brightest cluster, undergoing merger
-    const a3562 = gaussian(nx, ny, nz, -0.10, 0.20, 0.52, 32) * 0.72;
+    const a3562 = gaussian(nx, ny, nz, -0.1, 0.2, 0.52, 32) * 0.72;
     // Abell 3556 — smaller, on the outskirts
-    const a3556 = gaussian(nx, ny, nz, -0.30, 0.05, 0.38, 28) * 0.58;
+    const a3556 = gaussian(nx, ny, nz, -0.3, 0.05, 0.38, 28) * 0.58;
     // Several background clusters forming the Shapley concentration chain
-    const bkg1  = gaussian(nx, ny, nz,  0.02, 0.08, 0.55, 24) * 0.48;
-    const bkg2  = gaussian(nx, ny, nz, -0.25, 0.28, 0.42, 26) * 0.42;
-    const bkg3  = gaussian(nx, ny, nz, -0.08, -0.08, 0.48, 30) * 0.38;
-    const bkg4  = gaussian(nx, ny, nz, -0.38, 0.15, 0.35, 22) * 0.35;
+    const bkg1 = gaussian(nx, ny, nz, 0.02, 0.08, 0.55, 24) * 0.48;
+    const bkg2 = gaussian(nx, ny, nz, -0.25, 0.28, 0.42, 26) * 0.42;
+    const bkg3 = gaussian(nx, ny, nz, -0.08, -0.08, 0.48, 30) * 0.38;
+    const bkg4 = gaussian(nx, ny, nz, -0.38, 0.15, 0.35, 22) * 0.35;
     const coreSum = a3558 + a3562 + a3556 + bkg1 + bkg2 + bkg3 + bkg4;
     // Cluster cores: very bright warm-white (dominated by old red-sequence ellipticals)
     r += coreSum * 3.0;
@@ -851,7 +977,7 @@ export function createProceduralHDRCubeMap(
 
     // Each bright cluster core also has a pink ICM halo around it
     const coreIcm = (a3558 + a3562 + a3556) * 0.6;
-    r += coreIcm * 0.80;
+    r += coreIcm * 0.8;
     g += coreIcm * 0.12;
     b += coreIcm * 0.65;
 
@@ -864,7 +990,7 @@ export function createProceduralHDRCubeMap(
       const range = 1.0 - Math.max(0, starThreshold);
       const bright = range > 0 ? ((star - Math.max(0, starThreshold)) / range) * 2.5 : 0;
       // Slightly warm-white (old elliptical galaxy light dominates)
-      r += bright * 1.00;
+      r += bright * 1.0;
       g += bright * 0.97;
       b += bright * 0.88;
     }
@@ -873,30 +999,44 @@ export function createProceduralHDRCubeMap(
     if (star2 > Math.max(0, 0.985 - proxSC * 0.35)) {
       const t2 = 1.0 - Math.max(0, 0.985 - proxSC * 0.35);
       const bright2 = t2 > 0 ? ((star2 - (0.985 - proxSC * 0.35)) / t2) * 1.8 : 0;
-      r += bright2 * 1.0; g += bright2 * 0.95; b += bright2 * 0.85;
+      r += bright2 * 1.0;
+      g += bright2 * 0.95;
+      b += bright2 * 0.85;
     }
 
     // --- 6. HOT GAS X-RAY FILAMENTS connecting clusters ---
     // Modelled as piecewise-linear curves with a Gaussian cross-section.
     // These are the hot intergalactic medium bridges seen in X-ray observations.
     const xray1_pts: [number, number, number][] = [
-      [-0.18, 0.12, 0.45], [-0.14, 0.16, 0.49], [-0.10, 0.20, 0.52],
+      [-0.18, 0.12, 0.45],
+      [-0.14, 0.16, 0.49],
+      [-0.1, 0.2, 0.52],
     ];
     const xray2_pts: [number, number, number][] = [
-      [-0.18, 0.12, 0.45], [-0.24, 0.08, 0.42], [-0.30, 0.05, 0.38],
+      [-0.18, 0.12, 0.45],
+      [-0.24, 0.08, 0.42],
+      [-0.3, 0.05, 0.38],
     ];
     const xray3_pts: [number, number, number][] = [
-      [-0.10, 0.20, 0.52], [-0.05, 0.14, 0.54], [0.02, 0.08, 0.55],
+      [-0.1, 0.2, 0.52],
+      [-0.05, 0.14, 0.54],
+      [0.02, 0.08, 0.55],
     ];
     // Outer web threads radiating beyond the core
     const web1_pts: [number, number, number][] = [
-      [-0.18, 0.12, 0.45], [-0.22, 0.18, 0.60], [-0.20, 0.25, 0.72],
+      [-0.18, 0.12, 0.45],
+      [-0.22, 0.18, 0.6],
+      [-0.2, 0.25, 0.72],
     ];
     const web2_pts: [number, number, number][] = [
-      [-0.18, 0.12, 0.45], [-0.08, 0.05, 0.62], [0.05, -0.02, 0.75],
+      [-0.18, 0.12, 0.45],
+      [-0.08, 0.05, 0.62],
+      [0.05, -0.02, 0.75],
     ];
     const web3_pts: [number, number, number][] = [
-      [-0.18, 0.12, 0.45], [-0.35, 0.08, 0.58], [-0.50, 0.05, 0.68],
+      [-0.18, 0.12, 0.45],
+      [-0.35, 0.08, 0.58],
+      [-0.5, 0.05, 0.68],
     ];
 
     function shapSegDist(pts: [number, number, number][], fo: number): number {
@@ -904,12 +1044,23 @@ export function createProceduralHDRCubeMap(
       for (let i = 0; i < pts.length - 1; i++) {
         const pA = pts[i]!;
         const pB = pts[i + 1]!;
-        const ax = pA[0], ay = pA[1], az = pA[2];
-        const bx = pB[0], by = pB[1], bz = pB[2];
-        const ddx = bx - ax, ddy = by - ay, ddz = bz - az;
+        const ax = pA[0],
+          ay = pA[1],
+          az = pA[2];
+        const bx = pB[0],
+          by = pB[1],
+          bz = pB[2];
+        const ddx = bx - ax,
+          ddy = by - ay,
+          ddz = bz - az;
         const dl2 = ddx * ddx + ddy * ddy + ddz * ddz;
-        const t4 = Math.max(0, Math.min(1, ((nx - ax) * ddx + (ny - ay) * ddy + (nz - az) * ddz) / dl2));
-        const ex = nx - ax - t4 * ddx, ey = ny - ay - t4 * ddy, ez = nz - az - t4 * ddz;
+        const t4 = Math.max(
+          0,
+          Math.min(1, ((nx - ax) * ddx + (ny - ay) * ddy + (nz - az) * ddz) / dl2),
+        );
+        const ex = nx - ax - t4 * ddx,
+          ey = ny - ay - t4 * ddy,
+          ez = nz - az - t4 * ddz;
         const d2 = ex * ex + ey * ey + ez * ez;
         if (d2 < minD2) minD2 = d2;
       }
@@ -918,12 +1069,12 @@ export function createProceduralHDRCubeMap(
 
     // Hot gas filaments: pink/purple (X-ray bremsstrahlung)
     const xr1 = shapSegDist(xray1_pts, 120) * 0.55;
-    const xr2 = shapSegDist(xray2_pts, 120) * 0.50;
+    const xr2 = shapSegDist(xray2_pts, 120) * 0.5;
     const xr3 = shapSegDist(xray3_pts, 120) * 0.45;
     const xraySum = xr1 + xr2 + xr3;
-    r += xraySum * 1.10;
+    r += xraySum * 1.1;
     g += xraySum * 0.18;
-    b += xraySum * 0.90;
+    b += xraySum * 0.9;
 
     // Outer cosmic web threads: blue-white (colder gas, star-forming filaments)
     const wb1 = shapSegDist(web1_pts, 60) * 0.38;
@@ -953,7 +1104,8 @@ export function createProceduralHDRCubeMap(
     c.height = SIZE;
     c.getContext('2d')!.putImageData(
       new ImageData(new Uint8ClampedArray(pixels.buffer as ArrayBuffer), SIZE, SIZE),
-      0, 0,
+      0,
+      0,
     );
     return c;
   });
@@ -977,9 +1129,7 @@ function detectBackend(renderer: WebGPURenderer): RenderBackend {
   // THREE.WebGPUCoordinateSystem = 2 (Y-up, clip-space 0..1)
   // THREE.WebGLCoordinateSystem = 2000 (Y-up, clip-space -1..1)
   // We use the renderer's reported coordinate system as a reliable signal.
-  return renderer.backend.coordinateSystem === THREE.WebGPUCoordinateSystem
-    ? 'webgpu'
-    : 'webgl2';
+  return renderer.backend.coordinateSystem === THREE.WebGPUCoordinateSystem ? 'webgpu' : 'webgl2';
 }
 
 // ---------------------------------------------------------------------------
@@ -1336,10 +1486,12 @@ export class WebGL3DRenderer implements IRenderer {
     this._envMapEnabled = enabled;
 
     if (config?.envIntensity !== undefined) this._envIntensity = config.envIntensity;
-    if (config?.backgroundIntensity !== undefined) this._backgroundIntensity = config.backgroundIntensity;
+    if (config?.backgroundIntensity !== undefined)
+      this._backgroundIntensity = config.backgroundIntensity;
 
     const themeChanged = config?.theme !== undefined && config.theme !== this._spaceTheme;
-    const resChanged = config?.resolution !== undefined && config.resolution !== this._cubemapResolution;
+    const resChanged =
+      config?.resolution !== undefined && config.resolution !== this._cubemapResolution;
 
     if (config?.theme !== undefined) this._spaceTheme = config.theme;
     if (config?.resolution !== undefined) this._cubemapResolution = config.resolution;
@@ -1431,7 +1583,9 @@ export class WebGL3DRenderer implements IRenderer {
       const { uRange, vRange, resolution, colorMap } = config;
       return JSON.stringify({ type, uRange, vRange, resolution, colorMap, functions: 'functions' });
     } else {
-      const { type: _configType, ...rest } = config as Plot3DCurveConfig | Plot3DParametricCurveConfig;
+      const { type: _configType, ...rest } = config as
+        | Plot3DCurveConfig
+        | Plot3DParametricCurveConfig;
       return JSON.stringify({ type, ...rest });
     }
   }
@@ -1641,14 +1795,14 @@ export class WebGL3DRenderer implements IRenderer {
           const zVal = wirePosAttr.getY(i);
           const t = zRange > 0 ? (zVal - zMin) / zRange : 0.5;
           const c = getColorFromMap(colorMap, Math.max(0, Math.min(1, t)));
-          wireColors[i * 3]     = c.r;
+          wireColors[i * 3] = c.r;
           wireColors[i * 3 + 1] = c.g;
           wireColors[i * 3 + 2] = c.b;
         }
       } else {
         // No colormap: use a soft cyan so the wireframe is still attractive
         for (let i = 0; i < wireVertexCount; i++) {
-          wireColors[i * 3]     = 0.53;
+          wireColors[i * 3] = 0.53;
           wireColors[i * 3 + 1] = 0.93;
           wireColors[i * 3 + 2] = 1.0;
         }
@@ -1858,18 +2012,13 @@ export class WebGL3DRenderer implements IRenderer {
       const tubeRadius = style.tube.radius ?? 0.05;
       const radialSegments = style.tube.radialSegments ?? 8;
 
-      const geometry = new THREE.TubeGeometry(
-        curve,
-        samples,
-        tubeRadius,
-        radialSegments,
-        false
-      );
+      const geometry = new THREE.TubeGeometry(curve, samples, tubeRadius, radialSegments, false);
 
       const color = style.line?.color ?? '#2563eb';
-      const colorHex = typeof color === 'string' && color.startsWith('#')
-        ? parseInt(color.substring(1), 16)
-        : 0x2563eb;
+      const colorHex =
+        typeof color === 'string' && color.startsWith('#')
+          ? parseInt(color.substring(1), 16)
+          : 0x2563eb;
 
       const material = new THREE.MeshPhongMaterial({
         color: colorHex,
@@ -1894,9 +2043,10 @@ export class WebGL3DRenderer implements IRenderer {
       const geometry = new THREE.BufferGeometry().setFromPoints(points);
 
       const color = style?.line?.color ?? '#2563eb';
-      const colorHex = typeof color === 'string' && color.startsWith('#')
-        ? parseInt(color.substring(1), 16)
-        : 0x2563eb;
+      const colorHex =
+        typeof color === 'string' && color.startsWith('#')
+          ? parseInt(color.substring(1), 16)
+          : 0x2563eb;
 
       const material = new THREE.LineBasicMaterial({
         color: colorHex,

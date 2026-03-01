@@ -3,14 +3,13 @@
  * @module renderers
  */
 
-export * from './webgl-2d';
-export * from './webgpu-2d';
 export * from './canvas-2d';
 export * from './shaders';
-export * from './wgsl-shaders';
-
+export * from './webgl-2d';
 // 3D renderer will be lazy-loaded via loadWebGL3DRenderer() in the barrel
 export type { WebGL3DRenderer } from './webgl-3d';
+export * from './webgpu-2d';
+export * from './wgsl-shaders';
 
 // ---------------------------------------------------------------------------
 // Factory helpers
@@ -18,9 +17,9 @@ export type { WebGL3DRenderer } from './webgl-3d';
 
 import type { IRenderer } from '../types/index';
 import { detectBestBackend } from '../utils/gpu-detection';
-import { WebGPU2DRenderer } from './webgpu-2d';
-import { WebGL2DRenderer } from './webgl-2d';
 import { Canvas2DRenderer } from './canvas-2d';
+import { WebGL2DRenderer } from './webgl-2d';
+import { WebGPU2DRenderer } from './webgpu-2d';
 
 /**
  * Creates and returns the best available 2D renderer for the current

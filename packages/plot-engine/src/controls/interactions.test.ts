@@ -3,9 +3,9 @@
  * @module controls/interactions.test
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { ControlEvent, Viewport } from '../types/index';
 import { Plot2DController } from './interactions';
-import type { Viewport, ControlEvent } from '../types/index';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -45,7 +45,7 @@ function makeCanvas(width = 400, height = 300): HTMLCanvasElement {
 function makeController(
   viewportOverride?: Partial<Viewport>,
   canvasWidth = 400,
-  canvasHeight = 300
+  canvasHeight = 300,
 ) {
   const viewport: Viewport = { ...DEFAULT_VIEWPORT, ...viewportOverride };
   const canvas = makeCanvas(canvasWidth, canvasHeight);
@@ -112,9 +112,7 @@ describe('enable()', () => {
 
     controller.enable(); // second call should be a no-op
 
-    expect(
-      (canvas.addEventListener as ReturnType<typeof vi.fn>).mock.calls.length
-    ).toBe(callCount);
+    expect((canvas.addEventListener as ReturnType<typeof vi.fn>).mock.calls.length).toBe(callCount);
   });
 });
 
@@ -446,7 +444,7 @@ describe('wheel event contract', () => {
     controller.addEventListener('zoom', handler);
 
     canvas.dispatchEvent(
-      new WheelEvent('wheel', { deltaY: -1, clientX: 0, clientY: 0, bubbles: true })
+      new WheelEvent('wheel', { deltaY: -1, clientX: 0, clientY: 0, bubbles: true }),
     );
 
     expect(handler).toHaveBeenCalledOnce();
@@ -460,7 +458,7 @@ describe('wheel event contract', () => {
     controller.addEventListener('zoom', handler);
 
     canvas.dispatchEvent(
-      new WheelEvent('wheel', { deltaY: 1, clientX: 0, clientY: 0, bubbles: true })
+      new WheelEvent('wheel', { deltaY: 1, clientX: 0, clientY: 0, bubbles: true }),
     );
 
     expect(handler).toHaveBeenCalledOnce();

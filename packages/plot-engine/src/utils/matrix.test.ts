@@ -3,8 +3,8 @@
  * @module utils/matrix.test
  */
 
-import { describe, it, expect } from 'vitest';
-import { identity, multiply, translation, scaling, rotationZ, ortho } from './matrix';
+import { describe, expect, it } from 'vitest';
+import { identity, multiply, ortho, rotationZ, scaling, translation } from './matrix';
 
 describe('Matrix Utilities', () => {
   describe('identity', () => {

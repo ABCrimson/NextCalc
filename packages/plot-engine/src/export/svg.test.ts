@@ -3,9 +3,9 @@
  * @module export/svg.test
  */
 
-import { describe, it, expect } from 'vitest';
-import { exportToSVG, downloadAsSVG } from './svg';
-import type { Point2D, ExportSVGOptions } from '../types/index';
+import { describe, expect, it } from 'vitest';
+import type { ExportSVGOptions, Point2D } from '../types/index';
+import { downloadAsSVG, exportToSVG } from './svg';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -261,7 +261,16 @@ describe('exportToSVG', () => {
 
   describe('path styling attributes', () => {
     it('should set fill="none" on every path', () => {
-      const svg = exportToSVG([[{ x: 0, y: 0 }, { x: 1, y: 1 }]], defaultViewport, defaultOptions);
+      const svg = exportToSVG(
+        [
+          [
+            { x: 0, y: 0 },
+            { x: 1, y: 1 },
+          ],
+        ],
+        defaultViewport,
+        defaultOptions,
+      );
       const pathTags = [...svg.matchAll(/<path[^>]+>/g)].map((m) => m[0]!);
       expect(pathTags.length).toBeGreaterThan(0);
       for (const tag of pathTags) {
@@ -270,7 +279,16 @@ describe('exportToSVG', () => {
     });
 
     it('should set a stroke attribute on every path', () => {
-      const svg = exportToSVG([[{ x: 0, y: 0 }, { x: 1, y: 1 }]], defaultViewport, defaultOptions);
+      const svg = exportToSVG(
+        [
+          [
+            { x: 0, y: 0 },
+            { x: 1, y: 1 },
+          ],
+        ],
+        defaultViewport,
+        defaultOptions,
+      );
       const pathTags = [...svg.matchAll(/<path[^>]+>/g)].map((m) => m[0]!);
       for (const tag of pathTags) {
         expect(tag).toContain('stroke=');
@@ -278,16 +296,31 @@ describe('exportToSVG', () => {
     });
 
     it('should use the M command for the first point', () => {
-      const svg = exportToSVG([[{ x: 0, y: 0 }, { x: 1, y: 1 }]], defaultViewport, defaultOptions);
+      const svg = exportToSVG(
+        [
+          [
+            { x: 0, y: 0 },
+            { x: 1, y: 1 },
+          ],
+        ],
+        defaultViewport,
+        defaultOptions,
+      );
       const path = getPaths(svg)[0]!;
       expect(path.startsWith('M ')).toBe(true);
     });
 
     it('should use L commands for subsequent points', () => {
       const svg = exportToSVG(
-        [[{ x: 0, y: 0 }, { x: 5, y: 5 }, { x: 10, y: 0 }]],
+        [
+          [
+            { x: 0, y: 0 },
+            { x: 5, y: 5 },
+            { x: 10, y: 0 },
+          ],
+        ],
         defaultViewport,
-        defaultOptions
+        defaultOptions,
       );
       const path = getPaths(svg)[0]!;
       const lCount = (path.match(/ L /g) ?? []).length;
@@ -301,9 +334,18 @@ describe('exportToSVG', () => {
 
   describe('multiple series', () => {
     it('should output one path per non-empty series', () => {
-      const seriesA: Point2D[] = [{ x: -5, y: 0 }, { x: 5, y: 0 }];
-      const seriesB: Point2D[] = [{ x: 0, y: -5 }, { x: 0, y: 5 }];
-      const seriesC: Point2D[] = [{ x: -3, y: 3 }, { x: 3, y: -3 }];
+      const seriesA: Point2D[] = [
+        { x: -5, y: 0 },
+        { x: 5, y: 0 },
+      ];
+      const seriesB: Point2D[] = [
+        { x: 0, y: -5 },
+        { x: 0, y: 5 },
+      ];
+      const seriesC: Point2D[] = [
+        { x: -3, y: 3 },
+        { x: 3, y: -3 },
+      ];
       const svg = exportToSVG([seriesA, seriesB, seriesC], defaultViewport, defaultOptions);
       expect(getPaths(svg)).toHaveLength(3);
     });
@@ -312,7 +354,7 @@ describe('exportToSVG', () => {
       const svg = exportToSVG(
         [[{ x: 0, y: 0 }], [], [{ x: 1, y: 1 }]],
         defaultViewport,
-        defaultOptions
+        defaultOptions,
       );
       expect(getPaths(svg)).toHaveLength(2);
     });
@@ -325,10 +367,11 @@ describe('exportToSVG', () => {
 
 describe('downloadAsSVG', () => {
   it('should not throw when the DOM APIs are available', () => {
-    const points: Point2D[] = [{ x: 0, y: 0 }, { x: 5, y: 5 }];
-    expect(() =>
-      downloadAsSVG([points], defaultViewport, 'output', defaultOptions)
-    ).not.toThrow();
+    const points: Point2D[] = [
+      { x: 0, y: 0 },
+      { x: 5, y: 5 },
+    ];
+    expect(() => downloadAsSVG([points], defaultViewport, 'output', defaultOptions)).not.toThrow();
   });
 
   it('should append .svg when the filename lacks the extension', () => {

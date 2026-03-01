@@ -848,16 +848,16 @@ fn fsMain(in: FragIn) -> @location(0) vec4<f32> {
 
 /** All WGSL shaders keyed by their pipeline name */
 export const WGSL_SHADERS: Readonly<Record<string, WGSLShaderSource>> = {
-  'smooth-line':      smoothLineShaderWGSL,
-  'dashed-line':      dashedLineShaderWGSL,
-  'gradient-line':    gradientLineShaderWGSL,
-  'instanced-grid':   instancedGridShaderWGSL,
-  'advanced-marker':  advancedMarkerShaderWGSL,
-  'fxaa':             fxaaShaderWGSL,
-  'cartesian-line':   cartesianLineShaderWGSL,
-  'polar-line':       polarLineShaderWGSL,
-  'grid':             gridShaderWGSL,
-  'axis':             axisShaderWGSL,
-  'contour-line':     contourLineShaderWGSL,
-  'solid-line':       solidLineShaderWGSL,
+  'smooth-line': smoothLineShaderWGSL,
+  'dashed-line': dashedLineShaderWGSL,
+  'gradient-line': gradientLineShaderWGSL,
+  'instanced-grid': instancedGridShaderWGSL,
+  'advanced-marker': advancedMarkerShaderWGSL,
+  fxaa: fxaaShaderWGSL,
+  'cartesian-line': cartesianLineShaderWGSL,
+  'polar-line': polarLineShaderWGSL,
+  grid: gridShaderWGSL,
+  axis: axisShaderWGSL,
+  'contour-line': contourLineShaderWGSL,
+  'solid-line': solidLineShaderWGSL,
 } as const;

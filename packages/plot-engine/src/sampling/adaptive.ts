@@ -44,7 +44,7 @@ function subdivide(
   depth: number,
   maxDepth: number,
   tolerance: number,
-  result: Point2D[]
+  result: Point2D[],
 ): void {
   // Base case: max depth reached
   if (depth >= maxDepth) {
@@ -70,11 +70,7 @@ function subdivide(
   }
 
   // Compute angle to determine if subdivision is needed
-  const angle = computeAngle(
-    { x: x0, y: y0 },
-    { x: xMid, y: yMid },
-    { x: x1, y: y1 }
-  );
+  const angle = computeAngle({ x: x0, y: y0 }, { x: xMid, y: yMid }, { x: x1, y: y1 });
 
   // If angle is too large (high curvature), subdivide
   if (Math.abs(Math.PI - angle) > tolerance) {
@@ -98,7 +94,7 @@ export function adaptiveSample1D(
   fn: (x: number) => number,
   xMin: number,
   xMax: number,
-  config: SamplingConfig
+  config: SamplingConfig,
 ): SamplingResult {
   const startTime = performance.now();
 
@@ -133,17 +129,7 @@ export function adaptiveSample1D(
     const p0 = initialPoints[i]!;
     const p1 = initialPoints[i + 1]!;
 
-    subdivide(
-      fn,
-      p0.x,
-      p1.x,
-      p0.y,
-      p1.y,
-      0,
-      config.maxDepth,
-      config.angleTolerance,
-      result
-    );
+    subdivide(fn, p0.x, p1.x, p0.y, p1.y, 0, config.maxDepth, config.angleTolerance, result);
   }
 
   return {
@@ -161,7 +147,7 @@ export function adaptiveSampleParametric2D(
   yFn: (t: number) => number,
   tMin: number,
   tMax: number,
-  config: SamplingConfig
+  config: SamplingConfig,
 ): SamplingResult {
   const startTime = performance.now();
 
@@ -235,7 +221,7 @@ export function uniformSample1D(
   fn: (x: number) => number,
   xMin: number,
   xMax: number,
-  samples: number
+  samples: number,
 ): SamplingResult {
   const startTime = performance.now();
   const points: Point2D[] = [];

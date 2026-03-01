@@ -3,6 +3,6 @@
  * @module export
  */
 
+export * from './csv';
 export * from './png';
 export * from './svg';
-export * from './csv';

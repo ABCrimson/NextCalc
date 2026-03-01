@@ -62,7 +62,7 @@ export function marchingSquares(
   isovalue: number,
   dx: number,
   dy: number,
-  viewport: Viewport
+  viewport: Viewport,
 ): ContourSegment[] {
   const rows = grid.length;
   if (rows === 0) return [];
@@ -79,16 +79,7 @@ export function marchingSquares(
       const cellKey = `${i},${j}`;
       if (visited.has(cellKey)) continue;
 
-      const segment = traceContour(
-        grid,
-        isovalue,
-        i,
-        j,
-        dx,
-        dy,
-        viewport,
-        visited
-      );
+      const segment = traceContour(grid, isovalue, i, j, dx, dy, viewport, visited);
 
       if (segment.points.length >= 2) {
         contours.push(segment);
@@ -110,7 +101,7 @@ function traceContour(
   dx: number,
   dy: number,
   viewport: Viewport,
-  visited: Set<string>
+  visited: Set<string>,
 ): ContourSegment {
   const points: Point2D[] = [];
   const rows = grid.length;
@@ -166,12 +157,7 @@ function traceContour(
 /**
  * Gets the cell case (0-15) based on which corners are inside the contour
  */
-function getCellCase(
-  grid: number[][],
-  i: number,
-  j: number,
-  isovalue: number
-): number {
+function getCellCase(grid: number[][], i: number, j: number, isovalue: number): number {
   const rows = grid.length;
   const cols = grid[0]!.length;
 
@@ -196,7 +182,7 @@ function getEdgePoint(
   isovalue: number,
   dx: number,
   dy: number,
-  viewport: Viewport
+  viewport: Viewport,
 ): Point2D | null {
   const rows = grid.length;
   const cols = grid[0]!.length;
@@ -208,7 +194,8 @@ function getEdgePoint(
 
   // Get values at edge endpoints and interpolate
   switch (edge) {
-    case 0: { // Bottom edge
+    case 0: {
+      // Bottom edge
       const v0 = grid[i]![j]!;
       const v1 = grid[i]![j + 1]!;
       const t = (isovalue - v0) / (v1 - v0);
@@ -216,7 +203,8 @@ function getEdgePoint(
       y = viewport.yMin + i * dy;
       break;
     }
-    case 1: { // Right edge
+    case 1: {
+      // Right edge
       const v0 = grid[i]![j + 1]!;
       const v1 = grid[i + 1]![j + 1]!;
       const t = (isovalue - v0) / (v1 - v0);
@@ -224,7 +212,8 @@ function getEdgePoint(
       y = viewport.yMin + (i + t) * dy;
       break;
     }
-    case 2: { // Top edge
+    case 2: {
+      // Top edge
       const v0 = grid[i + 1]![j]!;
       const v1 = grid[i + 1]![j + 1]!;
       const t = (isovalue - v0) / (v1 - v0);
@@ -232,7 +221,8 @@ function getEdgePoint(
       y = viewport.yMin + (i + 1) * dy;
       break;
     }
-    case 3: { // Left edge
+    case 3: {
+      // Left edge
       const v0 = grid[i]![j]!;
       const v1 = grid[i + 1]![j]!;
       const t = (isovalue - v0) / (v1 - v0);
@@ -253,7 +243,7 @@ function moveToNextCell(
   isovalue: number,
   i: number,
   j: number,
-  visited: Set<string>
+  visited: Set<string>,
 ): { i: number; j: number } | null {
   const rows = grid.length;
   const cols = grid[0]!.length;

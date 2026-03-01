@@ -24,27 +24,27 @@
 
 import type {
   IRenderer,
-  RenderBackend,
   PerformanceMetrics,
-  PlotConfig,
   Plot2DCartesianConfig,
-  Plot2DPolarConfig,
-  Plot2DParametricConfig,
   Plot2DImplicitConfig,
+  Plot2DParametricConfig,
+  Plot2DPolarConfig,
   Plot2DVectorFieldConfig,
+  PlotConfig,
   Point2D,
+  RenderBackend,
   Viewport,
 } from '../types/index';
 import { parseColor } from '../utils/color';
-import { ortho, multiply, scaling, translation } from '../utils/matrix';
 import { marchingSquares } from '../utils/marching-squares';
-import {
-  cartesianLineShaderWGSL,
-  polarLineShaderWGSL,
-  gridShaderWGSL,
-  axisShaderWGSL,
-} from './wgsl-shaders';
+import { multiply, ortho, scaling, translation } from '../utils/matrix';
 import type { WGSLShaderSource } from './wgsl-shaders';
+import {
+  axisShaderWGSL,
+  cartesianLineShaderWGSL,
+  gridShaderWGSL,
+  polarLineShaderWGSL,
+} from './wgsl-shaders';
 
 // ---------------------------------------------------------------------------
 // Uniform buffer layout constants (must match WGSL struct definitions)
@@ -181,7 +181,9 @@ export class WebGPU2DRenderer implements IRenderer {
     });
 
     if (!adapter) {
-      throw new Error('No WebGPU adapter found. Ensure you are using a supported browser/OS/GPU combination.');
+      throw new Error(
+        'No WebGPU adapter found. Ensure you are using a supported browser/OS/GPU combination.',
+      );
     }
 
     // Request device with required limits
@@ -225,20 +227,24 @@ export class WebGPU2DRenderer implements IRenderer {
     // Create shared bind group layouts for 2-tier system
     this.sceneBindGroupLayout = this.device.createBindGroupLayout({
       label: 'scene-bgl',
-      entries: [{
-        binding: 0,
-        visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-        buffer: { type: 'uniform' },
-      }],
+      entries: [
+        {
+          binding: 0,
+          visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+          buffer: { type: 'uniform' },
+        },
+      ],
     });
 
     this.drawBindGroupLayout = this.device.createBindGroupLayout({
       label: 'draw-bgl',
-      entries: [{
-        binding: 0,
-        visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-        buffer: { type: 'uniform' },
-      }],
+      entries: [
+        {
+          binding: 0,
+          visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+          buffer: { type: 'uniform' },
+        },
+      ],
     });
 
     // Compile all pipelines eagerly
@@ -258,23 +264,27 @@ export class WebGPU2DRenderer implements IRenderer {
   private watchDeviceLost(): void {
     if (!this.device) return;
 
-    this.device.lost.then((info) => {
-      this.isLost = true;
-      console.warn(`WebGPU device lost (reason: ${info.reason}): ${info.message}`);
+    this.device.lost
+      .then((info) => {
+        this.isLost = true;
+        console.warn(`WebGPU device lost (reason: ${info.reason}): ${info.message}`);
 
-      if (info.reason !== 'destroyed') {
-        console.log('Attempting WebGPU device recovery…');
-        this.initialize().then(() => {
-          this.isLost = false;
-          console.log('WebGPU device recovered.');
-          this.deviceLostCallback?.();
-        }).catch((err) => {
-          console.error('WebGPU device recovery failed:', err);
-        });
-      }
-    }).catch(() => {
-      // Promise rejection from device.lost is expected on device destruction
-    });
+        if (info.reason !== 'destroyed') {
+          console.log('Attempting WebGPU device recovery…');
+          this.initialize()
+            .then(() => {
+              this.isLost = false;
+              console.log('WebGPU device recovered.');
+              this.deviceLostCallback?.();
+            })
+            .catch((err) => {
+              console.error('WebGPU device recovery failed:', err);
+            });
+        }
+      })
+      .catch(() => {
+        // Promise rejection from device.lost is expected on device destruction
+      });
   }
 
   // ---------------------------------------------------------------------------
@@ -330,9 +340,7 @@ export class WebGPU2DRenderer implements IRenderer {
             // position: vec2<f32> only – 8 bytes per vertex
             arrayStride: 8,
             stepMode: 'vertex',
-            attributes: [
-              { shaderLocation: 0, offset: 0, format: 'float32x2' },
-            ],
+            attributes: [{ shaderLocation: 0, offset: 0, format: 'float32x2' }],
           },
         ],
       },
@@ -397,9 +405,7 @@ export class WebGPU2DRenderer implements IRenderer {
           {
             arrayStride: 8,
             stepMode: 'vertex',
-            attributes: [
-              { shaderLocation: 0, offset: 0, format: 'float32x2' },
-            ],
+            attributes: [{ shaderLocation: 0, offset: 0, format: 'float32x2' }],
           },
         ],
       },
@@ -500,7 +506,7 @@ export class WebGPU2DRenderer implements IRenderer {
         default: {
           throw new Error(
             `WebGPU2DRenderer: unsupported plot type "${(config as PlotConfig).type}". ` +
-            '3D plots must use WebGL3DRenderer.'
+              '3D plots must use WebGL3DRenderer.',
           );
         }
       }
@@ -523,7 +529,13 @@ export class WebGPU2DRenderer implements IRenderer {
     this.updateViewMatrix(config.viewport);
 
     // Grid
-    this.drawGrid(pass, config.viewport, config.xAxis.grid.majorStep, config.xAxis.grid.color, config.xAxis.grid.opacity);
+    this.drawGrid(
+      pass,
+      config.viewport,
+      config.xAxis.grid.majorStep,
+      config.xAxis.grid.color,
+      config.xAxis.grid.opacity,
+    );
 
     // Axes
     this.drawAxes(pass, config.viewport);
@@ -534,7 +546,9 @@ export class WebGPU2DRenderer implements IRenderer {
       const func = config.functions[i];
       if (!func) continue;
       const colorStr = func.style?.line?.color
-        ? (typeof func.style.line.color === 'string' ? func.style.line.color : '#06b6d4')
+        ? typeof func.style.line.color === 'string'
+          ? func.style.line.color
+          : '#06b6d4'
         : (defaultColors[i % defaultColors.length] ?? '#06b6d4');
 
       this.drawFunction2D(pass, func.fn, config.viewport, colorStr, func.style?.line?.width ?? 2.0);
@@ -559,10 +573,18 @@ export class WebGPU2DRenderer implements IRenderer {
       const func = config.functions[i];
       if (!func) continue;
       const colorStr = func.style?.line?.color
-        ? (typeof func.style.line.color === 'string' ? func.style.line.color : '#a855f7')
+        ? typeof func.style.line.color === 'string'
+          ? func.style.line.color
+          : '#a855f7'
         : (defaultColors[i % defaultColors.length] ?? '#a855f7');
 
-      this.drawPolarFunction(pass, func.fn, config.thetaRange, colorStr, func.style?.line?.width ?? 2.0);
+      this.drawPolarFunction(
+        pass,
+        func.fn,
+        config.thetaRange,
+        colorStr,
+        func.style?.line?.width ?? 2.0,
+      );
     }
   }
 
@@ -575,10 +597,19 @@ export class WebGPU2DRenderer implements IRenderer {
       const func = config.functions[i];
       if (!func) continue;
       const colorStr = func.style?.line?.color
-        ? (typeof func.style.line.color === 'string' ? func.style.line.color : '#10b981')
+        ? typeof func.style.line.color === 'string'
+          ? func.style.line.color
+          : '#10b981'
         : (defaultColors[i % defaultColors.length] ?? '#10b981');
 
-      this.drawParametricCurve(pass, func.x, func.y, config.tRange, colorStr, func.style?.line?.width ?? 2.0);
+      this.drawParametricCurve(
+        pass,
+        func.x,
+        func.y,
+        config.tRange,
+        colorStr,
+        func.style?.line?.width ?? 2.0,
+      );
     }
   }
 
@@ -587,7 +618,13 @@ export class WebGPU2DRenderer implements IRenderer {
     this.updateViewMatrix(viewport);
 
     if (config.xAxis && config.yAxis) {
-      this.drawGrid(pass, viewport, config.xAxis.grid.majorStep, config.xAxis.grid.color, config.xAxis.grid.opacity);
+      this.drawGrid(
+        pass,
+        viewport,
+        config.xAxis.grid.majorStep,
+        config.xAxis.grid.color,
+        config.xAxis.grid.opacity,
+      );
       this.drawAxes(pass, viewport);
     }
 
@@ -613,7 +650,9 @@ export class WebGPU2DRenderer implements IRenderer {
     const contours = marchingSquares(grid, 0, dx, dy, viewport);
 
     const colorStr = style?.line?.color
-      ? (typeof style.line.color === 'string' ? style.line.color : '#f59e0b')
+      ? typeof style.line.color === 'string'
+        ? style.line.color
+        : '#f59e0b'
       : '#f59e0b';
     const width = style?.line?.width ?? 2.0;
 
@@ -630,7 +669,13 @@ export class WebGPU2DRenderer implements IRenderer {
     this.updateViewMatrix(viewport);
 
     if (config.xAxis && config.yAxis) {
-      this.drawGrid(pass, viewport, config.xAxis.grid.majorStep, config.xAxis.grid.color, config.xAxis.grid.opacity);
+      this.drawGrid(
+        pass,
+        viewport,
+        config.xAxis.grid.majorStep,
+        config.xAxis.grid.color,
+        config.xAxis.grid.opacity,
+      );
       this.drawAxes(pass, viewport);
     }
 
@@ -691,7 +736,7 @@ export class WebGPU2DRenderer implements IRenderer {
     fn: (x: number) => number,
     viewport: Viewport,
     colorStr: string,
-    _lineWidth: number
+    _lineWidth: number,
   ): void {
     const samples = 1000;
     const dx = (viewport.xMax - viewport.xMin) / samples;
@@ -723,7 +768,7 @@ export class WebGPU2DRenderer implements IRenderer {
     fn: (theta: number) => number,
     thetaRange: { min: number; max: number },
     colorStr: string,
-    lineWidth: number
+    lineWidth: number,
   ): void {
     const samples = 1000;
     const dTheta = (thetaRange.max - thetaRange.min) / samples;
@@ -755,7 +800,7 @@ export class WebGPU2DRenderer implements IRenderer {
     yFn: (t: number) => number,
     tRange: { min: number; max: number },
     colorStr: string,
-    lineWidth: number
+    lineWidth: number,
   ): void {
     const samples = 1000;
     const dt = (tRange.max - tRange.min) / samples;
@@ -787,7 +832,7 @@ export class WebGPU2DRenderer implements IRenderer {
     viewport: Viewport,
     gridStep: number,
     gridColor: unknown,
-    gridOpacity: number
+    gridOpacity: number,
   ): void {
     const lines: Point2D[] = [];
 
@@ -819,7 +864,7 @@ export class WebGPU2DRenderer implements IRenderer {
   private drawSimpleGrid(pass: GPURenderPassEncoder, viewport: Viewport): void {
     const gridStep = Math.max(
       (viewport.xMax - viewport.xMin) / 10,
-      (viewport.yMax - viewport.yMin) / 10
+      (viewport.yMax - viewport.yMin) / 10,
     );
 
     const lines: Point2D[] = [];
@@ -861,7 +906,7 @@ export class WebGPU2DRenderer implements IRenderer {
         const t2 = (2 * Math.PI * (j + 1)) / circleSteps;
         lines.push(
           { x: r * Math.cos(t1), y: r * Math.sin(t1) },
-          { x: r * Math.cos(t2), y: r * Math.sin(t2) }
+          { x: r * Math.cos(t2), y: r * Math.sin(t2) },
         );
       }
     }
@@ -902,9 +947,12 @@ export class WebGPU2DRenderer implements IRenderer {
     x2: number,
     y2: number,
     colorStr: string,
-    headSize: number
+    headSize: number,
   ): void {
-    const shaft: Point2D[] = [{ x: x1, y: y1 }, { x: x2, y: y2 }];
+    const shaft: Point2D[] = [
+      { x: x1, y: y1 },
+      { x: x2, y: y2 },
+    ];
     this.drawLineStrip(pass, shaft, 'cartesian-line', colorStr, 1.0);
 
     const angle = Math.atan2(y2 - y1, x2 - x1);
@@ -916,8 +964,26 @@ export class WebGPU2DRenderer implements IRenderer {
     const p2x = x2 - headLen * Math.cos(angle + headAngle);
     const p2y = y2 - headLen * Math.sin(angle + headAngle);
 
-    this.drawLineStrip(pass, [{ x: x2, y: y2 }, { x: p1x, y: p1y }], 'cartesian-line', colorStr, 1.0);
-    this.drawLineStrip(pass, [{ x: x2, y: y2 }, { x: p2x, y: p2y }], 'cartesian-line', colorStr, 1.0);
+    this.drawLineStrip(
+      pass,
+      [
+        { x: x2, y: y2 },
+        { x: p1x, y: p1y },
+      ],
+      'cartesian-line',
+      colorStr,
+      1.0,
+    );
+    this.drawLineStrip(
+      pass,
+      [
+        { x: x2, y: y2 },
+        { x: p2x, y: p2y },
+      ],
+      'cartesian-line',
+      colorStr,
+      1.0,
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -932,7 +998,7 @@ export class WebGPU2DRenderer implements IRenderer {
     points: Point2D[],
     pipelineName: string,
     colorStr: string,
-    lineWidth: number
+    lineWidth: number,
   ): void {
     if (!this.device || points.length < 2) return;
 
@@ -946,15 +1012,18 @@ export class WebGPU2DRenderer implements IRenderer {
     // Update draw uniforms (scene uniforms handled by ensureFrameSceneBindGroup)
     const color = parseColor(colorStr);
     this.writeDrawUniforms(
-      [Math.min(color.r * 2.0, 1.0), Math.min(color.g * 2.0, 1.0), Math.min(color.b * 2.0, 1.0), color.a],
-      lineWidth
+      [
+        Math.min(color.r * 2.0, 1.0),
+        Math.min(color.g * 2.0, 1.0),
+        Math.min(color.b * 2.0, 1.0),
+        color.a,
+      ],
+      lineWidth,
     );
 
     const drawBindGroup = this.device.createBindGroup({
       layout: compiled.bindGroupLayout,
-      entries: [
-        { binding: 0, resource: { buffer: this.drawUniformBuffer! } },
-      ],
+      entries: [{ binding: 0, resource: { buffer: this.drawUniformBuffer! } }],
     });
 
     pass.setPipeline(compiled.pipeline);
@@ -974,7 +1043,7 @@ export class WebGPU2DRenderer implements IRenderer {
     pass: GPURenderPassEncoder,
     points: Point2D[],
     pipelineName: string,
-    rgba: [number, number, number, number]
+    rgba: [number, number, number, number],
   ): void {
     if (!this.device || points.length < 2) return;
 
@@ -1006,9 +1075,7 @@ export class WebGPU2DRenderer implements IRenderer {
 
     const drawBindGroup = this.device.createBindGroup({
       layout: compiled.bindGroupLayout,
-      entries: [
-        { binding: 0, resource: { buffer: this.drawUniformBuffer! } },
-      ],
+      entries: [{ binding: 0, resource: { buffer: this.drawUniformBuffer! } }],
     });
 
     pass.setPipeline(compiled.pipeline);
@@ -1069,7 +1136,7 @@ export class WebGPU2DRenderer implements IRenderer {
       shape?: number;
       contourValue?: number;
       contourThickness?: number;
-    } = {}
+    } = {},
   ): void {
     if (!this.device || !this.drawUniformBuffer) return;
 
@@ -1129,9 +1196,7 @@ export class WebGPU2DRenderer implements IRenderer {
     this.writeSceneUniforms();
     this.frameSceneBindGroup = this.device.createBindGroup({
       layout: this.sceneBindGroupLayout,
-      entries: [
-        { binding: 0, resource: { buffer: this.sceneUniformBuffer } },
-      ],
+      entries: [{ binding: 0, resource: { buffer: this.sceneUniformBuffer } }],
     });
     this.sceneUniformsDirty = false;
   }
@@ -1309,5 +1374,4 @@ export class WebGPU2DRenderer implements IRenderer {
   onDeviceRecovered(callback: () => void): void {
     this.deviceLostCallback = callback;
   }
-
 }

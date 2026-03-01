@@ -3,8 +3,8 @@
  * @module utils/color.test
  */
 
-import { describe, it, expect } from 'vitest';
-import { parseColor, rgbaToString, rgbaToHex, interpolateColor, getColorFromMap } from './color';
+import { describe, expect, it } from 'vitest';
+import { getColorFromMap, interpolateColor, parseColor, rgbaToHex, rgbaToString } from './color';
 
 describe('Color Utilities', () => {
   describe('parseColor', () => {

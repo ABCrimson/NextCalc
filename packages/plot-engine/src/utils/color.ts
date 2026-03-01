@@ -155,15 +155,23 @@ export function rgbaToString(color: RGBA): string {
  * Converts RGBA to hex string
  */
 export function rgbaToHex(color: RGBA): string {
-  const r = Math.round(color.r * 255).toString(16).padStart(2, '0');
-  const g = Math.round(color.g * 255).toString(16).padStart(2, '0');
-  const b = Math.round(color.b * 255).toString(16).padStart(2, '0');
+  const r = Math.round(color.r * 255)
+    .toString(16)
+    .padStart(2, '0');
+  const g = Math.round(color.g * 255)
+    .toString(16)
+    .padStart(2, '0');
+  const b = Math.round(color.b * 255)
+    .toString(16)
+    .padStart(2, '0');
 
   if (color.a === 1) {
     return `#${r}${g}${b}`;
   }
 
-  const a = Math.round(color.a * 255).toString(16).padStart(2, '0');
+  const a = Math.round(color.a * 255)
+    .toString(16)
+    .padStart(2, '0');
   return `#${r}${g}${b}${a}`;
 }
 
@@ -187,40 +195,99 @@ export function interpolateColor(color1: Color, color2: Color, t: number): RGBA 
  */
 export const ColorMaps = {
   viridis: [
-    '#440154', '#482878', '#3e4a89', '#31688e', '#26828e',
-    '#1f9e89', '#35b779', '#6ece58', '#b5de2b', '#fde724',
+    '#440154',
+    '#482878',
+    '#3e4a89',
+    '#31688e',
+    '#26828e',
+    '#1f9e89',
+    '#35b779',
+    '#6ece58',
+    '#b5de2b',
+    '#fde724',
   ],
   plasma: [
-    '#0d0887', '#46039f', '#7201a8', '#9c179e', '#bd3786',
-    '#d8576b', '#ed7953', '#fb9f3a', '#fdca26', '#f0f921',
+    '#0d0887',
+    '#46039f',
+    '#7201a8',
+    '#9c179e',
+    '#bd3786',
+    '#d8576b',
+    '#ed7953',
+    '#fb9f3a',
+    '#fdca26',
+    '#f0f921',
   ],
   turbo: [
-    '#30123b', '#4454c4', '#4690fe', '#39b3ed', '#1bd0d5',
-    '#1ae4b6', '#59f38f', '#8ffe65', '#bcfd3d', '#e9f70f',
+    '#30123b',
+    '#4454c4',
+    '#4690fe',
+    '#39b3ed',
+    '#1bd0d5',
+    '#1ae4b6',
+    '#59f38f',
+    '#8ffe65',
+    '#bcfd3d',
+    '#e9f70f',
   ],
-  rainbow: [
-    '#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff',
-    '#4b0082', '#9400d3',
-  ],
+  rainbow: ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#9400d3'],
   inferno: [
-    '#000004', '#160b39', '#420a68', '#6a176e', '#932667',
-    '#bc3754', '#dd513a', '#f37819', '#fca50a', '#f0f921',
+    '#000004',
+    '#160b39',
+    '#420a68',
+    '#6a176e',
+    '#932667',
+    '#bc3754',
+    '#dd513a',
+    '#f37819',
+    '#fca50a',
+    '#f0f921',
   ],
   coolwarm: [
-    '#3b4cc0', '#6688ee', '#99bbff', '#c9d8ef', '#edd1c2',
-    '#f7a889', '#e26952', '#b40426',
+    '#3b4cc0',
+    '#6688ee',
+    '#99bbff',
+    '#c9d8ef',
+    '#edd1c2',
+    '#f7a889',
+    '#e26952',
+    '#b40426',
   ],
   cividis: [
-    '#002051', '#0d346b', '#30486e', '#525e6c', '#6e7487',
-    '#8d8fa3', '#a8acb8', '#c3cccc', '#e1e4aa', '#fdea45',
+    '#002051',
+    '#0d346b',
+    '#30486e',
+    '#525e6c',
+    '#6e7487',
+    '#8d8fa3',
+    '#a8acb8',
+    '#c3cccc',
+    '#e1e4aa',
+    '#fdea45',
   ],
   magma: [
-    '#000004', '#140e36', '#3b0f70', '#641a80', '#8c2981',
-    '#b73779', '#de4968', '#f7735c', '#feb97d', '#fcfdbf',
+    '#000004',
+    '#140e36',
+    '#3b0f70',
+    '#641a80',
+    '#8c2981',
+    '#b73779',
+    '#de4968',
+    '#f7735c',
+    '#feb97d',
+    '#fcfdbf',
   ],
   spectral: [
-    '#9e0142', '#d53e4f', '#f46d43', '#fdae61', '#fee08b',
-    '#e6f598', '#abdda4', '#66c2a5', '#3288bd', '#5e4fa2',
+    '#9e0142',
+    '#d53e4f',
+    '#f46d43',
+    '#fdae61',
+    '#fee08b',
+    '#e6f598',
+    '#abdda4',
+    '#66c2a5',
+    '#3288bd',
+    '#5e4fa2',
   ],
 };
 

@@ -20,32 +20,32 @@
 
 import type {
   IRenderer,
-  RenderBackend,
   PerformanceMetrics,
-  PlotConfig,
   Plot2DCartesianConfig,
-  Plot2DPolarConfig,
-  Plot2DParametricConfig,
   Plot2DImplicitConfig,
+  Plot2DParametricConfig,
+  Plot2DPolarConfig,
   Plot2DVectorFieldConfig,
-  Point2D,
-  Viewport,
+  PlotConfig,
   PlotStyle,
+  Point2D,
+  RenderBackend,
+  Viewport,
 } from '../types/index';
 import { BufferPool } from '../utils/buffer-pool';
-import { ShaderCache } from '../utils/shader-cache';
 import { parseColor } from '../utils/color';
-import { ortho, multiply, scaling, translation } from '../utils/matrix';
 import { marchingSquares } from '../utils/marching-squares';
+import { multiply, ortho, scaling, translation } from '../utils/matrix';
+import { ShaderCache } from '../utils/shader-cache';
 import {
-  cartesianLineShader,
-  polarLineShader,
-  gridShader,
-  markerShader,
   axisShader,
-  smoothLineShader,
-  instancedGridShader,
+  cartesianLineShader,
   contourLineShader,
+  gridShader,
+  instancedGridShader,
+  markerShader,
+  polarLineShader,
+  smoothLineShader,
 } from './shaders';
 
 /**
@@ -111,7 +111,7 @@ export class WebGL2DRenderer implements IRenderer {
       this.gl = this.canvas.getContext('webgl2', {
         alpha: true,
         antialias: true, // Hardware MSAA when available
-        depth: false,    // 2D rendering doesn't need depth buffer
+        depth: false, // 2D rendering doesn't need depth buffer
         stencil: false,
         preserveDrawingBuffer: true, // For screenshots/export
         powerPreference: 'high-performance',
@@ -222,7 +222,7 @@ export class WebGL2DRenderer implements IRenderer {
       this.gl.SRC_ALPHA,
       this.gl.ONE_MINUS_SRC_ALPHA,
       this.gl.ONE,
-      this.gl.ONE_MINUS_SRC_ALPHA
+      this.gl.ONE_MINUS_SRC_ALPHA,
     );
     this.gl.blendEquation(this.gl.FUNC_ADD);
 
@@ -285,7 +285,9 @@ export class WebGL2DRenderer implements IRenderer {
           this.renderVectorField(config);
           break;
         default:
-          throw new Error(`Unsupported plot type for WebGL 2D renderer: ${(config as PlotConfig).type}`);
+          throw new Error(
+            `Unsupported plot type for WebGL 2D renderer: ${(config as PlotConfig).type}`,
+          );
       }
     } catch (error) {
       console.error('Render error:', error);
@@ -373,7 +375,7 @@ export class WebGL2DRenderer implements IRenderer {
   private renderFunction2D(
     fn: (x: number) => number,
     viewport: Viewport,
-    style?: Partial<PlotStyle>
+    style?: Partial<PlotStyle>,
   ): void {
     if (!this.gl || !this.shaderCache || !this.bufferPool) return;
 
@@ -435,7 +437,9 @@ export class WebGL2DRenderer implements IRenderer {
           vao,
           buffer: buffer.buffer,
           vertexCount: points.length,
-          attributes: new Map([['a_position', { location: posLoc!, size: 2, type: this.gl.FLOAT }]]),
+          attributes: new Map([
+            ['a_position', { location: posLoc!, size: 2, type: this.gl.FLOAT }],
+          ]),
         };
         this.vaoCache.set(vaoKey, vaoState);
       }
@@ -464,7 +468,7 @@ export class WebGL2DRenderer implements IRenderer {
         Math.min(color.r * 2.0, 1.0),
         Math.min(color.g * 2.0, 1.0),
         Math.min(color.b * 2.0, 1.0),
-        color.a
+        color.a,
       );
     }
 
@@ -488,7 +492,7 @@ export class WebGL2DRenderer implements IRenderer {
   private renderPolarFunction(
     fn: (theta: number) => number,
     thetaRange: { min: number; max: number },
-    style?: Partial<PlotStyle>
+    style?: Partial<PlotStyle>,
   ): void {
     if (!this.gl || !this.shaderCache || !this.bufferPool) return;
 
@@ -558,7 +562,7 @@ export class WebGL2DRenderer implements IRenderer {
         Math.min(color.r * 2.2, 1.0),
         Math.min(color.g * 2.2, 1.0),
         Math.min(color.b * 2.2, 1.0),
-        color.a
+        color.a,
       );
     }
 
@@ -581,7 +585,7 @@ export class WebGL2DRenderer implements IRenderer {
     xFn: (t: number) => number,
     yFn: (t: number) => number,
     tRange: { min: number; max: number },
-    style?: Partial<PlotStyle>
+    style?: Partial<PlotStyle>,
   ): void {
     if (!this.gl || !this.shaderCache || !this.bufferPool) return;
 
@@ -651,7 +655,7 @@ export class WebGL2DRenderer implements IRenderer {
         Math.min(color.r * 2.2, 1.0),
         Math.min(color.g * 2.2, 1.0),
         Math.min(color.b * 2.2, 1.0),
-        color.a
+        color.a,
       );
     }
 
@@ -809,7 +813,7 @@ export class WebGL2DRenderer implements IRenderer {
    */
   private renderLineSegment(
     points: Point2D[],
-    lineStyle?: { width?: number; color?: string; opacity?: number }
+    lineStyle?: { width?: number; color?: string; opacity?: number },
   ): void {
     if (!this.gl || !this.shaderCache || !this.bufferPool) return;
     if (points.length < 2) return;
@@ -876,7 +880,7 @@ export class WebGL2DRenderer implements IRenderer {
     x2: number,
     y2: number,
     color: string,
-    headSize: number
+    headSize: number,
   ): void {
     if (!this.gl || !this.shaderCache || !this.bufferPool) return;
 
@@ -886,7 +890,7 @@ export class WebGL2DRenderer implements IRenderer {
         { x: x1, y: y1 },
         { x: x2, y: y2 },
       ],
-      { color, width: 1 }
+      { color, width: 1 },
     );
 
     // Calculate arrow head
@@ -905,14 +909,14 @@ export class WebGL2DRenderer implements IRenderer {
         { x: x2, y: y2 },
         { x: p1x, y: p1y },
       ],
-      { color, width: 1 }
+      { color, width: 1 },
     );
     this.renderLineSegment(
       [
         { x: x2, y: y2 },
         { x: p2x, y: p2y },
       ],
-      { color, width: 1 }
+      { color, width: 1 },
     );
   }
 
@@ -1011,7 +1015,7 @@ export class WebGL2DRenderer implements IRenderer {
         Math.min(color.r * 4.0 + 0.15, 1.0), // Add cyan tint
         Math.min(color.g * 4.0 + 0.15, 1.0),
         Math.min(color.b * 4.0 + 0.25, 1.0), // Extra blue
-        config.xAxis.grid.opacity * 0.6 // More opaque
+        config.xAxis.grid.opacity * 0.6, // More opaque
       );
     }
 
@@ -1045,7 +1049,7 @@ export class WebGL2DRenderer implements IRenderer {
         const theta2 = (2 * Math.PI * (j + 1)) / circleSteps;
         lines.push(
           { x: r * Math.cos(theta1), y: r * Math.sin(theta1) },
-          { x: r * Math.cos(theta2), y: r * Math.sin(theta2) }
+          { x: r * Math.cos(theta2), y: r * Math.sin(theta2) },
         );
       }
     }
@@ -1119,7 +1123,7 @@ export class WebGL2DRenderer implements IRenderer {
     const lines: Point2D[] = [];
     const gridStep = Math.max(
       (viewport.xMax - viewport.xMin) / 10,
-      (viewport.yMax - viewport.yMin) / 10
+      (viewport.yMax - viewport.yMin) / 10,
     );
 
     // Vertical grid lines

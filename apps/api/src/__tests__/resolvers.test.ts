@@ -125,10 +125,12 @@ const mockFolder = {
   children: [],
 };
 
-// CUIDs must be used anywhere Zod's z.cuid() validates them (createCommentSchema.postId/parentId)
+// CUIDs must be used anywhere Zod's z.cuid() validates them
 const CUID_POST = 'clh4k2x3w0000qzrmabcd1234';
 const CUID_COMMENT = 'clh4k2x3w0001qzrmefgh5678';
 const CUID_PARENT_COMMENT = 'clh4k2x3w0002qzrmijkl9012';
+const CUID_FOLDER1 = 'clh4k2x3w0003qzrmfold0001';
+const CUID_FOLDER2 = 'clh4k2x3w0004qzrmfold0002';
 
 const mockForumPost = {
   id: CUID_POST,
@@ -320,7 +322,7 @@ describe('User Resolvers', () => {
       const ctx = userContext(prisma);
 
       await expect(userResolvers.Query.user(null, { id: 'user2' }, ctx)).rejects.toThrow(
-        'Insufficient permissions to view this user',
+        'do not have permission',
       );
     });
 
@@ -330,7 +332,7 @@ describe('User Resolvers', () => {
       const ctx = userContext(prisma);
 
       await expect(userResolvers.Query.user(null, { id: 'nonexistent' }, ctx)).rejects.toThrow(
-        'User not found',
+        'not found',
       );
     });
   });
@@ -510,7 +512,7 @@ describe('Worksheet Resolvers', () => {
   describe('Query.worksheets (paginated)', () => {
     it('requires authentication', async () => {
       await expect(worksheetResolvers.Query.worksheets(null, {}, anonContext())).rejects.toThrow(
-        'Authentication required',
+        'must be signed in',
       );
     });
 
@@ -612,7 +614,7 @@ describe('Worksheet Resolvers', () => {
           { input: { title: 'Test', content: {} } },
           anonContext(),
         ),
-      ).rejects.toThrow('Authentication required');
+      ).rejects.toThrow('must be signed in');
     });
 
     it('creates a worksheet and returns it', async () => {
@@ -647,10 +649,10 @@ describe('Worksheet Resolvers', () => {
       await expect(
         worksheetResolvers.Mutation.createWorksheet(
           null,
-          { input: { title: 'X', content: {}, folderId: 'folder1' } },
+          { input: { title: 'X', content: { cells: [] }, folderId: CUID_FOLDER1 } },
           ctx,
         ),
-      ).rejects.toThrow('Invalid folder');
+      ).rejects.toThrow('not found');
     });
 
     it('throws when folderId does not exist', async () => {
@@ -661,10 +663,10 @@ describe('Worksheet Resolvers', () => {
       await expect(
         worksheetResolvers.Mutation.createWorksheet(
           null,
-          { input: { title: 'X', content: {}, folderId: 'folder_missing' } },
+          { input: { title: 'X', content: { cells: [] }, folderId: CUID_FOLDER2 } },
           ctx,
         ),
-      ).rejects.toThrow('Invalid folder');
+      ).rejects.toThrow('not found');
     });
   });
 
@@ -672,7 +674,7 @@ describe('Worksheet Resolvers', () => {
     it('requires authentication', async () => {
       await expect(
         worksheetResolvers.Mutation.updateWorksheet(null, { id: 'ws1', input: {} }, anonContext()),
-      ).rejects.toThrow('Authentication required');
+      ).rejects.toThrow('must be signed in');
     });
 
     it('updates and returns the worksheet', async () => {
@@ -697,7 +699,7 @@ describe('Worksheet Resolvers', () => {
 
       await expect(
         worksheetResolvers.Mutation.updateWorksheet(null, { id: 'missing', input: {} }, ctx),
-      ).rejects.toThrow('Worksheet not found');
+      ).rejects.toThrow('not found');
     });
 
     it('throws when the worksheet is soft-deleted', async () => {
@@ -707,7 +709,7 @@ describe('Worksheet Resolvers', () => {
 
       await expect(
         worksheetResolvers.Mutation.updateWorksheet(null, { id: 'ws1', input: {} }, ctx),
-      ).rejects.toThrow('Worksheet not found');
+      ).rejects.toThrow('not found');
     });
 
     it('throws when the user does not own the worksheet', async () => {
@@ -725,7 +727,7 @@ describe('Worksheet Resolvers', () => {
     it('requires authentication', async () => {
       await expect(
         worksheetResolvers.Mutation.deleteWorksheet(null, { id: 'ws1' }, anonContext()),
-      ).rejects.toThrow('Authentication required');
+      ).rejects.toThrow('must be signed in');
     });
 
     it('soft-deletes the worksheet and returns true', async () => {
@@ -766,7 +768,7 @@ describe('Worksheet Resolvers', () => {
 
       await expect(
         worksheetResolvers.Mutation.deleteWorksheet(null, { id: 'ws1' }, ctx),
-      ).rejects.toThrow('Worksheet not found');
+      ).rejects.toThrow('not found');
     });
 
     it('throws when non-owner tries to delete', async () => {
@@ -797,7 +799,13 @@ describe('Worksheet Resolvers', () => {
 
       const result = await worksheetResolvers.Mutation.shareWorksheet(
         null,
-        { input: { worksheetId: 'ws1', sharedWith: 'collab@test.com' } },
+        {
+          input: {
+            worksheetId: 'cm0testworksheet00000001',
+            sharedWith: 'collab@test.com',
+            permission: 'VIEW',
+          },
+        },
         ctx,
       );
       expect(result).toEqual(share);
@@ -810,7 +818,7 @@ describe('Worksheet Resolvers', () => {
           { input: { worksheetId: 'ws1', sharedWith: 'x@test.com' } },
           anonContext(),
         ),
-      ).rejects.toThrow('Authentication required');
+      ).rejects.toThrow('must be signed in');
     });
 
     it('throws when the worksheet is not found', async () => {
@@ -821,10 +829,16 @@ describe('Worksheet Resolvers', () => {
       await expect(
         worksheetResolvers.Mutation.shareWorksheet(
           null,
-          { input: { worksheetId: 'ws_missing', sharedWith: 'x@test.com' } },
+          {
+            input: {
+              worksheetId: 'cm0testworksheet00000002',
+              sharedWith: 'x@test.com',
+              permission: 'VIEW',
+            },
+          },
           ctx,
         ),
-      ).rejects.toThrow('Worksheet not found');
+      ).rejects.toThrow('not found');
     });
 
     it('throws when non-owner tries to share', async () => {
@@ -835,7 +849,13 @@ describe('Worksheet Resolvers', () => {
       await expect(
         worksheetResolvers.Mutation.shareWorksheet(
           null,
-          { input: { worksheetId: 'ws1', sharedWith: 'x@test.com' } },
+          {
+            input: {
+              worksheetId: 'cm0testworksheet00000001',
+              sharedWith: 'x@test.com',
+              permission: 'VIEW',
+            },
+          },
           ctx,
         ),
       ).rejects.toThrow('permission');
@@ -949,7 +969,7 @@ describe('Folder Resolvers', () => {
     it('throws when unauthenticated', async () => {
       await expect(
         folderResolvers.Query.folder(null, { id: 'folder1' }, anonContext()),
-      ).rejects.toThrow('Authentication required');
+      ).rejects.toThrow('must be signed in');
     });
 
     it('throws when folder is not found', async () => {
@@ -958,7 +978,7 @@ describe('Folder Resolvers', () => {
       const ctx = userContext(prisma);
 
       await expect(folderResolvers.Query.folder(null, { id: 'missing' }, ctx)).rejects.toThrow(
-        'Folder not found',
+        'not found',
       );
     });
 
@@ -986,7 +1006,7 @@ describe('Folder Resolvers', () => {
     it('throws when a non-admin requests another user folders', async () => {
       const ctx = userContext();
       await expect(folderResolvers.Query.folders(null, { userId: 'user2' }, ctx)).rejects.toThrow(
-        'Insufficient permissions',
+        'permission',
       );
     });
 
@@ -1038,10 +1058,10 @@ describe('Folder Resolvers', () => {
       await expect(
         folderResolvers.Mutation.createFolder(
           null,
-          { input: { name: 'Child', parentId: 'nonexistent' } },
+          { input: { name: 'Child', parentId: CUID_FOLDER2 } },
           ctx,
         ),
-      ).rejects.toThrow('Invalid parent folder');
+      ).rejects.toThrow('not found');
     });
 
     it('validates parentId – throws when parent belongs to another user', async () => {
@@ -1052,16 +1072,16 @@ describe('Folder Resolvers', () => {
       await expect(
         folderResolvers.Mutation.createFolder(
           null,
-          { input: { name: 'Child', parentId: 'folder1' } },
+          { input: { name: 'Child', parentId: CUID_FOLDER1 } },
           ctx,
         ),
-      ).rejects.toThrow('Invalid parent folder');
+      ).rejects.toThrow('not found');
     });
 
     it('throws when unauthenticated', async () => {
       await expect(
         folderResolvers.Mutation.createFolder(null, { input: { name: 'X' } }, anonContext()),
-      ).rejects.toThrow('Authentication required');
+      ).rejects.toThrow('must be signed in');
     });
   });
 
@@ -1090,35 +1110,27 @@ describe('Folder Resolvers', () => {
       await expect(
         folderResolvers.Mutation.updateFolder(
           null,
-          { id: 'folder1', input: { parentId: 'folder1' } },
+          { id: CUID_FOLDER1, input: { parentId: CUID_FOLDER1 } },
           ctx,
         ),
       ).rejects.toThrow('cannot be its own parent');
     });
 
     it('throws when trying to move folder into one of its descendants', async () => {
-      const prisma = createMockPrisma();
       // folder1 -> child2 -> grandchild3
-      const child = { ...mockFolder, id: 'child2', parentId: 'folder1' };
-      // First call = find the folder being updated
-      // Second call = find the proposed new parent (child2)
-      // Third call = find child2's parent (folder1) — triggers the cycle check
-      prisma.folder.findUnique
-        .mockResolvedValueOnce(mockFolder) // the folder being updated
-        .mockResolvedValueOnce(child) // proposed new parent
-        .mockResolvedValueOnce(null); // child's parent (already folder1, so check triggers)
       // Override so that child.parentId === args.id is true
-      const childWithCycle = { ...mockFolder, id: 'child2', parentId: 'folder1' };
+      const folderBeingUpdated = { ...mockFolder, id: CUID_FOLDER1 };
+      const childWithCycle = { ...mockFolder, id: CUID_FOLDER2, parentId: CUID_FOLDER1 };
       const prisma2 = createMockPrisma();
       prisma2.folder.findUnique
-        .mockResolvedValueOnce(mockFolder) // folder being updated
+        .mockResolvedValueOnce(folderBeingUpdated) // folder being updated
         .mockResolvedValueOnce(childWithCycle); // proposed parent – its parentId IS args.id
       const ctx = userContext(prisma2);
 
       await expect(
         folderResolvers.Mutation.updateFolder(
           null,
-          { id: 'folder1', input: { parentId: 'child2' } },
+          { id: CUID_FOLDER1, input: { parentId: CUID_FOLDER2 } },
           ctx,
         ),
       ).rejects.toThrow('descendant');
@@ -1131,7 +1143,7 @@ describe('Folder Resolvers', () => {
 
       await expect(
         folderResolvers.Mutation.updateFolder(null, { id: 'missing', input: { name: 'X' } }, ctx),
-      ).rejects.toThrow('Folder not found');
+      ).rejects.toThrow('not found');
     });
   });
 
@@ -1353,7 +1365,7 @@ describe('Calculation Resolvers', () => {
     it('requires authentication', async () => {
       await expect(
         calculationResolvers.Query.calculationHistory(null, {}, anonContext()),
-      ).rejects.toThrow('Authentication required');
+      ).rejects.toThrow('must be signed in');
     });
 
     it('returns an empty array for authenticated users', async () => {
@@ -1404,7 +1416,7 @@ describe('Calculation Resolvers', () => {
           { input: { expression: '1+1' } },
           anonContext(),
         ),
-      ).rejects.toThrow('Authentication required');
+      ).rejects.toThrow('must be signed in');
     });
 
     it('evaluates the expression and returns a saved calculation object', async () => {
@@ -1432,7 +1444,7 @@ describe('Calculation Resolvers', () => {
     it('requires authentication', async () => {
       await expect(
         calculationResolvers.Mutation.clearCalculationHistory(null, {}, anonContext()),
-      ).rejects.toThrow('Authentication required');
+      ).rejects.toThrow('must be signed in');
     });
 
     it('returns true for authenticated users', async () => {
@@ -1587,7 +1599,7 @@ describe('Forum Resolvers', () => {
           { input: { title: 'X', content: 'Long enough content here', tags: ['a'] } },
           anonContext(),
         ),
-      ).rejects.toThrow('Authentication required');
+      ).rejects.toThrow('must be signed in');
     });
 
     it('throws a validation error when title is too short', async () => {
@@ -1644,7 +1656,7 @@ describe('Forum Resolvers', () => {
     it('requires authentication', async () => {
       await expect(
         forumResolvers.Mutation.updateForumPost(null, { id: 'post1', input: {} }, anonContext()),
-      ).rejects.toThrow('Authentication required');
+      ).rejects.toThrow('must be signed in');
     });
 
     it('throws when post is not found', async () => {
@@ -1729,7 +1741,7 @@ describe('Forum Resolvers', () => {
     it('requires authentication', async () => {
       await expect(
         forumResolvers.Mutation.deleteForumPost(null, { id: 'post1' }, anonContext()),
-      ).rejects.toThrow('Authentication required');
+      ).rejects.toThrow('must be signed in');
     });
   });
 
@@ -1854,7 +1866,7 @@ describe('Comment Resolvers', () => {
           { input: { postId: mockForumPost.id, content: 'hello' } },
           anonContext(),
         ),
-      ).rejects.toThrow('Authentication required');
+      ).rejects.toThrow('must be signed in');
     });
 
     it('throws when the forum post does not exist', async () => {
@@ -1969,7 +1981,7 @@ describe('Comment Resolvers', () => {
           { id: 'comment1', input: { content: 'X' } },
           anonContext(),
         ),
-      ).rejects.toThrow('Authentication required');
+      ).rejects.toThrow('must be signed in');
     });
 
     it('throws when comment is not found', async () => {
@@ -2174,7 +2186,7 @@ describe('Upvote Resolvers', () => {
           { targetId: 'post1', targetType: 'POST' },
           anonContext(),
         ),
-      ).rejects.toThrow('Authentication required');
+      ).rejects.toThrow('must be signed in');
     });
 
     it('adds an upvote when none exists (first click)', async () => {

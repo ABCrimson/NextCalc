@@ -164,7 +164,16 @@ export interface Plot3DSurfaceConfig {
   fn: (x: number, y: number) => number;
   viewport: Viewport;
   resolution: { x: number; y: number };
-  colorMap?: 'viridis' | 'plasma' | 'turbo' | 'rainbow' | 'inferno' | 'coolwarm' | 'cividis' | 'magma' | 'spectral';
+  colorMap?:
+    | 'viridis'
+    | 'plasma'
+    | 'turbo'
+    | 'rainbow'
+    | 'inferno'
+    | 'coolwarm'
+    | 'cividis'
+    | 'magma'
+    | 'spectral';
   wireframe?: boolean;
   title?: string;
 }
@@ -180,7 +189,16 @@ export interface Plot3DParametricSurfaceConfig {
   uRange: { min: number; max: number };
   vRange: { min: number; max: number };
   resolution: { u: number; v: number };
-  colorMap?: 'viridis' | 'plasma' | 'turbo' | 'rainbow' | 'inferno' | 'coolwarm' | 'cividis' | 'magma' | 'spectral';
+  colorMap?:
+    | 'viridis'
+    | 'plasma'
+    | 'turbo'
+    | 'rainbow'
+    | 'inferno'
+    | 'coolwarm'
+    | 'cividis'
+    | 'magma'
+    | 'spectral';
   title?: string;
 }
 
@@ -425,7 +443,7 @@ export interface IInteractionController {
 
 /** Type guard for 2D plot configurations */
 export function is2DPlot(
-  config: PlotConfig
+  config: PlotConfig,
 ): config is
   | Plot2DCartesianConfig
   | Plot2DPolarConfig
@@ -437,7 +455,7 @@ export function is2DPlot(
 
 /** Type guard for 3D plot configurations */
 export function is3DPlot(
-  config: PlotConfig
+  config: PlotConfig,
 ): config is
   | Plot3DSurfaceConfig
   | Plot3DParametricSurfaceConfig
@@ -448,7 +466,7 @@ export function is3DPlot(
 
 /** Type guard for parametric plots */
 export function isParametricPlot(
-  config: PlotConfig
+  config: PlotConfig,
 ): config is
   | Plot2DParametricConfig
   | Plot3DParametricSurfaceConfig
@@ -459,7 +477,7 @@ export function isParametricPlot(
 
 /** Type guard for surface plots */
 export function isSurfacePlot(
-  config: PlotConfig
+  config: PlotConfig,
 ): config is Plot3DSurfaceConfig | Plot3DParametricSurfaceConfig {
   return config.type === '3d-surface' || config.type === '3d-parametric';
 }

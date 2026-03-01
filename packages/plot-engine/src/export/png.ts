@@ -14,7 +14,7 @@ import { colorToString } from '../utils/color';
  */
 export async function exportToPNG(
   canvas: HTMLCanvasElement,
-  options: ExportPNGOptions
+  options: ExportPNGOptions,
 ): Promise<string> {
   const { width, height, scale = 1, backgroundColor, transparent = false } = options;
 
@@ -51,7 +51,7 @@ export async function exportToPNG(
 export async function downloadAsPNG(
   canvas: HTMLCanvasElement,
   filename: string,
-  options: ExportPNGOptions
+  options: ExportPNGOptions,
 ): Promise<void> {
   const dataUrl = await exportToPNG(canvas, options);
 

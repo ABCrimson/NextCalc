@@ -12,9 +12,9 @@
  * lightweight stub that satisfies the interface surface the code touches.
  */
 
-import { describe, it, expect, vi, afterEach } from 'vitest';
-import { exportToPNG, downloadAsPNG } from './png';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ExportPNGOptions } from '../types/index';
+import { downloadAsPNG, exportToPNG } from './png';
 
 // ---------------------------------------------------------------------------
 // Canvas stub factory
@@ -25,10 +25,9 @@ import type { ExportPNGOptions } from '../types/index';
  * CanvasRenderingContext2D stub.  The fake toDataURL always returns a small
  * valid-looking data URL.
  */
-function makeCanvasStub(options: {
-  failContext?: boolean;
-  dataUrl?: string;
-} = {}): HTMLCanvasElement {
+function makeCanvasStub(
+  options: { failContext?: boolean; dataUrl?: string } = {},
+): HTMLCanvasElement {
   const ctxStub = {
     fillStyle: '' as string | CanvasGradient | CanvasPattern,
     fillRect: vi.fn(),
@@ -56,7 +55,7 @@ function makeCanvasStub(options: {
  */
 function patchCreateElement(
   canvasOverride: HTMLCanvasElement,
-  linkClickSpy?: ReturnType<typeof vi.fn>
+  linkClickSpy?: ReturnType<typeof vi.fn>,
 ): () => void {
   const originalCreate = document.createElement.bind(document);
 
@@ -224,9 +223,9 @@ describe('exportToPNG', () => {
     const restore = patchCreateElement(exportCanvas);
 
     try {
-      await expect(
-        exportToPNG(sourceCanvas, { width: 100, height: 100 })
-      ).rejects.toThrow('Failed to get 2D context for export');
+      await expect(exportToPNG(sourceCanvas, { width: 100, height: 100 })).rejects.toThrow(
+        'Failed to get 2D context for export',
+      );
     } finally {
       restore();
     }
@@ -264,7 +263,7 @@ describe('downloadAsPNG', () => {
 
     try {
       await expect(
-        downloadAsPNG(sourceCanvas, 'output', { width: 100, height: 100 })
+        downloadAsPNG(sourceCanvas, 'output', { width: 100, height: 100 }),
       ).resolves.toBeUndefined();
     } finally {
       restore();
@@ -344,7 +343,7 @@ describe('downloadAsPNG', () => {
 
     try {
       await expect(
-        downloadAsPNG(sourceCanvas, 'chart', { width: 100, height: 100 })
+        downloadAsPNG(sourceCanvas, 'chart', { width: 100, height: 100 }),
       ).rejects.toThrow('Failed to get 2D context for export');
     } finally {
       restore();

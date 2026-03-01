@@ -35,7 +35,7 @@ function pointsToPath(points: Point2D[]): string {
 export function exportToSVG(
   points: Point2D[][],
   viewport: { xMin: number; xMax: number; yMin: number; yMax: number },
-  options: ExportSVGOptions
+  options: ExportSVGOptions,
 ): string {
   const { width, height, backgroundColor } = options;
 
@@ -48,7 +48,7 @@ export function exportToSVG(
     series.map((p) => ({
       x: (p.x - viewport.xMin) * scaleX,
       y: height - (p.y - viewport.yMin) * scaleY,
-    }))
+    })),
   );
 
   // Generate SVG
@@ -83,7 +83,7 @@ export function downloadAsSVG(
   points: Point2D[][],
   viewport: { xMin: number; xMax: number; yMin: number; yMax: number },
   filename: string,
-  options: ExportSVGOptions
+  options: ExportSVGOptions,
 ): void {
   const svg = exportToSVG(points, viewport, options);
 

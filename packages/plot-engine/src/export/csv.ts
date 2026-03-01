@@ -12,10 +12,7 @@ import type { ExportCSVOptions, Point2D, Point3D } from '../types/index';
  * @param options Export options
  * @returns CSV string
  */
-export function exportToCSV2D(
-  points: Point2D[],
-  options: ExportCSVOptions = {}
-): string {
+export function exportToCSV2D(points: Point2D[], options: ExportCSVOptions = {}): string {
   const { delimiter = ',', includeHeader = true, precision = 6 } = options;
 
   let csv = '';
@@ -41,10 +38,7 @@ export function exportToCSV2D(
  * @param options Export options
  * @returns CSV string
  */
-export function exportToCSV3D(
-  points: Point3D[],
-  options: ExportCSVOptions = {}
-): string {
+export function exportToCSV3D(points: Point3D[], options: ExportCSVOptions = {}): string {
   const { delimiter = ',', includeHeader = true, precision = 6 } = options;
 
   let csv = '';
@@ -74,7 +68,7 @@ export function exportToCSV3D(
 export function downloadAsCSV2D(
   points: Point2D[],
   filename: string,
-  options: ExportCSVOptions = {}
+  options: ExportCSVOptions = {},
 ): void {
   const csv = exportToCSV2D(points, options);
 
@@ -98,7 +92,7 @@ export function downloadAsCSV2D(
 export function downloadAsCSV3D(
   points: Point3D[],
   filename: string,
-  options: ExportCSVOptions = {}
+  options: ExportCSVOptions = {},
 ): void {
   const csv = exportToCSV3D(points, options);
 

@@ -10,7 +10,8 @@
       "!**/.next",
       "!**/generated",
       "!.worktrees",
-      "!**/*.css"
+      "!**/*.css",
+      "!**/public/sw.js"
     ]
   },
   "linter": {

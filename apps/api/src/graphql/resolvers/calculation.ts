@@ -196,7 +196,8 @@ export const calculationResolvers = {
           error: dbError,
         },
         redis: redisHealth,
-        version: process.env.npm_package_version || '0.1.0',
+        // biome-ignore lint/complexity/useLiteralKeys: index signature requires bracket notation
+        version: process.env['npm_package_version'] || '0.1.0',
       };
     },
   },

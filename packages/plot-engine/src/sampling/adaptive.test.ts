@@ -3,8 +3,8 @@
  * @module sampling/adaptive.test
  */
 
-import { describe, it, expect } from 'vitest';
-import { adaptiveSample1D, uniformSample1D, defaultSamplingConfig } from './adaptive';
+import { describe, expect, it } from 'vitest';
+import { adaptiveSample1D, defaultSamplingConfig, uniformSample1D } from './adaptive';
 
 describe('Adaptive Sampling', () => {
   describe('uniformSample1D', () => {

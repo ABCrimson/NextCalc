@@ -4,7 +4,7 @@
  * @module controls/interactions
  */
 
-import type { IInteractionController, ControlEvent, Viewport } from '../types/index';
+import type { ControlEvent, IInteractionController, Viewport } from '../types/index';
 
 export interface InteractionState {
   viewport: Viewport;
@@ -252,11 +252,13 @@ export class Plot2DController implements IInteractionController {
 
       // Zoom towards center of touches
       const centerX =
-        ((e.touches[0]!.clientX + e.touches[1]!.clientX) / 2 - this.canvas.getBoundingClientRect().left) /
+        ((e.touches[0]!.clientX + e.touches[1]!.clientX) / 2 -
+          this.canvas.getBoundingClientRect().left) /
         this.canvas.width;
       const centerY =
         1 -
-        ((e.touches[0]!.clientY + e.touches[1]!.clientY) / 2 - this.canvas.getBoundingClientRect().top) /
+        ((e.touches[0]!.clientY + e.touches[1]!.clientY) / 2 -
+          this.canvas.getBoundingClientRect().top) /
           this.canvas.height;
 
       this.zoomViewport(centerX, centerY, zoomFactor);
@@ -350,8 +352,12 @@ export class Plot2DController implements IInteractionController {
    * Zooms viewport towards a point
    */
   private zoomViewport(normalizedX: number, normalizedY: number, factor: number): void {
-    const worldX = this.state.viewport.xMin + normalizedX * (this.state.viewport.xMax - this.state.viewport.xMin);
-    const worldY = this.state.viewport.yMin + normalizedY * (this.state.viewport.yMax - this.state.viewport.yMin);
+    const worldX =
+      this.state.viewport.xMin +
+      normalizedX * (this.state.viewport.xMax - this.state.viewport.xMin);
+    const worldY =
+      this.state.viewport.yMin +
+      normalizedY * (this.state.viewport.yMax - this.state.viewport.yMin);
 
     const newWidth = (this.state.viewport.xMax - this.state.viewport.xMin) * factor;
     const newHeight = (this.state.viewport.yMax - this.state.viewport.yMin) * factor;

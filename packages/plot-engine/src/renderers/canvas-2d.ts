@@ -14,15 +14,15 @@
  */
 
 import type {
-  IRenderer,
-  RenderBackend,
-  PerformanceMetrics,
-  PlotConfig,
-  Plot2DCartesianConfig,
-  Plot2DPolarConfig,
-  Plot2DParametricConfig,
-  Viewport,
   Color,
+  IRenderer,
+  PerformanceMetrics,
+  Plot2DCartesianConfig,
+  Plot2DParametricConfig,
+  Plot2DPolarConfig,
+  PlotConfig,
+  RenderBackend,
+  Viewport,
 } from '../types/index';
 
 /** Resolve a Color union to a CSS string */
@@ -52,7 +52,9 @@ export class Canvas2DRenderer implements IRenderer {
     const start = performance.now();
     const ctx = this.canvas.getContext('2d');
     if (!ctx) {
-      throw new Error('Canvas 2D context unavailable — rendering is not possible in this environment.');
+      throw new Error(
+        'Canvas 2D context unavailable — rendering is not possible in this environment.',
+      );
     }
     this.ctx = ctx;
     this.initTime = performance.now() - start;
@@ -75,7 +77,9 @@ export class Canvas2DRenderer implements IRenderer {
         this.renderParametric(config);
         break;
       default:
-        throw new Error(`Canvas2DRenderer: plot type "${config.type}" is not supported in fallback mode. Use a WebGL-capable browser for full functionality.`);
+        throw new Error(
+          `Canvas2DRenderer: plot type "${config.type}" is not supported in fallback mode. Use a WebGL-capable browser for full functionality.`,
+        );
     }
 
     this.lastRenderTime = performance.now() - start;
@@ -126,7 +130,13 @@ export class Canvas2DRenderer implements IRenderer {
   }
 
   /** Draw grid lines */
-  private drawGrid(vp: Omit<Viewport, 'zMin' | 'zMax'>, gridColor: string, gridOpacity: number, majorStepX: number, majorStepY: number): void {
+  private drawGrid(
+    vp: Omit<Viewport, 'zMin' | 'zMax'>,
+    gridColor: string,
+    gridOpacity: number,
+    majorStepX: number,
+    majorStepY: number,
+  ): void {
     const ctx = this.ctx!;
     ctx.strokeStyle = gridColor;
     ctx.globalAlpha = gridOpacity;
@@ -209,10 +219,20 @@ export class Canvas2DRenderer implements IRenderer {
     this.drawAxes(vp, 'rgba(255,255,255,0.6)');
 
     // Functions
-    const defaultColors = ['#38bdf8', '#f472b6', '#a78bfa', '#34d399', '#fb923c', '#f87171'] as const;
+    const defaultColors = [
+      '#38bdf8',
+      '#f472b6',
+      '#a78bfa',
+      '#34d399',
+      '#fb923c',
+      '#f87171',
+    ] as const;
     let colorIdx = 0;
     for (const fn of config.functions) {
-      const lineColor = colorToCSS(fn.style?.line?.color, defaultColors[colorIdx % defaultColors.length] ?? '#38bdf8');
+      const lineColor = colorToCSS(
+        fn.style?.line?.color,
+        defaultColors[colorIdx % defaultColors.length] ?? '#38bdf8',
+      );
       colorIdx++;
       const lineWidth = fn.style?.line?.width ?? 2;
 
@@ -307,7 +327,10 @@ export class Canvas2DRenderer implements IRenderer {
     const defaultPolarColors = ['#38bdf8', '#f472b6', '#a78bfa', '#34d399'] as const;
     let pColorIdx = 0;
     for (const fn of config.functions) {
-      ctx.strokeStyle = colorToCSS(fn.style?.line?.color, defaultPolarColors[pColorIdx % defaultPolarColors.length] ?? '#38bdf8');
+      ctx.strokeStyle = colorToCSS(
+        fn.style?.line?.color,
+        defaultPolarColors[pColorIdx % defaultPolarColors.length] ?? '#38bdf8',
+      );
       pColorIdx++;
       ctx.lineWidth = fn.style?.line?.width ?? 2;
       ctx.beginPath();
@@ -316,19 +339,27 @@ export class Canvas2DRenderer implements IRenderer {
       let started = false;
 
       for (let i = 0; i <= steps; i++) {
-        const theta = config.thetaRange.min + (i / steps) * (config.thetaRange.max - config.thetaRange.min);
+        const theta =
+          config.thetaRange.min + (i / steps) * (config.thetaRange.max - config.thetaRange.min);
         const r = fn.fn(theta);
         this.pointCount++;
 
-        if (!Number.isFinite(r)) { started = false; continue; }
+        if (!Number.isFinite(r)) {
+          started = false;
+          continue;
+        }
 
         const wx = cx + r * Math.cos(theta);
         const wy = cy + r * Math.sin(theta);
         const px = this.worldToCanvasX(wx, vp);
         const py = this.worldToCanvasY(wy, vp);
 
-        if (!started) { ctx.moveTo(px, py); started = true; }
-        else { ctx.lineTo(px, py); }
+        if (!started) {
+          ctx.moveTo(px, py);
+          started = true;
+        } else {
+          ctx.lineTo(px, py);
+        }
       }
 
       ctx.stroke();
@@ -351,7 +382,10 @@ export class Canvas2DRenderer implements IRenderer {
     const defaultParamColors = ['#38bdf8', '#f472b6', '#a78bfa', '#34d399'] as const;
     let paramColorIdx = 0;
     for (const fn of config.functions) {
-      ctx.strokeStyle = colorToCSS(fn.style?.line?.color, defaultParamColors[paramColorIdx % defaultParamColors.length] ?? '#38bdf8');
+      ctx.strokeStyle = colorToCSS(
+        fn.style?.line?.color,
+        defaultParamColors[paramColorIdx % defaultParamColors.length] ?? '#38bdf8',
+      );
       paramColorIdx++;
       ctx.lineWidth = fn.style?.line?.width ?? 2;
       ctx.beginPath();
@@ -365,13 +399,20 @@ export class Canvas2DRenderer implements IRenderer {
         const y = fn.y(t);
         this.pointCount++;
 
-        if (!Number.isFinite(x) || !Number.isFinite(y)) { started = false; continue; }
+        if (!Number.isFinite(x) || !Number.isFinite(y)) {
+          started = false;
+          continue;
+        }
 
         const px = this.worldToCanvasX(x, vp);
         const py = this.worldToCanvasY(y, vp);
 
-        if (!started) { ctx.moveTo(px, py); started = true; }
-        else { ctx.lineTo(px, py); }
+        if (!started) {
+          ctx.moveTo(px, py);
+          started = true;
+        } else {
+          ctx.lineTo(px, py);
+        }
       }
 
       ctx.stroke();

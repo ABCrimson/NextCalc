@@ -3,9 +3,9 @@
  * @module export/csv.test
  */
 
-import { describe, it, expect } from 'vitest';
-import { exportToCSV2D, exportToCSV3D, downloadAsCSV2D, downloadAsCSV3D } from './csv';
+import { describe, expect, it } from 'vitest';
 import type { Point2D, Point3D } from '../types/index';
+import { downloadAsCSV2D, downloadAsCSV3D, exportToCSV2D, exportToCSV3D } from './csv';
 
 // ---------------------------------------------------------------------------
 // Helpers

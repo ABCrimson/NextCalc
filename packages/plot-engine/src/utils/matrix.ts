@@ -10,12 +10,7 @@ export type Mat4 = Float32Array;
  * Creates a new identity matrix
  */
 export function identity(): Mat4 {
-  return new Float32Array([
-    1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1, 0,
-    0, 0, 0, 1,
-  ]);
+  return new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 }
 
 /**
@@ -33,17 +28,29 @@ export function ortho(
   bottom: number,
   top: number,
   near: number,
-  far: number
+  far: number,
 ): Mat4 {
   const lr = 1 / (left - right);
   const bt = 1 / (bottom - top);
   const nf = 1 / (near - far);
 
   return new Float32Array([
-    -2 * lr, 0, 0, 0,
-    0, -2 * bt, 0, 0,
-    0, 0, 2 * nf, 0,
-    (left + right) * lr, (top + bottom) * bt, (far + near) * nf, 1,
+    -2 * lr,
+    0,
+    0,
+    0,
+    0,
+    -2 * bt,
+    0,
+    0,
+    0,
+    0,
+    2 * nf,
+    0,
+    (left + right) * lr,
+    (top + bottom) * bt,
+    (far + near) * nf,
+    1,
   ]);
 }
 
@@ -59,10 +66,22 @@ export function perspective(fov: number, aspect: number, near: number, far: numb
   const rangeInv = 1.0 / (near - far);
 
   return new Float32Array([
-    f / aspect, 0, 0, 0,
-    0, f, 0, 0,
-    0, 0, (near + far) * rangeInv, -1,
-    0, 0, near * far * rangeInv * 2, 0,
+    f / aspect,
+    0,
+    0,
+    0,
+    0,
+    f,
+    0,
+    0,
+    0,
+    0,
+    (near + far) * rangeInv,
+    -1,
+    0,
+    0,
+    near * far * rangeInv * 2,
+    0,
   ]);
 }
 
@@ -70,24 +89,14 @@ export function perspective(fov: number, aspect: number, near: number, far: numb
  * Creates a translation matrix
  */
 export function translation(x: number, y: number, z: number): Mat4 {
-  return new Float32Array([
-    1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1, 0,
-    x, y, z, 1,
-  ]);
+  return new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, x, y, z, 1]);
 }
 
 /**
  * Creates a scaling matrix
  */
 export function scaling(x: number, y: number, z: number): Mat4 {
-  return new Float32Array([
-    x, 0, 0, 0,
-    0, y, 0, 0,
-    0, 0, z, 0,
-    0, 0, 0, 1,
-  ]);
+  return new Float32Array([x, 0, 0, 0, 0, y, 0, 0, 0, 0, z, 0, 0, 0, 0, 1]);
 }
 
 /**
@@ -97,12 +106,7 @@ export function rotationX(angle: number): Mat4 {
   const c = Math.cos(angle);
   const s = Math.sin(angle);
 
-  return new Float32Array([
-    1, 0, 0, 0,
-    0, c, s, 0,
-    0, -s, c, 0,
-    0, 0, 0, 1,
-  ]);
+  return new Float32Array([1, 0, 0, 0, 0, c, s, 0, 0, -s, c, 0, 0, 0, 0, 1]);
 }
 
 /**
@@ -112,12 +116,7 @@ export function rotationY(angle: number): Mat4 {
   const c = Math.cos(angle);
   const s = Math.sin(angle);
 
-  return new Float32Array([
-    c, 0, -s, 0,
-    0, 1, 0, 0,
-    s, 0, c, 0,
-    0, 0, 0, 1,
-  ]);
+  return new Float32Array([c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 0, 0, 0, 1]);
 }
 
 /**
@@ -127,12 +126,7 @@ export function rotationZ(angle: number): Mat4 {
   const c = Math.cos(angle);
   const s = Math.sin(angle);
 
-  return new Float32Array([
-    c, s, 0, 0,
-    -s, c, 0, 0,
-    0, 0, 1, 0,
-    0, 0, 0, 1,
-  ]);
+  return new Float32Array([c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 }
 
 /**
@@ -160,41 +154,121 @@ export function multiply(a: Mat4, b: Mat4): Mat4 {
 export function invert(m: Mat4): Mat4 | null {
   const inv = new Float32Array(16);
 
-  inv[0] = m[5]! * m[10]! * m[15]! - m[5]! * m[11]! * m[14]! - m[9]! * m[6]! * m[15]! +
-           m[9]! * m[7]! * m[14]! + m[13]! * m[6]! * m[11]! - m[13]! * m[7]! * m[10]!;
-  inv[4] = -m[4]! * m[10]! * m[15]! + m[4]! * m[11]! * m[14]! + m[8]! * m[6]! * m[15]! -
-           m[8]! * m[7]! * m[14]! - m[12]! * m[6]! * m[11]! + m[12]! * m[7]! * m[10]!;
-  inv[8] = m[4]! * m[9]! * m[15]! - m[4]! * m[11]! * m[13]! - m[8]! * m[5]! * m[15]! +
-           m[8]! * m[7]! * m[13]! + m[12]! * m[5]! * m[11]! - m[12]! * m[7]! * m[9]!;
-  inv[12] = -m[4]! * m[9]! * m[14]! + m[4]! * m[10]! * m[13]! + m[8]! * m[5]! * m[14]! -
-            m[8]! * m[6]! * m[13]! - m[12]! * m[5]! * m[10]! + m[12]! * m[6]! * m[9]!;
+  inv[0] =
+    m[5]! * m[10]! * m[15]! -
+    m[5]! * m[11]! * m[14]! -
+    m[9]! * m[6]! * m[15]! +
+    m[9]! * m[7]! * m[14]! +
+    m[13]! * m[6]! * m[11]! -
+    m[13]! * m[7]! * m[10]!;
+  inv[4] =
+    -m[4]! * m[10]! * m[15]! +
+    m[4]! * m[11]! * m[14]! +
+    m[8]! * m[6]! * m[15]! -
+    m[8]! * m[7]! * m[14]! -
+    m[12]! * m[6]! * m[11]! +
+    m[12]! * m[7]! * m[10]!;
+  inv[8] =
+    m[4]! * m[9]! * m[15]! -
+    m[4]! * m[11]! * m[13]! -
+    m[8]! * m[5]! * m[15]! +
+    m[8]! * m[7]! * m[13]! +
+    m[12]! * m[5]! * m[11]! -
+    m[12]! * m[7]! * m[9]!;
+  inv[12] =
+    -m[4]! * m[9]! * m[14]! +
+    m[4]! * m[10]! * m[13]! +
+    m[8]! * m[5]! * m[14]! -
+    m[8]! * m[6]! * m[13]! -
+    m[12]! * m[5]! * m[10]! +
+    m[12]! * m[6]! * m[9]!;
 
-  inv[1] = -m[1]! * m[10]! * m[15]! + m[1]! * m[11]! * m[14]! + m[9]! * m[2]! * m[15]! -
-           m[9]! * m[3]! * m[14]! - m[13]! * m[2]! * m[11]! + m[13]! * m[3]! * m[10]!;
-  inv[5] = m[0]! * m[10]! * m[15]! - m[0]! * m[11]! * m[14]! - m[8]! * m[2]! * m[15]! +
-           m[8]! * m[3]! * m[14]! + m[12]! * m[2]! * m[11]! - m[12]! * m[3]! * m[10]!;
-  inv[9] = -m[0]! * m[9]! * m[15]! + m[0]! * m[11]! * m[13]! + m[8]! * m[1]! * m[15]! -
-           m[8]! * m[3]! * m[13]! - m[12]! * m[1]! * m[11]! + m[12]! * m[3]! * m[9]!;
-  inv[13] = m[0]! * m[9]! * m[14]! - m[0]! * m[10]! * m[13]! - m[8]! * m[1]! * m[14]! +
-            m[8]! * m[2]! * m[13]! + m[12]! * m[1]! * m[10]! - m[12]! * m[2]! * m[9]!;
+  inv[1] =
+    -m[1]! * m[10]! * m[15]! +
+    m[1]! * m[11]! * m[14]! +
+    m[9]! * m[2]! * m[15]! -
+    m[9]! * m[3]! * m[14]! -
+    m[13]! * m[2]! * m[11]! +
+    m[13]! * m[3]! * m[10]!;
+  inv[5] =
+    m[0]! * m[10]! * m[15]! -
+    m[0]! * m[11]! * m[14]! -
+    m[8]! * m[2]! * m[15]! +
+    m[8]! * m[3]! * m[14]! +
+    m[12]! * m[2]! * m[11]! -
+    m[12]! * m[3]! * m[10]!;
+  inv[9] =
+    -m[0]! * m[9]! * m[15]! +
+    m[0]! * m[11]! * m[13]! +
+    m[8]! * m[1]! * m[15]! -
+    m[8]! * m[3]! * m[13]! -
+    m[12]! * m[1]! * m[11]! +
+    m[12]! * m[3]! * m[9]!;
+  inv[13] =
+    m[0]! * m[9]! * m[14]! -
+    m[0]! * m[10]! * m[13]! -
+    m[8]! * m[1]! * m[14]! +
+    m[8]! * m[2]! * m[13]! +
+    m[12]! * m[1]! * m[10]! -
+    m[12]! * m[2]! * m[9]!;
 
-  inv[2] = m[1]! * m[6]! * m[15]! - m[1]! * m[7]! * m[14]! - m[5]! * m[2]! * m[15]! +
-           m[5]! * m[3]! * m[14]! + m[13]! * m[2]! * m[7]! - m[13]! * m[3]! * m[6]!;
-  inv[6] = -m[0]! * m[6]! * m[15]! + m[0]! * m[7]! * m[14]! + m[4]! * m[2]! * m[15]! -
-           m[4]! * m[3]! * m[14]! - m[12]! * m[2]! * m[7]! + m[12]! * m[3]! * m[6]!;
-  inv[10] = m[0]! * m[5]! * m[15]! - m[0]! * m[7]! * m[13]! - m[4]! * m[1]! * m[15]! +
-            m[4]! * m[3]! * m[13]! + m[12]! * m[1]! * m[7]! - m[12]! * m[3]! * m[5]!;
-  inv[14] = -m[0]! * m[5]! * m[14]! + m[0]! * m[6]! * m[13]! + m[4]! * m[1]! * m[14]! -
-            m[4]! * m[2]! * m[13]! - m[12]! * m[1]! * m[6]! + m[12]! * m[2]! * m[5]!;
+  inv[2] =
+    m[1]! * m[6]! * m[15]! -
+    m[1]! * m[7]! * m[14]! -
+    m[5]! * m[2]! * m[15]! +
+    m[5]! * m[3]! * m[14]! +
+    m[13]! * m[2]! * m[7]! -
+    m[13]! * m[3]! * m[6]!;
+  inv[6] =
+    -m[0]! * m[6]! * m[15]! +
+    m[0]! * m[7]! * m[14]! +
+    m[4]! * m[2]! * m[15]! -
+    m[4]! * m[3]! * m[14]! -
+    m[12]! * m[2]! * m[7]! +
+    m[12]! * m[3]! * m[6]!;
+  inv[10] =
+    m[0]! * m[5]! * m[15]! -
+    m[0]! * m[7]! * m[13]! -
+    m[4]! * m[1]! * m[15]! +
+    m[4]! * m[3]! * m[13]! +
+    m[12]! * m[1]! * m[7]! -
+    m[12]! * m[3]! * m[5]!;
+  inv[14] =
+    -m[0]! * m[5]! * m[14]! +
+    m[0]! * m[6]! * m[13]! +
+    m[4]! * m[1]! * m[14]! -
+    m[4]! * m[2]! * m[13]! -
+    m[12]! * m[1]! * m[6]! +
+    m[12]! * m[2]! * m[5]!;
 
-  inv[3] = -m[1]! * m[6]! * m[11]! + m[1]! * m[7]! * m[10]! + m[5]! * m[2]! * m[11]! -
-           m[5]! * m[3]! * m[10]! - m[9]! * m[2]! * m[7]! + m[9]! * m[3]! * m[6]!;
-  inv[7] = m[0]! * m[6]! * m[11]! - m[0]! * m[7]! * m[10]! - m[4]! * m[2]! * m[11]! +
-           m[4]! * m[3]! * m[10]! + m[8]! * m[2]! * m[7]! - m[8]! * m[3]! * m[6]!;
-  inv[11] = -m[0]! * m[5]! * m[11]! + m[0]! * m[7]! * m[9]! + m[4]! * m[1]! * m[11]! -
-            m[4]! * m[3]! * m[9]! - m[8]! * m[1]! * m[7]! + m[8]! * m[3]! * m[5]!;
-  inv[15] = m[0]! * m[5]! * m[10]! - m[0]! * m[6]! * m[9]! - m[4]! * m[1]! * m[10]! +
-            m[4]! * m[2]! * m[9]! + m[8]! * m[1]! * m[6]! - m[8]! * m[2]! * m[5]!;
+  inv[3] =
+    -m[1]! * m[6]! * m[11]! +
+    m[1]! * m[7]! * m[10]! +
+    m[5]! * m[2]! * m[11]! -
+    m[5]! * m[3]! * m[10]! -
+    m[9]! * m[2]! * m[7]! +
+    m[9]! * m[3]! * m[6]!;
+  inv[7] =
+    m[0]! * m[6]! * m[11]! -
+    m[0]! * m[7]! * m[10]! -
+    m[4]! * m[2]! * m[11]! +
+    m[4]! * m[3]! * m[10]! +
+    m[8]! * m[2]! * m[7]! -
+    m[8]! * m[3]! * m[6]!;
+  inv[11] =
+    -m[0]! * m[5]! * m[11]! +
+    m[0]! * m[7]! * m[9]! +
+    m[4]! * m[1]! * m[11]! -
+    m[4]! * m[3]! * m[9]! -
+    m[8]! * m[1]! * m[7]! +
+    m[8]! * m[3]! * m[5]!;
+  inv[15] =
+    m[0]! * m[5]! * m[10]! -
+    m[0]! * m[6]! * m[9]! -
+    m[4]! * m[1]! * m[10]! +
+    m[4]! * m[2]! * m[9]! +
+    m[8]! * m[1]! * m[6]! -
+    m[8]! * m[2]! * m[5]!;
 
   const det = m[0]! * inv[0]! + m[1]! * inv[4]! + m[2]! * inv[8]! + m[3]! * inv[12]!;
 
@@ -214,9 +288,15 @@ export function invert(m: Mat4): Mat4 | null {
  * Creates a lookAt matrix for camera positioning
  */
 export function lookAt(
-  eyeX: number, eyeY: number, eyeZ: number,
-  targetX: number, targetY: number, targetZ: number,
-  upX: number, upY: number, upZ: number
+  eyeX: number,
+  eyeY: number,
+  eyeZ: number,
+  targetX: number,
+  targetY: number,
+  targetZ: number,
+  upX: number,
+  upY: number,
+  upZ: number,
 ): Mat4 {
   // Calculate forward vector
   let fx = targetX - eyeX;
@@ -242,12 +322,21 @@ export function lookAt(
   const uz = rx * fy - ry * fx;
 
   return new Float32Array([
-    rx, ux, -fx, 0,
-    ry, uy, -fy, 0,
-    rz, uz, -fz, 0,
+    rx,
+    ux,
+    -fx,
+    0,
+    ry,
+    uy,
+    -fy,
+    0,
+    rz,
+    uz,
+    -fz,
+    0,
     -(rx * eyeX + ry * eyeY + rz * eyeZ),
     -(ux * eyeX + uy * eyeY + uz * eyeZ),
-    (fx * eyeX + fy * eyeY + fz * eyeZ),
+    fx * eyeX + fy * eyeY + fz * eyeZ,
     1,
   ]);
 }

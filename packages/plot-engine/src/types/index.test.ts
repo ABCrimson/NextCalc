@@ -8,31 +8,31 @@
  * structural compatibility checks expressed as ordinary value tests.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import type {
+  ExportCSVOptions,
+  ExportPNGOptions,
+  ExportSVGOptions,
+  Plot2DCartesianConfig,
+  Plot2DImplicitConfig,
+  Plot2DParametricConfig,
+  Plot2DPolarConfig,
+  Plot2DVectorFieldConfig,
+  Plot3DCurveConfig,
+  Plot3DParametricCurveConfig,
+  Plot3DParametricSurfaceConfig,
+  Plot3DSurfaceConfig,
+  PlotConfig,
+  SamplingConfig,
+  Viewport,
+} from './index';
 import {
   is2DPlot,
   is3DPlot,
+  isImplicitPlot,
   isParametricPlot,
   isSurfacePlot,
-  isImplicitPlot,
   isVectorFieldPlot,
-} from './index';
-import type {
-  Plot2DCartesianConfig,
-  Plot2DPolarConfig,
-  Plot2DParametricConfig,
-  Plot2DImplicitConfig,
-  Plot2DVectorFieldConfig,
-  Plot3DSurfaceConfig,
-  Plot3DParametricSurfaceConfig,
-  Plot3DCurveConfig,
-  Plot3DParametricCurveConfig,
-  PlotConfig,
-  Viewport,
-  SamplingConfig,
-  ExportCSVOptions,
-  ExportSVGOptions,
-  ExportPNGOptions,
 } from './index';
 
 // ---------------------------------------------------------------------------
@@ -443,7 +443,12 @@ describe('interface structural shapes', () => {
         'uniform',
       ];
       for (const method of methods) {
-        const cfg: SamplingConfig = { initialSamples: 10, maxDepth: 3, angleTolerance: 0.1, method };
+        const cfg: SamplingConfig = {
+          initialSamples: 10,
+          maxDepth: 3,
+          angleTolerance: 0.1,
+          method,
+        };
         expect(cfg.method).toBe(method);
       }
     });

@@ -36,9 +36,7 @@ export class BufferPool {
    */
   acquire(size: number): PooledBuffer {
     // Find available buffer with sufficient size
-    const available = this.buffers.find(
-      (b) => !b.inUse && b.size >= size
-    );
+    const available = this.buffers.find((b) => !b.inUse && b.size >= size);
 
     if (available) {
       available.inUse = true;
@@ -65,9 +63,7 @@ export class BufferPool {
     }
 
     // Pool full: reuse oldest available buffer
-    const oldest = this.buffers
-      .filter((b) => !b.inUse)
-      .sort((a, b) => a.lastUsed - b.lastUsed)[0];
+    const oldest = this.buffers.filter((b) => !b.inUse).sort((a, b) => a.lastUsed - b.lastUsed)[0];
 
     if (oldest) {
       oldest.inUse = true;

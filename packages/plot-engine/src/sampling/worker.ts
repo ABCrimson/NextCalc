@@ -29,10 +29,13 @@ export interface SamplingResponse {
  */
 export class SamplingWorkerManager {
   private worker: Worker | null = null;
-  private pendingRequests: Map<string, {
-    resolve: (result: SamplingResult) => void;
-    reject: (error: Error) => void;
-  }> = new Map();
+  private pendingRequests: Map<
+    string,
+    {
+      resolve: (result: SamplingResult) => void;
+      reject: (error: Error) => void;
+    }
+  > = new Map();
 
   /**
    * Initializes the worker
@@ -141,14 +144,17 @@ export class SamplingWorkerManager {
     fn: (x: number) => number,
     xMin: number,
     xMax: number,
-    config: SamplingConfig
+    config: SamplingConfig,
   ): Promise<SamplingResult> {
     if (!this.worker) {
       throw new Error('Worker not initialized');
     }
 
     const id = Math.random().toString(36).substring(7);
-    const fnString = fn.toString().replace(/^[^{]*{\s*return\s*/, '').replace(/;\s*}$/, '');
+    const fnString = fn
+      .toString()
+      .replace(/^[^{]*{\s*return\s*/, '')
+      .replace(/;\s*}$/, '');
 
     return new Promise((resolve, reject) => {
       this.pendingRequests.set(id, { resolve, reject });
@@ -181,15 +187,21 @@ export class SamplingWorkerManager {
     yFn: (t: number) => number,
     tMin: number,
     tMax: number,
-    config: SamplingConfig
+    config: SamplingConfig,
   ): Promise<SamplingResult> {
     if (!this.worker) {
       throw new Error('Worker not initialized');
     }
 
     const id = Math.random().toString(36).substring(7);
-    const xFnString = xFn.toString().replace(/^[^{]*{\s*return\s*/, '').replace(/;\s*}$/, '');
-    const yFnString = yFn.toString().replace(/^[^{]*{\s*return\s*/, '').replace(/;\s*}$/, '');
+    const xFnString = xFn
+      .toString()
+      .replace(/^[^{]*{\s*return\s*/, '')
+      .replace(/;\s*}$/, '');
+    const yFnString = yFn
+      .toString()
+      .replace(/^[^{]*{\s*return\s*/, '')
+      .replace(/;\s*}$/, '');
 
     return new Promise((resolve, reject) => {
       this.pendingRequests.set(id, { resolve, reject });
