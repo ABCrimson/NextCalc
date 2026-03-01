@@ -5,34 +5,33 @@
  * Uses mathjs for expression evaluation.
  */
 
+import { evaluate, format } from 'mathjs';
+import { redisHealthCheck } from '../../lib/cache';
 import type { GraphQLContext } from '../../lib/context';
 import { requireAuth } from '../../lib/context';
-import { redisHealthCheck } from '../../lib/cache';
-import { evaluate, format } from 'mathjs';
-import { ValidationError } from '../../lib/errors';
-import { validate, calculationSchema } from '../../lib/validation';
 import {
-  buildCursorParams,
   buildConnection,
+  buildCursorParams,
   type CursorPaginationArgs,
 } from '../../lib/cursor-pagination';
+import { ValidationError } from '../../lib/errors';
+import { calculationSchema, validate } from '../../lib/validation';
 
 const performCalculation = (
   expression: string,
   variables?: Record<string, unknown>,
-  precision = 16
+  precision = 16,
 ): { result: string; formatted: string } => {
   try {
     const scope = variables ? { ...variables } : {};
     const raw = evaluate(expression, scope);
-    const result = typeof raw === 'object' && raw !== null
-      ? format(raw, { precision })
-      : String(raw);
+    const result =
+      typeof raw === 'object' && raw !== null ? format(raw, { precision }) : String(raw);
     return { result, formatted: result };
   } catch (error) {
     throw new ValidationError(
       `Calculation error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      'expression'
+      'expression',
     );
   }
 };
@@ -51,14 +50,14 @@ export const calculationResolvers = {
           precision?: number;
         };
       },
-      _context: GraphQLContext
+      _context: GraphQLContext,
     ) => {
       const input = validate(calculationSchema, args.input);
 
       const { result, formatted } = performCalculation(
         input.expression,
         input.variables,
-        input.precision
+        input.precision,
       );
 
       return {
@@ -79,7 +78,7 @@ export const calculationResolvers = {
         limit?: number;
         offset?: number;
       },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       const user = requireAuth(context);
 
@@ -118,7 +117,7 @@ export const calculationResolvers = {
     calculationHistoryConnection: async (
       _parent: unknown,
       args: CursorPaginationArgs,
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       const user = requireAuth(context);
       const where = { userId: user.id };
@@ -185,11 +184,8 @@ export const calculationResolvers = {
       // - 'degraded' if Redis is unhealthy but DB is healthy
       // - 'unhealthy' if DB is down
       const redisOk = redisHealth.status === 'healthy' || redisHealth.status === 'unconfigured';
-      const overallStatus = dbStatus === 'unhealthy'
-        ? 'unhealthy'
-        : redisOk
-          ? 'healthy'
-          : 'degraded';
+      const overallStatus =
+        dbStatus === 'unhealthy' ? 'unhealthy' : redisOk ? 'healthy' : 'degraded';
 
       return {
         status: overallStatus,
@@ -200,7 +196,7 @@ export const calculationResolvers = {
           error: dbError,
         },
         redis: redisHealth,
-        version: process.env['npm_package_version'] || '0.1.0',
+        version: process.env.npm_package_version || '0.1.0',
       };
     },
   },
@@ -224,7 +220,7 @@ export const calculationResolvers = {
           latex?: string;
         };
       },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       const user = requireAuth(context);
 
@@ -232,7 +228,7 @@ export const calculationResolvers = {
       const { result } = performCalculation(
         args.input.expression,
         args.input.variables,
-        args.input.precision
+        args.input.precision,
       );
 
       const mode = args.input.mode ?? 'approximate';
@@ -269,11 +265,7 @@ export const calculationResolvers = {
     /**
      * Clear all calculation history for the authenticated user.
      */
-    clearCalculationHistory: async (
-      _parent: unknown,
-      _args: unknown,
-      context: GraphQLContext
-    ) => {
+    clearCalculationHistory: async (_parent: unknown, _args: unknown, context: GraphQLContext) => {
       const user = requireAuth(context);
 
       await context.prisma.calculationHistory.deleteMany({

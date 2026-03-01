@@ -126,7 +126,9 @@ export async function sendError(error: Error, context?: ErrorContext): Promise<v
   try {
     await monitoringService.sendError(error, context);
   } catch (e) {
-    logger.error('Failed to send error report', { error: e instanceof Error ? e.message : String(e) });
+    logger.error('Failed to send error report', {
+      error: e instanceof Error ? e.message : String(e),
+    });
   }
 }
 
@@ -137,7 +139,9 @@ export async function sendUsage(usage: AnalyticsUsage): Promise<void> {
   try {
     await monitoringService.sendUsage(usage);
   } catch (e) {
-    logger.error('Failed to send usage analytics', { error: e instanceof Error ? e.message : String(e) });
+    logger.error('Failed to send usage analytics', {
+      error: e instanceof Error ? e.message : String(e),
+    });
   }
 }
 
@@ -162,7 +166,7 @@ export function startTimer(): () => number {
 export function formatResolverDurations(
   durations: Map<string, number>,
   totalDuration: number,
-  limit = 10
+  limit = 10,
 ): Array<{ field: string; duration: string; percentage: string }> {
   return Array.from(durations.entries())
     .sort((a, b) => b[1] - a[1])

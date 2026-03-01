@@ -13,17 +13,16 @@
  */
 
 import { createPdf, PageSizes } from 'modern-pdf-lib';
-
-import { generateRasterSvgFromLatex, type SvgOptions } from './svg-internal.js';
-import { convertSvgToPng } from './png.js';
 import {
-  uploadToR2,
   generateExportKey,
-  validateFileSize,
   getMimeType,
-  type UploadResult,
   type R2Bucket,
+  type UploadResult,
+  uploadToR2,
+  validateFileSize,
 } from '../utils/r2.js';
+import { convertSvgToPng } from './png.js';
+import { generateRasterSvgFromLatex, type SvgOptions } from './svg-internal.js';
 
 // ---------------------------------------------------------------------------
 // Page sizes – modern-pdf-lib provides PageSizes constants for addPage(),
@@ -119,7 +118,11 @@ async function generatePdfFromLatex(
   // ------------------------------------------------------------------
   // Step 2: SVG -> PNG at 300 DPI for print (single render pass)
   // ------------------------------------------------------------------
-  const { png, width: imgWidth, height: imgHeight } = await convertSvgToPng(svgString, 300, 'transparent');
+  const {
+    png,
+    width: imgWidth,
+    height: imgHeight,
+  } = await convertSvgToPng(svgString, 300, 'transparent');
 
   // ------------------------------------------------------------------
   // Step 3: Create PDF document with metadata
@@ -220,19 +223,13 @@ export async function exportToPdf(
   // Upload to R2
   const key = generateExportKey(userId, 'pdf');
 
-  const uploadResult = await uploadToR2(
-    bucket,
-    key,
-    pdfBytes,
-    getMimeType('pdf'),
-    {
-      latex,
-      pageSize,
-      title,
-      createdAt: new Date().toISOString(),
-      userId: userId ?? 'anonymous',
-    },
-  );
+  const uploadResult = await uploadToR2(bucket, key, pdfBytes, getMimeType('pdf'), {
+    latex,
+    pageSize,
+    title,
+    createdAt: new Date().toISOString(),
+    userId: userId ?? 'anonymous',
+  });
 
   return {
     ...uploadResult,
@@ -303,7 +300,11 @@ export async function batchExportToPdf(
     const svgString = await generateRasterSvgFromLatex(latex, svgOptions);
 
     // Step 2: SVG -> PNG at 300 DPI (single render pass)
-    const { png, width: imgWidth, height: imgHeight } = await convertSvgToPng(svgString, 300, 'transparent');
+    const {
+      png,
+      width: imgWidth,
+      height: imgHeight,
+    } = await convertSvgToPng(svgString, 300, 'transparent');
 
     // Step 3: Add page, embed PNG, scale to fit
     const pdfPage = doc.addPage(PAGE_SIZE_MAP[pageSize]);
@@ -343,20 +344,14 @@ export async function batchExportToPdf(
   // Upload to R2
   const key = generateExportKey(userId, 'pdf');
 
-  const uploadResult = await uploadToR2(
-    bucket,
-    key,
-    pdfBytes,
-    getMimeType('pdf'),
-    {
-      latex: expressions.join(' | '),
-      pageSize,
-      title,
-      pages: expressions.length.toString(),
-      createdAt: new Date().toISOString(),
-      userId: userId ?? 'anonymous',
-    },
-  );
+  const uploadResult = await uploadToR2(bucket, key, pdfBytes, getMimeType('pdf'), {
+    latex: expressions.join(' | '),
+    pageSize,
+    title,
+    pages: expressions.length.toString(),
+    createdAt: new Date().toISOString(),
+    userId: userId ?? 'anonymous',
+  });
 
   return {
     ...uploadResult,

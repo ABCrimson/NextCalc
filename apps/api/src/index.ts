@@ -13,22 +13,22 @@
  */
 
 import { startServerAndCreateNextHandler } from '@as-integrations/next';
-import { server } from './server';
-import { prisma } from './lib/prisma';
+import { auth as authStub, setAuthFunction } from './lib/auth-stub';
 import { rateLimit } from './lib/cache';
 import type { GraphQLContext } from './lib/context';
 import { createDataLoaders } from './lib/dataloaders';
-import { auth as authStub, setAuthFunction } from './lib/auth-stub';
 import { RateLimitError } from './lib/errors';
 import { logger } from './lib/logger';
+import { prisma } from './lib/prisma';
+import { server } from './server';
 
 interface NextRequest {
-	headers: Headers;
-	ip?: string;
+  headers: Headers;
+  ip?: string;
 }
 
 interface RouteContext {
-	params: Promise<Record<string, string>>;
+  params: Promise<Record<string, string>>;
 }
 
 /**
@@ -36,60 +36,57 @@ interface RouteContext {
  * Uses the configured auth function (real or stub).
  */
 async function createContext(req: NextRequest): Promise<GraphQLContext> {
-	try {
-		const session = await authStub();
+  try {
+    const session = await authStub();
 
-		let user = null;
-		if (session?.user?.id) {
-			user = await prisma.user.findUnique({
-				where: { id: session.user.id },
-				select: {
-					id: true,
-					email: true,
-					emailVerified: true,
-					name: true,
-					image: true,
-					bio: true,
-					role: true,
-					tokenVersion: true,
-					createdAt: true,
-					updatedAt: true,
-				},
-			});
-		}
+    let user = null;
+    if (session?.user?.id) {
+      user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: {
+          id: true,
+          email: true,
+          emailVerified: true,
+          name: true,
+          image: true,
+          bio: true,
+          role: true,
+          tokenVersion: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+    }
 
-		const headersObj: Record<string, string | string[] | undefined> = {};
-		req.headers.forEach((value: string, key: string) => {
-			headersObj[key] = value;
-		});
+    const headersObj: Record<string, string | string[] | undefined> = {};
+    req.headers.forEach((value: string, key: string) => {
+      headersObj[key] = value;
+    });
 
-		const ip =
-			req.ip ||
-			req.headers.get('x-forwarded-for') ||
-			req.headers.get('x-real-ip') ||
-			undefined;
+    const ip =
+      req.ip || req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || undefined;
 
-		return {
-			user,
-			prisma,
-			loaders: createDataLoaders(prisma),
-			req: {
-				headers: headersObj,
-				...(ip ? { ip } : {}),
-			},
-		};
-	} catch (error) {
-		logger.error('Context creation error', {
-			error: error instanceof Error ? error.message : String(error),
-			stack: error instanceof Error ? error.stack : undefined,
-		});
-		return {
-			user: null,
-			prisma,
-			loaders: createDataLoaders(prisma),
-			req: { headers: {} },
-		};
-	}
+    return {
+      user,
+      prisma,
+      loaders: createDataLoaders(prisma),
+      req: {
+        headers: headersObj,
+        ...(ip ? { ip } : {}),
+      },
+    };
+  } catch (error) {
+    logger.error('Context creation error', {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    return {
+      user: null,
+      prisma,
+      loaders: createDataLoaders(prisma),
+      req: { headers: {} },
+    };
+  }
 }
 
 /**
@@ -98,37 +95,32 @@ async function createContext(req: NextRequest): Promise<GraphQLContext> {
  * Defaults: 1000 req/min authenticated, 100 req/min anonymous.
  * Fails open if Redis is unavailable.
  */
-const authRateLimit = parseInt(process.env['RATE_LIMIT_AUTH'] ?? '1000', 10);
-const anonRateLimit = parseInt(process.env['RATE_LIMIT_ANON'] ?? '100', 10);
+const authRateLimit = parseInt(process.env.RATE_LIMIT_AUTH ?? '1000', 10);
+const anonRateLimit = parseInt(process.env.RATE_LIMIT_ANON ?? '100', 10);
 
-async function rateLimitMiddleware(
-	_req: NextRequest,
-	context: GraphQLContext,
-): Promise<void> {
-	const identifier = context.user?.id || context.req.ip || 'anonymous';
-	const limit = context.user ? authRateLimit : anonRateLimit;
-	const window = 60;
+async function rateLimitMiddleware(_req: NextRequest, context: GraphQLContext): Promise<void> {
+  const identifier = context.user?.id || context.req.ip || 'anonymous';
+  const limit = context.user ? authRateLimit : anonRateLimit;
+  const window = 60;
 
-	try {
-		const result = await rateLimit(identifier, limit, window);
+  try {
+    const result = await rateLimit(identifier, limit, window);
 
-		if (!result.allowed) {
-			const retryAfter = Math.ceil(
-				(result.resetAt.getTime() - Date.now()) / 1000,
-			);
-			throw new RateLimitError(
-				retryAfter,
-				`Rate limit exceeded. Try again in ${retryAfter} seconds.`,
-			);
-		}
-	} catch (error) {
-		if (error instanceof RateLimitError) throw error;
-		// Redis down — fail open
-		logger.error('Rate limit check failed, failing open', {
-			error: error instanceof Error ? error.message : String(error),
-			identifier,
-		});
-	}
+    if (!result.allowed) {
+      const retryAfter = Math.ceil((result.resetAt.getTime() - Date.now()) / 1000);
+      throw new RateLimitError(
+        retryAfter,
+        `Rate limit exceeded. Try again in ${retryAfter} seconds.`,
+      );
+    }
+  } catch (error) {
+    if (error instanceof RateLimitError) throw error;
+    // Redis down — fail open
+    logger.error('Rate limit check failed, failing open', {
+      error: error instanceof Error ? error.message : String(error),
+      identifier,
+    });
+  }
 }
 
 /**
@@ -136,14 +128,14 @@ async function rateLimitMiddleware(
  * Returns a unified handler function (not separate GET/POST) per @as-integrations/next API.
  */
 function buildHandler() {
-	// biome-ignore lint: adapter type mismatch between our NextRequest and the library's
-	return (startServerAndCreateNextHandler as Function)(server, {
-		context: async (req: NextRequest): Promise<GraphQLContext> => {
-			const context = await createContext(req);
-			await rateLimitMiddleware(req, context);
-			return context;
-		},
-	}) as (req: NextRequest) => Promise<Response>;
+  // biome-ignore lint: adapter type mismatch between our NextRequest and the library's
+  return (startServerAndCreateNextHandler as Function)(server, {
+    context: async (req: NextRequest): Promise<GraphQLContext> => {
+      const context = await createContext(req);
+      await rateLimitMiddleware(req, context);
+      return context;
+    },
+  }) as (req: NextRequest) => Promise<Response>;
 }
 
 // Default handler (uses stub auth — for testing or standalone use)
@@ -153,10 +145,9 @@ const defaultHandler = buildHandler();
  * Default GET/POST exports for backward compatibility.
  * These use the stub auth (always returns null user).
  */
-export const GET = (req: NextRequest, _ctx: RouteContext): Promise<Response> =>
-	defaultHandler(req);
+export const GET = (req: NextRequest, _ctx: RouteContext): Promise<Response> => defaultHandler(req);
 export const POST = (req: NextRequest, _ctx: RouteContext): Promise<Response> =>
-	defaultHandler(req);
+  defaultHandler(req);
 
 /**
  * Handler factory with auth injection.
@@ -169,31 +160,29 @@ export const POST = (req: NextRequest, _ctx: RouteContext): Promise<Response> =>
  * ```
  */
 export interface HandlerOptions {
-	auth: () => Promise<{
-		user?: {
-			id: string;
-			email?: string | null;
-			name?: string | null;
-			image?: string | null;
-		};
-		expires?: string;
-	} | null>;
+  auth: () => Promise<{
+    user?: {
+      id: string;
+      email?: string | null;
+      name?: string | null;
+      image?: string | null;
+    };
+    expires?: string;
+  } | null>;
 }
 
 export function createHandler(options: HandlerOptions) {
-	// Inject the real auth function
-	setAuthFunction(options.auth);
+  // Inject the real auth function
+  setAuthFunction(options.auth);
 
-	const handler = buildHandler();
+  const handler = buildHandler();
 
-	return {
-		GET: (req: NextRequest, _ctx: RouteContext): Promise<Response> =>
-			handler(req),
-		POST: (req: NextRequest, _ctx: RouteContext): Promise<Response> =>
-			handler(req),
-	};
+  return {
+    GET: (req: NextRequest, _ctx: RouteContext): Promise<Response> => handler(req),
+    POST: (req: NextRequest, _ctx: RouteContext): Promise<Response> => handler(req),
+  };
 }
 
+export type { GraphQLContext } from './lib/context';
 /** Re-exports for external use */
 export { server } from './server';
-export type { GraphQLContext } from './lib/context';

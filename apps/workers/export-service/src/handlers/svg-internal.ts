@@ -121,10 +121,7 @@ function escapeXml(str: string): string {
  * @param options — rendering configuration
  * @returns standalone SVG markup string
  */
-export async function generateSvgFromLatex(
-  latex: string,
-  options: SvgOptions,
-): Promise<string> {
+export async function generateSvgFromLatex(latex: string, options: SvgOptions): Promise<string> {
   const { fontSize, color, backgroundColor, inline } = options;
 
   // Strip surrounding delimiters if present
@@ -163,9 +160,7 @@ export async function generateSvgFromLatex(
   const baseFontPx = fontSize * 1.21; // KaTeX default scaling
   const charWidth = baseFontPx * 0.55;
   const svgWidth = Math.max(Math.ceil(estimatedChars * charWidth + baseFontPx * 4), 200);
-  const svgHeight = inline
-    ? Math.ceil(baseFontPx * 2.5)
-    : Math.ceil(baseFontPx * 4);
+  const svgHeight = inline ? Math.ceil(baseFontPx * 2.5) : Math.ceil(baseFontPx * 4);
 
   const bgRect =
     backgroundColor !== 'transparent'
@@ -206,37 +201,80 @@ export async function generateSvgFromLatex(
  */
 const LATEX_UNICODE: ReadonlyArray<readonly [RegExp, string]> = [
   // Greek
-  [/\\alpha/g, '\u03B1'], [/\\beta/g, '\u03B2'], [/\\gamma/g, '\u03B3'],
-  [/\\delta/g, '\u03B4'], [/\\epsilon/g, '\u03B5'], [/\\zeta/g, '\u03B6'],
-  [/\\eta/g, '\u03B7'], [/\\theta/g, '\u03B8'], [/\\iota/g, '\u03B9'],
-  [/\\kappa/g, '\u03BA'], [/\\lambda/g, '\u03BB'], [/\\mu/g, '\u03BC'],
-  [/\\nu/g, '\u03BD'], [/\\xi/g, '\u03BE'], [/\\pi/g, '\u03C0'],
-  [/\\rho/g, '\u03C1'], [/\\sigma/g, '\u03C3'], [/\\tau/g, '\u03C4'],
-  [/\\phi/g, '\u03C6'], [/\\chi/g, '\u03C7'], [/\\psi/g, '\u03C8'],
-  [/\\omega/g, '\u03C9'], [/\\Gamma/g, '\u0393'], [/\\Delta/g, '\u0394'],
-  [/\\Theta/g, '\u0398'], [/\\Lambda/g, '\u039B'], [/\\Pi/g, '\u03A0'],
-  [/\\Sigma/g, '\u03A3'], [/\\Phi/g, '\u03A6'], [/\\Psi/g, '\u03A8'],
+  [/\\alpha/g, '\u03B1'],
+  [/\\beta/g, '\u03B2'],
+  [/\\gamma/g, '\u03B3'],
+  [/\\delta/g, '\u03B4'],
+  [/\\epsilon/g, '\u03B5'],
+  [/\\zeta/g, '\u03B6'],
+  [/\\eta/g, '\u03B7'],
+  [/\\theta/g, '\u03B8'],
+  [/\\iota/g, '\u03B9'],
+  [/\\kappa/g, '\u03BA'],
+  [/\\lambda/g, '\u03BB'],
+  [/\\mu/g, '\u03BC'],
+  [/\\nu/g, '\u03BD'],
+  [/\\xi/g, '\u03BE'],
+  [/\\pi/g, '\u03C0'],
+  [/\\rho/g, '\u03C1'],
+  [/\\sigma/g, '\u03C3'],
+  [/\\tau/g, '\u03C4'],
+  [/\\phi/g, '\u03C6'],
+  [/\\chi/g, '\u03C7'],
+  [/\\psi/g, '\u03C8'],
+  [/\\omega/g, '\u03C9'],
+  [/\\Gamma/g, '\u0393'],
+  [/\\Delta/g, '\u0394'],
+  [/\\Theta/g, '\u0398'],
+  [/\\Lambda/g, '\u039B'],
+  [/\\Pi/g, '\u03A0'],
+  [/\\Sigma/g, '\u03A3'],
+  [/\\Phi/g, '\u03A6'],
+  [/\\Psi/g, '\u03A8'],
   [/\\Omega/g, '\u03A9'],
   // Operators
-  [/\\times/g, '\u00D7'], [/\\div/g, '\u00F7'], [/\\pm/g, '\u00B1'],
-  [/\\cdot/g, '\u00B7'], [/\\leq/g, '\u2264'], [/\\geq/g, '\u2265'],
-  [/\\neq/g, '\u2260'], [/\\approx/g, '\u2248'], [/\\equiv/g, '\u2261'],
-  [/\\infty/g, '\u221E'], [/\\partial/g, '\u2202'], [/\\nabla/g, '\u2207'],
-  [/\\int/g, '\u222B'], [/\\sum/g, '\u2211'], [/\\prod/g, '\u220F'],
-  [/\\sqrt/g, '\u221A'], [/\\forall/g, '\u2200'], [/\\exists/g, '\u2203'],
-  [/\\in/g, '\u2208'], [/\\cup/g, '\u222A'], [/\\cap/g, '\u2229'],
-  [/\\rightarrow/g, '\u2192'], [/\\leftarrow/g, '\u2190'],
-  [/\\Rightarrow/g, '\u21D2'], [/\\Leftarrow/g, '\u21D0'],
+  [/\\times/g, '\u00D7'],
+  [/\\div/g, '\u00F7'],
+  [/\\pm/g, '\u00B1'],
+  [/\\cdot/g, '\u00B7'],
+  [/\\leq/g, '\u2264'],
+  [/\\geq/g, '\u2265'],
+  [/\\neq/g, '\u2260'],
+  [/\\approx/g, '\u2248'],
+  [/\\equiv/g, '\u2261'],
+  [/\\infty/g, '\u221E'],
+  [/\\partial/g, '\u2202'],
+  [/\\nabla/g, '\u2207'],
+  [/\\int/g, '\u222B'],
+  [/\\sum/g, '\u2211'],
+  [/\\prod/g, '\u220F'],
+  [/\\sqrt/g, '\u221A'],
+  [/\\forall/g, '\u2200'],
+  [/\\exists/g, '\u2203'],
+  [/\\in/g, '\u2208'],
+  [/\\cup/g, '\u222A'],
+  [/\\cap/g, '\u2229'],
+  [/\\rightarrow/g, '\u2192'],
+  [/\\leftarrow/g, '\u2190'],
+  [/\\Rightarrow/g, '\u21D2'],
+  [/\\Leftarrow/g, '\u21D0'],
   // Structure — simplify
   [/\\frac\{([^}]*)\}\{([^}]*)\}/g, '($1)/($2)'],
-  [/\\text\{([^}]*)\}/g, '$1'], [/\\mathrm\{([^}]*)\}/g, '$1'],
-  [/\^{([^}]*)}/g, '^($1)'], [/_{([^}]*)}/g, '_($1)'],
-  [/\\[,;:!]\s?/g, ' '], [/\\quad/g, '  '],
-  [/\\[a-zA-Z]+/g, ''], [/[{}]/g, ''],
+  [/\\text\{([^}]*)\}/g, '$1'],
+  [/\\mathrm\{([^}]*)\}/g, '$1'],
+  [/\^{([^}]*)}/g, '^($1)'],
+  [/_{([^}]*)}/g, '_($1)'],
+  [/\\[,;:!]\s?/g, ' '],
+  [/\\quad/g, '  '],
+  [/\\[a-zA-Z]+/g, ''],
+  [/[{}]/g, ''],
 ] as const;
 
 function latexToUnicode(latex: string): string {
-  let r = latex.trim().replace(/^\$+|\$+$/g, '').replace(/^\\\[|\\\]$/g, '');
+  let r = latex
+    .trim()
+    .replace(/^\$+|\$+$/g, '')
+    .replace(/^\\\[|\\\]$/g, '');
   for (const [p, s] of LATEX_UNICODE) r = r.replace(p, s);
   return r.replace(/\s{2,}/g, ' ').trim();
 }

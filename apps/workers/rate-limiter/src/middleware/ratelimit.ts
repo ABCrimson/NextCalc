@@ -4,11 +4,7 @@
  */
 
 import type { Context, Next } from 'hono';
-import {
-  checkRateLimit,
-  type UserTier,
-  type RateLimitStatus,
-} from '../utils/sliding-window.js';
+import { checkRateLimit, type RateLimitStatus, type UserTier } from '../utils/sliding-window.js';
 
 /**
  * Rate limit middleware options
@@ -29,10 +25,7 @@ export interface RateLimitOptions {
   /**
    * Custom response when rate limit is exceeded
    */
-  onRateLimitExceeded?: (
-    c: Context,
-    status: RateLimitStatus
-  ) => Response | Promise<Response>;
+  onRateLimitExceeded?: (c: Context, status: RateLimitStatus) => Response | Promise<Response>;
 
   /**
    * Skip rate limiting for certain requests
@@ -57,10 +50,7 @@ export interface RateLimitOptions {
  * }));
  * ```
  */
-export function rateLimitMiddleware(
-  kv: KVNamespace,
-  options: RateLimitOptions
-) {
+export function rateLimitMiddleware(kv: KVNamespace, options: RateLimitOptions) {
   return async (c: Context, next: Next) => {
     // Check if we should skip rate limiting
     if (options.skip && (await options.skip(c))) {
@@ -79,7 +69,7 @@ export function rateLimitMiddleware(
             code: 'IDENTIFICATION_ERROR',
           },
         },
-        400
+        400,
       );
     }
 
@@ -121,7 +111,7 @@ export function rateLimitMiddleware(
             },
           },
         },
-        429
+        429,
       );
     }
 
@@ -162,7 +152,7 @@ export function ipRateLimitMiddleware(kv: KVNamespace, tier: UserTier = 'free') 
  */
 export function apiKeyRateLimitMiddleware(
   kv: KVNamespace,
-  getUserTier: (apiKey: string) => UserTier | Promise<UserTier>
+  getUserTier: (apiKey: string) => UserTier | Promise<UserTier>,
 ) {
   return rateLimitMiddleware(kv, {
     getIdentifier: (c) => {
@@ -205,13 +195,9 @@ export function userRateLimitMiddleware(
     userIdKey?: string;
     tierKey?: string;
     defaultTier?: UserTier;
-  } = {}
+  } = {},
 ) {
-  const {
-    userIdKey = 'userId',
-    tierKey = 'userTier',
-    defaultTier = 'free',
-  } = options;
+  const { userIdKey = 'userId', tierKey = 'userTier', defaultTier = 'free' } = options;
 
   return rateLimitMiddleware(kv, {
     getIdentifier: (c) => {
@@ -258,7 +244,7 @@ export function combinedRateLimitMiddleware(kv: KVNamespace) {
             },
           },
         },
-        429
+        429,
       );
     }
 
@@ -285,7 +271,7 @@ export function combinedRateLimitMiddleware(kv: KVNamespace) {
               },
             },
           },
-          429
+          429,
         );
       }
 

@@ -7,7 +7,11 @@
  * R2 bucket binding type from Cloudflare Workers
  */
 export interface R2Bucket {
-  put(key: string, value: ReadableStream | ArrayBuffer | Uint8Array | string, options?: R2PutOptions): Promise<R2Object | null>;
+  put(
+    key: string,
+    value: ReadableStream | ArrayBuffer | Uint8Array | string,
+    options?: R2PutOptions,
+  ): Promise<R2Object | null>;
   get(key: string, options?: R2GetOptions): Promise<R2ObjectBody | null>;
   delete(key: string): Promise<void>;
   head(key: string): Promise<R2Object | null>;
@@ -101,7 +105,7 @@ export async function uploadToR2(
   key: string,
   content: ArrayBuffer | Uint8Array | string,
   contentType: string,
-  metadata?: Record<string, string>
+  metadata?: Record<string, string>,
 ): Promise<UploadResult> {
   // Upload to R2
   const object = await bucket.put(key, content, {
@@ -141,7 +145,7 @@ export async function uploadToR2(
 export async function generateSignedUrl(
   bucket: R2Bucket,
   key: string,
-  expirySeconds: number = 3600
+  expirySeconds: number = 3600,
 ): Promise<string> {
   // Verify object exists
   const object = await bucket.head(key);
@@ -162,10 +166,7 @@ export async function generateSignedUrl(
  * @param bucket - R2 bucket binding
  * @param key - Object key to delete
  */
-export async function deleteFromR2(
-  bucket: R2Bucket,
-  key: string
-): Promise<void> {
+export async function deleteFromR2(bucket: R2Bucket, key: string): Promise<void> {
   await bucket.delete(key);
 }
 
@@ -180,7 +181,7 @@ export async function deleteFromR2(
 export async function listR2Objects(
   bucket: R2Bucket,
   prefix?: string,
-  limit: number = 100
+  limit: number = 100,
 ): Promise<R2Object[]> {
   const result = await bucket.list({
     prefix,
@@ -201,7 +202,7 @@ export async function listR2Objects(
 export function generateExportKey(
   userId: string | undefined,
   format: 'pdf' | 'png' | 'svg',
-  timestamp: number = Date.now()
+  timestamp: number = Date.now(),
 ): string {
   const randomId = crypto.randomUUID();
   const userPrefix = userId ? `users/${userId}` : 'public';
@@ -219,9 +220,7 @@ export function generateExportKey(
  */
 export function validateFileSize(size: number, maxSize: number): void {
   if (size > maxSize) {
-    throw new Error(
-      `File size ${size} bytes exceeds maximum allowed size of ${maxSize} bytes`
-    );
+    throw new Error(`File size ${size} bytes exceeds maximum allowed size of ${maxSize} bytes`);
   }
 }
 

@@ -4,18 +4,18 @@
  * Handles comment CRUD with nested reply support.
  */
 
+import type { Comment } from '@nextcalc/database';
 import type { GraphQLContext } from '../../lib/context';
 import { requireAuth, requireOwnership } from '../../lib/context';
-import type { Comment } from '@nextcalc/database';
 import { NotFoundError } from '../../lib/errors';
-import { validate, createCommentSchema, updateCommentSchema } from '../../lib/validation';
+import { createCommentSchema, updateCommentSchema, validate } from '../../lib/validation';
 
 export const commentResolvers = {
   Query: {
     comments: async (
       _parent: unknown,
       args: { postId: string; limit?: number; offset?: number },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       return context.prisma.comment.findMany({
         where: {
@@ -34,7 +34,7 @@ export const commentResolvers = {
     createComment: async (
       _parent: unknown,
       args: { input: { postId: string; content: string; parentId?: string } },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       const user = requireAuth(context);
       const input = validate(createCommentSchema, args.input);
@@ -71,7 +71,7 @@ export const commentResolvers = {
     updateComment: async (
       _parent: unknown,
       args: { id: string; input: { content: string } },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       requireAuth(context);
       const input = validate(updateCommentSchema, args.input);
@@ -92,11 +92,7 @@ export const commentResolvers = {
       });
     },
 
-    deleteComment: async (
-      _parent: unknown,
-      args: { id: string },
-      context: GraphQLContext
-    ) => {
+    deleteComment: async (_parent: unknown, args: { id: string }, context: GraphQLContext) => {
       const user = requireAuth(context);
 
       const comment = await context.prisma.comment.findUnique({

@@ -12,7 +12,7 @@
  *   so admin-protected routes can be exercised.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import app from './index.js';
 import { RATE_LIMIT_CONFIGS } from './utils/sliding-window.js';
 
@@ -46,9 +46,7 @@ function createMockKV(initialData: Record<string, unknown> = {}): KVNamespace {
     }),
     list: vi.fn(async (options?: { prefix?: string; cursor?: string }) => {
       const prefix = options?.prefix ?? '';
-      const keys = [...store.keys()]
-        .filter((k) => k.startsWith(prefix))
-        .map((name) => ({ name }));
+      const keys = [...store.keys()].filter((k) => k.startsWith(prefix)).map((name) => ({ name }));
       return { keys, cursor: undefined, list_complete: true };
     }),
     // Remaining KVNamespace methods not used by the service
@@ -83,11 +81,7 @@ function makeRequest(
   return app.request(url, options, env);
 }
 
-function postJson(
-  url: string,
-  body: unknown,
-  env = createTestEnv(),
-): Promise<Response> {
+function postJson(url: string, body: unknown, env = createTestEnv()): Promise<Response> {
   return makeRequest(
     url,
     {
@@ -116,7 +110,7 @@ describe('GET /health', () => {
     const res = await makeRequest('/health');
     expect(res.status).toBe(200);
 
-    const json = await res.json() as Record<string, unknown>;
+    const json = (await res.json()) as Record<string, unknown>;
     expect(json.status).toBe('healthy');
     expect(json.service).toBe('rate-limiter');
     expect(json.version).toBe('1.0.0');
@@ -124,7 +118,7 @@ describe('GET /health', () => {
 
   it('includes a valid ISO 8601 timestamp', async () => {
     const res = await makeRequest('/health');
-    const json = await res.json() as { timestamp: string };
+    const json = (await res.json()) as { timestamp: string };
     expect(Number.isNaN(Date.parse(json.timestamp))).toBe(false);
   });
 });
@@ -138,14 +132,14 @@ describe('GET /', () => {
     const res = await makeRequest('/');
     expect(res.status).toBe(200);
 
-    const json = await res.json() as Record<string, unknown>;
+    const json = (await res.json()) as Record<string, unknown>;
     expect(json.name).toContain('Rate Limiter');
     expect(json.version).toBe('1.0.0');
   });
 
   it('includes RATE_LIMIT_CONFIGS in the root response', async () => {
     const res = await makeRequest('/');
-    const json = await res.json() as { tiers: typeof RATE_LIMIT_CONFIGS };
+    const json = (await res.json()) as { tiers: typeof RATE_LIMIT_CONFIGS };
     expect(json.tiers).toBeDefined();
     expect(json.tiers.free).toBeDefined();
     expect(json.tiers.pro).toBeDefined();
@@ -162,7 +156,7 @@ describe('Unknown routes', () => {
     const res = await makeRequest('/does-not-exist');
     expect(res.status).toBe(404);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('NOT_FOUND');
   });
 });
@@ -202,7 +196,7 @@ describe('POST /check', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: { allowed: boolean; tier: string; limit: number };
     };
@@ -216,7 +210,7 @@ describe('POST /check', () => {
     const res = await postJson('/check', { identifier: 'user-no-tier' });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as { success: boolean; data: { tier: string } };
+    const json = (await res.json()) as { success: boolean; data: { tier: string } };
     expect(json.success).toBe(true);
     expect(json.data.tier).toBe('free');
   });
@@ -228,7 +222,7 @@ describe('POST /check', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as { data: { limit: number; tier: string } };
+    const json = (await res.json()) as { data: { limit: number; tier: string } };
     expect(json.data.tier).toBe('pro');
     expect(json.data.limit).toBe(RATE_LIMIT_CONFIGS.pro.requestsPerHour);
   });
@@ -240,7 +234,7 @@ describe('POST /check', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as { data: { limit: number; tier: string } };
+    const json = (await res.json()) as { data: { limit: number; tier: string } };
     expect(json.data.tier).toBe('enterprise');
     expect(json.data.limit).toBe(RATE_LIMIT_CONFIGS.enterprise.requestsPerHour);
   });
@@ -252,11 +246,11 @@ describe('POST /check', () => {
     const body = { identifier: 'user-decrement', tier: 'free' };
 
     const res1 = await postJson('/check', body, env);
-    const json1 = await res1.json() as { data: { remaining: number } };
+    const json1 = (await res1.json()) as { data: { remaining: number } };
     const remaining1 = json1.data.remaining;
 
     const res2 = await postJson('/check', body, env);
-    const json2 = await res2.json() as { data: { remaining: number } };
+    const json2 = (await res2.json()) as { data: { remaining: number } };
     const remaining2 = json2.data.remaining;
 
     expect(remaining2).toBe(remaining1 - 1);
@@ -281,7 +275,7 @@ describe('POST /check', () => {
     const res = await postJson('/check', { identifier: 'exhausted-user', tier: 'free' }, env);
     expect(res.status).toBe(200);
 
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: { allowed: boolean; remaining: number; retryAfter?: number };
     };
@@ -323,12 +317,16 @@ describe('POST /check', () => {
     });
     const env = createTestEnv({ RATE_LIMITS: kv });
 
-    const res = await postJson('/check', {
-      identifier: 'rate-limited-user',
-      tier: 'free',
-    }, env);
+    const res = await postJson(
+      '/check',
+      {
+        identifier: 'rate-limited-user',
+        tier: 'free',
+      },
+      env,
+    );
 
-    const json = await res.json() as { data: { allowed: boolean } };
+    const json = (await res.json()) as { data: { allowed: boolean } };
     if (!json.data.allowed) {
       expect(res.headers.get('Retry-After')).toBeTruthy();
     }
@@ -338,7 +336,7 @@ describe('POST /check', () => {
     const res = await postJson('/check', { tier: 'free' });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
@@ -346,18 +344,18 @@ describe('POST /check', () => {
     const res = await postJson('/check', { identifier: '', tier: 'free' });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
   it('returns 400 VALIDATION_ERROR when tier is not a recognised enum value', async () => {
     const res = await postJson('/check', {
       identifier: 'user-bad-tier',
-      tier: 'diamond',  // not allowed
+      tier: 'diamond', // not allowed
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
@@ -374,13 +372,17 @@ describe('POST /check', () => {
 
     // First call with 'free' — tier mismatch triggers a reset, so remaining
     // should be close to the free limit (limit - 1 after consuming this request).
-    const res = await postJson('/check', {
-      identifier: 'tier-switch-user',
-      tier: 'free',
-    }, env);
+    const res = await postJson(
+      '/check',
+      {
+        identifier: 'tier-switch-user',
+        tier: 'free',
+      },
+      env,
+    );
     expect(res.status).toBe(200);
 
-    const json = await res.json() as { data: { remaining: number } };
+    const json = (await res.json()) as { data: { remaining: number } };
     expect(json.data.remaining).toBe(RATE_LIMIT_CONFIGS.free.requestsPerHour - 1);
   });
 });
@@ -394,7 +396,7 @@ describe('GET /status/:identifier', () => {
     const res = await makeRequest('/status/fresh-identifier');
     expect(res.status).toBe(200);
 
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: { allowed: boolean; remaining: number; limit: number };
     };
@@ -408,7 +410,7 @@ describe('GET /status/:identifier', () => {
     const res = await makeRequest('/status/some-user?tier=pro');
     expect(res.status).toBe(200);
 
-    const json = await res.json() as { data: { tier: string; limit: number } };
+    const json = (await res.json()) as { data: { tier: string; limit: number } };
     expect(json.data.tier).toBe('pro');
     expect(json.data.limit).toBe(RATE_LIMIT_CONFIGS.pro.requestsPerHour);
   });
@@ -418,10 +420,10 @@ describe('GET /status/:identifier', () => {
     const env = createTestEnv({ RATE_LIMITS: kv });
 
     const res1 = await makeRequest('/status/read-only-user', {}, env);
-    const json1 = await res1.json() as { data: { remaining: number } };
+    const json1 = (await res1.json()) as { data: { remaining: number } };
 
     const res2 = await makeRequest('/status/read-only-user', {}, env);
-    const json2 = await res2.json() as { data: { remaining: number } };
+    const json2 = (await res2.json()) as { data: { remaining: number } };
 
     // Status endpoint must not consume a token between calls
     expect(json2.data.remaining).toBe(json1.data.remaining);
@@ -443,7 +445,7 @@ describe('GET /status/:identifier', () => {
     const res = await makeRequest('/status/some-user?tier=platinum');
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('INVALID_TIER');
   });
 
@@ -462,7 +464,7 @@ describe('GET /status/:identifier', () => {
     const res = await makeRequest('/status/known-user?tier=free', {}, env);
     expect(res.status).toBe(200);
 
-    const json = await res.json() as { data: { remaining: number } };
+    const json = (await res.json()) as { data: { remaining: number } };
     // 100 limit − 5 used = 95 remaining
     expect(json.data.remaining).toBe(RATE_LIMIT_CONFIGS.free.requestsPerHour - 5);
   });
@@ -477,13 +479,13 @@ describe('GET /configs', () => {
     const res = await makeRequest('/configs');
     expect(res.status).toBe(200);
 
-    const json = await res.json() as { success: boolean };
+    const json = (await res.json()) as { success: boolean };
     expect(json.success).toBe(true);
   });
 
   it('contains free, pro, and enterprise tier configurations', async () => {
     const res = await makeRequest('/configs');
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: typeof RATE_LIMIT_CONFIGS;
     };
@@ -497,7 +499,7 @@ describe('GET /configs', () => {
 
   it('includes burstLimit for each tier', async () => {
     const res = await makeRequest('/configs');
-    const json = await res.json() as { data: typeof RATE_LIMIT_CONFIGS };
+    const json = (await res.json()) as { data: typeof RATE_LIMIT_CONFIGS };
 
     expect(typeof json.data.free.burstLimit).toBe('number');
     expect(typeof json.data.pro.burstLimit).toBe('number');
@@ -514,7 +516,7 @@ describe('GET /recommend/:requestsPerHour', () => {
     const res = await makeRequest('/recommend/50');
     expect(res.status).toBe(200);
 
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: { requestsPerHour: number; recommendedTier: string };
     };
@@ -527,7 +529,7 @@ describe('GET /recommend/:requestsPerHour', () => {
     const res = await makeRequest('/recommend/500');
     expect(res.status).toBe(200);
 
-    const json = await res.json() as { data: { recommendedTier: string } };
+    const json = (await res.json()) as { data: { recommendedTier: string } };
     expect(json.data.recommendedTier).toBe('pro');
   });
 
@@ -535,13 +537,13 @@ describe('GET /recommend/:requestsPerHour', () => {
     const res = await makeRequest('/recommend/5000');
     expect(res.status).toBe(200);
 
-    const json = await res.json() as { data: { recommendedTier: string } };
+    const json = (await res.json()) as { data: { recommendedTier: string } };
     expect(json.data.recommendedTier).toBe('enterprise');
   });
 
   it('includes the config object for the recommended tier', async () => {
     const res = await makeRequest('/recommend/100');
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       data: { config: typeof RATE_LIMIT_CONFIGS.free };
     };
     expect(json.data.config).toBeDefined();
@@ -552,7 +554,7 @@ describe('GET /recommend/:requestsPerHour', () => {
     const res = await makeRequest('/recommend/lots');
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('INVALID_INPUT');
   });
 
@@ -560,7 +562,7 @@ describe('GET /recommend/:requestsPerHour', () => {
     const res = await makeRequest('/recommend/-10');
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('INVALID_INPUT');
   });
 });
@@ -580,14 +582,10 @@ describe('DELETE /reset/:identifier', () => {
     });
     const env = createTestEnv({ RATE_LIMITS: kv });
 
-    const res = await deleteReq(
-      '/reset/to-be-reset',
-      { 'X-Admin-Key': ADMIN_KEY },
-      env,
-    );
+    const res = await deleteReq('/reset/to-be-reset', { 'X-Admin-Key': ADMIN_KEY }, env);
     expect(res.status).toBe(200);
 
-    const json = await res.json() as { success: boolean; message: string };
+    const json = (await res.json()) as { success: boolean; message: string };
     expect(json.success).toBe(true);
     expect(json.message).toContain('to-be-reset');
   });
@@ -598,22 +596,21 @@ describe('DELETE /reset/:identifier', () => {
 
     await deleteReq('/reset/target-user', { 'X-Admin-Key': ADMIN_KEY }, env);
 
-    expect((kv.delete as ReturnType<typeof vi.fn>).mock.calls).toContainEqual(['ratelimit:target-user']);
+    expect((kv.delete as ReturnType<typeof vi.fn>).mock.calls).toContainEqual([
+      'ratelimit:target-user',
+    ]);
   });
 
   it('returns 401 when X-Admin-Key header is missing', async () => {
     const res = await deleteReq('/reset/some-user', {});
     expect(res.status).toBe(401);
 
-    const json = await res.json() as { success: boolean };
+    const json = (await res.json()) as { success: boolean };
     expect(json.success).toBe(false);
   });
 
   it('returns 401 when X-Admin-Key is incorrect', async () => {
-    const res = await deleteReq(
-      '/reset/some-user',
-      { 'X-Admin-Key': 'wrong-key' },
-    );
+    const res = await deleteReq('/reset/some-user', { 'X-Admin-Key': 'wrong-key' });
     expect(res.status).toBe(401);
   });
 });
@@ -630,14 +627,10 @@ describe('GET /admin/keys', () => {
     });
     const env = createTestEnv({ RATE_LIMITS: kv });
 
-    const res = await makeRequest(
-      '/admin/keys',
-      { headers: { 'X-Admin-Key': ADMIN_KEY } },
-      env,
-    );
+    const res = await makeRequest('/admin/keys', { headers: { 'X-Admin-Key': ADMIN_KEY } }, env);
     expect(res.status).toBe(200);
 
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: { count: number; keys: string[] };
     };
@@ -667,12 +660,8 @@ describe('GET /admin/keys', () => {
     const kv = createMockKV(initial);
     const env = createTestEnv({ RATE_LIMITS: kv });
 
-    const res = await makeRequest(
-      '/admin/keys',
-      { headers: { 'X-Admin-Key': ADMIN_KEY } },
-      env,
-    );
-    const json = await res.json() as { data: { keys: string[] } };
+    const res = await makeRequest('/admin/keys', { headers: { 'X-Admin-Key': ADMIN_KEY } }, env);
+    const json = (await res.json()) as { data: { keys: string[] } };
     expect(json.data.keys.length).toBeLessThanOrEqual(100);
   });
 });
@@ -698,21 +687,31 @@ describe('Rate limit enforcement (sequence test)', () => {
     const env = createTestEnv({ RATE_LIMITS: kv });
 
     // This call should be allowed (fills the last slot)
-    const resAllowed = await postJson('/check', {
-      identifier: 'sequence-user',
-      tier: 'free',
-    }, env);
+    const resAllowed = await postJson(
+      '/check',
+      {
+        identifier: 'sequence-user',
+        tier: 'free',
+      },
+      env,
+    );
     expect(resAllowed.status).toBe(200);
-    const jsonAllowed = await resAllowed.json() as { data: { allowed: boolean } };
+    const jsonAllowed = (await resAllowed.json()) as { data: { allowed: boolean } };
     expect(jsonAllowed.data.allowed).toBe(true);
 
     // This call should be denied (limit exhausted)
-    const resDenied = await postJson('/check', {
-      identifier: 'sequence-user',
-      tier: 'free',
-    }, env);
+    const resDenied = await postJson(
+      '/check',
+      {
+        identifier: 'sequence-user',
+        tier: 'free',
+      },
+      env,
+    );
     expect(resDenied.status).toBe(200);
-    const jsonDenied = await resDenied.json() as { data: { allowed: boolean; remaining: number } };
+    const jsonDenied = (await resDenied.json()) as {
+      data: { allowed: boolean; remaining: number };
+    };
     expect(jsonDenied.data.allowed).toBe(false);
     expect(jsonDenied.data.remaining).toBe(0);
   });
@@ -725,22 +724,24 @@ describe('Rate limit enforcement (sequence test)', () => {
     // leaving a fresh slate (remaining = limit - 1 after this request).
     const kv = createMockKV({
       'ratelimit:window-user': {
-        requests: Array.from({ length: 50 }, (_, i) =>
-          now - oneHourAgoMs - (i + 1) * 1000,
-        ),
+        requests: Array.from({ length: 50 }, (_, i) => now - oneHourAgoMs - (i + 1) * 1000),
         tier: 'free',
         lastUpdated: now - oneHourAgoMs,
       },
     });
     const env = createTestEnv({ RATE_LIMITS: kv });
 
-    const res = await postJson('/check', {
-      identifier: 'window-user',
-      tier: 'free',
-    }, env);
+    const res = await postJson(
+      '/check',
+      {
+        identifier: 'window-user',
+        tier: 'free',
+      },
+      env,
+    );
     expect(res.status).toBe(200);
 
-    const json = await res.json() as { data: { allowed: boolean; remaining: number } };
+    const json = (await res.json()) as { data: { allowed: boolean; remaining: number } };
     expect(json.data.allowed).toBe(true);
     // All 50 stale timestamps were discarded, only the current request counts
     expect(json.data.remaining).toBe(RATE_LIMIT_CONFIGS.free.requestsPerHour - 1);

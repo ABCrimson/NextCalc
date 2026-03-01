@@ -6,7 +6,7 @@
  * so the module graph resolves without attempting WASM instantiation.
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 // ---------------------------------------------------------------------------
 // Mock @cf-wasm/resvg/workerd — WASM cannot be instantiated in vitest.
@@ -55,13 +55,20 @@ vi.mock('modern-pdf-lib', () => {
 // in a vitest environment on Windows.
 // ---------------------------------------------------------------------------
 vi.mock('../handlers/svg-internal.js', () => ({
-  generateSvgFromLatex: vi.fn().mockResolvedValue(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="80"><text>mock</text></svg>',
-  ),
+  generateSvgFromLatex: vi
+    .fn()
+    .mockResolvedValue(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="80"><text>mock</text></svg>',
+    ),
+  generateRasterSvgFromLatex: vi
+    .fn()
+    .mockResolvedValue(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="80"><text>mock</text></svg>',
+    ),
 }));
 
-import { validateLatexSyntax, createLatexDocument } from '../handlers/pdf.js';
-import { getRecommendedDpi, estimatePngSize } from '../handlers/png.js';
+import { createLatexDocument, validateLatexSyntax } from '../handlers/pdf.js';
+import { estimatePngSize, getRecommendedDpi } from '../handlers/png.js';
 import { optimizeSvg } from '../handlers/svg.js';
 
 describe('PDF Handler', () => {

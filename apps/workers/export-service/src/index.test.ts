@@ -21,7 +21,7 @@
  * - All validation and routing logic is exercised with the real handler code.
  */
 
-import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
+import { describe, expect, it, type Mock, vi } from 'vitest';
 
 // ---------------------------------------------------------------------------
 // Mock MathJax internals BEFORE importing app so the module graph resolves
@@ -31,9 +31,16 @@ import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 // routing, Zod validation, R2 upload and response-shaping code paths.
 // ---------------------------------------------------------------------------
 vi.mock('./handlers/svg-internal.js', () => ({
-  generateSvgFromLatex: vi.fn().mockResolvedValue(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="80"><text>mock</text></svg>',
-  ),
+  generateSvgFromLatex: vi
+    .fn()
+    .mockResolvedValue(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="80"><text>mock</text></svg>',
+    ),
+  generateRasterSvgFromLatex: vi
+    .fn()
+    .mockResolvedValue(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="80"><text>mock</text></svg>',
+    ),
 }));
 
 // ---------------------------------------------------------------------------
@@ -111,9 +118,11 @@ interface MockR2Object {
   customMetadata?: Record<string, string>;
 }
 
-function createMockR2Bucket(overrides: Partial<{
-  putResult: MockR2Object | null;
-}> = {}) {
+function createMockR2Bucket(
+  overrides: Partial<{
+    putResult: MockR2Object | null;
+  }> = {},
+) {
   const defaultPutResult: MockR2Object = {
     key: 'public/2026-02-18/mock-uuid.svg',
     version: '1',
@@ -161,11 +170,7 @@ function makeRequest(
   return app.request(url, options, env);
 }
 
-function postJson(
-  url: string,
-  body: unknown,
-  env = createTestEnv(),
-): Promise<Response> {
+function postJson(url: string, body: unknown, env = createTestEnv()): Promise<Response> {
   return makeRequest(
     url,
     {
@@ -186,7 +191,7 @@ describe('GET /health', () => {
     const res = await makeRequest('/health');
     expect(res.status).toBe(200);
 
-    const json = await res.json() as Record<string, unknown>;
+    const json = (await res.json()) as Record<string, unknown>;
     expect(json.status).toBe('healthy');
     expect(json.service).toBe('export-service');
     expect(json.version).toBe('1.0.0');
@@ -194,7 +199,7 @@ describe('GET /health', () => {
 
   it('includes a valid ISO 8601 timestamp', async () => {
     const res = await makeRequest('/health');
-    const json = await res.json() as Record<string, unknown>;
+    const json = (await res.json()) as Record<string, unknown>;
     expect(Number.isNaN(Date.parse(json.timestamp as string))).toBe(false);
   });
 });
@@ -208,7 +213,7 @@ describe('GET /', () => {
     const res = await makeRequest('/');
     expect(res.status).toBe(200);
 
-    const json = await res.json() as Record<string, unknown>;
+    const json = (await res.json()) as Record<string, unknown>;
     expect(json.name).toContain('Export Service');
     expect(json.version).toBe('1.0.0');
 
@@ -229,7 +234,7 @@ describe('Unknown routes', () => {
     const res = await makeRequest('/unknown/route');
     expect(res.status).toBe(404);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('NOT_FOUND');
   });
 });
@@ -241,9 +246,13 @@ describe('Unknown routes', () => {
 describe('CORS middleware', () => {
   it('echoes the allowed origin back in ACAO header', async () => {
     const env = createTestEnv({ ALLOWED_ORIGINS: 'http://localhost:3020' });
-    const res = await makeRequest('/health', {
-      headers: { Origin: 'http://localhost:3020' },
-    }, env);
+    const res = await makeRequest(
+      '/health',
+      {
+        headers: { Origin: 'http://localhost:3020' },
+      },
+      env,
+    );
     expect(res.headers.get('Access-Control-Allow-Origin')).toBe('http://localhost:3020');
   });
 
@@ -270,7 +279,7 @@ describe('POST /export/svg', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as { success: boolean; data: Record<string, unknown> };
+    const json = (await res.json()) as { success: boolean; data: Record<string, unknown> };
     expect(json.success).toBe(true);
     expect(json.data).toBeDefined();
   });
@@ -297,7 +306,7 @@ describe('POST /export/svg', () => {
     const res = await postJson('/export/svg', { options: {} });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
@@ -305,7 +314,7 @@ describe('POST /export/svg', () => {
     const res = await postJson('/export/svg', { latex: '' });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
@@ -314,7 +323,7 @@ describe('POST /export/svg', () => {
     const res = await postJson('/export/svg', { latex: 'x^{2' });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('INVALID_LATEX');
   });
 
@@ -329,7 +338,7 @@ describe('POST /export/svg', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as { success: boolean };
+    const json = (await res.json()) as { success: boolean };
     expect(json.success).toBe(true);
   });
 
@@ -342,7 +351,7 @@ describe('POST /export/svg', () => {
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
@@ -350,7 +359,7 @@ describe('POST /export/svg', () => {
     const res = await postJson('/export/svg', { latex: 'x^2 + y^2 = r^2' });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: { key: string; url: string; format: string };
     };
@@ -367,7 +376,7 @@ describe('POST /export/svg', () => {
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 });
@@ -383,7 +392,7 @@ describe('POST /export/png', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as { success: boolean; data: Record<string, unknown> };
+    const json = (await res.json()) as { success: boolean; data: Record<string, unknown> };
     expect(json.success).toBe(true);
     expect(json.data).toBeDefined();
   });
@@ -392,7 +401,7 @@ describe('POST /export/png', () => {
     const res = await postJson('/export/png', { latex: 'x^2 + y^2 = r^2' });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: {
         key: string;
@@ -435,7 +444,7 @@ describe('POST /export/png', () => {
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
@@ -446,7 +455,7 @@ describe('POST /export/png', () => {
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
@@ -457,17 +466,17 @@ describe('POST /export/png', () => {
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
   it('returns 400 INVALID_LATEX when LaTeX has unbalanced dollar signs', async () => {
     const res = await postJson('/export/png', {
-      latex: '$x^2',  // odd number of $ signs
+      latex: '$x^2', // odd number of $ signs
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('INVALID_LATEX');
   });
 
@@ -478,7 +487,7 @@ describe('POST /export/png', () => {
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 });
@@ -494,7 +503,7 @@ describe('POST /export/pdf', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as { success: boolean; data: Record<string, unknown> };
+    const json = (await res.json()) as { success: boolean; data: Record<string, unknown> };
     expect(json.success).toBe(true);
     expect(json.data).toBeDefined();
   });
@@ -505,7 +514,7 @@ describe('POST /export/pdf', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: { format: string; pages: number; pageSize: string };
     };
@@ -521,7 +530,7 @@ describe('POST /export/pdf', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: { pageSize: string };
     };
@@ -542,7 +551,7 @@ describe('POST /export/pdf', () => {
     const res = await postJson('/export/pdf', { options: { pageSize: 'a4' } });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
@@ -550,7 +559,7 @@ describe('POST /export/pdf', () => {
     const res = await postJson('/export/pdf', { latex: '' });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
@@ -559,18 +568,18 @@ describe('POST /export/pdf', () => {
     const res = await postJson('/export/pdf', { latex: '\\frac{x}{y' });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('INVALID_LATEX');
   });
 
   it('returns 400 VALIDATION_ERROR when pageSize is not a valid enum value', async () => {
     const res = await postJson('/export/pdf', {
       latex: 'x',
-      options: { pageSize: 'tabloid' },  // not allowed
+      options: { pageSize: 'tabloid' }, // not allowed
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
@@ -581,7 +590,7 @@ describe('POST /export/pdf', () => {
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
@@ -592,7 +601,7 @@ describe('POST /export/pdf', () => {
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 });
@@ -614,7 +623,7 @@ describe('GET /export/dpi/:useCase', () => {
       const res = await makeRequest(`/export/dpi/${useCase}`);
       expect(res.status).toBe(200);
 
-      const json = await res.json() as {
+      const json = (await res.json()) as {
         success: boolean;
         data: { useCase: string; recommendedDpi: number };
       };
@@ -628,7 +637,7 @@ describe('GET /export/dpi/:useCase', () => {
     const res = await makeRequest('/export/dpi/mobile');
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('INVALID_USE_CASE');
   });
 

@@ -18,9 +18,9 @@ import { logger } from 'hono/logger';
 import { prettyJSON } from 'hono/pretty-json';
 import { z } from 'zod';
 
-import { exportToPdf, validateLatexSyntax, type PdfExportRequest } from './handlers/pdf.js';
+import { exportToPdf, type PdfExportRequest, validateLatexSyntax } from './handlers/pdf.js';
 import { exportToPng, getRecommendedDpi, type PngExportRequest } from './handlers/png.js';
-import { exportToSvg, optimizeSvg, type SvgExportRequest } from './handlers/svg.js';
+import { exportToSvg, type SvgExportRequest } from './handlers/svg.js';
 import type { R2Bucket } from './utils/r2.js';
 
 /**
@@ -52,7 +52,9 @@ app.use('/*', async (c, next) => {
 
   const origin = c.req.header('Origin') || '';
   const corsMiddleware = cors({
-    origin: allowedOrigins.includes(origin) ? origin : allowedOrigins[0]!,
+    origin: allowedOrigins.includes(origin)
+      ? origin
+      : (allowedOrigins[0] ?? 'http://localhost:3020'),
     allowMethods: ['GET', 'POST', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization'],
     maxAge: 86400,
@@ -83,7 +85,7 @@ app.onError((err, c) => {
         details: err.message,
       },
     },
-    500
+    500,
   );
 });
 
@@ -147,13 +149,15 @@ app.post('/export/pdf', async (c) => {
     const schema = z.object({
       latex: z.string().min(1).max(10000),
       userId: z.string().optional(),
-      options: z.object({
-        pageSize: z.enum(['letter', 'a4', 'legal']).optional(),
-        margin: z.number().min(0).max(2).optional(),
-        fontSize: z.number().min(8).max(24).optional(),
-        title: z.string().max(200).optional(),
-        includeMetadata: z.boolean().optional(),
-      }).optional(),
+      options: z
+        .object({
+          pageSize: z.enum(['letter', 'a4', 'legal']).optional(),
+          margin: z.number().min(0).max(2).optional(),
+          fontSize: z.number().min(8).max(24).optional(),
+          title: z.string().max(200).optional(),
+          includeMetadata: z.boolean().optional(),
+        })
+        .optional(),
     });
 
     const validated = schema.parse(body) as PdfExportRequest;
@@ -168,14 +172,12 @@ app.post('/export/pdf', async (c) => {
             code: 'INVALID_LATEX',
           },
         },
-        400
+        400,
       );
     }
 
     // Determine which bucket to use
-    const bucket = validated.userId
-      ? c.env.EXPORTS_PRIVATE
-      : c.env.EXPORTS_PUBLIC;
+    const bucket = validated.userId ? c.env.EXPORTS_PRIVATE : c.env.EXPORTS_PUBLIC;
 
     const maxFileSize = parseInt(c.env.MAX_FILE_SIZE || '5242880', 10);
 
@@ -186,7 +188,6 @@ app.post('/export/pdf', async (c) => {
       success: true,
       data: result,
     });
-
   } catch (error) {
     if (error instanceof z.ZodError) {
       return c.json(
@@ -198,7 +199,7 @@ app.post('/export/pdf', async (c) => {
             details: error.issues,
           },
         },
-        400
+        400,
       );
     }
 
@@ -211,7 +212,7 @@ app.post('/export/pdf', async (c) => {
           code: 'EXPORT_ERROR',
         },
       },
-      500
+      500,
     );
   }
 });
@@ -243,13 +244,18 @@ app.post('/export/png', async (c) => {
     const schema = z.object({
       latex: z.string().min(1).max(10000),
       userId: z.string().optional(),
-      options: z.object({
-        width: z.number().min(100).max(4000).optional(),
-        height: z.number().min(50).max(2000).optional(),
-        dpi: z.number().min(72).max(600).optional(),
-        backgroundColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
-        transparent: z.boolean().optional(),
-      }).optional(),
+      options: z
+        .object({
+          width: z.number().min(100).max(4000).optional(),
+          height: z.number().min(50).max(2000).optional(),
+          dpi: z.number().min(72).max(600).optional(),
+          backgroundColor: z
+            .string()
+            .regex(/^#[0-9A-Fa-f]{6}$/)
+            .optional(),
+          transparent: z.boolean().optional(),
+        })
+        .optional(),
     });
 
     const validated = schema.parse(body) as PngExportRequest;
@@ -264,14 +270,12 @@ app.post('/export/png', async (c) => {
             code: 'INVALID_LATEX',
           },
         },
-        400
+        400,
       );
     }
 
     // Determine which bucket to use
-    const bucket = validated.userId
-      ? c.env.EXPORTS_PRIVATE
-      : c.env.EXPORTS_PUBLIC;
+    const bucket = validated.userId ? c.env.EXPORTS_PRIVATE : c.env.EXPORTS_PUBLIC;
 
     const maxFileSize = parseInt(c.env.MAX_FILE_SIZE || '5242880', 10);
 
@@ -282,7 +286,6 @@ app.post('/export/png', async (c) => {
       success: true,
       data: result,
     });
-
   } catch (error) {
     if (error instanceof z.ZodError) {
       return c.json(
@@ -294,7 +297,7 @@ app.post('/export/png', async (c) => {
             details: error.issues,
           },
         },
-        400
+        400,
       );
     }
 
@@ -307,7 +310,7 @@ app.post('/export/png', async (c) => {
           code: 'EXPORT_ERROR',
         },
       },
-      500
+      500,
     );
   }
 });
@@ -338,12 +341,17 @@ app.post('/export/svg', async (c) => {
     const schema = z.object({
       latex: z.string().min(1).max(10000),
       userId: z.string().optional(),
-      options: z.object({
-        fontSize: z.number().min(8).max(72).optional(),
-        color: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
-        backgroundColor: z.string().optional(),
-        inline: z.boolean().optional(),
-      }).optional(),
+      options: z
+        .object({
+          fontSize: z.number().min(8).max(72).optional(),
+          color: z
+            .string()
+            .regex(/^#[0-9A-Fa-f]{6}$/)
+            .optional(),
+          backgroundColor: z.string().optional(),
+          inline: z.boolean().optional(),
+        })
+        .optional(),
     });
 
     const validated = schema.parse(body) as SvgExportRequest;
@@ -358,14 +366,12 @@ app.post('/export/svg', async (c) => {
             code: 'INVALID_LATEX',
           },
         },
-        400
+        400,
       );
     }
 
     // Determine which bucket to use
-    const bucket = validated.userId
-      ? c.env.EXPORTS_PRIVATE
-      : c.env.EXPORTS_PUBLIC;
+    const bucket = validated.userId ? c.env.EXPORTS_PRIVATE : c.env.EXPORTS_PUBLIC;
 
     const maxFileSize = parseInt(c.env.MAX_FILE_SIZE || '5242880', 10);
 
@@ -376,7 +382,6 @@ app.post('/export/svg', async (c) => {
       success: true,
       data: result,
     });
-
   } catch (error) {
     if (error instanceof z.ZodError) {
       return c.json(
@@ -388,7 +393,7 @@ app.post('/export/svg', async (c) => {
             details: error.issues,
           },
         },
-        400
+        400,
       );
     }
 
@@ -401,7 +406,7 @@ app.post('/export/svg', async (c) => {
           code: 'EXPORT_ERROR',
         },
       },
-      500
+      500,
     );
   }
 });
@@ -423,7 +428,7 @@ app.get('/export/dpi/:useCase', (c) => {
           code: 'INVALID_USE_CASE',
         },
       },
-      400
+      400,
     );
   }
 
@@ -451,7 +456,7 @@ app.notFound((c) => {
         path: c.req.path,
       },
     },
-    404
+    404,
   );
 });
 

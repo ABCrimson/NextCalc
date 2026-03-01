@@ -290,7 +290,7 @@ async function main() {
     data: {
       title: 'Derivative Calculator Tutorial',
       content:
-        'Here\'s a step-by-step guide on using the derivative calculator for polynomial functions:\n\n1. Define your function: f(x) = x^3 + 2x\n2. Use derivative(f(x), x) to compute\n3. Plot both functions to visualize',
+        "Here's a step-by-step guide on using the derivative calculator for polynomial functions:\n\n1. Define your function: f(x) = x^3 + 2x\n2. Use derivative(f(x), x) to compute\n3. Plot both functions to visualize",
       tags: ['tutorial', 'calculus', 'derivatives'],
       userId: alice.id,
       views: 124,
@@ -305,8 +305,7 @@ async function main() {
 
   const comment1 = await prisma.comment.create({
     data: {
-      content:
-        'You can use the plot function with multiple arguments: plot(x^2, x^3)',
+      content: 'You can use the plot function with multiple arguments: plot(x^2, x^3)',
       postId: post1.id,
       userId: alice.id,
     },
@@ -323,8 +322,7 @@ async function main() {
 
   const comment3 = await prisma.comment.create({
     data: {
-      content:
-        'Matrix operations are on the roadmap for Phase 5! Stay tuned.',
+      content: 'Matrix operations are on the roadmap for Phase 5! Stay tuned.',
       postId: post2.id,
       userId: bob.id,
     },

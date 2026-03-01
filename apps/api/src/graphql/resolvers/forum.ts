@@ -4,24 +4,20 @@
  * Handles forum post CRUD operations with soft delete support.
  */
 
+import type { ForumPost } from '@nextcalc/database';
 import type { GraphQLContext } from '../../lib/context';
 import { requireAuth, requireOwnership } from '../../lib/context';
-import type { ForumPost } from '@nextcalc/database';
-import { NotFoundError } from '../../lib/errors';
-import { validate, createForumPostSchema, updateForumPostSchema } from '../../lib/validation';
 import {
-  buildCursorParams,
   buildConnection,
+  buildCursorParams,
   type CursorPaginationArgs,
 } from '../../lib/cursor-pagination';
+import { NotFoundError } from '../../lib/errors';
+import { createForumPostSchema, updateForumPostSchema, validate } from '../../lib/validation';
 
 export const forumResolvers = {
   Query: {
-    forumPost: async (
-      _parent: unknown,
-      args: { id: string },
-      context: GraphQLContext
-    ) => {
+    forumPost: async (_parent: unknown, args: { id: string }, context: GraphQLContext) => {
       const post = await context.prisma.forumPost.findUnique({
         where: { id: args.id },
       });
@@ -47,7 +43,7 @@ export const forumResolvers = {
         tags?: string[];
         searchQuery?: string;
       },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       const limit = Math.min(args.limit ?? 20, 100);
       const offset = args.offset ?? 0;
@@ -55,11 +51,11 @@ export const forumResolvers = {
       const where: Record<string, unknown> = { deletedAt: null };
 
       if (args.tags?.length) {
-        where['tags'] = { hasSome: args.tags };
+        where.tags = { hasSome: args.tags };
       }
 
       if (args.searchQuery) {
-        where['OR'] = [
+        where.OR = [
           { title: { contains: args.searchQuery, mode: 'insensitive' } },
           { content: { contains: args.searchQuery, mode: 'insensitive' } },
         ];
@@ -95,16 +91,16 @@ export const forumResolvers = {
         tags?: string[];
         searchQuery?: string;
       },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       const where: Record<string, unknown> = { deletedAt: null };
 
       if (args.tags?.length) {
-        where['tags'] = { hasSome: args.tags };
+        where.tags = { hasSome: args.tags };
       }
 
       if (args.searchQuery) {
-        where['OR'] = [
+        where.OR = [
           { title: { contains: args.searchQuery, mode: 'insensitive' } },
           { content: { contains: args.searchQuery, mode: 'insensitive' } },
         ];
@@ -131,7 +127,7 @@ export const forumResolvers = {
     createForumPost: async (
       _parent: unknown,
       args: { input: { title: string; content: string; tags: string[] } },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       const user = requireAuth(context);
       const input = validate(createForumPostSchema, args.input);
@@ -149,7 +145,7 @@ export const forumResolvers = {
     updateForumPost: async (
       _parent: unknown,
       args: { id: string; input: { title?: string; content?: string; tags?: string[] } },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       requireAuth(context);
       const input = validate(updateForumPostSchema, args.input);
@@ -174,11 +170,7 @@ export const forumResolvers = {
       });
     },
 
-    deleteForumPost: async (
-      _parent: unknown,
-      args: { id: string },
-      context: GraphQLContext
-    ) => {
+    deleteForumPost: async (_parent: unknown, args: { id: string }, context: GraphQLContext) => {
       const user = requireAuth(context);
 
       const post = await context.prisma.forumPost.findUnique({
@@ -218,7 +210,7 @@ export const forumResolvers = {
     comments: async (
       parent: ForumPost,
       args: { limit?: number; offset?: number },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       return context.prisma.comment.findMany({
         where: {

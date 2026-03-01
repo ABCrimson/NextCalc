@@ -5,9 +5,9 @@
  */
 
 export {
-  performanceMonitoringPlugin,
-  responseCachingPlugin,
-  queryComplexityPlugin,
   errorTrackingPlugin,
+  performanceMonitoringPlugin,
+  queryComplexityPlugin,
+  responseCachingPlugin,
   usageReportingPlugin,
 } from './performance-monitoring';

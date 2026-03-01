@@ -2,12 +2,8 @@
  * Unit tests for sliding window rate limiting
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import {
-  RATE_LIMIT_CONFIGS,
-  getRecommendedTier,
-  type UserTier,
-} from '../utils/sliding-window.js';
+import { describe, expect, it } from 'vitest';
+import { getRecommendedTier, RATE_LIMIT_CONFIGS, type UserTier } from '../utils/sliding-window.js';
 
 describe('Rate Limit Configuration', () => {
   it('should have correct free tier limits', () => {
@@ -54,9 +50,11 @@ describe('Sliding Window Algorithm', () => {
   });
 
   it('should have increasing limits across tiers', () => {
-    expect(RATE_LIMIT_CONFIGS.free.requestsPerHour)
-      .toBeLessThan(RATE_LIMIT_CONFIGS.pro.requestsPerHour);
-    expect(RATE_LIMIT_CONFIGS.pro.requestsPerHour)
-      .toBeLessThan(RATE_LIMIT_CONFIGS.enterprise.requestsPerHour);
+    expect(RATE_LIMIT_CONFIGS.free.requestsPerHour).toBeLessThan(
+      RATE_LIMIT_CONFIGS.pro.requestsPerHour,
+    );
+    expect(RATE_LIMIT_CONFIGS.pro.requestsPerHour).toBeLessThan(
+      RATE_LIMIT_CONFIGS.enterprise.requestsPerHour,
+    );
   });
 });

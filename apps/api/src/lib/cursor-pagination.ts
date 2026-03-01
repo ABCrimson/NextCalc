@@ -99,8 +99,12 @@ export function buildCursorParams(
   );
 
   const cursorId = isBackward
-    ? (args.before ? decodeCursor(args.before) : null)
-    : (args.after ? decodeCursor(args.after) : null);
+    ? args.before
+      ? decodeCursor(args.before)
+      : null
+    : args.after
+      ? decodeCursor(args.after)
+      : null;
 
   // Fetch one extra item to determine has{Next,Previous}Page.
   const take = isBackward ? -(requestedSize + 1) : requestedSize + 1;
@@ -162,8 +166,8 @@ export function buildConnection<T extends Identifiable>(
   return {
     edges,
     pageInfo: {
-      hasNextPage: isBackward ? (params.cursor != null) : hasMore,
-      hasPreviousPage: isBackward ? hasMore : (params.cursor != null),
+      hasNextPage: isBackward ? params.cursor != null : hasMore,
+      hasPreviousPage: isBackward ? hasMore : params.cursor != null,
       startCursor,
       endCursor,
     },

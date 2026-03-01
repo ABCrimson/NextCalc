@@ -14,10 +14,10 @@
  * @see https://www.apollographql.com/docs/apollo-server/data/subscriptions/
  */
 
-import { PubSub } from 'graphql-subscriptions';
 import type { ExecutionArgs } from 'graphql';
-import type { GraphQLContext } from './context';
+import { PubSub } from 'graphql-subscriptions';
 import { redis } from './cache';
+import type { GraphQLContext } from './context';
 import { logger } from './logger';
 
 // ---------------------------------------------------------------------------
@@ -46,9 +46,14 @@ async function hybridPublish(triggerName: string, payload: unknown): Promise<voi
     try {
       const streamKey = `${STREAM_PREFIX}${triggerName}`;
       // XADD with inline MAXLEN~ trim — single round-trip
-      await redis.xadd(streamKey, '*', { payload: JSON.stringify(payload) }, {
-        trim: { type: 'MAXLEN', threshold: STREAM_MAXLEN, comparison: '~' },
-      });
+      await redis.xadd(
+        streamKey,
+        '*',
+        { payload: JSON.stringify(payload) },
+        {
+          trim: { type: 'MAXLEN', threshold: STREAM_MAXLEN, comparison: '~' },
+        },
+      );
     } catch (error) {
       logger.error('Redis PubSub publish failed, local delivery still active', {
         triggerName,
@@ -88,7 +93,7 @@ export const SUBSCRIPTION_EVENTS = {
   CALCULATION_COMPLETED: 'CALCULATION_COMPLETED',
 } as const;
 
-export type SubscriptionEvent = typeof SUBSCRIPTION_EVENTS[keyof typeof SUBSCRIPTION_EVENTS];
+export type SubscriptionEvent = (typeof SUBSCRIPTION_EVENTS)[keyof typeof SUBSCRIPTION_EVENTS];
 
 /**
  * User payload from decoded token
@@ -118,9 +123,7 @@ async function verifyAuthToken(token: string | undefined): Promise<TokenUser | n
       const [, payloadBase64] = cleanToken.split('.');
       if (!payloadBase64) return null;
 
-      const payload = JSON.parse(
-        Buffer.from(payloadBase64, 'base64url').toString('utf-8')
-      );
+      const payload = JSON.parse(Buffer.from(payloadBase64, 'base64url').toString('utf-8'));
 
       // Check expiration
       if (payload.exp && Date.now() >= payload.exp * 1000) {
@@ -156,15 +159,18 @@ async function verifyAuthToken(token: string | undefined): Promise<TokenUser | n
  * Similar to HTTP context but for WebSocket subscriptions
  */
 export const createSubscriptionContext = async (
-  ctx: { connectionParams?: Record<string, unknown>; extra?: { request?: { socket?: { remoteAddress?: string } } } },
+  ctx: {
+    connectionParams?: Record<string, unknown>;
+    extra?: { request?: { socket?: { remoteAddress?: string } } };
+  },
   _msg: unknown,
-  _args: ExecutionArgs
+  _args: ExecutionArgs,
 ): Promise<GraphQLContext> => {
   // Extract auth token from connection params
   const connectionParams = ctx.connectionParams || {};
-  const token = (connectionParams['authorization'] ||
-                connectionParams['Authorization'] ||
-                connectionParams['authToken']) as string | undefined;
+  const token = (connectionParams.authorization ||
+    connectionParams.Authorization ||
+    connectionParams.authToken) as string | undefined;
 
   // Validate token and load user
   const user = await verifyAuthToken(token);
@@ -182,8 +188,10 @@ export const createSubscriptionContext = async (
     prisma: stubPrisma,
     loaders: stubLoaders,
     req: {
-      headers: (connectionParams['headers'] as Record<string, string>) || {},
-      ...(ctx.extra?.request?.socket?.remoteAddress ? { ip: ctx.extra.request.socket.remoteAddress } : {}),
+      headers: (connectionParams.headers as Record<string, string>) || {},
+      ...(ctx.extra?.request?.socket?.remoteAddress
+        ? { ip: ctx.extra.request.socket.remoteAddress }
+        : {}),
     },
   };
 };
@@ -195,9 +203,11 @@ export const getWebSocketServerOptions = () => ({
   // Connection initialization
   onConnect: async (ctx: { connectionParams?: Record<string, unknown> }) => {
     const connectionParams = ctx.connectionParams || {};
-    const hasAuth = !!(connectionParams['authorization'] ||
-                       connectionParams['Authorization'] ||
-                       connectionParams['authToken']);
+    const hasAuth = !!(
+      connectionParams.authorization ||
+      connectionParams.Authorization ||
+      connectionParams.authToken
+    );
 
     logger.info('WebSocket client connected', {
       authenticated: hasAuth,
@@ -215,7 +225,10 @@ export const getWebSocketServerOptions = () => ({
   },
 
   // Subscription start
-  onSubscribe: async (ctx: { extra?: { user?: { id: string } } }, msg: { payload?: { operationName?: string } }) => {
+  onSubscribe: async (
+    ctx: { extra?: { user?: { id: string } } },
+    msg: { payload?: { operationName?: string } },
+  ) => {
     const user = ctx.extra?.user;
     logger.debug('Subscription started', {
       operationName: msg.payload?.operationName ?? 'anonymous',
@@ -279,10 +292,13 @@ export const subscriptionFilters = {
   /**
    * Filter user worksheet changes by user ID
    */
-  userWorksheetsChanged: (payload: { userId: string }, variables: { userId: string }, context: GraphQLContext) => {
+  userWorksheetsChanged: (
+    payload: { userId: string },
+    variables: { userId: string },
+    context: GraphQLContext,
+  ) => {
     // Ensure user is authenticated and matches the subscription target
     if (!context.user) return false;
     return payload.userId === variables.userId && context.user.id === variables.userId;
   },
 };
-

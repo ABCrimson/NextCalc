@@ -5,11 +5,11 @@
 
 import type { R2Bucket } from '../utils/r2.js';
 import {
-  uploadToR2,
   generateExportKey,
-  validateFileSize,
   getMimeType,
   type UploadResult,
+  uploadToR2,
+  validateFileSize,
 } from '../utils/r2.js';
 import { generateSvgFromLatex as generateSvgInternal } from './svg-internal.js';
 
@@ -60,7 +60,7 @@ export interface SvgExportResult extends UploadResult {
 export async function exportToSvg(
   request: SvgExportRequest,
   bucket: R2Bucket,
-  maxFileSize: number
+  maxFileSize: number,
 ): Promise<SvgExportResult> {
   const { latex, userId, options = {} } = request;
 
@@ -89,17 +89,11 @@ export async function exportToSvg(
   const key = generateExportKey(userId, 'svg');
 
   // Upload to R2
-  const uploadResult = await uploadToR2(
-    bucket,
-    key,
-    svgBuffer,
-    getMimeType('svg'),
-    {
-      latex,
-      createdAt: new Date().toISOString(),
-      userId: userId || 'anonymous',
-    }
-  );
+  const uploadResult = await uploadToR2(bucket, key, svgBuffer, getMimeType('svg'), {
+    latex,
+    createdAt: new Date().toISOString(),
+    userId: userId || 'anonymous',
+  });
 
   // Parse SVG dimensions
   const dimensions = extractSvgDimensions(svg);
@@ -111,16 +105,13 @@ export async function exportToSvg(
   };
 }
 
-
 /**
  * Extracts width and height from SVG markup
  *
  * @param svg - SVG markup
  * @returns Dimensions object or undefined
  */
-function extractSvgDimensions(
-  svg: string
-): { width: number; height: number } | undefined {
+function extractSvgDimensions(svg: string): { width: number; height: number } | undefined {
   const widthMatch = svg.match(/width="(\d+(?:\.\d+)?)"/);
   const heightMatch = svg.match(/height="(\d+(?:\.\d+)?)"/);
 
@@ -147,17 +138,13 @@ export async function batchExportToSvg(
   expressions: string[],
   userId: string | undefined,
   bucket: R2Bucket,
-  maxFileSize: number
+  maxFileSize: number,
 ): Promise<SvgExportResult[]> {
   const results: SvgExportResult[] = [];
 
   for (const latex of expressions) {
     try {
-      const result = await exportToSvg(
-        { latex, userId },
-        bucket,
-        maxFileSize
-      );
+      const result = await exportToSvg({ latex, userId }, bucket, maxFileSize);
       results.push(result);
     } catch (error) {
       // Log error but continue with other exports

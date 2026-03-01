@@ -13,7 +13,7 @@
  * - "anon context"  = unauthenticated (context.user is null)
  */
 
-import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
+import { describe, expect, it, type Mock, vi } from 'vitest';
 
 // ---------------------------------------------------------------------------
 // Module mocks  (must be declared before any import that uses them)
@@ -48,16 +48,16 @@ vi.mock('../lib/cache', () => ({
   rateLimit: vi.fn().mockResolvedValue({ allowed: true, remaining: 99, resetAt: new Date() }),
 }));
 
+import { calculationResolvers } from '../graphql/resolvers/calculation';
+import { commentResolvers } from '../graphql/resolvers/comment';
+import { folderResolvers } from '../graphql/resolvers/folder';
+import { forumResolvers } from '../graphql/resolvers/forum';
+import { upvoteResolvers } from '../graphql/resolvers/upvote';
 // ---------------------------------------------------------------------------
 // Resolver imports (after mocks are registered)
 // ---------------------------------------------------------------------------
 import { userResolvers } from '../graphql/resolvers/user';
 import { worksheetResolvers } from '../graphql/resolvers/worksheet';
-import { folderResolvers } from '../graphql/resolvers/folder';
-import { calculationResolvers } from '../graphql/resolvers/calculation';
-import { forumResolvers } from '../graphql/resolvers/forum';
-import { commentResolvers } from '../graphql/resolvers/comment';
-import { upvoteResolvers } from '../graphql/resolvers/upvote';
 import type { GraphQLContext } from '../lib/context';
 
 // ---------------------------------------------------------------------------
@@ -242,7 +242,7 @@ function createMockLoaders() {
 
 /** Build a full GraphQLContext from partial overrides */
 function makeContext(
-  overrides: Partial<GraphQLContext> & { user?: GraphQLContext['user'] } = {}
+  overrides: Partial<GraphQLContext> & { user?: GraphQLContext['user'] } = {},
 ): GraphQLContext {
   return {
     user: overrides.user !== undefined ? overrides.user : mockUser,
@@ -262,7 +262,7 @@ const adminContext = (prisma?: ReturnType<typeof createMockPrisma>) =>
 // ---------------------------------------------------------------------------
 // Helper to pull mock functions from a context's prisma
 // ---------------------------------------------------------------------------
-function prismaOf(ctx: GraphQLContext) {
+function _prismaOf(ctx: GraphQLContext) {
   return ctx.prisma as unknown as ReturnType<typeof createMockPrisma>;
 }
 
@@ -309,9 +309,9 @@ describe('User Resolvers', () => {
       prisma.user.findUnique.mockResolvedValue(mockOtherUser);
       const ctx = userContext(prisma);
 
-      await expect(
-        userResolvers.Query.user(null, { id: 'user2' }, ctx)
-      ).rejects.toThrow('Insufficient permissions to view this user');
+      await expect(userResolvers.Query.user(null, { id: 'user2' }, ctx)).rejects.toThrow(
+        'Insufficient permissions to view this user',
+      );
     });
 
     it('throws when the target user does not exist', async () => {
@@ -319,9 +319,9 @@ describe('User Resolvers', () => {
       prisma.user.findUnique.mockResolvedValue(null);
       const ctx = userContext(prisma);
 
-      await expect(
-        userResolvers.Query.user(null, { id: 'nonexistent' }, ctx)
-      ).rejects.toThrow('User not found');
+      await expect(userResolvers.Query.user(null, { id: 'nonexistent' }, ctx)).rejects.toThrow(
+        'User not found',
+      );
     });
   });
 
@@ -335,18 +335,23 @@ describe('User Resolvers', () => {
       expect(result).toEqual([mockWorksheet]);
       // Owner: no visibility filter added
       expect(prisma.worksheet.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ where: expect.objectContaining({ userId: 'user1', deletedAt: null }) })
+        expect.objectContaining({
+          where: expect.objectContaining({ userId: 'user1', deletedAt: null }),
+        }),
       );
     });
 
     it('worksheets – restricts to PUBLIC when viewed by another user', async () => {
       const prisma = createMockPrisma();
       prisma.worksheet.findMany.mockResolvedValue([]);
-      const ctx = makeContext({ user: mockOtherUser, prisma: prisma as unknown as GraphQLContext['prisma'] });
+      const ctx = makeContext({
+        user: mockOtherUser,
+        prisma: prisma as unknown as GraphQLContext['prisma'],
+      });
 
       await userResolvers.User.worksheets(mockUser, {}, ctx);
 
-      const callArg = (prisma.worksheet.findMany as Mock).mock.calls[0]![0];
+      const callArg = (prisma.worksheet.findMany as Mock).mock.calls[0]?.[0];
       expect(callArg.where.visibility).toBe('PUBLIC');
     });
 
@@ -357,7 +362,7 @@ describe('User Resolvers', () => {
 
       await userResolvers.User.worksheets(mockUser, { visibility: 'UNLISTED' }, ctx);
 
-      const callArg = (prisma.worksheet.findMany as Mock).mock.calls[0]![0];
+      const callArg = (prisma.worksheet.findMany as Mock).mock.calls[0]?.[0];
       expect(callArg.where.visibility).toBe('UNLISTED');
     });
 
@@ -368,7 +373,7 @@ describe('User Resolvers', () => {
 
       await userResolvers.User.worksheets(mockUser, {}, ctx);
 
-      const callArg = (prisma.worksheet.findMany as Mock).mock.calls[0]![0];
+      const callArg = (prisma.worksheet.findMany as Mock).mock.calls[0]?.[0];
       expect(callArg.take).toBe(20);
       expect(callArg.skip).toBe(0);
     });
@@ -405,7 +410,7 @@ describe('User Resolvers', () => {
 
       const result = await userResolvers.User.forumPosts(mockUser, {}, ctx);
       expect(result).toEqual([mockForumPost]);
-      const callArg = (prisma.forumPost.findMany as Mock).mock.calls[0]![0];
+      const callArg = (prisma.forumPost.findMany as Mock).mock.calls[0]?.[0];
       expect(callArg.take).toBe(20);
       expect(callArg.skip).toBe(0);
       expect(callArg.where.deletedAt).toBeNull();
@@ -422,9 +427,12 @@ describe('Worksheet Resolvers', () => {
     it('returns a PUBLIC worksheet to unauthenticated users', async () => {
       const prisma = createMockPrisma();
       prisma.worksheet.findUnique.mockResolvedValue({ ...mockWorksheet, visibility: 'PUBLIC' });
-      const ctx = anonContext();
+      const _ctx = anonContext();
       // Replace the prisma in the anon context
-      const fullCtx = makeContext({ user: null, prisma: prisma as unknown as GraphQLContext['prisma'] });
+      const fullCtx = makeContext({
+        user: null,
+        prisma: prisma as unknown as GraphQLContext['prisma'],
+      });
 
       const result = await worksheetResolvers.Query.worksheet(null, { id: 'ws1' }, fullCtx);
       expect(result).toMatchObject({ id: 'ws1', visibility: 'PUBLIC' });
@@ -449,9 +457,9 @@ describe('Worksheet Resolvers', () => {
       });
       const ctx = userContext(prisma);
 
-      await expect(
-        worksheetResolvers.Query.worksheet(null, { id: 'ws1' }, ctx)
-      ).rejects.toThrow('You do not have permission to access this worksheet');
+      await expect(worksheetResolvers.Query.worksheet(null, { id: 'ws1' }, ctx)).rejects.toThrow(
+        'You do not have permission to access this worksheet',
+      );
     });
 
     it('allows access when user email is in shares list', async () => {
@@ -473,9 +481,9 @@ describe('Worksheet Resolvers', () => {
       prisma.worksheet.findUnique.mockResolvedValue({ ...mockWorksheet, deletedAt: NOW });
       const ctx = userContext(prisma);
 
-      await expect(
-        worksheetResolvers.Query.worksheet(null, { id: 'ws1' }, ctx)
-      ).rejects.toThrow('not found');
+      await expect(worksheetResolvers.Query.worksheet(null, { id: 'ws1' }, ctx)).rejects.toThrow(
+        'not found',
+      );
     });
 
     it('throws NotFoundError when worksheet does not exist', async () => {
@@ -484,16 +492,16 @@ describe('Worksheet Resolvers', () => {
       const ctx = userContext(prisma);
 
       await expect(
-        worksheetResolvers.Query.worksheet(null, { id: 'nonexistent' }, ctx)
+        worksheetResolvers.Query.worksheet(null, { id: 'nonexistent' }, ctx),
       ).rejects.toThrow('not found');
     });
   });
 
   describe('Query.worksheets (paginated)', () => {
     it('requires authentication', async () => {
-      await expect(
-        worksheetResolvers.Query.worksheets(null, {}, anonContext())
-      ).rejects.toThrow('Authentication required');
+      await expect(worksheetResolvers.Query.worksheets(null, {}, anonContext())).rejects.toThrow(
+        'Authentication required',
+      );
     });
 
     it('returns paginated worksheet list for the authenticated user', async () => {
@@ -517,7 +525,7 @@ describe('Worksheet Resolvers', () => {
 
       await worksheetResolvers.Query.worksheets(null, { limit: 9999 }, ctx);
 
-      const callArg = (prisma.worksheet.findMany as Mock).mock.calls[0]![0];
+      const callArg = (prisma.worksheet.findMany as Mock).mock.calls[0]?.[0];
       expect(callArg.take).toBe(100);
     });
 
@@ -537,7 +545,11 @@ describe('Worksheet Resolvers', () => {
       prisma.worksheet.findMany.mockResolvedValue([mockWorksheet]);
       const ctx = userContext(prisma);
 
-      const result = await worksheetResolvers.Query.worksheets(null, { limit: 20, offset: 20 }, ctx);
+      const result = await worksheetResolvers.Query.worksheets(
+        null,
+        { limit: 20, offset: 20 },
+        ctx,
+      );
       expect(result.pageInfo.hasPreviousPage).toBe(true);
     });
 
@@ -549,7 +561,7 @@ describe('Worksheet Resolvers', () => {
 
       await worksheetResolvers.Query.worksheets(null, { searchQuery: 'algebra' }, ctx);
 
-      const callArg = (prisma.worksheet.findMany as Mock).mock.calls[0]![0];
+      const callArg = (prisma.worksheet.findMany as Mock).mock.calls[0]?.[0];
       expect(callArg.where.OR).toBeDefined();
     });
 
@@ -561,7 +573,7 @@ describe('Worksheet Resolvers', () => {
 
       await worksheetResolvers.Query.worksheets(null, { folderId: 'folder1' }, ctx);
 
-      const callArg = (prisma.worksheet.findMany as Mock).mock.calls[0]![0];
+      const callArg = (prisma.worksheet.findMany as Mock).mock.calls[0]?.[0];
       expect(callArg.where.folderId).toBe('folder1');
     });
   });
@@ -571,7 +583,10 @@ describe('Worksheet Resolvers', () => {
       const prisma = createMockPrisma();
       prisma.worksheet.count.mockResolvedValue(2);
       prisma.worksheet.findMany.mockResolvedValue([{ ...mockWorksheet, visibility: 'PUBLIC' }]);
-      const ctx = makeContext({ user: null, prisma: prisma as unknown as GraphQLContext['prisma'] });
+      const ctx = makeContext({
+        user: null,
+        prisma: prisma as unknown as GraphQLContext['prisma'],
+      });
 
       const result = await worksheetResolvers.Query.publicWorksheets(null, {}, ctx);
       expect(result.nodes).toHaveLength(1);
@@ -582,7 +597,11 @@ describe('Worksheet Resolvers', () => {
   describe('Mutation.createWorksheet', () => {
     it('requires authentication', async () => {
       await expect(
-        worksheetResolvers.Mutation.createWorksheet(null, { input: { title: 'Test', content: {} } }, anonContext())
+        worksheetResolvers.Mutation.createWorksheet(
+          null,
+          { input: { title: 'Test', content: {} } },
+          anonContext(),
+        ),
       ).rejects.toThrow('Authentication required');
     });
 
@@ -595,13 +614,17 @@ describe('Worksheet Resolvers', () => {
       const result = await worksheetResolvers.Mutation.createWorksheet(
         null,
         { input: { title: 'New Worksheet', content: { cells: [] } } },
-        ctx
+        ctx,
       );
       expect(result).toEqual(mockWorksheet);
       expect(prisma.worksheet.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.objectContaining({ title: 'New Worksheet', userId: 'user1', visibility: 'PRIVATE' }),
-        })
+          data: expect.objectContaining({
+            title: 'New Worksheet',
+            userId: 'user1',
+            visibility: 'PRIVATE',
+          }),
+        }),
       );
     });
 
@@ -615,8 +638,8 @@ describe('Worksheet Resolvers', () => {
         worksheetResolvers.Mutation.createWorksheet(
           null,
           { input: { title: 'X', content: {}, folderId: 'folder1' } },
-          ctx
-        )
+          ctx,
+        ),
       ).rejects.toThrow('Invalid folder');
     });
 
@@ -629,8 +652,8 @@ describe('Worksheet Resolvers', () => {
         worksheetResolvers.Mutation.createWorksheet(
           null,
           { input: { title: 'X', content: {}, folderId: 'folder_missing' } },
-          ctx
-        )
+          ctx,
+        ),
       ).rejects.toThrow('Invalid folder');
     });
   });
@@ -638,7 +661,7 @@ describe('Worksheet Resolvers', () => {
   describe('Mutation.updateWorksheet', () => {
     it('requires authentication', async () => {
       await expect(
-        worksheetResolvers.Mutation.updateWorksheet(null, { id: 'ws1', input: {} }, anonContext())
+        worksheetResolvers.Mutation.updateWorksheet(null, { id: 'ws1', input: {} }, anonContext()),
       ).rejects.toThrow('Authentication required');
     });
 
@@ -652,7 +675,7 @@ describe('Worksheet Resolvers', () => {
       const result = await worksheetResolvers.Mutation.updateWorksheet(
         null,
         { id: 'ws1', input: { title: 'Updated Title' } },
-        ctx
+        ctx,
       );
       expect(result).toEqual(updated);
     });
@@ -663,7 +686,7 @@ describe('Worksheet Resolvers', () => {
       const ctx = userContext(prisma);
 
       await expect(
-        worksheetResolvers.Mutation.updateWorksheet(null, { id: 'missing', input: {} }, ctx)
+        worksheetResolvers.Mutation.updateWorksheet(null, { id: 'missing', input: {} }, ctx),
       ).rejects.toThrow('Worksheet not found');
     });
 
@@ -673,7 +696,7 @@ describe('Worksheet Resolvers', () => {
       const ctx = userContext(prisma);
 
       await expect(
-        worksheetResolvers.Mutation.updateWorksheet(null, { id: 'ws1', input: {} }, ctx)
+        worksheetResolvers.Mutation.updateWorksheet(null, { id: 'ws1', input: {} }, ctx),
       ).rejects.toThrow('Worksheet not found');
     });
 
@@ -683,7 +706,7 @@ describe('Worksheet Resolvers', () => {
       const ctx = userContext(prisma);
 
       await expect(
-        worksheetResolvers.Mutation.updateWorksheet(null, { id: 'ws1', input: {} }, ctx)
+        worksheetResolvers.Mutation.updateWorksheet(null, { id: 'ws1', input: {} }, ctx),
       ).rejects.toThrow('permission');
     });
   });
@@ -691,7 +714,7 @@ describe('Worksheet Resolvers', () => {
   describe('Mutation.deleteWorksheet (soft delete)', () => {
     it('requires authentication', async () => {
       await expect(
-        worksheetResolvers.Mutation.deleteWorksheet(null, { id: 'ws1' }, anonContext())
+        worksheetResolvers.Mutation.deleteWorksheet(null, { id: 'ws1' }, anonContext()),
       ).rejects.toThrow('Authentication required');
     });
 
@@ -706,7 +729,7 @@ describe('Worksheet Resolvers', () => {
 
       // Verify soft delete – sets deletedAt, does not call .delete()
       expect(prisma.worksheet.update).toHaveBeenCalledWith(
-        expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+        expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) }),
       );
       expect(prisma.worksheet.delete).not.toHaveBeenCalled();
     });
@@ -722,7 +745,7 @@ describe('Worksheet Resolvers', () => {
       expect(prisma.auditLog.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({ action: 'delete', entity: 'worksheet', entityId: 'ws1' }),
-        })
+        }),
       );
     });
 
@@ -732,7 +755,7 @@ describe('Worksheet Resolvers', () => {
       const ctx = userContext(prisma);
 
       await expect(
-        worksheetResolvers.Mutation.deleteWorksheet(null, { id: 'ws1' }, ctx)
+        worksheetResolvers.Mutation.deleteWorksheet(null, { id: 'ws1' }, ctx),
       ).rejects.toThrow('Worksheet not found');
     });
 
@@ -742,7 +765,7 @@ describe('Worksheet Resolvers', () => {
       const ctx = userContext(prisma);
 
       await expect(
-        worksheetResolvers.Mutation.deleteWorksheet(null, { id: 'ws1' }, ctx)
+        worksheetResolvers.Mutation.deleteWorksheet(null, { id: 'ws1' }, ctx),
       ).rejects.toThrow('permission');
     });
   });
@@ -751,14 +774,21 @@ describe('Worksheet Resolvers', () => {
     it('creates a share record and returns it', async () => {
       const prisma = createMockPrisma();
       prisma.worksheet.findUnique.mockResolvedValue(mockWorksheet);
-      const share = { id: 'share1', worksheetId: 'ws1', sharedWith: 'collab@test.com', permission: 'VIEW', createdAt: NOW, worksheet: mockWorksheet };
+      const share = {
+        id: 'share1',
+        worksheetId: 'ws1',
+        sharedWith: 'collab@test.com',
+        permission: 'VIEW',
+        createdAt: NOW,
+        worksheet: mockWorksheet,
+      };
       prisma.worksheetShare.create.mockResolvedValue(share);
       const ctx = userContext(prisma);
 
       const result = await worksheetResolvers.Mutation.shareWorksheet(
         null,
         { input: { worksheetId: 'ws1', sharedWith: 'collab@test.com' } },
-        ctx
+        ctx,
       );
       expect(result).toEqual(share);
     });
@@ -768,8 +798,8 @@ describe('Worksheet Resolvers', () => {
         worksheetResolvers.Mutation.shareWorksheet(
           null,
           { input: { worksheetId: 'ws1', sharedWith: 'x@test.com' } },
-          anonContext()
-        )
+          anonContext(),
+        ),
       ).rejects.toThrow('Authentication required');
     });
 
@@ -782,8 +812,8 @@ describe('Worksheet Resolvers', () => {
         worksheetResolvers.Mutation.shareWorksheet(
           null,
           { input: { worksheetId: 'ws_missing', sharedWith: 'x@test.com' } },
-          ctx
-        )
+          ctx,
+        ),
       ).rejects.toThrow('Worksheet not found');
     });
 
@@ -796,8 +826,8 @@ describe('Worksheet Resolvers', () => {
         worksheetResolvers.Mutation.shareWorksheet(
           null,
           { input: { worksheetId: 'ws1', sharedWith: 'x@test.com' } },
-          ctx
-        )
+          ctx,
+        ),
       ).rejects.toThrow('permission');
     });
   });
@@ -812,7 +842,7 @@ describe('Worksheet Resolvers', () => {
       const result = await worksheetResolvers.Mutation.unshareWorksheet(
         null,
         { worksheetId: 'ws1', shareId: 'share1' },
-        ctx
+        ctx,
       );
       expect(result).toBe(true);
       expect(prisma.worksheetShare.delete).toHaveBeenCalledWith({ where: { id: 'share1' } });
@@ -825,7 +855,11 @@ describe('Worksheet Resolvers', () => {
       prisma.worksheet.update.mockResolvedValue({ ...mockWorksheet, views: 1 });
       const ctx = userContext(prisma);
 
-      const result = await worksheetResolvers.Mutation.incrementWorksheetViews(null, { id: 'ws1' }, ctx);
+      const result = await worksheetResolvers.Mutation.incrementWorksheetViews(
+        null,
+        { id: 'ws1' },
+        ctx,
+      );
       expect(result).toBe(true);
       expect(prisma.worksheet.update).toHaveBeenCalledWith({
         where: { id: 'ws1' },
@@ -859,7 +893,7 @@ describe('Worksheet Resolvers', () => {
       const result = await worksheetResolvers.Worksheet.folder(
         { ...mockWorksheet, folderId: 'folder1' },
         {},
-        ctx
+        ctx,
       );
       expect(result).toEqual(mockFolder);
       expect(loaders.folderById.load).toHaveBeenCalledWith('folder1');
@@ -904,7 +938,7 @@ describe('Folder Resolvers', () => {
 
     it('throws when unauthenticated', async () => {
       await expect(
-        folderResolvers.Query.folder(null, { id: 'folder1' }, anonContext())
+        folderResolvers.Query.folder(null, { id: 'folder1' }, anonContext()),
       ).rejects.toThrow('Authentication required');
     });
 
@@ -913,9 +947,9 @@ describe('Folder Resolvers', () => {
       prisma.folder.findUnique.mockResolvedValue(null);
       const ctx = userContext(prisma);
 
-      await expect(
-        folderResolvers.Query.folder(null, { id: 'missing' }, ctx)
-      ).rejects.toThrow('Folder not found');
+      await expect(folderResolvers.Query.folder(null, { id: 'missing' }, ctx)).rejects.toThrow(
+        'Folder not found',
+      );
     });
 
     it('throws when user does not own the folder', async () => {
@@ -923,9 +957,9 @@ describe('Folder Resolvers', () => {
       prisma.folder.findUnique.mockResolvedValue({ ...mockFolder, userId: 'user2' });
       const ctx = userContext(prisma);
 
-      await expect(
-        folderResolvers.Query.folder(null, { id: 'folder1' }, ctx)
-      ).rejects.toThrow('permission');
+      await expect(folderResolvers.Query.folder(null, { id: 'folder1' }, ctx)).rejects.toThrow(
+        'permission',
+      );
     });
   });
 
@@ -941,9 +975,9 @@ describe('Folder Resolvers', () => {
 
     it('throws when a non-admin requests another user folders', async () => {
       const ctx = userContext();
-      await expect(
-        folderResolvers.Query.folders(null, { userId: 'user2' }, ctx)
-      ).rejects.toThrow('Insufficient permissions');
+      await expect(folderResolvers.Query.folders(null, { userId: 'user2' }, ctx)).rejects.toThrow(
+        'Insufficient permissions',
+      );
     });
 
     it('allows admin to list another user folders', async () => {
@@ -966,13 +1000,13 @@ describe('Folder Resolvers', () => {
       const result = await folderResolvers.Mutation.createFolder(
         null,
         { input: { name: 'My Folder' } },
-        ctx
+        ctx,
       );
       expect(result).toEqual(mockFolder);
       expect(prisma.folder.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({ name: 'My Folder', userId: 'user1' }),
-        })
+        }),
       );
     });
 
@@ -982,7 +1016,7 @@ describe('Folder Resolvers', () => {
       const ctx = userContext(prisma);
 
       await expect(
-        folderResolvers.Mutation.createFolder(null, { input: { name: 'My Folder' } }, ctx)
+        folderResolvers.Mutation.createFolder(null, { input: { name: 'My Folder' } }, ctx),
       ).rejects.toThrow('already exists');
     });
 
@@ -992,7 +1026,11 @@ describe('Folder Resolvers', () => {
       const ctx = userContext(prisma);
 
       await expect(
-        folderResolvers.Mutation.createFolder(null, { input: { name: 'Child', parentId: 'nonexistent' } }, ctx)
+        folderResolvers.Mutation.createFolder(
+          null,
+          { input: { name: 'Child', parentId: 'nonexistent' } },
+          ctx,
+        ),
       ).rejects.toThrow('Invalid parent folder');
     });
 
@@ -1002,13 +1040,17 @@ describe('Folder Resolvers', () => {
       const ctx = userContext(prisma);
 
       await expect(
-        folderResolvers.Mutation.createFolder(null, { input: { name: 'Child', parentId: 'folder1' } }, ctx)
+        folderResolvers.Mutation.createFolder(
+          null,
+          { input: { name: 'Child', parentId: 'folder1' } },
+          ctx,
+        ),
       ).rejects.toThrow('Invalid parent folder');
     });
 
     it('throws when unauthenticated', async () => {
       await expect(
-        folderResolvers.Mutation.createFolder(null, { input: { name: 'X' } }, anonContext())
+        folderResolvers.Mutation.createFolder(null, { input: { name: 'X' } }, anonContext()),
       ).rejects.toThrow('Authentication required');
     });
   });
@@ -1025,7 +1067,7 @@ describe('Folder Resolvers', () => {
       const result = await folderResolvers.Mutation.updateFolder(
         null,
         { id: 'folder1', input: { name: 'Renamed' } },
-        ctx
+        ctx,
       );
       expect(result).toEqual(renamed);
     });
@@ -1036,7 +1078,11 @@ describe('Folder Resolvers', () => {
       const ctx = userContext(prisma);
 
       await expect(
-        folderResolvers.Mutation.updateFolder(null, { id: 'folder1', input: { parentId: 'folder1' } }, ctx)
+        folderResolvers.Mutation.updateFolder(
+          null,
+          { id: 'folder1', input: { parentId: 'folder1' } },
+          ctx,
+        ),
       ).rejects.toThrow('cannot be its own parent');
     });
 
@@ -1048,23 +1094,23 @@ describe('Folder Resolvers', () => {
       // Second call = find the proposed new parent (child2)
       // Third call = find child2's parent (folder1) — triggers the cycle check
       prisma.folder.findUnique
-        .mockResolvedValueOnce(mockFolder)           // the folder being updated
-        .mockResolvedValueOnce(child)                // proposed new parent
-        .mockResolvedValueOnce(null);                // child's parent (already folder1, so check triggers)
+        .mockResolvedValueOnce(mockFolder) // the folder being updated
+        .mockResolvedValueOnce(child) // proposed new parent
+        .mockResolvedValueOnce(null); // child's parent (already folder1, so check triggers)
       // Override so that child.parentId === args.id is true
       const childWithCycle = { ...mockFolder, id: 'child2', parentId: 'folder1' };
       const prisma2 = createMockPrisma();
       prisma2.folder.findUnique
-        .mockResolvedValueOnce(mockFolder)           // folder being updated
-        .mockResolvedValueOnce(childWithCycle);      // proposed parent – its parentId IS args.id
+        .mockResolvedValueOnce(mockFolder) // folder being updated
+        .mockResolvedValueOnce(childWithCycle); // proposed parent – its parentId IS args.id
       const ctx = userContext(prisma2);
 
       await expect(
         folderResolvers.Mutation.updateFolder(
           null,
           { id: 'folder1', input: { parentId: 'child2' } },
-          ctx
-        )
+          ctx,
+        ),
       ).rejects.toThrow('descendant');
     });
 
@@ -1074,7 +1120,7 @@ describe('Folder Resolvers', () => {
       const ctx = userContext(prisma);
 
       await expect(
-        folderResolvers.Mutation.updateFolder(null, { id: 'missing', input: { name: 'X' } }, ctx)
+        folderResolvers.Mutation.updateFolder(null, { id: 'missing', input: { name: 'X' } }, ctx),
       ).rejects.toThrow('Folder not found');
     });
   });
@@ -1100,8 +1146,12 @@ describe('Folder Resolvers', () => {
       await folderResolvers.Mutation.deleteFolder(null, { id: 'folder1' }, ctx);
       expect(prisma.auditLog.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.objectContaining({ action: 'delete', entity: 'folder', entityId: 'folder1' }),
-        })
+          data: expect.objectContaining({
+            action: 'delete',
+            entity: 'folder',
+            entityId: 'folder1',
+          }),
+        }),
       );
     });
 
@@ -1115,7 +1165,7 @@ describe('Folder Resolvers', () => {
       const ctx = userContext(prisma);
 
       await expect(
-        folderResolvers.Mutation.deleteFolder(null, { id: 'folder1' }, ctx)
+        folderResolvers.Mutation.deleteFolder(null, { id: 'folder1' }, ctx),
       ).rejects.toThrow('containing worksheets');
     });
 
@@ -1129,7 +1179,7 @@ describe('Folder Resolvers', () => {
       const ctx = userContext(prisma);
 
       await expect(
-        folderResolvers.Mutation.deleteFolder(null, { id: 'folder1' }, ctx)
+        folderResolvers.Mutation.deleteFolder(null, { id: 'folder1' }, ctx),
       ).rejects.toThrow('containing subfolders');
     });
 
@@ -1139,17 +1189,22 @@ describe('Folder Resolvers', () => {
       const ctx = userContext(prisma);
 
       await expect(
-        folderResolvers.Mutation.deleteFolder(null, { id: 'missing' }, ctx)
+        folderResolvers.Mutation.deleteFolder(null, { id: 'missing' }, ctx),
       ).rejects.toThrow('Folder not found');
     });
 
     it('throws when non-owner tries to delete', async () => {
       const prisma = createMockPrisma();
-      prisma.folder.findUnique.mockResolvedValue({ ...mockFolder, userId: 'user2', worksheets: [], children: [] });
+      prisma.folder.findUnique.mockResolvedValue({
+        ...mockFolder,
+        userId: 'user2',
+        worksheets: [],
+        children: [],
+      });
       const ctx = userContext(prisma);
 
       await expect(
-        folderResolvers.Mutation.deleteFolder(null, { id: 'folder1' }, ctx)
+        folderResolvers.Mutation.deleteFolder(null, { id: 'folder1' }, ctx),
       ).rejects.toThrow('permission');
     });
   });
@@ -1175,7 +1230,11 @@ describe('Folder Resolvers', () => {
       loaders.folderById.load.mockResolvedValue(parentFolder);
       const ctx = makeContext({ loaders: loaders as unknown as GraphQLContext['loaders'] });
 
-      const result = await folderResolvers.Folder.parent({ ...mockFolder, parentId: 'parent1' }, {}, ctx);
+      const result = await folderResolvers.Folder.parent(
+        { ...mockFolder, parentId: 'parent1' },
+        {},
+        ctx,
+      );
       expect(result).toEqual(parentFolder);
       expect(loaders.folderById.load).toHaveBeenCalledWith('parent1');
     });
@@ -1197,7 +1256,7 @@ describe('Folder Resolvers', () => {
       const result = await folderResolvers.Folder.worksheets(mockFolder, {}, ctx);
       expect(result).toEqual([mockWorksheet]);
       expect(prisma.worksheet.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { folderId: 'folder1', deletedAt: null } })
+        expect.objectContaining({ where: { folderId: 'folder1', deletedAt: null } }),
       );
     });
   });
@@ -1214,7 +1273,7 @@ describe('Calculation Resolvers', () => {
       const result = await calculationResolvers.Query.calculate(
         null,
         { input: { expression: '2 + 3' } },
-        ctx
+        ctx,
       );
       expect(result.result).toBe('5');
       expect(result.formatted).toBe('5');
@@ -1227,7 +1286,7 @@ describe('Calculation Resolvers', () => {
       const result = await calculationResolvers.Query.calculate(
         null,
         { input: { expression: 'a * b', variables: { a: 3, b: 7 } } },
-        ctx
+        ctx,
       );
       expect(result.result).toBe('21');
     });
@@ -1237,7 +1296,7 @@ describe('Calculation Resolvers', () => {
       const result = await calculationResolvers.Query.calculate(
         null,
         { input: { expression: '1 / 4' } },
-        ctx
+        ctx,
       );
       expect(result.result).toBe('0.25');
     });
@@ -1247,7 +1306,7 @@ describe('Calculation Resolvers', () => {
       const result = await calculationResolvers.Query.calculate(
         null,
         { input: { expression: 'sin(0)' } },
-        ctx
+        ctx,
       );
       expect(result.result).toBe('0');
     });
@@ -1255,7 +1314,7 @@ describe('Calculation Resolvers', () => {
     it('throws a Calculation error for invalid expressions', async () => {
       const ctx = makeContext();
       await expect(
-        calculationResolvers.Query.calculate(null, { input: { expression: 'invalid!!expr' } }, ctx)
+        calculationResolvers.Query.calculate(null, { input: { expression: 'invalid!!expr' } }, ctx),
       ).rejects.toThrow('Calculation error');
     });
 
@@ -1264,7 +1323,7 @@ describe('Calculation Resolvers', () => {
       const result = await calculationResolvers.Query.calculate(
         null,
         { input: { expression: '10' } },
-        ctx
+        ctx,
       );
       expect(result.variables).toEqual({});
     });
@@ -1274,7 +1333,7 @@ describe('Calculation Resolvers', () => {
       const result = await calculationResolvers.Query.calculate(
         null,
         { input: { expression: 'x + 1', variables: { x: 5 } } },
-        ctx
+        ctx,
       );
       expect(result.variables).toEqual({ x: 5 });
     });
@@ -1283,7 +1342,7 @@ describe('Calculation Resolvers', () => {
   describe('Query.calculationHistory', () => {
     it('requires authentication', async () => {
       await expect(
-        calculationResolvers.Query.calculationHistory(null, {}, anonContext())
+        calculationResolvers.Query.calculationHistory(null, {}, anonContext()),
       ).rejects.toThrow('Authentication required');
     });
 
@@ -1333,8 +1392,8 @@ describe('Calculation Resolvers', () => {
         calculationResolvers.Mutation.saveCalculation(
           null,
           { input: { expression: '1+1' } },
-          anonContext()
-        )
+          anonContext(),
+        ),
       ).rejects.toThrow('Authentication required');
     });
 
@@ -1343,7 +1402,7 @@ describe('Calculation Resolvers', () => {
       const result = await calculationResolvers.Mutation.saveCalculation(
         null,
         { input: { expression: '4 * 4' } },
-        ctx
+        ctx,
       );
       expect(result.result).toBe('16');
       expect(result.expression).toBe('4 * 4');
@@ -1354,11 +1413,7 @@ describe('Calculation Resolvers', () => {
     it('throws a Calculation error when expression is invalid', async () => {
       const ctx = userContext();
       await expect(
-        calculationResolvers.Mutation.saveCalculation(
-          null,
-          { input: { expression: '???' } },
-          ctx
-        )
+        calculationResolvers.Mutation.saveCalculation(null, { input: { expression: '???' } }, ctx),
       ).rejects.toThrow('Calculation error');
     });
   });
@@ -1366,7 +1421,7 @@ describe('Calculation Resolvers', () => {
   describe('Mutation.clearCalculationHistory', () => {
     it('requires authentication', async () => {
       await expect(
-        calculationResolvers.Mutation.clearCalculationHistory(null, {}, anonContext())
+        calculationResolvers.Mutation.clearCalculationHistory(null, {}, anonContext()),
       ).rejects.toThrow('Authentication required');
     });
 
@@ -1374,7 +1429,7 @@ describe('Calculation Resolvers', () => {
       const result = await calculationResolvers.Mutation.clearCalculationHistory(
         null,
         {},
-        userContext()
+        userContext(),
       );
       expect(result).toBe(true);
     });
@@ -1391,7 +1446,10 @@ describe('Forum Resolvers', () => {
       const prisma = createMockPrisma();
       prisma.forumPost.findUnique.mockResolvedValue(mockForumPost);
       prisma.forumPost.update.mockResolvedValue({ ...mockForumPost, views: 1 });
-      const ctx = makeContext({ user: null, prisma: prisma as unknown as GraphQLContext['prisma'] });
+      const ctx = makeContext({
+        user: null,
+        prisma: prisma as unknown as GraphQLContext['prisma'],
+      });
 
       const result = await forumResolvers.Query.forumPost(null, { id: 'post1' }, ctx);
       expect(result).toEqual(mockForumPost);
@@ -1404,21 +1462,27 @@ describe('Forum Resolvers', () => {
     it('throws NotFoundError when post does not exist', async () => {
       const prisma = createMockPrisma();
       prisma.forumPost.findUnique.mockResolvedValue(null);
-      const ctx = makeContext({ user: null, prisma: prisma as unknown as GraphQLContext['prisma'] });
+      const ctx = makeContext({
+        user: null,
+        prisma: prisma as unknown as GraphQLContext['prisma'],
+      });
 
-      await expect(
-        forumResolvers.Query.forumPost(null, { id: 'missing' }, ctx)
-      ).rejects.toThrow('not found');
+      await expect(forumResolvers.Query.forumPost(null, { id: 'missing' }, ctx)).rejects.toThrow(
+        'not found',
+      );
     });
 
     it('throws NotFoundError for soft-deleted posts', async () => {
       const prisma = createMockPrisma();
       prisma.forumPost.findUnique.mockResolvedValue({ ...mockForumPost, deletedAt: NOW });
-      const ctx = makeContext({ user: null, prisma: prisma as unknown as GraphQLContext['prisma'] });
+      const ctx = makeContext({
+        user: null,
+        prisma: prisma as unknown as GraphQLContext['prisma'],
+      });
 
-      await expect(
-        forumResolvers.Query.forumPost(null, { id: 'post1' }, ctx)
-      ).rejects.toThrow('not found');
+      await expect(forumResolvers.Query.forumPost(null, { id: 'post1' }, ctx)).rejects.toThrow(
+        'not found',
+      );
     });
   });
 
@@ -1427,7 +1491,10 @@ describe('Forum Resolvers', () => {
       const prisma = createMockPrisma();
       prisma.forumPost.count.mockResolvedValue(5);
       prisma.forumPost.findMany.mockResolvedValue([mockForumPost]);
-      const ctx = makeContext({ user: null, prisma: prisma as unknown as GraphQLContext['prisma'] });
+      const ctx = makeContext({
+        user: null,
+        prisma: prisma as unknown as GraphQLContext['prisma'],
+      });
 
       const result = await forumResolvers.Query.forumPosts(null, {}, ctx);
       expect(result.nodes).toEqual([mockForumPost]);
@@ -1438,11 +1505,14 @@ describe('Forum Resolvers', () => {
       const prisma = createMockPrisma();
       prisma.forumPost.count.mockResolvedValue(0);
       prisma.forumPost.findMany.mockResolvedValue([]);
-      const ctx = makeContext({ user: null, prisma: prisma as unknown as GraphQLContext['prisma'] });
+      const ctx = makeContext({
+        user: null,
+        prisma: prisma as unknown as GraphQLContext['prisma'],
+      });
 
       await forumResolvers.Query.forumPosts(null, { tags: ['math'] }, ctx);
 
-      const callArg = (prisma.forumPost.findMany as Mock).mock.calls[0]![0];
+      const callArg = (prisma.forumPost.findMany as Mock).mock.calls[0]?.[0];
       expect(callArg.where.tags).toEqual({ hasSome: ['math'] });
     });
 
@@ -1450,11 +1520,14 @@ describe('Forum Resolvers', () => {
       const prisma = createMockPrisma();
       prisma.forumPost.count.mockResolvedValue(0);
       prisma.forumPost.findMany.mockResolvedValue([]);
-      const ctx = makeContext({ user: null, prisma: prisma as unknown as GraphQLContext['prisma'] });
+      const ctx = makeContext({
+        user: null,
+        prisma: prisma as unknown as GraphQLContext['prisma'],
+      });
 
       await forumResolvers.Query.forumPosts(null, { searchQuery: 'calculus' }, ctx);
 
-      const callArg = (prisma.forumPost.findMany as Mock).mock.calls[0]![0];
+      const callArg = (prisma.forumPost.findMany as Mock).mock.calls[0]?.[0];
       expect(callArg.where.OR).toBeDefined();
     });
 
@@ -1462,11 +1535,14 @@ describe('Forum Resolvers', () => {
       const prisma = createMockPrisma();
       prisma.forumPost.count.mockResolvedValue(0);
       prisma.forumPost.findMany.mockResolvedValue([]);
-      const ctx = makeContext({ user: null, prisma: prisma as unknown as GraphQLContext['prisma'] });
+      const ctx = makeContext({
+        user: null,
+        prisma: prisma as unknown as GraphQLContext['prisma'],
+      });
 
       await forumResolvers.Query.forumPosts(null, { limit: 999 }, ctx);
 
-      const callArg = (prisma.forumPost.findMany as Mock).mock.calls[0]![0];
+      const callArg = (prisma.forumPost.findMany as Mock).mock.calls[0]?.[0];
       expect(callArg.take).toBe(100);
     });
   });
@@ -1486,11 +1562,11 @@ describe('Forum Resolvers', () => {
             tags: ['math'],
           },
         },
-        ctx
+        ctx,
       );
       expect(result).toEqual(mockForumPost);
       expect(prisma.forumPost.create).toHaveBeenCalledWith(
-        expect.objectContaining({ data: expect.objectContaining({ userId: 'user1' }) })
+        expect.objectContaining({ data: expect.objectContaining({ userId: 'user1' }) }),
       );
     });
 
@@ -1499,8 +1575,8 @@ describe('Forum Resolvers', () => {
         forumResolvers.Mutation.createForumPost(
           null,
           { input: { title: 'X', content: 'Long enough content here', tags: ['a'] } },
-          anonContext()
-        )
+          anonContext(),
+        ),
       ).rejects.toThrow('Authentication required');
     });
 
@@ -1511,8 +1587,8 @@ describe('Forum Resolvers', () => {
           null,
           // Title must be at least 3 chars; content at least 10
           { input: { title: 'AB', content: 'This is valid content text', tags: ['math'] } },
-          ctx
-        )
+          ctx,
+        ),
       ).rejects.toThrow('Validation failed');
     });
 
@@ -1522,8 +1598,8 @@ describe('Forum Resolvers', () => {
         forumResolvers.Mutation.createForumPost(
           null,
           { input: { title: 'Valid Title', content: 'short', tags: ['math'] } },
-          ctx
-        )
+          ctx,
+        ),
       ).rejects.toThrow('Validation failed');
     });
 
@@ -1533,8 +1609,8 @@ describe('Forum Resolvers', () => {
         forumResolvers.Mutation.createForumPost(
           null,
           { input: { title: 'Valid Title', content: 'This is valid content text', tags: [] } },
-          ctx
-        )
+          ctx,
+        ),
       ).rejects.toThrow('Validation failed');
     });
   });
@@ -1550,14 +1626,14 @@ describe('Forum Resolvers', () => {
       const result = await forumResolvers.Mutation.updateForumPost(
         null,
         { id: 'post1', input: { title: 'Updated Title' } },
-        ctx
+        ctx,
       );
       expect(result).toEqual(updated);
     });
 
     it('requires authentication', async () => {
       await expect(
-        forumResolvers.Mutation.updateForumPost(null, { id: 'post1', input: {} }, anonContext())
+        forumResolvers.Mutation.updateForumPost(null, { id: 'post1', input: {} }, anonContext()),
       ).rejects.toThrow('Authentication required');
     });
 
@@ -1567,7 +1643,7 @@ describe('Forum Resolvers', () => {
       const ctx = userContext(prisma);
 
       await expect(
-        forumResolvers.Mutation.updateForumPost(null, { id: 'missing', input: {} }, ctx)
+        forumResolvers.Mutation.updateForumPost(null, { id: 'missing', input: {} }, ctx),
       ).rejects.toThrow('not found');
     });
 
@@ -1577,7 +1653,11 @@ describe('Forum Resolvers', () => {
       const ctx = userContext(prisma);
 
       await expect(
-        forumResolvers.Mutation.updateForumPost(null, { id: 'post1', input: { title: 'Hijack' } }, ctx)
+        forumResolvers.Mutation.updateForumPost(
+          null,
+          { id: 'post1', input: { title: 'Hijack' } },
+          ctx,
+        ),
       ).rejects.toThrow('permission');
     });
   });
@@ -1592,7 +1672,7 @@ describe('Forum Resolvers', () => {
       const result = await forumResolvers.Mutation.deleteForumPost(null, { id: 'post1' }, ctx);
       expect(result).toBe(true);
       expect(prisma.forumPost.update).toHaveBeenCalledWith(
-        expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+        expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) }),
       );
       // The resolver uses update (soft delete), never the hard-delete method
       expect(prisma.forumPost.update).toHaveBeenCalledTimes(1);
@@ -1607,8 +1687,12 @@ describe('Forum Resolvers', () => {
       await forumResolvers.Mutation.deleteForumPost(null, { id: 'post1' }, ctx);
       expect(prisma.auditLog.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.objectContaining({ action: 'delete', entity: 'forumPost', entityId: 'post1' }),
-        })
+          data: expect.objectContaining({
+            action: 'delete',
+            entity: 'forumPost',
+            entityId: 'post1',
+          }),
+        }),
       );
     });
 
@@ -1618,7 +1702,7 @@ describe('Forum Resolvers', () => {
       const ctx = userContext(prisma);
 
       await expect(
-        forumResolvers.Mutation.deleteForumPost(null, { id: 'missing' }, ctx)
+        forumResolvers.Mutation.deleteForumPost(null, { id: 'missing' }, ctx),
       ).rejects.toThrow('not found');
     });
 
@@ -1628,13 +1712,13 @@ describe('Forum Resolvers', () => {
       const ctx = userContext(prisma);
 
       await expect(
-        forumResolvers.Mutation.deleteForumPost(null, { id: 'post1' }, ctx)
+        forumResolvers.Mutation.deleteForumPost(null, { id: 'post1' }, ctx),
       ).rejects.toThrow('permission');
     });
 
     it('requires authentication', async () => {
       await expect(
-        forumResolvers.Mutation.deleteForumPost(null, { id: 'post1' }, anonContext())
+        forumResolvers.Mutation.deleteForumPost(null, { id: 'post1' }, anonContext()),
       ).rejects.toThrow('Authentication required');
     });
   });
@@ -1655,7 +1739,7 @@ describe('Forum Resolvers', () => {
 
       const result = await forumResolvers.ForumPost.comments(mockForumPost, {}, ctx);
       expect(result).toEqual([mockComment]);
-      const callArg = (prisma.comment.findMany as Mock).mock.calls[0]![0];
+      const callArg = (prisma.comment.findMany as Mock).mock.calls[0]?.[0];
       expect(callArg.where.parentId).toBeNull();
     });
 
@@ -1704,15 +1788,14 @@ describe('Comment Resolvers', () => {
     it('returns top-level comments for a post', async () => {
       const prisma = createMockPrisma();
       prisma.comment.findMany.mockResolvedValue([mockComment]);
-      const ctx = makeContext({ user: null, prisma: prisma as unknown as GraphQLContext['prisma'] });
+      const ctx = makeContext({
+        user: null,
+        prisma: prisma as unknown as GraphQLContext['prisma'],
+      });
 
-      const result = await commentResolvers.Query.comments(
-        null,
-        { postId: CUID_POST },
-        ctx
-      );
+      const result = await commentResolvers.Query.comments(null, { postId: CUID_POST }, ctx);
       expect(result).toEqual([mockComment]);
-      const callArg = (prisma.comment.findMany as Mock).mock.calls[0]![0];
+      const callArg = (prisma.comment.findMany as Mock).mock.calls[0]?.[0];
       expect(callArg.where.parentId).toBeNull();
       expect(callArg.where.postId).toBe(CUID_POST);
     });
@@ -1720,11 +1803,14 @@ describe('Comment Resolvers', () => {
     it('respects pagination arguments', async () => {
       const prisma = createMockPrisma();
       prisma.comment.findMany.mockResolvedValue([]);
-      const ctx = makeContext({ user: null, prisma: prisma as unknown as GraphQLContext['prisma'] });
+      const ctx = makeContext({
+        user: null,
+        prisma: prisma as unknown as GraphQLContext['prisma'],
+      });
 
       await commentResolvers.Query.comments(null, { postId: CUID_POST, limit: 5, offset: 10 }, ctx);
 
-      const callArg = (prisma.comment.findMany as Mock).mock.calls[0]![0];
+      const callArg = (prisma.comment.findMany as Mock).mock.calls[0]?.[0];
       expect(callArg.take).toBe(5);
       expect(callArg.skip).toBe(10);
     });
@@ -1741,13 +1827,13 @@ describe('Comment Resolvers', () => {
         null,
         // postId must be a valid CUID for the createCommentSchema – use a realistic one
         { input: { postId: mockForumPost.id, content: 'A test comment' } },
-        ctx
+        ctx,
       );
       expect(result).toEqual(mockComment);
       expect(prisma.comment.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({ userId: 'user1', postId: mockForumPost.id }),
-        })
+        }),
       );
     });
 
@@ -1756,8 +1842,8 @@ describe('Comment Resolvers', () => {
         commentResolvers.Mutation.createComment(
           null,
           { input: { postId: mockForumPost.id, content: 'hello' } },
-          anonContext()
-        )
+          anonContext(),
+        ),
       ).rejects.toThrow('Authentication required');
     });
 
@@ -1770,8 +1856,8 @@ describe('Comment Resolvers', () => {
         commentResolvers.Mutation.createComment(
           null,
           { input: { postId: mockForumPost.id, content: 'A test comment' } },
-          ctx
-        )
+          ctx,
+        ),
       ).rejects.toThrow('not found');
     });
 
@@ -1784,8 +1870,8 @@ describe('Comment Resolvers', () => {
         commentResolvers.Mutation.createComment(
           null,
           { input: { postId: mockForumPost.id, content: 'A test comment' } },
-          ctx
-        )
+          ctx,
+        ),
       ).rejects.toThrow('not found');
     });
 
@@ -1798,8 +1884,8 @@ describe('Comment Resolvers', () => {
         commentResolvers.Mutation.createComment(
           null,
           { input: { postId: mockForumPost.id, content: 'A test comment' } },
-          ctx
-        )
+          ctx,
+        ),
       ).rejects.toThrow('not found');
     });
 
@@ -1815,7 +1901,7 @@ describe('Comment Resolvers', () => {
       const result = await commentResolvers.Mutation.createComment(
         null,
         { input: { postId: mockForumPost.id, content: 'A reply', parentId: CUID_PARENT_COMMENT } },
-        ctx
+        ctx,
       );
       expect(result).toEqual(reply);
     });
@@ -1830,9 +1916,11 @@ describe('Comment Resolvers', () => {
       await expect(
         commentResolvers.Mutation.createComment(
           null,
-          { input: { postId: mockForumPost.id, content: 'A reply', parentId: CUID_PARENT_COMMENT } },
-          ctx
-        )
+          {
+            input: { postId: mockForumPost.id, content: 'A reply', parentId: CUID_PARENT_COMMENT },
+          },
+          ctx,
+        ),
       ).rejects.toThrow('not found');
     });
 
@@ -1842,8 +1930,8 @@ describe('Comment Resolvers', () => {
         commentResolvers.Mutation.createComment(
           null,
           { input: { postId: mockForumPost.id, content: '' } },
-          ctx
-        )
+          ctx,
+        ),
       ).rejects.toThrow('Validation failed');
     });
   });
@@ -1859,7 +1947,7 @@ describe('Comment Resolvers', () => {
       const result = await commentResolvers.Mutation.updateComment(
         null,
         { id: 'comment1', input: { content: 'Updated content' } },
-        ctx
+        ctx,
       );
       expect(result).toEqual(updated);
     });
@@ -1869,8 +1957,8 @@ describe('Comment Resolvers', () => {
         commentResolvers.Mutation.updateComment(
           null,
           { id: 'comment1', input: { content: 'X' } },
-          anonContext()
-        )
+          anonContext(),
+        ),
       ).rejects.toThrow('Authentication required');
     });
 
@@ -1883,8 +1971,8 @@ describe('Comment Resolvers', () => {
         commentResolvers.Mutation.updateComment(
           null,
           { id: 'missing', input: { content: 'X' } },
-          ctx
-        )
+          ctx,
+        ),
       ).rejects.toThrow('not found');
     });
 
@@ -1897,8 +1985,8 @@ describe('Comment Resolvers', () => {
         commentResolvers.Mutation.updateComment(
           null,
           { id: 'comment1', input: { content: 'X' } },
-          ctx
-        )
+          ctx,
+        ),
       ).rejects.toThrow('not found');
     });
 
@@ -1911,8 +1999,8 @@ describe('Comment Resolvers', () => {
         commentResolvers.Mutation.updateComment(
           null,
           { id: 'comment1', input: { content: 'Hijack' } },
-          ctx
-        )
+          ctx,
+        ),
       ).rejects.toThrow('permission');
     });
   });
@@ -1927,7 +2015,7 @@ describe('Comment Resolvers', () => {
       const result = await commentResolvers.Mutation.deleteComment(null, { id: 'comment1' }, ctx);
       expect(result).toBe(true);
       expect(prisma.comment.update).toHaveBeenCalledWith(
-        expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) })
+        expect.objectContaining({ data: expect.objectContaining({ deletedAt: expect.any(Date) }) }),
       );
     });
 
@@ -1940,8 +2028,12 @@ describe('Comment Resolvers', () => {
       await commentResolvers.Mutation.deleteComment(null, { id: 'comment1' }, ctx);
       expect(prisma.auditLog.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.objectContaining({ action: 'delete', entity: 'comment', entityId: 'comment1' }),
-        })
+          data: expect.objectContaining({
+            action: 'delete',
+            entity: 'comment',
+            entityId: 'comment1',
+          }),
+        }),
       );
     });
 
@@ -1951,7 +2043,7 @@ describe('Comment Resolvers', () => {
       const ctx = userContext(prisma);
 
       await expect(
-        commentResolvers.Mutation.deleteComment(null, { id: 'missing' }, ctx)
+        commentResolvers.Mutation.deleteComment(null, { id: 'missing' }, ctx),
       ).rejects.toThrow('not found');
     });
 
@@ -1961,7 +2053,7 @@ describe('Comment Resolvers', () => {
       const ctx = userContext(prisma);
 
       await expect(
-        commentResolvers.Mutation.deleteComment(null, { id: 'comment1' }, ctx)
+        commentResolvers.Mutation.deleteComment(null, { id: 'comment1' }, ctx),
       ).rejects.toThrow('permission');
     });
   });
@@ -2000,7 +2092,7 @@ describe('Comment Resolvers', () => {
       const result = await commentResolvers.Comment.parent(
         { ...mockComment, parentId: 'parent1' },
         {},
-        ctx
+        ctx,
       );
       expect(result).toEqual(parentComment);
       expect(prisma.comment.findUnique).toHaveBeenCalledWith({ where: { id: 'parent1' } });
@@ -2014,7 +2106,7 @@ describe('Comment Resolvers', () => {
 
       const result = await commentResolvers.Comment.replies(mockComment, {}, ctx);
       expect(result).toEqual([reply]);
-      const callArg = (prisma.comment.findMany as Mock).mock.calls[0]![0];
+      const callArg = (prisma.comment.findMany as Mock).mock.calls[0]?.[0];
       expect(callArg.where.parentId).toBe(CUID_COMMENT);
       expect(callArg.where.deletedAt).toBeNull();
     });
@@ -2037,7 +2129,11 @@ describe('Comment Resolvers', () => {
 
     it('hasUpvoted – returns true when upvote exists', async () => {
       const prisma = createMockPrisma();
-      prisma.upvote.findUnique.mockResolvedValue({ ...mockUpvote, targetId: 'comment1', targetType: 'COMMENT' });
+      prisma.upvote.findUnique.mockResolvedValue({
+        ...mockUpvote,
+        targetId: 'comment1',
+        targetType: 'COMMENT',
+      });
       const ctx = userContext(prisma);
 
       const result = await commentResolvers.Comment.hasUpvoted(mockComment, {}, ctx);
@@ -2066,8 +2162,8 @@ describe('Upvote Resolvers', () => {
         upvoteResolvers.Mutation.toggleUpvote(
           null,
           { targetId: 'post1', targetType: 'POST' },
-          anonContext()
-        )
+          anonContext(),
+        ),
       ).rejects.toThrow('Authentication required');
     });
 
@@ -2082,7 +2178,7 @@ describe('Upvote Resolvers', () => {
       const result = await upvoteResolvers.Mutation.toggleUpvote(
         null,
         { targetId: 'post1', targetType: 'POST' },
-        ctx
+        ctx,
       );
 
       expect(result.upvoted).toBe(true);
@@ -2090,7 +2186,7 @@ describe('Upvote Resolvers', () => {
       expect(prisma.upvote.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({ userId: 'user1', targetId: 'post1', targetType: 'POST' }),
-        })
+        }),
       );
       expect(prisma.upvote.delete).not.toHaveBeenCalled();
     });
@@ -2106,7 +2202,7 @@ describe('Upvote Resolvers', () => {
       const result = await upvoteResolvers.Mutation.toggleUpvote(
         null,
         { targetId: 'post1', targetType: 'POST' },
-        ctx
+        ctx,
       );
 
       expect(result.upvoted).toBe(false);
@@ -2124,8 +2220,8 @@ describe('Upvote Resolvers', () => {
         upvoteResolvers.Mutation.toggleUpvote(
           null,
           { targetId: 'missing_post', targetType: 'POST' },
-          ctx
-        )
+          ctx,
+        ),
       ).rejects.toThrow('not found');
     });
 
@@ -2135,11 +2231,7 @@ describe('Upvote Resolvers', () => {
       const ctx = userContext(prisma);
 
       await expect(
-        upvoteResolvers.Mutation.toggleUpvote(
-          null,
-          { targetId: 'post1', targetType: 'POST' },
-          ctx
-        )
+        upvoteResolvers.Mutation.toggleUpvote(null, { targetId: 'post1', targetType: 'POST' }, ctx),
       ).rejects.toThrow('not found');
     });
 
@@ -2154,11 +2246,11 @@ describe('Upvote Resolvers', () => {
       const result = await upvoteResolvers.Mutation.toggleUpvote(
         null,
         { targetId: 'post1', targetType: 'POST' },
-        ctx
+        ctx,
       );
       expect(result.upvoteCount).toBe(42);
       expect(prisma.upvote.count).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { targetId: 'post1', targetType: 'POST' } })
+        expect.objectContaining({ where: { targetId: 'post1', targetType: 'POST' } }),
       );
     });
   });
@@ -2176,7 +2268,7 @@ describe('Upvote Resolvers', () => {
       const result = await upvoteResolvers.Mutation.toggleUpvote(
         null,
         { targetId: 'comment1', targetType: 'COMMENT' },
-        ctx
+        ctx,
       );
 
       expect(result.upvoted).toBe(true);
@@ -2186,7 +2278,12 @@ describe('Upvote Resolvers', () => {
     it('removes an upvote on a comment (toggle off)', async () => {
       const prisma = createMockPrisma();
       prisma.comment.findUnique.mockResolvedValue(mockComment);
-      const commentUpvote = { ...mockUpvote, id: 'cupvote1', targetId: 'comment1', targetType: 'COMMENT' as const };
+      const commentUpvote = {
+        ...mockUpvote,
+        id: 'cupvote1',
+        targetId: 'comment1',
+        targetType: 'COMMENT' as const,
+      };
       prisma.upvote.findUnique.mockResolvedValue(commentUpvote);
       prisma.upvote.delete.mockResolvedValue(commentUpvote);
       prisma.upvote.count.mockResolvedValue(2);
@@ -2195,7 +2292,7 @@ describe('Upvote Resolvers', () => {
       const result = await upvoteResolvers.Mutation.toggleUpvote(
         null,
         { targetId: 'comment1', targetType: 'COMMENT' },
-        ctx
+        ctx,
       );
 
       expect(result.upvoted).toBe(false);
@@ -2211,8 +2308,8 @@ describe('Upvote Resolvers', () => {
         upvoteResolvers.Mutation.toggleUpvote(
           null,
           { targetId: 'missing_comment', targetType: 'COMMENT' },
-          ctx
-        )
+          ctx,
+        ),
       ).rejects.toThrow('not found');
     });
 
@@ -2225,8 +2322,8 @@ describe('Upvote Resolvers', () => {
         upvoteResolvers.Mutation.toggleUpvote(
           null,
           { targetId: 'comment1', targetType: 'COMMENT' },
-          ctx
-        )
+          ctx,
+        ),
       ).rejects.toThrow('not found');
     });
   });

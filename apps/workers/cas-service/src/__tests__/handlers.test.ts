@@ -3,10 +3,13 @@
  * Tests equation solving, differentiation, and integration
  */
 
-import { describe, it, expect } from 'vitest';
-import { solveMathExpression, verifySolution } from '../handlers/solve.js';
-import { differentiateMathExpression, expressionContainsVariable } from '../handlers/differentiate.js';
+import { describe, expect, it } from 'vitest';
+import {
+  differentiateMathExpression,
+  expressionContainsVariable,
+} from '../handlers/differentiate.js';
 import { integrateMathExpression } from '../handlers/integrate.js';
+import { solveMathExpression, verifySolution } from '../handlers/solve.js';
 
 describe('Solve Handler', () => {
   it('should solve a linear equation', async () => {

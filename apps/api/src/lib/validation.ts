@@ -225,7 +225,9 @@ export function validate<T>(schema: z.ZodSchema<T>, input: unknown): T {
       if (!fieldErrors[path]) fieldErrors[path] = [];
       fieldErrors[path].push(err.message);
     }
-    const summary = result.error.issues.map((err: z.ZodIssue) => `${err.path.join('.')}: ${err.message}`).join(', ');
+    const summary = result.error.issues
+      .map((err: z.ZodIssue) => `${err.path.join('.')}: ${err.message}`)
+      .join(', ');
     throw new ValidationError(`Validation failed: ${summary}`, undefined, fieldErrors);
   }
 

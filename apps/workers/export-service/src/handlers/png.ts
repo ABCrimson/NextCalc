@@ -13,16 +13,15 @@
  */
 
 import { Resvg } from '@cf-wasm/resvg/workerd';
-
-import { generateRasterSvgFromLatex, type SvgOptions } from './svg-internal.js';
 import {
-  uploadToR2,
   generateExportKey,
-  validateFileSize,
   getMimeType,
-  type UploadResult,
   type R2Bucket,
+  type UploadResult,
+  uploadToR2,
+  validateFileSize,
 } from '../utils/r2.js';
+import { generateRasterSvgFromLatex, type SvgOptions } from './svg-internal.js';
 
 // ---------------------------------------------------------------------------
 // Shared encoder — avoids creating a new instance on every call.
@@ -101,9 +100,7 @@ export async function exportToPng(
   // Resolve defaults
   const dpi = options.dpi ?? 144; // Retina display
   const transparent = options.transparent ?? false;
-  const backgroundColor = transparent
-    ? 'transparent'
-    : (options.backgroundColor ?? '#FFFFFF');
+  const backgroundColor = transparent ? 'transparent' : (options.backgroundColor ?? '#FFFFFF');
 
   // ------------------------------------------------------------------
   // Step 1: LaTeX → SVG
@@ -132,20 +129,14 @@ export async function exportToPng(
   // ------------------------------------------------------------------
   const key = generateExportKey(userId, 'png');
 
-  const uploadResult = await uploadToR2(
-    bucket,
-    key,
-    png,
-    getMimeType('png'),
-    {
-      latex,
-      width: width.toString(),
-      height: height.toString(),
-      dpi: dpi.toString(),
-      createdAt: new Date().toISOString(),
-      userId: userId ?? 'anonymous',
-    },
-  );
+  const uploadResult = await uploadToR2(bucket, key, png, getMimeType('png'), {
+    latex,
+    width: width.toString(),
+    height: height.toString(),
+    dpi: dpi.toString(),
+    createdAt: new Date().toISOString(),
+    userId: userId ?? 'anonymous',
+  });
 
   return {
     ...uploadResult,
@@ -246,9 +237,7 @@ export async function batchExportToPng(
  * @param useCase - Target output medium
  * @returns DPI value
  */
-export function getRecommendedDpi(
-  useCase: 'web' | 'print' | 'retina' | 'presentation',
-): number {
+export function getRecommendedDpi(useCase: 'web' | 'print' | 'retina' | 'presentation'): number {
   const dpiMap = {
     web: 72,
     retina: 144,
@@ -271,11 +260,7 @@ export function getRecommendedDpi(
  * @param hasTransparency - Whether the PNG will include an alpha channel
  * @returns Estimated size in bytes
  */
-export function estimatePngSize(
-  width: number,
-  height: number,
-  hasTransparency: boolean,
-): number {
+export function estimatePngSize(width: number, height: number, hasTransparency: boolean): number {
   // RGBA (4 bytes) vs RGB (3 bytes) per pixel, plus PNG header overhead
   const bytesPerPixel = hasTransparency ? 4 : 3;
   const overhead = 1024;

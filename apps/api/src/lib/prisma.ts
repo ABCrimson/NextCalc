@@ -6,8 +6,8 @@
  */
 
 export {
-	prisma,
-	checkDatabaseConnection,
-	disconnectDatabase,
-	getPoolStats,
+  checkDatabaseConnection,
+  disconnectDatabase,
+  getPoolStats,
+  prisma,
 } from '@nextcalc/database';

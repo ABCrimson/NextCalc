@@ -4,27 +4,23 @@
  * Handles folder CRUD operations and hierarchical relationships.
  */
 
+import type { Folder } from '@nextcalc/database';
 import type { GraphQLContext } from '../../lib/context';
 import { requireAuth, requireOwnership } from '../../lib/context';
-import type { Folder } from '@nextcalc/database';
-import { NotFoundError, ForbiddenError, ValidationError } from '../../lib/errors';
-import { validate, createFolderSchema, updateFolderSchema } from '../../lib/validation';
 import {
-  buildCursorParams,
   buildConnection,
+  buildCursorParams,
   type CursorPaginationArgs,
 } from '../../lib/cursor-pagination';
+import { ForbiddenError, NotFoundError, ValidationError } from '../../lib/errors';
+import { createFolderSchema, updateFolderSchema, validate } from '../../lib/validation';
 
 export const folderResolvers = {
   Query: {
     /**
      * Get folder by ID
      */
-    folder: async (
-      _parent: unknown,
-      args: { id: string },
-      context: GraphQLContext
-    ) => {
+    folder: async (_parent: unknown, args: { id: string }, context: GraphQLContext) => {
       const user = requireAuth(context);
 
       const folder = await context.prisma.folder.findUnique({
@@ -46,17 +42,13 @@ export const folderResolvers = {
     /**
      * Get all folders for a user
      */
-    folders: async (
-      _parent: unknown,
-      args: { userId?: string },
-      context: GraphQLContext
-    ) => {
+    folders: async (_parent: unknown, args: { userId?: string }, context: GraphQLContext) => {
       const user = requireAuth(context);
       const targetUserId = args.userId || user.id;
 
       // Only allow viewing own folders unless admin
       if (targetUserId !== user.id && user.role !== 'ADMIN') {
-        throw new ForbiddenError('You do not have permission to access other users\' folders');
+        throw new ForbiddenError("You do not have permission to access other users' folders");
       }
 
       return context.prisma.folder.findMany({
@@ -73,14 +65,14 @@ export const folderResolvers = {
       args: CursorPaginationArgs & {
         userId?: string;
       },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       const user = requireAuth(context);
       const targetUserId = args.userId || user.id;
 
       // Only allow viewing own folders unless admin
       if (targetUserId !== user.id && user.role !== 'ADMIN') {
-        throw new ForbiddenError('You do not have permission to access other users\' folders');
+        throw new ForbiddenError("You do not have permission to access other users' folders");
       }
 
       const where = { userId: targetUserId };
@@ -114,7 +106,7 @@ export const folderResolvers = {
           parentId?: string;
         };
       },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       const user = requireAuth(context);
       const input = validate(createFolderSchema, args.input);
@@ -140,7 +132,10 @@ export const folderResolvers = {
       });
 
       if (existing) {
-        throw new ValidationError('A folder with this name already exists in this location', 'name');
+        throw new ValidationError(
+          'A folder with this name already exists in this location',
+          'name',
+        );
       }
 
       return context.prisma.folder.create({
@@ -166,7 +161,7 @@ export const folderResolvers = {
           parentId?: string;
         };
       },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       const user = requireAuth(context);
       const input = validate(updateFolderSchema, args.input);
@@ -214,7 +209,10 @@ export const folderResolvers = {
         });
 
         if (existing) {
-          throw new ValidationError('A folder with this name already exists in this location', 'name');
+          throw new ValidationError(
+            'A folder with this name already exists in this location',
+            'name',
+          );
         }
       }
 
@@ -231,11 +229,7 @@ export const folderResolvers = {
     /**
      * Delete folder
      */
-    deleteFolder: async (
-      _parent: unknown,
-      args: { id: string },
-      context: GraphQLContext
-    ) => {
+    deleteFolder: async (_parent: unknown, args: { id: string }, context: GraphQLContext) => {
       const user = requireAuth(context);
 
       const folder = await context.prisma.folder.findUnique({

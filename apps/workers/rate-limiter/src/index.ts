@@ -18,20 +18,16 @@ import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { prettyJSON } from 'hono/pretty-json';
 import { z } from 'zod';
-
+import { ipRateLimitMiddleware } from './middleware/ratelimit.js';
 import {
   checkRateLimit,
   getRateLimitStatus,
-  resetRateLimit,
-  listRateLimitKeys,
   getRecommendedTier,
+  listRateLimitKeys,
   RATE_LIMIT_CONFIGS,
+  resetRateLimit,
   type UserTier,
 } from './utils/sliding-window.js';
-import {
-  rateLimitMiddleware,
-  ipRateLimitMiddleware,
-} from './middleware/ratelimit.js';
 
 /**
  * Cloudflare Worker environment bindings
@@ -60,7 +56,9 @@ app.use('/*', async (c, next) => {
 
   const origin = c.req.header('Origin') || '';
   const corsMiddleware = cors({
-    origin: allowedOrigins.includes(origin) ? origin : allowedOrigins[0]!,
+    origin: allowedOrigins.includes(origin)
+      ? origin
+      : (allowedOrigins[0] ?? 'http://localhost:3020'),
     allowMethods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization'],
     exposeHeaders: [
@@ -98,7 +96,7 @@ app.onError((err, c) => {
         details: err.message,
       },
     },
-    500
+    500,
   );
 });
 
@@ -177,11 +175,7 @@ app.post('/check', async (c) => {
     const validated = schema.parse(body);
 
     // Check rate limit
-    const status = await checkRateLimit(
-      c.env.RATE_LIMITS,
-      validated.identifier,
-      validated.tier
-    );
+    const status = await checkRateLimit(c.env.RATE_LIMITS, validated.identifier, validated.tier);
 
     // Set rate limit headers
     c.header('X-RateLimit-Limit', status.limit.toString());
@@ -197,7 +191,6 @@ app.post('/check', async (c) => {
       success: true,
       data: status,
     });
-
   } catch (error) {
     if (error instanceof z.ZodError) {
       return c.json(
@@ -209,7 +202,7 @@ app.post('/check', async (c) => {
             details: error.issues,
           },
         },
-        400
+        400,
       );
     }
 
@@ -222,7 +215,7 @@ app.post('/check', async (c) => {
           code: 'CHECK_ERROR',
         },
       },
-      500
+      500,
     );
   }
 });
@@ -252,16 +245,12 @@ app.get('/status/:identifier', async (c) => {
             code: 'INVALID_TIER',
           },
         },
-        400
+        400,
       );
     }
 
     // Get status without consuming
-    const status = await getRateLimitStatus(
-      c.env.RATE_LIMITS,
-      identifier,
-      tier
-    );
+    const status = await getRateLimitStatus(c.env.RATE_LIMITS, identifier, tier);
 
     // Set headers
     c.header('X-RateLimit-Limit', status.limit.toString());
@@ -273,7 +262,6 @@ app.get('/status/:identifier', async (c) => {
       success: true,
       data: status,
     });
-
   } catch (error) {
     console.error('Error in /status:', error);
     return c.json(
@@ -284,7 +272,7 @@ app.get('/status/:identifier', async (c) => {
           code: 'STATUS_ERROR',
         },
       },
-      500
+      500,
     );
   }
 });
@@ -314,7 +302,6 @@ app.delete('/reset/:identifier', async (c) => {
       success: true,
       message: `Rate limit reset for ${identifier}`,
     });
-
   } catch (error) {
     console.error('Error in /reset:', error);
     return c.json(
@@ -325,7 +312,7 @@ app.delete('/reset/:identifier', async (c) => {
           code: 'RESET_ERROR',
         },
       },
-      500
+      500,
     );
   }
 });
@@ -357,7 +344,7 @@ app.get('/recommend/:requestsPerHour', (c) => {
   try {
     const requestsPerHour = parseInt(c.req.param('requestsPerHour'), 10);
 
-    if (isNaN(requestsPerHour) || requestsPerHour < 0) {
+    if (Number.isNaN(requestsPerHour) || requestsPerHour < 0) {
       return c.json(
         {
           success: false,
@@ -366,7 +353,7 @@ app.get('/recommend/:requestsPerHour', (c) => {
             code: 'INVALID_INPUT',
           },
         },
-        400
+        400,
       );
     }
 
@@ -380,7 +367,6 @@ app.get('/recommend/:requestsPerHour', (c) => {
         config: RATE_LIMIT_CONFIGS[recommendedTier],
       },
     });
-
   } catch (error) {
     console.error('Error in /recommend:', error);
     return c.json(
@@ -391,7 +377,7 @@ app.get('/recommend/:requestsPerHour', (c) => {
           code: 'RECOMMEND_ERROR',
         },
       },
-      500
+      500,
     );
   }
 });
@@ -421,7 +407,6 @@ app.get('/admin/keys', async (c) => {
         keys: keys.slice(0, 100), // Limit to first 100 for safety
       },
     });
-
   } catch (error) {
     console.error('Error in /admin/keys:', error);
     return c.json(
@@ -432,7 +417,7 @@ app.get('/admin/keys', async (c) => {
           code: 'LIST_ERROR',
         },
       },
-      500
+      500,
     );
   }
 });
@@ -448,14 +433,14 @@ app.get(
     // This would be c.env.RATE_LIMITS in actual use
     // For demo purposes, we can't access env here
     {} as KVNamespace,
-    'free'
+    'free',
   ),
   (c) => {
     return c.json({
       success: true,
       message: 'This endpoint is rate limited',
     });
-  }
+  },
 );
 
 /**
@@ -471,7 +456,7 @@ app.notFound((c) => {
         path: c.req.path,
       },
     },
-    404
+    404,
   );
 });
 

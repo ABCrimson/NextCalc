@@ -4,8 +4,8 @@
  */
 
 import { all, create } from 'mathjs';
-import type { SolveRequest, ApiResponse } from '../utils/validators.js';
-import { createSuccessResponse, createErrorResponse } from '../utils/validators.js';
+import type { ApiResponse, SolveRequest } from '../utils/validators.js';
+import { createErrorResponse, createSuccessResponse } from '../utils/validators.js';
 
 // Create a mathjs instance with all functionality
 const math = create(all);
@@ -39,7 +39,7 @@ function extractPolynomialCoefficients(
 
     for (let i = 0; i <= maxDegree; i++) {
       const val = math.evaluate(expr, { [variable]: i }) as number;
-      if (typeof val !== 'number' || !isFinite(val)) return null;
+      if (typeof val !== 'number' || !Number.isFinite(val)) return null;
       points.push(val);
     }
 
@@ -87,7 +87,7 @@ function extractPolynomialCoefficients(
       let coeff = 0;
       for (let j = k; j <= degree; j++) {
         // Coefficient of x^k in C(x,j)
-        coeff += stirling1(j, k) * deltas[j] / factorial(j);
+        coeff += (stirling1(j, k) * deltas[j]) / factorial(j);
       }
       coeffs[k] = parseFloat(coeff.toFixed(precision));
     }
@@ -263,11 +263,7 @@ function durandKerner(
  * Fallback: numerical root finding using bisection / Newton's method
  * for when polynomial extraction fails.
  */
-function numericalSolve(
-  expr: string,
-  variable: string,
-  precision: number,
-): number[] {
+function numericalSolve(expr: string, variable: string, precision: number): number[] {
   const f = (x: number): number => math.evaluate(expr, { [variable]: x }) as number;
 
   const solutions: number[] = [];
@@ -327,10 +323,7 @@ export async function solveMathExpression(
     const parts = expression.split('=').map((part) => part.trim());
 
     if (parts.length !== 2) {
-      return createErrorResponse(
-        'Equation must have exactly one equals sign',
-        'INVALID_EQUATION',
-      );
+      return createErrorResponse('Equation must have exactly one equals sign', 'INVALID_EQUATION');
     }
 
     const [leftSide, rightSide] = parts;
@@ -365,19 +358,14 @@ export async function solveMathExpression(
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      return createErrorResponse(
-        `Failed to solve equation: ${errorMessage}`,
-        'SOLVE_ERROR',
-        { originalError: errorMessage },
-      );
+      return createErrorResponse(`Failed to solve equation: ${errorMessage}`, 'SOLVE_ERROR', {
+        originalError: errorMessage,
+      });
     }
 
     // Validate solutions exist
     if (!solutions || solutions.length === 0) {
-      return createErrorResponse(
-        'No solutions found for the given equation',
-        'NO_SOLUTIONS',
-      );
+      return createErrorResponse('No solutions found for the given equation', 'NO_SOLUTIONS');
     }
 
     const executionTime = performance.now() - startTime;
@@ -407,11 +395,7 @@ export async function solveMathExpression(
  * @param solution - Solution to verify
  * @returns True if solution is valid (within tolerance)
  */
-export function verifySolution(
-  expression: string,
-  variable: string,
-  solution: number,
-): boolean {
+export function verifySolution(expression: string, variable: string, solution: number): boolean {
   try {
     const parts = expression.split('=');
     if (parts.length !== 2) return false;

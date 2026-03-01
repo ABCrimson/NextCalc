@@ -4,9 +4,9 @@
  * Handles toggling upvotes on posts and comments.
  */
 
+import type { UpvoteTarget } from '@nextcalc/database';
 import type { GraphQLContext } from '../../lib/context';
 import { requireAuth } from '../../lib/context';
-import type { UpvoteTarget } from '@nextcalc/database';
 import { NotFoundError } from '../../lib/errors';
 
 export const upvoteResolvers = {
@@ -14,7 +14,7 @@ export const upvoteResolvers = {
     toggleUpvote: async (
       _parent: unknown,
       args: { targetId: string; targetType: UpvoteTarget },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       const user = requireAuth(context);
 

@@ -4,8 +4,8 @@
  */
 
 import { all, create } from 'mathjs';
-import type { DifferentiateRequest, ApiResponse } from '../utils/validators.js';
-import { createSuccessResponse, createErrorResponse } from '../utils/validators.js';
+import type { ApiResponse, DifferentiateRequest } from '../utils/validators.js';
+import { createErrorResponse, createSuccessResponse } from '../utils/validators.js';
 
 // Create a mathjs instance with all functionality
 const math = create(all);
@@ -41,7 +41,7 @@ export interface DifferentiateResult {
  * @throws Error if expression cannot be parsed or differentiated
  */
 export async function differentiateMathExpression(
-  request: DifferentiateRequest
+  request: DifferentiateRequest,
 ): Promise<ApiResponse<DifferentiateResult>> {
   const startTime = performance.now();
 
@@ -49,16 +49,14 @@ export async function differentiateMathExpression(
     const { expression, variable, order, simplify } = request;
 
     // Parse the expression to ensure it's valid
-    let parsedExpression;
+    let parsedExpression: math.MathNode;
     try {
       parsedExpression = math.parse(expression);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Parse error';
-      return createErrorResponse(
-        `Failed to parse expression: ${errorMessage}`,
-        'PARSE_ERROR',
-        { originalError: errorMessage }
-      );
+      return createErrorResponse(`Failed to parse expression: ${errorMessage}`, 'PARSE_ERROR', {
+        originalError: errorMessage,
+      });
     }
 
     // Compute the derivative
@@ -74,13 +72,12 @@ export async function differentiateMathExpression(
       if (simplify) {
         derivative = math.simplify(derivative);
       }
-
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Differentiation error';
       return createErrorResponse(
         `Failed to compute derivative: ${errorMessage}`,
         'DIFFERENTIATION_ERROR',
-        { originalError: errorMessage }
+        { originalError: errorMessage },
       );
     }
 
@@ -108,13 +105,12 @@ export async function differentiateMathExpression(
     };
 
     return createSuccessResponse(result, executionTime);
-
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return createErrorResponse(
       `Unexpected error during differentiation: ${errorMessage}`,
       'INTERNAL_ERROR',
-      { error: errorMessage }
+      { error: errorMessage },
     );
   }
 }
@@ -125,10 +121,7 @@ export async function differentiateMathExpression(
  * @param variable - Variable to check for
  * @returns True if variable is present in expression
  */
-export function expressionContainsVariable(
-  expression: string,
-  variable: string
-): boolean {
+export function expressionContainsVariable(expression: string, variable: string): boolean {
   try {
     const parsed = math.parse(expression);
 
@@ -142,7 +135,6 @@ export function expressionContainsVariable(
     });
 
     return symbols.has(variable);
-
   } catch {
     return false;
   }
@@ -156,7 +148,7 @@ export function expressionContainsVariable(
  */
 export async function computePartialDerivatives(
   expression: string,
-  variables: string[]
+  variables: string[],
 ): Promise<ApiResponse<Map<string, string>>> {
   const startTime = performance.now();
 
@@ -173,19 +165,18 @@ export async function computePartialDerivatives(
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         return createErrorResponse(
           `Failed to compute partial derivative for ${variable}: ${errorMessage}`,
-          'PARTIAL_DERIVATIVE_ERROR'
+          'PARTIAL_DERIVATIVE_ERROR',
         );
       }
     }
 
     const executionTime = performance.now() - startTime;
     return createSuccessResponse(partials, executionTime);
-
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return createErrorResponse(
       `Failed to compute partial derivatives: ${errorMessage}`,
-      'INTERNAL_ERROR'
+      'INTERNAL_ERROR',
     );
   }
 }
@@ -200,7 +191,7 @@ export async function computePartialDerivatives(
  */
 export async function computeGradient(
   expression: string,
-  variables: string[]
+  variables: string[],
 ): Promise<ApiResponse<string[]>> {
   const partialsResult = await computePartialDerivatives(expression, variables);
 
@@ -208,7 +199,8 @@ export async function computeGradient(
     return partialsResult as ApiResponse<string[]>;
   }
 
-  const gradient = variables.map((v) => partialsResult.data!.get(v)!);
+  const data = partialsResult.data;
+  const gradient = variables.map((v) => (data ? (data.get(v) ?? '') : ''));
 
   return createSuccessResponse(gradient, partialsResult.metadata?.executionTime);
 }

@@ -4,8 +4,8 @@
  */
 
 import { all, create } from 'mathjs';
-import type { IntegrateRequest, ApiResponse } from '../utils/validators.js';
-import { createSuccessResponse, createErrorResponse } from '../utils/validators.js';
+import type { ApiResponse, IntegrateRequest } from '../utils/validators.js';
+import { createErrorResponse, createSuccessResponse } from '../utils/validators.js';
 
 // Create a mathjs instance with all functionality
 const math = create(all);
@@ -50,7 +50,7 @@ export interface IntegrateResult {
  * @throws Error if expression cannot be integrated
  */
 export async function integrateMathExpression(
-  request: IntegrateRequest
+  request: IntegrateRequest,
 ): Promise<ApiResponse<IntegrateResult>> {
   const startTime = performance.now();
 
@@ -59,19 +59,17 @@ export async function integrateMathExpression(
     const isDefinite = lowerBound !== undefined && upperBound !== undefined;
 
     // Parse the expression to ensure it's valid
-    let parsedExpression;
+    let parsedExpression: math.MathNode;
     try {
       parsedExpression = math.parse(expression);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Parse error';
-      return createErrorResponse(
-        `Failed to parse expression: ${errorMessage}`,
-        'PARSE_ERROR',
-        { originalError: errorMessage }
-      );
+      return createErrorResponse(`Failed to parse expression: ${errorMessage}`, 'PARSE_ERROR', {
+        originalError: errorMessage,
+      });
     }
 
-    let integralResult;
+    let integralResult: math.MathNode | undefined;
     let numericValue: number | undefined;
 
     try {
@@ -90,40 +88,35 @@ export async function integrateMathExpression(
         if (simplify && integralResult) {
           integralResult = math.simplify(integralResult);
         }
-
       } else {
         // For complex expressions, inform user we're using numeric method
         if (!isDefinite) {
           return createErrorResponse(
             'Expression is too complex for symbolic integration. Please provide bounds for numeric integration.',
-            'REQUIRES_NUMERIC_INTEGRATION'
+            'REQUIRES_NUMERIC_INTEGRATION',
           );
         }
       }
 
       // If definite integral, compute numeric value
       if (isDefinite && lowerBound !== undefined && upperBound !== undefined) {
-        numericValue = computeDefiniteIntegral(
-          parsedExpression,
-          variable,
-          lowerBound,
-          upperBound
-        );
+        numericValue = computeDefiniteIntegral(parsedExpression, variable, lowerBound, upperBound);
       }
-
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Integration error';
       return createErrorResponse(
         `Failed to compute integral: ${errorMessage}`,
         'INTEGRATION_ERROR',
-        { originalError: errorMessage }
+        { originalError: errorMessage },
       );
     }
 
     // Format result
     const integralString = integralResult
       ? integralResult.toString()
-      : (numericValue !== undefined ? `Numeric: ${numericValue}` : 'Unable to compute');
+      : numericValue !== undefined
+        ? `Numeric: ${numericValue}`
+        : 'Unable to compute';
 
     // Generate LaTeX for rendering
     let latexOutput: string | undefined;
@@ -143,22 +136,23 @@ export async function integrateMathExpression(
       originalExpression: expression,
       variable,
       definite: isDefinite,
-      ...(isDefinite && lowerBound !== undefined && upperBound !== undefined && {
-        bounds: { lower: lowerBound, upper: upperBound },
-      }),
+      ...(isDefinite &&
+        lowerBound !== undefined &&
+        upperBound !== undefined && {
+          bounds: { lower: lowerBound, upper: upperBound },
+        }),
       numericValue,
       simplified: simplify,
       ...(latexOutput && { latex: latexOutput }),
     };
 
     return createSuccessResponse(result, executionTime);
-
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return createErrorResponse(
       `Unexpected error during integration: ${errorMessage}`,
       'INTERNAL_ERROR',
-      { error: errorMessage }
+      { error: errorMessage },
     );
   }
 }
@@ -202,7 +196,7 @@ function isSimpleIntegrable(node: math.MathNode): boolean {
  */
 function performSymbolicIntegration(
   node: math.MathNode,
-  variable: string
+  variable: string,
 ): math.MathNode | undefined {
   try {
     // Use mathjs derivative in reverse (not ideal, but mathjs lacks full integration)
@@ -215,7 +209,7 @@ function performSymbolicIntegration(
     // x^n case
     const powerMatch = nodeStr.match(new RegExp(`${variable}\\s*\\^\\s*(\\d+)`));
     if (powerMatch) {
-      const n = parseInt(powerMatch[1]!, 10);
+      const n = parseInt(powerMatch[1] ?? '0', 10);
       const newPower = n + 1;
       return math.parse(`${variable}^${newPower}/${newPower}`);
     }
@@ -232,7 +226,6 @@ function performSymbolicIntegration(
 
     // For more complex cases, return undefined to trigger numeric integration
     return undefined;
-
   } catch {
     return undefined;
   }
@@ -251,7 +244,7 @@ function computeDefiniteIntegral(
   node: math.MathNode,
   variable: string,
   lower: number,
-  upper: number
+  upper: number,
 ): number {
   // Simpson's rule with adaptive subdivision
   const n = 1000; // Number of subdivisions
@@ -290,7 +283,7 @@ export async function computeArcLength(
   expression: string,
   variable: string,
   lower: number,
-  upper: number
+  upper: number,
 ): Promise<ApiResponse<number>> {
   const startTime = performance.now();
 
@@ -310,12 +303,8 @@ export async function computeArcLength(
     const executionTime = performance.now() - startTime;
 
     return createSuccessResponse(arcLength, executionTime);
-
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return createErrorResponse(
-      `Failed to compute arc length: ${errorMessage}`,
-      'ARC_LENGTH_ERROR'
-    );
+    return createErrorResponse(`Failed to compute arc length: ${errorMessage}`, 'ARC_LENGTH_ERROR');
   }
 }

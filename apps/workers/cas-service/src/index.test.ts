@@ -16,7 +16,7 @@
  * runtime behaviour of the handler rather than an idealised CAS.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import app from './index.js';
 
 // ---------------------------------------------------------------------------
@@ -65,7 +65,7 @@ describe('GET /health', () => {
     const res = await makeRequest('/health');
     expect(res.status).toBe(200);
 
-    const json = await res.json() as Record<string, unknown>;
+    const json = (await res.json()) as Record<string, unknown>;
     expect(json.status).toBe('healthy');
     expect(json.service).toBe('cas-service');
     expect(json.version).toBe('1.0.0');
@@ -74,7 +74,7 @@ describe('GET /health', () => {
 
   it('returns a valid ISO 8601 timestamp', async () => {
     const res = await makeRequest('/health');
-    const json = await res.json() as Record<string, unknown>;
+    const json = (await res.json()) as Record<string, unknown>;
     // ISO 8601 strings are parseable by Date constructor without NaN
     expect(Number.isNaN(Date.parse(json.timestamp as string))).toBe(false);
   });
@@ -89,7 +89,7 @@ describe('GET /', () => {
     const res = await makeRequest('/');
     expect(res.status).toBe(200);
 
-    const json = await res.json() as Record<string, unknown>;
+    const json = (await res.json()) as Record<string, unknown>;
     expect(json.name).toContain('CAS Service');
     expect(json.version).toBe('1.0.0');
 
@@ -110,7 +110,7 @@ describe('Unknown routes', () => {
     const res = await makeRequest('/does-not-exist');
     expect(res.status).toBe(404);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('NOT_FOUND');
   });
 
@@ -118,7 +118,7 @@ describe('Unknown routes', () => {
     const res = await makeRequest('/api/v99/magic');
     expect(res.status).toBe(404);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('NOT_FOUND');
   });
 });
@@ -174,7 +174,7 @@ describe('POST /solve', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: { solutions: number[]; variable: string };
     };
@@ -190,7 +190,7 @@ describe('POST /solve', () => {
       variable: 'x',
     });
     expect(res.status).toBe(200);
-    const json = await res.json() as { success: boolean; data?: { solutions: number[] } };
+    const json = (await res.json()) as { success: boolean; data?: { solutions: number[] } };
     expect(json.success).toBe(true);
     expect(json.data?.solutions).toContain(4);
   });
@@ -201,7 +201,7 @@ describe('POST /solve', () => {
       variable: 'x',
     });
     expect(res.status).toBe(200);
-    const json = await res.json() as { success: boolean; data?: { solutions: number[] } };
+    const json = (await res.json()) as { success: boolean; data?: { solutions: number[] } };
     expect(json.success).toBe(true);
     expect(json.data?.solutions).toContain(2);
     expect(json.data?.solutions).toContain(3);
@@ -213,7 +213,7 @@ describe('POST /solve', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: { variable: string };
     };
@@ -227,7 +227,7 @@ describe('POST /solve', () => {
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
@@ -237,7 +237,7 @@ describe('POST /solve', () => {
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     // The solveSchema refine requires "=" — ZodError triggers VALIDATION_ERROR
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
@@ -249,7 +249,7 @@ describe('POST /solve', () => {
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
@@ -261,7 +261,7 @@ describe('POST /solve', () => {
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
@@ -273,7 +273,7 @@ describe('POST /solve', () => {
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
@@ -282,7 +282,7 @@ describe('POST /solve', () => {
       expression: '1 = 1 = 1',
       variable: 'x',
     });
-    const json = await res.json() as { success: boolean };
+    const json = (await res.json()) as { success: boolean };
     expect(json.success).toBe(false);
   });
 
@@ -291,7 +291,7 @@ describe('POST /solve', () => {
       expression: 'x = 0',
       variable: 'x',
     });
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       metadata: { timestamp: string };
     };
@@ -308,7 +308,7 @@ describe('POST /solve', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as { success: boolean };
+    const json = (await res.json()) as { success: boolean };
     expect(json.success).toBe(true);
   });
 });
@@ -325,7 +325,7 @@ describe('POST /differentiate', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: { derivative: string; variable: string; order: number };
     };
@@ -344,7 +344,7 @@ describe('POST /differentiate', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: { derivative: string };
     };
@@ -362,7 +362,7 @@ describe('POST /differentiate', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: { derivative: string; order: number };
     };
@@ -378,7 +378,7 @@ describe('POST /differentiate', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: { derivative: string };
     };
@@ -393,7 +393,7 @@ describe('POST /differentiate', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: { derivative: string };
     };
@@ -407,7 +407,7 @@ describe('POST /differentiate', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: { variable: string; order: number };
     };
@@ -422,7 +422,7 @@ describe('POST /differentiate', () => {
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
@@ -432,7 +432,7 @@ describe('POST /differentiate', () => {
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
@@ -444,7 +444,7 @@ describe('POST /differentiate', () => {
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
@@ -456,7 +456,7 @@ describe('POST /differentiate', () => {
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
@@ -465,7 +465,7 @@ describe('POST /differentiate', () => {
       expression: '@@invalid@@',
       variable: 'x',
     });
-    const json = await res.json() as { success: boolean };
+    const json = (await res.json()) as { success: boolean };
     expect(json.success).toBe(false);
   });
 
@@ -474,7 +474,7 @@ describe('POST /differentiate', () => {
       expression: 'x^2',
       variable: 'x',
     });
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: { latex?: string };
     };
@@ -491,7 +491,7 @@ describe('POST /differentiate', () => {
       variable: 'x',
       simplify: true,
     });
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: { simplified: boolean };
     };
@@ -505,7 +505,7 @@ describe('POST /differentiate', () => {
       variable: 'x',
       simplify: false,
     });
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: { simplified: boolean };
     };
@@ -526,7 +526,7 @@ describe('POST /integrate', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: {
         integral: string;
@@ -549,7 +549,7 @@ describe('POST /integrate', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: {
         definite: boolean;
@@ -572,7 +572,7 @@ describe('POST /integrate', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: { integral: string };
     };
@@ -587,7 +587,7 @@ describe('POST /integrate', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: { integral: string };
     };
@@ -602,7 +602,7 @@ describe('POST /integrate', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: { variable: string };
     };
@@ -616,7 +616,7 @@ describe('POST /integrate', () => {
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
@@ -626,7 +626,7 @@ describe('POST /integrate', () => {
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
@@ -638,7 +638,7 @@ describe('POST /integrate', () => {
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
@@ -651,7 +651,7 @@ describe('POST /integrate', () => {
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
@@ -661,7 +661,7 @@ describe('POST /integrate', () => {
       expression: 'sin(x) * cos(x) / (x^2 + 1)',
       variable: 'x',
     });
-    const json = await res.json() as { success: boolean };
+    const json = (await res.json()) as { success: boolean };
     expect(json.success).toBe(false);
   });
 
@@ -674,7 +674,7 @@ describe('POST /integrate', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: {
         definite: boolean;
@@ -704,7 +704,7 @@ describe('POST /arc-length', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: number;
     };
@@ -722,7 +722,7 @@ describe('POST /arc-length', () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json() as {
+    const json = (await res.json()) as {
       success: boolean;
       data: number;
     };
@@ -740,7 +740,7 @@ describe('POST /arc-length', () => {
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
@@ -752,7 +752,7 @@ describe('POST /arc-length', () => {
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 
@@ -764,7 +764,7 @@ describe('POST /arc-length', () => {
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json() as { error: { code: string } };
+    const json = (await res.json()) as { error: { code: string } };
     expect(json.error.code).toBe('VALIDATION_ERROR');
   });
 });

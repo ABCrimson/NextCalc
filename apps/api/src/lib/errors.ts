@@ -68,11 +68,7 @@ export class ForbiddenError extends BaseGraphQLError {
  * Resource not found error
  */
 export class NotFoundError extends BaseGraphQLError {
-  constructor(
-    resource: string,
-    identifier?: string,
-    field?: string
-  ) {
+  constructor(resource: string, identifier?: string, field?: string) {
     const message = identifier
       ? `${resource} with identifier "${identifier}" not found`
       : `${resource} not found`;
@@ -92,11 +88,7 @@ export class NotFoundError extends BaseGraphQLError {
  * Input validation error
  */
 export class ValidationError extends BaseGraphQLError {
-  constructor(
-    message: string,
-    field?: string,
-    validationErrors?: Record<string, string[]>,
-  ) {
+  constructor(message: string, field?: string, validationErrors?: Record<string, string[]>) {
     super(message, 'BAD_USER_INPUT', {
       ...(field ? { field } : {}),
       statusCode: 400,
@@ -111,7 +103,7 @@ export class ValidationError extends BaseGraphQLError {
 export class RateLimitError extends BaseGraphQLError {
   constructor(
     retryAfter: number, // seconds
-    message = 'Rate limit exceeded'
+    message = 'Rate limit exceeded',
   ) {
     super(message, 'RATE_LIMIT_EXCEEDED', {
       statusCode: 429,
@@ -130,7 +122,7 @@ export class InternalServerError extends BaseGraphQLError {
   constructor(
     message = 'An internal server error occurred',
     originalError?: Error,
-    field?: string
+    field?: string,
   ) {
     super(message, 'INTERNAL_SERVER_ERROR', {
       ...(field ? { field } : {}),
@@ -152,11 +144,7 @@ export class InternalServerError extends BaseGraphQLError {
  * Conflict error (e.g., duplicate resource)
  */
 export class ConflictError extends BaseGraphQLError {
-  constructor(
-    message: string,
-    field?: string,
-    conflictingResource?: string
-  ) {
+  constructor(message: string, field?: string, conflictingResource?: string) {
     super(message, 'CONFLICT', {
       ...(field ? { field } : {}),
       statusCode: 409,
@@ -169,10 +157,7 @@ export class ConflictError extends BaseGraphQLError {
  * Payment required error (for premium features)
  */
 export class PaymentRequiredError extends BaseGraphQLError {
-  constructor(
-    message = 'This feature requires a premium subscription',
-    requiredPlan?: string
-  ) {
+  constructor(message = 'This feature requires a premium subscription', requiredPlan?: string) {
     super(message, 'PAYMENT_REQUIRED', {
       statusCode: 402,
       ...(requiredPlan ? { extensions: { requiredPlan } } : {}),
@@ -187,16 +172,18 @@ export class ServiceUnavailableError extends BaseGraphQLError {
   constructor(
     service: string,
     retryAfter?: number,
-    message = `${service} is temporarily unavailable`
+    message = `${service} is temporarily unavailable`,
   ) {
     super(message, 'SERVICE_UNAVAILABLE', {
       statusCode: 503,
       extensions: {
         service,
-        ...(retryAfter != null ? {
-          retryAfter,
-          retryAt: new Date(Date.now() + retryAfter * 1000).toISOString(),
-        } : {}),
+        ...(retryAfter != null
+          ? {
+              retryAfter,
+              retryAt: new Date(Date.now() + retryAfter * 1000).toISOString(),
+            }
+          : {}),
       },
     });
   }
@@ -216,10 +203,7 @@ export const isGraphQLError = (error: unknown): error is BaseGraphQLError => {
 export const sanitizeError = (error: GraphQLError): GraphQLError => {
   // In production, mask internal server errors
   if (process.env.NODE_ENV === 'production') {
-    if (
-      error.extensions?.['code'] === 'INTERNAL_SERVER_ERROR' ||
-      !error.extensions?.['code']
-    ) {
+    if (error.extensions?.code === 'INTERNAL_SERVER_ERROR' || !error.extensions?.code) {
       return new InternalServerError();
     }
   }

@@ -8,13 +8,13 @@
  */
 
 export interface Session {
-	user?: {
-		id: string;
-		email?: string | null;
-		name?: string | null;
-		image?: string | null;
-	};
-	expires?: string;
+  user?: {
+    id: string;
+    email?: string | null;
+    name?: string | null;
+    image?: string | null;
+  };
+  expires?: string;
 }
 
 type AuthFunction = () => Promise<Session | null>;
@@ -26,7 +26,7 @@ let authFn: AuthFunction = async () => null;
  * Called from createHandler() in index.ts when the web app provides auth.
  */
 export function setAuthFunction(fn: AuthFunction): void {
-	authFn = fn;
+  authFn = fn;
 }
 
 /**
@@ -34,5 +34,5 @@ export function setAuthFunction(fn: AuthFunction): void {
  * or returns null if none is configured.
  */
 export async function auth(): Promise<Session | null> {
-	return authFn();
+  return authFn();
 }

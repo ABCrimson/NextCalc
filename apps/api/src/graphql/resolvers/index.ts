@@ -5,16 +5,16 @@
  * Uses modular pattern for maintainability.
  */
 
-import { userResolvers } from './user';
-import { worksheetResolvers } from './worksheet';
-import { folderResolvers } from './folder';
+import { GraphQLDateTime, GraphQLJSON } from 'graphql-scalars';
 import { calculationResolvers } from './calculation';
-import { forumResolvers } from './forum';
 import { commentResolvers } from './comment';
-import { upvoteResolvers } from './upvote';
+import { folderResolvers } from './folder';
+import { forumResolvers } from './forum';
 import { profileResolvers } from './profile';
 import { sharedCalculationResolvers } from './shared-calculation';
-import { GraphQLDateTime, GraphQLJSON } from 'graphql-scalars';
+import { upvoteResolvers } from './upvote';
+import { userResolvers } from './user';
+import { worksheetResolvers } from './worksheet';
 
 export const resolvers = {
   // Custom scalars

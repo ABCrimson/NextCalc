@@ -2,7 +2,16 @@
   "$schema": "https://biomejs.dev/schemas/2.4.4/schema.json",
   "files": {
     "maxSize": 10485760,
-    "ignoreUnknown": false
+    "ignoreUnknown": false,
+    "includes": [
+      "**",
+      "!**/dist",
+      "!**/node_modules",
+      "!**/.next",
+      "!**/generated",
+      "!.worktrees",
+      "!**/*.css"
+    ]
   },
   "linter": {
     "enabled": true,
@@ -10,11 +19,22 @@
       "recommended": true,
       "suspicious": {
         "noExplicitAny": "error",
-        "noImplicitAnyLet": "error"
+        "noImplicitAnyLet": "error",
+        "noAssignInExpressions": "warn",
+        "useIterableCallbackReturn": "warn",
+        "noFallthroughSwitchClause": "warn",
+        "noShadowRestrictedNames": "warn",
+        "noArrayIndexKey": "warn",
+        "noDoubleEquals": "warn"
       },
       "correctness": {
         "noUnusedImports": "warn",
-        "noUnusedVariables": "warn"
+        "noUnusedVariables": "warn",
+        "noPrecisionLoss": "warn",
+        "useExhaustiveDependencies": "warn",
+        "noSwitchDeclarations": "warn",
+        "useHookAtTopLevel": "warn",
+        "noInnerDeclarations": "warn"
       },
       "complexity": {
         "noExcessiveCognitiveComplexity": "off",
@@ -22,6 +42,26 @@
       },
       "style": {
         "noNonNullAssertion": "warn"
+      },
+      "a11y": {
+        "recommended": true,
+        "useButtonType": "warn",
+        "useSemanticElements": "warn",
+        "useAriaPropsSupportedByRole": "warn",
+        "noSvgWithoutTitle": "warn",
+        "useFocusableInteractive": "warn",
+        "noAriaHiddenOnFocusable": "warn",
+        "noStaticElementInteractions": "warn",
+        "useKeyWithMouseEvents": "warn",
+        "useKeyWithClickEvents": "warn",
+        "noNoninteractiveElementToInteractiveRole": "warn",
+        "noLabelWithoutControl": "warn",
+        "noAutofocus": "warn",
+        "useAriaPropsForRole": "warn",
+        "noNoninteractiveTabindex": "warn"
+      },
+      "security": {
+        "noDangerouslySetInnerHtml": "warn"
       },
       "nursery": {}
     }
@@ -40,5 +80,17 @@
       "trailingCommas": "all",
       "arrowParentheses": "always"
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["**/*.test.ts", "**/*.test.tsx", "**/vitest.setup.ts", "**/test-utils.d.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "warn"
+          }
+        }
+      }
+    }
+  ]
 }

@@ -81,7 +81,7 @@ export const RATE_LIMIT_CONFIGS: Record<UserTier, RateLimitConfig> = {
 export async function checkRateLimit(
   kv: KVNamespace,
   identifier: string,
-  tier: UserTier
+  tier: UserTier,
 ): Promise<RateLimitStatus> {
   const now = Date.now();
   const windowMs = 60 * 60 * 1000; // 1 hour in milliseconds
@@ -156,7 +156,7 @@ export async function checkRateLimit(
 export async function getRateLimitStatus(
   kv: KVNamespace,
   identifier: string,
-  tier: UserTier
+  tier: UserTier,
 ): Promise<RateLimitStatus> {
   const now = Date.now();
   const windowMs = 60 * 60 * 1000;
@@ -194,10 +194,7 @@ export async function getRateLimitStatus(
  * @param kv - Cloudflare KV namespace
  * @param identifier - Unique identifier to reset
  */
-export async function resetRateLimit(
-  kv: KVNamespace,
-  identifier: string
-): Promise<void> {
+export async function resetRateLimit(kv: KVNamespace, identifier: string): Promise<void> {
   const kvKey = `ratelimit:${identifier}`;
   await kv.delete(kvKey);
 }
@@ -212,7 +209,7 @@ export async function resetRateLimit(
  */
 export async function listRateLimitKeys(
   kv: KVNamespace,
-  prefix: string = 'ratelimit:'
+  prefix: string = 'ratelimit:',
 ): Promise<string[]> {
   const keys: string[] = [];
   let cursor: string | undefined;
@@ -238,7 +235,7 @@ export async function listRateLimitKeys(
 export async function checkRateLimitTokenBucket(
   kv: KVNamespace,
   identifier: string,
-  tier: UserTier
+  tier: UserTier,
 ): Promise<RateLimitStatus> {
   const now = Date.now();
   const config = RATE_LIMIT_CONFIGS[tier];

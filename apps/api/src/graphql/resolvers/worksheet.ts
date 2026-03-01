@@ -9,32 +9,28 @@
  * - Enhanced error handling and logging
  */
 
+import type { SharePermission, Worksheet, WorksheetVisibility } from '@nextcalc/database';
+import { queryCache } from '../../lib/cache';
 import type { GraphQLContext } from '../../lib/context';
 import { requireAuth, requireOwnership } from '../../lib/context';
-import type { Worksheet, WorksheetVisibility, SharePermission } from '@nextcalc/database';
-import { queryCache } from '../../lib/cache';
 import {
-  NotFoundError,
-  ForbiddenError,
-  AuthenticationError,
-} from '../../lib/errors';
+  buildConnection,
+  buildCursorParams,
+  type CursorPaginationArgs,
+} from '../../lib/cursor-pagination';
+import { AuthenticationError, ForbiddenError, NotFoundError } from '../../lib/errors';
 import {
+  publishUserWorksheetsChanged,
+  publishWorksheetUpdate,
   pubsub,
   SUBSCRIPTION_EVENTS,
-  publishWorksheetUpdate,
-  publishUserWorksheetsChanged,
   subscriptionFilters,
 } from '../../lib/subscription';
 import {
-  buildCursorParams,
-  buildConnection,
-  type CursorPaginationArgs,
-} from '../../lib/cursor-pagination';
-import {
-  validate,
   createWorksheetSchema,
-  updateWorksheetSchema,
   shareWorksheetSchema,
+  updateWorksheetSchema,
+  validate,
 } from '../../lib/validation';
 
 export const worksheetResolvers = {
@@ -43,11 +39,7 @@ export const worksheetResolvers = {
      * Get worksheet by ID
      * Checks visibility and sharing permissions
      */
-    worksheet: async (
-      _parent: unknown,
-      args: { id: string },
-      context: GraphQLContext
-    ) => {
+    worksheet: async (_parent: unknown, args: { id: string }, context: GraphQLContext) => {
       const worksheet = await context.prisma.worksheet.findUnique({
         where: { id: args.id },
         include: {
@@ -66,9 +58,7 @@ export const worksheetResolvers = {
         worksheet.visibility === 'UNLISTED' ||
         worksheet.userId === context.user?.id ||
         context.user?.role === 'ADMIN' ||
-        worksheet.shares.some(
-          (share) => share.sharedWith === context.user?.email
-        );
+        worksheet.shares.some((share) => share.sharedWith === context.user?.email);
 
       if (!canAccess) {
         throw new ForbiddenError('You do not have permission to access this worksheet');
@@ -90,7 +80,7 @@ export const worksheetResolvers = {
         folderId?: string;
         searchQuery?: string;
       },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       const user = requireAuth(context);
       const limit = Math.min(args.limit || 20, 100);
@@ -103,15 +93,15 @@ export const worksheetResolvers = {
       };
 
       if (args.visibility) {
-        where['visibility'] = args.visibility;
+        where.visibility = args.visibility;
       }
 
       if (args.folderId) {
-        where['folderId'] = args.folderId;
+        where.folderId = args.folderId;
       }
 
       if (args.searchQuery) {
-        where['OR'] = [
+        where.OR = [
           { title: { contains: args.searchQuery, mode: 'insensitive' } },
           { description: { contains: args.searchQuery, mode: 'insensitive' } },
         ];
@@ -154,7 +144,7 @@ export const worksheetResolvers = {
         offset?: number;
         searchQuery?: string;
       },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       const limit = Math.min(args.limit || 20, 100);
       const offset = args.offset || 0;
@@ -165,7 +155,7 @@ export const worksheetResolvers = {
       };
 
       if (args.searchQuery) {
-        where['OR'] = [
+        where.OR = [
           { title: { contains: args.searchQuery, mode: 'insensitive' } },
           { description: { contains: args.searchQuery, mode: 'insensitive' } },
         ];
@@ -206,7 +196,7 @@ export const worksheetResolvers = {
         folderId?: string;
         searchQuery?: string;
       },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       const user = requireAuth(context);
 
@@ -216,15 +206,15 @@ export const worksheetResolvers = {
       };
 
       if (args.visibility) {
-        where['visibility'] = args.visibility;
+        where.visibility = args.visibility;
       }
 
       if (args.folderId) {
-        where['folderId'] = args.folderId;
+        where.folderId = args.folderId;
       }
 
       if (args.searchQuery) {
-        where['OR'] = [
+        where.OR = [
           { title: { contains: args.searchQuery, mode: 'insensitive' } },
           { description: { contains: args.searchQuery, mode: 'insensitive' } },
         ];
@@ -255,7 +245,7 @@ export const worksheetResolvers = {
       args: CursorPaginationArgs & {
         searchQuery?: string;
       },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       const where: Record<string, unknown> = {
         deletedAt: null,
@@ -263,7 +253,7 @@ export const worksheetResolvers = {
       };
 
       if (args.searchQuery) {
-        where['OR'] = [
+        where.OR = [
           { title: { contains: args.searchQuery, mode: 'insensitive' } },
           { description: { contains: args.searchQuery, mode: 'insensitive' } },
         ];
@@ -302,7 +292,7 @@ export const worksheetResolvers = {
           folderId?: string;
         };
       },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       const user = requireAuth(context);
       const input = validate(createWorksheetSchema, args.input);
@@ -361,7 +351,7 @@ export const worksheetResolvers = {
           folderId?: string;
         };
       },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       requireAuth(context);
       const input = validate(updateWorksheetSchema, args.input);
@@ -405,11 +395,7 @@ export const worksheetResolvers = {
     /**
      * Delete worksheet (soft delete)
      */
-    deleteWorksheet: async (
-      _parent: unknown,
-      args: { id: string },
-      context: GraphQLContext
-    ) => {
+    deleteWorksheet: async (_parent: unknown, args: { id: string }, context: GraphQLContext) => {
       const user = requireAuth(context);
 
       const worksheet = await context.prisma.worksheet.findUnique({
@@ -456,7 +442,7 @@ export const worksheetResolvers = {
           permission?: SharePermission;
         };
       },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       requireAuth(context);
       const input = validate(shareWorksheetSchema, args.input);
@@ -491,7 +477,7 @@ export const worksheetResolvers = {
     unshareWorksheet: async (
       _parent: unknown,
       args: { worksheetId: string; shareId: string },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       requireAuth(context);
 
@@ -518,7 +504,7 @@ export const worksheetResolvers = {
     incrementWorksheetViews: async (
       _parent: unknown,
       args: { id: string },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       await context.prisma.worksheet.update({
         where: { id: args.id },
@@ -541,7 +527,7 @@ export const worksheetResolvers = {
       },
       resolve: (
         payload: { worksheetUpdated: Worksheet; worksheetId: string },
-        args: { worksheetId: string }
+        args: { worksheetId: string },
       ) => {
         // Use subscription filter to only send updates for the specific worksheet
         if (subscriptionFilters.worksheetUpdated(payload, args)) {
@@ -572,7 +558,7 @@ export const worksheetResolvers = {
       resolve: (
         payload: { userWorksheetsChanged: Worksheet[]; userId: string },
         args: { userId: string },
-        context: GraphQLContext
+        context: GraphQLContext,
       ) => {
         // Use subscription filter with context for auth check
         if (subscriptionFilters.userWorksheetsChanged(payload, args, context)) {

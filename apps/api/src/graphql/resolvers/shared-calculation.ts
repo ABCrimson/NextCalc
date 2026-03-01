@@ -8,7 +8,7 @@
 import crypto from 'node:crypto';
 import type { GraphQLContext } from '../../lib/context';
 import { ValidationError } from '../../lib/errors';
-import { validate, shareCalculationSchema } from '../../lib/validation';
+import { shareCalculationSchema, validate } from '../../lib/validation';
 
 /**
  * Generate a cryptographically random 8-character alphanumeric code.
@@ -40,9 +40,7 @@ async function generateUniqueShortCode(
     });
     if (!existing) return code;
   }
-  throw new ValidationError(
-    'Failed to generate a unique share code. Please try again.',
-  );
+  throw new ValidationError('Failed to generate a unique share code. Please try again.');
 }
 
 export const sharedCalculationResolvers = {

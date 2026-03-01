@@ -17,16 +17,15 @@ import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { prettyJSON } from 'hono/pretty-json';
 import { z } from 'zod';
-
-import { solveMathExpression } from './handlers/solve.js';
 import { differentiateMathExpression } from './handlers/differentiate.js';
-import { integrateMathExpression, computeArcLength } from './handlers/integrate.js';
+import { computeArcLength, integrateMathExpression } from './handlers/integrate.js';
+import { solveMathExpression } from './handlers/solve.js';
 import {
-  solveSchema,
+  createErrorResponse,
   differentiateSchema,
   integrateSchema,
+  solveSchema,
   validateRequest,
-  createErrorResponse,
 } from './utils/validators.js';
 
 /**
@@ -54,7 +53,9 @@ app.use('/*', async (c, next) => {
 
   const origin = c.req.header('Origin') || '';
   const corsMiddleware = cors({
-    origin: allowedOrigins.includes(origin) ? origin : allowedOrigins[0]!,
+    origin: allowedOrigins.includes(origin)
+      ? origin
+      : (allowedOrigins[0] ?? 'http://localhost:3020'),
     allowMethods: ['GET', 'POST', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization'],
     maxAge: 86400,
@@ -77,12 +78,8 @@ app.onError((err, c) => {
   console.error('Unhandled error:', err);
 
   return c.json(
-    createErrorResponse(
-      'Internal server error',
-      'INTERNAL_ERROR',
-      { message: err.message }
-    ),
-    500
+    createErrorResponse('Internal server error', 'INTERNAL_ERROR', { message: err.message }),
+    500,
   );
 });
 
@@ -162,27 +159,16 @@ app.post('/solve', async (c) => {
     const result = await solveMathExpression(validatedRequest);
 
     return c.json(result, result.success ? 200 : 400);
-
   } catch (error) {
     if (error instanceof z.ZodError) {
       return c.json(
-        createErrorResponse(
-          'Validation error',
-          'VALIDATION_ERROR',
-          { errors: error.issues }
-        ),
-        400
+        createErrorResponse('Validation error', 'VALIDATION_ERROR', { errors: error.issues }),
+        400,
       );
     }
 
     console.error('Error in /solve:', error);
-    return c.json(
-      createErrorResponse(
-        'Failed to process solve request',
-        'SOLVE_ERROR'
-      ),
-      500
-    );
+    return c.json(createErrorResponse('Failed to process solve request', 'SOLVE_ERROR'), 500);
   }
 });
 
@@ -226,26 +212,18 @@ app.post('/differentiate', async (c) => {
     const result = await differentiateMathExpression(validatedRequest);
 
     return c.json(result, result.success ? 200 : 400);
-
   } catch (error) {
     if (error instanceof z.ZodError) {
       return c.json(
-        createErrorResponse(
-          'Validation error',
-          'VALIDATION_ERROR',
-          { errors: error.issues }
-        ),
-        400
+        createErrorResponse('Validation error', 'VALIDATION_ERROR', { errors: error.issues }),
+        400,
       );
     }
 
     console.error('Error in /differentiate:', error);
     return c.json(
-      createErrorResponse(
-        'Failed to process differentiate request',
-        'DIFFERENTIATE_ERROR'
-      ),
-      500
+      createErrorResponse('Failed to process differentiate request', 'DIFFERENTIATE_ERROR'),
+      500,
     );
   }
 });
@@ -292,26 +270,18 @@ app.post('/integrate', async (c) => {
     const result = await integrateMathExpression(validatedRequest);
 
     return c.json(result, result.success ? 200 : 400);
-
   } catch (error) {
     if (error instanceof z.ZodError) {
       return c.json(
-        createErrorResponse(
-          'Validation error',
-          'VALIDATION_ERROR',
-          { errors: error.issues }
-        ),
-        400
+        createErrorResponse('Validation error', 'VALIDATION_ERROR', { errors: error.issues }),
+        400,
       );
     }
 
     console.error('Error in /integrate:', error);
     return c.json(
-      createErrorResponse(
-        'Failed to process integrate request',
-        'INTEGRATE_ERROR'
-      ),
-      500
+      createErrorResponse('Failed to process integrate request', 'INTEGRATE_ERROR'),
+      500,
     );
   }
 });
@@ -337,15 +307,20 @@ app.post('/arc-length', async (c) => {
     const body = await c.req.json();
 
     // Define schema for arc length
-    const arcLengthSchema = z.object({
-      expression: z.string().min(1).max(1000),
-      variable: z.string().regex(/^[a-zA-Z][a-zA-Z0-9]*$/).optional().default('x'),
-      lowerBound: z.number().finite(),
-      upperBound: z.number().finite(),
-    }).refine(
-      (data) => data.lowerBound < data.upperBound,
-      { message: 'lowerBound must be less than upperBound' }
-    );
+    const arcLengthSchema = z
+      .object({
+        expression: z.string().min(1).max(1000),
+        variable: z
+          .string()
+          .regex(/^[a-zA-Z][a-zA-Z0-9]*$/)
+          .optional()
+          .default('x'),
+        lowerBound: z.number().finite(),
+        upperBound: z.number().finite(),
+      })
+      .refine((data) => data.lowerBound < data.upperBound, {
+        message: 'lowerBound must be less than upperBound',
+      });
 
     const validatedRequest = validateRequest(body, arcLengthSchema);
 
@@ -354,30 +329,22 @@ app.post('/arc-length', async (c) => {
       validatedRequest.expression,
       validatedRequest.variable,
       validatedRequest.lowerBound,
-      validatedRequest.upperBound
+      validatedRequest.upperBound,
     );
 
     return c.json(result, result.success ? 200 : 400);
-
   } catch (error) {
     if (error instanceof z.ZodError) {
       return c.json(
-        createErrorResponse(
-          'Validation error',
-          'VALIDATION_ERROR',
-          { errors: error.issues }
-        ),
-        400
+        createErrorResponse('Validation error', 'VALIDATION_ERROR', { errors: error.issues }),
+        400,
       );
     }
 
     console.error('Error in /arc-length:', error);
     return c.json(
-      createErrorResponse(
-        'Failed to process arc-length request',
-        'ARC_LENGTH_ERROR'
-      ),
-      500
+      createErrorResponse('Failed to process arc-length request', 'ARC_LENGTH_ERROR'),
+      500,
     );
   }
 });
@@ -386,14 +353,7 @@ app.post('/arc-length', async (c) => {
  * 404 handler for unknown routes
  */
 app.notFound((c) => {
-  return c.json(
-    createErrorResponse(
-      'Endpoint not found',
-      'NOT_FOUND',
-      { path: c.req.path }
-    ),
-    404
-  );
+  return c.json(createErrorResponse('Endpoint not found', 'NOT_FOUND', { path: c.req.path }), 404);
 });
 
 /**

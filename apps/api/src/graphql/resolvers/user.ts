@@ -4,9 +4,9 @@
  * Handles user-related queries and field resolvers.
  */
 
-import type { GraphQLContext } from '../../lib/context';
 import type { User } from '@nextcalc/database';
-import { NotFoundError, ForbiddenError } from '../../lib/errors';
+import type { GraphQLContext } from '../../lib/context';
+import { ForbiddenError, NotFoundError } from '../../lib/errors';
 
 export const userResolvers = {
   Query: {
@@ -24,11 +24,7 @@ export const userResolvers = {
      * Get user by ID
      * Only admins or the user themselves can view full profile
      */
-    user: async (
-      _parent: unknown,
-      args: { id: string },
-      context: GraphQLContext
-    ) => {
+    user: async (_parent: unknown, args: { id: string }, context: GraphQLContext) => {
       const requestingUser = context.user;
 
       const user = await context.prisma.user.findUnique({
@@ -42,10 +38,7 @@ export const userResolvers = {
       // Only allow viewing if:
       // 1. Requesting user is an admin
       // 2. Requesting user is viewing their own profile
-      if (
-        requestingUser?.role === 'ADMIN' ||
-        requestingUser?.id === args.id
-      ) {
+      if (requestingUser?.role === 'ADMIN' || requestingUser?.id === args.id) {
         return user;
       }
 
@@ -64,7 +57,7 @@ export const userResolvers = {
         offset?: number;
         visibility?: 'PRIVATE' | 'UNLISTED' | 'PUBLIC';
       },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       const requestingUser = context.user;
 
@@ -79,10 +72,7 @@ export const userResolvers = {
       };
 
       // If not the owner or admin, only show PUBLIC worksheets
-      if (
-        requestingUser?.id !== parent.id &&
-        requestingUser?.role !== 'ADMIN'
-      ) {
+      if (requestingUser?.id !== parent.id && requestingUser?.role !== 'ADMIN') {
         where.visibility = 'PUBLIC';
       } else if (args.visibility) {
         where.visibility = args.visibility;
@@ -109,11 +99,7 @@ export const userResolvers = {
     /**
      * Get total worksheet count
      */
-    worksheetCount: async (
-      parent: User,
-      _args: unknown,
-      context: GraphQLContext
-    ) => {
+    worksheetCount: async (parent: User, _args: unknown, context: GraphQLContext) => {
       return context.prisma.worksheet.count({
         where: {
           userId: parent.id,
@@ -128,7 +114,7 @@ export const userResolvers = {
     forumPosts: async (
       parent: User,
       args: { limit?: number; offset?: number },
-      context: GraphQLContext
+      context: GraphQLContext,
     ) => {
       return context.prisma.forumPost.findMany({
         where: {
