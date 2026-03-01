@@ -21,6 +21,7 @@
 import { type ComponentType, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { signIn as nextAuthSignIn } from 'next-auth/react';
 import { Calculator, Github, Chrome, AlertCircle, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
@@ -102,34 +103,9 @@ export default function SignInPage() {
     setLoadingProvider(providerId);
     setRedirectError(null);
     try {
-      // Fetch the CSRF token from NextAuth's endpoint
-      const csrfRes = await fetch('/api/auth/csrf');
-      if (!csrfRes.ok) {
-        throw new Error(`CSRF fetch failed: ${csrfRes.status}`);
-      }
-      const { csrfToken } = (await csrfRes.json()) as { csrfToken: string };
-
-      // POST to NextAuth's built-in sign-in endpoint with the real CSRF token.
-      // NextAuth then issues the OAuth redirect to the provider.
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = `/api/auth/signin/${providerId}`;
-
-      const csrfInput = document.createElement('input');
-      csrfInput.type = 'hidden';
-      csrfInput.name = 'csrfToken';
-      csrfInput.value = csrfToken;
-      form.appendChild(csrfInput);
-
-      const callbackInput = document.createElement('input');
-      callbackInput.type = 'hidden';
-      callbackInput.name = 'callbackUrl';
-      callbackInput.value = callbackUrl;
-      form.appendChild(callbackInput);
-
-      document.body.appendChild(form);
-      form.submit();
-      document.body.removeChild(form);
+      // Use NextAuth's built-in signIn which handles CSRF, redirect URL
+      // construction, and provider validation automatically.
+      await nextAuthSignIn(providerId, { callbackUrl });
     } catch {
       setLoadingProvider(null);
       setRedirectError(t('error.redirectFailed'));

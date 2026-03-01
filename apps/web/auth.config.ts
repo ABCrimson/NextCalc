@@ -15,23 +15,30 @@ import type { Provider } from 'next-auth/providers';
 import Google from 'next-auth/providers/google';
 import GitHub from 'next-auth/providers/github';
 
-// Only include providers whose credentials are configured
+// Only include providers whose credentials are configured.
+// Accept multiple env-var naming conventions (AUTH_*, *_CLIENT_*, legacy *_ID/*_SECRET).
 const providers: Provider[] = [];
 
-if (process.env['GITHUB_CLIENT_ID'] && process.env['GITHUB_CLIENT_SECRET']) {
+const githubId = process.env['AUTH_GITHUB_ID'] || process.env['GITHUB_CLIENT_ID'] || process.env['GITHUB_ID'];
+const githubSecret = process.env['AUTH_GITHUB_SECRET'] || process.env['GITHUB_CLIENT_SECRET'] || process.env['GITHUB_SECRET'];
+
+if (githubId && githubSecret) {
   providers.push(
     GitHub({
-      clientId: process.env['GITHUB_CLIENT_ID'],
-      clientSecret: process.env['GITHUB_CLIENT_SECRET'],
+      clientId: githubId,
+      clientSecret: githubSecret,
     }),
   );
 }
 
-if (process.env['GOOGLE_CLIENT_ID'] && process.env['GOOGLE_CLIENT_SECRET']) {
+const googleId = process.env['AUTH_GOOGLE_ID'] || process.env['GOOGLE_CLIENT_ID'] || process.env['GOOGLE_ID'];
+const googleSecret = process.env['AUTH_GOOGLE_SECRET'] || process.env['GOOGLE_CLIENT_SECRET'] || process.env['GOOGLE_SECRET'];
+
+if (googleId && googleSecret) {
   providers.push(
     Google({
-      clientId: process.env['GOOGLE_CLIENT_ID'],
-      clientSecret: process.env['GOOGLE_CLIENT_SECRET'],
+      clientId: googleId,
+      clientSecret: googleSecret,
       authorization: {
         params: {
           prompt: 'consent',
