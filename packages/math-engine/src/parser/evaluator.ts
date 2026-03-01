@@ -3,10 +3,18 @@
  * Supports both exact (symbolic) and approximate (numeric) evaluation
  */
 
-import type { ExpressionNode, ASTVisitor, ConstantNode, SymbolNode, OperatorNode, UnaryOperatorNode, FunctionNode } from './ast';
+import { simplify as symbolicSimplify } from '../symbolic/simplify';
+import type {
+  ASTVisitor,
+  ConstantNode,
+  ExpressionNode,
+  FunctionNode,
+  OperatorNode,
+  SymbolNode,
+  UnaryOperatorNode,
+} from './ast';
 import { visit } from './ast';
 import { parse } from './parser';
-import { simplify as symbolicSimplify } from '../symbolic/simplify';
 
 /**
  * Evaluation context with variable bindings
@@ -32,7 +40,7 @@ export type EvaluationResult =
  */
 export function evaluate(
   expression: ExpressionNode | string,
-  context: EvaluationContext = {}
+  context: EvaluationContext = {},
 ): EvaluationResult {
   try {
     // Parse string expressions to AST first, then evaluate using our custom evaluator
@@ -112,7 +120,7 @@ class ASTEvaluator implements ASTVisitor<number | bigint | string> {
         }
         return l / r;
       case '^':
-        return Math.pow(l, r);
+        return l ** r;
       case '%':
         return l % r;
       default:
@@ -233,7 +241,10 @@ function factorial(n: number): number {
  * Custom error class for evaluation errors
  */
 export class EvaluationError extends Error {
-  constructor(message: string, public override cause?: unknown) {
+  constructor(
+    message: string,
+    public override cause?: unknown,
+  ) {
     super(message);
     this.name = 'EvaluationError';
   }

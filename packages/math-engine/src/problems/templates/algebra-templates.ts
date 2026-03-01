@@ -12,7 +12,7 @@
  * - Radical equations
  */
 
-import { createTemplate, type ProblemTemplate, narrow } from './template-engine';
+import { createTemplate, narrow, type ProblemTemplate } from './template-engine';
 
 /**
  * Linear equation: ax + b = c
@@ -28,7 +28,7 @@ export const linearEquationTemplate = createTemplate({
     { name: 'b', type: 'integer', min: -20, max: 20 },
     { name: 'c', type: 'integer', min: -20, max: 20 },
   ],
-  solution: params => {
+  solution: (params) => {
     const { a, b, c } = narrow<{ a: number; b: number; c: number }>(params);
     const x = (c - b) / a;
 
@@ -50,8 +50,8 @@ export const linearEquationTemplate = createTemplate({
   },
   hints: [
     () => 'Isolate the variable term by moving the constant to the other side',
-    params => `Subtract ${Number(params['b'])} from both sides`,
-    params => `Then divide both sides by ${Number(params['a'])}`,
+    (params) => `Subtract ${Number(params['b'])} from both sides`,
+    (params) => `Then divide both sides by ${Number(params['a'])}`,
   ],
   commonMistakes: [
     (params, answer) => {
@@ -99,7 +99,7 @@ export const quadraticEquationTemplate = createTemplate({
       },
     },
   ],
-  solution: params => {
+  solution: (params) => {
     const { a, b, c } = narrow<{ a: number; b: number; c: number }>(params);
     const discriminant = b * b - 4 * a * c;
     const sqrtDisc = Math.sqrt(discriminant);
@@ -183,8 +183,15 @@ export const systemLinearTemplate = createTemplate({
       },
     },
   ],
-  solution: params => {
-    const { a1, b1, c1, a2, b2, c2 } = narrow<{ a1: number; b1: number; c1: number; a2: number; b2: number; c2: number }>(params);
+  solution: (params) => {
+    const { a1, b1, c1, a2, b2, c2 } = narrow<{
+      a1: number;
+      b1: number;
+      c1: number;
+      a2: number;
+      b2: number;
+      c2: number;
+    }>(params);
 
     // Cramer's rule
     const det = a1 * b2 - a2 * b1;
@@ -199,11 +206,11 @@ export const systemLinearTemplate = createTemplate({
           expression: `D = ${a1} \\cdot ${b2} - ${a2} \\cdot ${b1} = ${det}`,
         },
         {
-          description: 'Apply Cramer\'s rule for x',
+          description: "Apply Cramer's rule for x",
           expression: `x = \\frac{${c1} \\cdot ${b2} - ${c2} \\cdot ${b1}}{${det}} = ${x}`,
         },
         {
-          description: 'Apply Cramer\'s rule for y',
+          description: "Apply Cramer's rule for y",
           expression: `y = \\frac{${a1} \\cdot ${c2} - ${a2} \\cdot ${c1}}{${det}} = ${y}`,
         },
       ],
@@ -212,12 +219,12 @@ export const systemLinearTemplate = createTemplate({
   hints: [
     () => 'You can use substitution or elimination method',
     () => 'Try multiplying one equation to eliminate a variable',
-    () => 'Or use Cramer\'s rule with determinants',
+    () => "Or use Cramer's rule with determinants",
   ],
   commonMistakes: [],
   tags: ['systems', 'linear-equations', 'simultaneous'],
   prerequisites: ['linear-equations', 'substitution'],
-  learningObjectives: ['Solve systems of equations', 'Apply Cramer\'s rule'],
+  learningObjectives: ['Solve systems of equations', "Apply Cramer's rule"],
 });
 
 /**
@@ -260,7 +267,7 @@ export const factorizationTemplate = createTemplate({
       },
     },
   ],
-  solution: params => {
+  solution: (params) => {
     const { b, c } = narrow<{ b: number; c: number }>(params);
 
     // Find factors
@@ -292,8 +299,8 @@ export const factorizationTemplate = createTemplate({
     };
   },
   hints: [
-    params => `Find two numbers that multiply to ${Number(params['c'])}`,
-    params => `and add to ${Number(params['b'])}`,
+    (params) => `Find two numbers that multiply to ${Number(params['c'])}`,
+    (params) => `and add to ${Number(params['b'])}`,
     () => 'Write the factors as (x + p)(x + q)',
   ],
   commonMistakes: [],
@@ -317,7 +324,7 @@ export const linearInequalityTemplate = createTemplate({
     { name: 'c', type: 'integer', min: -20, max: 20 },
     { name: 'op', type: 'choice', choices: ['<', '>', '\\leq', '\\geq'] },
   ],
-  solution: params => {
+  solution: (params) => {
     const { a, b, c, op } = narrow<{ a: number; b: number; c: number; op: string }>(params);
     const x = (c - b) / a;
 
@@ -340,7 +347,7 @@ export const linearInequalityTemplate = createTemplate({
   },
   hints: [
     () => 'Treat it like an equation, but remember...',
-    params =>
+    (params) =>
       Number(params['a']) < 0
         ? 'When dividing by a negative, flip the inequality sign!'
         : 'Keep the inequality sign the same when dividing by positive',
@@ -376,7 +383,7 @@ export const absoluteValueTemplate = createTemplate({
     { name: 'a', type: 'integer', min: -10, max: 10 },
     { name: 'b', type: 'integer', min: 1, max: 20 },
   ],
-  solution: params => {
+  solution: (params) => {
     const { a, b } = narrow<{ a: number; b: number }>(params);
     const x1 = b - a;
     const x2 = -b - a;
@@ -401,8 +408,8 @@ export const absoluteValueTemplate = createTemplate({
   },
   hints: [
     () => 'Absolute value equations have two cases: positive and negative',
-    params => `Case 1: x + ${Number(params['a'])} = ${Number(params['b'])}`,
-    params => `Case 2: x + ${Number(params['a'])} = ${-Number(params['b'])}`,
+    (params) => `Case 1: x + ${Number(params['a'])} = ${Number(params['b'])}`,
+    (params) => `Case 2: x + ${Number(params['a'])} = ${-Number(params['b'])}`,
   ],
   commonMistakes: [
     (params, answer) => {
@@ -436,7 +443,7 @@ export const radicalEquationTemplate = createTemplate({
     { name: 'a', type: 'integer', min: 0, max: 20 },
     { name: 'b', type: 'integer', min: 1, max: 10 },
   ],
-  solution: params => {
+  solution: (params) => {
     const { a, b } = narrow<{ a: number; b: number }>(params);
     const x = b * b - a;
 
@@ -484,7 +491,7 @@ export const rationalSimplificationTemplate = createTemplate({
     { name: 'c', type: 'integer', min: 1, max: 10 },
     { name: 'd', type: 'integer', min: 1, max: 10 },
   ],
-  solution: params => {
+  solution: (params) => {
     const { a, b, c, d } = narrow<{ a: number; b: number; c: number; d: number }>(params);
 
     // Check if they have a common factor

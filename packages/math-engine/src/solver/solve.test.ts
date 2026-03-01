@@ -2,8 +2,8 @@
  * Tests for equation solver
  */
 
-import { describe, it, expect } from 'vitest';
-import { solve, solveInRange, Complex } from './solve';
+import { describe, expect, it } from 'vitest';
+import { Complex, solve, solveInRange } from './solve';
 
 describe('solve', () => {
   describe('linear equations', () => {

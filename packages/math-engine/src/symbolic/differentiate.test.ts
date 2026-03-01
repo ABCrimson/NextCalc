@@ -2,10 +2,10 @@
  * Tests for symbolic differentiation
  */
 
-import { describe, it, expect } from 'vitest';
-import { differentiate, simplifyDerivative } from './differentiate';
-import { parse } from '../parser/parser';
+import { describe, expect, it } from 'vitest';
 import { evaluate } from '../parser/evaluator';
+import { parse } from '../parser/parser';
+import { differentiate, simplifyDerivative } from './differentiate';
 
 describe('Basic Differentiation', () => {
   it('differentiates constants', () => {
@@ -318,7 +318,7 @@ describe('Chain Rule', () => {
     const derivative = differentiate(expr, 'x');
     // d/dx((x^2)^3) = 3*(x^2)^2 * 2x = 6x^5
     const result = evaluate(derivative, { variables: { x: 2 } });
-    expect(result.value).toBeCloseTo(6 * Math.pow(2, 5), 5);
+    expect(result.value).toBeCloseTo(6 * 2 ** 5, 5);
   });
 
   it('differentiates exp(x^2)', () => {

@@ -9,5 +9,5 @@
  * @module algorithms/ml
  */
 
-export * from './neural-network';
 export * from './gradient-descent';
+export * from './neural-network';

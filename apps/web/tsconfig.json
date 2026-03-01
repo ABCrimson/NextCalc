@@ -10,35 +10,16 @@
       }
     ],
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "@nextcalc/types": [
-        "../../packages/types/src"
-      ],
-      "@nextcalc/math-engine": [
-        "../../packages/math-engine/dist"
-      ],
-      "@nextcalc/math-engine/*": [
-        "../../packages/math-engine/dist/*"
-      ],
-      "@nextcalc/plot-engine": [
-        "../../packages/plot-engine/dist"
-      ],
-      "@nextcalc/ui": [
-        "../../packages/ui/src"
-      ]
+      "@/*": ["./*"],
+      "@nextcalc/types": ["../../packages/types/src"],
+      "@nextcalc/math-engine": ["../../packages/math-engine/dist"],
+      "@nextcalc/math-engine/*": ["../../packages/math-engine/dist/*"],
+      "@nextcalc/plot-engine": ["../../packages/plot-engine/dist"],
+      "@nextcalc/ui": ["../../packages/ui/src"]
     },
-    "noEmit": true
+    "noEmit": true,
+    "noPropertyAccessFromIndexSignature": false
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "**/*.stories.tsx"
-  ]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules", "**/*.stories.tsx"]
 }

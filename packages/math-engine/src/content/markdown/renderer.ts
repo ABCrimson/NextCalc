@@ -8,7 +8,7 @@
  * - Table of contents
  */
 
-import type { ParsedMarkdown, MarkdownSection, MathBlock } from './parser';
+import type { MarkdownSection, MathBlock, ParsedMarkdown } from './parser';
 
 /**
  * Render options
@@ -126,7 +126,7 @@ function renderTOC(sections: MarkdownSection[], maxDepth = 3): string {
 function renderSection(
   section: MarkdownSection,
   mathBlocks: MathBlock[],
-  options: RenderOptions
+  options: RenderOptions,
 ): string {
   const id = slugify(section.heading);
   let html = '';
@@ -150,11 +150,7 @@ function renderSection(
 /**
  * Render content with inline markdown
  */
-function renderContent(
-  content: string,
-  _mathBlocks: MathBlock[],
-  options: RenderOptions
-): string {
+function renderContent(content: string, _mathBlocks: MathBlock[], options: RenderOptions): string {
   let html = '';
 
   // Split into paragraphs
@@ -261,7 +257,7 @@ function escapeHtml(text: string): string {
     "'": '&#39;',
   };
 
-  return text.replace(/[&<>"']/g, char => map[char] ?? char);
+  return text.replace(/[&<>"']/g, (char) => map[char] ?? char);
 }
 
 /**

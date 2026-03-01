@@ -14,7 +14,7 @@ export type Dimension = readonly [
   number, // Electric Current (ampere)
   number, // Temperature (kelvin)
   number, // Amount of Substance (mole)
-  number  // Luminous Intensity (candela)
+  number, // Luminous Intensity (candela)
 ];
 
 /**
@@ -147,10 +147,12 @@ function toSuperscript(n: number): string {
  * Dimensional analysis error
  */
 export class DimensionalError extends Error {
-  constructor(message: string, public expected: Dimension, public actual: Dimension) {
-    super(
-      `${message}\nExpected: ${formatDimension(expected)}\nActual: ${formatDimension(actual)}`
-    );
+  constructor(
+    message: string,
+    public expected: Dimension,
+    public actual: Dimension,
+  ) {
+    super(`${message}\nExpected: ${formatDimension(expected)}\nActual: ${formatDimension(actual)}`);
     this.name = 'DimensionalError';
   }
 }

@@ -2,27 +2,36 @@
  * Comprehensive tests for Modern Algorithms
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  ScaledDotProductAttention,
-  MultiHeadAttention,
   AdamOptimizer,
   AdamWOptimizer,
-  LionOptimizer,
-  SimCLRLoss,
-  MAML,
-  FederatedAveraging,
   DPSGDOptimizer,
+  FederatedAveraging,
   KnowledgeDistillation,
+  LionOptimizer,
+  MAML,
+  MultiHeadAttention,
+  ScaledDotProductAttention,
+  SimCLRLoss,
 } from './modern-algorithms';
 
 describe('Transformer Attention Mechanisms', () => {
   describe('ScaledDotProductAttention', () => {
     it('should compute attention for simple inputs', () => {
       const attention = new ScaledDotProductAttention();
-      const Q = [[1, 0], [0, 1]];
-      const K = [[1, 0], [0, 1]];
-      const V = [[1, 2], [3, 4]];
+      const Q = [
+        [1, 0],
+        [0, 1],
+      ];
+      const K = [
+        [1, 0],
+        [0, 1],
+      ];
+      const V = [
+        [1, 2],
+        [3, 4],
+      ];
 
       const output = attention.forward(Q, K, V);
 
@@ -34,8 +43,14 @@ describe('Transformer Attention Mechanisms', () => {
     it('should apply masking correctly', () => {
       const attention = new ScaledDotProductAttention();
       const Q = [[1, 0]];
-      const K = [[1, 0], [0, 1]];
-      const V = [[1, 2], [3, 4]];
+      const K = [
+        [1, 0],
+        [0, 1],
+      ];
+      const V = [
+        [1, 2],
+        [3, 4],
+      ];
       const mask = [[1, 0]]; // Mask second position
 
       const output = attention.forward(Q, K, V, mask);
@@ -49,13 +64,13 @@ describe('Transformer Attention Mechanisms', () => {
       const dK = 64;
 
       const Q = Array.from({ length: seqLen }, () =>
-        Array.from({ length: dK }, () => Math.random())
+        Array.from({ length: dK }, () => Math.random()),
       );
       const K = Array.from({ length: seqLen }, () =>
-        Array.from({ length: dK }, () => Math.random())
+        Array.from({ length: dK }, () => Math.random()),
       );
       const V = Array.from({ length: seqLen }, () =>
-        Array.from({ length: dK }, () => Math.random())
+        Array.from({ length: dK }, () => Math.random()),
       );
 
       const output = attention.forward(Q, K, V);
@@ -76,13 +91,13 @@ describe('Transformer Attention Mechanisms', () => {
       const seqLen = 5;
 
       const Q = Array.from({ length: seqLen }, () =>
-        Array.from({ length: 64 }, () => Math.random())
+        Array.from({ length: 64 }, () => Math.random()),
       );
       const K = Array.from({ length: seqLen }, () =>
-        Array.from({ length: 64 }, () => Math.random())
+        Array.from({ length: 64 }, () => Math.random()),
       );
       const V = Array.from({ length: seqLen }, () =>
-        Array.from({ length: 64 }, () => Math.random())
+        Array.from({ length: 64 }, () => Math.random()),
       );
 
       const output = mha.forward(Q, K, V);
@@ -96,13 +111,13 @@ describe('Transformer Attention Mechanisms', () => {
       const seqLen = 20;
 
       const Q = Array.from({ length: seqLen }, () =>
-        Array.from({ length: 128 }, () => Math.random())
+        Array.from({ length: 128 }, () => Math.random()),
       );
       const K = Array.from({ length: seqLen }, () =>
-        Array.from({ length: 128 }, () => Math.random())
+        Array.from({ length: 128 }, () => Math.random()),
       );
       const V = Array.from({ length: seqLen }, () =>
-        Array.from({ length: 128 }, () => Math.random())
+        Array.from({ length: 128 }, () => Math.random()),
       );
 
       const output = mha.forward(Q, K, V);
@@ -227,10 +242,10 @@ describe('Contrastive Learning', () => {
       const loss = new SimCLRLoss(0.5);
       // Need at least 4 samples for contrastive loss to have meaningful negatives
       const dissimilar = [
-        [1.0, 0.0, 0.0],  // Sample 0
-        [0.0, 1.0, 0.0],  // Sample 1 - orthogonal to 0
-        [0.9, 0.1, 0.0],  // Sample 2 - similar to 0 (positive pair)
-        [0.1, 0.9, 0.0],  // Sample 3 - similar to 1 (positive pair)
+        [1.0, 0.0, 0.0], // Sample 0
+        [0.0, 1.0, 0.0], // Sample 1 - orthogonal to 0
+        [0.9, 0.1, 0.0], // Sample 2 - similar to 0 (positive pair)
+        [0.1, 0.9, 0.0], // Sample 3 - similar to 1 (positive pair)
       ];
 
       const dissimilarLoss = loss.compute(dissimilar);
@@ -241,7 +256,7 @@ describe('Contrastive Learning', () => {
     it('should work with different batch sizes', () => {
       const loss = new SimCLRLoss();
       const features = Array.from({ length: 8 }, () =>
-        Array.from({ length: 128 }, () => Math.random())
+        Array.from({ length: 128 }, () => Math.random()),
       );
 
       const lossValue = loss.compute(features);
@@ -267,7 +282,10 @@ describe('Meta-Learning', () => {
       const maml = new MAML();
       const tasks = [
         {
-          support: [[1, 2], [3, 4]],
+          support: [
+            [1, 2],
+            [3, 4],
+          ],
           query: [[5, 6]],
         },
       ];
@@ -276,7 +294,7 @@ describe('Meta-Learning', () => {
         maml.metaTrain(
           tasks,
           (_params, _x) => [0.5],
-          (_pred, _target) => 0.1
+          (_pred, _target) => 0.1,
         );
       }).not.toThrow();
     });

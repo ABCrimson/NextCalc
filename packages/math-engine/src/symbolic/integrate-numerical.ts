@@ -11,17 +11,17 @@
  */
 
 import type { ExpressionNode } from '../parser/ast';
-import { parse } from '../parser/parser';
 import { evaluate } from '../parser/evaluator';
+import { parse } from '../parser/parser';
 
 /**
  * Integration method selection
  */
 export type IntegrationMethod =
-  | 'adaptive-simpson'   // Adaptive Simpson's rule (default)
-  | 'gauss-kronrod'      // Gauss-Kronrod G7-K15 quadrature
-  | 'romberg'            // Romberg integration
-  | 'monte-carlo';       // Monte Carlo sampling
+  | 'adaptive-simpson' // Adaptive Simpson's rule (default)
+  | 'gauss-kronrod' // Gauss-Kronrod G7-K15 quadrature
+  | 'romberg' // Romberg integration
+  | 'monte-carlo'; // Monte Carlo sampling
 
 /**
  * Configuration for numerical integration
@@ -93,7 +93,7 @@ class FunctionEvaluator {
 
   constructor(
     private readonly expr: ExpressionNode,
-    private readonly variable: string
+    private readonly variable: string,
   ) {}
 
   /**
@@ -107,16 +107,14 @@ class FunctionEvaluator {
     if (!result.success) {
       throw new IntegrationError(
         `Function evaluation failed at ${this.variable} = ${x}`,
-        result.error
+        result.error,
       );
     }
 
     const value = Number(result.value);
 
     if (!Number.isFinite(value)) {
-      throw new IntegrationError(
-        `Non-finite value at ${this.variable} = ${x}: ${value}`
-      );
+      throw new IntegrationError(`Non-finite value at ${this.variable} = ${x}: ${value}`);
     }
 
     return value;
@@ -145,7 +143,7 @@ class FunctionEvaluator {
 function simpsonRule(
   f: FunctionEvaluator,
   a: number,
-  b: number
+  b: number,
 ): { value: number; fa: number; fc: number; fb: number } {
   const c = (a + b) / 2;
   const h = b - a;
@@ -173,7 +171,7 @@ function adaptiveSimpson(
   fb: number,
   maxDepth: number,
   depth: number,
-  subdivisions: { count: number }
+  subdivisions: { count: number },
 ): number {
   if (depth >= maxDepth) {
     return whole;
@@ -213,7 +211,7 @@ export function integrateAdaptiveSimpson(
   variable: string,
   a: number,
   b: number,
-  config: NumericalIntegrationConfig = {}
+  config: NumericalIntegrationConfig = {},
 ): IntegrationResult {
   const tolerance = config.tolerance ?? 1e-10;
   const maxIterations = config.maxIterations ?? 1000;
@@ -236,7 +234,7 @@ export function integrateAdaptiveSimpson(
       initial.fb,
       Math.log2(maxIterations),
       0,
-      subdivisions
+      subdivisions,
     );
 
     const error = tolerance * subdivisions.count;
@@ -255,10 +253,7 @@ export function integrateAdaptiveSimpson(
       warnings,
     };
   } catch (err) {
-    throw new IntegrationError(
-      'Adaptive Simpson integration failed',
-      err
-    );
+    throw new IntegrationError('Adaptive Simpson integration failed', err);
   }
 }
 
@@ -269,32 +264,17 @@ export function integrateAdaptiveSimpson(
  * 7-point Gauss rule embedded in 15-point Kronrod rule
  */
 const GK_NODES_15 = [
-  0.0000000000000000,
-  0.2077849550078985,
-  0.4058451513773972,
-  0.5860872354676911,
-  0.7415311855993944,
-  0.8648644233597691,
-  0.9491079123427585,
-  0.9914553711208126,
+  0.0, 0.2077849550078985, 0.4058451513773972, 0.5860872354676911, 0.7415311855993944,
+  0.8648644233597691, 0.9491079123427585, 0.9914553711208126,
 ];
 
 const GK_WEIGHTS_15 = [
-  0.2094821410847278,
-  0.2044329400752989,
-  0.1903505780647854,
-  0.1690047266392679,
-  0.1406532597155259,
-  0.1047900103222502,
-  0.0630920926299786,
-  0.0229353220105292,
+  0.2094821410847278, 0.2044329400752989, 0.1903505780647854, 0.1690047266392679,
+  0.1406532597155259, 0.1047900103222502, 0.0630920926299786, 0.0229353220105292,
 ];
 
 const GAUSS_WEIGHTS_7 = [
-  0.4179591836734694,
-  0.3818300505051189,
-  0.2797053914892767,
-  0.1294849661688697,
+  0.4179591836734694, 0.3818300505051189, 0.2797053914892767, 0.1294849661688697,
 ];
 
 /**
@@ -303,7 +283,7 @@ const GAUSS_WEIGHTS_7 = [
 function gaussKronrod15(
   f: FunctionEvaluator,
   a: number,
-  b: number
+  b: number,
 ): { gauss: number; kronrod: number } {
   const halfLength = (b - a) / 2;
   const center = (a + b) / 2;
@@ -357,7 +337,7 @@ export function integrateGaussKronrod(
   variable: string,
   a: number,
   b: number,
-  config: NumericalIntegrationConfig = {}
+  config: NumericalIntegrationConfig = {},
 ): IntegrationResult {
   const tolerance = config.tolerance ?? 1e-10;
   const maxSubdivisions = config.maxIterations ?? 1000;
@@ -424,7 +404,9 @@ export function integrateGaussKronrod(
   const converged = totalError <= tolerance * 1000;
 
   if (totalError > tolerance && totalError <= tolerance * 1000) {
-    warnings.push(`Conservative convergence: error estimate ${totalError.toExponential(2)} is conservative`);
+    warnings.push(
+      `Conservative convergence: error estimate ${totalError.toExponential(2)} is conservative`,
+    );
   } else if (!converged) {
     warnings.push(`Tolerance not achieved (error: ${totalError.toExponential(2)})`);
   }
@@ -444,12 +426,7 @@ export function integrateGaussKronrod(
 /**
  * Trapezoidal rule with n intervals
  */
-function trapezoidRule(
-  f: FunctionEvaluator,
-  a: number,
-  b: number,
-  n: number
-): number {
+function trapezoidRule(f: FunctionEvaluator, a: number, b: number, n: number): number {
   const h = (b - a) / n;
   let sum = (f.evaluate(a) + f.evaluate(b)) / 2;
 
@@ -468,7 +445,7 @@ export function integrateRomberg(
   variable: string,
   a: number,
   b: number,
-  config: NumericalIntegrationConfig = {}
+  config: NumericalIntegrationConfig = {},
 ): IntegrationResult {
   const tolerance = config.tolerance ?? 1e-10;
   const maxIterations = config.maxIterations ?? 20; // Romberg converges quickly
@@ -482,14 +459,14 @@ export function integrateRomberg(
     R[i] = [];
 
     // First column: trapezoidal rule with 2^i intervals
-    const n = Math.pow(2, i);
+    const n = 2 ** i;
     const currentRow = R[i];
     if (!currentRow) continue;
     currentRow[0] = trapezoidRule(f, a, b, n);
 
     // Richardson extrapolation
     for (let j = 1; j <= i; j++) {
-      const power = Math.pow(4, j);
+      const power = 4 ** j;
       const currentRow = R[i];
       const prevRow = R[i - 1];
       if (!currentRow || !prevRow) continue;
@@ -563,7 +540,7 @@ export function integrateMonteCarlo(
   variable: string,
   a: number,
   b: number,
-  config: NumericalIntegrationConfig = {}
+  config: NumericalIntegrationConfig = {},
 ): IntegrationResult {
   const samples = config.samples ?? 100000;
   const tolerance = config.tolerance ?? 1e-3; // MC is less accurate by default
@@ -586,7 +563,7 @@ export function integrateMonteCarlo(
   }
 
   const mean = sum / samples;
-  const variance = (sumSquared / samples) - (mean * mean);
+  const variance = sumSquared / samples - mean * mean;
   const stdError = Math.sqrt(variance / samples);
 
   const value = mean * range;
@@ -596,7 +573,7 @@ export function integrateMonteCarlo(
 
   if (!converged) {
     warnings.push(
-      `MC error ${error.toExponential(2)} exceeds tolerance ${tolerance.toExponential(2)}`
+      `MC error ${error.toExponential(2)} exceeds tolerance ${tolerance.toExponential(2)}`,
     );
     warnings.push(`Consider increasing samples (current: ${samples})`);
   }
@@ -642,7 +619,7 @@ export function integrateNumerical(
   variable: string,
   a: number,
   b: number,
-  config: NumericalIntegrationConfig = {}
+  config: NumericalIntegrationConfig = {},
 ): IntegrationResult {
   const expr = typeof expression === 'string' ? parse(expression) : expression;
   const method = config.method ?? 'adaptive-simpson';
@@ -650,7 +627,7 @@ export function integrateNumerical(
   // Validate bounds
   if (!Number.isFinite(a) || !Number.isFinite(b)) {
     throw new IntegrationError(
-      `Infinite bounds not supported in basic numerical integration. Use improper integral methods.`
+      `Infinite bounds not supported in basic numerical integration. Use improper integral methods.`,
     );
   }
 

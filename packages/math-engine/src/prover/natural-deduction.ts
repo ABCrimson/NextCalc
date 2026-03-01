@@ -10,7 +10,7 @@
  */
 
 import type { Formula } from './logic-core';
-import { toString, and, or, not, implies } from './logic-core';
+import { and, implies, not, or, toString } from './logic-core';
 import { formulasEqual } from './proof-search';
 
 /**
@@ -205,7 +205,7 @@ export class NDProofBuilder {
       formula,
       NDRuleType.IMPLIES_INTRO,
       [assumptionLine, conclusionLine],
-      `${assumptionLine}-${conclusionLine}`
+      `${assumptionLine}-${conclusionLine}`,
     );
   }
 
@@ -228,7 +228,7 @@ export class NDProofBuilder {
       implication.formula.right,
       NDRuleType.IMPLIES_ELIM,
       [antecedentLine, implicationLine],
-      `${antecedentLine}, ${implicationLine}`
+      `${antecedentLine}, ${implicationLine}`,
     );
   }
 
@@ -255,7 +255,7 @@ export class NDProofBuilder {
       formula,
       NDRuleType.NOT_INTRO,
       [assumptionLine, contradictionLine],
-      `${assumptionLine}-${contradictionLine}`
+      `${assumptionLine}-${contradictionLine}`,
     );
   }
 
@@ -333,7 +333,7 @@ export class NDProofBuilder {
     formula: Formula,
     rule: NDRuleType,
     dependencies: number[],
-    justification: string
+    justification: string,
   ): number {
     const lineNumber = this.lineCounter++;
 
@@ -354,7 +354,7 @@ export class NDProofBuilder {
    * Get a line by number
    */
   private getLine(lineNumber: number): NDLine {
-    const line = this.lines.find(l => l.lineNumber === lineNumber);
+    const line = this.lines.find((l) => l.lineNumber === lineNumber);
     if (!line) {
       throw new Error(`Line ${lineNumber} not found`);
     }
@@ -424,14 +424,14 @@ export function validateNDProof(proof: NDProof): { valid: boolean; errors: strin
   for (const line of proof.lines) {
     // Check dependencies exist
     for (const dep of line.dependencies) {
-      if (!proof.lines.find(l => l.lineNumber === dep)) {
+      if (!proof.lines.find((l) => l.lineNumber === dep)) {
         errors.push(`Line ${line.lineNumber}: Invalid dependency ${dep}`);
       }
     }
 
     // Check dependencies are at appropriate levels
     for (const dep of line.dependencies) {
-      const depLine = proof.lines.find(l => l.lineNumber === dep);
+      const depLine = proof.lines.find((l) => l.lineNumber === dep);
       if (depLine && depLine.level > line.level) {
         errors.push(`Line ${line.lineNumber}: Cannot depend on line ${dep} from deeper level`);
       }

@@ -2,17 +2,19 @@
  * Tests for limit computation engine
  */
 
-import { describe, it, expect } from 'vitest';
-import { limit, type LimitConfig } from './limits';
-import { createConstantNode, createSymbolNode, createOperatorNode, createFunctionNode } from '../parser/ast';
+import { describe, expect, it } from 'vitest';
+import {
+  createConstantNode,
+  createFunctionNode,
+  createOperatorNode,
+  createSymbolNode,
+} from '../parser/ast';
+import { type LimitConfig, limit } from './limits';
 
 describe('Limits - Direct Substitution', () => {
   it('should compute simple polynomial limit', () => {
     // lim (x→2) x^2 = 4
-    const expr = createOperatorNode('^', 'pow', [
-      createSymbolNode('x'),
-      createConstantNode(2),
-    ]);
+    const expr = createOperatorNode('^', 'pow', [createSymbolNode('x'), createConstantNode(2)]);
 
     const result = limit(expr, 'x', { point: 2 });
 
@@ -34,10 +36,7 @@ describe('Limits - Direct Substitution', () => {
   it('should compute limit of linear function', () => {
     // lim (x→3) 2x + 1 = 7
     const expr = createOperatorNode('+', 'add', [
-      createOperatorNode('*', 'multiply', [
-        createConstantNode(2),
-        createSymbolNode('x'),
-      ]),
+      createOperatorNode('*', 'multiply', [createConstantNode(2), createSymbolNode('x')]),
       createConstantNode(1),
     ]);
 
@@ -99,10 +98,7 @@ describe('Limits - Known Patterns', () => {
     const expr = createOperatorNode('^', 'pow', [
       createOperatorNode('+', 'add', [
         createConstantNode(1),
-        createOperatorNode('/', 'divide', [
-          createConstantNode(1),
-          createSymbolNode('x'),
-        ]),
+        createOperatorNode('/', 'divide', [createConstantNode(1), createSymbolNode('x')]),
       ]),
       createSymbolNode('x'),
     ]);
@@ -115,8 +111,8 @@ describe('Limits - Known Patterns', () => {
   });
 });
 
-describe('Limits - L\'Hôpital\'s Rule', () => {
-  it('should apply L\'Hôpital for x/sin(x) as x → 0', () => {
+describe("Limits - L'Hôpital's Rule", () => {
+  it("should apply L'Hôpital for x/sin(x) as x → 0", () => {
     // lim (x→0) x/sin(x) = 1
     // This is 0/0, so L'Hôpital applies: 1/cos(x) → 1
     const expr = createOperatorNode('/', 'divide', [
@@ -130,15 +126,12 @@ describe('Limits - L\'Hôpital\'s Rule', () => {
     expect(result.exists).toBe(true);
   });
 
-  it('should handle x²/(1-cos(x)) with multiple L\'Hôpital applications', () => {
+  it("should handle x²/(1-cos(x)) with multiple L'Hôpital applications", () => {
     // lim (x→0) x²/(1-cos(x)) = 2
     // First L'Hôpital: 2x/sin(x) (still 0/0)
     // Second L'Hôpital: 2/cos(x) → 2
     const expr = createOperatorNode('/', 'divide', [
-      createOperatorNode('^', 'pow', [
-        createSymbolNode('x'),
-        createConstantNode(2),
-      ]),
+      createOperatorNode('^', 'pow', [createSymbolNode('x'), createConstantNode(2)]),
       createOperatorNode('-', 'subtract', [
         createConstantNode(1),
         createFunctionNode('cos', [createSymbolNode('x')]),
@@ -155,10 +148,7 @@ describe('Limits - L\'Hôpital\'s Rule', () => {
 describe('Limits - At Infinity', () => {
   it('should compute limit of 1/x as x → ∞', () => {
     // lim (x→∞) 1/x = 0
-    const expr = createOperatorNode('/', 'divide', [
-      createConstantNode(1),
-      createSymbolNode('x'),
-    ]);
+    const expr = createOperatorNode('/', 'divide', [createConstantNode(1), createSymbolNode('x')]);
 
     const result = limit(expr, 'x', { point: 'infinity' });
 
@@ -168,10 +158,7 @@ describe('Limits - At Infinity', () => {
 
   it('should compute limit of polynomial as x → ∞', () => {
     // lim (x→∞) x² → ∞
-    const expr = createOperatorNode('^', 'pow', [
-      createSymbolNode('x'),
-      createConstantNode(2),
-    ]);
+    const expr = createOperatorNode('^', 'pow', [createSymbolNode('x'), createConstantNode(2)]);
 
     const result = limit(expr, 'x', { point: 'infinity' });
 
@@ -181,10 +168,7 @@ describe('Limits - At Infinity', () => {
 
   it('should compute limit at negative infinity', () => {
     // lim (x→-∞) 1/x = 0
-    const expr = createOperatorNode('/', 'divide', [
-      createConstantNode(1),
-      createSymbolNode('x'),
-    ]);
+    const expr = createOperatorNode('/', 'divide', [createConstantNode(1), createSymbolNode('x')]);
 
     const result = limit(expr, 'x', { point: '-infinity' });
 
@@ -236,10 +220,7 @@ describe('Limits - Trigonometric Functions', () => {
 describe('Limits - Edge Cases', () => {
   it('should handle division by zero limit', () => {
     // lim (x→0) 1/x (from both sides - undefined)
-    const expr = createOperatorNode('/', 'divide', [
-      createConstantNode(1),
-      createSymbolNode('x'),
-    ]);
+    const expr = createOperatorNode('/', 'divide', [createConstantNode(1), createSymbolNode('x')]);
 
     const result = limit(expr, 'x', { point: 0 });
 
@@ -248,10 +229,7 @@ describe('Limits - Edge Cases', () => {
   });
 
   it('should provide steps when requested', () => {
-    const expr = createOperatorNode('+', 'add', [
-      createSymbolNode('x'),
-      createConstantNode(1),
-    ]);
+    const expr = createOperatorNode('+', 'add', [createSymbolNode('x'), createConstantNode(1)]);
 
     const result = limit(expr, 'x', { point: 2, includeSteps: true });
 

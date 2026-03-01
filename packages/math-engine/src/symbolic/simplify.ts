@@ -10,23 +10,18 @@
  * All transformations are immutable and preserve mathematical equivalence.
  */
 
-import type {
-  ExpressionNode,
-  OperatorNode,
-  FunctionNode,
-  UnaryOperatorNode,
-} from '../parser/ast';
+import type { ExpressionNode, FunctionNode, OperatorNode, UnaryOperatorNode } from '../parser/ast';
 import {
   createConstantNode,
-  createSymbolNode,
-  createOperatorNode,
-  createUnaryOperatorNode,
   createFunctionNode,
+  createOperatorNode,
+  createSymbolNode,
+  createUnaryOperatorNode,
   isConstantNode,
-  isSymbolNode,
-  isOperatorNode,
-  isUnaryOperatorNode,
   isFunctionNode,
+  isOperatorNode,
+  isSymbolNode,
+  isUnaryOperatorNode,
 } from '../parser/ast';
 
 /**
@@ -79,11 +74,7 @@ function astEquals(a: ExpressionNode, b: ExpressionNode): boolean {
   }
 
   if (isOperatorNode(a) && isOperatorNode(b)) {
-    return (
-      a.op === b.op &&
-      astEquals(a.args[0], b.args[0]) &&
-      astEquals(a.args[1], b.args[1])
-    );
+    return a.op === b.op && astEquals(a.args[0], b.args[0]) && astEquals(a.args[1], b.args[1]);
   }
 
   if (isUnaryOperatorNode(a) && isUnaryOperatorNode(b)) {
@@ -114,29 +105,18 @@ function cloneNode(node: ExpressionNode): ExpressionNode {
   }
 
   if (isUnaryOperatorNode(node)) {
-    return createUnaryOperatorNode(
-      node.op,
-      node.fn,
-      [cloneNode(node.args[0])] as const
-    );
+    return createUnaryOperatorNode(node.op, node.fn, [cloneNode(node.args[0])] as const);
   }
 
   if (isOperatorNode(node)) {
     const left = node.args[0];
     const right = node.args[1];
     if (!left || !right) return node;
-    return createOperatorNode(
-      node.op,
-      node.fn,
-      [cloneNode(left), cloneNode(right)] as const
-    );
+    return createOperatorNode(node.op, node.fn, [cloneNode(left), cloneNode(right)] as const);
   }
 
   if (isFunctionNode(node)) {
-    return createFunctionNode(
-      node.fn,
-      node.args.map(cloneNode)
-    );
+    return createFunctionNode(node.fn, node.args.map(cloneNode));
   }
 
   return node;
@@ -178,11 +158,11 @@ function containsVariable(expr: ExpressionNode, variable: string): boolean {
   if (isSymbolNode(expr)) return expr.name === variable;
 
   if (isOperatorNode(expr)) {
-    return expr.args.some(arg => arg && containsVariable(arg, variable));
+    return expr.args.some((arg) => arg && containsVariable(arg, variable));
   }
 
   if (isFunctionNode(expr)) {
-    return expr.args.some(arg => arg && containsVariable(arg, variable));
+    return expr.args.some((arg) => arg && containsVariable(arg, variable));
   }
 
   return false;
@@ -320,7 +300,7 @@ function simplifyAddition(
   left: ExpressionNode,
   right: ExpressionNode,
   leftVal: number | null,
-  rightVal: number | null
+  rightVal: number | null,
 ): ExpressionNode {
   // Constant folding: 2 + 3 = 5
   if (leftVal !== null && rightVal !== null) {
@@ -347,7 +327,7 @@ function simplifySubtraction(
   left: ExpressionNode,
   right: ExpressionNode,
   leftVal: number | null,
-  rightVal: number | null
+  rightVal: number | null,
 ): ExpressionNode {
   // Constant folding: 5 - 3 = 2
   if (leftVal !== null && rightVal !== null) {
@@ -359,10 +339,7 @@ function simplifySubtraction(
 
   // Identity: 0 - x = -x
   if (leftVal === 0) {
-    return createOperatorNode('*', 'multiply', [
-      createConstantNode(-1),
-      right,
-    ] as const);
+    return createOperatorNode('*', 'multiply', [createConstantNode(-1), right] as const);
   }
 
   // Self-cancellation: x - x = 0
@@ -380,7 +357,7 @@ function simplifyMultiplication(
   left: ExpressionNode,
   right: ExpressionNode,
   leftVal: number | null,
-  rightVal: number | null
+  rightVal: number | null,
 ): ExpressionNode {
   // Constant folding: 2 * 3 = 6
   if (leftVal !== null && rightVal !== null) {
@@ -400,17 +377,11 @@ function simplifyMultiplication(
 
   // Negation: -1 * x = -x (simplified form)
   if (leftVal === -1) {
-    return createOperatorNode('*', 'multiply', [
-      createConstantNode(-1),
-      right,
-    ] as const);
+    return createOperatorNode('*', 'multiply', [createConstantNode(-1), right] as const);
   }
 
   if (rightVal === -1) {
-    return createOperatorNode('*', 'multiply', [
-      createConstantNode(-1),
-      left,
-    ] as const);
+    return createOperatorNode('*', 'multiply', [createConstantNode(-1), left] as const);
   }
 
   // Combine powers: x^a * x^b = x^(a+b)
@@ -427,7 +398,7 @@ function simplifyDivision(
   left: ExpressionNode,
   right: ExpressionNode,
   leftVal: number | null,
-  rightVal: number | null
+  rightVal: number | null,
 ): ExpressionNode {
   // Constant folding: 6 / 2 = 3
   if (leftVal !== null && rightVal !== null) {
@@ -462,11 +433,11 @@ function simplifyPower(
   base: ExpressionNode,
   exponent: ExpressionNode,
   baseVal: number | null,
-  expVal: number | null
+  expVal: number | null,
 ): ExpressionNode {
   // Constant folding: 2^3 = 8
   if (baseVal !== null && expVal !== null) {
-    return createConstantNode(Math.pow(baseVal, expVal));
+    return createConstantNode(baseVal ** expVal);
   }
 
   // Identity: x^0 = 1
@@ -512,7 +483,7 @@ function simplifyModulo(
   left: ExpressionNode,
   right: ExpressionNode,
   leftVal: number | null,
-  rightVal: number | null
+  rightVal: number | null,
 ): ExpressionNode {
   // Constant folding: 7 % 3 = 1
   if (leftVal !== null && rightVal !== null) {
@@ -609,7 +580,7 @@ function simplifyFunction(node: FunctionNode): ExpressionNode {
 function combineLikeTerms(
   left: ExpressionNode,
   right: ExpressionNode,
-  op: '+' | '-'
+  op: '+' | '-',
 ): ExpressionNode | null {
   // Extract coefficient and variable part
   const leftTerm = extractTerm(left);
@@ -622,9 +593,10 @@ function combineLikeTerms(
     if (!astEquals(leftTerm.variable, rightTerm.variable)) return null;
 
     // Combine coefficients
-    const newCoeff = op === '+'
-      ? leftTerm.coefficient + rightTerm.coefficient
-      : leftTerm.coefficient - rightTerm.coefficient;
+    const newCoeff =
+      op === '+'
+        ? leftTerm.coefficient + rightTerm.coefficient
+        : leftTerm.coefficient - rightTerm.coefficient;
 
     if (newCoeff === 0) return createConstantNode(0);
     if (newCoeff === 1) return leftTerm.variable;
@@ -642,7 +614,7 @@ function combineLikeTerms(
  * Extract term structure: coefficient * variable
  */
 function extractTerm(
-  expr: ExpressionNode
+  expr: ExpressionNode,
 ): { coefficient: number; variable: ExpressionNode | null } | null {
   if (isConstantNode(expr)) {
     const val = getNumericValue(expr);
@@ -669,16 +641,10 @@ function extractTerm(
 /**
  * Combine powers: x^a * x^b = x^(a+b)
  */
-function combinePowers(
-  left: ExpressionNode,
-  right: ExpressionNode
-): ExpressionNode | null {
+function combinePowers(left: ExpressionNode, right: ExpressionNode): ExpressionNode | null {
   // x * x = x^2
   if (astEquals(left, right)) {
-    return createOperatorNode('^', 'pow', [
-      left,
-      createConstantNode(2),
-    ] as const);
+    return createOperatorNode('^', 'pow', [left, createConstantNode(2)] as const);
   }
 
   // x^a * x^b = x^(a+b)
@@ -687,9 +653,7 @@ function combinePowers(
     const [rightBase, rightExp] = right.args;
 
     if (astEquals(leftBase, rightBase)) {
-      const newExp = simplifyOnce(
-        createOperatorNode('+', 'add', [leftExp, rightExp] as const)
-      );
+      const newExp = simplifyOnce(createOperatorNode('+', 'add', [leftExp, rightExp] as const));
       return createOperatorNode('^', 'pow', [leftBase, newExp] as const);
     }
   }
@@ -699,7 +663,7 @@ function combinePowers(
     const [leftBase, leftExp] = left.args;
     if (astEquals(leftBase, right)) {
       const newExp = simplifyOnce(
-        createOperatorNode('+', 'add', [leftExp, createConstantNode(1)] as const)
+        createOperatorNode('+', 'add', [leftExp, createConstantNode(1)] as const),
       );
       return createOperatorNode('^', 'pow', [leftBase, newExp] as const);
     }
@@ -710,7 +674,7 @@ function combinePowers(
     const [rightBase, rightExp] = right.args;
     if (astEquals(left, rightBase)) {
       const newExp = simplifyOnce(
-        createOperatorNode('+', 'add', [createConstantNode(1), rightExp] as const)
+        createOperatorNode('+', 'add', [createConstantNode(1), rightExp] as const),
       );
       return createOperatorNode('^', 'pow', [rightBase, newExp] as const);
     }
@@ -724,7 +688,7 @@ function combinePowers(
  */
 function cancelDivision(
   numerator: ExpressionNode,
-  denominator: ExpressionNode
+  denominator: ExpressionNode,
 ): ExpressionNode | null {
   // x / x = 1 (already handled in simplifyDivision)
 
@@ -733,7 +697,7 @@ function cancelDivision(
     const [numBase, numExp] = numerator.args;
     if (astEquals(numBase, denominator)) {
       const newExp = simplifyOnce(
-        createOperatorNode('-', 'subtract', [numExp, createConstantNode(1)] as const)
+        createOperatorNode('-', 'subtract', [numExp, createConstantNode(1)] as const),
       );
       const expVal = getNumericValue(newExp);
       if (expVal === 0) return createConstantNode(1);
@@ -747,7 +711,7 @@ function cancelDivision(
     const [denBase, denExp] = denominator.args;
     if (astEquals(numerator, denBase)) {
       const newExp = simplifyOnce(
-        createOperatorNode('-', 'subtract', [createConstantNode(1), denExp] as const)
+        createOperatorNode('-', 'subtract', [createConstantNode(1), denExp] as const),
       );
       const expVal = getNumericValue(newExp);
       if (expVal === 0) return createConstantNode(1);
@@ -762,9 +726,7 @@ function cancelDivision(
     const [denBase, denExp] = denominator.args;
 
     if (astEquals(numBase, denBase)) {
-      const newExp = simplifyOnce(
-        createOperatorNode('-', 'subtract', [numExp, denExp] as const)
-      );
+      const newExp = simplifyOnce(createOperatorNode('-', 'subtract', [numExp, denExp] as const));
       const expVal = getNumericValue(newExp);
       if (expVal === 0) return createConstantNode(1);
       if (expVal === 1) return numBase;
@@ -833,10 +795,7 @@ export function expand(expr: ExpressionNode): ExpressionNode {
 /**
  * Expand multiplication: (a + b) * (c + d) → a*c + a*d + b*c + b*d
  */
-function expandMultiplication(
-  left: ExpressionNode,
-  right: ExpressionNode
-): ExpressionNode {
+function expandMultiplication(left: ExpressionNode, right: ExpressionNode): ExpressionNode {
   // (a + b) * c → a*c + b*c
   if (isAddition(left)) {
     const a = left.args[0];
@@ -920,24 +879,23 @@ function expandPower(base: ExpressionNode, exponent: ExpressionNode): Expression
 
       // Multiply by a^(n-k)
       if (aPower > 0) {
-        const aTerm = aPower === 1
-          ? a
-          : createOperatorNode('^', 'pow', [a, createConstantNode(aPower)] as const);
+        const aTerm =
+          aPower === 1
+            ? a
+            : createOperatorNode('^', 'pow', [a, createConstantNode(aPower)] as const);
         term = createOperatorNode('*', 'multiply', [term, aTerm] as const);
       }
 
       // Multiply by b^k (with sign for subtraction)
       if (bPower > 0) {
-        let bTerm = bPower === 1
-          ? b
-          : createOperatorNode('^', 'pow', [b, createConstantNode(bPower)] as const);
+        let bTerm =
+          bPower === 1
+            ? b
+            : createOperatorNode('^', 'pow', [b, createConstantNode(bPower)] as const);
 
         // Alternate sign for (a - b)^n
         if (!isAdd && bPower % 2 === 1) {
-          bTerm = createOperatorNode('*', 'multiply', [
-            createConstantNode(-1),
-            bTerm,
-          ] as const);
+          bTerm = createOperatorNode('*', 'multiply', [createConstantNode(-1), bTerm] as const);
         }
 
         term = createOperatorNode('*', 'multiply', [term, bTerm] as const);
@@ -970,7 +928,7 @@ function binomialCoefficient(n: number, k: number): number {
 
   let result = 1;
   for (let i = 1; i <= k; i++) {
-    result = result * (n - i + 1) / i;
+    result = (result * (n - i + 1)) / i;
   }
 
   return Math.round(result);
@@ -1027,7 +985,7 @@ function factorGCF(expr: ExpressionNode, variable: string): ExpressionNode | nul
   if (terms.length < 2) return null;
 
   // Find GCF of all numeric coefficients
-  const coefficients = terms.map(t => Math.abs(t.coefficient)).filter(c => c !== 0);
+  const coefficients = terms.map((t) => Math.abs(t.coefficient)).filter((c) => c !== 0);
   if (coefficients.length === 0) return null;
 
   const gcfCoeff = coefficients.reduce((a, b) => gcd(a, b));
@@ -1037,18 +995,19 @@ function factorGCF(expr: ExpressionNode, variable: string): ExpressionNode | nul
     if (minPower <= 0) return null;
 
     // Factor out x^minPower
-    const factored = terms.map(t => ({
+    const factored = terms.map((t) => ({
       ...t,
       variablePower: t.variablePower - minPower,
     }));
 
     const remainingExpr = termsToExpression(factored, variable);
-    const gcfExpr = minPower === 1
-      ? createSymbolNode(variable)
-      : createOperatorNode('^', 'power', [
-          createSymbolNode(variable),
-          createConstantNode(minPower),
-        ] as const);
+    const gcfExpr =
+      minPower === 1
+        ? createSymbolNode(variable)
+        : createOperatorNode('^', 'power', [
+            createSymbolNode(variable),
+            createConstantNode(minPower),
+          ] as const);
 
     return createOperatorNode('*', 'multiply', [gcfExpr, remainingExpr] as const);
   }
@@ -1057,7 +1016,7 @@ function factorGCF(expr: ExpressionNode, variable: string): ExpressionNode | nul
   const minPower = findMinVariablePower(terms, variable);
 
   // Factor out GCF coefficient and variable power
-  const factored = terms.map(t => ({
+  const factored = terms.map((t) => ({
     coefficient: t.coefficient / gcfCoeff,
     variablePower: t.variablePower - Math.max(0, minPower),
   }));
@@ -1068,12 +1027,13 @@ function factorGCF(expr: ExpressionNode, variable: string): ExpressionNode | nul
   let gcfExpr: ExpressionNode = createConstantNode(gcfCoeff);
 
   if (minPower > 0) {
-    const varPart = minPower === 1
-      ? createSymbolNode(variable)
-      : createOperatorNode('^', 'power', [
-          createSymbolNode(variable),
-          createConstantNode(minPower),
-        ] as const);
+    const varPart =
+      minPower === 1
+        ? createSymbolNode(variable)
+        : createOperatorNode('^', 'power', [
+            createSymbolNode(variable),
+            createConstantNode(minPower),
+          ] as const);
     gcfExpr = createOperatorNode('*', 'multiply', [gcfExpr, varPart] as const);
   }
 
@@ -1208,22 +1168,20 @@ function termsToExpression(terms: PolynomialTerm[], variable: string): Expressio
       return createConstantNode(term.coefficient);
     }
 
-    const varExpr = term.variablePower === 1
-      ? createSymbolNode(variable)
-      : createOperatorNode('^', 'power', [
-          createSymbolNode(variable),
-          createConstantNode(term.variablePower),
-        ] as const);
+    const varExpr =
+      term.variablePower === 1
+        ? createSymbolNode(variable)
+        : createOperatorNode('^', 'power', [
+            createSymbolNode(variable),
+            createConstantNode(term.variablePower),
+          ] as const);
 
     if (term.coefficient === 1) {
       return varExpr;
     }
 
     if (term.coefficient === -1) {
-      return createOperatorNode('*', 'multiply', [
-        createConstantNode(-1),
-        varExpr,
-      ] as const);
+      return createOperatorNode('*', 'multiply', [createConstantNode(-1), varExpr] as const);
     }
 
     return createOperatorNode('*', 'multiply', [
@@ -1265,10 +1223,7 @@ function gcd(a: number, b: number): number {
 /**
  * Factor difference of squares: a^2 - b^2 = (a - b)(a + b)
  */
-function factorDifferenceOfSquares(
-  expr: ExpressionNode,
-  _variable: string
-): ExpressionNode | null {
+function factorDifferenceOfSquares(expr: ExpressionNode, _variable: string): ExpressionNode | null {
   if (!isSubtraction(expr)) return null;
 
   const left = expr.args[0];
@@ -1319,10 +1274,7 @@ function extractSquareRoot(expr: ExpressionNode): ExpressionNode | null {
  * Factor quadratic: ax^2 + bx + c
  * Factors over the integers when the discriminant is a perfect square.
  */
-function factorQuadratic(
-  expr: ExpressionNode,
-  _variable: string
-): ExpressionNode | null {
+function factorQuadratic(expr: ExpressionNode, _variable: string): ExpressionNode | null {
   // Extract coefficients a, b, c from ax^2 + bx + c
   const coeffs = extractQuadraticCoefficients(expr, _variable);
   if (!coeffs) return null;
@@ -1356,16 +1308,10 @@ function factorQuadratic(
     createConstantNode(root2),
   ] as const);
 
-  let result: ExpressionNode = createOperatorNode('*', 'multiply', [
-    factor1,
-    factor2,
-  ] as const);
+  let result: ExpressionNode = createOperatorNode('*', 'multiply', [factor1, factor2] as const);
 
   if (a !== 1) {
-    result = createOperatorNode('*', 'multiply', [
-      createConstantNode(a),
-      result,
-    ] as const);
+    result = createOperatorNode('*', 'multiply', [createConstantNode(a), result] as const);
   }
 
   return result;
@@ -1377,7 +1323,7 @@ function factorQuadratic(
  */
 function extractQuadraticCoefficients(
   expr: ExpressionNode,
-  variable: string
+  variable: string,
 ): { a: number; b: number; c: number } | null {
   if (!containsVariable(expr, variable)) return null;
 
@@ -1441,11 +1387,9 @@ function extractQuadraticCoefficients(
 export function substitute(
   expr: ExpressionNode,
   variable: string,
-  value: ExpressionNode | number
+  value: ExpressionNode | number,
 ): ExpressionNode {
-  const valueNode = typeof value === 'number'
-    ? createConstantNode(value)
-    : value;
+  const valueNode = typeof value === 'number' ? createConstantNode(value) : value;
 
   return substituteRecursive(expr, variable, valueNode);
 }
@@ -1456,7 +1400,7 @@ export function substitute(
 function substituteRecursive(
   expr: ExpressionNode,
   variable: string,
-  value: ExpressionNode
+  value: ExpressionNode,
 ): ExpressionNode {
   if (isConstantNode(expr)) {
     return expr;
@@ -1474,7 +1418,7 @@ function substituteRecursive(
   }
 
   if (isFunctionNode(expr)) {
-    const argsSub = expr.args.map(arg => substituteRecursive(arg, variable, value));
+    const argsSub = expr.args.map((arg) => substituteRecursive(arg, variable, value));
     return createFunctionNode(expr.fn, argsSub);
   }
 

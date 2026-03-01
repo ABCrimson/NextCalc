@@ -14,21 +14,19 @@
  * numerical stability through careful evaluation strategies.
  */
 
-import type {
-  ExpressionNode,
-} from '../parser/ast';
+import type { ExpressionNode } from '../parser/ast';
 import {
   createConstantNode,
   createOperatorNode,
   isConstantNode,
-  isSymbolNode,
-  isOperatorNode,
   isFunctionNode,
+  isOperatorNode,
+  isSymbolNode,
 } from '../parser/ast';
-import { differentiate } from './differentiate';
-import { simplify, substitute } from './simplify';
-import { maclaurinSeries, taylorSeries } from './series';
 import { evaluate } from '../parser/evaluator';
+import { differentiate } from './differentiate';
+import { maclaurinSeries, taylorSeries } from './series';
+import { simplify, substitute } from './simplify';
 
 /**
  * Limit direction specification
@@ -48,26 +46,18 @@ export type LimitValue = number | 'infinity' | '-infinity' | 'undefined' | 'DNE'
 /**
  * Indeterminate form types
  */
-export type IndeterminateForm =
-  | '0/0'
-  | '∞/∞'
-  | '0·∞'
-  | '∞-∞'
-  | '0^0'
-  | '1^∞'
-  | '∞^0'
-  | 'none';
+export type IndeterminateForm = '0/0' | '∞/∞' | '0·∞' | '∞-∞' | '0^0' | '1^∞' | '∞^0' | 'none';
 
 /**
  * Limit computation method
  */
 export type LimitMethod =
-  | 'direct'      // Direct substitution
-  | 'lhopital'    // L'Hôpital's rule
-  | 'series'      // Taylor series expansion
-  | 'algebraic'   // Algebraic manipulation
-  | 'numerical'   // Numerical approximation
-  | 'pattern';    // Known limit pattern
+  | 'direct' // Direct substitution
+  | 'lhopital' // L'Hôpital's rule
+  | 'series' // Taylor series expansion
+  | 'algebraic' // Algebraic manipulation
+  | 'numerical' // Numerical approximation
+  | 'pattern'; // Known limit pattern
 
 /**
  * Configuration for limit computation
@@ -129,11 +119,7 @@ export interface LimitResult {
  * console.log(result.method); // 'pattern'
  * ```
  */
-export function limit(
-  expr: ExpressionNode,
-  variable: string,
-  config: LimitConfig
-): LimitResult {
+export function limit(expr: ExpressionNode, variable: string, config: LimitConfig): LimitResult {
   const {
     direction = 'both',
     point,
@@ -176,13 +162,7 @@ export function limit(
   }
 
   // Step 3: Try algebraic simplification
-  const algebraicResult = tryAlgebraicSimplification(
-    expr,
-    variable,
-    point,
-    steps,
-    includeSteps
-  );
+  const algebraicResult = tryAlgebraicSimplification(expr, variable, point, steps, includeSteps);
   if (algebraicResult.success) {
     return limit(algebraicResult.simplified, variable, {
       ...config,
@@ -199,7 +179,7 @@ export function limit(
       point,
       maxLhopitalIterations,
       steps,
-      includeSteps
+      includeSteps,
     );
     if (lhopitalResult.success) {
       return {
@@ -219,13 +199,7 @@ export function limit(
   // (e.g. when symbolic differentiation produces expressions whose evaluation
   // still requires the numerical evaluator fallback).
   if (typeof point === 'number') {
-    const seriesResult = trySeriesExpansion(
-      expr,
-      variable,
-      point,
-      steps,
-      includeSteps
-    );
+    const seriesResult = trySeriesExpansion(expr, variable, point, steps, includeSteps);
     if (seriesResult.success) {
       return {
         value: seriesResult.value,
@@ -245,7 +219,7 @@ export function limit(
     direction,
     tolerance,
     steps,
-    includeSteps
+    includeSteps,
   );
 
   return {
@@ -281,7 +255,7 @@ function tryDirectSubstitution(
   variable: string,
   point: LimitPoint,
   steps: string[],
-  includeSteps: boolean
+  includeSteps: boolean,
 ): SubstitutionResult {
   // For quotient expressions, evaluate numerator and denominator independently
   // so we can track the indeterminate form even when the full expression throws.
@@ -310,11 +284,7 @@ function tryDirectSubstitution(
     }
 
     // Check if the value is well-defined
-    if (
-      typeof value === 'number' &&
-      !Number.isNaN(value) &&
-      Number.isFinite(value)
-    ) {
+    if (typeof value === 'number' && !Number.isNaN(value) && Number.isFinite(value)) {
       return { success: true, value };
     }
 
@@ -357,11 +327,7 @@ function tryDirectSubstitution(
  * Math.pow(Infinity, 2) = Infinity propagates correctly through simplify(),
  * giving the correct 'infinity' result for divergent expressions.
  */
-function evaluateAtPoint(
-  expr: ExpressionNode,
-  variable: string,
-  point: LimitPoint
-): LimitValue {
+function evaluateAtPoint(expr: ExpressionNode, variable: string, point: LimitPoint): LimitValue {
   // Convert limit point to a numeric substitution value.
   // Using the actual Infinity constant (rather than a large finite proxy like 1e10)
   // ensures that divergent expressions such as x^2 correctly fold to Infinity
@@ -424,10 +390,7 @@ function detectIndeterminateForm(result: SubstitutionResult): IndeterminateForm 
   const { numeratorValue, denominatorValue } = result;
 
   // 0/0 form
-  if (
-    numeratorValue === 0 &&
-    denominatorValue === 0
-  ) {
+  if (numeratorValue === 0 && denominatorValue === 0) {
     return '0/0';
   }
 
@@ -466,7 +429,7 @@ function tryLhopitalsRule(
   point: LimitPoint,
   maxIterations: number,
   steps: string[],
-  includeSteps: boolean
+  includeSteps: boolean,
 ): LhopitalResult {
   // L'Hôpital's rule only applies to quotients
   if (!isOperatorNode(expr) || expr.op !== '/') {
@@ -476,7 +439,7 @@ function tryLhopitalsRule(
   const [numerator, denominator] = expr.args;
 
   if (includeSteps) {
-    steps.push('Applying L\'Hôpital\'s rule...');
+    steps.push("Applying L'Hôpital's rule...");
   }
 
   let currentNum = numerator;
@@ -515,7 +478,7 @@ function tryLhopitalsRule(
   }
 
   if (includeSteps) {
-    steps.push('L\'Hôpital\'s rule did not converge');
+    steps.push("L'Hôpital's rule did not converge");
   }
 
   return { success: false, value: 'undefined' };
@@ -566,7 +529,7 @@ function trySeriesExpansion(
   variable: string,
   point: number,
   steps: string[],
-  includeSteps: boolean
+  includeSteps: boolean,
 ): SeriesExpansionResult {
   const SERIES_TERMS = 8;
 
@@ -580,13 +543,15 @@ function trySeriesExpansion(
     if (isOperatorNode(expr) && expr.op === '/') {
       const [numerator, denominator] = expr.args;
 
-      const numSeries = point === 0
-        ? maclaurinSeries(numerator, variable, { terms: SERIES_TERMS })
-        : taylorSeries(numerator, variable, { center: point, terms: SERIES_TERMS });
+      const numSeries =
+        point === 0
+          ? maclaurinSeries(numerator, variable, { terms: SERIES_TERMS })
+          : taylorSeries(numerator, variable, { center: point, terms: SERIES_TERMS });
 
-      const denSeries = point === 0
-        ? maclaurinSeries(denominator, variable, { terms: SERIES_TERMS })
-        : taylorSeries(denominator, variable, { center: point, terms: SERIES_TERMS });
+      const denSeries =
+        point === 0
+          ? maclaurinSeries(denominator, variable, { terms: SERIES_TERMS })
+          : taylorSeries(denominator, variable, { center: point, terms: SERIES_TERMS });
 
       // Find the lowest-power non-zero term in each expansion.
       const numLeading = extractLeadingTerm(numSeries.terms, variable, point);
@@ -602,11 +567,11 @@ function trySeriesExpansion(
       if (includeSteps) {
         steps.push(
           `Series expansion: numerator leading term O((x-a)^${numLeading.power}), ` +
-          `coefficient ${numLeading.coefficient}`
+            `coefficient ${numLeading.coefficient}`,
         );
         steps.push(
           `Series expansion: denominator leading term O((x-a)^${denLeading.power}), ` +
-          `coefficient ${denLeading.coefficient}`
+            `coefficient ${denLeading.coefficient}`,
         );
       }
 
@@ -624,11 +589,11 @@ function trySeriesExpansion(
 
       if (effectiveNumPower < 0) {
         // Denominator vanishes faster than numerator: limit is ±∞
-        const signPositive = (numLeading.coefficient / denLeading.coefficient) > 0;
+        const signPositive = numLeading.coefficient / denLeading.coefficient > 0;
         const infinityValue: LimitValue = signPositive ? 'infinity' : '-infinity';
         if (includeSteps) {
           steps.push(
-            `Series expansion: numerator order < denominator order → limit is ${infinityValue}`
+            `Series expansion: numerator order < denominator order → limit is ${infinityValue}`,
           );
         }
         return { success: true, value: infinityValue };
@@ -648,7 +613,7 @@ function trySeriesExpansion(
       if (includeSteps) {
         steps.push(
           `Series expansion succeeded: leading coefficient ratio = ` +
-          `${numLeading.coefficient} / ${denLeading.coefficient} = ${limitValue}`
+            `${numLeading.coefficient} / ${denLeading.coefficient} = ${limitValue}`,
         );
       }
 
@@ -658,9 +623,10 @@ function trySeriesExpansion(
     // For non-quotient expressions: expand as a series and evaluate the
     // polynomial at the limit point. The constant term of the Taylor series
     // equals f(a), so this recovers the limit via the polynomial approximation.
-    const series = point === 0
-      ? maclaurinSeries(expr, variable, { terms: SERIES_TERMS })
-      : taylorSeries(expr, variable, { center: point, terms: SERIES_TERMS });
+    const series =
+      point === 0
+        ? maclaurinSeries(expr, variable, { terms: SERIES_TERMS })
+        : taylorSeries(expr, variable, { center: point, terms: SERIES_TERMS });
 
     const polyAtPoint = evaluateAtPoint(series.polynomial, variable, point);
 
@@ -671,7 +637,7 @@ function trySeriesExpansion(
     ) {
       if (includeSteps) {
         steps.push(
-          `Series expansion: polynomial evaluates to ${polyAtPoint} at ${variable}=${point}`
+          `Series expansion: polynomial evaluates to ${polyAtPoint} at ${variable}=${point}`,
         );
       }
       return { success: true, value: polyAtPoint };
@@ -709,7 +675,7 @@ function trySeriesExpansion(
 function extractLeadingTerm(
   terms: ReadonlyArray<ExpressionNode>,
   variable: string,
-  center: number
+  center: number,
 ): { power: number; coefficient: number } | null {
   const h1 = 1e-3;
   const h2 = 2e-3;
@@ -734,14 +700,12 @@ function extractLeadingTerm(
       if (Math.abs(estimatedPower - power) > 0.2) continue;
 
       // Coefficient = v1 / h1^power
-      const coefficient = v1 / Math.pow(h1, power);
+      const coefficient = v1 / h1 ** power;
 
       if (Math.abs(coefficient) < 1e-12) continue;
 
       return { power, coefficient };
-    } catch {
-      continue;
-    }
+    } catch {}
   }
 
   return null;
@@ -759,7 +723,7 @@ function extractLeadingTerm(
 function evaluateTermNumerically(
   term: ExpressionNode,
   variable: string,
-  point: number
+  point: number,
 ): number | null {
   try {
     const substituted = substitute(term, variable, createConstantNode(point));
@@ -806,7 +770,7 @@ function tryKnownPatterns(
   variable: string,
   point: LimitPoint,
   steps: string[],
-  includeSteps: boolean
+  includeSteps: boolean,
 ): PatternResult {
   // Pattern: lim (x→0) sin(x)/x = 1
   if (point === 0) {
@@ -955,7 +919,7 @@ function tryAlgebraicSimplification(
   _variable: string,
   _point: LimitPoint,
   steps: string[],
-  includeSteps: boolean
+  includeSteps: boolean,
 ): AlgebraicResult {
   // Simplify the expression
   const simplified = simplify(expr);
@@ -989,7 +953,7 @@ function tryNumericalApproximation(
   direction: LimitDirection,
   tolerance: number,
   steps: string[],
-  includeSteps: boolean
+  includeSteps: boolean,
 ): NumericalResult {
   if (includeSteps) {
     steps.push('Using numerical approximation...');
@@ -1013,12 +977,12 @@ function tryNumericalApproximation(
   } else if (point === 'infinity') {
     // Approach infinity
     for (let i = 1; i <= 5; i++) {
-      testPoints.push(Math.pow(10, i));
+      testPoints.push(10 ** i);
     }
   } else {
     // Approach -infinity
     for (let i = 1; i <= 5; i++) {
-      testPoints.push(-Math.pow(10, i));
+      testPoints.push(-(10 ** i));
     }
   }
 

@@ -3,4 +3,4 @@
  * Provides type-safe matrix algebra operations
  */
 
-export { Matrix, matrix, det, inv, transpose } from './Matrix';
+export { det, inv, Matrix, matrix, transpose } from './Matrix';

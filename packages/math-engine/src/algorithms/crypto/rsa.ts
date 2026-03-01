@@ -189,10 +189,7 @@ export function generatePrime(bits: number): bigint {
  *
  * Time Complexity: O(bits³) for key generation
  */
-export function generateRSAKeyPair(
-  bits: number,
-  includePrivates = false
-): RSAKeyPair {
+export function generateRSAKeyPair(bits: number, includePrivates = false): RSAKeyPair {
   // Generate two distinct prime numbers
   const p = generatePrime(bits / 2);
   let q = generatePrime(bits / 2);
@@ -251,10 +248,7 @@ export function generateRSAKeyPair(
  *
  * Time Complexity: O(log³(n)) for modular exponentiation
  */
-export function rsaEncrypt(
-  message: bigint,
-  publicKey: { e: bigint; n: bigint }
-): bigint {
+export function rsaEncrypt(message: bigint, publicKey: { e: bigint; n: bigint }): bigint {
   const { e, n } = publicKey;
 
   if (message >= n) {
@@ -278,10 +272,7 @@ export function rsaEncrypt(
  *
  * Time Complexity: O(log³(n)) for modular exponentiation
  */
-export function rsaDecrypt(
-  ciphertext: bigint,
-  privateKey: { d: bigint; n: bigint }
-): bigint {
+export function rsaDecrypt(ciphertext: bigint, privateKey: { d: bigint; n: bigint }): bigint {
   const { d, n } = privateKey;
 
   if (ciphertext >= n) {
@@ -298,7 +289,7 @@ export function rsaDecrypt(
  */
 export function rsaEncryptString(
   message: string,
-  publicKey: { e: bigint; n: bigint }
+  publicKey: { e: bigint; n: bigint },
 ): ReadonlyArray<bigint> {
   const { n } = publicKey;
 
@@ -328,7 +319,7 @@ export function rsaEncryptString(
  */
 export function rsaDecryptString(
   ciphertext: ReadonlyArray<bigint>,
-  privateKey: { d: bigint; n: bigint }
+  privateKey: { d: bigint; n: bigint },
 ): string {
   const { n } = privateKey;
   const maxBlockSize = Math.floor((n.toString(2).length - 1) / 8);
@@ -343,7 +334,7 @@ export function rsaDecryptString(
     let value = decrypted;
 
     while (value > 0n) {
-      bytes.unshift(Number(value & 0xFFn));
+      bytes.unshift(Number(value & 0xffn));
       value >>= 8n;
     }
 
@@ -362,10 +353,7 @@ export function rsaDecryptString(
  * Digital signature using RSA
  * Sign a message by "encrypting" with private key
  */
-export function rsaSign(
-  message: bigint,
-  privateKey: { d: bigint; n: bigint }
-): bigint {
+export function rsaSign(message: bigint, privateKey: { d: bigint; n: bigint }): bigint {
   // Signature = m^d mod n
   return rsaDecrypt(message, privateKey);
 }
@@ -377,7 +365,7 @@ export function rsaSign(
 export function rsaVerify(
   message: bigint,
   signature: bigint,
-  publicKey: { e: bigint; n: bigint }
+  publicKey: { e: bigint; n: bigint },
 ): boolean {
   // Recovered message = signature^e mod n
   const recovered = rsaEncrypt(signature, publicKey);

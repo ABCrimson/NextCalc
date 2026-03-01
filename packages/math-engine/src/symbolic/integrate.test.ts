@@ -2,9 +2,9 @@
  * Tests for symbolic integration
  */
 
-import { describe, it, expect } from 'vitest';
-import { integrate, integrateDefinite, astToString } from './integrate';
+import { describe, expect, it } from 'vitest';
 import { parse } from '../parser/parser';
+import { astToString, integrate, integrateDefinite } from './integrate';
 
 describe('integrate', () => {
   describe('power rule', () => {
@@ -106,7 +106,7 @@ describe('integrate', () => {
       // = (e²/2)*1 - e²/4 - (1/2)*0 + 1/4
       // = e²/4 + 1/4
       const definiteResult = integrateDefinite('x*ln(x)', 'x', 1, Math.E, 'symbolic');
-      const expected = (Math.E ** 2) / 4 + 1 / 4;
+      const expected = Math.E ** 2 / 4 + 1 / 4;
       expect(definiteResult).toBeCloseTo(expected, 6);
     });
   });

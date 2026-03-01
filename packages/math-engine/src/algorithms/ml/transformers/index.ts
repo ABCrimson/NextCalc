@@ -13,53 +13,53 @@
 
 // Attention mechanisms
 export {
-  scaledDotProductAttention,
-  selfAttention,
-  additiveAttention,
-  causalAttention,
-  visualizeAttention,
-  randomWeights,
-  type Matrix,
-  type Vector,
   type AttentionConfig,
   type AttentionOutput,
+  additiveAttention,
+  causalAttention,
+  type Matrix,
+  randomWeights,
+  scaledDotProductAttention,
+  selfAttention,
+  type Vector,
+  visualizeAttention,
 } from './attention';
 
 // Multi-head attention
 export {
-  multiHeadAttention,
-  multiHeadSelfAttention,
-  multiHeadCrossAttention,
-  maskedMultiHeadAttention,
-  initializeMultiHeadWeights,
   computeAttentionStats,
+  initializeMultiHeadWeights,
   type MultiHeadAttentionConfig,
-  type MultiHeadWeights,
   type MultiHeadOutput,
+  type MultiHeadWeights,
+  maskedMultiHeadAttention,
+  multiHeadAttention,
+  multiHeadCrossAttention,
+  multiHeadSelfAttention,
 } from './multi-head-attention';
 
 // Positional encoding
 export {
-  generatePositionalEncoding,
+  ALiBiPositionalBias,
   addPositionalEncoding,
   applyRotaryEmbedding,
-  visualizePositionalEncoding,
+  generatePositionalEncoding,
   LearnedPositionalEmbedding,
   RelativePositionalEncoding,
-  ALiBiPositionalBias,
+  visualizePositionalEncoding,
 } from './positional-encoding';
 
 // Transformer blocks
 export {
-  transformerEncoderBlock,
-  transformerDecoderBlock,
-  feedForwardNetwork,
-  layerNorm,
-  initializeEncoderWeights,
+  type DecoderBlockWeights,
   type EncoderBlockConfig,
   type EncoderBlockWeights,
-  type DecoderBlockWeights,
   type FFNConfig,
   type FFNWeights,
+  feedForwardNetwork,
+  initializeEncoderWeights,
   type LayerNormParams,
+  layerNorm,
+  transformerDecoderBlock,
+  transformerEncoderBlock,
 } from './transformer-block';

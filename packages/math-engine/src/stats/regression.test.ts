@@ -2,8 +2,13 @@
  * Unit tests for regression analysis
  */
 
-import { describe, it, expect } from 'vitest';
-import { linearRegression, polynomialRegression, exponentialRegression, predict } from './regression';
+import { describe, expect, it } from 'vitest';
+import {
+  exponentialRegression,
+  linearRegression,
+  polynomialRegression,
+  predict,
+} from './regression';
 
 describe('Regression Analysis', () => {
   describe('linearRegression', () => {
@@ -208,7 +213,7 @@ describe('Regression Analysis', () => {
 
     it('handles small values in linear regression', () => {
       const x = [0.001, 0.002, 0.003, 0.004, 0.005];
-      const y = [0.002, 0.004, 0.006, 0.008, 0.010];
+      const y = [0.002, 0.004, 0.006, 0.008, 0.01];
       const result = linearRegression(x, y);
 
       expect(result.slope).toBeCloseTo(2, 5);

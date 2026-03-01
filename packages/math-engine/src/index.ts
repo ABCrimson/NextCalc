@@ -34,316 +34,301 @@
  *   @nextcalc/math-engine/game-theory/game-theory
  */
 
-export * from './parser/index';
-
-// Re-export commonly used types and functions
-export type {
-  ExpressionNode,
-  ConstantNode,
-  SymbolNode,
-  OperatorNode,
-  FunctionNode,
-  Operator,
-  MathFunction,
-} from './parser/ast';
-
+// Abstract Algebra
+// Re-export specific exports to avoid isPrimitiveRoot conflict
 export {
-  parse,
-  isValidExpression,
-  extractVariables,
-  ParseError,
-} from './parser/parser';
-
-export {
-  evaluate as evaluateExpression,
-  simplify as evaluatorSimplify,
-  EvaluationError,
-  type EvaluationContext,
-  type EvaluationResult,
-} from './parser/evaluator';
-
-// Statistics module
-export * from './stats/index';
-
-// Complex numbers module
-export { Complex, Re, Im, abs, arg, conj } from './complex/index';
-
-// Symbolic mathematics module
-// Re-export all from symbolic except ProblemType and SolutionStep (defined in problems)
-export {
-  differentiate,
-  simplifyDerivative,
-  integrate,
-  simplify,
-  expand,
-  factor,
-  substitute,
-  integrateAdaptiveSimpson,
-  integrateImproper,
-  integrateAuto,
-  CAS,
-  createCAS,
-  quickSimplify,
-  analyzeExpression,
-  getVariables,
-  getPolynomialDegree,
-  solveWithSteps,
-  // Series & LaTeX
-  taylorSeries,
-  maclaurinSeries,
-  getKnownSeries,
-  computeBernoulliNumbers,
-  astToLatex,
-  type SeriesConfig,
-  type SeriesResult,
-  type EnhancedExpression,
-  type ExpressionType,
-} from './symbolic/index';
-
-// Knowledge base (exports Theorem from knowledge module)
-export * from './knowledge/index';
-
+  addPolynomials,
+  createCyclicGroup,
+  // Fields
+  createFiniteField,
+  createModularRing,
+  createSymmetricGroup,
+  derivativePolynomial,
+  dividePolynomials,
+  evaluatePolynomial,
+  type Field,
+  type FieldElement,
+  type GaussianInteger,
+  GaussianIntegerOps,
+  type Group,
+  type GroupElement,
+  type GroupOperation,
+  gaussian,
+  gcdPolynomials,
+  isIdeal,
+  isRingHomomorphism,
+  multiplyPolynomials,
+  type Permutation,
+  type Polynomial,
+  polynomialToString,
+  principalIdeal,
+  type Ring,
+  type RingElement,
+  type RingHomomorphism,
+  type RingOperation,
+  verifyFieldAxioms,
+  verifyGroupAxioms,
+  // Rings
+  verifyRingAxioms,
+} from './algebra/index';
 // Algorithms
 // Re-export all from algorithms except duplicate LossFunction
 export {
-  // ML
-  NeuralNetwork,
-  type LayerConfig,
-  type TrainingConfig,
-  type TrainingData,
   type ActivationType,
-  type Matrix,
-  type Vector,
-  batchGradientDescent,
-  stochasticGradientDescent,
-  nesterovAcceleratedGradient,
-  linearRegressionGD,
-  logisticRegressionGD,
-  type GradientDescentOptions,
-  type GradientDescentResult,
+  type AdamOptions,
+  type AdamResult,
   // Optimization (Adam) - includes LossFunction
   adam,
   adamW,
-  radam,
-  trainNeuralNetworkAdam,
-  type AdamResult,
-  type AdamOptions,
-  type LossFunction,
-  // Cryptography
-  generateRSAKeyPair,
-  rsaEncrypt,
-  rsaDecrypt,
-  type RSAKeyPair,
-  // Quantum
-  groverSearch,
-  type QuantumState,
-  type GroverResult,
-  shorAlgorithm,
-  findPeriod,
-  isPerfectPower,
+  aStarSearch,
+  batchGradientDescent,
+  bellmanFord,
+  createGraph,
+  demonstratePageRank,
   demonstrateShorAlgorithm,
-  QuantumPeriodFinding,
-  type ShorResult,
-  // Sorting
-  quickSort,
-  mergeSort,
-  heapSort,
-  type SortResult,
   // Graph (Shortest Paths)
   dijkstra,
-  aStarSearch,
-  bellmanFord,
+  findPeriod,
   floydWarshall,
-  reconstructFloydWarshallPath,
-  createGraph,
+  type GradientDescentOptions,
+  type GradientDescentResult,
   type GraphEdge,
+  type GroverResult,
+  // Cryptography
+  generateRSAKeyPair,
+  // Quantum
+  groverSearch,
+  heapSort,
+  isPerfectPower,
+  type LayerConfig,
+  type LossFunction,
+  linearRegressionGD,
+  logisticRegressionGD,
+  type Matrix,
+  mergeSort,
+  // ML
+  NeuralNetwork,
+  nesterovAcceleratedGradient,
+  type PageRankResult,
   type PathResult,
   // PageRank
   pageRank,
   personalizedPageRank,
+  QuantumPeriodFinding,
+  type QuantumState,
+  // Sorting
+  quickSort,
+  type RSAKeyPair,
+  radam,
+  reconstructFloydWarshallPath,
+  rsaDecrypt,
+  rsaEncrypt,
+  type ShorResult,
+  type SortResult,
+  shorAlgorithm,
+  stochasticGradientDescent,
+  type TrainingConfig,
+  type TrainingData,
   topicSensitivePageRank,
   topKPages,
-  demonstratePageRank,
-  type PageRankResult,
+  trainNeuralNetworkAdam,
+  type Vector,
 } from './algorithms/index';
-
-// Fourier Analysis
-export * from './fourier/index';
-
-// Graph Theory Algorithms
-export {
-  kruskal,
-  prim,
-  topologicalSort,
-  topologicalSortKahn,
-  tarjanSCC,
-  kosarajuSCC,
-  graphColoring,
-  isBipartite,
-  maxFlow,
-  tsp,
-  hasCycleDirected,
-  hasCycleUndirected,
-  type Graph,
-  type MST,
-  type SCCResult,
-  type MaxFlowResult,
-  type TSPResult,
-} from './graph-theory/index';
-
-// Differential equations
-export * from './differential/index';
-
-// Problem system (includes ProblemType and SolutionStep)
-export * from './problems/index';
-
-// Theorem Prover (ProverTheorem to avoid conflict with knowledge.Theorem)
-export {
-  // Types
-  type Formula,
-  type AtomicFormula,
-  type NotFormula,
-  type BinaryFormula,
-  type QuantifiedFormula,
-  type Term,
-  type Assignment,
-  type InferenceRule,
-  type Proof,
-  type ProofStep,
-  type NDProof,
-  type NDLine,
-  LogicalOperator,
-  NDRuleType,
-  // Formula constructors
-  atom,
-  not,
-  and,
-  or,
-  implies,
-  iff,
-  forall,
-  exists,
-  // Analysis
-  isTautology,
-  isSatisfiable,
-  evaluate as evaluateFormula,
-  // Proof search
-  forwardChaining,
-  backwardChaining,
-  resolutionProof,
-  verifyProof,
-  findApplicableRules,
-  // Natural deduction
-  NDProofBuilder,
-  validateNDProof,
-  formatNDProof,
-  // Theorem database
-  TheoremDatabase,
-  theoremDB,
-  createTheorem,
-  loadStandardTheorems,
-  // Alias Theorem from prover as ProverTheorem to avoid conflict
-  type Theorem as ProverTheorem,
-} from './prover/index';
-
+// Complex numbers module
+export { abs, arg, Complex, conj, Im, Re } from './complex/index';
 // Content Management System (selective exports to avoid conflicts)
 export {
-  // LaTeX
-  renderLaTeX,
   autoRenderMath,
-  parseLaTeXEnvironments,
+  type CodeBlock,
+  createProblemSetIndex,
+  extractCodeBlocks,
   extractEquationRefs,
+  extractImages,
+  extractLinks,
+  generateTOC,
+  type Image,
   type KaTeXOptions,
   type LaTeXEnvironment,
-  // Markdown
-  parseMarkdown,
-  generateTOC,
-  extractCodeBlocks,
-  extractLinks,
-  extractImages,
-  renderMarkdown,
-  type ParsedMarkdown,
-  type MarkdownSection,
-  type MathBlock,
-  type TOCEntry,
-  type CodeBlock,
   type Link,
-  type Image,
   // Problem sets (with aliases to avoid conflict)
   loadProblemSet,
   loadProblemSetsFromFiles,
-  createProblemSetIndex,
-  validateProblemSet,
-  type ProblemSet as ContentProblemSet,
+  type MarkdownSection,
+  type MathBlock,
+  type ParsedMarkdown,
   type Problem as ContentProblem,
+  type ProblemSet as ContentProblemSet,
   type ProblemSetIndex,
+  parseLaTeXEnvironments,
+  // Markdown
+  parseMarkdown,
+  // LaTeX
+  renderLaTeX,
+  renderMarkdown,
+  type TOCEntry,
+  validateProblemSet,
 } from './content/index';
-
-// Abstract Algebra
-// Re-export specific exports to avoid isPrimitiveRoot conflict
+// Differential equations
+export * from './differential/index';
+// Fourier Analysis
+export * from './fourier/index';
+// Graph Theory Algorithms
 export {
-  createCyclicGroup,
-  createSymmetricGroup,
-  verifyGroupAxioms,
-  type Group,
-  type GroupElement,
-  type GroupOperation,
-  type Permutation,
-  // Rings
-  verifyRingAxioms,
-  createModularRing,
-  gaussian,
-  GaussianIntegerOps,
-  addPolynomials,
-  multiplyPolynomials,
-  dividePolynomials,
-  evaluatePolynomial,
-  derivativePolynomial,
-  gcdPolynomials,
-  polynomialToString,
-  isIdeal,
-  principalIdeal,
-  isRingHomomorphism,
-  type Ring,
-  type RingElement,
-  type RingOperation,
-  type GaussianInteger,
-  type Polynomial,
-  type RingHomomorphism,
-  // Fields
-  createFiniteField,
-  verifyFieldAxioms,
-  type Field,
-  type FieldElement,
-} from './algebra/index';
+  type Graph,
+  graphColoring,
+  hasCycleDirected,
+  hasCycleUndirected,
+  isBipartite,
+  kosarajuSCC,
+  kruskal,
+  type MaxFlowResult,
+  type MST,
+  maxFlow,
+  prim,
+  type SCCResult,
+  type TSPResult,
+  tarjanSCC,
+  topologicalSort,
+  topologicalSortKahn,
+  tsp,
+} from './graph-theory/index';
 
+// Knowledge base (exports Theorem from knowledge module)
+export * from './knowledge/index';
 // Number Theory
 // Re-export all except duplicates (modInverse, extendedGCD, modPow - already in algorithms)
 export {
-  trialDivision,
-  isPrime,
-  millerRabin,
-  sieveOfEratosthenes,
-  nextPrime,
-  primeFactorize,
-  type PrimeFactorization,
-  // Modular arithmetic (excluding modInverse, extendedGCD, modPow)
-  modAdd,
-  modSub,
-  modMul,
-  modPow,
-  extendedGCD,
-  modInverse,
   crt,
+  discreteLog,
   eulerPhi,
-  verifyEulerTheorem,
-  multiplicativeOrder,
-  isPrimitiveRoot,
+  extendedGCD,
   findAllPrimitiveRoots,
   hasPrimitiveRoot,
+  isPrime,
+  isPrimitiveRoot,
   isQuadraticResidue,
-  legendreSymbol,
   jacobiSymbol,
+  legendreSymbol,
+  millerRabin,
+  // Modular arithmetic (excluding modInverse, extendedGCD, modPow)
+  modAdd,
+  modInverse,
+  modMul,
+  modPow,
   modSqrt,
-  discreteLog,
+  modSub,
+  multiplicativeOrder,
+  nextPrime,
+  type PrimeFactorization,
+  primeFactorize,
+  sieveOfEratosthenes,
+  trialDivision,
+  verifyEulerTheorem,
 } from './number-theory/index';
+// Re-export commonly used types and functions
+export type {
+  ConstantNode,
+  ExpressionNode,
+  FunctionNode,
+  MathFunction,
+  Operator,
+  OperatorNode,
+  SymbolNode,
+} from './parser/ast';
+export {
+  type EvaluationContext,
+  EvaluationError,
+  type EvaluationResult,
+  evaluate as evaluateExpression,
+  simplify as evaluatorSimplify,
+} from './parser/evaluator';
+export * from './parser/index';
+export {
+  extractVariables,
+  isValidExpression,
+  ParseError,
+  parse,
+} from './parser/parser';
+// Problem system (includes ProblemType and SolutionStep)
+export * from './problems/index';
+// Theorem Prover (ProverTheorem to avoid conflict with knowledge.Theorem)
+export {
+  type Assignment,
+  type AtomicFormula,
+  and,
+  // Formula constructors
+  atom,
+  type BinaryFormula,
+  backwardChaining,
+  createTheorem,
+  evaluate as evaluateFormula,
+  exists,
+  // Types
+  type Formula,
+  findApplicableRules,
+  forall,
+  formatNDProof,
+  // Proof search
+  forwardChaining,
+  type InferenceRule,
+  iff,
+  implies,
+  isSatisfiable,
+  // Analysis
+  isTautology,
+  LogicalOperator,
+  loadStandardTheorems,
+  type NDLine,
+  type NDProof,
+  // Natural deduction
+  NDProofBuilder,
+  NDRuleType,
+  type NotFormula,
+  not,
+  or,
+  type Proof,
+  type ProofStep,
+  type QuantifiedFormula,
+  resolutionProof,
+  type Term,
+  // Alias Theorem from prover as ProverTheorem to avoid conflict
+  type Theorem as ProverTheorem,
+  // Theorem database
+  TheoremDatabase,
+  theoremDB,
+  validateNDProof,
+  verifyProof,
+} from './prover/index';
+// Statistics module
+export * from './stats/index';
+// Symbolic mathematics module
+// Re-export all from symbolic except ProblemType and SolutionStep (defined in problems)
+export {
+  analyzeExpression,
+  astToLatex,
+  CAS,
+  computeBernoulliNumbers,
+  createCAS,
+  differentiate,
+  type EnhancedExpression,
+  type ExpressionType,
+  expand,
+  factor,
+  getKnownSeries,
+  getPolynomialDegree,
+  getVariables,
+  integrate,
+  integrateAdaptiveSimpson,
+  integrateAuto,
+  integrateImproper,
+  maclaurinSeries,
+  quickSimplify,
+  type SeriesConfig,
+  type SeriesResult,
+  simplify,
+  simplifyDerivative,
+  solveWithSteps,
+  substitute,
+  // Series & LaTeX
+  taylorSeries,
+} from './symbolic/index';

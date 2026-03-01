@@ -120,7 +120,7 @@ export class LogisticMap {
     rMax: number,
     steps: number,
     iterations = 1000,
-    samples = 100
+    samples = 100,
   ): Array<BifurcationPoint> {
     const points: Array<BifurcationPoint> = [];
     const dr = (rMax - rMin) / steps;
@@ -196,9 +196,7 @@ export class LogisticMap {
       x = this.iterate(x);
       if (Math.abs(x - orbit[0]!) < tolerance) {
         // Check if this orbit is new
-        const isNew = orbits.every(existing =>
-          Math.abs(existing[0]! - orbit[0]!) > tolerance
-        );
+        const isNew = orbits.every((existing) => Math.abs(existing[0]! - orbit[0]!) > tolerance);
 
         if (isNew) {
           orbits.push(orbit);
@@ -276,11 +274,7 @@ export class LorenzAttractor {
   /**
    * Simulate Lorenz attractor
    */
-  simulate(
-    steps: number,
-    dt = 0.01,
-    initial: Point3D = { x: 1, y: 1, z: 1 }
-  ): Trajectory {
+  simulate(steps: number, dt = 0.01, initial: Point3D = { x: 1, y: 1, z: 1 }): Trajectory {
     const trajectory: Point3D[] = [initial];
     let state = initial;
 
@@ -298,7 +292,7 @@ export class LorenzAttractor {
   lyapunovExponent(
     steps = 10000,
     dt = 0.01,
-    initial: Point3D = { x: 1, y: 1, z: 1 }
+    initial: Point3D = { x: 1, y: 1, z: 1 },
   ): LyapunovResult {
     const epsilon = 1e-8;
     let state1 = initial;
@@ -440,11 +434,7 @@ export class RosslerAttractor {
   /**
    * Simulate Rössler attractor
    */
-  simulate(
-    steps: number,
-    dt = 0.01,
-    initial: Point3D = { x: 1, y: 1, z: 1 }
-  ): Trajectory {
+  simulate(steps: number, dt = 0.01, initial: Point3D = { x: 1, y: 1, z: 1 }): Trajectory {
     const trajectory: Point3D[] = [initial];
     let state = initial;
 
@@ -468,7 +458,7 @@ export function boxCountingDimension(
   points: Trajectory,
   minBoxSize: number,
   maxBoxSize: number,
-  steps = 10
+  steps = 10,
 ): number {
   const logSizes: number[] = [];
   const logCounts: number[] = [];
@@ -556,7 +546,7 @@ export class HenonMap {
    */
   trajectory(
     steps: number,
-    initial: { x: number; y: number } = { x: 0, y: 0 }
+    initial: { x: number; y: number } = { x: 0, y: 0 },
   ): Array<{ x: number; y: number }> {
     const points: Array<{ x: number; y: number }> = [initial];
     let current = initial;
@@ -657,8 +647,8 @@ export function powerSpectrum(series: TimeSeries): number[] {
 
     for (let t = 0; t < n; t++) {
       const angle = (2 * Math.PI * k * t) / n;
-      real += (series[t]! * Math.cos(angle));
-      imag -= (series[t]! * Math.sin(angle));
+      real += series[t]! * Math.cos(angle);
+      imag -= series[t]! * Math.sin(angle);
     }
 
     spectrum.push(real * real + imag * imag);

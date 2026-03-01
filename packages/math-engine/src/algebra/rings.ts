@@ -94,7 +94,7 @@ export function verifyRingAxioms<T extends RingElement>(
   add: RingOperation<T>,
   multiply: RingOperation<T>,
   _zero: T,
-  _negate: (element: T) => T
+  _negate: (element: T) => T,
 ): {
   readonly isRing: boolean;
   readonly additiveGroupValid: boolean;
@@ -124,7 +124,9 @@ export function verifyRingAxioms<T extends RingElement>(
     for (const b of elements) {
       if (add(a, b) !== add(b, a)) {
         additiveGroupValid = false;
-        errors.push(`Addition not commutative: ${String(a)} + ${String(b)} ≠ ${String(b)} + ${String(a)}`);
+        errors.push(
+          `Addition not commutative: ${String(a)} + ${String(b)} ≠ ${String(b)} + ${String(a)}`,
+        );
         break;
       }
     }
@@ -148,7 +150,7 @@ export function verifyRingAxioms<T extends RingElement>(
         if (left !== right) {
           multiplicationAssociative = false;
           errors.push(
-            `Multiplication not associative: (${String(a)} * ${String(b)}) * ${String(c)} ≠ ${String(a)} * (${String(b)} * ${String(c)})`
+            `Multiplication not associative: (${String(a)} * ${String(b)}) * ${String(c)} ≠ ${String(a)} * (${String(b)} * ${String(c)})`,
           );
         }
       }
@@ -172,7 +174,7 @@ export function verifyRingAxioms<T extends RingElement>(
         if (leftDist1 !== leftDist2) {
           distributive = false;
           errors.push(
-            `Left distributive law fails: ${String(a)} * (${String(b)} + ${String(c)}) ≠ ${String(a)} * ${String(b)} + ${String(a)} * ${String(c)}`
+            `Left distributive law fails: ${String(a)} * (${String(b)} + ${String(c)}) ≠ ${String(a)} * ${String(b)} + ${String(a)} * ${String(c)}`,
           );
         }
 
@@ -183,7 +185,7 @@ export function verifyRingAxioms<T extends RingElement>(
         if (rightDist1 !== rightDist2) {
           distributive = false;
           errors.push(
-            `Right distributive law fails: (${String(a)} + ${String(b)}) * ${String(c)} ≠ ${String(a)} * ${String(c)} + ${String(b)} * ${String(c)}`
+            `Right distributive law fails: (${String(a)} + ${String(b)}) * ${String(c)} ≠ ${String(a)} * ${String(c)} + ${String(b)} * ${String(c)}`,
           );
         }
       }
@@ -293,8 +295,7 @@ export const GaussianIntegerOps = {
   /**
    * Check if Gaussian integer is a unit (±1, ±i)
    */
-  isUnit: (a: GaussianInteger): boolean =>
-    GaussianIntegerOps.norm(a) === 1,
+  isUnit: (a: GaussianInteger): boolean => GaussianIntegerOps.norm(a) === 1,
 
   /**
    * String representation
@@ -367,7 +368,7 @@ export function addPolynomials(p: Polynomial, q: Polynomial): Polynomial {
 export function multiplyPolynomials(p: Polynomial, q: Polynomial): Polynomial {
   if (p.length === 0 || q.length === 0) return [0];
 
-  const result = new Array<number>((p.length - 1) + (q.length - 1) + 1).fill(0);
+  const result = new Array<number>(p.length - 1 + (q.length - 1) + 1).fill(0);
 
   for (let i = 0; i < p.length; i++) {
     for (let j = 0; j < q.length; j++) {
@@ -399,7 +400,7 @@ export function multiplyPolynomials(p: Polynomial, q: Polynomial): Polynomial {
  */
 export function dividePolynomials(
   p: Polynomial,
-  q: Polynomial
+  q: Polynomial,
 ): { readonly quotient: Polynomial; readonly remainder: Polynomial } {
   if (q.every((c) => c === 0)) {
     throw new Error('dividePolynomials: Division by zero polynomial');
@@ -562,10 +563,7 @@ export function polynomialToString(poly: Polynomial, variable = 'x'): string {
  * const z6 = createModularRing(6);
  * console.log(isIdeal(z6, [0, 2, 4])); // true (principal ideal (2))
  */
-export function isIdeal<T extends RingElement>(
-  ring: Ring<T>,
-  subset: ReadonlyArray<T>
-): boolean {
+export function isIdeal<T extends RingElement>(ring: Ring<T>, subset: ReadonlyArray<T>): boolean {
   // Check if it's a subgroup under addition
   if (!subset.includes(ring.zero)) {
     return false;
@@ -610,10 +608,7 @@ export function isIdeal<T extends RingElement>(
  * const z6 = createModularRing(6);
  * console.log(principalIdeal(z6, 2)); // [0, 2, 4] (multiples of 2 mod 6)
  */
-export function principalIdeal<T extends RingElement>(
-  ring: Ring<T>,
-  a: T
-): ReadonlyArray<T> {
+export function principalIdeal<T extends RingElement>(ring: Ring<T>, a: T): ReadonlyArray<T> {
   const ideal = new Set<T>();
 
   for (const r of ring.elements) {
@@ -654,7 +649,7 @@ export type RingHomomorphism<R extends RingElement, S extends RingElement> = (a:
 export function isRingHomomorphism<R extends RingElement, S extends RingElement>(
   source: Ring<R>,
   target: Ring<S>,
-  phi: RingHomomorphism<R, S>
+  phi: RingHomomorphism<R, S>,
 ): boolean {
   // Check φ(a + b) = φ(a) + φ(b)
   for (const a of source.elements) {

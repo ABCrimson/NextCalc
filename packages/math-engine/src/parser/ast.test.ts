@@ -2,26 +2,26 @@
  * Unit tests for AST builders, type guards, and visitor pattern
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  NodeType,
-  createConstantNode,
-  createSymbolNode,
-  createOperatorNode,
-  createUnaryOperatorNode,
-  createFunctionNode,
-  isConstantNode,
-  isSymbolNode,
-  isOperatorNode,
-  isUnaryOperatorNode,
-  isFunctionNode,
-  visit,
   type ASTVisitor,
   type ConstantNode,
-  type SymbolNode,
-  type OperatorNode,
-  type UnaryOperatorNode,
+  createConstantNode,
+  createFunctionNode,
+  createOperatorNode,
+  createSymbolNode,
+  createUnaryOperatorNode,
   type FunctionNode,
+  isConstantNode,
+  isFunctionNode,
+  isOperatorNode,
+  isSymbolNode,
+  isUnaryOperatorNode,
+  NodeType,
+  type OperatorNode,
+  type SymbolNode,
+  type UnaryOperatorNode,
+  visit,
 } from './ast';
 
 // ===========================================================================
@@ -236,10 +236,7 @@ describe('AST Visitor Pattern', () => {
   });
 
   it('visits operator node', () => {
-    const node = createOperatorNode('+', 'add', [
-      createConstantNode(1),
-      createConstantNode(2),
-    ]);
+    const node = createOperatorNode('+', 'add', [createConstantNode(1), createConstantNode(2)]);
 
     const visitor: ASTVisitor<number> = {
       visitConstant: (n: ConstantNode) => Number(n.value),
@@ -258,14 +255,8 @@ describe('AST Visitor Pattern', () => {
 
   it('visits recursive tree structure', () => {
     // Build: (2 + 3) * 4
-    const sum = createOperatorNode('+', 'add', [
-      createConstantNode(2),
-      createConstantNode(3),
-    ]);
-    const product = createOperatorNode('*', 'multiply', [
-      sum,
-      createConstantNode(4),
-    ]);
+    const sum = createOperatorNode('+', 'add', [createConstantNode(2), createConstantNode(3)]);
+    const product = createOperatorNode('*', 'multiply', [sum, createConstantNode(4)]);
 
     const evaluator: ASTVisitor<number> = {
       visitConstant: (n: ConstantNode) => Number(n.value),
@@ -274,9 +265,12 @@ describe('AST Visitor Pattern', () => {
         const l = visit(n.args[0], evaluator);
         const r = visit(n.args[1], evaluator);
         switch (n.op) {
-          case '+': return l + r;
-          case '*': return l * r;
-          default: return 0;
+          case '+':
+            return l + r;
+          case '*':
+            return l * r;
+          default:
+            return 0;
         }
       },
       visitUnaryOperator: (n: UnaryOperatorNode) => {
@@ -290,9 +284,7 @@ describe('AST Visitor Pattern', () => {
   });
 
   it('visits unary operator node', () => {
-    const node = createUnaryOperatorNode('-', 'unaryMinus', [
-      createConstantNode(7),
-    ]);
+    const node = createUnaryOperatorNode('-', 'unaryMinus', [createConstantNode(7)]);
 
     const evaluator: ASTVisitor<number> = {
       visitConstant: (n: ConstantNode) => Number(n.value),
@@ -330,14 +322,8 @@ describe('AST Visitor Pattern', () => {
 
 describe('AST Tree Construction', () => {
   it('builds and traverses: sin(x^2 + 1)', () => {
-    const xSquared = createOperatorNode('^', 'pow', [
-      createSymbolNode('x'),
-      createConstantNode(2),
-    ]);
-    const xSquaredPlusOne = createOperatorNode('+', 'add', [
-      xSquared,
-      createConstantNode(1),
-    ]);
+    const xSquared = createOperatorNode('^', 'pow', [createSymbolNode('x'), createConstantNode(2)]);
+    const xSquaredPlusOne = createOperatorNode('+', 'add', [xSquared, createConstantNode(1)]);
     const sinExpr = createFunctionNode('sin', [xSquaredPlusOne]);
 
     expect(isFunctionNode(sinExpr)).toBe(true);

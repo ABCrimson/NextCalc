@@ -24,4 +24,4 @@
  * const phase = arg(z1); // ~0.927 radians
  */
 
-export { Complex, Re, Im, abs, arg, conj } from './Complex';
+export { abs, arg, Complex, conj, Im, Re } from './Complex';

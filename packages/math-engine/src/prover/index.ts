@@ -24,99 +24,92 @@
  * @module prover
  */
 
+// Inference rules exports
+export {
+  applyAnyRule,
+  ChainRule,
+  ConjunctionElimination,
+  ConjunctionIntroduction,
+  DisjunctionIntroduction,
+  DisjunctiveSyllogism,
+  findApplicableRules,
+  HypotheticalSyllogism,
+  INFERENCE_RULES,
+  type InferenceRule,
+  ModusPonens,
+  ModusTollens,
+  Resolution,
+  type Substitution,
+} from './inference-rules';
 // Logic core exports
 export {
-  // Types
-  type Formula,
-  type AtomicFormula,
-  type NotFormula,
-  type BinaryFormula,
-  type QuantifiedFormula,
-  type Term,
-  type VariableTerm,
-  type ConstantTerm,
-  type FunctionTerm,
   type Assignment,
-  type TruthTableRow,
-  LogicalOperator,
-
+  type AtomicFormula,
+  and,
   // Formula constructors
   atom,
-  variable,
+  type BinaryFormula,
+  type ConstantTerm,
   constant,
-  func,
-  not,
-  and,
-  or,
-  implies,
-  iff,
-  forall,
+  evaluate,
   exists,
-
+  // Types
+  type Formula,
+  type FunctionTerm,
+  forall,
+  func,
+  generateTruthTable,
   // Analysis functions
   getAtoms,
   getFreeVariables,
-  evaluate,
-  generateTruthTable,
-  isTautology,
+  iff,
+  implies,
   isContradiction,
-  isSatisfiable,
   isEquivalent,
-
+  isSatisfiable,
+  isTautology,
+  LogicalOperator,
+  type NotFormula,
+  not,
+  or,
+  parse,
+  type QuantifiedFormula,
+  type Term,
+  type TruthTableRow,
   // Utilities
   toString,
-  parse,
+  type VariableTerm,
+  variable,
 } from './logic-core';
-
-// Inference rules exports
-export {
-  type InferenceRule,
-  type Substitution,
-  ModusPonens,
-  ModusTollens,
-  HypotheticalSyllogism,
-  DisjunctiveSyllogism,
-  ConjunctionIntroduction,
-  ConjunctionElimination,
-  DisjunctionIntroduction,
-  Resolution,
-  ChainRule,
-  INFERENCE_RULES,
-  applyAnyRule,
-  findApplicableRules,
-} from './inference-rules';
-
-// Proof search exports
-export {
-  type ProofStep,
-  type Proof,
-  type ProofTreeNode,
-  type ProofSearchConfig,
-  forwardChaining,
-  backwardChaining,
-  resolutionProof,
-  buildProofTree,
-  iterativeDeepeningProof,
-  verifyProof,
-  formulasEqual,
-} from './proof-search';
-
-// Theorem database exports
-export {
-  type Theorem,
-  TheoremDatabase,
-  createTheorem,
-  theoremDB,
-  loadStandardTheorems,
-} from './theorem-database';
-
 // Natural deduction exports
 export {
+  formatNDProof,
   type NDLine,
   type NDProof,
-  NDRuleType,
   NDProofBuilder,
-  formatNDProof,
-  validateNDProof,
+  NDRuleType,
   ndProofToLatex,
+  validateNDProof,
 } from './natural-deduction';
+// Proof search exports
+export {
+  backwardChaining,
+  buildProofTree,
+  formulasEqual,
+  forwardChaining,
+  iterativeDeepeningProof,
+  type Proof,
+  type ProofSearchConfig,
+  type ProofStep,
+  type ProofTreeNode,
+  resolutionProof,
+  verifyProof,
+} from './proof-search';
+// Theorem database exports
+export {
+  createTheorem,
+  loadStandardTheorems,
+  type Theorem,
+  TheoremDatabase,
+  theoremDB,
+} from './theorem-database';

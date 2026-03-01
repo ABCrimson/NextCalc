@@ -82,9 +82,7 @@ export function dijkstra(graph: Graph, source: number, target?: number): PathRes
   distances.set(source, 0);
 
   // Min-heap (priority queue) using array
-  const pq = new MinHeap<{ vertex: number; distance: number }>(
-    (a, b) => a.distance - b.distance
-  );
+  const pq = new MinHeap<{ vertex: number; distance: number }>((a, b) => a.distance - b.distance);
   pq.insert({ vertex: source, distance: 0 });
 
   while (!pq.isEmpty()) {
@@ -159,7 +157,7 @@ export function aStarSearch(
   graph: Graph,
   source: number,
   target: number,
-  heuristic: (vertex: number) => number
+  heuristic: (vertex: number) => number,
 ): PathResult {
   const distances = new Map<number, number>(); // g(v): actual distance from source
   const fScores = new Map<number, number>(); // f(v) = g(v) + h(v)
@@ -175,9 +173,7 @@ export function aStarSearch(
   distances.set(source, 0);
   fScores.set(source, heuristic(source));
 
-  const pq = new MinHeap<{ vertex: number; fScore: number }>(
-    (a, b) => a.fScore - b.fScore
-  );
+  const pq = new MinHeap<{ vertex: number; fScore: number }>((a, b) => a.fScore - b.fScore);
   pq.insert({ vertex: source, fScore: fScores.get(source) ?? 0 });
 
   while (!pq.isEmpty()) {
@@ -246,7 +242,7 @@ export function aStarSearch(
  */
 export function bellmanFord(
   graph: Graph,
-  source: number
+  source: number,
 ): PathResult & { readonly hasNegativeCycle: boolean } {
   const vertices = [...graph.keys()];
   const distances = new Map<number, number>();
@@ -322,19 +318,19 @@ export function bellmanFord(
  */
 export function floydWarshall(
   graph: Graph,
-  numVertices: number
+  numVertices: number,
 ): {
   readonly distances: ReadonlyArray<ReadonlyArray<number>>;
   readonly next: ReadonlyArray<ReadonlyArray<number | null>>;
 } {
   // Initialize distance matrix
   const dist: number[][] = Array.from({ length: numVertices }, (_, i) =>
-    Array.from({ length: numVertices }, (_, j) => (i === j ? 0 : Infinity))
+    Array.from({ length: numVertices }, (_, j) => (i === j ? 0 : Infinity)),
   );
 
   // Initialize next matrix for path reconstruction
   const next: (number | null)[][] = Array.from({ length: numVertices }, () =>
-    Array(numVertices).fill(null)
+    Array(numVertices).fill(null),
   );
 
   // Fill in edge weights
@@ -383,7 +379,7 @@ export function floydWarshall(
 export function reconstructFloydWarshallPath(
   next: ReadonlyArray<ReadonlyArray<number | null>>,
   source: number,
-  target: number
+  target: number,
 ): ReadonlyArray<number> {
   const nextVal = next[source]?.[target];
   if (nextVal === null || nextVal === undefined) {
@@ -418,7 +414,7 @@ export function reconstructFloydWarshallPath(
 function reconstructPath(
   previous: ReadonlyMap<number, number | null>,
   source: number,
-  target: number
+  target: number,
 ): ReadonlyArray<number> {
   const path: number[] = [];
   let current: number | null = target;
@@ -534,7 +530,11 @@ class MinHeap<T> {
       }
 
       const smallestItem = this.heap[smallest];
-      if (right !== undefined && smallestItem !== undefined && this.compare(right, smallestItem) < 0) {
+      if (
+        right !== undefined &&
+        smallestItem !== undefined &&
+        this.compare(right, smallestItem) < 0
+      ) {
         smallest = rightChild;
       }
 

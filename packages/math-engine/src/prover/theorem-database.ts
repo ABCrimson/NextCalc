@@ -49,7 +49,7 @@ export class TheoremDatabase {
   private categoryIndex = new Map<string, Set<string>>();
 
   /**
- * Add a theorem to the database
+   * Add a theorem to the database
    */
   add(theorem: Theorem): void {
     // Verify proof before adding
@@ -83,7 +83,7 @@ export class TheoremDatabase {
   findByTag(tag: string): Theorem[] {
     const ids = this.index.get(tag) || new Set();
     return Array.from(ids)
-      .map(id => this.theorems.get(id))
+      .map((id) => this.theorems.get(id))
       .filter((t): t is Theorem => t !== undefined);
   }
 
@@ -93,7 +93,7 @@ export class TheoremDatabase {
   findByCategory(category: string): Theorem[] {
     const ids = this.categoryIndex.get(category) || new Set();
     return Array.from(ids)
-      .map(id => this.theorems.get(id))
+      .map((id) => this.theorems.get(id))
       .filter((t): t is Theorem => t !== undefined);
   }
 
@@ -103,9 +103,9 @@ export class TheoremDatabase {
   search(query: string): Theorem[] {
     const lowerQuery = query.toLowerCase();
     return Array.from(this.theorems.values()).filter(
-      theorem =>
+      (theorem) =>
         theorem.name.toLowerCase().includes(lowerQuery) ||
-        theorem.description?.toLowerCase().includes(lowerQuery)
+        theorem.description?.toLowerCase().includes(lowerQuery),
     );
   }
 
@@ -140,8 +140,8 @@ export class TheoremDatabase {
    * Get theorems that depend on a given theorem
    */
   getDependents(id: string): Theorem[] {
-    return Array.from(this.theorems.values()).filter(theorem =>
-      theorem.dependencies.includes(id)
+    return Array.from(this.theorems.values()).filter((theorem) =>
+      theorem.dependencies.includes(id),
     );
   }
 
@@ -260,7 +260,7 @@ export class TheoremDatabase {
    * Export database to JSON
    */
   toJSON(): string {
-    const data = Array.from(this.theorems.values()).map(theorem => ({
+    const data = Array.from(this.theorems.values()).map((theorem) => ({
       ...theorem,
       timestamp: theorem.timestamp.toISOString(),
     }));
@@ -353,7 +353,7 @@ export function createTheorem(
     tags?: string[];
     description?: string;
     latex?: string;
-  } = {}
+  } = {},
 ): Theorem {
   // Extract dependencies from proof (simplified)
   const dependencies: string[] = [];

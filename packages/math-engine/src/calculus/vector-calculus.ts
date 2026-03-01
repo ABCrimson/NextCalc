@@ -73,7 +73,7 @@ export interface LineIntegralConfig {
 export function gradient(
   expr: ExpressionNode,
   point: Vector3D,
-  config: GradientConfig = {}
+  config: GradientConfig = {},
 ): Vector3D {
   const variables = config.variables ?? ['x', 'y', 'z'];
   const h = config.h ?? 1e-8;
@@ -115,7 +115,7 @@ export function gradient(
 export function divergence(
   field: readonly [ExpressionNode, ExpressionNode, ExpressionNode],
   point: Vector3D,
-  config: GradientConfig = {}
+  config: GradientConfig = {},
 ): number {
   const variables = config.variables ?? ['x', 'y', 'z'];
   const h = config.h ?? 1e-8;
@@ -154,7 +154,7 @@ export function divergence(
 export function curl(
   field: readonly [ExpressionNode, ExpressionNode, ExpressionNode],
   point: Vector3D,
-  config: GradientConfig = {}
+  config: GradientConfig = {},
 ): Vector3D {
   const variables = config.variables ?? ['x', 'y', 'z'];
   const h = config.h ?? 1e-8;
@@ -199,7 +199,7 @@ export function curl(
 export function laplacian(
   expr: ExpressionNode,
   point: Vector3D,
-  config: GradientConfig = {}
+  config: GradientConfig = {},
 ): number {
   // For second derivatives the optimal step size is h ~ eps^(1/4) ≈ 1e-4
   // (balancing O(h²) truncation error with O(eps/h²) round-off error).
@@ -235,13 +235,11 @@ export function directionalDerivative(
   expr: ExpressionNode,
   point: Vector3D,
   direction: Vector3D,
-  config: GradientConfig = {}
+  config: GradientConfig = {},
 ): number {
   // Normalize direction vector
   const magnitude = Math.sqrt(
-    direction.x * direction.x +
-    direction.y * direction.y +
-    direction.z * direction.z
+    direction.x * direction.x + direction.y * direction.y + direction.z * direction.z,
   );
 
   if (magnitude === 0) {
@@ -281,7 +279,7 @@ export function directionalDerivative(
 export function lineIntegral(
   field: readonly [ExpressionNode, ExpressionNode, ExpressionNode],
   curve: readonly [ExpressionNode, ExpressionNode, ExpressionNode],
-  config: LineIntegralConfig = {}
+  config: LineIntegralConfig = {},
 ): number {
   const segments = config.segments ?? 1000;
   const [a, b] = config.tRange ?? [0, 1];
@@ -335,16 +333,14 @@ export function lineIntegral(
 export function isConservativeField(
   field: readonly [ExpressionNode, ExpressionNode, ExpressionNode],
   testPoints?: readonly Vector3D[],
-  tolerance = 1e-6
+  tolerance = 1e-6,
 ): boolean {
   // Default test points: sample a grid
   const points = testPoints ?? generateTestGrid();
 
   for (const point of points) {
     const curlF = curl(field, point);
-    const curlMagnitude = Math.sqrt(
-      curlF.x * curlF.x + curlF.y * curlF.y + curlF.z * curlF.z
-    );
+    const curlMagnitude = Math.sqrt(curlF.x * curlF.x + curlF.y * curlF.y + curlF.z * curlF.z);
 
     if (curlMagnitude > tolerance) {
       return false;
@@ -365,7 +361,7 @@ function numericalDerivative(
   expr: ExpressionNode,
   variable: string,
   point: Vector3D,
-  h: number
+  h: number,
 ): number {
   const pointRecord: Record<string, number> = {
     x: point.x,
@@ -399,7 +395,7 @@ function numericalPartial(
   expr: ExpressionNode,
   variable: string,
   point: Vector3D,
-  h: number
+  h: number,
 ): number {
   return numericalDerivative(expr, variable, point, h);
 }
@@ -411,7 +407,7 @@ function secondDerivative(
   expr: ExpressionNode,
   variable: string,
   point: Vector3D,
-  h: number
+  h: number,
 ): number {
   const pointRecord: Record<string, number> = {
     x: point.x,
@@ -455,7 +451,7 @@ function secondDerivative(
  */
 function evaluateParametricCurve(
   curve: readonly [ExpressionNode, ExpressionNode, ExpressionNode],
-  t: number
+  t: number,
 ): Vector3D {
   const [xExpr, yExpr, zExpr] = curve;
 
@@ -479,7 +475,7 @@ function evaluateParametricCurve(
  */
 function evaluateVectorField(
   field: readonly [ExpressionNode, ExpressionNode, ExpressionNode],
-  point: Vector3D
+  point: Vector3D,
 ): Vector3D {
   const [PExpr, QExpr, RExpr] = field;
 

@@ -13,44 +13,41 @@
 // MACHINE LEARNING
 // ============================================================================
 
-// Neural Networks
-export {
-  NeuralNetwork,
-  type LayerConfig,
-  type TrainingConfig,
-  type TrainingData,
-  type ActivationType,
-  type Matrix,
-  type Vector,
-} from './ml/neural-network';
-
 // Gradient Descent
 export {
   batchGradientDescent,
-  stochasticGradientDescent,
-  nesterovAcceleratedGradient,
-  linearRegressionGD,
-  logisticRegressionGD,
   type GradientDescentOptions,
   type GradientDescentResult,
+  linearRegressionGD,
+  logisticRegressionGD,
+  nesterovAcceleratedGradient,
+  stochasticGradientDescent,
 } from './ml/gradient-descent';
-
-// Transformers (NEW)
-export * from './ml/transformers/index';
-
 // Meta-Learning (NEW)
 export {
-  maml,
-  prototypicalNetworks,
-  matchingNetworks,
-  reptile,
   cosineSimilarity,
-  type Task,
-  type Parameters,
-  type ModelFunction,
   type LossFunction as MetaLossFunction,
   type MAMLConfig,
+  type ModelFunction,
+  maml,
+  matchingNetworks,
+  type Parameters,
+  prototypicalNetworks,
+  reptile,
+  type Task,
 } from './ml/meta-learning';
+// Neural Networks
+export {
+  type ActivationType,
+  type LayerConfig,
+  type Matrix,
+  NeuralNetwork,
+  type TrainingConfig,
+  type TrainingData,
+  type Vector,
+} from './ml/neural-network';
+// Transformers (NEW)
+export * from './ml/transformers/index';
 
 // Optimization (exports LossFunction for compatibility)
 export * from './optimization/adam';
@@ -59,31 +56,29 @@ export * from './optimization/adam';
 // CRYPTOGRAPHY
 // ============================================================================
 
-// RSA
-export * from './crypto/rsa';
-
-// Zero-Knowledge Proofs (NEW)
-export {
-  SchnorrProof,
-  ZKSnarkSimulation,
-  RangeProof,
-  PedersenCommitment,
-  demonstrateSchnorrProof,
-} from './crypto/zero-knowledge-proofs';
-
 // Differential Privacy (NEW)
 export {
-  laplaceMechanism,
-  gaussianMechanism,
-  exponentialMechanism,
-  privateCount,
-  privateSum,
-  privateMean,
-  privateHistogram,
-  reportNoisyMax,
-  PrivacyBudget,
   demonstrateDifferentialPrivacy,
+  exponentialMechanism,
+  gaussianMechanism,
+  laplaceMechanism,
+  PrivacyBudget,
+  privateCount,
+  privateHistogram,
+  privateMean,
+  privateSum,
+  reportNoisyMax,
 } from './crypto/differential-privacy';
+// RSA
+export * from './crypto/rsa';
+// Zero-Knowledge Proofs (NEW)
+export {
+  demonstrateSchnorrProof,
+  PedersenCommitment,
+  RangeProof,
+  SchnorrProof,
+  ZKSnarkSimulation,
+} from './crypto/zero-knowledge-proofs';
 
 // ============================================================================
 // QUANTUM COMPUTING
@@ -94,14 +89,14 @@ export * from './quantum/grover';
 
 // Shor's Algorithm (NEW)
 export {
-  shorAlgorithm,
+  demonstrateShorAlgorithm,
   findPeriod,
-  modPow,
   gcd,
   isPerfectPower,
-  demonstrateShorAlgorithm,
+  modPow,
   QuantumPeriodFinding,
   type ShorResult,
+  shorAlgorithm,
 } from './quantum/shor';
 
 // ============================================================================
@@ -112,13 +107,13 @@ export * from './graph/index';
 
 // PageRank (NEW)
 export {
+  demonstratePageRank,
+  type Graph,
+  type PageRankResult,
   pageRank,
   personalizedPageRank,
   topicSensitivePageRank,
   topKPages,
-  demonstratePageRank,
-  type Graph,
-  type PageRankResult,
 } from './graph/pagerank';
 
 // ============================================================================

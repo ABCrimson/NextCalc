@@ -6,10 +6,10 @@
  * 2. The definite integral produces a known numerical answer
  */
 
-import { describe, it, expect } from 'vitest';
-import { integrate, integrateDefinite, astToString } from './integrate';
-import { parse } from '../parser/parser';
+import { describe, expect, it } from 'vitest';
 import { evaluate } from '../parser/evaluator';
+import { parse } from '../parser/parser';
+import { astToString, integrate, integrateDefinite } from './integrate';
 
 // ---------------------------------------------------------------------------
 // Helper: verify a definite integral numerically

@@ -8,7 +8,7 @@
  * - Expected value
  */
 
-import { createTemplate, type ProblemTemplate, narrow } from './template-engine';
+import { createTemplate, narrow, type ProblemTemplate } from './template-engine';
 
 /**
  * Basic probability
@@ -24,7 +24,7 @@ export const basicProbabilityTemplate = createTemplate({
     { name: 'red', type: 'integer', min: 1, max: 10 },
     { name: 'blue', type: 'integer', min: 1, max: 10 },
   ],
-  solution: params => {
+  solution: (params) => {
     const { red, blue } = narrow<{ red: number; blue: number }>(params);
     const total = red + blue;
     const prob = red / total;
@@ -49,8 +49,8 @@ export const basicProbabilityTemplate = createTemplate({
   },
   hints: [
     () => 'Probability = favorable outcomes / total outcomes',
-    params => `Favorable: ${Number(params['red'])} red balls`,
-    params => `Total: ${Number(params['red']) + Number(params['blue'])} balls`,
+    (params) => `Favorable: ${Number(params['red'])} red balls`,
+    (params) => `Total: ${Number(params['red']) + Number(params['blue'])} balls`,
   ],
   commonMistakes: [],
   tags: ['probability', 'basic'],
@@ -79,7 +79,7 @@ export const combinationsTemplate = createTemplate({
       },
     },
   ],
-  solution: params => {
+  solution: (params) => {
     const { n, r } = narrow<{ n: number; r: number }>(params);
     const result = combinations(n, r);
 
@@ -113,7 +113,7 @@ export const combinationsTemplate = createTemplate({
         return {
           incorrectAnswer: String(permResult),
           explanation: 'You calculated permutations instead of combinations',
-          correction: 'Combinations divide by r! because order doesn\'t matter',
+          correction: "Combinations divide by r! because order doesn't matter",
         };
       }
       return null;
@@ -145,7 +145,7 @@ export const permutationsTemplate = createTemplate({
       },
     },
   ],
-  solution: params => {
+  solution: (params) => {
     const { n, r } = narrow<{ n: number; r: number }>(params);
     const result = permutations(n, r);
 

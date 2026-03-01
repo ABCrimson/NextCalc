@@ -49,7 +49,7 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
         {
           stepNumber: 4,
           description: 'Combine terms',
-          expression: 'f\'(x) = 2x + 3',
+          expression: "f'(x) = 2x + 3",
           explanation: 'Sum the derivatives of each term',
           rule: 'Sum Rule',
         },
@@ -142,7 +142,7 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
       },
       {
         order: 3,
-        text: 'Don\'t forget the constant of integration +C',
+        text: "Don't forget the constant of integration +C",
         reveals: 'technique',
         cost: 15,
       },
@@ -292,7 +292,7 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
       },
       {
         order: 3,
-        text: 'You\'ll need to divide by 2 three times',
+        text: "You'll need to divide by 2 three times",
         reveals: 'partial-solution',
         cost: 15,
       },
@@ -312,7 +312,8 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
     difficulty: DifficultyLevel.Intermediate,
     type: ProblemType.Computation,
     statement: 'Compute AB where A = [[1,2], [3,4]] and B = [[5,6], [7,8]]',
-    latex: 'A = \\begin{bmatrix} 1 & 2 \\\\ 3 & 4 \\end{bmatrix}, B = \\begin{bmatrix} 5 & 6 \\\\ 7 & 8 \\end{bmatrix}',
+    latex:
+      'A = \\begin{bmatrix} 1 & 2 \\\\ 3 & 4 \\end{bmatrix}, B = \\begin{bmatrix} 5 & 6 \\\\ 7 & 8 \\end{bmatrix}',
     solution: {
       answer: '[[19, 22], [43, 50]]',
       explanation: 'Multiply rows of A by columns of B',
@@ -380,7 +381,7 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
     latex: 'f(x) = (2x + 1)(x^2 - 3)',
     solution: {
       answer: '6x² + 2x - 6',
-      explanation: 'Apply the product rule: (uv)\' = u\'v + uv\'',
+      explanation: "Apply the product rule: (uv)' = u'v + uv'",
       steps: [
         {
           stepNumber: 1,
@@ -390,25 +391,25 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
         {
           stepNumber: 2,
           description: 'Find derivatives',
-          expression: 'u\' = 2, v\' = 2x',
+          expression: "u' = 2, v' = 2x",
           rule: 'Power Rule',
         },
         {
           stepNumber: 3,
           description: 'Apply product rule',
-          expression: 'f\'(x) = (2)(x² - 3) + (2x + 1)(2x)',
+          expression: "f'(x) = (2)(x² - 3) + (2x + 1)(2x)",
           rule: 'Product Rule',
         },
         {
           stepNumber: 4,
           description: 'Simplify',
-          expression: 'f\'(x) = 2x² - 6 + 4x² + 2x = 6x² + 2x - 6',
+          expression: "f'(x) = 2x² - 6 + 4x² + 2x = 6x² + 2x - 6",
         },
       ],
       insights: ['Product rule is essential for differentiating products of functions'],
     },
     hints: [
-      { order: 1, text: 'Use the product rule: (uv)\' = u\'v + uv\'', reveals: 'formula', cost: 5 },
+      { order: 1, text: "Use the product rule: (uv)' = u'v + uv'", reveals: 'formula', cost: 5 },
       { order: 2, text: 'Let u = 2x + 1 and v = x² - 3', reveals: 'approach', cost: 10 },
     ],
     prerequisites: ['derivative', 'power-rule'],
@@ -450,14 +451,19 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
         {
           stepNumber: 4,
           description: 'Apply chain rule',
-          expression: 'f\'(x) = 5(3x² + 1)⁴ · 6x = 30x(3x² + 1)⁴',
+          expression: "f'(x) = 5(3x² + 1)⁴ · 6x = 30x(3x² + 1)⁴",
           rule: 'Chain Rule',
         },
       ],
       insights: ['Chain rule is for composite functions'],
     },
     hints: [
-      { order: 1, text: 'Use chain rule: d/dx[f(g(x))] = f\'(g(x)) · g\'(x)', reveals: 'formula', cost: 5 },
+      {
+        order: 1,
+        text: "Use chain rule: d/dx[f(g(x))] = f'(g(x)) · g'(x)",
+        reveals: 'formula',
+        cost: 5,
+      },
     ],
     prerequisites: ['derivative', 'power-rule', 'composition'],
     related: ['calc-deriv-001', 'calc-deriv-002'],
@@ -564,9 +570,7 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
       ],
       insights: ['Use inverse operations to isolate the variable'],
     },
-    hints: [
-      { order: 1, text: 'Subtract 7 from both sides', reveals: 'approach', cost: 5 },
-    ],
+    hints: [{ order: 1, text: 'Subtract 7 from both sides', reveals: 'approach', cost: 5 }],
     prerequisites: ['linear-equations'],
     related: ['alg-linear-002'],
     tags: ['linear', 'equation-solving'],
@@ -605,7 +609,12 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
       insights: ['Eliminate fractions by multiplying by the denominator'],
     },
     hints: [
-      { order: 1, text: 'Multiply both sides by 3 to eliminate the fraction', reveals: 'approach', cost: 5 },
+      {
+        order: 1,
+        text: 'Multiply both sides by 3 to eliminate the fraction',
+        reveals: 'approach',
+        cost: 5,
+      },
     ],
     prerequisites: ['linear-equations', 'fractions'],
     related: ['alg-linear-001'],
@@ -645,9 +654,7 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
       ],
       insights: ['Elimination works when coefficients can easily cancel'],
     },
-    hints: [
-      { order: 1, text: 'Try adding the two equations', reveals: 'approach', cost: 5 },
-    ],
+    hints: [{ order: 1, text: 'Try adding the two equations', reveals: 'approach', cost: 5 }],
     prerequisites: ['linear-equations', 'systems'],
     related: ['alg-system-002'],
     tags: ['systems', 'elimination'],
@@ -686,7 +693,12 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
       insights: ['Factoring is the reverse of expanding'],
     },
     hints: [
-      { order: 1, text: 'Find two numbers that multiply to 12 and add to 7', reveals: 'approach', cost: 5 },
+      {
+        order: 1,
+        text: 'Find two numbers that multiply to 12 and add to 7',
+        reveals: 'approach',
+        cost: 5,
+      },
     ],
     prerequisites: ['polynomials', 'factoring'],
     related: ['alg-poly-002'],
@@ -716,9 +728,7 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
       ],
       insights: ['When multiplying powers with the same base, add the exponents'],
     },
-    hints: [
-      { order: 1, text: 'Use the rule: aᵐ · aⁿ = aᵐ⁺ⁿ', reveals: 'formula', cost: 5 },
-    ],
+    hints: [{ order: 1, text: 'Use the rule: aᵐ · aⁿ = aᵐ⁺ⁿ', reveals: 'formula', cost: 5 }],
     prerequisites: ['exponents'],
     related: ['alg-exp-002'],
     tags: ['exponents', 'simplification'],
@@ -795,9 +805,7 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
       ],
       insights: ['3-4-5 is a Pythagorean triple'],
     },
-    hints: [
-      { order: 1, text: 'Use a² + b² = c²', reveals: 'formula', cost: 5 },
-    ],
+    hints: [{ order: 1, text: 'Use a² + b² = c²', reveals: 'formula', cost: 5 }],
     prerequisites: ['pythagorean-theorem'],
     related: ['geom-triangle-002'],
     tags: ['geometry', 'pythagorean', 'triangles'],
@@ -825,9 +833,7 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
       ],
       insights: ['Circle area grows with the square of the radius'],
     },
-    hints: [
-      { order: 1, text: 'Use A = πr²', reveals: 'formula', cost: 5 },
-    ],
+    hints: [{ order: 1, text: 'Use A = πr²', reveals: 'formula', cost: 5 }],
     prerequisites: ['circles', 'area'],
     related: ['geom-circle-002'],
     tags: ['geometry', 'circles', 'area'],
@@ -855,9 +861,7 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
       ],
       insights: ['Cylinder volume is base area times height'],
     },
-    hints: [
-      { order: 1, text: 'Use V = πr²h', reveals: 'formula', cost: 5 },
-    ],
+    hints: [{ order: 1, text: 'Use V = πr²h', reveals: 'formula', cost: 5 }],
     prerequisites: ['circles', 'volume'],
     related: ['geom-volume-002'],
     tags: ['geometry', 'volume', 'cylinder'],
@@ -901,9 +905,7 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
       ],
       insights: ['Euclidean algorithm is efficient for finding GCD'],
     },
-    hints: [
-      { order: 1, text: 'Use the Euclidean algorithm', reveals: 'approach', cost: 5 },
-    ],
+    hints: [{ order: 1, text: 'Use the Euclidean algorithm', reveals: 'approach', cost: 5 }],
     prerequisites: ['gcd', 'euclidean-algorithm'],
     related: ['numth-gcd-002'],
     tags: ['number-theory', 'gcd'],
@@ -977,7 +979,12 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
       insights: ['Probability = favorable outcomes / total outcomes'],
     },
     hints: [
-      { order: 1, text: 'How many ways can you roll a 4? How many total outcomes?', reveals: 'approach', cost: 5 },
+      {
+        order: 1,
+        text: 'How many ways can you roll a 4? How many total outcomes?',
+        reveals: 'approach',
+        cost: 5,
+      },
     ],
     prerequisites: ['probability'],
     related: ['prob-basic-002'],
@@ -1009,11 +1016,9 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
           expression: 'C(5,3) = 5!/(3!2!) = 120/(6·2) = 10',
         },
       ],
-      insights: ['Order doesn\'t matter in combinations'],
+      insights: ["Order doesn't matter in combinations"],
     },
-    hints: [
-      { order: 1, text: 'Use C(n,r) = n!/(r!(n-r)!)', reveals: 'formula', cost: 5 },
-    ],
+    hints: [{ order: 1, text: 'Use C(n,r) = n!/(r!(n-r)!)', reveals: 'formula', cost: 5 }],
     prerequisites: ['combinations', 'factorials'],
     related: ['prob-comb-002'],
     tags: ['probability', 'combinations'],
@@ -1046,9 +1051,7 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
       ],
       insights: ['Order matters in permutations'],
     },
-    hints: [
-      { order: 1, text: 'Use P(n,r) = n!/(n-r)!', reveals: 'formula', cost: 5 },
-    ],
+    hints: [{ order: 1, text: 'Use P(n,r) = n!/(n-r)!', reveals: 'formula', cost: 5 }],
     prerequisites: ['permutations', 'factorials'],
     related: ['prob-perm-002'],
     tags: ['probability', 'permutations'],
@@ -1083,9 +1086,7 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
       ],
       insights: ['Definite integrals give area under curve'],
     },
-    hints: [
-      { order: 1, text: 'Find the antiderivative first', reveals: 'approach', cost: 5 },
-    ],
+    hints: [{ order: 1, text: 'Find the antiderivative first', reveals: 'approach', cost: 5 }],
     prerequisites: ['integration', 'ftc'],
     related: ['calc-integ-001'],
     tags: ['integration', 'definite-integral'],
@@ -1192,9 +1193,7 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
       ],
       insights: ['Vector addition is component-wise'],
     },
-    hints: [
-      { order: 1, text: 'Add corresponding components', reveals: 'approach', cost: 5 },
-    ],
+    hints: [{ order: 1, text: 'Add corresponding components', reveals: 'approach', cost: 5 }],
     prerequisites: ['vectors'],
     related: ['linalg-vector-002'],
     tags: ['linear-algebra', 'vectors'],
@@ -1217,7 +1216,7 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
         {
           stepNumber: 1,
           description: 'Find derivative',
-          expression: 'f\'(x) = -2x + 4',
+          expression: "f'(x) = -2x + 4",
         },
         {
           stepNumber: 2,
@@ -1232,9 +1231,7 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
       ],
       insights: ['Parabolas opening downward have a maximum at the vertex'],
     },
-    hints: [
-      { order: 1, text: 'Find where f\'(x) = 0', reveals: 'approach', cost: 5 },
-    ],
+    hints: [{ order: 1, text: "Find where f'(x) = 0", reveals: 'approach', cost: 5 }],
     prerequisites: ['derivative', 'optimization'],
     related: ['calc-optim-002'],
     tags: ['calculus', 'optimization', 'max-min'],
@@ -1272,7 +1269,12 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
       insights: ['Mean is the average value'],
     },
     hints: [
-      { order: 1, text: 'Add all values and divide by the number of values', reveals: 'approach', cost: 5 },
+      {
+        order: 1,
+        text: 'Add all values and divide by the number of values',
+        reveals: 'approach',
+        cost: 5,
+      },
     ],
     prerequisites: ['statistics', 'mean'],
     related: ['stats-median-001'],
@@ -1301,9 +1303,7 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
       ],
       insights: ['30-60-90 triangles have special ratios'],
     },
-    hints: [
-      { order: 1, text: '30° is a special angle', reveals: 'approach', cost: 5 },
-    ],
+    hints: [{ order: 1, text: '30° is a special angle', reveals: 'approach', cost: 5 }],
     prerequisites: ['trigonometry', 'special-angles'],
     related: ['trig-basic-002'],
     tags: ['trigonometry', 'special-angles'],
@@ -1316,21 +1316,21 @@ export const PROBLEMS: ReadonlyArray<Problem> = [
  * Get problem by ID
  */
 export function getProblem(id: string): Problem | undefined {
-  return PROBLEMS.find(p => p.id === id);
+  return PROBLEMS.find((p) => p.id === id);
 }
 
 /**
  * Get problems by topic
  */
 export function getProblemsByTopic(topic: MathTopic): ReadonlyArray<Problem> {
-  return PROBLEMS.filter(p => p.topic === topic);
+  return PROBLEMS.filter((p) => p.topic === topic);
 }
 
 /**
  * Get problems by difficulty
  */
 export function getProblemsByDifficulty(difficulty: DifficultyLevel): ReadonlyArray<Problem> {
-  return PROBLEMS.filter(p => p.difficulty === difficulty);
+  return PROBLEMS.filter((p) => p.difficulty === difficulty);
 }
 
 /**
@@ -1339,10 +1339,10 @@ export function getProblemsByDifficulty(difficulty: DifficultyLevel): ReadonlyAr
 export function searchProblems(query: string): ReadonlyArray<Problem> {
   const lowerQuery = query.toLowerCase();
   return PROBLEMS.filter(
-    p =>
+    (p) =>
       p.title.toLowerCase().includes(lowerQuery) ||
       p.statement.toLowerCase().includes(lowerQuery) ||
-      p.tags.some(tag => tag.includes(lowerQuery))
+      p.tags.some((tag) => tag.includes(lowerQuery)),
   );
 }
 
@@ -1371,5 +1371,5 @@ export function getRelatedProblems(id: string): ReadonlyArray<Problem> {
 
   // Get all related problems by ID
   const relatedIds = problem.related;
-  return PROBLEMS.filter(p => relatedIds.includes(p.id));
+  return PROBLEMS.filter((p) => relatedIds.includes(p.id));
 }

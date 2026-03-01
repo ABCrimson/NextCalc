@@ -142,7 +142,7 @@ export function lucasLehmer(p: number): boolean {
   if (!isPrime(p)) return false;
   if (p === 2) return true;
 
-  const m = Math.pow(2, p) - 1;
+  const m = 2 ** p - 1;
   let s = 4;
 
   for (let i = 0; i < p - 2; i++) {
@@ -220,7 +220,7 @@ export function segmentedSieve(low: number, high: number): ReadonlyArray<number>
 
   for (const prime of basePrimes) {
     // Find first multiple of prime in [low, high]
-    let start = Math.max(prime * prime, Math.ceil(low / prime) * prime);
+    const start = Math.max(prime * prime, Math.ceil(low / prime) * prime);
 
     for (let j = start; j <= high; j += prime) {
       isPrimeArr[j - low] = false;
@@ -654,7 +654,7 @@ export function sumOfDivisors(n: number): number {
 
   for (const [prime, exp] of factors) {
     // Sum of geometric series: (p^(e+1) - 1) / (p - 1)
-    sum *= (Math.pow(prime, exp + 1) - 1) / (prime - 1);
+    sum *= (prime ** (exp + 1) - 1) / (prime - 1);
   }
 
   return sum;

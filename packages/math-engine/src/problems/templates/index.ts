@@ -4,19 +4,19 @@
  * @module problems/templates
  */
 
-export * from './template-engine';
 export * from './algebra-templates';
 export * from './calculus-templates';
 export * from './geometry-templates';
 export * from './number-theory-templates';
 export * from './probability-templates';
+export * from './template-engine';
 
-import { templateEngine } from './template-engine';
 import { algebraTemplates } from './algebra-templates';
 import { calculusTemplates } from './calculus-templates';
 import { geometryTemplates } from './geometry-templates';
 import { numberTheoryTemplates } from './number-theory-templates';
 import { probabilityTemplates } from './probability-templates';
+import { templateEngine } from './template-engine';
 
 /**
  * Register all templates with the global engine

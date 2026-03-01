@@ -5,15 +5,15 @@
  * result, serving as regression tests for mathematical correctness.
  */
 
-import { describe, it, expect } from 'vitest';
-import { parse } from './parser/parser';
+import { describe, expect, it } from 'vitest';
 import { evaluate } from './parser/evaluator';
-import { differentiate, simplifyDerivative } from './symbolic/differentiate';
-import { simplify } from './symbolic/simplify';
-import { astToString } from './symbolic/integrate';
+import { parse } from './parser/parser';
+import { correlation } from './stats/correlation';
 import { mean, median, stdDev, variance } from './stats/descriptive';
 import { linearRegression } from './stats/regression';
-import { correlation } from './stats/correlation';
+import { differentiate, simplifyDerivative } from './symbolic/differentiate';
+import { astToString } from './symbolic/integrate';
+import { simplify } from './symbolic/simplify';
 
 // ---------------------------------------------------------------------------
 // Helper

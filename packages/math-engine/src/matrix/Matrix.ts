@@ -75,7 +75,7 @@ export class Matrix {
   add(other: Matrix): Matrix {
     if (this.rows !== other.rows || this.cols !== other.cols) {
       throw new Error(
-        `Cannot add matrices with different dimensions: ${this.rows}x${this.cols} and ${other.rows}x${other.cols}`
+        `Cannot add matrices with different dimensions: ${this.rows}x${this.cols} and ${other.rows}x${other.cols}`,
       );
     }
 
@@ -96,7 +96,7 @@ export class Matrix {
   multiply(other: Matrix): Matrix {
     if (this.cols !== other.rows) {
       throw new Error(
-        `Cannot multiply ${this.rows}x${this.cols} matrix by ${other.rows}x${other.cols} matrix`
+        `Cannot multiply ${this.rows}x${this.cols} matrix by ${other.rows}x${other.cols} matrix`,
       );
     }
 
@@ -300,7 +300,7 @@ export class Matrix {
       .map((_, i) =>
         Array(n)
           .fill(0)
-          .map((_, j) => (i === j ? 1 : 0))
+          .map((_, j) => (i === j ? 1 : 0)),
       );
     return new Matrix(data);
   }
@@ -322,7 +322,7 @@ export class Matrix {
       .map(() =>
         Array(cols)
           .fill(0)
-          .map(() => min + Math.random() * (max - min))
+          .map(() => min + Math.random() * (max - min)),
       );
     return new Matrix(data);
   }
@@ -500,7 +500,9 @@ export class Matrix {
 
     // Gram-Schmidt process
     const orthonormal: number[][] = [];
-    const rData: number[][] = Array(n).fill(0).map(() => Array(n).fill(0));
+    const rData: number[][] = Array(n)
+      .fill(0)
+      .map(() => Array(n).fill(0));
 
     for (let j = 0; j < n; j++) {
       let v = [...columns[j]!];
@@ -525,14 +527,16 @@ export class Matrix {
         const rRow = rData[j]!;
         rRow[j] = 0;
       } else {
-        orthonormal.push(v.map(val => val / norm));
+        orthonormal.push(v.map((val) => val / norm));
         const rRow = rData[j]!;
         rRow[j] = norm;
       }
     }
 
     // Build Q matrix (columns are orthonormal vectors)
-    const qData: number[][] = Array(m).fill(0).map(() => Array(n).fill(0));
+    const qData: number[][] = Array(m)
+      .fill(0)
+      .map(() => Array(n).fill(0));
     for (let i = 0; i < m; i++) {
       for (let j = 0; j < n; j++) {
         const col = orthonormal[j];
@@ -552,7 +556,10 @@ export class Matrix {
    * Compute dominant eigenvalue and eigenvector using power iteration
    * Returns { eigenvalue, eigenvector } for the largest eigenvalue
    */
-  powerIteration(maxIterations = 100, tolerance = 1e-10): { eigenvalue: number; eigenvector: Matrix } {
+  powerIteration(
+    maxIterations = 100,
+    tolerance = 1e-10,
+  ): { eigenvalue: number; eigenvector: Matrix } {
     if (this.rows !== this.cols) {
       throw new Error('Eigenvalues only defined for square matrices');
     }
@@ -721,7 +728,9 @@ export class Matrix {
    */
   leastSquares(b: Matrix): Matrix {
     if (this.rows !== b.rows || b.cols !== 1) {
-      throw new Error(`Incompatible dimensions for least squares: A is ${this.rows}×${this.cols}, b is ${b.rows}×${b.cols}`);
+      throw new Error(
+        `Incompatible dimensions for least squares: A is ${this.rows}×${this.cols}, b is ${b.rows}×${b.cols}`,
+      );
     }
 
     // Compute A^T A

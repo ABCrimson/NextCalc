@@ -11,13 +11,13 @@
  */
 
 import type { ExpressionNode } from '../parser/ast';
-import { parse } from '../parser/parser';
 import { evaluate } from '../parser/evaluator';
+import { parse } from '../parser/parser';
 import {
-  type NumericalIntegrationConfig,
-  type IntegrationResult,
   IntegrationError,
+  type IntegrationResult,
   integrateNumerical,
+  type NumericalIntegrationConfig,
 } from './integrate-numerical';
 
 // Re-export integrateNumerical for single-variable adaptive integration
@@ -42,10 +42,7 @@ export interface MultiDimensionalConfig extends NumericalIntegrationConfig {
 /**
  * Evaluate bound (constant or function)
  */
-function evaluateBound(
-  bound: Bounds,
-  vars: Record<string, number>
-): number {
+function evaluateBound(bound: Bounds, vars: Record<string, number>): number {
   if (typeof bound === 'number') {
     return bound;
   }
@@ -61,16 +58,14 @@ class MultiDimEvaluator {
 
   constructor(
     private readonly expr: ExpressionNode,
-    private readonly variables: string[]
+    private readonly variables: string[],
   ) {}
 
   evaluate(values: number[]): number {
     this.evalCount++;
 
     if (values.length !== this.variables.length) {
-      throw new IntegrationError(
-        `Expected ${this.variables.length} values, got ${values.length}`
-      );
+      throw new IntegrationError(`Expected ${this.variables.length} values, got ${values.length}`);
     }
 
     const vars: Record<string, number> = {};
@@ -87,16 +82,14 @@ class MultiDimEvaluator {
     if (!result.success) {
       throw new IntegrationError(
         `Function evaluation failed at ${JSON.stringify(vars)}`,
-        result.error
+        result.error,
       );
     }
 
     const value = Number(result.value);
 
     if (!Number.isFinite(value)) {
-      throw new IntegrationError(
-        `Non-finite value at ${JSON.stringify(vars)}: ${value}`
-      );
+      throw new IntegrationError(`Non-finite value at ${JSON.stringify(vars)}: ${value}`);
     }
 
     return value;
@@ -124,23 +117,14 @@ export function integrateDouble(
   yVar: string,
   yMin: Bounds,
   yMax: Bounds,
-  config: MultiDimensionalConfig = {}
+  config: MultiDimensionalConfig = {},
 ): IntegrationResult {
   const expr = typeof expression === 'string' ? parse(expression) : expression;
   const tolerance = config.tolerance ?? 1e-8;
   const strategy = config.strategy ?? 'iterated';
 
   if (strategy === 'monte-carlo') {
-    return integrateDoubleMonteCarlo(
-      expr,
-      xVar,
-      xMin,
-      xMax,
-      yVar,
-      yMin,
-      yMax,
-      config
-    );
+    return integrateDoubleMonteCarlo(expr, xVar, xMin, xMax, yVar, yMin, yMax, config);
   }
 
   // Iterated integration: first integrate over y, then over x
@@ -238,16 +222,18 @@ function integrateDoubleMonteCarlo(
   yVar: string,
   yMin: Bounds,
   yMax: Bounds,
-  config: MultiDimensionalConfig
+  config: MultiDimensionalConfig,
 ): IntegrationResult {
   const samples = config.samples ?? 100000;
 
   // For simplicity, assume rectangular domain with constant bounds
-  if (typeof xMin !== 'number' || typeof xMax !== 'number' ||
-      typeof yMin !== 'number' || typeof yMax !== 'number') {
-    throw new IntegrationError(
-      'Monte Carlo integration requires constant bounds'
-    );
+  if (
+    typeof xMin !== 'number' ||
+    typeof xMax !== 'number' ||
+    typeof yMin !== 'number' ||
+    typeof yMax !== 'number'
+  ) {
+    throw new IntegrationError('Monte Carlo integration requires constant bounds');
   }
 
   const evaluator = new MultiDimEvaluator(expr, [xVar, yVar]);
@@ -277,7 +263,7 @@ function integrateDoubleMonteCarlo(
   }
 
   const mean = sum / samples;
-  const variance = (sumSquared / samples) - (mean * mean);
+  const variance = sumSquared / samples - mean * mean;
   const stdError = Math.sqrt(variance / samples);
 
   return {
@@ -310,7 +296,7 @@ export function integrateTriple(
   zVar: string,
   zMin: Bounds,
   zMax: Bounds,
-  config: MultiDimensionalConfig = {}
+  config: MultiDimensionalConfig = {},
 ): IntegrationResult {
   const expr = typeof expression === 'string' ? parse(expression) : expression;
   const tolerance = config.tolerance ?? 1e-6;
@@ -328,7 +314,7 @@ export function integrateTriple(
       zVar,
       zMin,
       zMax,
-      config
+      config,
     );
   }
 
@@ -451,17 +437,20 @@ function integrateTripleMonteCarlo(
   zVar: string,
   zMin: Bounds,
   zMax: Bounds,
-  config: MultiDimensionalConfig
+  config: MultiDimensionalConfig,
 ): IntegrationResult {
   const samples = config.samples ?? 500000;
 
   // Require constant bounds for MC
-  if (typeof xMin !== 'number' || typeof xMax !== 'number' ||
-      typeof yMin !== 'number' || typeof yMax !== 'number' ||
-      typeof zMin !== 'number' || typeof zMax !== 'number') {
-    throw new IntegrationError(
-      'Monte Carlo integration requires constant bounds'
-    );
+  if (
+    typeof xMin !== 'number' ||
+    typeof xMax !== 'number' ||
+    typeof yMin !== 'number' ||
+    typeof yMax !== 'number' ||
+    typeof zMin !== 'number' ||
+    typeof zMax !== 'number'
+  ) {
+    throw new IntegrationError('Monte Carlo integration requires constant bounds');
   }
 
   const evaluator = new MultiDimEvaluator(expr, [xVar, yVar, zVar]);
@@ -492,7 +481,7 @@ function integrateTripleMonteCarlo(
   }
 
   const mean = sum / samples;
-  const variance = (sumSquared / samples) - (mean * mean);
+  const variance = sumSquared / samples - mean * mean;
   const stdError = Math.sqrt(variance / samples);
 
   return {
@@ -533,15 +522,14 @@ export function integrateDoubleTransformed(
   sBounds: { min: number; max: number },
   tBounds: { min: number; max: number },
   transformation: Transformation,
-  config: MultiDimensionalConfig = {}
+  config: MultiDimensionalConfig = {},
 ): IntegrationResult {
   const expr = typeof expression === 'string' ? parse(expression) : expression;
 
   // Build transformed expression: f(u(s,t), v(s,t)) * |J(s,t)|
   const transformedExpr = parse(`
-    (${expr.toString()}) * (${typeof transformation.jacobian === 'string'
-      ? transformation.jacobian
-      : 'jacobian'
+    (${expr.toString()}) * (${
+      typeof transformation.jacobian === 'string' ? transformation.jacobian : 'jacobian'
     })
   `);
 
@@ -554,7 +542,7 @@ export function integrateDoubleTransformed(
     newVars.t,
     tBounds.min,
     tBounds.max,
-    config
+    config,
   );
 }
 
@@ -571,7 +559,7 @@ export function integrateOverDisk(
   xVar: string,
   yVar: string,
   radius: number,
-  config: MultiDimensionalConfig = {}
+  config: MultiDimensionalConfig = {},
 ): IntegrationResult {
   const expr = typeof expression === 'string' ? parse(expression) : expression;
 
@@ -664,7 +652,7 @@ export function integrateOverSphere(
   yVar: string,
   zVar: string,
   radius: number,
-  config: MultiDimensionalConfig = {}
+  config: MultiDimensionalConfig = {},
 ): IntegrationResult {
   const expr = typeof expression === 'string' ? parse(expression) : expression;
 
@@ -712,7 +700,7 @@ export function integrateOverSphere(
     }
 
     const mean = sum / samples;
-    const variance = (sumSquared / samples) - (mean * mean);
+    const variance = sumSquared / samples - mean * mean;
     const stdError = Math.sqrt(variance / samples);
 
     return {

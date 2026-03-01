@@ -9,9 +9,9 @@
  * - Depth-limited and iterative deepening search
  */
 
-import type { Formula } from './logic-core';
-import { not, LogicalOperator } from './logic-core';
 import { applyAnyRule } from './inference-rules';
+import type { Formula } from './logic-core';
+import { LogicalOperator, not } from './logic-core';
 
 /**
  * Proof step in a derivation
@@ -82,7 +82,7 @@ const DEFAULT_CONFIG: ProofSearchConfig = {
 export function forwardChaining(
   premises: Formula[],
   goal: Formula,
-  config: Partial<ProofSearchConfig> = {}
+  config: Partial<ProofSearchConfig> = {},
 ): Proof | null {
   const cfg = { ...DEFAULT_CONFIG, ...config };
   const startTime = Date.now();
@@ -105,11 +105,7 @@ export function forwardChaining(
    * Helper: register a newly derived formula if it is not already known.
    * Returns true if the formula was new.
    */
-  function addDerived(
-    formula: Formula,
-    ruleName: string,
-    premiseIndices: number[]
-  ): boolean {
+  function addDerived(formula: Formula, ruleName: string, premiseIndices: number[]): boolean {
     const key = formulaToKey(formula);
     if (known.has(key)) return false;
     known.add(key);
@@ -131,7 +127,7 @@ export function forwardChaining(
     }
 
     // Check if goal is reached
-    if (knownFormulas.some(f => formulasEqual(f, goal))) {
+    if (knownFormulas.some((f) => formulasEqual(f, goal))) {
       return {
         premises,
         goal,
@@ -241,7 +237,7 @@ export function forwardChaining(
 export function backwardChaining(
   premises: Formula[],
   goal: Formula,
-  config: Partial<ProofSearchConfig> = {}
+  config: Partial<ProofSearchConfig> = {},
 ): Proof | null {
   const cfg = { ...DEFAULT_CONFIG, ...config };
   const startTime = Date.now();
@@ -249,7 +245,7 @@ export function backwardChaining(
   const steps: ProofStep[] = [];
 
   // Add premises
-  premises.forEach(formula => {
+  premises.forEach((formula) => {
     steps.push({
       formula,
       premises: [],
@@ -263,7 +259,7 @@ export function backwardChaining(
   function search(
     currentGoal: Formula,
     depth: number,
-    knownFacts: Formula[]
+    knownFacts: Formula[],
   ): { success: boolean; usedSteps: number[] } {
     if (Date.now() - startTime > cfg.timeout) {
       return { success: false, usedSteps: [] };
@@ -290,10 +286,10 @@ export function backwardChaining(
   function searchInner(
     currentGoal: Formula,
     depth: number,
-    knownFacts: Formula[]
+    knownFacts: Formula[],
   ): { success: boolean; usedSteps: number[] } {
     // Check if current goal is in known facts
-    const matchIndex = knownFacts.findIndex(f => formulasEqual(f, currentGoal));
+    const matchIndex = knownFacts.findIndex((f) => formulasEqual(f, currentGoal));
     if (matchIndex !== -1) {
       return { success: true, usedSteps: [matchIndex] };
     }
@@ -356,10 +352,7 @@ export function backwardChaining(
     }
 
     // NOT-NOT: to prove ¬¬A, prove A (double negation introduction)
-    if (
-      currentGoal.type === 'not' &&
-      currentGoal.operand.type === 'not'
-    ) {
+    if (currentGoal.type === 'not' && currentGoal.operand.type === 'not') {
       return search(currentGoal.operand.operand, depth + 1, knownFacts);
     }
 
@@ -478,7 +471,7 @@ export function backwardChaining(
 export function resolutionProof(
   premises: Formula[],
   goal: Formula,
-  config: Partial<ProofSearchConfig> = {}
+  config: Partial<ProofSearchConfig> = {},
 ): Proof | null {
   const cfg = { ...DEFAULT_CONFIG, ...config };
   const startTime = Date.now();
@@ -490,7 +483,7 @@ export function resolutionProof(
   // Convert each formula to CNF, then flatten top-level AND conjunctions into
   // individual clauses.  A CNF formula is a conjunction of disjunctive clauses;
   // resolution operates on individual clauses, not on the whole conjunction.
-  const clauses = allFormulas.flatMap(f => flattenCNF(toCNF(f)));
+  const clauses = allFormulas.flatMap((f) => flattenCNF(toCNF(f)));
 
   const steps: ProofStep[] = [];
 
@@ -511,7 +504,7 @@ export function resolutionProof(
       return null;
     }
 
-    let newClauses: Formula[] = [];
+    const newClauses: Formula[] = [];
 
     // Apply resolution to all pairs
     for (let i = 0; i < clauseSet.length; i++) {
@@ -541,7 +534,7 @@ export function resolutionProof(
           }
 
           // Check if new clause
-          if (!clauseSet.some(c => formulasEqual(c, resolvent))) {
+          if (!clauseSet.some((c) => formulasEqual(c, resolvent))) {
             newClauses.push(resolvent);
             steps.push({
               formula: resolvent,
@@ -578,7 +571,7 @@ export function buildProofTree(proof: Proof): ProofTreeNode {
     return {
       formula: step.formula,
       rule: step.rule,
-      children: step.premises.map(i => buildNode(i, depth + 1)),
+      children: step.premises.map((i) => buildNode(i, depth + 1)),
       depth,
     };
   }
@@ -596,7 +589,7 @@ export function buildProofTree(proof: Proof): ProofTreeNode {
 export function iterativeDeepeningProof(
   premises: Formula[],
   goal: Formula,
-  maxDepth = 10
+  maxDepth = 10,
 ): Proof | null {
   for (let depth = 1; depth <= maxDepth; depth++) {
     // Try backward chaining first (goal-driven is usually more efficient)
@@ -654,7 +647,7 @@ export function verifyProof(proof: Proof): { valid: boolean; errors: string[] } 
 
     // Get premise formulas
     const premiseFormulas = step.premises
-      .map(idx => knownFormulas.get(idx))
+      .map((idx) => knownFormulas.get(idx))
       .filter((f): f is Formula => f !== undefined);
 
     // Verify rule application
@@ -663,7 +656,7 @@ export function verifyProof(proof: Proof): { valid: boolean; errors: string[] } 
       if (!result) {
         errors.push(`Step ${i}: Cannot derive ${step.justification}`);
       } else {
-        const derived = result.conclusions.some(c => formulasEqual(c, step.formula));
+        const derived = result.conclusions.some((c) => formulasEqual(c, step.formula));
         if (!derived) {
           errors.push(`Step ${i}: Rule does not derive stated conclusion`);
         }
@@ -691,7 +684,7 @@ export function verifyProof(proof: Proof): { valid: boolean; errors: string[] } 
 function formulaToKey(formula: Formula): string {
   switch (formula.type) {
     case 'atomic':
-      return `${formula.symbol}(${formula.args.map(a => JSON.stringify(a)).join(',')})`;
+      return `${formula.symbol}(${formula.args.map((a) => JSON.stringify(a)).join(',')})`;
     case 'not':
       return `NOT(${formulaToKey(formula.operand)})`;
     case 'binary':
@@ -902,7 +895,12 @@ function distribute(f: Formula): Formula {
       }
 
       // IMPLIES / IFF should not be present after earlier stages; preserve
-      return { type: 'binary', operator: f.operator, left: distribute(f.left), right: distribute(f.right) };
+      return {
+        type: 'binary',
+        operator: f.operator,
+        left: distribute(f.left),
+        right: distribute(f.right),
+      };
     }
   }
 }
@@ -973,7 +971,7 @@ function areComplementaryLiterals(a: Formula, b: Formula): boolean {
 function deduplicateLiterals(literals: Formula[]): Formula[] {
   const unique: Formula[] = [];
   for (const lit of literals) {
-    if (!unique.some(u => formulasEqual(u, lit))) {
+    if (!unique.some((u) => formulasEqual(u, lit))) {
       unique.push(lit);
     }
   }
@@ -1032,11 +1030,7 @@ export function formulasEqual(f1: Formula, f2: Formula): boolean {
 
   switch (f1.type) {
     case 'atomic':
-      return (
-        f2.type === 'atomic' &&
-        f1.symbol === f2.symbol &&
-        f1.args.length === f2.args.length
-      );
+      return f2.type === 'atomic' && f1.symbol === f2.symbol && f1.args.length === f2.args.length;
 
     case 'not':
       return f2.type === 'not' && formulasEqual(f1.operand, f2.operand);

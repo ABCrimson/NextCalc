@@ -2,24 +2,24 @@
  * Expression parser using Math.js with type-safe AST conversion
  */
 
-import { parse as mathJSParse, type MathNode } from 'mathjs';
+import { type MathNode, parse as mathJSParse } from 'mathjs';
 import type {
-  ExpressionNode,
   ConstantNode,
-  SymbolNode,
-  OperatorNode,
-  UnaryOperatorNode,
+  ExpressionNode,
   FunctionNode,
-  Operator,
-  UnaryOperator,
   MathFunction,
+  Operator,
+  OperatorNode,
+  SymbolNode,
+  UnaryOperator,
+  UnaryOperatorNode,
 } from './ast';
 import {
   createConstantNode,
-  createSymbolNode,
-  createOperatorNode,
-  createUnaryOperatorNode,
   createFunctionNode,
+  createOperatorNode,
+  createSymbolNode,
+  createUnaryOperatorNode,
 } from './ast';
 
 /**
@@ -103,10 +103,7 @@ function convertOperatorNode(node: MathNode): OperatorNode | UnaryOperatorNode {
 
   // Handle binary operators (e.g., x + y, x * y)
   if (args.length === 2) {
-    const convertedArgs = [
-      convertMathJSNode(args[0]!),
-      convertMathJSNode(args[1]!),
-    ] as const;
+    const convertedArgs = [convertMathJSNode(args[0]!), convertMathJSNode(args[1]!)] as const;
     return createOperatorNode(op, fn, convertedArgs);
   }
 
@@ -131,13 +128,20 @@ function convertFunctionNode(node: MathNode): FunctionNode {
  */
 function operatorToFunction(op: Operator): string {
   switch (op) {
-    case '+': return 'add';
-    case '-': return 'subtract';
-    case '*': return 'multiply';
-    case '/': return 'divide';
-    case '^': return 'pow';
-    case '%': return 'mod';
-    default: throw new ParseError(`Unknown operator: ${op}`);
+    case '+':
+      return 'add';
+    case '-':
+      return 'subtract';
+    case '*':
+      return 'multiply';
+    case '/':
+      return 'divide';
+    case '^':
+      return 'pow';
+    case '%':
+      return 'mod';
+    default:
+      throw new ParseError(`Unknown operator: ${op}`);
   }
 }
 
@@ -146,12 +150,32 @@ function operatorToFunction(op: Operator): string {
  */
 function isMathFunction(name: string): name is MathFunction {
   const validFunctions: MathFunction[] = [
-    'sin', 'cos', 'tan', 'sec', 'csc', 'cot',
-    'asin', 'acos', 'atan', 'asec', 'acsc', 'acot',
-    'sinh', 'cosh', 'tanh',
-    'sqrt', 'cbrt',
-    'exp', 'log', 'ln', 'log10', 'log2',
-    'abs', 'ceil', 'floor', 'round',
+    'sin',
+    'cos',
+    'tan',
+    'sec',
+    'csc',
+    'cot',
+    'asin',
+    'acos',
+    'atan',
+    'asec',
+    'acsc',
+    'acot',
+    'sinh',
+    'cosh',
+    'tanh',
+    'sqrt',
+    'cbrt',
+    'exp',
+    'log',
+    'ln',
+    'log10',
+    'log2',
+    'abs',
+    'ceil',
+    'floor',
+    'round',
     'factorial',
   ];
 
@@ -162,7 +186,10 @@ function isMathFunction(name: string): name is MathFunction {
  * Custom error class for parsing errors
  */
 export class ParseError extends Error {
-  constructor(message: string, public override cause?: unknown) {
+  constructor(
+    message: string,
+    public override cause?: unknown,
+  ) {
     super(message);
     this.name = 'ParseError';
   }

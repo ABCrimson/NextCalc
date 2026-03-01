@@ -13,19 +13,19 @@ import type { MPFRModule } from './loader';
  * Precision modes for MPFR calculations
  */
 export type PrecisionMode =
-  | 'standard'    // 128 bits (~38 decimal digits)
-  | 'high'        // 256 bits (~77 decimal digits)
-  | 'ultra'       // 512 bits (~154 decimal digits)
-  | 'extreme';    // 1024 bits (~308 decimal digits)
+  | 'standard' // 128 bits (~38 decimal digits)
+  | 'high' // 256 bits (~77 decimal digits)
+  | 'ultra' // 512 bits (~154 decimal digits)
+  | 'extreme'; // 1024 bits (~308 decimal digits)
 
 /**
  * Rounding modes (MPFR supports multiple, we expose most common)
  */
 export type RoundingMode =
-  | 'nearest'     // Round to nearest, ties to even (MPFR_RNDN)
-  | 'zero'        // Round toward zero (MPFR_RNDZ)
-  | 'up'          // Round toward +∞ (MPFR_RNDU)
-  | 'down';       // Round toward -∞ (MPFR_RNDD)
+  | 'nearest' // Round to nearest, ties to even (MPFR_RNDN)
+  | 'zero' // Round toward zero (MPFR_RNDZ)
+  | 'up' // Round toward +∞ (MPFR_RNDU)
+  | 'down'; // Round toward -∞ (MPFR_RNDD)
 
 /**
  * Configuration for WASM wrapper
@@ -33,7 +33,7 @@ export type RoundingMode =
 export interface WASMConfig {
   precision?: PrecisionMode | number;
   rounding?: RoundingMode;
-  autoCleanup?: boolean;  // Auto-free on scope exit
+  autoCleanup?: boolean; // Auto-free on scope exit
   enableLogging?: boolean; // Log operations for debugging
 }
 
@@ -47,7 +47,7 @@ export class WASMArithmeticError extends Error {
   constructor(
     message: string,
     public readonly operation: string,
-    cause?: unknown
+    cause?: unknown,
   ) {
     super(`WASM ${operation}: ${message}`);
     this.cause = cause;
@@ -79,7 +79,7 @@ export class HighPrecisionNumber {
 
   constructor(
     private readonly module: MPFRModule,
-    value?: string | number | bigint
+    value?: string | number | bigint,
   ) {
     if (value !== undefined) {
       const str = String(value);
@@ -120,20 +120,14 @@ export class HighPrecisionNumber {
    */
   private assertNotFreed(): void {
     if (this.freed) {
-      throw new WASMArithmeticError(
-        'Cannot operate on freed number',
-        'assertNotFreed'
-      );
+      throw new WASMArithmeticError('Cannot operate on freed number', 'assertNotFreed');
     }
   }
 
   /**
    * Create new number from context pointer (internal)
    */
-  private static fromContext(
-    module: MPFRModule,
-    ctx: number
-  ): HighPrecisionNumber {
+  private static fromContext(module: MPFRModule, ctx: number): HighPrecisionNumber {
     const num = Object.create(HighPrecisionNumber.prototype);
     num.module = module;
     num.ctx = ctx;
@@ -150,10 +144,7 @@ export class HighPrecisionNumber {
     this.assertNotFreed();
 
     if (base < 2 || base > 62) {
-      throw new WASMArithmeticError(
-        `Invalid base ${base}, must be 2-62`,
-        'toString'
-      );
+      throw new WASMArithmeticError(`Invalid base ${base}, must be 2-62`, 'toString');
     }
 
     const strPtr = this.module._mpfr_to_string(this.ctx, base, digits);
@@ -348,10 +339,7 @@ export class HighPrecisionNumber {
     this.assertNotFreed();
 
     if (this.sign() <= 0) {
-      throw new WASMArithmeticError(
-        'Logarithm of non-positive number',
-        'log'
-      );
+      throw new WASMArithmeticError('Logarithm of non-positive number', 'log');
     }
 
     const result = this.module._mpfr_log(this.ctx);
@@ -365,10 +353,7 @@ export class HighPrecisionNumber {
     this.assertNotFreed();
 
     if (this.sign() < 0) {
-      throw new WASMArithmeticError(
-        'Square root of negative number',
-        'sqrt'
-      );
+      throw new WASMArithmeticError('Square root of negative number', 'sqrt');
     }
 
     const result = this.module._mpfr_sqrt(this.ctx);
@@ -484,7 +469,7 @@ export class HighPrecisionScope {
    */
   static async run<T>(
     module: MPFRModule,
-    fn: (scope: HighPrecisionScope) => T | Promise<T>
+    fn: (scope: HighPrecisionScope) => T | Promise<T>,
   ): Promise<T> {
     const scope = new HighPrecisionScope(module);
     try {
@@ -588,9 +573,7 @@ export class HighPrecisionManager {
   /**
    * Execute computation with automatic cleanup
    */
-  async compute<T>(
-    fn: (scope: HighPrecisionScope) => T | Promise<T>
-  ): Promise<T> {
+  async compute<T>(fn: (scope: HighPrecisionScope) => T | Promise<T>): Promise<T> {
     if (!this.module) {
       throw new WASMArithmeticError('Module not initialized', 'compute');
     }

@@ -20,7 +20,7 @@
 export class Complex {
   constructor(
     public readonly real: number,
-    public readonly imag: number
+    public readonly imag: number,
   ) {}
 
   /** Add complex numbers */
@@ -32,7 +32,7 @@ export class Complex {
   multiply(other: Complex): Complex {
     return new Complex(
       this.real * other.real - this.imag * other.imag,
-      this.real * other.imag + this.imag * other.real
+      this.real * other.imag + this.imag * other.real,
     );
   }
 
@@ -99,7 +99,7 @@ export class QuantumState {
 
   /** Get probability of measuring each state */
   getProbabilities(): ReadonlyArray<number> {
-    return this.amplitudes.map(amp => amp.magnitudeSquared());
+    return this.amplitudes.map((amp) => amp.magnitudeSquared());
   }
 
   /** Measure state (collapses to basis state) */
@@ -141,10 +141,7 @@ export class QuantumState {
     // Inversion about average: amplitude_new = 2×average - amplitude_old
     for (let i = 0; i < this.numStates; i++) {
       const oldAmp = this.amplitudes[i]!;
-      this.amplitudes[i] = new Complex(
-        2 * avgReal - oldAmp.real,
-        2 * avgImag - oldAmp.imag
-      );
+      this.amplitudes[i] = new Complex(2 * avgReal - oldAmp.real, 2 * avgImag - oldAmp.imag);
     }
   }
 
@@ -211,7 +208,9 @@ export function groverSearch(numQubits: number, targetState: number): GroverResu
 
   console.log(`\n=== Grover's Algorithm ===`);
   console.log(`Searching space of size: ${numStates}`);
-  console.log(`Target state: |${targetState.toString(2).padStart(numQubits, '0')}⟩ (${targetState})`);
+  console.log(
+    `Target state: |${targetState.toString(2).padStart(numQubits, '0')}⟩ (${targetState})`,
+  );
   console.log(`Optimal iterations: ${optimalIterations}`);
   console.log(`Classical queries needed: ${numStates / 2} (average)`);
   console.log(`Quantum queries needed: ${optimalIterations}`);
@@ -244,7 +243,9 @@ export function groverSearch(numQubits: number, targetState: number): GroverResu
     console.log(`  |${idx.toString(2).padStart(numQubits, '0')}⟩: ${prob.toFixed(4)}${marker}`);
   }
 
-  console.log(`\nMeasured state: |${measuredState.toString(2).padStart(numQubits, '0')}⟩ (${measuredState})`);
+  console.log(
+    `\nMeasured state: |${measuredState.toString(2).padStart(numQubits, '0')}⟩ (${measuredState})`,
+  );
   console.log(`Success: ${success ? 'YES ✓' : 'NO ✗'}`);
 
   return {
@@ -262,7 +263,7 @@ export function groverSearch(numQubits: number, targetState: number): GroverResu
 export function groverExperiment(
   numQubits: number,
   targetState: number,
-  trials: number
+  trials: number,
 ): {
   successRate: number;
   averageIterations: number;
@@ -314,8 +315,8 @@ export function demonstrateGroverSpeedup(): void {
 
     console.log(
       `| ${qubits.toString().padStart(6)} | ${states.toString().padStart(6)} | ` +
-      `${classicalQueries.toString().padStart(13)} | ${quantumQueries.toString().padStart(7)} | ` +
-      `${speedup.toFixed(2)}x    |`
+        `${classicalQueries.toString().padStart(13)} | ${quantumQueries.toString().padStart(7)} | ` +
+        `${speedup.toFixed(2)}x    |`,
     );
   }
 
@@ -332,10 +333,7 @@ export type OracleFunction = (state: number) => boolean;
  * General Grover search with custom oracle
  * Can search for states satisfying arbitrary conditions
  */
-export function groverSearchCustom(
-  numQubits: number,
-  oracle: OracleFunction
-): GroverResult {
+export function groverSearchCustom(numQubits: number, oracle: OracleFunction): GroverResult {
   const numStates = 2 ** numQubits;
   const state = new QuantumState(numQubits);
   state.uniformSuperposition();
@@ -356,7 +354,7 @@ export function groverSearchCustom(
 
   // Adjust iterations for multiple solutions
   const theta = Math.asin(Math.sqrt(numSolutions / numStates));
-  const optimalIterations = Math.floor((Math.PI / (4 * theta)) - 0.5);
+  const optimalIterations = Math.floor(Math.PI / (4 * theta) - 0.5);
 
   console.log(`Found ${numSolutions} solution(s)`);
   console.log(`Optimal iterations: ${optimalIterations}`);

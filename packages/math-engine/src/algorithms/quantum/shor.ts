@@ -231,10 +231,10 @@ export function isPerfectPower(n: number): { base: number; exp: number } | null 
   const maxExp = Math.floor(Math.log2(n));
 
   for (let exp = 2; exp <= maxExp; exp++) {
-    const base = Math.round(Math.pow(n, 1 / exp));
+    const base = Math.round(n ** (1 / exp));
 
     // Verify base^exp === n (accounting for floating-point precision)
-    if (Math.pow(base, exp) === n) {
+    if (base ** exp === n) {
       // Keep the representation with smallest base
       if (base < bestBase) {
         bestBase = base;
@@ -258,7 +258,7 @@ function randomInt(min: number, max: number): number {
  * Demonstrate Shor's algorithm
  */
 export function demonstrateShorAlgorithm(): void {
-  console.log('=== Shor\'s Algorithm Demo ===\n');
+  console.log("=== Shor's Algorithm Demo ===\n");
 
   const testCases = [15, 21, 35, 91];
 
@@ -285,7 +285,7 @@ export function demonstrateShorAlgorithm(): void {
     console.log('\n');
   }
 
-  console.log('Note: Real Shor\'s algorithm runs on quantum computers');
+  console.log("Note: Real Shor's algorithm runs on quantum computers");
   console.log('and can factor large numbers exponentially faster!');
   console.log('\nQuantum speedup:');
   console.log('  Classical: ~O(exp(n^(1/3))) for n-bit numbers');

@@ -64,12 +64,7 @@ export class ScaledDotProductAttention {
    * @param mask - Optional attention mask
    * @returns Attention output (seq_len × d_v)
    */
-  forward(
-    queries: Matrix,
-    keys: Matrix,
-    values: Matrix,
-    mask?: Matrix
-  ): Matrix {
+  forward(queries: Matrix, keys: Matrix, values: Matrix, mask?: Matrix): Matrix {
     const dK = keys[0]?.length || 1;
     const scale = 1 / Math.sqrt(dK);
 
@@ -77,7 +72,7 @@ export class ScaledDotProductAttention {
     const scores = this.matmul(queries, this.transpose(keys));
 
     // Scale
-    const scaledScores = scores.map(row => row.map(val => val * scale));
+    const scaledScores = scores.map((row) => row.map((val) => val * scale));
 
     // Apply mask if provided
     const maskedScores = mask
@@ -85,12 +80,12 @@ export class ScaledDotProductAttention {
           row.map((val, j) => {
             const maskVal = mask[i]?.[j];
             return maskVal === 0 ? -Infinity : val;
-          })
+          }),
         )
       : scaledScores;
 
     // Apply softmax
-    const attentionWeights = maskedScores.map(row => this.softmax(row));
+    const attentionWeights = maskedScores.map((row) => this.softmax(row));
 
     // Multiply by values
     return this.matmul(attentionWeights, values);
@@ -101,9 +96,7 @@ export class ScaledDotProductAttention {
     const cols = b[0]?.length || 0;
     const inner = b.length;
 
-    const result: number[][] = Array.from({ length: rows }, () =>
-      Array(cols).fill(0)
-    );
+    const result: number[][] = Array.from({ length: rows }, () => Array(cols).fill(0));
 
     for (let i = 0; i < rows; i++) {
       for (let j = 0; j < cols; j++) {
@@ -123,9 +116,7 @@ export class ScaledDotProductAttention {
   private transpose(matrix: Matrix): Matrix {
     const rows = matrix.length;
     const cols = matrix[0]?.length || 0;
-    const result: number[][] = Array.from({ length: cols }, () =>
-      Array(rows).fill(0)
-    );
+    const result: number[][] = Array.from({ length: cols }, () => Array(rows).fill(0));
 
     for (let i = 0; i < rows; i++) {
       for (let j = 0; j < cols; j++) {
@@ -138,9 +129,9 @@ export class ScaledDotProductAttention {
 
   private softmax(vector: Vector): Vector {
     const max = Math.max(...vector);
-    const exps = vector.map(x => Math.exp(x - max));
+    const exps = vector.map((x) => Math.exp(x - max));
     const sum = exps.reduce((a, b) => a + b, 0);
-    return exps.map(x => x / sum);
+    return exps.map((x) => x / sum);
   }
 }
 
@@ -231,12 +222,14 @@ export class AdamOptimizer {
   private v: Map<string, Vector> = new Map();
   private t = 0;
 
-  constructor(config: {
-    lr?: number;
-    beta1?: number;
-    beta2?: number;
-    epsilon?: number;
-  } = {}) {
+  constructor(
+    config: {
+      lr?: number;
+      beta1?: number;
+      beta2?: number;
+      epsilon?: number;
+    } = {},
+  ) {
     this.lr = config.lr ?? 0.001;
     this.beta1 = config.beta1 ?? 0.9;
     this.beta2 = config.beta2 ?? 0.999;
@@ -256,8 +249,14 @@ export class AdamOptimizer {
 
       // Initialize moments if needed
       if (!this.m.has(name)) {
-        this.m.set(name, param.map(() => 0));
-        this.v.set(name, param.map(() => 0));
+        this.m.set(
+          name,
+          param.map(() => 0),
+        );
+        this.v.set(
+          name,
+          param.map(() => 0),
+        );
       }
 
       const m = this.m.get(name)!;
@@ -273,12 +272,12 @@ export class AdamOptimizer {
       });
 
       // Compute bias-corrected moments
-      const mHat = mNew.map(mi => mi / (1 - Math.pow(this.beta1, this.t)));
-      const vHat = vNew.map(vi => vi / (1 - Math.pow(this.beta2, this.t)));
+      const mHat = mNew.map((mi) => mi / (1 - this.beta1 ** this.t));
+      const vHat = vNew.map((vi) => vi / (1 - this.beta2 ** this.t));
 
       // Update parameters
       const paramNew = param.map((pi, i) => {
-        const update = this.lr * (mHat[i] ?? 0) / (Math.sqrt(vHat[i] ?? 0) + this.epsilon);
+        const update = (this.lr * (mHat[i] ?? 0)) / (Math.sqrt(vHat[i] ?? 0) + this.epsilon);
         return pi - update;
       });
 
@@ -297,13 +296,15 @@ export class AdamOptimizer {
 export class AdamWOptimizer extends AdamOptimizer {
   private readonly weightDecay: number;
 
-  constructor(config: {
-    lr?: number;
-    beta1?: number;
-    beta2?: number;
-    epsilon?: number;
-    weightDecay?: number;
-  } = {}) {
+  constructor(
+    config: {
+      lr?: number;
+      beta1?: number;
+      beta2?: number;
+      epsilon?: number;
+      weightDecay?: number;
+    } = {},
+  ) {
     super(config);
     this.weightDecay = config.weightDecay ?? 0.01;
   }
@@ -332,12 +333,14 @@ export class LionOptimizer {
   private readonly weightDecay: number;
   private m: Map<string, Vector> = new Map();
 
-  constructor(config: {
-    lr?: number;
-    beta1?: number;
-    beta2?: number;
-    weightDecay?: number;
-  } = {}) {
+  constructor(
+    config: {
+      lr?: number;
+      beta1?: number;
+      beta2?: number;
+      weightDecay?: number;
+    } = {},
+  ) {
     this.lr = config.lr ?? 0.0001;
     this.beta1 = config.beta1 ?? 0.9;
     this.beta2 = config.beta2 ?? 0.99;
@@ -462,11 +465,13 @@ export class MAML {
   private readonly innerLR: number;
   private readonly innerSteps: number;
 
-  constructor(config: {
-    innerLR?: number;
-    outerLR?: number;
-    innerSteps?: number;
-  } = {}) {
+  constructor(
+    config: {
+      innerLR?: number;
+      outerLR?: number;
+      innerSteps?: number;
+    } = {},
+  ) {
     this.innerLR = config.innerLR ?? 0.01;
     this.innerSteps = config.innerSteps ?? 5;
   }
@@ -477,7 +482,7 @@ export class MAML {
   metaTrain(
     tasks: Array<{ support: Matrix; query: Matrix }>,
     model: (params: Vector, x: Matrix) => Vector,
-    _loss: (pred: Vector, target: Vector) => number
+    _loss: (pred: Vector, target: Vector) => number,
   ): Vector {
     // Simplified MAML implementation
     // Full version would compute second-order gradients
@@ -491,7 +496,7 @@ export class MAML {
       for (let step = 0; step < this.innerSteps; step++) {
         model(taskParams, task.support);
         // Compute gradients and update (simplified)
-        taskParams = taskParams.map(p => p - this.innerLR * 0.01); // Placeholder
+        taskParams = taskParams.map((p) => p - this.innerLR * 0.01); // Placeholder
       }
 
       // Outer loop: evaluate on query set
@@ -518,12 +523,9 @@ export class FederatedAveraging {
    * @param clientWeights - Weight of each client (e.g., data size)
    * @returns Aggregated global model
    */
-  aggregate(
-    clientModels: Array<Map<string, Vector>>,
-    clientWeights: Vector
-  ): Map<string, Vector> {
+  aggregate(clientModels: Array<Map<string, Vector>>, clientWeights: Vector): Map<string, Vector> {
     const totalWeight = clientWeights.reduce((a, b) => a + b, 0);
-    const normalized = clientWeights.map(w => w / totalWeight);
+    const normalized = clientWeights.map((w) => w / totalWeight);
 
     const aggregated = new Map<string, Vector>();
 
@@ -565,11 +567,13 @@ export class DPSGDOptimizer {
   private readonly noiseMultiplier: number;
   private readonly maxGradNorm: number;
 
-  constructor(config: {
-    lr?: number;
-    noiseMultiplier?: number;
-    maxGradNorm?: number;
-  } = {}) {
+  constructor(
+    config: {
+      lr?: number;
+      noiseMultiplier?: number;
+      maxGradNorm?: number;
+    } = {},
+  ) {
     this.lr = config.lr ?? 0.01;
     this.noiseMultiplier = config.noiseMultiplier ?? 1.0;
     this.maxGradNorm = config.maxGradNorm ?? 1.0;
@@ -583,7 +587,7 @@ export class DPSGDOptimizer {
     const clipped = this.clipGradients(gradients);
 
     // Add Gaussian noise
-    const noised = clipped.map(g => g + this.gaussianNoise());
+    const noised = clipped.map((g) => g + this.gaussianNoise());
 
     // Update parameters
     return params.map((p, i) => p - this.lr * (noised[i] ?? 0));
@@ -593,7 +597,7 @@ export class DPSGDOptimizer {
     const norm = Math.sqrt(gradients.reduce((sum, g) => sum + g * g, 0));
 
     if (norm > this.maxGradNorm) {
-      return gradients.map(g => (g / norm) * this.maxGradNorm);
+      return gradients.map((g) => (g / norm) * this.maxGradNorm);
     }
 
     return gradients;
@@ -632,15 +636,12 @@ export class KnowledgeDistillation {
    * @param labels - True labels
    * @returns Combined distillation loss
    */
-  computeLoss(
-    studentLogits: Vector,
-    teacherLogits: Vector,
-    labels: Vector
-  ): number {
+  computeLoss(studentLogits: Vector, teacherLogits: Vector, labels: Vector): number {
     // Soft targets loss (KL divergence)
     const studentSoft = this.softmax(studentLogits, this.temperature);
     const teacherSoft = this.softmax(teacherLogits, this.temperature);
-    const distillLoss = this.klDivergence(studentSoft, teacherSoft) * this.temperature * this.temperature;
+    const distillLoss =
+      this.klDivergence(studentSoft, teacherSoft) * this.temperature * this.temperature;
 
     // Hard targets loss (cross-entropy)
     const studentHard = this.softmax(studentLogits, 1.0);
@@ -651,11 +652,11 @@ export class KnowledgeDistillation {
   }
 
   private softmax(logits: Vector, temperature: number): Vector {
-    const scaled = logits.map(l => l / temperature);
+    const scaled = logits.map((l) => l / temperature);
     const max = Math.max(...scaled);
-    const exps = scaled.map(l => Math.exp(l - max));
+    const exps = scaled.map((l) => Math.exp(l - max));
     const sum = exps.reduce((a, b) => a + b, 0);
-    return exps.map(e => e / sum);
+    return exps.map((e) => e / sum);
   }
 
   private klDivergence(p: Vector, q: Vector): number {
@@ -666,7 +667,7 @@ export class KnowledgeDistillation {
   }
 
   private crossEntropy(pred: Vector, target: Vector): number {
-    return -target.reduce((sum, ti, i) => sum + ti * Math.log((pred[i] ?? 1e-10)), 0);
+    return -target.reduce((sum, ti, i) => sum + ti * Math.log(pred[i] ?? 1e-10), 0);
   }
 }
 

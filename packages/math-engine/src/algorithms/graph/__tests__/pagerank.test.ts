@@ -9,14 +9,14 @@
  * - Damping factor effects
  */
 
-import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
+import { describe, expect, it } from 'vitest';
 import {
+  type Graph,
   pageRank,
   personalizedPageRank,
   topicSensitivePageRank,
   topKPages,
-  type Graph,
 } from '../pagerank';
 
 describe('PageRank Algorithm', () => {
@@ -27,8 +27,8 @@ describe('PageRank Algorithm', () => {
       // C -> A
       const graph: Graph = [
         [1, 2], // A links to B, C
-        [2],    // B links to C
-        [0],    // C links to A
+        [2], // B links to C
+        [0], // C links to A
       ];
 
       const result = pageRank(graph);
@@ -42,11 +42,7 @@ describe('PageRank Algorithm', () => {
     });
 
     it('should have ranks sum to 1', () => {
-      const graph: Graph = [
-        [1, 2],
-        [2],
-        [0],
-      ];
+      const graph: Graph = [[1, 2], [2], [0]];
 
       const result = pageRank(graph);
 
@@ -55,11 +51,7 @@ describe('PageRank Algorithm', () => {
     });
 
     it('should converge within max iterations', () => {
-      const graph: Graph = [
-        [1],
-        [2],
-        [0],
-      ];
+      const graph: Graph = [[1], [2], [0]];
 
       const result = pageRank(graph, 0.85, 100, 1e-6);
 
@@ -74,10 +66,10 @@ describe('PageRank Algorithm', () => {
       // C -> nowhere
       // D -> C
       const graph: Graph = [
-        [2],    // A -> C
-        [2],    // B -> C
-        [],     // C -> nowhere (no outdegree)
-        [2],    // D -> C
+        [2], // A -> C
+        [2], // B -> C
+        [], // C -> nowhere (no outdegree)
+        [2], // D -> C
       ];
 
       const result = pageRank(graph);
@@ -90,11 +82,7 @@ describe('PageRank Algorithm', () => {
     it('should respect damping factor', () => {
       // Use asymmetric graph to show damping effects
       // A links to B and C, B links to C, C links to A
-      const graph: Graph = [
-        [1, 2],
-        [2],
-        [0],
-      ];
+      const graph: Graph = [[1, 2], [2], [0]];
 
       const highDamping = pageRank(graph, 0.99);
       const lowDamping = pageRank(graph, 0.01);
@@ -112,10 +100,10 @@ describe('PageRank Algorithm', () => {
     it('should handle disconnected graph', () => {
       // Two disconnected components
       const graph: Graph = [
-        [1],    // A -> B
-        [0],    // B -> A
-        [3],    // C -> D
-        [2],    // D -> C
+        [1], // A -> B
+        [0], // B -> A
+        [3], // C -> D
+        [2], // D -> C
       ];
 
       const result = pageRank(graph);
@@ -127,10 +115,7 @@ describe('PageRank Algorithm', () => {
     it('should handle nodes with no outgoing links', () => {
       // A -> B
       // B -> (nowhere)
-      const graph: Graph = [
-        [1],
-        [],
-      ];
+      const graph: Graph = [[1], []];
 
       const result = pageRank(graph);
 
@@ -151,57 +136,47 @@ describe('PageRank Algorithm', () => {
 
     it('property: ranks sum to 1', () => {
       fc.assert(
-        fc.property(
-          fc.integer({ min: 2, max: 6 }),
-          (numNodes) => {
-            // Generate random graph
-            const graph: Graph = Array.from({ length: numNodes }, (_, i) => {
-              const neighbors: number[] = [];
-              for (let j = 0; j < numNodes; j++) {
-                if (Math.random() > 0.5) neighbors.push(j);
-              }
-              return neighbors.length > 0 ? neighbors : [i]; // Ensure at least one link
-            });
+        fc.property(fc.integer({ min: 2, max: 6 }), (numNodes) => {
+          // Generate random graph
+          const graph: Graph = Array.from({ length: numNodes }, (_, i) => {
+            const neighbors: number[] = [];
+            for (let j = 0; j < numNodes; j++) {
+              if (Math.random() > 0.5) neighbors.push(j);
+            }
+            return neighbors.length > 0 ? neighbors : [i]; // Ensure at least one link
+          });
 
-            const result = pageRank(graph, 0.85, 100, 1e-6);
+          const result = pageRank(graph, 0.85, 100, 1e-6);
 
-            const sum = result.ranks.reduce((a, b) => a + b, 0);
-            expect(sum).toBeCloseTo(1.0, 4);
-          }
-        ),
-        { numRuns: 20 }
+          const sum = result.ranks.reduce((a, b) => a + b, 0);
+          expect(sum).toBeCloseTo(1.0, 4);
+        }),
+        { numRuns: 20 },
       );
     });
 
     it('property: all ranks are non-negative', () => {
       fc.assert(
-        fc.property(
-          fc.integer({ min: 2, max: 6 }),
-          (numNodes) => {
-            const graph: Graph = Array.from({ length: numNodes }, (_, i) =>
-              i < numNodes - 1 ? [i + 1] : [0]
-            );
+        fc.property(fc.integer({ min: 2, max: 6 }), (numNodes) => {
+          const graph: Graph = Array.from({ length: numNodes }, (_, i) =>
+            i < numNodes - 1 ? [i + 1] : [0],
+          );
 
-            const result = pageRank(graph);
+          const result = pageRank(graph);
 
-            for (const rank of result.ranks) {
-              expect(rank).toBeGreaterThanOrEqual(0);
-              expect(rank).toBeLessThanOrEqual(1);
-            }
+          for (const rank of result.ranks) {
+            expect(rank).toBeGreaterThanOrEqual(0);
+            expect(rank).toBeLessThanOrEqual(1);
           }
-        ),
-        { numRuns: 20 }
+        }),
+        { numRuns: 20 },
       );
     });
   });
 
   describe('personalizedPageRank', () => {
     it('should compute personalized PageRank', () => {
-      const graph: Graph = [
-        [1, 2],
-        [2],
-        [0],
-      ];
+      const graph: Graph = [[1, 2], [2], [0]];
 
       // Personal vector favors node 0
       const personalVector = [1, 0, 0];
@@ -215,11 +190,7 @@ describe('PageRank Algorithm', () => {
     });
 
     it('should normalize personal vector', () => {
-      const graph: Graph = [
-        [1],
-        [2],
-        [0],
-      ];
+      const graph: Graph = [[1], [2], [0]];
 
       // Non-normalized vector
       const personalVector = [10, 20, 30];
@@ -231,11 +202,7 @@ describe('PageRank Algorithm', () => {
     });
 
     it('should respect personal vector biases', () => {
-      const graph: Graph = [
-        [1, 2],
-        [2],
-        [0],
-      ];
+      const graph: Graph = [[1, 2], [2], [0]];
 
       // Favor node 2
       const personalVector = [0, 0, 1];
@@ -248,11 +215,7 @@ describe('PageRank Algorithm', () => {
     });
 
     it('should reduce to standard PageRank with uniform vector', () => {
-      const graph: Graph = [
-        [1, 2],
-        [2],
-        [0],
-      ];
+      const graph: Graph = [[1, 2], [2], [0]];
 
       const uniformVector = [1, 1, 1];
 
@@ -268,11 +231,7 @@ describe('PageRank Algorithm', () => {
 
   describe('topicSensitivePageRank', () => {
     it('should compute multiple topic-specific PageRanks', () => {
-      const graph: Graph = [
-        [1, 2],
-        [2],
-        [0],
-      ];
+      const graph: Graph = [[1, 2], [2], [0]];
 
       const topics = [
         [1, 0, 0], // Topic 1: favors node 0
@@ -287,11 +246,7 @@ describe('PageRank Algorithm', () => {
     });
 
     it('should produce different rankings for different topics', () => {
-      const graph: Graph = [
-        [1, 2],
-        [2],
-        [0],
-      ];
+      const graph: Graph = [[1, 2], [2], [0]];
 
       const topics = [
         [1, 0, 0],
@@ -352,11 +307,7 @@ describe('PageRank Algorithm', () => {
 
   describe('Convergence Properties', () => {
     it('should converge faster with higher tolerance', () => {
-      const graph: Graph = [
-        [1, 2],
-        [2],
-        [0],
-      ];
+      const graph: Graph = [[1, 2], [2], [0]];
 
       const strictResult = pageRank(graph, 0.85, 1000, 1e-10);
       const looseResult = pageRank(graph, 0.85, 1000, 1e-3);
@@ -366,12 +317,7 @@ describe('PageRank Algorithm', () => {
 
     it('should converge for strongly connected graphs', () => {
       // Complete cycle
-      const graph: Graph = [
-        [1],
-        [2],
-        [3],
-        [0],
-      ];
+      const graph: Graph = [[1], [2], [3], [0]];
 
       const result = pageRank(graph, 0.85, 100, 1e-6);
 
@@ -380,12 +326,7 @@ describe('PageRank Algorithm', () => {
 
     it('should eventually converge for any graph', () => {
       // Random graph
-      const graph: Graph = [
-        [2, 3],
-        [0, 3],
-        [1],
-        [0, 1, 2],
-      ];
+      const graph: Graph = [[2, 3], [0, 3], [1], [0, 1, 2]];
 
       const result = pageRank(graph, 0.85, 200, 1e-6);
 
@@ -394,10 +335,7 @@ describe('PageRank Algorithm', () => {
 
     it('should require fewer iterations for simple graphs', () => {
       // Very simple graph
-      const simpleGraph: Graph = [
-        [1],
-        [0],
-      ];
+      const simpleGraph: Graph = [[1], [0]];
 
       const simpleResult = pageRank(simpleGraph);
 
@@ -407,12 +345,7 @@ describe('PageRank Algorithm', () => {
 
   describe('Damping Factor Effects', () => {
     it('should produce more uniform ranks with low damping', () => {
-      const graph: Graph = [
-        [1, 2, 3],
-        [2],
-        [3],
-        [],
-      ];
+      const graph: Graph = [[1, 2, 3], [2], [3], []];
 
       const lowDamping = pageRank(graph, 0.1);
       const highDamping = pageRank(graph, 0.99);
@@ -427,7 +360,7 @@ describe('PageRank Algorithm', () => {
       const graph: Graph = [
         [2], // A -> C
         [2], // B -> C
-        [],  // C -> nowhere
+        [], // C -> nowhere
       ];
 
       const highDamping = pageRank(graph, 0.99);
@@ -458,7 +391,7 @@ describe('PageRank Algorithm', () => {
 
       // Create chain graph
       const graph: Graph = Array.from({ length: numNodes }, (_, i) =>
-        i < numNodes - 1 ? [i + 1] : [0]
+        i < numNodes - 1 ? [i + 1] : [0],
       );
 
       const startTime = performance.now();
@@ -482,10 +415,10 @@ describe('PageRank Algorithm', () => {
       // Center node connects to all, all connect back to center
       const graph: Graph = [
         [1, 2, 3, 4], // Center -> all
-        [0],          // 1 -> center
-        [0],          // 2 -> center
-        [0],          // 3 -> center
-        [0],          // 4 -> center
+        [0], // 1 -> center
+        [0], // 2 -> center
+        [0], // 3 -> center
+        [0], // 4 -> center
       ];
 
       const result = pageRank(graph);
@@ -498,7 +431,7 @@ describe('PageRank Algorithm', () => {
     it('should handle complete graph (all nodes link to all)', () => {
       const numNodes = 5;
       const graph: Graph = Array.from({ length: numNodes }, (_, i) =>
-        Array.from({ length: numNodes }, (_, j) => j)
+        Array.from({ length: numNodes }, (_, j) => j),
       );
 
       const result = pageRank(graph);
@@ -509,11 +442,7 @@ describe('PageRank Algorithm', () => {
     });
 
     it('should not produce NaN or Infinity', () => {
-      const graph: Graph = [
-        [1, 2],
-        [],
-        [0],
-      ];
+      const graph: Graph = [[1, 2], [], [0]];
 
       const result = pageRank(graph);
 
@@ -527,40 +456,29 @@ describe('PageRank Algorithm', () => {
   describe('Mathematical Properties', () => {
     it('property: ranks are probability distribution', () => {
       fc.assert(
-        fc.property(
-          fc.integer({ min: 2, max: 5 }),
-          (numNodes) => {
-            const graph: Graph = Array.from({ length: numNodes }, (_, i) => [(i + 1) % numNodes]);
+        fc.property(fc.integer({ min: 2, max: 5 }), (numNodes) => {
+          const graph: Graph = Array.from({ length: numNodes }, (_, i) => [(i + 1) % numNodes]);
 
-            const result = pageRank(graph);
+          const result = pageRank(graph);
 
-            // Sum to 1
-            const sum = result.ranks.reduce((a, b) => a + b, 0);
-            expect(sum).toBeCloseTo(1.0, 4);
+          // Sum to 1
+          const sum = result.ranks.reduce((a, b) => a + b, 0);
+          expect(sum).toBeCloseTo(1.0, 4);
 
-            // All non-negative
-            for (const rank of result.ranks) {
-              expect(rank).toBeGreaterThanOrEqual(0);
-            }
+          // All non-negative
+          for (const rank of result.ranks) {
+            expect(rank).toBeGreaterThanOrEqual(0);
           }
-        ),
-        { numRuns: 20 }
+        }),
+        { numRuns: 20 },
       );
     });
 
     it('should preserve rank under graph isomorphism', () => {
       // Two isomorphic graphs (just relabeled nodes)
-      const graph1: Graph = [
-        [1],
-        [2],
-        [0],
-      ];
+      const graph1: Graph = [[1], [2], [0]];
 
-      const graph2: Graph = [
-        [1],
-        [2],
-        [0],
-      ]; // Same structure
+      const graph2: Graph = [[1], [2], [0]]; // Same structure
 
       const ranks1 = pageRank(graph1).ranks;
       const ranks2 = pageRank(graph2).ranks;

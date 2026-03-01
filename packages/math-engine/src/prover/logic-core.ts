@@ -32,11 +32,7 @@ export enum LogicalOperator {
 /**
  * Formula node types in the Abstract Syntax Tree
  */
-export type Formula =
-  | AtomicFormula
-  | NotFormula
-  | BinaryFormula
-  | QuantifiedFormula;
+export type Formula = AtomicFormula | NotFormula | BinaryFormula | QuantifiedFormula;
 
 /**
  * Atomic proposition or predicate
@@ -62,7 +58,11 @@ export interface NotFormula {
  */
 export interface BinaryFormula {
   type: 'binary';
-  operator: LogicalOperator.AND | LogicalOperator.OR | LogicalOperator.IMPLIES | LogicalOperator.IFF;
+  operator:
+    | LogicalOperator.AND
+    | LogicalOperator.OR
+    | LogicalOperator.IMPLIES
+    | LogicalOperator.IFF;
   left: Formula;
   right: Formula;
 }
@@ -350,7 +350,7 @@ export function generateTruthTable(formula: Formula): TruthTableRow[] {
   const rows: TruthTableRow[] = [];
 
   // Generate all possible assignments (2^n rows)
-  const numRows = Math.pow(2, atoms.length);
+  const numRows = 2 ** atoms.length;
 
   for (let i = 0; i < numRows; i++) {
     const assignment = new Map<string, boolean>();
@@ -375,7 +375,7 @@ export function generateTruthTable(formula: Formula): TruthTableRow[] {
  */
 export function isTautology(formula: Formula): boolean {
   const table = generateTruthTable(formula);
-  return table.every(row => row.result);
+  return table.every((row) => row.result);
 }
 
 /**
@@ -383,7 +383,7 @@ export function isTautology(formula: Formula): boolean {
  */
 export function isContradiction(formula: Formula): boolean {
   const table = generateTruthTable(formula);
-  return table.every(row => !row.result);
+  return table.every((row) => !row.result);
 }
 
 /**
@@ -391,7 +391,7 @@ export function isContradiction(formula: Formula): boolean {
  */
 export function isSatisfiable(formula: Formula): boolean {
   const table = generateTruthTable(formula);
-  return table.some(row => row.result);
+  return table.some((row) => row.result);
 }
 
 /**
@@ -407,7 +407,15 @@ export function isEquivalent(f1: Formula, f2: Formula): boolean {
 export function toString(formula: Formula, unicode = true): string {
   const symbols = unicode
     ? { not: '¬', and: '∧', or: '∨', implies: '→', iff: '↔', forall: '∀', exists: '∃' }
-    : { not: '~', and: '&', or: '|', implies: '->', iff: '<->', forall: 'FORALL', exists: 'EXISTS' };
+    : {
+        not: '~',
+        and: '&',
+        or: '|',
+        implies: '->',
+        iff: '<->',
+        forall: 'FORALL',
+        exists: 'EXISTS',
+      };
 
   function termToString(term: Term): string {
     switch (term.type) {
@@ -587,9 +595,7 @@ export function parse(input: string): Formula {
 
       const scope = parseExpression();
       const quantifier =
-        tok === 'forall' || tok === '∀'
-          ? LogicalOperator.FORALL
-          : LogicalOperator.EXISTS;
+        tok === 'forall' || tok === '∀' ? LogicalOperator.FORALL : LogicalOperator.EXISTS;
       return { type: 'quantified', quantifier, variable: varTok, scope };
     }
 
@@ -792,15 +798,51 @@ function tokenize(input: string): string[] {
     const cp = input.codePointAt(i);
     const cpLen = cp !== undefined && cp > 0xffff ? 2 : 1;
 
-    if (char === '∧') { tokens.push('∧'); i += cpLen; continue; }
-    if (char === '∨') { tokens.push('∨'); i += cpLen; continue; }
-    if (char === '¬') { tokens.push('¬'); i += cpLen; continue; }
-    if (char === '→') { tokens.push('→'); i += cpLen; continue; }
-    if (char === '↔') { tokens.push('↔'); i += cpLen; continue; }
-    if (char === '∀') { tokens.push('∀'); i += cpLen; continue; }
-    if (char === '∃') { tokens.push('∃'); i += cpLen; continue; }
-    if (char === '⊤') { tokens.push('⊤'); i += cpLen; continue; }
-    if (char === '⊥') { tokens.push('⊥'); i += cpLen; continue; }
+    if (char === '∧') {
+      tokens.push('∧');
+      i += cpLen;
+      continue;
+    }
+    if (char === '∨') {
+      tokens.push('∨');
+      i += cpLen;
+      continue;
+    }
+    if (char === '¬') {
+      tokens.push('¬');
+      i += cpLen;
+      continue;
+    }
+    if (char === '→') {
+      tokens.push('→');
+      i += cpLen;
+      continue;
+    }
+    if (char === '↔') {
+      tokens.push('↔');
+      i += cpLen;
+      continue;
+    }
+    if (char === '∀') {
+      tokens.push('∀');
+      i += cpLen;
+      continue;
+    }
+    if (char === '∃') {
+      tokens.push('∃');
+      i += cpLen;
+      continue;
+    }
+    if (char === '⊤') {
+      tokens.push('⊤');
+      i += cpLen;
+      continue;
+    }
+    if (char === '⊥') {
+      tokens.push('⊥');
+      i += cpLen;
+      continue;
+    }
 
     // ---- Single-character punctuation and operators ----
     if (char !== undefined) {

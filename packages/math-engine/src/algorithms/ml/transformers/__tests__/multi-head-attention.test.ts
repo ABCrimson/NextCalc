@@ -8,17 +8,17 @@
  * - Attention statistics and diversity
  */
 
-import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
+import { describe, expect, it } from 'vitest';
 import {
-  multiHeadAttention,
-  initializeMultiHeadWeights,
-  multiHeadSelfAttention,
-  multiHeadCrossAttention,
-  maskedMultiHeadAttention,
   computeAttentionStats,
-  type MultiHeadAttentionConfig,
+  initializeMultiHeadWeights,
   type Matrix,
+  type MultiHeadAttentionConfig,
+  maskedMultiHeadAttention,
+  multiHeadAttention,
+  multiHeadCrossAttention,
+  multiHeadSelfAttention,
 } from '../multi-head-attention';
 
 describe('Multi-Head Attention', () => {
@@ -32,7 +32,7 @@ describe('Multi-Head Attention', () => {
       const weights = initializeMultiHeadWeights(config);
 
       const queries: Matrix = Array.from({ length: seqLen }, () =>
-        Array.from({ length: modelDim }, () => Math.random())
+        Array.from({ length: modelDim }, () => Math.random()),
       );
       const keys: Matrix = [...queries];
       const values: Matrix = [...queries];
@@ -53,7 +53,7 @@ describe('Multi-Head Attention', () => {
       const values: Matrix = [...queries];
 
       expect(() => multiHeadAttention(queries, keys, values, weights, config)).toThrow(
-        'Model dimension 13 must be divisible by number of heads 4'
+        'Model dimension 13 must be divisible by number of heads 4',
       );
     });
 
@@ -85,14 +85,14 @@ describe('Multi-Head Attention', () => {
               modelDim: fc.constant(d),
               numHeads: fc.constantFrom(...[1, 2, 4].filter((h) => d % h === 0)),
               seqLen: fc.integer({ min: 1, max: 5 }),
-            })
+            }),
           ),
           ({ modelDim, numHeads, seqLen }) => {
             const config: MultiHeadAttentionConfig = { modelDim, numHeads };
             const weights = initializeMultiHeadWeights(config);
 
             const queries: Matrix = Array.from({ length: seqLen }, () =>
-              Array.from({ length: modelDim }, () => Math.random())
+              Array.from({ length: modelDim }, () => Math.random()),
             );
             const keys: Matrix = [...queries];
             const values: Matrix = [...queries];
@@ -101,9 +101,9 @@ describe('Multi-Head Attention', () => {
 
             expect(result.output).toHaveLength(seqLen);
             expect(result.output[0]).toHaveLength(modelDim);
-          }
+          },
         ),
-        { numRuns: 30 }
+        { numRuns: 30 },
       );
     });
 
@@ -173,7 +173,7 @@ describe('Multi-Head Attention', () => {
       const weights = initializeMultiHeadWeights(config);
 
       const input: Matrix = Array.from({ length: seqLen }, () =>
-        Array.from({ length: modelDim }, () => Math.random())
+        Array.from({ length: modelDim }, () => Math.random()),
       );
 
       const result = multiHeadSelfAttention(input, weights, config);
@@ -270,7 +270,7 @@ describe('Multi-Head Attention', () => {
       const weights = initializeMultiHeadWeights(config);
 
       const queries: Matrix = Array.from({ length: seqLen }, () =>
-        Array.from({ length: modelDim }, () => Math.random())
+        Array.from({ length: modelDim }, () => Math.random()),
       );
       const keys: Matrix = [...queries];
       const values: Matrix = [...queries];
@@ -294,7 +294,7 @@ describe('Multi-Head Attention', () => {
 
       const seqLen = 3;
       const queries: Matrix = Array.from({ length: seqLen }, () =>
-        Array.from({ length: 8 }, () => Math.random())
+        Array.from({ length: 8 }, () => Math.random()),
       );
       const keys: Matrix = [...queries];
       const values: Matrix = [...queries];
@@ -326,10 +326,7 @@ describe('Multi-Head Attention', () => {
     });
 
     it('should compute maximum attention weight per head', () => {
-      const headWeights: Matrix[] = [
-        [[0.7, 0.3]],
-        [[0.2, 0.8]],
-      ];
+      const headWeights: Matrix[] = [[[0.7, 0.3]], [[0.2, 0.8]]];
 
       const stats = computeAttentionStats(headWeights);
 
@@ -340,19 +337,13 @@ describe('Multi-Head Attention', () => {
 
     it('should measure head diversity', () => {
       // Similar heads: low diversity
-      const similarHeads: Matrix[] = [
-        [[0.5, 0.5]],
-        [[0.5, 0.5]],
-      ];
+      const similarHeads: Matrix[] = [[[0.5, 0.5]], [[0.5, 0.5]]];
 
       const similarStats = computeAttentionStats(similarHeads);
       expect(similarStats.headDiversity).toBeCloseTo(0, 1);
 
       // Different heads: higher diversity
-      const differentHeads: Matrix[] = [
-        [[1.0, 0.0]],
-        [[0.0, 1.0]],
-      ];
+      const differentHeads: Matrix[] = [[[1.0, 0.0]], [[0.0, 1.0]]];
 
       const differentStats = computeAttentionStats(differentHeads);
       expect(differentStats.headDiversity).toBeGreaterThan(similarStats.headDiversity);
@@ -377,7 +368,7 @@ describe('Multi-Head Attention', () => {
       const weights = initializeMultiHeadWeights(config);
 
       const input: Matrix = Array.from({ length: seqLen }, () =>
-        Array.from({ length: modelDim }, () => Math.random())
+        Array.from({ length: modelDim }, () => Math.random()),
       );
 
       const startTime = performance.now();
@@ -416,7 +407,7 @@ describe('Multi-Head Attention', () => {
             fc.record({
               modelDim: fc.constant(d),
               numHeads: fc.constantFrom(...[1, 2, 4].filter((h) => d % h === 0)),
-            })
+            }),
           ),
           ({ modelDim, numHeads }) => {
             const config: MultiHeadAttentionConfig = { modelDim, numHeads };
@@ -431,9 +422,9 @@ describe('Multi-Head Attention', () => {
 
             // Number of heads should match
             expect(result.headWeights).toHaveLength(numHeads);
-          }
+          },
         ),
-        { numRuns: 20 }
+        { numRuns: 20 },
       );
     });
   });

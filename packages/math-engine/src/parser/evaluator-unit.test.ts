@@ -5,7 +5,7 @@
  * variable bindings, and error handling.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { evaluate } from './evaluator';
 
 // ---------------------------------------------------------------------------
@@ -538,7 +538,7 @@ describe('Evaluator - Mathematical Identities', () => {
   });
 
   it('power identity: (a^m)^n = a^(m*n)', () => {
-    expectValue('(2^3)^4', Math.pow(2, 12));
+    expectValue('(2^3)^4', 2 ** 12);
   });
 
   it('double angle: sin(2x) = 2*sin(x)*cos(x)', () => {

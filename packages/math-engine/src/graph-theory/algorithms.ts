@@ -447,7 +447,7 @@ export function tarjanSCC(graph: Graph): SCCResult {
   // Create component map
   const componentMap = new Map<number, number>();
   components.forEach((component, idx) => {
-    component.forEach(v => componentMap.set(v, idx));
+    component.forEach((v) => componentMap.set(v, idx));
   });
 
   return {
@@ -520,7 +520,7 @@ export function kosarajuSCC(graph: Graph): SCCResult {
   // Create component map
   const componentMap = new Map<number, number>();
   components.forEach((component, idx) => {
-    component.forEach(v => componentMap.set(v, idx));
+    component.forEach((v) => componentMap.set(v, idx));
   });
 
   return {
@@ -819,10 +819,7 @@ export function maxFlow(graph: Graph, source: number, sink: number): MaxFlowResu
  * const tour = tsp(graph, 'nearest');
  * console.log(`Tour distance: ${tour.distance}`);
  */
-export function tsp(
-  graph: Graph,
-  heuristic: 'greedy' | 'nearest' = 'nearest'
-): TSPResult {
+export function tsp(graph: Graph, heuristic: 'greedy' | 'nearest' = 'nearest'): TSPResult {
   const { vertices } = graph;
 
   if (vertices <= 1) {
@@ -1049,9 +1046,7 @@ function buildAdjacencyList(graph: Graph): AdjacencyList {
  */
 function buildDistanceMatrix(graph: Graph): number[][] {
   const { vertices } = graph;
-  const dist: number[][] = Array.from({ length: vertices }, () =>
-    Array(vertices).fill(Infinity)
-  );
+  const dist: number[][] = Array.from({ length: vertices }, () => Array(vertices).fill(Infinity));
 
   // Distance to self is 0
   for (let i = 0; i < vertices; i++) {
@@ -1074,7 +1069,7 @@ function buildDistanceMatrix(graph: Graph): number[][] {
  */
 function transposeGraph(graph: Graph): Graph {
   const transposedEdges = graph.edges.map(
-    ([u, v, w]) => [v, u, w] as readonly [number, number, number]
+    ([u, v, w]) => [v, u, w] as readonly [number, number, number],
   );
 
   return {
@@ -1091,7 +1086,7 @@ function areConnected(
   u: number,
   v: number,
   adj: Map<number, number[]>,
-  visited: Set<number>
+  visited: Set<number>,
 ): boolean {
   if (u === v) return true;
   if (visited.has(u)) return false;

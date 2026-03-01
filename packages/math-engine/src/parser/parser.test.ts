@@ -2,9 +2,9 @@
  * Parser tests
  */
 
-import { describe, it, expect } from 'vitest';
-import { parse, isValidExpression, extractVariables } from './parser';
-import { NodeType, type OperatorNode, type FunctionNode } from './ast';
+import { describe, expect, it } from 'vitest';
+import { type FunctionNode, NodeType, type OperatorNode } from './ast';
+import { extractVariables, isValidExpression, parse } from './parser';
 
 describe('Parser', () => {
   describe('parse', () => {

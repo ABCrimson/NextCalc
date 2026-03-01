@@ -14,22 +14,22 @@
  * @module graph-theory/algorithms.test
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  kruskal,
-  prim,
-  topologicalSort,
-  topologicalSortKahn,
-  tarjanSCC,
-  kosarajuSCC,
+  type Graph,
   graphColoring,
-  isBipartite,
-  maxFlow,
-  tsp,
   hasCycleDirected,
   hasCycleUndirected,
-  type Graph,
+  isBipartite,
+  kosarajuSCC,
+  kruskal,
   type MST,
+  maxFlow,
+  prim,
+  tarjanSCC,
+  topologicalSort,
+  topologicalSortKahn,
+  tsp,
 } from './algorithms';
 
 // ============================================================================
@@ -168,7 +168,7 @@ describe('Kruskal Algorithm', () => {
 
   it('should select minimum weight edges', () => {
     const mst = kruskal(simpleGraph);
-    const weights = mst.edges.map(e => e[2]);
+    const weights = mst.edges.map((e) => e[2]);
 
     // Should include edges with weights 4, 5, 10 (not 6 or 15)
     expect(weights).toContain(4);
@@ -319,7 +319,10 @@ describe('Tarjan SCC', () => {
   it('should identify single-vertex components', () => {
     const graph: Graph = {
       vertices: 3,
-      edges: [[0, 1, 1], [1, 2, 1]],
+      edges: [
+        [0, 1, 1],
+        [1, 2, 1],
+      ],
       directed: true,
     };
 
@@ -362,8 +365,8 @@ describe('Kosaraju SCC', () => {
     expect(kosarajuResult.count).toBe(tarjanResult.count);
 
     // Components may be in different order, but should match
-    const tarjanSizes = tarjanResult.components.map(c => c.length).sort();
-    const kosarajuSizes = kosarajuResult.components.map(c => c.length).sort();
+    const tarjanSizes = tarjanResult.components.map((c) => c.length).sort();
+    const kosarajuSizes = kosarajuResult.components.map((c) => c.length).sort();
 
     expect(kosarajuSizes).toEqual(tarjanSizes);
   });
@@ -411,8 +414,11 @@ describe('Graph Coloring', () => {
     const graph: Graph = {
       vertices: 4,
       edges: [
-        [0, 1, 1], [0, 2, 1], [0, 3, 1],
-        [1, 2, 1], [1, 3, 1],
+        [0, 1, 1],
+        [0, 2, 1],
+        [0, 3, 1],
+        [1, 2, 1],
+        [1, 3, 1],
         [2, 3, 1],
       ],
     };
@@ -455,8 +461,11 @@ describe('Bipartite Detection', () => {
     const graph: Graph = {
       vertices: 6,
       edges: [
-        [0, 1, 1], [1, 2, 1], // Bipartite component
-        [3, 4, 1], [4, 5, 1], [5, 3, 1], // Triangle (not bipartite)
+        [0, 1, 1],
+        [1, 2, 1], // Bipartite component
+        [3, 4, 1],
+        [4, 5, 1],
+        [5, 3, 1], // Triangle (not bipartite)
       ],
     };
 
@@ -497,7 +506,7 @@ describe('Maximum Flow (Ford-Fulkerson)', () => {
     // Min cut capacity should equal max flow
     let cutCapacity = 0;
     for (const [u, v] of result.minCut) {
-      const edge = flowGraph.edges.find(e => e[0] === u && e[1] === v);
+      const edge = flowGraph.edges.find((e) => e[0] === u && e[1] === v);
       if (edge) cutCapacity += edge[2];
     }
 

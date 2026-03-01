@@ -8,21 +8,21 @@
  * - Residual connections
  */
 
-import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
+import { describe, expect, it } from 'vitest';
+import { initializeMultiHeadWeights } from '../multi-head-attention';
 import {
-  feedForwardNetwork,
-  layerNorm,
-  transformerEncoderBlock,
-  transformerDecoderBlock,
-  initializeEncoderWeights,
-  type Matrix,
+  type EncoderBlockConfig,
   type FFNConfig,
   type FFNWeights,
+  feedForwardNetwork,
+  initializeEncoderWeights,
   type LayerNormParams,
-  type EncoderBlockConfig,
+  layerNorm,
+  type Matrix,
+  transformerDecoderBlock,
+  transformerEncoderBlock,
 } from '../transformer-block';
-import { initializeMultiHeadWeights } from '../multi-head-attention';
 
 describe('Transformer Block', () => {
   describe('feedForwardNetwork', () => {
@@ -82,16 +82,16 @@ describe('Transformer Block', () => {
       const hiddenDim = 8;
 
       const input: Matrix = Array.from({ length: seqLen }, () =>
-        Array.from({ length: modelDim }, () => Math.random())
+        Array.from({ length: modelDim }, () => Math.random()),
       );
 
       const weights: FFNWeights = {
         w1: Array.from({ length: modelDim }, () =>
-          Array.from({ length: hiddenDim }, () => Math.random())
+          Array.from({ length: hiddenDim }, () => Math.random()),
         ),
         b1: Array.from({ length: hiddenDim }, () => 0),
         w2: Array.from({ length: hiddenDim }, () =>
-          Array.from({ length: modelDim }, () => Math.random())
+          Array.from({ length: modelDim }, () => Math.random()),
         ),
         b2: Array.from({ length: modelDim }, () => 0),
       };
@@ -109,7 +109,10 @@ describe('Transformer Block', () => {
       const weights: FFNWeights = {
         w1: Array.from({ length: 4 }, () => [1, 1]),
         b1: [0, 0],
-        w2: [[1, 0, 0, 0], [0, 1, 0, 0]],
+        w2: [
+          [1, 0, 0, 0],
+          [0, 1, 0, 0],
+        ],
         b2: [0, 0, 0, 0],
       };
 
@@ -182,9 +185,9 @@ describe('Transformer Block', () => {
             const mean = result[0]!.reduce((s, v) => s + v, 0) / dim;
 
             expect(mean).toBeCloseTo(0, 4);
-          }
+          },
         ),
-        { numRuns: 50 }
+        { numRuns: 50 },
       );
     });
 
@@ -266,7 +269,7 @@ describe('Transformer Block', () => {
       };
 
       const input: Matrix = Array.from({ length: seqLen }, () =>
-        Array.from({ length: modelDim }, () => Math.random())
+        Array.from({ length: modelDim }, () => Math.random()),
       );
 
       const result = transformerEncoderBlock(input, weights, config);
@@ -310,7 +313,7 @@ describe('Transformer Block', () => {
       };
 
       const input: Matrix = Array.from({ length: 3 }, () =>
-        Array.from({ length: 8 }, () => Math.random() * 10)
+        Array.from({ length: 8 }, () => Math.random() * 10),
       );
 
       const result = transformerEncoderBlock(input, weights, config);
@@ -340,11 +343,11 @@ describe('Transformer Block', () => {
         crossAttention,
         ffn: {
           w1: Array.from({ length: modelDim }, () =>
-            Array.from({ length: ffnHiddenDim }, () => Math.random() * 0.1)
+            Array.from({ length: ffnHiddenDim }, () => Math.random() * 0.1),
           ),
           b1: Array(ffnHiddenDim).fill(0),
           w2: Array.from({ length: ffnHiddenDim }, () =>
-            Array.from({ length: modelDim }, () => Math.random() * 0.1)
+            Array.from({ length: modelDim }, () => Math.random() * 0.1),
           ),
           b2: Array(modelDim).fill(0),
         },
@@ -490,7 +493,7 @@ describe('Transformer Block', () => {
       };
 
       const input: Matrix = Array.from({ length: 10 }, () =>
-        Array.from({ length: 64 }, () => Math.random())
+        Array.from({ length: 64 }, () => Math.random()),
       );
 
       const startTime = performance.now();
@@ -521,16 +524,16 @@ describe('Transformer Block', () => {
             };
 
             const input: Matrix = Array.from({ length: seqLen }, () =>
-              Array.from({ length: modelDim }, () => Math.random())
+              Array.from({ length: modelDim }, () => Math.random()),
             );
 
             const result = transformerEncoderBlock(input, weights, config);
 
             expect(result).toHaveLength(seqLen);
             expect(result[0]).toHaveLength(modelDim);
-          }
+          },
         ),
-        { numRuns: 20 }
+        { numRuns: 20 },
       );
     });
   });

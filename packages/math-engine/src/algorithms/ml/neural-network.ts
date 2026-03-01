@@ -312,13 +312,13 @@ export class NeuralNetwork {
   private backward(
     activations: ReadonlyArray<Vector>,
     target: Vector,
-    lambda = 0
+    lambda = 0,
   ): {
     readonly weightGradients: number[][][];
     readonly biasGradients: number[][];
   } {
     const weightGradients: number[][][] = this.weights.map((layer) =>
-      layer.map((neuron) => neuron.map(() => 0))
+      layer.map((neuron) => neuron.map(() => 0)),
     );
     const biasGradients: number[][] = this.biases.map((layer) => layer.map(() => 0));
 
@@ -422,7 +422,7 @@ export class NeuralNetwork {
 
         // Accumulate gradients over batch
         const accWeightGrad: number[][][] = this.weights.map((layer) =>
-          layer.map((neuron) => neuron.map(() => 0))
+          layer.map((neuron) => neuron.map(() => 0)),
         );
         const accBiasGrad: number[][] = this.biases.map((layer) => layer.map(() => 0));
 
@@ -431,7 +431,7 @@ export class NeuralNetwork {
           const { weightGradients, biasGradients } = this.backward(
             activations,
             sample.target,
-            lambda
+            lambda,
           );
 
           // Accumulate gradients
@@ -493,7 +493,8 @@ export class NeuralNetwork {
             for (let k = 0; k < neuronWeights.length; k++) {
               const grad = neuronGrad[k];
               if (grad !== undefined) {
-                neuronWeights[k] = (neuronWeights[k] ?? 0) - (learningRate * grad) / batchSizeActual;
+                neuronWeights[k] =
+                  (neuronWeights[k] ?? 0) - (learningRate * grad) / batchSizeActual;
               }
             }
           }

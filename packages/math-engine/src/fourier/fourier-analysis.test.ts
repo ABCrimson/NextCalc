@@ -12,23 +12,23 @@
  * @module fourier/fourier-analysis.test
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  fft,
-  ifft,
-  dft,
-  idft,
-  fourierSeries,
   applyWindow,
-  powerSpectralDensity,
-  findDominantFrequencies,
-  toDecibels,
-  zeroPad,
   autocorrelation,
+  type Complex,
+  dft,
+  fft,
+  findDominantFrequencies,
+  fourierSeries,
+  idft,
+  ifft,
   magnitude,
   phase,
-  type Complex,
+  powerSpectralDensity,
+  toDecibels,
   type WindowFunction,
+  zeroPad,
 } from './fourier-analysis';
 
 // ============================================================================
@@ -55,7 +55,9 @@ function arraysApproxEqual(a: number[], b: number[], tolerance = 1e-10): boolean
  */
 function generateSine(frequency: number, sampleRate: number, duration: number): number[] {
   const samples = Math.floor(sampleRate * duration);
-  return Array.from({ length: samples }, (_, i) => Math.sin(2 * Math.PI * frequency * i / sampleRate));
+  return Array.from({ length: samples }, (_, i) =>
+    Math.sin((2 * Math.PI * frequency * i) / sampleRate),
+  );
 }
 
 /**
@@ -63,7 +65,9 @@ function generateSine(frequency: number, sampleRate: number, duration: number): 
  */
 function generateCosine(frequency: number, sampleRate: number, duration: number): number[] {
   const samples = Math.floor(sampleRate * duration);
-  return Array.from({ length: samples }, (_, i) => Math.cos(2 * Math.PI * frequency * i / sampleRate));
+  return Array.from({ length: samples }, (_, i) =>
+    Math.cos((2 * Math.PI * frequency * i) / sampleRate),
+  );
 }
 
 // ============================================================================
@@ -86,7 +90,7 @@ describe('Fast Fourier Transform (FFT)', () => {
     const result = fft(signal);
 
     // All frequency components should have magnitude 1
-    expect(result.magnitude.every(m => approxEqual(m, 1))).toBe(true);
+    expect(result.magnitude.every((m) => approxEqual(m, 1))).toBe(true);
   });
 
   it('should compute FFT of single frequency sine wave', () => {
@@ -110,9 +114,11 @@ describe('Fast Fourier Transform (FFT)', () => {
     const samples = 1024;
 
     // Signal with 50Hz and 120Hz components
-    const signal = Array.from({ length: samples }, (_, i) =>
-      Math.sin(2 * Math.PI * 50 * i / sampleRate) +
-      0.5 * Math.sin(2 * Math.PI * 120 * i / sampleRate)
+    const signal = Array.from(
+      { length: samples },
+      (_, i) =>
+        Math.sin((2 * Math.PI * 50 * i) / sampleRate) +
+        0.5 * Math.sin((2 * Math.PI * 120 * i) / sampleRate),
     );
 
     const result = fft(signal, sampleRate);
@@ -152,9 +158,7 @@ describe('Fast Fourier Transform (FFT)', () => {
 
     // Verify magnitude = sqrt(real² + imag²)
     for (let i = 0; i < result.magnitude.length; i++) {
-      const expectedMag = Math.sqrt(
-        result.real[i]! ** 2 + result.imag[i]! ** 2
-      );
+      const expectedMag = Math.sqrt(result.real[i]! ** 2 + result.imag[i]! ** 2);
       expect(result.magnitude[i]).toBeCloseTo(expectedMag, 10);
     }
   });
@@ -255,7 +259,7 @@ describe('Discrete Fourier Transform (DFT)', () => {
 
 describe('Fourier Series Expansion', () => {
   it('should approximate square wave', () => {
-    const squareWave = (x: number) => Math.sin(x) >= 0 ? 1 : -1;
+    const squareWave = (x: number) => (Math.sin(x) >= 0 ? 1 : -1);
     const series = fourierSeries(squareWave, {
       period: 2 * Math.PI,
       terms: 50,
@@ -266,7 +270,7 @@ describe('Fourier Series Expansion', () => {
     expect(Math.abs(series.a0)).toBeLessThan(0.1);
 
     // All an should be ~0 (odd function)
-    expect(series.an.every(a => Math.abs(a) < 0.1)).toBe(true);
+    expect(series.an.every((a) => Math.abs(a) < 0.1)).toBe(true);
 
     // Odd bn should dominate (b1, b3, b5, ...)
     expect(Math.abs(series.bn[0] ?? 0)).toBeGreaterThan(1); // b1
@@ -287,7 +291,7 @@ describe('Fourier Series Expansion', () => {
 
     // Should have non-zero coefficients
     expect(Math.abs(series.a0)).toBeGreaterThan(0.4);
-    expect(series.bn.some(b => Math.abs(b) > 0.1)).toBe(true);
+    expect(series.bn.some((b) => Math.abs(b) > 0.1)).toBe(true);
   });
 
   it('should approximate constant function', () => {
@@ -298,8 +302,8 @@ describe('Fourier Series Expansion', () => {
     });
 
     expect(series.a0).toBeCloseTo(10, 1); // a0 = 2 * average
-    expect(series.an.every(a => Math.abs(a) < 0.1)).toBe(true);
-    expect(series.bn.every(b => Math.abs(b) < 0.1)).toBe(true);
+    expect(series.an.every((a) => Math.abs(a) < 0.1)).toBe(true);
+    expect(series.bn.every((b) => Math.abs(b) < 0.1)).toBe(true);
 
     expect(series.reconstruct(0)).toBeCloseTo(5, 1);
     expect(series.reconstruct(Math.PI)).toBeCloseTo(5, 1);
@@ -330,7 +334,7 @@ describe('Fourier Series Expansion', () => {
 describe('Window Functions', () => {
   const windowTypes: WindowFunction[] = ['rectangular', 'hamming', 'hann', 'blackman', 'bartlett'];
 
-  windowTypes.forEach(windowType => {
+  windowTypes.forEach((windowType) => {
     it(`should apply ${windowType} window`, () => {
       const signal = new Array(100).fill(1);
       const windowed = applyWindow(signal, windowType);
@@ -358,19 +362,19 @@ describe('Window Functions', () => {
 
     // Windowed signal should have less energy in side lobes
     const halfN = Math.floor(samples / 2);
-    const mainLobeIdx = Math.round(10.5 * samples / sampleRate);
+    const mainLobeIdx = Math.round((10.5 * samples) / sampleRate);
 
     // Count significant bins (>10% of peak)
     const unwinnowedPeak = Math.max(...unwinnowed.magnitude.slice(0, halfN));
     const winnowedPeak = Math.max(...winnowedFFT.magnitude.slice(0, halfN));
 
-    const unwinnowedSideBins = unwinnowed.magnitude.slice(0, halfN).filter(
-      (m, i) => Math.abs(i - mainLobeIdx) > 2 && m > 0.1 * unwinnowedPeak
-    ).length;
+    const unwinnowedSideBins = unwinnowed.magnitude
+      .slice(0, halfN)
+      .filter((m, i) => Math.abs(i - mainLobeIdx) > 2 && m > 0.1 * unwinnowedPeak).length;
 
-    const winnowedSideBins = winnowedFFT.magnitude.slice(0, halfN).filter(
-      (m, i) => Math.abs(i - mainLobeIdx) > 2 && m > 0.1 * winnowedPeak
-    ).length;
+    const winnowedSideBins = winnowedFFT.magnitude
+      .slice(0, halfN)
+      .filter((m, i) => Math.abs(i - mainLobeIdx) > 2 && m > 0.1 * winnowedPeak).length;
 
     expect(winnowedSideBins).toBeLessThanOrEqual(unwinnowedSideBins);
   });
@@ -417,9 +421,11 @@ describe('Power Spectral Density', () => {
 describe('Dominant Frequency Detection', () => {
   it('should find dominant frequencies', () => {
     const sampleRate = 1000;
-    const signal = Array.from({ length: 1024 }, (_, i) =>
-      Math.sin(2 * Math.PI * 50 * i / sampleRate) +
-      0.5 * Math.sin(2 * Math.PI * 150 * i / sampleRate)
+    const signal = Array.from(
+      { length: 1024 },
+      (_, i) =>
+        Math.sin((2 * Math.PI * 50 * i) / sampleRate) +
+        0.5 * Math.sin((2 * Math.PI * 150 * i) / sampleRate),
     );
 
     const peaks = findDominantFrequencies(signal, sampleRate, 3);
@@ -431,10 +437,12 @@ describe('Dominant Frequency Detection', () => {
 
   it('should sort by magnitude', () => {
     const sampleRate = 1000;
-    const signal = Array.from({ length: 1024 }, (_, i) =>
-      0.3 * Math.sin(2 * Math.PI * 30 * i / sampleRate) +
-      Math.sin(2 * Math.PI * 60 * i / sampleRate) +
-      0.5 * Math.sin(2 * Math.PI * 90 * i / sampleRate)
+    const signal = Array.from(
+      { length: 1024 },
+      (_, i) =>
+        0.3 * Math.sin((2 * Math.PI * 30 * i) / sampleRate) +
+        Math.sin((2 * Math.PI * 60 * i) / sampleRate) +
+        0.5 * Math.sin((2 * Math.PI * 90 * i) / sampleRate),
     );
 
     const peaks = findDominantFrequencies(signal, sampleRate, 5);
@@ -533,21 +541,21 @@ describe('Edge Cases and Numerical Stability', () => {
     const signal = new Array(16).fill(0);
     const result = fft(signal);
 
-    expect(result.magnitude.every(m => approxEqual(m, 0))).toBe(true);
+    expect(result.magnitude.every((m) => approxEqual(m, 0))).toBe(true);
   });
 
   it('should handle very small values', () => {
     const signal = new Array(64).fill(1e-10);
     const result = fft(signal);
 
-    expect(result.magnitude.every(m => !Number.isNaN(m))).toBe(true);
+    expect(result.magnitude.every((m) => !Number.isNaN(m))).toBe(true);
   });
 
   it('should handle very large values', () => {
     const signal = new Array(64).fill(1e10);
     const result = fft(signal);
 
-    expect(result.magnitude.every(m => Number.isFinite(m))).toBe(true);
+    expect(result.magnitude.every((m) => Number.isFinite(m))).toBe(true);
   });
 
   it('should preserve numerical precision', () => {
@@ -556,6 +564,6 @@ describe('Edge Cases and Numerical Stability', () => {
     const result = fft(signal);
 
     // FFT of impulse should be all 1s
-    expect(result.magnitude.every(m => approxEqual(m, 1, 1e-12))).toBe(true);
+    expect(result.magnitude.every((m) => approxEqual(m, 1, 1e-12))).toBe(true);
   });
 });

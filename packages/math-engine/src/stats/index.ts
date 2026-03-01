@@ -11,36 +11,34 @@
  * @module stats
  */
 
+// Correlation and covariance
+export {
+  correlation,
+  covariance,
+  rSquared,
+  spearmanCorrelation,
+} from './correlation';
 // Descriptive statistics
 export {
   mean,
   median,
   mode,
-  variance,
-  stdDev,
-  range,
-  quartiles,
-  sum,
   product,
-  type RangeResult,
   type QuartileResult,
+  quartiles,
+  type RangeResult,
+  range,
+  stdDev,
+  sum,
+  variance,
 } from './descriptive';
-
 // Regression analysis
 export {
-  linearRegression,
-  polynomialRegression,
-  exponentialRegression,
-  predict,
-  type LinearRegressionResult,
-  type PolynomialRegressionResult,
   type ExponentialRegressionResult,
+  exponentialRegression,
+  type LinearRegressionResult,
+  linearRegression,
+  type PolynomialRegressionResult,
+  polynomialRegression,
+  predict,
 } from './regression';
-
-// Correlation and covariance
-export {
-  correlation,
-  covariance,
-  spearmanCorrelation,
-  rSquared,
-} from './correlation';

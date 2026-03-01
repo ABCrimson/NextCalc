@@ -8,12 +8,12 @@
 
 import {
   createConstantNode,
-  createSymbolNode,
-  createOperatorNode,
   createFunctionNode,
+  createOperatorNode,
+  createSymbolNode,
 } from '../parser/ast';
 import { limit } from './limits';
-import { taylorSeries, maclaurinSeries, getKnownSeries } from './series';
+import { getKnownSeries, maclaurinSeries, taylorSeries } from './series';
 import { simplifyAdvanced } from './simplify-advanced';
 
 // ============================================================================
@@ -28,14 +28,8 @@ export function exampleLimitDirect() {
   // Build: x² + 3x + 1
   const expr = createOperatorNode('+', 'add', [
     createOperatorNode('+', 'add', [
-      createOperatorNode('^', 'pow', [
-        createSymbolNode('x'),
-        createConstantNode(2),
-      ]),
-      createOperatorNode('*', 'multiply', [
-        createConstantNode(3),
-        createSymbolNode('x'),
-      ]),
+      createOperatorNode('^', 'pow', [createSymbolNode('x'), createConstantNode(2)]),
+      createOperatorNode('*', 'multiply', [createConstantNode(3), createSymbolNode('x')]),
     ]),
     createConstantNode(1),
   ]);
@@ -83,10 +77,7 @@ export function exampleLimitLHopital() {
       createConstantNode(1),
       createFunctionNode('cos', [createSymbolNode('x')]),
     ]),
-    createOperatorNode('^', 'pow', [
-      createSymbolNode('x'),
-      createConstantNode(2),
-    ]),
+    createOperatorNode('^', 'pow', [createSymbolNode('x'), createConstantNode(2)]),
   ]);
 
   const result = limit(expr, 'x', {
@@ -111,10 +102,7 @@ export function exampleLimitAtInfinity() {
   const expr = createOperatorNode('^', 'pow', [
     createOperatorNode('+', 'add', [
       createConstantNode(1),
-      createOperatorNode('/', 'divide', [
-        createConstantNode(1),
-        createSymbolNode('x'),
-      ]),
+      createOperatorNode('/', 'divide', [createConstantNode(1), createSymbolNode('x')]),
     ]),
     createSymbolNode('x'),
   ]);
@@ -133,10 +121,7 @@ export function exampleLimitAtInfinity() {
  * lim (x→0⁺) 1/x = ∞
  */
 export function exampleLimitOneSided() {
-  const expr = createOperatorNode('/', 'divide', [
-    createConstantNode(1),
-    createSymbolNode('x'),
-  ]);
+  const expr = createOperatorNode('/', 'divide', [createConstantNode(1), createSymbolNode('x')]);
 
   const leftLimit = limit(expr, 'x', {
     point: 0,
@@ -241,14 +226,8 @@ export function exampleSeriesPolynomial() {
   // Build: x² + 2x + 1 = (x+1)²
   const expr = createOperatorNode('+', 'add', [
     createOperatorNode('+', 'add', [
-      createOperatorNode('^', 'pow', [
-        createSymbolNode('x'),
-        createConstantNode(2),
-      ]),
-      createOperatorNode('*', 'multiply', [
-        createConstantNode(2),
-        createSymbolNode('x'),
-      ]),
+      createOperatorNode('^', 'pow', [createSymbolNode('x'), createConstantNode(2)]),
+      createOperatorNode('*', 'multiply', [createConstantNode(2), createSymbolNode('x')]),
     ]),
     createConstantNode(1),
   ]);
@@ -297,10 +276,7 @@ export function exampleSimplifyPythagorean() {
  */
 export function exampleSimplifyLogProduct() {
   const expr = createFunctionNode('log', [
-    createOperatorNode('*', 'multiply', [
-      createSymbolNode('x'),
-      createSymbolNode('y'),
-    ]),
+    createOperatorNode('*', 'multiply', [createSymbolNode('x'), createSymbolNode('y')]),
   ]);
 
   const result = simplifyAdvanced(expr);
@@ -318,10 +294,7 @@ export function exampleSimplifyLogProduct() {
  */
 export function exampleSimplifyLogPower() {
   const expr = createFunctionNode('log', [
-    createOperatorNode('^', 'pow', [
-      createSymbolNode('x'),
-      createConstantNode(3),
-    ]),
+    createOperatorNode('^', 'pow', [createSymbolNode('x'), createConstantNode(3)]),
   ]);
 
   const result = simplifyAdvanced(expr);
@@ -337,9 +310,7 @@ export function exampleSimplifyLogPower() {
  * exp(ln(x)) = x
  */
 export function exampleSimplifyExpLn() {
-  const expr = createFunctionNode('exp', [
-    createFunctionNode('ln', [createSymbolNode('x')]),
-  ]);
+  const expr = createFunctionNode('exp', [createFunctionNode('ln', [createSymbolNode('x')])]);
 
   const result = simplifyAdvanced(expr);
 
@@ -356,10 +327,7 @@ export function exampleSimplifyExpLn() {
  */
 export function exampleSimplifyRadical() {
   const expr = createFunctionNode('sqrt', [
-    createOperatorNode('^', 'pow', [
-      createSymbolNode('x'),
-      createConstantNode(2),
-    ]),
+    createOperatorNode('^', 'pow', [createSymbolNode('x'), createConstantNode(2)]),
   ]);
 
   const result = simplifyAdvanced(expr);
@@ -405,10 +373,7 @@ export function exampleSimplifyCombined() {
       ]),
     ]),
     createFunctionNode('log', [
-      createOperatorNode('^', 'pow', [
-        createConstantNode(Math.E),
-        createConstantNode(2),
-      ]),
+      createOperatorNode('^', 'pow', [createConstantNode(Math.E), createConstantNode(2)]),
     ]),
   ]);
 
@@ -446,7 +411,7 @@ export function exampleLimitViaSeries() {
       createSymbolNode('x'),
     ]),
     'x',
-    { point: 0 }
+    { point: 0 },
   );
 
   return {
@@ -474,10 +439,7 @@ export function exampleSimplifyThenLimit() {
         createConstantNode(2),
       ]),
     ]),
-    createOperatorNode('+', 'add', [
-      createSymbolNode('x'),
-      createConstantNode(1),
-    ]),
+    createOperatorNode('+', 'add', [createSymbolNode('x'), createConstantNode(1)]),
   ]);
 
   // First simplify (should become 1 * (x + 1) = x + 1)

@@ -3,10 +3,10 @@
  * Tests all expressions mentioned in the requirements
  */
 
-import { describe, it, expect } from 'vitest';
-import { parse } from './parser';
+import { describe, expect, it } from 'vitest';
+import { type FunctionNode, NodeType, type OperatorNode, type UnaryOperatorNode } from './ast';
 import { evaluate } from './evaluator';
-import { NodeType, type OperatorNode, type FunctionNode, type UnaryOperatorNode } from './ast';
+import { parse } from './parser';
 
 describe('Parser Verification - All Required Expressions', () => {
   describe('Critical failing expressions (now fixed)', () => {

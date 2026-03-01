@@ -9,24 +9,26 @@
  * - Few-shot learning scenarios
  */
 
-import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
+import { describe, expect, it } from 'vitest';
 import {
-  maml,
-  prototypicalNetworks,
-  matchingNetworks,
-  reptile,
   cosineSimilarity,
-  type Task,
-  type Parameters,
-  type ModelFunction,
   type LossFunction,
+  type ModelFunction,
+  maml,
+  matchingNetworks,
+  type Parameters,
+  prototypicalNetworks,
+  reptile,
+  type Task,
 } from '../meta-learning';
 
 describe('Meta-Learning Algorithms', () => {
   // Helper: Simple linear model
   const linearModel: ModelFunction = (input, params) => {
-    return [input.reduce((sum, x, i) => sum + x * (params[i] || 0), params[params.length - 1] || 0)];
+    return [
+      input.reduce((sum, x, i) => sum + x * (params[i] || 0), params[params.length - 1] || 0),
+    ];
   };
 
   // Helper: Mean squared error loss
@@ -37,19 +39,12 @@ describe('Meta-Learning Algorithms', () => {
   // Helper: Create simple task
   const createSimpleTask = (slope: number, intercept: number): Task => {
     const support = {
-      inputs: [
-        [1],
-        [2],
-        [3],
-      ],
+      inputs: [[1], [2], [3]],
       labels: [slope * 1 + intercept, slope * 2 + intercept, slope * 3 + intercept],
     };
 
     const query = {
-      inputs: [
-        [4],
-        [5],
-      ],
+      inputs: [[4], [5]],
       labels: [slope * 4 + intercept, slope * 5 + intercept],
     };
 
@@ -58,7 +53,11 @@ describe('Meta-Learning Algorithms', () => {
 
   describe('maml', () => {
     it('should meta-learn initialization for quick adaptation', () => {
-      const tasks: Task[] = [createSimpleTask(2, 1), createSimpleTask(3, -1), createSimpleTask(1, 2)];
+      const tasks: Task[] = [
+        createSimpleTask(2, 1),
+        createSimpleTask(3, -1),
+        createSimpleTask(1, 2),
+      ];
 
       const initialParams: Parameters = [0, 0]; // [slope, intercept]
 
@@ -130,7 +129,7 @@ describe('Meta-Learning Algorithms', () => {
 
           expect(metaParams).toHaveLength(paramDim);
         }),
-        { numRuns: 10 }
+        { numRuns: 10 },
       );
     });
   });
@@ -375,7 +374,7 @@ describe('Meta-Learning Algorithms', () => {
 
           expect(metaParams).toHaveLength(2);
         }),
-        { numRuns: 20 }
+        { numRuns: 20 },
       );
     });
   });
@@ -432,9 +431,9 @@ describe('Meta-Learning Algorithms', () => {
 
             expect(sim).toBeGreaterThanOrEqual(-1);
             expect(sim).toBeLessThanOrEqual(1);
-          }
+          },
         ),
-        { numRuns: 100 }
+        { numRuns: 100 },
       );
     });
   });
@@ -471,10 +470,9 @@ describe('Meta-Learning Algorithms', () => {
 
       const task: Task = {
         support: {
-          inputs: [
-            ...Array(5).fill([1, 0]),
-            ...Array(5).fill([0, 1]),
-          ].map((v) => v.map((x: number) => x + (Math.random() - 0.5) * 0.1)),
+          inputs: [...Array(5).fill([1, 0]), ...Array(5).fill([0, 1])].map((v) =>
+            v.map((x: number) => x + (Math.random() - 0.5) * 0.1),
+          ),
           labels: [...Array(5).fill(0), ...Array(5).fill(1)],
         },
         query: {
@@ -520,13 +518,21 @@ describe('Meta-Learning Algorithms', () => {
       const task: Task = {
         support: {
           inputs: [
-            Array(dim).fill(0).map((_, i) => (i === 0 ? 1 : 0)),
-            Array(dim).fill(0).map((_, i) => (i === 1 ? 1 : 0)),
+            Array(dim)
+              .fill(0)
+              .map((_, i) => (i === 0 ? 1 : 0)),
+            Array(dim)
+              .fill(0)
+              .map((_, i) => (i === 1 ? 1 : 0)),
           ],
           labels: [0, 1],
         },
         query: {
-          inputs: [Array(dim).fill(0).map((_, i) => (i === 0 ? 1 : 0))],
+          inputs: [
+            Array(dim)
+              .fill(0)
+              .map((_, i) => (i === 0 ? 1 : 0)),
+          ],
           labels: [0],
         },
       };

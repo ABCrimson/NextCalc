@@ -16,7 +16,7 @@ function validateData(data: number[], operationName: string): void {
     throw new Error(`${operationName}: Data array must be non-empty`);
   }
 
-  if (data.some(x => !Number.isFinite(x))) {
+  if (data.some((x) => !Number.isFinite(x))) {
     throw new Error(`${operationName}: Data array contains invalid values (NaN or Infinity)`);
   }
 }
@@ -45,7 +45,7 @@ export function mean(data: number[]): number {
   for (const value of data) {
     const y = value - compensation;
     const temp = sum + y;
-    compensation = (temp - sum) - y;
+    compensation = temp - sum - y;
     sum = temp;
   }
 
@@ -170,7 +170,7 @@ export function variance(data: number[], sample = true): number {
     const diff = value - avg;
     const y = diff * diff - compensation;
     const temp = sumSquaredDiff + y;
-    compensation = (temp - sumSquaredDiff) - y;
+    compensation = temp - sumSquaredDiff - y;
     sumSquaredDiff = temp;
   }
 
@@ -318,7 +318,7 @@ export function quartiles(data: number[]): QuartileResult {
 export function sum(data: number[]): number {
   if (data.length === 0) return 0;
 
-  if (data.some(x => !Number.isFinite(x))) {
+  if (data.some((x) => !Number.isFinite(x))) {
     throw new Error('sum: Data array contains invalid values (NaN or Infinity)');
   }
 
@@ -329,7 +329,7 @@ export function sum(data: number[]): number {
   for (const value of data) {
     const y = value - compensation;
     const temp = total + y;
-    compensation = (temp - total) - y;
+    compensation = temp - total - y;
     total = temp;
   }
 

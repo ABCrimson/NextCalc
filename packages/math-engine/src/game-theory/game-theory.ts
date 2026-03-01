@@ -113,7 +113,7 @@ export class NormalFormGame {
    */
   constructor(...payoffs: PayoffMatrix[]) {
     this.payoffs = payoffs;
-    this.numActions = payoffs.map(p => p.length);
+    this.numActions = payoffs.map((p) => p.length);
   }
 
   /**
@@ -133,8 +133,10 @@ export class NormalFormGame {
 
     // Mixed strategies
     let expectedPayoff = 0;
-    const mixed1: ReadonlyArray<number> = typeof strategy1 === 'number' ? [0, 0] : (strategy1 ?? [0, 0]);
-    const mixed2: ReadonlyArray<number> = typeof strategy2 === 'number' ? [0, 0] : (strategy2 ?? [0, 0]);
+    const mixed1: ReadonlyArray<number> =
+      typeof strategy1 === 'number' ? [0, 0] : (strategy1 ?? [0, 0]);
+    const mixed2: ReadonlyArray<number> =
+      typeof strategy2 === 'number' ? [0, 0] : (strategy2 ?? [0, 0]);
 
     for (let i = 0; i < payoffMatrix.length; i++) {
       for (let j = 0; j < (payoffMatrix[i]?.length ?? 0); j++) {
@@ -156,9 +158,7 @@ export class NormalFormGame {
     for (let i = 0; i < this.numActions[0]!; i++) {
       for (let j = 0; j < this.numActions[1]!; j++) {
         if (this.isPureNashEquilibrium([i, j])) {
-          const payoffs = this.payoffs.map((_, player) =>
-            this.getPayoff([i, j], player)
-          );
+          const payoffs = this.payoffs.map((_, player) => this.getPayoff([i, j], player));
 
           equilibria.push({
             strategies: [i, j],
@@ -217,11 +217,11 @@ export class NormalFormGame {
 
     // For player 2's mixed strategy to make player 1 indifferent:
     // p1[0][0] * q + p1[0][1] * (1-q) = p1[1][0] * q + p1[1][1] * (1-q)
-    const denomQ = (p1[0]![0]! - p1[0]![1]! - p1[1]![0]! + p1[1]![1]!);
+    const denomQ = p1[0]![0]! - p1[0]![1]! - p1[1]![0]! + p1[1]![1]!;
     const q = denomQ !== 0 ? (p1[1]![1]! - p1[0]![1]!) / denomQ : 0.5;
 
     // For player 1's mixed strategy to make player 2 indifferent:
-    const denomP = (p2[0]![0]! - p2[1]![0]! - p2[0]![1]! + p2[1]![1]!);
+    const denomP = p2[0]![0]! - p2[1]![0]! - p2[0]![1]! + p2[1]![1]!;
     const p = denomP !== 0 ? (p2[1]![1]! - p2[1]![0]!) / denomP : 0.5;
 
     // Validate probabilities
@@ -355,7 +355,7 @@ export class NormalFormGame {
 
       if (player === 1) {
         // Remove column
-        return matrix.map(row => row.filter((_, j) => j !== strategy));
+        return matrix.map((row) => row.filter((_, j) => j !== strategy));
       }
 
       return matrix;
@@ -388,7 +388,7 @@ export class MinimaxSolver {
     depth: number,
     maximizingPlayer = true,
     alpha = -Infinity,
-    beta = Infinity
+    beta = Infinity,
   ): number {
     // Terminal node or depth limit
     if (depth === 0 || node.player === -1) {
@@ -429,7 +429,10 @@ export class MinimaxSolver {
   /**
    * Find best move from current position
    */
-  findBestMove(node: GameNode, depth: number): {
+  findBestMove(
+    node: GameNode,
+    depth: number,
+  ): {
     action: string;
     value: number;
   } | null {
@@ -541,7 +544,7 @@ export class EvolutionaryGameDynamics {
   replicatorDynamics(
     initialPopulation: MixedStrategy,
     steps: number,
-    dt = 0.1
+    dt = 0.1,
   ): Array<MixedStrategy> {
     const trajectory: Array<MixedStrategy> = [initialPopulation];
     let current = [...initialPopulation];
@@ -557,7 +560,7 @@ export class EvolutionaryGameDynamics {
 
       // Normalize
       const sum = next.reduce((a, b) => a + b, 0);
-      current = next.map(x => x / sum);
+      current = next.map((x) => x / sum);
 
       trajectory.push([...current]);
     }
@@ -584,11 +587,11 @@ export function createPrisonersDilemma(): NormalFormGame {
   // (Cooperate, Defect) × (Cooperate, Defect)
   const p1 = [
     [-1, -3], // Cooperate: (-1, -1) or (-3, 0)
-    [0, -2],  // Defect: (0, -3) or (-2, -2)
+    [0, -2], // Defect: (0, -3) or (-2, -2)
   ];
 
   const p2 = [
-    [-1, 0],  // Cooperate: (-1, -1) or (0, -3)
+    [-1, 0], // Cooperate: (-1, -1) or (0, -3)
     [-3, -2], // Defect: (-3, 0) or (-2, -2)
   ];
 

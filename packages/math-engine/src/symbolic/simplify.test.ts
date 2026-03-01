@@ -2,10 +2,10 @@
  * Tests for symbolic simplification engine
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { parse } from '../parser/parser';
-import { simplify, expand, factor, substitute } from './simplify';
 import { astToString } from './integrate';
+import { expand, factor, simplify, substitute } from './simplify';
 
 describe('Symbolic Simplification', () => {
   describe('simplify()', () => {

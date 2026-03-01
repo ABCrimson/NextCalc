@@ -13,7 +13,10 @@
 /**
  * ODE function type: dy/dt = f(t, y)
  */
-export type ODEFunction = (t: number, y: number | ReadonlyArray<number>) => number | ReadonlyArray<number>;
+export type ODEFunction = (
+  t: number,
+  y: number | ReadonlyArray<number>,
+) => number | ReadonlyArray<number>;
 
 /**
  * Solution point
@@ -65,7 +68,7 @@ export function eulerMethod(
   t0: number,
   y0: number,
   tEnd: number,
-  stepSize: number
+  stepSize: number,
 ): ODESolution {
   const points: SolutionPoint[] = [];
   let t = t0;
@@ -115,7 +118,7 @@ export function improvedEuler(
   t0: number,
   y0: number,
   tEnd: number,
-  stepSize: number
+  stepSize: number,
 ): ODESolution {
   const points: SolutionPoint[] = [];
   let t = t0;
@@ -134,7 +137,7 @@ export function improvedEuler(
     const k2 = f(t + stepSize, yPredict) as number;
 
     // Average the slopes
-    y = y + stepSize * (k1 + k2) / 2;
+    y = y + (stepSize * (k1 + k2)) / 2;
     t = t + stepSize;
 
     points.push({ t, y });
@@ -180,7 +183,7 @@ export function rungeKutta4(
   t0: number,
   y0: number | ReadonlyArray<number>,
   tEnd: number,
-  stepSize: number
+  stepSize: number,
 ): ODESolution {
   const points: SolutionPoint[] = [];
   let t = t0;
@@ -203,11 +206,11 @@ export function rungeKutta4(
       const k1 = f(t, yVec) as ReadonlyArray<number>;
 
       // k2 = f(t + h/2, y + h*k1/2)
-      const y2 = yVec.map((yi, idx) => yi + h * k1[idx]! / 2);
+      const y2 = yVec.map((yi, idx) => yi + (h * k1[idx]!) / 2);
       const k2 = f(t + h / 2, y2) as ReadonlyArray<number>;
 
       // k3 = f(t + h/2, y + h*k2/2)
-      const y3 = yVec.map((yi, idx) => yi + h * k2[idx]! / 2);
+      const y3 = yVec.map((yi, idx) => yi + (h * k2[idx]!) / 2);
       const k3 = f(t + h / 2, y3) as ReadonlyArray<number>;
 
       // k4 = f(t + h, y + h*k3)
@@ -215,19 +218,17 @@ export function rungeKutta4(
       const k4 = f(t + h, y4) as ReadonlyArray<number>;
 
       // Weighted average
-      y = yVec.map((yi, idx) =>
-        yi + h * (k1[idx]! + 2 * k2[idx]! + 2 * k3[idx]! + k4[idx]!) / 6
-      );
+      y = yVec.map((yi, idx) => yi + (h * (k1[idx]! + 2 * k2[idx]! + 2 * k3[idx]! + k4[idx]!)) / 6);
     } else {
       // Scalar case
       const yScalar = y as number;
 
       const k1 = f(t, yScalar) as number;
-      const k2 = f(t + h / 2, yScalar + h * k1 / 2) as number;
-      const k3 = f(t + h / 2, yScalar + h * k2 / 2) as number;
+      const k2 = f(t + h / 2, yScalar + (h * k1) / 2) as number;
+      const k3 = f(t + h / 2, yScalar + (h * k2) / 2) as number;
       const k4 = f(t + h, yScalar + h * k3) as number;
 
-      y = yScalar + h * (k1 + 2 * k2 + 2 * k3 + k4) / 6;
+      y = yScalar + (h * (k1 + 2 * k2 + 2 * k3 + k4)) / 6;
     }
 
     t = t + h;
@@ -267,7 +268,7 @@ export function adaptiveRK4(
   y0: number,
   tEnd: number,
   tolerance = 1e-6,
-  initialStepSize = 0.1
+  initialStepSize = 0.1,
 ): ODESolution {
   const points: SolutionPoint[] = [];
   let t = t0;
@@ -286,10 +287,10 @@ export function adaptiveRK4(
 
     // Take one step with size h
     const k1 = f(t, y) as number;
-    const k2 = f(t + h / 2, y + h * k1 / 2) as number;
-    const k3 = f(t + h / 2, y + h * k2 / 2) as number;
+    const k2 = f(t + h / 2, y + (h * k1) / 2) as number;
+    const k3 = f(t + h / 2, y + (h * k2) / 2) as number;
     const k4 = f(t + h, y + h * k3) as number;
-    const y1 = y + h * (k1 + 2 * k2 + 2 * k3 + k4) / 6;
+    const y1 = y + (h * (k1 + 2 * k2 + 2 * k3 + k4)) / 6;
 
     // Take two half steps
     const h2 = h / 2;
@@ -297,10 +298,10 @@ export function adaptiveRK4(
 
     for (let i = 0; i < 2; i++) {
       const k1h = f(t + i * h2, yHalf) as number;
-      const k2h = f(t + i * h2 + h2 / 2, yHalf + h2 * k1h / 2) as number;
-      const k3h = f(t + i * h2 + h2 / 2, yHalf + h2 * k2h / 2) as number;
+      const k2h = f(t + i * h2 + h2 / 2, yHalf + (h2 * k1h) / 2) as number;
+      const k3h = f(t + i * h2 + h2 / 2, yHalf + (h2 * k2h) / 2) as number;
       const k4h = f(t + i * h2 + h2, yHalf + h2 * k3h) as number;
-      yHalf = yHalf + h2 * (k1h + 2 * k2h + 2 * k3h + k4h) / 6;
+      yHalf = yHalf + (h2 * (k1h + 2 * k2h + 2 * k3h + k4h)) / 6;
     }
 
     // Estimate error
@@ -316,7 +317,7 @@ export function adaptiveRK4(
 
     // Adjust step size
     if (error > 0) {
-      const factor = Math.pow(tolerance / error, 0.2);
+      const factor = (tolerance / error) ** 0.2;
       h = h * Math.min(2, Math.max(0.5, 0.9 * factor));
     }
   }
@@ -342,7 +343,7 @@ export function solveExponentialGrowth(
   y0: number,
   tEnd: number,
   method: 'euler' | 'heun' | 'rk4' = 'rk4',
-  stepSize = 0.1
+  stepSize = 0.1,
 ): ODESolution {
   const f: ODEFunction = (_t: number, y: number | ReadonlyArray<number>) => k * (y as number);
 
@@ -365,7 +366,7 @@ export function solveHarmonicOscillator(
   y0: number,
   v0: number,
   tEnd: number,
-  stepSize = 0.01
+  stepSize = 0.01,
 ): ODESolution {
   const f: ODEFunction = (_t: number, y: number | ReadonlyArray<number>) => {
     const yArr = y as ReadonlyArray<number>;
@@ -388,7 +389,7 @@ export function solveLogisticGrowth(
   K: number,
   y0: number,
   tEnd: number,
-  stepSize = 0.1
+  stepSize = 0.1,
 ): ODESolution {
   const f: ODEFunction = (_t: number, y: number | ReadonlyArray<number>) => {
     const yScalar = y as number;
@@ -411,7 +412,7 @@ export function solvePredatorPrey(
   x0: number,
   y0: number,
   tEnd: number,
-  stepSize = 0.01
+  stepSize = 0.01,
 ): ODESolution {
   const f: ODEFunction = (_t: number, state: number | ReadonlyArray<number>) => {
     const stateArr = state as ReadonlyArray<number>;
@@ -420,10 +421,7 @@ export function solvePredatorPrey(
     if (x === undefined || y === undefined) {
       throw new Error('Invalid state vector');
     }
-    return [
-      alpha * x - beta * x * y,
-      delta * x * y - gamma * y,
-    ];
+    return [alpha * x - beta * x * y, delta * x * y - gamma * y];
   };
 
   return rungeKutta4(f, 0, [x0, y0], tEnd, stepSize);

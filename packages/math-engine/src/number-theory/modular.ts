@@ -12,7 +12,7 @@
  * @module number-theory/modular
  */
 
-import { trialDivision, isPrime } from './primes';
+import { isPrime, trialDivision } from './primes';
 
 // ============================================================================
 // BASIC MODULAR OPERATIONS
@@ -39,7 +39,7 @@ export function modAdd(a: number, b: number, m: number): number {
  * @returns (a - b) mod m
  */
 export function modSub(a: number, b: number, m: number): number {
-  return (((a % m) - (b % m)) % m + m) % m;
+  return ((((a % m) - (b % m)) % m) + m) % m;
 }
 
 /**
@@ -101,7 +101,7 @@ export function modPow(base: number, exp: number, m: number): number {
  */
 export function extendedGCD(
   a: number,
-  b: number
+  b: number,
 ): { readonly gcd: number; readonly x: number; readonly y: number } {
   if (b === 0) {
     return { gcd: a, x: 1, y: 0 };
@@ -242,7 +242,7 @@ export function eulerPhi(n: number): number {
   let result = n;
 
   for (const [prime] of factors) {
-    result = result * (prime - 1) / prime;
+    result = (result * (prime - 1)) / prime;
   }
 
   return Math.floor(result);
@@ -533,7 +533,7 @@ export function modSqrt(a: number, p: number): number {
       i++;
     }
 
-    const b = modPow(c, Math.pow(2, M - i - 1), p);
+    const b = modPow(c, 2 ** (M - i - 1), p);
     M = i;
     c = (b * b) % p;
     t = (t * c) % p;

@@ -22,11 +22,7 @@
  * @param epsilon - Privacy budget (smaller = more privacy, less utility)
  * @returns Privatized result
  */
-export function laplaceMechanism(
-  trueValue: number,
-  sensitivity: number,
-  epsilon: number
-): number {
+export function laplaceMechanism(trueValue: number, sensitivity: number, epsilon: number): number {
   if (epsilon <= 0) {
     throw new Error('Epsilon must be positive');
   }
@@ -56,7 +52,7 @@ export function gaussianMechanism(
   trueValue: number,
   sensitivity: number,
   epsilon: number,
-  delta: number
+  delta: number,
 ): number {
   if (epsilon <= 0 || delta <= 0 || delta >= 1) {
     throw new Error('Invalid privacy parameters');
@@ -86,18 +82,18 @@ export function exponentialMechanism<T>(
   outputs: ReadonlyArray<T>,
   utilityFunction: (output: T) => number,
   sensitivity: number,
-  epsilon: number
+  epsilon: number,
 ): T {
   // Compute probabilities proportional to exp(ε × utility / (2×Δu))
   const scores = outputs.map(utilityFunction);
   const maxScore = Math.max(...scores);
 
-  const weights = scores.map(score =>
-    Math.exp((epsilon * (score - maxScore)) / (2 * sensitivity))
+  const weights = scores.map((score) =>
+    Math.exp((epsilon * (score - maxScore)) / (2 * sensitivity)),
   );
 
   const totalWeight = weights.reduce((sum, w) => sum + w, 0);
-  const probabilities = weights.map(w => w / totalWeight);
+  const probabilities = weights.map((w) => w / totalWeight);
 
   // Sample according to probabilities
   const random = Math.random();
@@ -133,11 +129,7 @@ export function privateCount(count: number, epsilon: number): number {
  * @param epsilon - Privacy budget
  * @returns Noisy sum
  */
-export function privateSum(
-  sum: number,
-  maxContribution: number,
-  epsilon: number
-): number {
+export function privateSum(sum: number, maxContribution: number, epsilon: number): number {
   // Sensitivity is max contribution
   return laplaceMechanism(sum, maxContribution, epsilon);
 }
@@ -153,13 +145,13 @@ export function privateSum(
 export function privateMean(
   values: ReadonlyArray<number>,
   bounds: readonly [number, number],
-  epsilon: number
+  epsilon: number,
 ): number {
   const [min, max] = bounds;
   const n = values.length;
 
   // Clamp values to bounds
-  const clampedValues = values.map(v => Math.max(min, Math.min(max, v)));
+  const clampedValues = values.map((v) => Math.max(min, Math.min(max, v)));
 
   // True mean
   const trueMean = clampedValues.reduce((sum, v) => sum + v, 0) / n;
@@ -181,7 +173,7 @@ export function privateMean(
 export function privateHistogram(
   data: ReadonlyArray<number>,
   bins: number,
-  epsilon: number
+  epsilon: number,
 ): ReadonlyArray<number> {
   // Compute true histogram
   const min = Math.min(...data);
@@ -191,10 +183,7 @@ export function privateHistogram(
   const counts = new Array(bins).fill(0);
 
   for (const value of data) {
-    const binIndex = Math.min(
-      bins - 1,
-      Math.floor((value - min) / binWidth)
-    );
+    const binIndex = Math.min(bins - 1, Math.floor((value - min) / binWidth));
     counts[binIndex]++;
   }
 
@@ -202,9 +191,7 @@ export function privateHistogram(
   // Each bin gets ε/bins privacy budget
   const epsilonPerBin = epsilon / bins;
 
-  return counts.map(count =>
-    Math.max(0, Math.round(laplaceMechanism(count, 1, epsilonPerBin)))
-  );
+  return counts.map((count) => Math.max(0, Math.round(laplaceMechanism(count, 1, epsilonPerBin))));
 }
 
 /**
@@ -216,7 +203,7 @@ export class PrivacyBudget {
 
   constructor(
     public readonly totalEpsilon: number,
-    public readonly totalDelta: number = 0
+    public readonly totalDelta: number = 0,
   ) {
     this.remainingEpsilon = totalEpsilon;
     this.remainingDelta = totalDelta;
@@ -240,7 +227,7 @@ export class PrivacyBudget {
   spendAdvanced(
     epsilon: number,
     numQueries: number,
-    delta: number
+    delta: number,
   ): { totalEpsilon: number; totalDelta: number } {
     // Advanced composition theorem
     const totalEpsilon =
@@ -268,11 +255,9 @@ export class PrivacyBudget {
 export function reportNoisyMax(
   values: ReadonlyArray<number>,
   sensitivity: number,
-  epsilon: number
+  epsilon: number,
 ): number {
-  const noisyValues = values.map(v =>
-    laplaceMechanism(v, sensitivity, epsilon)
-  );
+  const noisyValues = values.map((v) => laplaceMechanism(v, sensitivity, epsilon));
 
   let maxIndex = 0;
   let maxValue = noisyValues[0]!;
@@ -337,7 +322,7 @@ export function demonstrateDifferentialPrivacy(): void {
     const error = Math.abs(noisyMean - trueMean);
 
     console.log(
-      `${eps.toFixed(1).padStart(18)} | $${noisyMean.toFixed(2).padStart(9)} | $${error.toFixed(2)}`
+      `${eps.toFixed(1).padStart(18)} | $${noisyMean.toFixed(2).padStart(9)} | $${error.toFixed(2)}`,
     );
   }
 

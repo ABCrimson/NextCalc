@@ -68,12 +68,12 @@ export function scaledDotProductAttention(
   queries: Matrix,
   keys: Matrix,
   values: Matrix,
-  config: AttentionConfig
+  config: AttentionConfig,
 ): AttentionOutput {
   const { embedDim, scaled = true, dropout = 0 } = config;
 
   const n = queries.length; // Target sequence length
-  const m = keys.length;    // Source sequence length
+  const m = keys.length; // Source sequence length
 
   // Validate dimensions
   if (keys.length !== values.length) {
@@ -142,7 +142,7 @@ export function selfAttention(
   wq: Matrix,
   wk: Matrix,
   wv: Matrix,
-  config: AttentionConfig
+  config: AttentionConfig,
 ): AttentionOutput {
   // Project input to Q, K, V
   const queries = matmul(input, wq);
@@ -171,7 +171,7 @@ export function additiveAttention(
   values: Matrix,
   w1: Matrix,
   w2: Matrix,
-  v: Vector
+  v: Vector,
 ): AttentionOutput {
   const n = queries.length;
   const m = keys.length;
@@ -247,7 +247,7 @@ export function causalAttention(
   queries: Matrix,
   keys: Matrix,
   values: Matrix,
-  config: AttentionConfig
+  config: AttentionConfig,
 ): AttentionOutput {
   const { embedDim, scaled = true } = config;
 
@@ -311,11 +311,11 @@ export function causalAttention(
  * Apply softmax to 2D array (row-wise)
  */
 function softmax2D(matrix: number[][]): number[][] {
-  return matrix.map(row => {
+  return matrix.map((row) => {
     const maxVal = Math.max(...row);
-    const exps = row.map(x => Math.exp(x - maxVal)); // Numerical stability
+    const exps = row.map((x) => Math.exp(x - maxVal)); // Numerical stability
     const sum = exps.reduce((a, b) => a + b, 0);
-    return exps.map(x => x / sum);
+    return exps.map((x) => x / sum);
   });
 }
 
@@ -326,15 +326,15 @@ function applyDropout(matrix: number[][], probability: number): number[][] {
   if (probability === 0) return matrix;
 
   const scale = 1 / (1 - probability);
-  return matrix.map(row =>
-    row.map(val => {
+  return matrix.map((row) =>
+    row.map((val) => {
       // During inference, we don't apply dropout
       // During training, randomly zero out elements
       if (Math.random() < probability) {
         return 0;
       }
       return val * scale; // Scale to maintain expected value
-    })
+    }),
   );
 }
 

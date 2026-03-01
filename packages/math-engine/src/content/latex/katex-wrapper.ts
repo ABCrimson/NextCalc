@@ -73,7 +73,7 @@ export function renderLaTeX(latex: string, options: KaTeXOptions = {}): string {
 export function renderLaTeXToElement(
   latex: string,
   element: { innerHTML: string },
-  options: KaTeXOptions = {}
+  options: KaTeXOptions = {},
 ): void {
   const html = renderLaTeX(latex, options);
   element.innerHTML = html;
@@ -110,7 +110,7 @@ function escapeHtml(text: string): string {
     "'": '&#39;',
   };
 
-  return text.replace(/[&<>"']/g, char => map[char] ?? char);
+  return text.replace(/[&<>"']/g, (char) => map[char] ?? char);
 }
 
 /**

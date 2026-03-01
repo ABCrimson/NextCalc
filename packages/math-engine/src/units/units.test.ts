@@ -2,36 +2,36 @@
  * Tests for the unit conversion engine and dimensional analysis
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import {
-  DIMENSIONLESS,
-  SI_BASE_DIMENSIONS,
   DERIVED_DIMENSIONS,
+  DIMENSIONLESS,
+  DimensionalError,
   dimensionsEqual,
+  divideDimensions,
+  formatDimension,
   isDimensionless,
   multiplyDimensions,
-  divideDimensions,
   powerDimension,
-  formatDimension,
-  DimensionalError,
+  SI_BASE_DIMENSIONS,
 } from './dimensions';
 
 import {
-  SI_UNITS,
-  LENGTH_UNITS,
-  MASS_UNITS,
-  TIME_UNITS,
-  TEMPERATURE_UNITS,
-  DERIVED_UNITS,
   ALL_UNITS,
+  addQuantities,
+  convertUnit,
   createQuantity,
+  DERIVED_UNITS,
   findUnit,
   findUnitByDimension,
-  convertUnit,
-  addQuantities,
-  multiplyQuantities,
   formatQuantity,
+  LENGTH_UNITS,
+  MASS_UNITS,
+  multiplyQuantities,
+  SI_UNITS,
+  TEMPERATURE_UNITS,
+  TIME_UNITS,
 } from './units';
 
 // ============================================================================
@@ -187,7 +187,11 @@ describe('DimensionalError', () => {
   });
 
   it('stores expected and actual dimensions', () => {
-    const err = new DimensionalError('dim mismatch', SI_BASE_DIMENSIONS.mass, SI_BASE_DIMENSIONS.length);
+    const err = new DimensionalError(
+      'dim mismatch',
+      SI_BASE_DIMENSIONS.mass,
+      SI_BASE_DIMENSIONS.length,
+    );
     expect(err.expected).toEqual(SI_BASE_DIMENSIONS.mass);
     expect(err.actual).toEqual(SI_BASE_DIMENSIONS.length);
   });

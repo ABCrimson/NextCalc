@@ -57,9 +57,7 @@ function fromScaledBigInt(value: bigint, digits = 0): string {
 
   if (decPart > 0n || digits > 0) {
     const decStr = decPart.toString().padStart(DECIMAL_PLACES, '0');
-    const trimmed = digits > 0
-      ? decStr.slice(0, digits)
-      : decStr.replace(/0+$/, '');
+    const trimmed = digits > 0 ? decStr.slice(0, digits) : decStr.replace(/0+$/, '');
 
     if (trimmed.length > 0) {
       result += '.' + trimmed;
@@ -205,7 +203,7 @@ export class MockHighPrecisionNumber {
    */
   private _powApprox(exp: number): MockHighPrecisionNumber {
     const num = this.toNumber();
-    const result = Math.pow(num, exp);
+    const result = num ** exp;
     return new MockHighPrecisionNumber(result);
   }
 

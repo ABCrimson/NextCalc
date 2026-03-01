@@ -3,24 +3,24 @@
  * Covers definitions, theorems, and query functions
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import {
   DEFINITIONS,
-  THEOREMS,
-  MathTopic,
-  getDefinition,
-  searchDefinitions,
-  getDefinitionsByTopic,
-  getDefinitionsByDifficulty,
-  getRelatedDefinitions,
   getAllTopics,
+  getDefinition,
   getDefinitionCountByTopic,
-  getTheorem,
-  searchTheorems,
-  getTheoremsByTopic,
-  getTheoremsByImportance,
+  getDefinitionsByDifficulty,
+  getDefinitionsByTopic,
+  getRelatedDefinitions,
   getRelatedTheorems,
+  getTheorem,
+  getTheoremsByImportance,
+  getTheoremsByTopic,
+  MathTopic,
+  searchDefinitions,
+  searchTheorems,
+  THEOREMS,
 } from './index';
 
 // ============================================================================
@@ -48,7 +48,7 @@ describe('Definitions Database', () => {
   });
 
   it('all definition IDs are unique', () => {
-    const ids = DEFINITIONS.map(d => d.id);
+    const ids = DEFINITIONS.map((d) => d.id);
     const unique = new Set(ids);
     expect(unique.size).toBe(ids.length);
   });
@@ -90,7 +90,7 @@ describe('searchDefinitions', () => {
   it('finds definitions matching term name', () => {
     const results = searchDefinitions('derivative');
     expect(results.length).toBeGreaterThan(0);
-    const hasDerivative = results.some(d => d.id === 'derivative');
+    const hasDerivative = results.some((d) => d.id === 'derivative');
     expect(hasDerivative).toBe(true);
   });
 
@@ -204,7 +204,7 @@ describe('getRelatedDefinitions', () => {
     const related = getRelatedDefinitions('derivative');
     expect(related.length).toBeGreaterThan(0);
     // Should not include the definition itself
-    const ids = related.map(d => d.id);
+    const ids = related.map((d) => d.id);
     expect(ids).not.toContain('derivative');
   });
 
@@ -283,7 +283,7 @@ describe('Theorems Database', () => {
   });
 
   it('all theorem IDs are unique', () => {
-    const ids = THEOREMS.map(t => t.id);
+    const ids = THEOREMS.map((t) => t.id);
     const unique = new Set(ids);
     expect(unique.size).toBe(ids.length);
   });
@@ -319,8 +319,8 @@ describe('searchTheorems', () => {
   it('finds the chain rule theorem by keyword', () => {
     const results = searchTheorems('chain rule');
     expect(results.length).toBeGreaterThan(0);
-    const names = results.map(t => t.name);
-    expect(names.some(n => n.toLowerCase().includes('chain'))).toBe(true);
+    const names = results.map((t) => t.name);
+    expect(names.some((n) => n.toLowerCase().includes('chain'))).toBe(true);
   });
 
   it('is case-insensitive', () => {
@@ -396,7 +396,7 @@ describe('getTheoremsByImportance', () => {
 
   it('includes FTC at importance >= 5', () => {
     const results = getTheoremsByImportance(5);
-    const ids = results.map(t => t.id);
+    const ids = results.map((t) => t.id);
     expect(ids).toContain('fundamental-theorem-calculus');
   });
 });
@@ -405,7 +405,7 @@ describe('getRelatedTheorems', () => {
   it('returns related theorems for mean-value-theorem', () => {
     const related = getRelatedTheorems('mean-value-theorem');
     expect(related.length).toBeGreaterThan(0);
-    const ids = related.map(t => t.id);
+    const ids = related.map((t) => t.id);
     expect(ids).not.toContain('mean-value-theorem');
   });
 
@@ -417,7 +417,7 @@ describe('getRelatedTheorems', () => {
   it('bidirectional relationship: A related to B means B appears when querying A', () => {
     // FTC lists mean-value-theorem as related
     const related = getRelatedTheorems('fundamental-theorem-calculus');
-    const ids = related.map(t => t.id);
+    const ids = related.map((t) => t.id);
     expect(ids).toContain('mean-value-theorem');
   });
 });

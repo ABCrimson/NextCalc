@@ -8,16 +8,8 @@
  * - Mathematical properties
  */
 
-import type {
-  ExpressionNode,
-  OperatorNode,
-} from '../parser/ast';
-import {
-  isConstantNode,
-  isSymbolNode,
-  isOperatorNode,
-  isFunctionNode,
-} from '../parser/ast';
+import type { ExpressionNode, OperatorNode } from '../parser/ast';
+import { isConstantNode, isFunctionNode, isOperatorNode, isSymbolNode } from '../parser/ast';
 
 /**
  * Expression type classification
@@ -207,7 +199,7 @@ export function classifyExpression(node: ExpressionNode): ExpressionType {
 function isPolynomialOperation(
   node: OperatorNode,
   leftType: ExpressionType,
-  rightType: ExpressionType
+  rightType: ExpressionType,
 ): boolean {
   const polynomialTypes = [
     ExpressionType.Constant,
@@ -241,11 +233,9 @@ function isPolynomialOperation(
  */
 function isPolynomial(node: ExpressionNode): boolean {
   const type = classifyExpression(node);
-  return [
-    ExpressionType.Constant,
-    ExpressionType.Variable,
-    ExpressionType.Polynomial,
-  ].includes(type);
+  return [ExpressionType.Constant, ExpressionType.Variable, ExpressionType.Polynomial].includes(
+    type,
+  );
 }
 
 /**
@@ -308,7 +298,8 @@ export function analyzeProperties(node: ExpressionNode): ExpressionProperties {
           };
         }
         return {
-          integer: isConstantNode(left) && typeof left.value === 'number' && Number.isInteger(left.value),
+          integer:
+            isConstantNode(left) && typeof left.value === 'number' && Number.isInteger(left.value),
         };
       }
     }
@@ -343,7 +334,7 @@ export function computeComplexity(node: ExpressionNode): ComplexityMetrics {
 
     if (isFunctionNode(n)) {
       functionCount++;
-      const depths = n.args.map(arg => traverse(arg, depth + 1));
+      const depths = n.args.map((arg) => traverse(arg, depth + 1));
       return Math.max(...depths, depth);
     }
 

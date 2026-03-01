@@ -8,7 +8,7 @@
  * - Metadata
  */
 
-import { parseMarkdown, type ParsedMarkdown, type MarkdownSection } from '../markdown/parser';
+import { type MarkdownSection, type ParsedMarkdown, parseMarkdown } from '../markdown/parser';
 
 /**
  * Problem set structure
@@ -82,11 +82,8 @@ export function loadProblemSet(markdown: string, setId: string): ProblemSet {
 
   const problems = extractProblems(parsed);
 
-  const difficulties = problems.map(p => p.difficulty);
-  const difficultyRange: [number, number] = [
-    Math.min(...difficulties),
-    Math.max(...difficulties),
-  ];
+  const difficulties = problems.map((p) => p.difficulty);
+  const difficultyRange: [number, number] = [Math.min(...difficulties), Math.max(...difficulties)];
 
   return {
     id: setId,
@@ -139,9 +136,7 @@ function parseProblemSection(section: MarkdownSection, number: number): Problem 
 
   // Extract tags
   const tagsMatch = content.match(/Tags:\s*\[([^\]]+)\]/i);
-  const tags = tagsMatch?.[1]
-    ? tagsMatch[1].split(',').map((t: string) => t.trim())
-    : [];
+  const tags = tagsMatch?.[1] ? tagsMatch[1].split(',').map((t: string) => t.trim()) : [];
 
   // Extract hints
   const hints = extractListItems(content, 'Hints?');
@@ -165,7 +160,7 @@ function parseProblemSection(section: MarkdownSection, number: number): Problem 
  */
 function extractSolution(section: MarkdownSection): ProblemSolution | undefined {
   const solutionSection = section.subsections.find((s: MarkdownSection) =>
-    s.heading.match(/^Solution/i)
+    s.heading.match(/^Solution/i),
   );
 
   if (!solutionSection) return undefined;
@@ -173,7 +168,7 @@ function extractSolution(section: MarkdownSection): ProblemSolution | undefined 
   const content = solutionSection.content;
 
   // Extract answer
-  const answerMatch = content.match(/Answer:\s*\$?\$?([^\$\n]+)\$?\$?/i);
+  const answerMatch = content.match(/Answer:\s*\$?\$?([^$\n]+)\$?\$?/i);
   const answer = answerMatch?.[1]?.trim() ?? '';
 
   // Extract steps
@@ -249,9 +244,7 @@ export function createProblemSetIndex(sets: ProblemSet[]): ProblemSetIndex {
     byCategory.get(set.category)!.push(set);
 
     // Index by difficulty
-    const avgDifficulty = Math.round(
-      (set.difficultyRange[0] + set.difficultyRange[1]) / 2
-    );
+    const avgDifficulty = Math.round((set.difficultyRange[0] + set.difficultyRange[1]) / 2);
     if (!byDifficulty.has(avgDifficulty)) {
       byDifficulty.set(avgDifficulty, []);
     }

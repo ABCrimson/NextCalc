@@ -22,9 +22,9 @@
  */
 export class SchnorrProof {
   constructor(
-    private readonly p: bigint,  // Large prime modulus
-    private readonly g: bigint,  // Generator
-    private readonly y: bigint   // Public value (g^x mod p)
+    private readonly p: bigint, // Large prime modulus
+    private readonly g: bigint, // Generator
+    private readonly y: bigint, // Public value (g^x mod p)
   ) {}
 
   /**
@@ -77,11 +77,7 @@ export class SchnorrProof {
   /**
    * Prover generates response to challenge
    */
-  generateResponse(
-    secret: bigint,
-    randomness: bigint,
-    challenge: bigint
-  ): bigint {
+  generateResponse(secret: bigint, randomness: bigint, challenge: bigint): bigint {
     // Compute s = r + c*x mod (p-1)
     const response = (randomness + challenge * secret) % (this.p - 1n);
     return response;
@@ -182,7 +178,9 @@ export class SchnorrProof {
     // Use multiple random calls for better entropy
     const bytes = Math.ceil(max.toString(16).length / 2) + 4; // Extra bytes for better range
     const randomHex = Array.from({ length: bytes }, () =>
-      Math.floor(Math.random() * 256).toString(16).padStart(2, '0')
+      Math.floor(Math.random() * 256)
+        .toString(16)
+        .padStart(2, '0'),
     ).join('');
 
     const randomValue = BigInt('0x' + randomHex);
@@ -237,7 +235,7 @@ export class ZKSnarkSimulation {
    */
   verifyPolynomialSolution(
     proof: { commitment: number; evaluation: number },
-    expectedOutput: number
+    expectedOutput: number,
   ): boolean {
     // In real zk-SNARKs, this would verify pairing equations
     // Here we just check consistency
@@ -254,7 +252,10 @@ export class RangeProof {
   /**
    * Prove that value is in range [0, 2^n - 1]
    */
-  prove(value: number, maxBits: number): {
+  prove(
+    value: number,
+    maxBits: number,
+  ): {
     commitment: number;
     proof: ReadonlyArray<number>;
   } {
@@ -279,11 +280,7 @@ export class RangeProof {
   /**
    * Verify range proof
    */
-  verify(
-    _commitment: number,
-    proof: ReadonlyArray<number>,
-    maxBits: number
-  ): boolean {
+  verify(_commitment: number, proof: ReadonlyArray<number>, maxBits: number): boolean {
     // Verify proof length
     if (proof.length !== maxBits) {
       return false;
@@ -303,9 +300,9 @@ export class RangeProof {
  */
 export class PedersenCommitment {
   constructor(
-    private readonly p: bigint,  // Prime modulus
-    private readonly g: bigint,  // Generator 1
-    private readonly h: bigint   // Generator 2
+    private readonly p: bigint, // Prime modulus
+    private readonly g: bigint, // Generator 1
+    private readonly h: bigint, // Generator 2
   ) {}
 
   /**
@@ -319,8 +316,7 @@ export class PedersenCommitment {
 
     // C = g^value * h^r mod p
     const commitment =
-      (this.modPow(this.g, value, this.p) * this.modPow(this.h, r, this.p)) %
-      this.p;
+      (this.modPow(this.g, value, this.p) * this.modPow(this.h, r, this.p)) % this.p;
 
     return { commitment, randomness: r };
   }
@@ -328,14 +324,9 @@ export class PedersenCommitment {
   /**
    * Open commitment (reveal value and randomness)
    */
-  open(
-    commitment: bigint,
-    value: bigint,
-    randomness: bigint
-  ): boolean {
+  open(commitment: bigint, value: bigint, randomness: bigint): boolean {
     const expectedCommitment =
-      (this.modPow(this.g, value, this.p) * this.modPow(this.h, randomness, this.p)) %
-      this.p;
+      (this.modPow(this.g, value, this.p) * this.modPow(this.h, randomness, this.p)) % this.p;
 
     return commitment === expectedCommitment;
   }
@@ -377,7 +368,9 @@ export class PedersenCommitment {
     // Use multiple random calls for better entropy
     const bytes = Math.ceil(max.toString(16).length / 2) + 4; // Extra bytes for better range
     const randomHex = Array.from({ length: bytes }, () =>
-      Math.floor(Math.random() * 256).toString(16).padStart(2, '0')
+      Math.floor(Math.random() * 256)
+        .toString(16)
+        .padStart(2, '0'),
     ).join('');
 
     const randomValue = BigInt('0x' + randomHex);
@@ -393,11 +386,11 @@ export function demonstrateSchnorrProof(): void {
 
   // Setup
   const p = 23n; // Small prime for demo
-  const g = 5n;  // Generator
+  const g = 5n; // Generator
   const secret = 7n; // Secret discrete log
 
   // Public value y = g^x mod p
-  const y = (g ** secret) % p;
+  const y = g ** secret % p;
 
   const schnorr = new SchnorrProof(p, g, y);
 
@@ -416,10 +409,7 @@ export function demonstrateSchnorrProof(): void {
   // Non-interactive proof
   console.log('Running non-interactive proof...');
   const niProof = schnorr.nonInteractiveProof(secret);
-  const niVerified = schnorr.verifyNonInteractive(
-    niProof.commitment,
-    niProof.response
-  );
+  const niVerified = schnorr.verifyNonInteractive(niProof.commitment, niProof.response);
 
   console.log(`Commitment: ${niProof.commitment}`);
   console.log(`Response: ${niProof.response}`);

@@ -14,26 +14,26 @@
  */
 
 import type {
-  ExpressionNode,
   ConstantNode,
+  ExpressionNode,
+  FunctionNode,
   OperatorNode,
   UnaryOperatorNode,
-  FunctionNode,
 } from '../parser/ast';
 import {
   createConstantNode,
-  createSymbolNode,
   createOperatorNode,
+  createSymbolNode,
   isConstantNode,
-  isSymbolNode,
-  isOperatorNode,
-  isUnaryOperatorNode,
   isFunctionNode,
+  isOperatorNode,
+  isSymbolNode,
+  isUnaryOperatorNode,
   visit,
 } from '../parser/ast';
+import { evaluate } from '../parser/evaluator';
 import { differentiate } from './differentiate';
 import { simplify, substitute } from './simplify';
-import { evaluate } from '../parser/evaluator';
 
 /**
  * Configuration for series expansion
@@ -96,7 +96,7 @@ export interface SeriesResult {
 export function taylorSeries(
   expr: ExpressionNode,
   variable: string,
-  config: SeriesConfig = {}
+  config: SeriesConfig = {},
 ): SeriesResult {
   const {
     center = 0,
@@ -110,7 +110,7 @@ export function taylorSeries(
 
   if (includeSteps) {
     steps.push(
-      `Computing Taylor series expansion around ${variable} = ${center} with ${terms} terms`
+      `Computing Taylor series expansion around ${variable} = ${center} with ${terms} terms`,
     );
   }
 
@@ -123,26 +123,26 @@ export function taylorSeries(
     const derivativeAtCenter = evaluateAtPoint(currentDerivative, variable, center);
 
     if (includeSteps) {
-      steps.push(
-        `Term ${n}: f^(${n})(${center}) = ${formatValue(derivativeAtCenter)}`
-      );
+      steps.push(`Term ${n}: f^(${n})(${center}) = ${formatValue(derivativeAtCenter)}`);
     }
 
     // Skip zero terms (optimization)
     if (derivativeAtCenter !== 0) {
       // Compute (x - a)^n
-      const xMinusA = center === 0
-        ? createSymbolNode(variable)
-        : createOperatorNode('-', 'subtract', [
-            createSymbolNode(variable),
-            createConstantNode(center),
-          ]);
+      const xMinusA =
+        center === 0
+          ? createSymbolNode(variable)
+          : createOperatorNode('-', 'subtract', [
+              createSymbolNode(variable),
+              createConstantNode(center),
+            ]);
 
-      const power = n === 0
-        ? createConstantNode(1)
-        : n === 1
-        ? xMinusA
-        : createOperatorNode('^', 'pow', [xMinusA, createConstantNode(n)]);
+      const power =
+        n === 0
+          ? createConstantNode(1)
+          : n === 1
+            ? xMinusA
+            : createOperatorNode('^', 'pow', [xMinusA, createConstantNode(n)]);
 
       // Compute coefficient: f^(n)(a) / n!
       const factorial = computeFactorial(n);
@@ -153,10 +153,7 @@ export function taylorSeries(
       if (coefficient === 1) {
         term = power;
       } else {
-        term = createOperatorNode('*', 'multiply', [
-          createConstantNode(coefficient),
-          power,
-        ]);
+        term = createOperatorNode('*', 'multiply', [createConstantNode(coefficient), power]);
       }
 
       // Simplify if requested
@@ -229,7 +226,7 @@ export function taylorSeries(
 export function maclaurinSeries(
   expr: ExpressionNode,
   variable: string,
-  config: Omit<SeriesConfig, 'center'> = {}
+  config: Omit<SeriesConfig, 'center'> = {},
 ): SeriesResult {
   return taylorSeries(expr, variable, { ...config, center: 0 });
 }
@@ -254,7 +251,7 @@ export function maclaurinSeries(
 export function getKnownSeries(
   functionName: string,
   variable: string,
-  config: SeriesConfig = {}
+  config: SeriesConfig = {},
 ): SeriesResult | null {
   const { center = 0, terms = 5 } = config;
 
@@ -395,12 +392,13 @@ function getCosineSeries(variable: string, terms: number): SeriesResult {
     const factorial = computeFactorial(power);
     const coefficient = sign / factorial;
 
-    const term = power === 0
-      ? createConstantNode(coefficient)
-      : createOperatorNode('*', 'multiply', [
-          createConstantNode(coefficient),
-          createOperatorNode('^', 'pow', [x, createConstantNode(power)]),
-        ]);
+    const term =
+      power === 0
+        ? createConstantNode(coefficient)
+        : createOperatorNode('*', 'multiply', [
+            createConstantNode(coefficient),
+            createOperatorNode('^', 'pow', [x, createConstantNode(power)]),
+          ]);
 
     seriesTerms.push(simplify(term));
   }
@@ -432,17 +430,15 @@ function getExponentialSeries(variable: string, terms: number): SeriesResult {
     const factorial = computeFactorial(n);
     const coefficient = 1 / factorial;
 
-    const term = n === 0
-      ? createConstantNode(coefficient)
-      : n === 1
-      ? createOperatorNode('*', 'multiply', [
-          createConstantNode(coefficient),
-          x,
-        ])
-      : createOperatorNode('*', 'multiply', [
-          createConstantNode(coefficient),
-          createOperatorNode('^', 'pow', [x, createConstantNode(n)]),
-        ]);
+    const term =
+      n === 0
+        ? createConstantNode(coefficient)
+        : n === 1
+          ? createOperatorNode('*', 'multiply', [createConstantNode(coefficient), x])
+          : createOperatorNode('*', 'multiply', [
+              createConstantNode(coefficient),
+              createOperatorNode('^', 'pow', [x, createConstantNode(n)]),
+            ]);
 
     seriesTerms.push(simplify(term));
   }
@@ -475,15 +471,13 @@ function getLogarithmSeries(variable: string, terms: number): SeriesResult {
     const sign = n % 2 === 1 ? 1 : -1;
     const coefficient = sign / n;
 
-    const term = n === 1
-      ? createOperatorNode('*', 'multiply', [
-          createConstantNode(coefficient),
-          x,
-        ])
-      : createOperatorNode('*', 'multiply', [
-          createConstantNode(coefficient),
-          createOperatorNode('^', 'pow', [x, createConstantNode(n)]),
-        ]);
+    const term =
+      n === 1
+        ? createOperatorNode('*', 'multiply', [createConstantNode(coefficient), x])
+        : createOperatorNode('*', 'multiply', [
+            createConstantNode(coefficient),
+            createOperatorNode('^', 'pow', [x, createConstantNode(n)]),
+          ]);
 
     seriesTerms.push(simplify(term));
   }
@@ -580,13 +574,13 @@ function getTangentSeries(variable: string, terms: number): SeriesResult {
   for (let n = 1; n <= terms; n++) {
     // n-th term uses B_{2n} (1-indexed: evenB[n-1])
     const b2n = evenB[n - 1] ?? 0;
-    const power = 2 * n - 1;  // x^1, x^3, x^5, ...
-    const twoToThe2n = Math.pow(2, 2 * n);
+    const power = 2 * n - 1; // x^1, x^3, x^5, ...
+    const twoToThe2n = 2 ** (2 * n);
     const factorial2n = computeFactorial(2 * n);
 
     // coefficient = (-1)^{n-1} * 2^{2n} * (2^{2n} - 1) * B_{2n} / (2n)!
     const sign = n % 2 === 1 ? 1 : -1;
-    const coefficient = sign * twoToThe2n * (twoToThe2n - 1) * b2n / factorial2n;
+    const coefficient = (sign * twoToThe2n * (twoToThe2n - 1) * b2n) / factorial2n;
 
     if (coefficient === 0) continue;
 
@@ -643,16 +637,17 @@ function getSecantSeries(variable: string, terms: number): SeriesResult {
 
     // coefficient = (-1)^n * E_{2n} / (2n)!
     const sign = n % 2 === 0 ? 1 : -1;
-    const coefficient = sign * e2n / factorial2n;
+    const coefficient = (sign * e2n) / factorial2n;
 
     if (Math.abs(coefficient) < 1e-15) continue;
 
-    const term = power === 0
-      ? createConstantNode(coefficient)
-      : createOperatorNode('*', 'multiply', [
-          createConstantNode(coefficient),
-          createOperatorNode('^', 'pow', [x, createConstantNode(power)]),
-        ]);
+    const term =
+      power === 0
+        ? createConstantNode(coefficient)
+        : createOperatorNode('*', 'multiply', [
+            createConstantNode(coefficient),
+            createOperatorNode('^', 'pow', [x, createConstantNode(power)]),
+          ]);
 
     seriesTerms.push(simplify(term));
   }
@@ -709,7 +704,7 @@ function binomialCoefficient(n: number, k: number): number {
 
   let result = 1;
   for (let i = 0; i < k; i++) {
-    result = result * (n - i) / (i + 1);
+    result = (result * (n - i)) / (i + 1);
   }
   return Math.round(result);
 }
@@ -730,10 +725,7 @@ function getCotangentSeries(variable: string, terms: number): SeriesResult {
   const x = createSymbolNode(variable);
 
   // Leading term: 1/x
-  const leadingTerm = createOperatorNode('/', 'divide', [
-    createConstantNode(1),
-    x,
-  ]);
+  const leadingTerm = createOperatorNode('/', 'divide', [createConstantNode(1), x]);
   seriesTerms.push(simplify(leadingTerm));
 
   // Remaining terms use Bernoulli numbers
@@ -744,24 +736,22 @@ function getCotangentSeries(variable: string, terms: number): SeriesResult {
     for (let n = 1; n <= effectiveTerms; n++) {
       const b2n = evenB[n - 1] ?? 0;
       const power = 2 * n - 1;
-      const twoToThe2n = Math.pow(2, 2 * n);
+      const twoToThe2n = 2 ** (2 * n);
       const factorial2n = computeFactorial(2 * n);
 
       // coefficient = (-1)^n * 2^{2n} * B_{2n} / (2n)!
       const sign = n % 2 === 0 ? 1 : -1;
-      const coefficient = sign * twoToThe2n * b2n / factorial2n;
+      const coefficient = (sign * twoToThe2n * b2n) / factorial2n;
 
       if (Math.abs(coefficient) < 1e-15) continue;
 
-      const term = power === 1
-        ? createOperatorNode('*', 'multiply', [
-            createConstantNode(coefficient),
-            x,
-          ])
-        : createOperatorNode('*', 'multiply', [
-            createConstantNode(coefficient),
-            createOperatorNode('^', 'pow', [x, createConstantNode(power)]),
-          ]);
+      const term =
+        power === 1
+          ? createOperatorNode('*', 'multiply', [createConstantNode(coefficient), x])
+          : createOperatorNode('*', 'multiply', [
+              createConstantNode(coefficient),
+              createOperatorNode('^', 'pow', [x, createConstantNode(power)]),
+            ]);
 
       seriesTerms.push(simplify(term));
     }
@@ -801,11 +791,11 @@ function getTanhSeries(variable: string, terms: number): SeriesResult {
   for (let n = 1; n <= terms; n++) {
     const b2n = evenB[n - 1] ?? 0;
     const power = 2 * n - 1;
-    const twoToThe2n = Math.pow(2, 2 * n);
+    const twoToThe2n = 2 ** (2 * n);
     const factorial2n = computeFactorial(2 * n);
 
     // coefficient = 2^{2n} * (2^{2n} - 1) * B_{2n} / (2n)!
-    const coefficient = twoToThe2n * (twoToThe2n - 1) * b2n / factorial2n;
+    const coefficient = (twoToThe2n * (twoToThe2n - 1) * b2n) / factorial2n;
 
     if (Math.abs(coefficient) < 1e-15) continue;
 
@@ -881,12 +871,13 @@ function getCoshSeries(variable: string, terms: number): SeriesResult {
     const factorial = computeFactorial(power);
     const coefficient = 1 / factorial;
 
-    const term = power === 0
-      ? createConstantNode(coefficient)
-      : createOperatorNode('*', 'multiply', [
-          createConstantNode(coefficient),
-          createOperatorNode('^', 'pow', [x, createConstantNode(power)]),
-        ]);
+    const term =
+      power === 0
+        ? createConstantNode(coefficient)
+        : createOperatorNode('*', 'multiply', [
+            createConstantNode(coefficient),
+            createOperatorNode('^', 'pow', [x, createConstantNode(power)]),
+          ]);
 
     seriesTerms.push(simplify(term));
   }
@@ -914,11 +905,7 @@ function getCoshSeries(variable: string, terms: number): SeriesResult {
 /**
  * Evaluate expression at a specific point
  */
-function evaluateAtPoint(
-  expr: ExpressionNode,
-  variable: string,
-  point: number
-): number {
+function evaluateAtPoint(expr: ExpressionNode, variable: string, point: number): number {
   const substituted = substitute(expr, variable, point);
   const simplified = simplify(substituted);
 
@@ -961,7 +948,7 @@ function computeRemainderTerm(
   expr: ExpressionNode,
   variable: string,
   center: number,
-  n: number
+  n: number,
 ): ExpressionNode {
   // Compute (n+1)th derivative symbolically
   let derivative = expr;
@@ -970,17 +957,15 @@ function computeRemainderTerm(
   }
 
   // Build (x - a)^(n+1)
-  const xMinusA = center === 0
-    ? createSymbolNode(variable)
-    : createOperatorNode('-', 'subtract', [
-        createSymbolNode(variable),
-        createConstantNode(center),
-      ]);
+  const xMinusA =
+    center === 0
+      ? createSymbolNode(variable)
+      : createOperatorNode('-', 'subtract', [
+          createSymbolNode(variable),
+          createConstantNode(center),
+        ]);
 
-  const power = createOperatorNode('^', 'pow', [
-    xMinusA,
-    createConstantNode(n + 1),
-  ]);
+  const power = createOperatorNode('^', 'pow', [xMinusA, createConstantNode(n + 1)]);
 
   // Build coefficient: 1 / (n+1)!
   const factorial = computeFactorial(n + 1);
@@ -1008,7 +993,7 @@ function computeRemainderTerm(
 function estimateRadiusOfConvergence(
   expr: ExpressionNode,
   variable: string,
-  center: number
+  center: number,
 ): number | undefined {
   // Check for known functions with known convergence
   if (isFunctionNode(expr)) {
@@ -1120,32 +1105,32 @@ function formatConstantLatex(value: number | bigint | string): string {
  */
 function functionToLatex(fn: string): string {
   const latexCommands: Record<string, string> = {
-    sin:   '\\sin',
-    cos:   '\\cos',
-    tan:   '\\tan',
-    sec:   '\\sec',
-    csc:   '\\csc',
-    cot:   '\\cot',
-    asin:  '\\arcsin',
-    acos:  '\\arccos',
-    atan:  '\\arctan',
-    sinh:  '\\sinh',
-    cosh:  '\\cosh',
-    tanh:  '\\tanh',
-    exp:   '\\exp',
-    ln:    '\\ln',
-    log:   '\\log',
+    sin: '\\sin',
+    cos: '\\cos',
+    tan: '\\tan',
+    sec: '\\sec',
+    csc: '\\csc',
+    cot: '\\cot',
+    asin: '\\arcsin',
+    acos: '\\arccos',
+    atan: '\\arctan',
+    sinh: '\\sinh',
+    cosh: '\\cosh',
+    tanh: '\\tanh',
+    exp: '\\exp',
+    ln: '\\ln',
+    log: '\\log',
     log10: '\\log_{10}',
-    log2:  '\\log_{2}',
-    sqrt:  '\\sqrt',
-    cbrt:  '\\sqrt[3]',
-    abs:   '\\left|',   // handled specially below
-    ceil:  '\\lceil',   // handled specially below
-    floor: '\\lfloor',  // handled specially below
-    erf:   '\\operatorname{erf}',
-    Si:    '\\operatorname{Si}',
-    Ci:    '\\operatorname{Ci}',
-    li:    '\\operatorname{li}',
+    log2: '\\log_{2}',
+    sqrt: '\\sqrt',
+    cbrt: '\\sqrt[3]',
+    abs: '\\left|', // handled specially below
+    ceil: '\\lceil', // handled specially below
+    floor: '\\lfloor', // handled specially below
+    erf: '\\operatorname{erf}',
+    Si: '\\operatorname{Si}',
+    Ci: '\\operatorname{Ci}',
+    li: '\\operatorname{li}',
   };
   return latexCommands[fn] ?? `\\operatorname{${fn}}`;
 }
@@ -1160,11 +1145,7 @@ function functionToLatex(fn: string): string {
  *   non-commutative operator (subtraction, division, exponentiation), which
  *   requires parenthesization at equal precedence.
  */
-function nodeToLatex(
-  node: ExpressionNode,
-  parentPrecedence = 0,
-  isRightChild = false
-): string {
+function nodeToLatex(node: ExpressionNode, parentPrecedence = 0, isRightChild = false): string {
   return visit<string>(node, {
     visitConstant(n: ConstantNode): string {
       return formatConstantLatex(n.value);
@@ -1203,9 +1184,7 @@ function nodeToLatex(
       if (n.op === '^') {
         // The base must be parenthesized when it is itself a binary
         // operation (including another power) or a unary minus.
-        const baseNeedsParens =
-          isOperatorNode(left) ||
-          isUnaryOperatorNode(left);
+        const baseNeedsParens = isOperatorNode(left) || isUnaryOperatorNode(left);
         const baseStr = baseNeedsParens
           ? `\\left(${nodeToLatex(left, 0, false)}\\right)`
           : nodeToLatex(left, 30, false);
@@ -1224,9 +1203,7 @@ function nodeToLatex(
         // additive expression (otherwise '-' already groups it correctly).
         let rightStr: string;
         if (n.op === '-') {
-          const needsParens =
-            isOperatorNode(right) &&
-            (right.op === '+' || right.op === '-');
+          const needsParens = isOperatorNode(right) && (right.op === '+' || right.op === '-');
           rightStr = needsParens
             ? `\\left(${nodeToLatex(right, 0, false)}\\right)`
             : nodeToLatex(right, prec, true);
@@ -1252,8 +1229,7 @@ function nodeToLatex(
           isSymbolNode(right) ||
           (isOperatorNode(right) && right.op === '^' && isSymbolNode(right.args[0]));
 
-        const separator =
-          isLeftNumeric && isRightSymbolOrPower ? '' : ' \\cdot ';
+        const separator = isLeftNumeric && isRightSymbolOrPower ? '' : ' \\cdot ';
         const expr = `${leftStr}${separator}${rightStr}`;
         return parentPrecedence > prec ? `\\left(${expr}\\right)` : expr;
       }
@@ -1292,7 +1268,7 @@ function nodeToLatex(
 
       // Standard function: \fn(arg1, arg2, ...)
       const cmd = functionToLatex(n.fn);
-      const args = n.args.map(a => nodeToLatex(a, 0)).join(', ');
+      const args = n.args.map((a) => nodeToLatex(a, 0)).join(', ');
       return `${cmd}\\left(${args}\\right)`;
     },
   });
@@ -1308,11 +1284,7 @@ function nodeToLatex(
  * A trailing "+ \cdots" is appended, and if the center is non-zero an
  * annotation "\\text{ around } variable = center" is added.
  */
-function generateSeriesLatex(
-  terms: ExpressionNode[],
-  variable: string,
-  center: number
-): string {
+function generateSeriesLatex(terms: ExpressionNode[], variable: string, center: number): string {
   if (terms.length === 0) {
     const centerStr = center === 0 ? '' : ` \\text{ around } ${variable} = ${center}`;
     return `0 + \\cdots${centerStr}`;
@@ -1359,10 +1331,7 @@ function generateSeriesLatex(
       if (isConstantNode(left)) {
         const v = left.value;
         if (typeof v === 'number') {
-          return createOperatorNode('*', 'multiply', [
-            createConstantNode(-v),
-            right,
-          ]);
+          return createOperatorNode('*', 'multiply', [createConstantNode(-v), right]);
         }
       }
     }
@@ -1392,8 +1361,7 @@ function generateSeriesLatex(
     }
   }
 
-  const centerStr =
-    center === 0 ? '' : ` \\text{ around } ${variable} = ${center}`;
+  const centerStr = center === 0 ? '' : ` \\text{ around } ${variable} = ${center}`;
   return `${parts.join(' ')} + \\cdots${centerStr}`;
 }
 

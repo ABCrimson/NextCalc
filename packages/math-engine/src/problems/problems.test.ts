@@ -2,25 +2,19 @@
  * Tests for problem generation and database
  */
 
-import { describe, it, expect } from 'vitest';
-
+import { describe, expect, it } from 'vitest';
+import { MathTopic } from '../knowledge/definitions';
 import {
-  PROBLEMS,
+  getAllProblems,
   getProblem,
   getProblemById,
-  getProblemsByTopic,
   getProblemsByDifficulty,
-  searchProblems,
-  getAllProblems,
+  getProblemsByTopic,
   getRelatedProblems,
+  PROBLEMS,
+  searchProblems,
 } from './problem-database';
-
-import {
-  DifficultyLevel,
-  ProblemType,
-} from './types';
-
-import { MathTopic } from '../knowledge/definitions';
+import { DifficultyLevel, ProblemType } from './types';
 
 // ============================================================================
 // DATABASE INTEGRITY
@@ -50,7 +44,7 @@ describe('PROBLEMS database', () => {
   });
 
   it('all problem IDs are unique', () => {
-    const ids = PROBLEMS.map(p => p.id);
+    const ids = PROBLEMS.map((p) => p.id);
     const unique = new Set(ids);
     expect(unique.size).toBe(ids.length);
   });
@@ -181,7 +175,7 @@ describe('getProblemsByTopic', () => {
   });
 
   it('total across all used topics equals total problems', () => {
-    const usedTopics = [...new Set(PROBLEMS.map(p => p.topic))];
+    const usedTopics = [...new Set(PROBLEMS.map((p) => p.topic))];
     let total = 0;
     for (const topic of usedTopics) {
       total += getProblemsByTopic(topic).length;
@@ -227,7 +221,9 @@ describe('getProblemsByDifficulty', () => {
   });
 
   it('total across all difficulty levels equals total problems', () => {
-    const levels = Object.values(DifficultyLevel).filter(v => typeof v === 'number') as DifficultyLevel[];
+    const levels = Object.values(DifficultyLevel).filter(
+      (v) => typeof v === 'number',
+    ) as DifficultyLevel[];
     let total = 0;
     for (const level of levels) {
       total += getProblemsByDifficulty(level).length;
@@ -244,7 +240,7 @@ describe('searchProblems', () => {
   it('finds problems by title keyword', () => {
     const results = searchProblems('derivative');
     expect(results.length).toBeGreaterThan(0);
-    const hasDeriv = results.some(p => p.title.toLowerCase().includes('derivative'));
+    const hasDeriv = results.some((p) => p.title.toLowerCase().includes('derivative'));
     expect(hasDeriv).toBe(true);
   });
 
@@ -299,7 +295,7 @@ describe('getRelatedProblems', () => {
     const related = getRelatedProblems('calc-deriv-001');
     expect(related.length).toBeGreaterThan(0);
     // Should not contain the problem itself
-    const ids = related.map(p => p.id);
+    const ids = related.map((p) => p.id);
     expect(ids).not.toContain('calc-deriv-001');
   });
 

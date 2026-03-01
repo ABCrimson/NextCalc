@@ -87,12 +87,32 @@ export type UnaryOperator = '-' | '+';
 
 // Supported mathematical functions
 export type MathFunction =
-  | 'sin' | 'cos' | 'tan' | 'sec' | 'csc' | 'cot'
-  | 'asin' | 'acos' | 'atan' | 'asec' | 'acsc' | 'acot'
-  | 'sinh' | 'cosh' | 'tanh'
-  | 'sqrt' | 'cbrt'
-  | 'exp' | 'log' | 'ln' | 'log10' | 'log2'
-  | 'abs' | 'ceil' | 'floor' | 'round'
+  | 'sin'
+  | 'cos'
+  | 'tan'
+  | 'sec'
+  | 'csc'
+  | 'cot'
+  | 'asin'
+  | 'acos'
+  | 'atan'
+  | 'asec'
+  | 'acsc'
+  | 'acot'
+  | 'sinh'
+  | 'cosh'
+  | 'tanh'
+  | 'sqrt'
+  | 'cbrt'
+  | 'exp'
+  | 'log'
+  | 'ln'
+  | 'log10'
+  | 'log2'
+  | 'abs'
+  | 'ceil'
+  | 'floor'
+  | 'round'
   | 'factorial'
   /** Sine Integral: Si(x) = ∫₀ˣ sin(t)/t dt */
   | 'Si'
@@ -123,7 +143,7 @@ export function createSymbolNode(name: string): SymbolNode {
 export function createOperatorNode(
   op: Operator,
   fn: string,
-  args: readonly [ExpressionNode, ExpressionNode]
+  args: readonly [ExpressionNode, ExpressionNode],
 ): OperatorNode {
   return {
     _brand: 'ExpressionNode',
@@ -137,7 +157,7 @@ export function createOperatorNode(
 export function createUnaryOperatorNode(
   op: UnaryOperator,
   fn: string,
-  args: readonly [ExpressionNode]
+  args: readonly [ExpressionNode],
 ): UnaryOperatorNode {
   return {
     _brand: 'ExpressionNode',
@@ -150,7 +170,7 @@ export function createUnaryOperatorNode(
 
 export function createFunctionNode(
   fn: MathFunction,
-  args: readonly ExpressionNode[]
+  args: readonly ExpressionNode[],
 ): FunctionNode {
   return {
     _brand: 'ExpressionNode',

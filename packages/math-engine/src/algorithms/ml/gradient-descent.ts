@@ -50,7 +50,7 @@ export interface GradientDescentOptions {
  */
 export type LossFunction = (
   parameters: ReadonlyArray<number>,
-  data?: unknown
+  data?: unknown,
 ) => {
   loss: number;
   gradient: ReadonlyArray<number>;
@@ -72,17 +72,12 @@ export type LossFunction = (
 export function batchGradientDescent(
   lossFunction: LossFunction,
   initialParams: ReadonlyArray<number>,
-  options: GradientDescentOptions = {}
+  options: GradientDescentOptions = {},
 ): GradientDescentResult {
-  const {
-    learningRate = 0.01,
-    maxIterations = 1000,
-    tolerance = 1e-6,
-    momentum = 0,
-  } = options;
+  const { learningRate = 0.01, maxIterations = 1000, tolerance = 1e-6, momentum = 0 } = options;
 
-  let params = [...initialParams];
-  let velocity = new Array(params.length).fill(0);
+  const params = [...initialParams];
+  const velocity = new Array(params.length).fill(0);
   const history: number[] = [];
   let converged = false;
 
@@ -125,23 +120,21 @@ export function batchGradientDescent(
  * @param options - Optimization options
  */
 export function stochasticGradientDescent(
-  lossFunction: (params: ReadonlyArray<number>, index: number) => {
+  lossFunction: (
+    params: ReadonlyArray<number>,
+    index: number,
+  ) => {
     loss: number;
     gradient: ReadonlyArray<number>;
   },
   initialParams: ReadonlyArray<number>,
   dataSize: number,
-  options: GradientDescentOptions = {}
+  options: GradientDescentOptions = {},
 ): GradientDescentResult {
-  const {
-    learningRate = 0.01,
-    maxIterations = 1000,
-    tolerance = 1e-6,
-    momentum = 0,
-  } = options;
+  const { learningRate = 0.01, maxIterations = 1000, tolerance = 1e-6, momentum = 0 } = options;
 
-  let params = [...initialParams];
-  let velocity = new Array(params.length).fill(0);
+  const params = [...initialParams];
+  const velocity = new Array(params.length).fill(0);
   const history: number[] = [];
   let converged = false;
 
@@ -191,17 +184,12 @@ export function stochasticGradientDescent(
 export function nesterovAcceleratedGradient(
   lossFunction: LossFunction,
   initialParams: ReadonlyArray<number>,
-  options: GradientDescentOptions = {}
+  options: GradientDescentOptions = {},
 ): GradientDescentResult {
-  const {
-    learningRate = 0.01,
-    maxIterations = 1000,
-    tolerance = 1e-6,
-    momentum = 0.9,
-  } = options;
+  const { learningRate = 0.01, maxIterations = 1000, tolerance = 1e-6, momentum = 0.9 } = options;
 
-  let params = [...initialParams];
-  let velocity = new Array(params.length).fill(0);
+  const params = [...initialParams];
+  const velocity = new Array(params.length).fill(0);
   const history: number[] = [];
   let converged = false;
 
@@ -242,7 +230,7 @@ export function nesterovAcceleratedGradient(
 export function linearRegressionGD(
   X: ReadonlyArray<ReadonlyArray<number>>,
   y: ReadonlyArray<number>,
-  options: GradientDescentOptions = {}
+  options: GradientDescentOptions = {},
 ): GradientDescentResult {
   const n = X.length;
   const d = X[0]?.length || 0;
@@ -290,7 +278,7 @@ export function linearRegressionGD(
 export function logisticRegressionGD(
   X: ReadonlyArray<ReadonlyArray<number>>,
   y: ReadonlyArray<number>, // Binary: 0 or 1
-  options: GradientDescentOptions = {}
+  options: GradientDescentOptions = {},
 ): GradientDescentResult {
   const n = X.length;
   const d = X[0]?.length || 0;

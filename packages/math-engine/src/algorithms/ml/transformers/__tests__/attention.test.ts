@@ -9,17 +9,17 @@
  * - Mathematical properties and invariants
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
 import * as fc from 'fast-check';
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
-  scaledDotProductAttention,
-  selfAttention,
+  type AttentionConfig,
   additiveAttention,
   causalAttention,
-  randomWeights,
-  visualizeAttention,
   type Matrix,
-  type AttentionConfig,
+  randomWeights,
+  scaledDotProductAttention,
+  selfAttention,
+  visualizeAttention,
 } from '../attention';
 
 describe('Attention Mechanisms', () => {
@@ -56,11 +56,7 @@ describe('Attention Mechanisms', () => {
         [0, 1, 0],
         [0, 0, 1],
       ];
-      const values: Matrix = [
-        [1],
-        [2],
-        [3],
-      ];
+      const values: Matrix = [[1], [2], [3]];
 
       const config: AttentionConfig = { embedDim: 3 };
       const { weights } = scaledDotProductAttention(queries, keys, values, config);
@@ -98,7 +94,7 @@ describe('Attention Mechanisms', () => {
       const config: AttentionConfig = { embedDim: 2 };
 
       expect(() => scaledDotProductAttention(queries, keys, values, config)).toThrow(
-        'Keys and values must have same sequence length'
+        'Keys and values must have same sequence length',
       );
     });
 
@@ -119,7 +115,12 @@ describe('Attention Mechanisms', () => {
 
             // Permute keys and values together
             const permuted = [...kvPairs].reverse();
-            const result2 = scaledDotProductAttention(queries, permuted, permuted.map(() => [1]), config);
+            const result2 = scaledDotProductAttention(
+              queries,
+              permuted,
+              permuted.map(() => [1]),
+              config,
+            );
 
             // Output should be different but weights should still sum to 1
             const sum1 = result1.weights[0]!.reduce((a, b) => a + b, 0);
@@ -127,15 +128,18 @@ describe('Attention Mechanisms', () => {
 
             expect(sum1).toBeCloseTo(1.0, 5);
             expect(sum2).toBeCloseTo(1.0, 5);
-          }
+          },
         ),
-        { numRuns: 50 }
+        { numRuns: 50 },
       );
     });
 
     it('should handle dropout rate of 0 (no dropout)', () => {
       const queries: Matrix = [[1, 2]];
-      const keys: Matrix = [[1, 0], [0, 1]];
+      const keys: Matrix = [
+        [1, 0],
+        [0, 1],
+      ];
       const values: Matrix = [[1], [2]];
 
       const config: AttentionConfig = { embedDim: 2, dropout: 0 };
@@ -171,7 +175,7 @@ describe('Attention Mechanisms', () => {
       const seqLen = 5;
       const embedDim = 8;
       const input: Matrix = Array.from({ length: seqLen }, () =>
-        Array.from({ length: embedDim }, () => Math.random())
+        Array.from({ length: embedDim }, () => Math.random()),
       );
 
       const wq = randomWeights(embedDim, embedDim);
@@ -189,7 +193,10 @@ describe('Attention Mechanisms', () => {
   describe('additiveAttention', () => {
     it('should compute additive attention (Bahdanau-style)', () => {
       const queries: Matrix = [[1, 2]];
-      const keys: Matrix = [[0, 1], [1, 0]];
+      const keys: Matrix = [
+        [0, 1],
+        [1, 0],
+      ];
       const values: Matrix = [[5], [10]];
 
       const hiddenDim = 3;
@@ -210,7 +217,10 @@ describe('Attention Mechanisms', () => {
 
     it('should produce different results than dot-product attention', () => {
       const queries: Matrix = [[1, 2]];
-      const keys: Matrix = [[1, 0], [0, 1]];
+      const keys: Matrix = [
+        [1, 0],
+        [0, 1],
+      ];
       const values: Matrix = [[1], [2]];
 
       const w1 = randomWeights(3, 2);
@@ -240,11 +250,11 @@ describe('Attention Mechanisms', () => {
 
       // Position 0 should only attend to position 0
       expect(weights[0]![0]).toBeGreaterThan(0.9); // Most weight on self
-      expect(weights[0]![1]).toBeLessThan(0.1);    // No future
-      expect(weights[0]![2]).toBeLessThan(0.1);    // No future
+      expect(weights[0]![1]).toBeLessThan(0.1); // No future
+      expect(weights[0]![2]).toBeLessThan(0.1); // No future
 
       // Position 1 should attend to positions 0 and 1 only
-      expect(weights[1]![2]).toBeLessThan(0.1);    // No future (position 2)
+      expect(weights[1]![2]).toBeLessThan(0.1); // No future (position 2)
 
       // Position 2 can attend to all positions
       const sum = weights[2]!.reduce((a, b) => a + b, 0);
@@ -276,7 +286,7 @@ describe('Attention Mechanisms', () => {
           fc.integer({ min: 2, max: 4 }),
           (seqLen, embedDim) => {
             const queries: Matrix = Array.from({ length: seqLen }, () =>
-              Array.from({ length: embedDim }, () => Math.random())
+              Array.from({ length: embedDim }, () => Math.random()),
             );
             const keys: Matrix = [...queries];
             const values: Matrix = Array.from({ length: seqLen }, () => [Math.random()]);
@@ -294,9 +304,9 @@ describe('Attention Mechanisms', () => {
               const sum = weights[i]!.reduce((a, b) => a + b, 0);
               expect(sum).toBeCloseTo(1.0, 4);
             }
-          }
+          },
         ),
-        { numRuns: 30 }
+        { numRuns: 30 },
       );
     });
   });
@@ -362,7 +372,7 @@ describe('Attention Mechanisms', () => {
       const embedDim = 64;
 
       const queries: Matrix = Array.from({ length: seqLen }, () =>
-        Array.from({ length: embedDim }, () => Math.random())
+        Array.from({ length: embedDim }, () => Math.random()),
       );
       const keys: Matrix = [...queries];
       const values: Matrix = Array.from({ length: seqLen }, () => [Math.random()]);
@@ -391,7 +401,10 @@ describe('Attention Mechanisms', () => {
 
     it('should handle zero vectors gracefully', () => {
       const queries: Matrix = [[0, 0, 0]];
-      const keys: Matrix = [[0, 0, 0], [1, 1, 1]];
+      const keys: Matrix = [
+        [0, 0, 0],
+        [1, 1, 1],
+      ];
       const values: Matrix = [[1], [2]];
 
       const config: AttentionConfig = { embedDim: 3 };
@@ -409,7 +422,10 @@ describe('Attention Mechanisms', () => {
           fc.array(fc.float({ min: -5, max: 5, noNaN: true }), { minLength: 2, maxLength: 2 }),
           (valueVector) => {
             const queries: Matrix = [[1, 0]];
-            const keys: Matrix = [[1, 0], [0, 1]];
+            const keys: Matrix = [
+              [1, 0],
+              [0, 1],
+            ];
             const values: Matrix = [valueVector, [0, 0]];
 
             const config: AttentionConfig = { embedDim: 2 };
@@ -423,9 +439,9 @@ describe('Attention Mechanisms', () => {
 
             expect(output[0]![0]).toBeCloseTo(expectedOutput[0], 5);
             expect(output[0]![1]).toBeCloseTo(expectedOutput[1], 5);
-          }
+          },
         ),
-        { numRuns: 50 }
+        { numRuns: 50 },
       );
     });
 
@@ -437,7 +453,11 @@ describe('Attention Mechanisms', () => {
             maxLength: 5,
           }),
           (queries) => {
-            const keys: Matrix = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+            const keys: Matrix = [
+              [1, 0, 0],
+              [0, 1, 0],
+              [0, 0, 1],
+            ];
             const values: Matrix = [[1], [2], [3]];
 
             const config: AttentionConfig = { embedDim: 3 };
@@ -449,9 +469,9 @@ describe('Attention Mechanisms', () => {
                 expect(weight).toBeLessThanOrEqual(1);
               }
             }
-          }
+          },
         ),
-        { numRuns: 50 }
+        { numRuns: 50 },
       );
     });
   });

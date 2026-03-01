@@ -136,16 +136,16 @@ export function fft(signal: number[], sampleRate = 1.0): FFTResult {
   const paddedSignal = [...signal, ...Array(n - signal.length).fill(0)];
 
   // Convert to complex numbers
-  const complexSignal: Complex[] = paddedSignal.map(x => ({ real: x, imag: 0 }));
+  const complexSignal: Complex[] = paddedSignal.map((x) => ({ real: x, imag: 0 }));
 
   // Perform FFT
   const result = fftComplex(complexSignal);
 
   // Extract components
-  const real = result.map(c => c.real);
-  const imag = result.map(c => c.imag);
-  const magnitude = result.map(c => Math.sqrt(c.real * c.real + c.imag * c.imag));
-  const phase = result.map(c => Math.atan2(c.imag, c.real));
+  const real = result.map((c) => c.real);
+  const imag = result.map((c) => c.imag);
+  const magnitude = result.map((c) => Math.sqrt(c.real * c.real + c.imag * c.imag));
+  const phase = result.map((c) => Math.atan2(c.imag, c.real));
 
   // Generate frequency bins
   const frequencies = Array.from({ length: n }, (_, k) => (k * sampleRate) / n);
@@ -247,7 +247,7 @@ export function ifft(real: number[], imag: number[]): number[] {
   const result = fftComplex(conjugate);
 
   // Conjugate result and scale by 1/N
-  return result.map(c => c.real / n);
+  return result.map((c) => c.real / n);
 }
 
 // ============================================================================
@@ -342,7 +342,7 @@ export function idft(spectrum: Complex[]): number[] {
  */
 export function fourierSeries(
   func: (x: number) => number,
-  config: FourierSeriesConfig
+  config: FourierSeriesConfig,
 ): FourierSeriesResult {
   const { period, terms, samples = 1000 } = config;
 
@@ -495,7 +495,7 @@ function generateWindow(n: number, windowType: WindowFunction): number[] {
 export function powerSpectralDensity(
   signal: number[],
   sampleRate = 1.0,
-  windowType: WindowFunction = 'hann'
+  windowType: WindowFunction = 'hann',
 ): PowerSpectralDensity {
   // Apply window
   const windowed = applyWindow(signal, windowType);
@@ -505,7 +505,7 @@ export function powerSpectralDensity(
 
   // Compute PSD: |X[k]|² / (Fs * N)
   const n = spectrum.magnitude.length;
-  const psd = spectrum.magnitude.map(mag => (mag * mag) / (sampleRate * n));
+  const psd = spectrum.magnitude.map((mag) => (mag * mag) / (sampleRate * n));
 
   // Total power (Parseval's theorem)
   const totalPower = psd.reduce((sum, p) => sum + p, 0);
@@ -537,7 +537,7 @@ export function powerSpectralDensity(
 export function findDominantFrequencies(
   signal: number[],
   sampleRate = 1.0,
-  numPeaks = 5
+  numPeaks = 5,
 ): Array<{ frequency: number; magnitude: number }> {
   const spectrum = fft(signal, sampleRate);
 
@@ -607,21 +607,21 @@ function complexMultiply(a: Complex, b: Complex): Complex {
  */
 function nextPowerOfTwo(n: number): number {
   if (n <= 0) return 1;
-  return Math.pow(2, Math.ceil(Math.log2(n)));
+  return 2 ** Math.ceil(Math.log2(n));
 }
 
 /**
  * Compute magnitude spectrum from complex values
  */
 export function magnitude(complex: Complex[]): number[] {
-  return complex.map(c => Math.sqrt(c.real * c.real + c.imag * c.imag));
+  return complex.map((c) => Math.sqrt(c.real * c.real + c.imag * c.imag));
 }
 
 /**
  * Compute phase spectrum from complex values
  */
 export function phase(complex: Complex[]): number[] {
-  return complex.map(c => Math.atan2(c.imag, c.real));
+  return complex.map((c) => Math.atan2(c.imag, c.real));
 }
 
 /**
@@ -634,7 +634,7 @@ export function phase(complex: Complex[]): number[] {
  * @returns Magnitude in dB
  */
 export function toDecibels(magnitudes: number[], reference = 1.0): number[] {
-  return magnitudes.map(mag => {
+  return magnitudes.map((mag) => {
     const ratio = mag / reference;
     return ratio > 0 ? 20 * Math.log10(ratio) : -Infinity;
   });

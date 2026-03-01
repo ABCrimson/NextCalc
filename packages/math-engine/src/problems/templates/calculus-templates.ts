@@ -10,7 +10,7 @@
  * - Area and volume
  */
 
-import { createTemplate, type ProblemTemplate, narrow } from './template-engine';
+import { createTemplate, narrow, type ProblemTemplate } from './template-engine';
 
 /**
  * Power rule derivative
@@ -25,7 +25,7 @@ export const derivativePowerRuleTemplate = createTemplate({
     { name: 'a', type: 'integer', min: 1, max: 10 },
     { name: 'n', type: 'integer', min: 2, max: 6 },
   ],
-  solution: params => {
+  solution: (params) => {
     const { a, n } = narrow<{ a: number; n: number }>(params);
     const coeff = a * n;
 
@@ -45,7 +45,7 @@ export const derivativePowerRuleTemplate = createTemplate({
   },
   hints: [
     () => 'Use the power rule: bring down the exponent and reduce by 1',
-    params => `Multiply ${Number(params['a'])} by the exponent ${Number(params['n'])}`,
+    (params) => `Multiply ${Number(params['a'])} by the exponent ${Number(params['n'])}`,
   ],
   commonMistakes: [
     (params, answer) => {
@@ -81,7 +81,7 @@ export const derivativeProductRuleTemplate = createTemplate({
     { name: 'c', type: 'integer', min: 1, max: 5 },
     { name: 'd', type: 'integer', min: 1, max: 10 },
   ],
-  solution: params => {
+  solution: (params) => {
     const { a, b, c, d } = narrow<{ a: number; b: number; c: number; d: number }>(params);
 
     return {
@@ -103,7 +103,7 @@ export const derivativeProductRuleTemplate = createTemplate({
     };
   },
   hints: [
-    () => 'Use the product rule: $(uv)\' = u\'v + uv\'$',
+    () => "Use the product rule: $(uv)' = u'v + uv'$",
     () => 'Take the derivative of each factor separately',
   ],
   commonMistakes: [],
@@ -126,7 +126,7 @@ export const derivativeChainRuleTemplate = createTemplate({
     { name: 'b', type: 'integer', min: 1, max: 10 },
     { name: 'n', type: 'integer', min: 2, max: 4 },
   ],
-  solution: params => {
+  solution: (params) => {
     const { a, b, n } = narrow<{ a: number; b: number; n: number }>(params);
     const coeff = n * a;
 
@@ -167,7 +167,7 @@ export const integralPowerRuleTemplate = createTemplate({
     { name: 'a', type: 'integer', min: 1, max: 10 },
     { name: 'n', type: 'integer', min: 1, max: 5 },
   ],
-  solution: params => {
+  solution: (params) => {
     const { a, n } = narrow<{ a: number; n: number }>(params);
     const newN = n + 1;
 
@@ -221,11 +221,11 @@ export const definiteIntegralTemplate = createTemplate({
     { name: 'c', type: 'integer', min: 1, max: 5 },
     { name: 'n', type: 'integer', min: 1, max: 3 },
   ],
-  solution: params => {
+  solution: (params) => {
     const { a, b, c, n } = narrow<{ a: number; b: number; c: number; n: number }>(params);
     const newN = n + 1;
-    const upperValue = c * Math.pow(b, newN) / newN;
-    const lowerValue = c * Math.pow(a, newN) / newN;
+    const upperValue = (c * b ** newN) / newN;
+    const lowerValue = (c * a ** newN) / newN;
     const result = upperValue - lowerValue;
 
     return {
@@ -271,7 +271,7 @@ export const limitBasicTemplate = createTemplate({
     { name: 'b', type: 'integer', min: 1, max: 5 },
     { name: 'c', type: 'integer', min: -10, max: 10 },
   ],
-  solution: params => {
+  solution: (params) => {
     const { a, b, c } = narrow<{ a: number; b: number; c: number }>(params);
     const result = b * a + c;
 

@@ -9,15 +9,15 @@
  * - Classical simulation of quantum algorithm
  */
 
-import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
+import { describe, expect, it } from 'vitest';
 import {
-  shorAlgorithm,
   findPeriod,
-  modPow,
   gcd,
   isPerfectPower,
+  modPow,
   QuantumPeriodFinding,
+  shorAlgorithm,
 } from '../shor';
 
 describe("Shor's Algorithm", () => {
@@ -57,9 +57,9 @@ describe("Shor's Algorithm", () => {
             const result2 = modPow(a % m, b, m);
 
             expect(result1).toBe(result2);
-          }
+          },
         ),
-        { numRuns: 50 }
+        { numRuns: 50 },
       );
     });
 
@@ -74,9 +74,9 @@ describe("Shor's Algorithm", () => {
 
             expect(result).toBeGreaterThanOrEqual(0);
             expect(result).toBeLessThan(m);
-          }
+          },
         ),
-        { numRuns: 50 }
+        { numRuns: 50 },
       );
     });
   });
@@ -101,33 +101,25 @@ describe("Shor's Algorithm", () => {
 
     it('property: gcd(a, b) divides both a and b', () => {
       fc.assert(
-        fc.property(
-          fc.integer({ min: 1, max: 100 }),
-          fc.integer({ min: 1, max: 100 }),
-          (a, b) => {
-            const g = gcd(a, b);
+        fc.property(fc.integer({ min: 1, max: 100 }), fc.integer({ min: 1, max: 100 }), (a, b) => {
+          const g = gcd(a, b);
 
-            expect(a % g).toBe(0);
-            expect(b % g).toBe(0);
-          }
-        ),
-        { numRuns: 50 }
+          expect(a % g).toBe(0);
+          expect(b % g).toBe(0);
+        }),
+        { numRuns: 50 },
       );
     });
 
     it('property: gcd(a, b) * lcm(a, b) == a * b', () => {
       fc.assert(
-        fc.property(
-          fc.integer({ min: 1, max: 50 }),
-          fc.integer({ min: 1, max: 50 }),
-          (a, b) => {
-            const g = gcd(a, b);
-            const lcm = (a * b) / g;
+        fc.property(fc.integer({ min: 1, max: 50 }), fc.integer({ min: 1, max: 50 }), (a, b) => {
+          const g = gcd(a, b);
+          const lcm = (a * b) / g;
 
-            expect(g * lcm).toBe(a * b);
-          }
-        ),
-        { numRuns: 50 }
+          expect(g * lcm).toBe(a * b);
+        }),
+        { numRuns: 50 },
       );
     });
   });
@@ -172,7 +164,7 @@ describe("Shor's Algorithm", () => {
         expect(result).not.toBeNull();
 
         if (result) {
-          expect(Math.pow(result.base, result.exp)).toBe(n);
+          expect(result.base ** result.exp).toBe(n);
         }
       }
     });
@@ -215,23 +207,20 @@ describe("Shor's Algorithm", () => {
 
     it('property: period divides Euler totient for coprime a, n', () => {
       fc.assert(
-        fc.property(
-          fc.integer({ min: 3, max: 20 }),
-          (n) => {
-            // Choose random coprime a
-            let a = 2;
-            while (gcd(a, n) !== 1) {
-              a++;
-              if (a >= n) return true; // Skip if no coprime found
-            }
-
-            const period = findPeriod(a, n);
-
-            // Verify a^period ≡ 1 (mod n)
-            expect(modPow(a, period, n)).toBe(1);
+        fc.property(fc.integer({ min: 3, max: 20 }), (n) => {
+          // Choose random coprime a
+          let a = 2;
+          while (gcd(a, n) !== 1) {
+            a++;
+            if (a >= n) return true; // Skip if no coprime found
           }
-        ),
-        { numRuns: 20 }
+
+          const period = findPeriod(a, n);
+
+          // Verify a^period ≡ 1 (mod n)
+          expect(modPow(a, period, n)).toBe(1);
+        }),
+        { numRuns: 20 },
       );
     });
   });
@@ -343,9 +332,9 @@ describe("Shor's Algorithm", () => {
               expect(n % f2!).toBe(0);
               expect(f1! * f2!).toBe(n);
             }
-          }
+          },
         ),
-        { numRuns: 10 } // Limited runs due to computational cost
+        { numRuns: 10 }, // Limited runs due to computational cost
       );
     });
   });

@@ -35,15 +35,15 @@
 
 import type { ExpressionNode } from '../parser/ast';
 import {
-  isConstantNode,
-  isSymbolNode,
-  isOperatorNode,
-  isUnaryOperatorNode,
-  isFunctionNode,
   createConstantNode,
-  createSymbolNode,
-  createOperatorNode,
   createFunctionNode,
+  createOperatorNode,
+  createSymbolNode,
+  isConstantNode,
+  isFunctionNode,
+  isOperatorNode,
+  isSymbolNode,
+  isUnaryOperatorNode,
 } from '../parser/ast';
 import { parse } from '../parser/parser';
 
@@ -193,9 +193,7 @@ export class ComputerAlgebraSystem {
   private readonly rules: ReadonlyArray<RewriteRule>;
 
   constructor(customRules: ReadonlyArray<RewriteRule> = []) {
-    this.rules = [...getStandardRules(), ...customRules].sort(
-      (a, b) => b.priority - a.priority
-    );
+    this.rules = [...getStandardRules(), ...customRules].sort((a, b) => b.priority - a.priority);
   }
 
   // ========================================================================
@@ -254,7 +252,6 @@ export class ComputerAlgebraSystem {
    */
   match(pattern: Pattern, expr: ExpressionNode): PatternMatch {
     const bindings = new Map<string, ExpressionNode>();
-    const cas = this;
 
     /**
      * Snapshot current bindings state for backtracking.
@@ -278,7 +275,7 @@ export class ComputerAlgebraSystem {
       if (isSymbolNode(p) && pattern.wildcards.has(p.name)) {
         const existing = bindings.get(p.name);
         if (existing) {
-          return cas.expressionEquals(existing, e);
+          return this.expressionEquals(existing, e);
         }
         bindings.set(p.name, e);
         return true;
@@ -435,7 +432,7 @@ export class ComputerAlgebraSystem {
         if (matchResult.matched) {
           // Check preconditions
           if (rule.preconditions) {
-            const satisfied = rule.preconditions.every(cond => cond(matchResult.bindings));
+            const satisfied = rule.preconditions.every((cond) => cond(matchResult.bindings));
             if (!satisfied) continue;
           }
 
@@ -489,10 +486,7 @@ export class ComputerAlgebraSystem {
     if (isOperatorNode(node)) {
       const left = this.applyOneRule(node.args[0]);
       const right = this.applyOneRule(node.args[1]);
-      if (
-        this.expressionEquals(left, node.args[0]) &&
-        this.expressionEquals(right, node.args[1])
-      ) {
+      if (this.expressionEquals(left, node.args[0]) && this.expressionEquals(right, node.args[1])) {
         return node;
       }
       return createOperatorNode(node.op, node.fn, [left, right] as const);
@@ -500,7 +494,7 @@ export class ComputerAlgebraSystem {
 
     if (isFunctionNode(node)) {
       let anyChanged = false;
-      const newArgs = node.args.map(arg => {
+      const newArgs = node.args.map((arg) => {
         const simplified = this.applyOneRule(arg);
         if (!this.expressionEquals(simplified, arg)) {
           anyChanged = true;
@@ -522,7 +516,7 @@ export class ComputerAlgebraSystem {
       const matchResult = this.match(rule.pattern, expr);
       if (matchResult.matched) {
         if (rule.preconditions) {
-          const satisfied = rule.preconditions.every(cond => cond(matchResult.bindings));
+          const satisfied = rule.preconditions.every((cond) => cond(matchResult.bindings));
           if (!satisfied) continue;
         }
         const transformed = rule.replacement(matchResult.bindings);
@@ -576,7 +570,7 @@ export class ComputerAlgebraSystem {
             createOperatorNode('+', 'add', [
               createOperatorNode('*', 'multiply', [a, right] as const),
               createOperatorNode('*', 'multiply', [b, right] as const),
-            ] as const)
+            ] as const),
           );
         }
 
@@ -588,7 +582,7 @@ export class ComputerAlgebraSystem {
             createOperatorNode('-', 'subtract', [
               createOperatorNode('*', 'multiply', [a, right] as const),
               createOperatorNode('*', 'multiply', [b, right] as const),
-            ] as const)
+            ] as const),
           );
         }
 
@@ -600,7 +594,7 @@ export class ComputerAlgebraSystem {
             createOperatorNode('+', 'add', [
               createOperatorNode('*', 'multiply', [left, a] as const),
               createOperatorNode('*', 'multiply', [left, b] as const),
-            ] as const)
+            ] as const),
           );
         }
 
@@ -612,7 +606,7 @@ export class ComputerAlgebraSystem {
             createOperatorNode('-', 'subtract', [
               createOperatorNode('*', 'multiply', [left, a] as const),
               createOperatorNode('*', 'multiply', [left, b] as const),
-            ] as const)
+            ] as const),
           );
         }
       }
@@ -631,10 +625,7 @@ export class ComputerAlgebraSystem {
           if (isOperatorNode(left) && left.op === '-') {
             const a = left.args[0];
             const b = left.args[1];
-            const negB = createOperatorNode('*', 'multiply', [
-              createConstantNode(-1),
-              b,
-            ] as const);
+            const negB = createOperatorNode('*', 'multiply', [createConstantNode(-1), b] as const);
             const plusForm = createOperatorNode('+', 'add', [a, negB] as const);
             return this.expandPower(plusForm, exp);
           }
@@ -646,7 +637,7 @@ export class ComputerAlgebraSystem {
     }
 
     if (isFunctionNode(node)) {
-      const args = node.args.map(arg => this.expandNode(arg));
+      const args = node.args.map((arg) => this.expandNode(arg));
       return createFunctionNode(node.fn, args);
     }
 
@@ -668,8 +659,14 @@ export class ComputerAlgebraSystem {
 
       for (let k = 0; k <= n; k++) {
         const coeff = this.binomial(n, k);
-        const aPower = k === 0 ? createConstantNode(1) : createOperatorNode('^', 'pow', [a, createConstantNode(k)] as const);
-        const bPower = n - k === 0 ? createConstantNode(1) : createOperatorNode('^', 'pow', [b, createConstantNode(n - k)] as const);
+        const aPower =
+          k === 0
+            ? createConstantNode(1)
+            : createOperatorNode('^', 'pow', [a, createConstantNode(k)] as const);
+        const bPower =
+          n - k === 0
+            ? createConstantNode(1)
+            : createOperatorNode('^', 'pow', [b, createConstantNode(n - k)] as const);
 
         let term: ExpressionNode = createConstantNode(coeff);
         if (k > 0) term = createOperatorNode('*', 'multiply', [term, aPower] as const);
@@ -772,7 +769,7 @@ export class ComputerAlgebraSystem {
       const inner = this.expressionToPolynomial(expr.args[0], variable);
       if (!inner) return null;
       return {
-        coefficients: inner.coefficients.map(c => -c),
+        coefficients: inner.coefficients.map((c) => -c),
         variable,
         degree: inner.degree,
       };
@@ -792,7 +789,7 @@ export class ComputerAlgebraSystem {
         case '-': {
           if (!left || !right) return null;
           const negRight: Polynomial = {
-            coefficients: right.coefficients.map(c => -c),
+            coefficients: right.coefficients.map((c) => -c),
             variable,
             degree: right.degree,
           };
@@ -811,7 +808,7 @@ export class ComputerAlgebraSystem {
           const divisor = right.coefficients[0] ?? 0;
           if (divisor === 0) return null;
           return {
-            coefficients: left.coefficients.map(c => c / divisor),
+            coefficients: left.coefficients.map((c) => c / divisor),
             variable,
             degree: left.degree,
           };
@@ -872,7 +869,8 @@ export class ComputerAlgebraSystem {
     for (let i = 0; i <= a.degree; i++) {
       for (let j = 0; j <= b.degree; j++) {
         const idx = i + j;
-        coefficients[idx] = (coefficients[idx] ?? 0) + (a.coefficients[i] ?? 0) * (b.coefficients[j] ?? 0);
+        coefficients[idx] =
+          (coefficients[idx] ?? 0) + (a.coefficients[i] ?? 0) * (b.coefficients[j] ?? 0);
       }
     }
     return { coefficients, variable: a.variable, degree };
@@ -935,7 +933,7 @@ export class ComputerAlgebraSystem {
     let result = 0;
     for (let i = 0; i <= poly.degree; i++) {
       const coeff = poly.coefficients[i] || 0;
-      result += coeff * Math.pow(x, i);
+      result += coeff * x ** i;
     }
     return result;
   }
@@ -945,10 +943,10 @@ export class ComputerAlgebraSystem {
    */
   dividePolynomials(
     dividend: Polynomial,
-    divisor: Polynomial
+    divisor: Polynomial,
   ): { quotient: Polynomial; remainder: Polynomial } {
     const quotientCoeffs: Array<number> = [];
-    let remainder = [...dividend.coefficients];
+    const remainder = [...dividend.coefficients];
 
     const divisorDegree = divisor.degree;
     const divisorLeading = divisor.coefficients[divisorDegree] || 1;
@@ -1055,7 +1053,7 @@ export class ComputerAlgebraSystem {
     const denLeading = denominator.coefficients[denominator.degree] ?? 1;
     if (denominator.degree === 0) {
       // P(x) / c  →  polynomial part already handles this via division
-      const scaledCoeffs = workingNumerator.coefficients.map(c => c / denLeading);
+      const scaledCoeffs = workingNumerator.coefficients.map((c) => c / denLeading);
       return {
         fractions: [],
         polynomialPart: polynomialPart ?? {
@@ -1073,15 +1071,9 @@ export class ComputerAlgebraSystem {
     const factors = this.clusterRootsToFactors(roots, denominator.variable);
 
     // ---- Steps 4-6: build and solve the linear system ----
-    const fractions = this.solvePartialFractionSystem(
-      workingNumerator,
-      denominator,
-      factors
-    );
+    const fractions = this.solvePartialFractionSystem(workingNumerator, denominator, factors);
 
-    return polynomialPart !== undefined
-      ? { fractions, polynomialPart }
-      : { fractions };
+    return polynomialPart !== undefined ? { fractions, polynomialPart } : { fractions };
   }
 
   // =========================================================================
@@ -1094,9 +1086,7 @@ export class ComputerAlgebraSystem {
    * Returns an array of { re, im } objects.  Roots with |im| < EPS are treated
    * as real.  The length of the array equals deg(poly).
    */
-  private findPolynomialRoots(
-    poly: Polynomial
-  ): Array<{ re: number; im: number }> {
+  private findPolynomialRoots(poly: Polynomial): Array<{ re: number; im: number }> {
     const n = poly.degree;
     if (n === 0) return [];
 
@@ -1124,7 +1114,7 @@ export class ComputerAlgebraSystem {
 
     // Initial guesses: spread on a circle of radius 1 + max|coeff|^(1/n).
     const maxCoeff = coeffs.slice(0, n).reduce((m, c) => Math.max(m, Math.abs(c)), 1);
-    const radius = 1 + Math.pow(maxCoeff, 1 / n);
+    const radius = 1 + maxCoeff ** (1 / n);
     const roots: Array<{ re: number; im: number }> = [];
     for (let k = 0; k < n; k++) {
       const angle = (2 * Math.PI * k) / n + 0.1; // offset avoids symmetry stalling
@@ -1217,7 +1207,7 @@ export class ComputerAlgebraSystem {
    */
   private clusterRootsToFactors(
     roots: Array<{ re: number; im: number }>,
-    variable: string
+    variable: string,
   ): Array<PartialFractionFactor> {
     const EPS_ROOT = 1e-6;
     const used = new Array<boolean>(roots.length).fill(false);
@@ -1255,10 +1245,7 @@ export class ComputerAlgebraSystem {
           if (used[j]) continue;
           const rj = roots[j];
           if (!rj) continue;
-          if (
-            Math.abs(rj.re - ri.re) < EPS_ROOT &&
-            Math.abs(rj.im + ri.im) < EPS_ROOT
-          ) {
+          if (Math.abs(rj.re - ri.re) < EPS_ROOT && Math.abs(rj.im + ri.im) < EPS_ROOT) {
             used[j] = true;
             break;
           }
@@ -1284,10 +1271,7 @@ export class ComputerAlgebraSystem {
               if (used[k]) continue;
               const rk = roots[k];
               if (!rk) continue;
-              if (
-                Math.abs(rk.re - rj.re) < EPS_ROOT &&
-                Math.abs(rk.im + rj.im) < EPS_ROOT
-              ) {
+              if (Math.abs(rk.re - rj.re) < EPS_ROOT && Math.abs(rk.im + rj.im) < EPS_ROOT) {
                 used[k] = true;
                 break;
               }
@@ -1326,7 +1310,7 @@ export class ComputerAlgebraSystem {
   private solvePartialFractionSystem(
     numerator: Polynomial,
     denominator: Polynomial,
-    factors: Array<PartialFractionFactor>
+    factors: Array<PartialFractionFactor>,
   ): ReadonlyArray<{ numerator: Polynomial; denominator: Polynomial }> {
     const variable = denominator.variable;
 
@@ -1363,13 +1347,13 @@ export class ComputerAlgebraSystem {
         if (f.type === 'linear') {
           for (let p = 1; p <= f.multiplicity; p++) {
             // Q(x) / (x - r)^p
-            const denom = Math.pow(x - f.root, p);
+            const denom = (x - f.root) ** p;
             row.push(Math.abs(denom) < 1e-15 ? 0 : denVal / denom);
           }
         } else {
           // Quadratic factor (x^2 + b*x + c)
           for (let q = 1; q <= f.multiplicity; q++) {
-            const quadVal = Math.pow(x * x + f.b * x + f.c, q);
+            const quadVal = (x * x + f.b * x + f.c) ** q;
             const colBase = Math.abs(quadVal) < 1e-15 ? 0 : denVal / quadVal;
             // B coefficient (multiplied by x)
             row.push(colBase * x);
@@ -1431,10 +1415,7 @@ export class ComputerAlgebraSystem {
    * Choose test points that avoid poles of the partial fractions.
    * Spread points away from roots using a deterministic strategy.
    */
-  private buildTestPoints(
-    count: number,
-    factors: Array<PartialFractionFactor>
-  ): Array<number> {
+  private buildTestPoints(count: number, factors: Array<PartialFractionFactor>): Array<number> {
     const badPoints = new Set<number>();
     for (const f of factors) {
       if (f.type === 'linear') {
@@ -1471,10 +1452,7 @@ export class ComputerAlgebraSystem {
    * Gaussian elimination with partial pivoting.
    * Solves A·x = b, returns x or null if singular.
    */
-  private gaussianElimination(
-    A: Array<Array<number>>,
-    b: Array<number>
-  ): Array<number> | null {
+  private gaussianElimination(A: Array<Array<number>>, b: Array<number>): Array<number> | null {
     const n = b.length;
     // Augmented matrix [A | b]
     const M: Array<Array<number>> = A.map((row, i) => [...row, b[i] ?? 0]);
@@ -1556,12 +1534,7 @@ export class ComputerAlgebraSystem {
    * Build the polynomial representing (x^2 + b*x + c)^power.
    * Coefficients are computed by repeated convolution.
    */
-  private buildQuadraticPower(
-    b: number,
-    c: number,
-    power: number,
-    variable: string
-  ): Polynomial {
+  private buildQuadraticPower(b: number, c: number, power: number, variable: string): Polynomial {
     // quadratic factor as coefficient array: [c, b, 1]
     let coeffs: Array<number> = [1];
     const factor = [c, b, 1];
@@ -1618,11 +1591,7 @@ export class ComputerAlgebraSystem {
   /**
    * Substitute variable with expression
    */
-  substitute(
-    expr: ExpressionNode,
-    variable: string,
-    value: ExpressionNode
-  ): ExpressionNode {
+  substitute(expr: ExpressionNode, variable: string, value: ExpressionNode): ExpressionNode {
     if (isSymbolNode(expr)) {
       return expr.name === variable ? value : expr;
     }
@@ -1641,7 +1610,7 @@ export class ComputerAlgebraSystem {
     if (isFunctionNode(expr)) {
       return createFunctionNode(
         expr.fn,
-        expr.args.map(arg => this.substitute(arg, variable, value))
+        expr.args.map((arg) => this.substitute(arg, variable, value)),
       );
     }
 
@@ -1665,13 +1634,20 @@ function isCommutativeOp(op: string): boolean {
  */
 function fnForOp(op: string): string {
   switch (op) {
-    case '+': return 'add';
-    case '-': return 'subtract';
-    case '*': return 'multiply';
-    case '/': return 'divide';
-    case '^': return 'pow';
-    case '%': return 'mod';
-    default: return op;
+    case '+':
+      return 'add';
+    case '-':
+      return 'subtract';
+    case '*':
+      return 'multiply';
+    case '/':
+      return 'divide';
+    case '^':
+      return 'pow';
+    case '%':
+      return 'mod';
+    default:
+      return op;
   }
 }
 
@@ -1684,15 +1660,9 @@ function fnForOp(op: string): string {
  * Only the expression side is flattened (not the pattern), so the result
  * always has >= 2 elements for a non-trivial tree.
  */
-function flattenAssoc(
-  node: ExpressionNode,
-  op: string
-): ExpressionNode[] {
+function flattenAssoc(node: ExpressionNode, op: string): ExpressionNode[] {
   if (isOperatorNode(node) && node.op === op) {
-    return [
-      ...flattenAssoc(node.args[0], op),
-      ...flattenAssoc(node.args[1], op),
-    ];
+    return [...flattenAssoc(node.args[0], op), ...flattenAssoc(node.args[1], op)];
   }
   return [node];
 }
@@ -1700,21 +1670,17 @@ function flattenAssoc(
 /**
  * Rebuild a left-associative binary tree from a flat list of operands.
  */
-function rebuildTree(
-  operands: ExpressionNode[],
-  op: string
-): ExpressionNode {
+function rebuildTree(operands: ExpressionNode[], op: string): ExpressionNode {
   if (operands.length === 1) {
     return operands[0]!;
   }
 
   let result = operands[0]!;
   for (let i = 1; i < operands.length; i++) {
-    result = createOperatorNode(
-      op as '+' | '-' | '*' | '/' | '^' | '%',
-      fnForOp(op),
-      [result, operands[i]!] as const
-    );
+    result = createOperatorNode(op as '+' | '-' | '*' | '/' | '^' | '%', fnForOp(op), [
+      result,
+      operands[i]!,
+    ] as const);
   }
   return result;
 }
@@ -1831,9 +1797,7 @@ function getStandardRules(): ReadonlyArray<RewriteRule> {
       replacement: (bindings) => {
         const a = bindings.get('A')!;
         const b = bindings.get('B')!;
-        return createFunctionNode('exp', [
-          createOperatorNode('+', 'add', [a, b] as const),
-        ]);
+        return createFunctionNode('exp', [createOperatorNode('+', 'add', [a, b] as const)]);
       },
     },
     {
@@ -1848,9 +1812,7 @@ function getStandardRules(): ReadonlyArray<RewriteRule> {
       replacement: (bindings) => {
         const a = bindings.get('A')!;
         const b = bindings.get('B')!;
-        return createFunctionNode('exp', [
-          createOperatorNode('*', 'multiply', [a, b] as const),
-        ]);
+        return createFunctionNode('exp', [createOperatorNode('*', 'multiply', [a, b] as const)]);
       },
     },
 
@@ -1903,10 +1865,7 @@ function getStandardRules(): ReadonlyArray<RewriteRule> {
       replacement: (bindings) => {
         const a = bindings.get('A')!;
         const b = bindings.get('B')!;
-        return createOperatorNode('*', 'multiply', [
-          b,
-          createFunctionNode('log', [a]),
-        ] as const);
+        return createOperatorNode('*', 'multiply', [b, createFunctionNode('log', [a])] as const);
       },
     },
   ];

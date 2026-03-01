@@ -106,7 +106,7 @@ export function solveHeatEquationExplicit(
   alpha: number,
   initialCondition: (x: number) => number,
   boundaryLeft: BoundaryCondition,
-  boundaryRight: BoundaryCondition
+  boundaryRight: BoundaryCondition,
 ): PDESolution {
   if (!domain.tRange || !domain.nt) {
     throw new Error('solveHeatEquationExplicit: Time domain required');
@@ -190,7 +190,7 @@ export function solveHeatEquationImplicit(
   alpha: number,
   initialCondition: (x: number) => number,
   boundaryLeft: BoundaryCondition,
-  boundaryRight: BoundaryCondition
+  boundaryRight: BoundaryCondition,
 ): PDESolution {
   if (!domain.tRange || !domain.nt) {
     throw new Error('solveHeatEquationImplicit: Time domain required');
@@ -252,7 +252,7 @@ export function solveHeatEquationImplicit(
       Array(nx - 2).fill(a),
       Array(nx - 2).fill(b),
       Array(nx - 2).fill(c),
-      rhs
+      rhs,
     );
 
     // Update grid
@@ -310,7 +310,7 @@ export function solveWaveEquation(
   initialDisplacement: (x: number) => number,
   initialVelocity: (x: number) => number,
   boundaryLeft: BoundaryCondition,
-  boundaryRight: BoundaryCondition
+  boundaryRight: BoundaryCondition,
 ): PDESolution {
   if (!domain.tRange || !domain.nt) {
     throw new Error('solveWaveEquation: Time domain required');
@@ -322,11 +322,13 @@ export function solveWaveEquation(
 
   const dx = (xMax - xMin) / (nx - 1);
   const dt = (tMax - tMin) / (nt - 1);
-  const r = (c * dt / dx) ** 2;
+  const r = ((c * dt) / dx) ** 2;
 
   // Check CFL condition
-  if (c * dt / dx > 1) {
-    console.warn(`CFL condition violated: c*dt/dx = ${c * dt / dx} > 1. Solution may be unstable.`);
+  if ((c * dt) / dx > 1) {
+    console.warn(
+      `CFL condition violated: c*dt/dx = ${(c * dt) / dx} > 1. Solution may be unstable.`,
+    );
   }
 
   // Initialize grid
@@ -427,7 +429,7 @@ export function solveLaplaceEquation(
   ny: number,
   boundaryConditions: (x: number, y: number) => number,
   tolerance = 1e-6,
-  maxIterations = 10000
+  maxIterations = 10000,
 ): PDESolution {
   const [xMin, xMax] = xRange;
   const [yMin, yMax] = yRange;
@@ -448,7 +450,7 @@ export function solveLaplaceEquation(
         return boundaryConditions(xVal ?? xMin, yVal ?? yMin);
       }
       return 0; // Interior points initial guess
-    })
+    }),
   );
 
   let converged = false;
@@ -516,7 +518,7 @@ export function solveLaplaceEquationGaussSeidel(
   ny: number,
   boundaryConditions: (x: number, y: number) => number,
   tolerance = 1e-6,
-  maxIterations = 10000
+  maxIterations = 10000,
 ): PDESolution {
   const [xMin, xMax] = xRange;
   const [yMin, yMax] = yRange;
@@ -534,7 +536,7 @@ export function solveLaplaceEquationGaussSeidel(
         return boundaryConditions(x[i] ?? xMin, y[j] ?? yMin);
       }
       return 0;
-    })
+    }),
   );
 
   let converged = false;
@@ -614,7 +616,7 @@ export function solvePoissonEquation(
   source: (x: number, y: number) => number,
   boundaryConditions: (x: number, y: number) => number,
   tolerance = 1e-6,
-  maxIterations = 10000
+  maxIterations = 10000,
 ): PDESolution {
   const [xMin, xMax] = xRange;
   const [yMin, yMax] = yRange;
@@ -627,7 +629,7 @@ export function solvePoissonEquation(
 
   // Compute source term on grid
   const f: number[][] = Array.from({ length: ny }, (_, j) =>
-    Array.from({ length: nx }, (_, i) => source(x[i] ?? xMin, y[j] ?? yMin))
+    Array.from({ length: nx }, (_, i) => source(x[i] ?? xMin, y[j] ?? yMin)),
   );
 
   // Initialize grid
@@ -637,7 +639,7 @@ export function solvePoissonEquation(
         return boundaryConditions(x[i] ?? xMin, y[j] ?? yMin);
       }
       return 0;
-    })
+    }),
   );
 
   let converged = false;
@@ -713,7 +715,7 @@ function solveTridiagonal(
   a: ReadonlyArray<number>,
   b: ReadonlyArray<number>,
   c: ReadonlyArray<number>,
-  d: ReadonlyArray<number>
+  d: ReadonlyArray<number>,
 ): ReadonlyArray<number> {
   const n = d.length;
   const cp = new Array<number>(n);

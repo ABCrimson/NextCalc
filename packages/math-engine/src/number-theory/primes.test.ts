@@ -7,31 +7,31 @@
  * Goldbach conjecture, and divisor functions.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  isPrime,
-  millerRabin,
-  lucasLehmer,
-  sieveOfEratosthenes,
-  segmentedSieve,
+  factorizationToString,
+  findTwinPrimes,
   firstNPrimes,
+  goldbachPairs,
+  isPerfectNumber,
+  isPrime,
+  isTwinPrime,
+  lucasLehmer,
+  maxPrimeGap,
+  millerRabin,
   nextPrime,
+  nthPrimeApprox,
+  numberOfDivisors,
   previousPrime,
-  trialDivision,
-  primeFactorize,
   primeCount,
   primeCountApprox,
-  nthPrimeApprox,
-  isTwinPrime,
-  findTwinPrimes,
+  primeFactorize,
   primeGap,
-  maxPrimeGap,
-  goldbachPairs,
   satisfiesGoldbach,
+  segmentedSieve,
+  sieveOfEratosthenes,
   sumOfDivisors,
-  numberOfDivisors,
-  isPerfectNumber,
-  factorizationToString,
+  trialDivision,
 } from './primes';
 
 // ===========================================================================
@@ -318,7 +318,7 @@ describe('trialDivision', () => {
     const result = trialDivision(n);
     let product = 1;
     for (const [prime, exp] of result.factors) {
-      product *= Math.pow(prime, exp);
+      product *= prime ** exp;
     }
     expect(product).toBe(n);
   });
@@ -462,15 +462,15 @@ describe('nthPrimeApprox', () => {
 
 describe('isTwinPrime', () => {
   it('identifies twin prime pairs', () => {
-    expect(isTwinPrime(3)).toBe(true);   // (3, 5)
-    expect(isTwinPrime(5)).toBe(true);   // (5, 7)
-    expect(isTwinPrime(11)).toBe(true);  // (11, 13)
-    expect(isTwinPrime(17)).toBe(true);  // (17, 19)
-    expect(isTwinPrime(29)).toBe(true);  // (29, 31)
+    expect(isTwinPrime(3)).toBe(true); // (3, 5)
+    expect(isTwinPrime(5)).toBe(true); // (5, 7)
+    expect(isTwinPrime(11)).toBe(true); // (11, 13)
+    expect(isTwinPrime(17)).toBe(true); // (17, 19)
+    expect(isTwinPrime(29)).toBe(true); // (29, 31)
   });
 
   it('rejects non-twin primes', () => {
-    expect(isTwinPrime(7)).toBe(false);  // 9 is not prime
+    expect(isTwinPrime(7)).toBe(false); // 9 is not prime
     expect(isTwinPrime(23)).toBe(false); // 25 is not prime
   });
 
@@ -483,7 +483,12 @@ describe('isTwinPrime', () => {
 describe('findTwinPrimes', () => {
   it('finds twin primes up to 20', () => {
     const twins = findTwinPrimes(20);
-    expect(twins).toEqual([[3, 5], [5, 7], [11, 13], [17, 19]]);
+    expect(twins).toEqual([
+      [3, 5],
+      [5, 7],
+      [11, 13],
+      [17, 19],
+    ]);
   });
 
   it('returns empty for n < 3', () => {
@@ -529,7 +534,10 @@ describe('goldbachPairs', () => {
   it('finds pairs for 10', () => {
     const pairs = goldbachPairs(10);
     // 10 = 3+7 = 5+5
-    expect(pairs).toEqual([[3, 7], [5, 5]]);
+    expect(pairs).toEqual([
+      [3, 7],
+      [5, 5],
+    ]);
   });
 
   it('finds pairs for 4', () => {
@@ -606,8 +614,8 @@ describe('numberOfDivisors', () => {
   });
 
   it('tau(p^k) = k+1', () => {
-    expect(numberOfDivisors(8)).toBe(4);   // 2^3: tau = 4
-    expect(numberOfDivisors(16)).toBe(5);  // 2^4: tau = 5
+    expect(numberOfDivisors(8)).toBe(4); // 2^3: tau = 4
+    expect(numberOfDivisors(16)).toBe(5); // 2^4: tau = 5
   });
 });
 

@@ -58,7 +58,7 @@ export class MPFRNumber {
 
   constructor(
     private module: MPFRModule,
-    value?: string | number
+    value?: string | number,
   ) {
     if (value !== undefined) {
       const str = String(value);
@@ -235,7 +235,7 @@ export class MPFRWASMManager {
     } catch (error) {
       throw new Error(
         `Failed to load MPFR WASM module: ${error instanceof Error ? error.message : String(error)}\n` +
-        'Make sure the WASM module is compiled by running: cd src/wasm/native && ./build.sh'
+          'Make sure the WASM module is compiled by running: cd src/wasm/native && ./build.sh',
       );
     }
   }

@@ -25,7 +25,7 @@ function validatePairedData(x: number[], y: number[], functionName: string): voi
     throw new Error(`${functionName}: x and y arrays must have the same length`);
   }
 
-  if (x.some(val => !Number.isFinite(val)) || y.some(val => !Number.isFinite(val))) {
+  if (x.some((val) => !Number.isFinite(val)) || y.some((val) => !Number.isFinite(val))) {
     throw new Error(`${functionName}: Data arrays contain invalid values (NaN or Infinity)`);
   }
 }
@@ -68,7 +68,7 @@ export function covariance(x: number[], y: number[], sample = true): number {
     const product = (xVal - xMean) * (yVal - yMean);
     const y_val = product - compensation;
     const temp = sumProduct + y_val;
-    compensation = (temp - sumProduct) - y_val;
+    compensation = temp - sumProduct - y_val;
     sumProduct = temp;
   }
 

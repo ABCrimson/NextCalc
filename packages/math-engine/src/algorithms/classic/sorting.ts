@@ -45,7 +45,7 @@ export type CompareFn<T> = (a: T, b: T) => number;
  */
 export function quickSort<T>(
   arr: ReadonlyArray<T>,
-  compareFn: CompareFn<T> = (a, b) => (a as number) - (b as number)
+  compareFn: CompareFn<T> = (a, b) => (a as number) - (b as number),
 ): SortResult<T> {
   const startTime = performance.now();
   let comparisons = 0;
@@ -116,7 +116,7 @@ export function quickSort<T>(
  */
 export function mergeSort<T>(
   arr: ReadonlyArray<T>,
-  compareFn: CompareFn<T> = (a, b) => (a as number) - (b as number)
+  compareFn: CompareFn<T> = (a, b) => (a as number) - (b as number),
 ): SortResult<T> {
   const startTime = performance.now();
   let comparisons = 0;
@@ -186,7 +186,7 @@ export function mergeSort<T>(
  */
 export function heapSort<T>(
   arr: ReadonlyArray<T>,
-  compareFn: CompareFn<T> = (a, b) => (a as number) - (b as number)
+  compareFn: CompareFn<T> = (a, b) => (a as number) - (b as number),
 ): SortResult<T> {
   const startTime = performance.now();
   let comparisons = 0;
@@ -256,7 +256,7 @@ export function heapSort<T>(
  */
 export function compareSortingAlgorithms<T>(
   arr: ReadonlyArray<T>,
-  compareFn?: CompareFn<T>
+  compareFn?: CompareFn<T>,
 ): {
   quickSort: SortResult<T>;
   mergeSort: SortResult<T>;

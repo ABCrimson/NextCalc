@@ -9,7 +9,7 @@
  * - Coordinate geometry
  */
 
-import { createTemplate, type ProblemTemplate, narrow } from './template-engine';
+import { createTemplate, narrow, type ProblemTemplate } from './template-engine';
 
 /**
  * Pythagorean theorem
@@ -25,7 +25,7 @@ export const pythagoreanTemplate = createTemplate({
     { name: 'a', type: 'integer', min: 3, max: 12 },
     { name: 'b', type: 'integer', min: 4, max: 12 },
   ],
-  solution: params => {
+  solution: (params) => {
     const { a, b } = narrow<{ a: number; b: number }>(params);
     const c = Math.sqrt(a * a + b * b);
 
@@ -64,7 +64,7 @@ export const circleAreaTemplate = createTemplate({
   difficulty: 1,
   template: 'Find the area of a circle with radius {{r}}.',
   parameters: [{ name: 'r', type: 'integer', min: 1, max: 10 }],
-  solution: params => {
+  solution: (params) => {
     const { r } = narrow<{ r: number }>(params);
     const area = Math.PI * r * r;
 
@@ -110,7 +110,7 @@ export const cylinderVolumeTemplate = createTemplate({
     { name: 'r', type: 'integer', min: 1, max: 10 },
     { name: 'h', type: 'integer', min: 1, max: 15 },
   ],
-  solution: params => {
+  solution: (params) => {
     const { r, h } = narrow<{ r: number; h: number }>(params);
     const volume = Math.PI * r * r * h;
 
@@ -146,7 +146,7 @@ export const distanceFormulaTemplate = createTemplate({
     { name: 'x2', type: 'integer', min: -5, max: 5 },
     { name: 'y2', type: 'integer', min: -5, max: 5 },
   ],
-  solution: params => {
+  solution: (params) => {
     const { x1, y1, x2, y2 } = narrow<{ x1: number; y1: number; x2: number; y2: number }>(params);
     const dx = x2 - x1;
     const dy = y2 - y1;

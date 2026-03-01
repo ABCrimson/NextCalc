@@ -12,11 +12,11 @@
  */
 
 import {
-  scaledDotProductAttention,
-  type Matrix,
   type AttentionConfig,
   type AttentionOutput,
+  type Matrix,
   randomWeights,
+  scaledDotProductAttention,
 } from './attention';
 
 /**
@@ -79,7 +79,7 @@ export function multiHeadAttention(
   keys: Matrix,
   values: Matrix,
   weights: MultiHeadWeights,
-  config: MultiHeadAttentionConfig
+  config: MultiHeadAttentionConfig,
 ): MultiHeadOutput {
   const { modelDim, numHeads, dropout = 0 } = config;
 
@@ -112,7 +112,7 @@ export function multiHeadAttention(
       qHead,
       kHead,
       vHead,
-      attentionConfig
+      attentionConfig,
     );
 
     headOutputs.push(output);
@@ -167,7 +167,7 @@ export function initializeMultiHeadWeights(config: MultiHeadAttentionConfig): Mu
 export function multiHeadSelfAttention(
   input: Matrix,
   weights: MultiHeadWeights,
-  config: MultiHeadAttentionConfig
+  config: MultiHeadAttentionConfig,
 ): MultiHeadOutput {
   return multiHeadAttention(input, input, input, weights, config);
 }
@@ -179,10 +179,10 @@ export function multiHeadSelfAttention(
  * Used in transformer decoder to attend to encoder representations.
  */
 export function multiHeadCrossAttention(
-  queries: Matrix,  // From decoder
-  context: Matrix,  // From encoder (used as both K and V)
+  queries: Matrix, // From decoder
+  context: Matrix, // From encoder (used as both K and V)
   weights: MultiHeadWeights,
-  config: MultiHeadAttentionConfig
+  config: MultiHeadAttentionConfig,
 ): MultiHeadOutput {
   return multiHeadAttention(queries, context, context, weights, config);
 }
@@ -198,7 +198,7 @@ export function maskedMultiHeadAttention(
   keys: Matrix,
   values: Matrix,
   weights: MultiHeadWeights,
-  config: MultiHeadAttentionConfig
+  config: MultiHeadAttentionConfig,
 ): MultiHeadOutput {
   const { modelDim, numHeads, dropout = 0 } = config;
   const headDim = modelDim / numHeads;
@@ -212,12 +212,10 @@ export function maskedMultiHeadAttention(
     const vHead = matmul(values, weights.wv[h]!);
 
     // Apply causal masking
-    const { output, weights: attnWeights } = causalMaskedAttention(
-      qHead,
-      kHead,
-      vHead,
-      { embedDim: headDim, dropout }
-    );
+    const { output, weights: attnWeights } = causalMaskedAttention(qHead, kHead, vHead, {
+      embedDim: headDim,
+      dropout,
+    });
 
     headOutputs.push(output);
     headWeights.push(attnWeights);
@@ -240,7 +238,7 @@ function causalMaskedAttention(
   queries: Matrix,
   keys: Matrix,
   values: Matrix,
-  config: AttentionConfig
+  config: AttentionConfig,
 ): AttentionOutput {
   const { embedDim } = config;
   const n = queries.length;
@@ -340,11 +338,11 @@ function matmul(a: Matrix, b: Matrix): Matrix {
  * Softmax (row-wise)
  */
 function softmax2D(matrix: number[][]): number[][] {
-  return matrix.map(row => {
+  return matrix.map((row) => {
     const maxVal = Math.max(...row);
-    const exps = row.map(x => Math.exp(x - maxVal));
+    const exps = row.map((x) => Math.exp(x - maxVal));
     const sum = exps.reduce((a, b) => a + b, 0);
-    return exps.map(x => x / sum);
+    return exps.map((x) => x / sum);
   });
 }
 
@@ -376,9 +374,7 @@ export function computeAttentionStats(headWeights: ReadonlyArray<Matrix>): {
   const avgEntropy = totalEntropy / count;
 
   // Maximum attention weight in each head
-  const maxAttention = headWeights.map(weights =>
-    Math.max(...weights.flat())
-  );
+  const maxAttention = headWeights.map((weights) => Math.max(...weights.flat()));
 
   // Head diversity (how different are the attention patterns?)
   const headDiversity = computeHeadDiversity(headWeights);

@@ -49,9 +49,7 @@ export interface AdamOptions {
 /**
  * Loss function type
  */
-export type LossFunction = (
-  parameters: ReadonlyArray<number>
-) => {
+export type LossFunction = (parameters: ReadonlyArray<number>) => {
   loss: number;
   gradient: ReadonlyArray<number>;
 };
@@ -78,7 +76,7 @@ export type LossFunction = (
 export function adam(
   lossFunction: LossFunction,
   initialParams: ReadonlyArray<number>,
-  options: AdamOptions = {}
+  options: AdamOptions = {},
 ): AdamResult {
   const {
     learningRate = 0.001,
@@ -90,7 +88,7 @@ export function adam(
   } = options;
 
   const d = initialParams.length;
-  let params = [...initialParams];
+  const params = [...initialParams];
 
   // Initialize first and second moments
   const m = new Array(d).fill(0); // First moment (mean of gradients)
@@ -122,8 +120,8 @@ export function adam(
     }
 
     // Compute bias-corrected moments
-    const mHat = m.map(mi => mi / (1 - Math.pow(beta1, t)));
-    const vHat = v.map(vi => vi / (1 - Math.pow(beta2, t)));
+    const mHat = m.map((mi) => mi / (1 - beta1 ** t));
+    const vHat = v.map((vi) => vi / (1 - beta2 ** t));
 
     // Update parameters
     for (let i = 0; i < d; i++) {
@@ -131,7 +129,7 @@ export function adam(
       const mHatVal = mHat[i];
       const vHatVal = vHat[i];
       if (param !== undefined && mHatVal !== undefined && vHatVal !== undefined) {
-        params[i] = param - learningRate * mHatVal / (Math.sqrt(vHatVal) + epsilon);
+        params[i] = param - (learningRate * mHatVal) / (Math.sqrt(vHatVal) + epsilon);
       }
     }
   }
@@ -156,7 +154,7 @@ export function adam(
 export function adamW(
   lossFunction: LossFunction,
   initialParams: ReadonlyArray<number>,
-  options: AdamOptions & { weightDecay?: number } = {}
+  options: AdamOptions & { weightDecay?: number } = {},
 ): AdamResult {
   const {
     learningRate = 0.001,
@@ -169,7 +167,7 @@ export function adamW(
   } = options;
 
   const d = initialParams.length;
-  let params = [...initialParams];
+  const params = [...initialParams];
 
   const m = new Array(d).fill(0);
   const v = new Array(d).fill(0);
@@ -193,14 +191,14 @@ export function adamW(
       v[i] = beta2 * v[i]! + (1 - beta2) * gradient[i]! * gradient[i]!;
     }
 
-    const mHat = m.map(mi => mi / (1 - Math.pow(beta1, t)));
-    const vHat = v.map(vi => vi / (1 - Math.pow(beta2, t)));
+    const mHat = m.map((mi) => mi / (1 - beta1 ** t));
+    const vHat = v.map((vi) => vi / (1 - beta2 ** t));
 
     // Update with decoupled weight decay
     for (let i = 0; i < d; i++) {
       params[i] =
         params[i]! * (1 - learningRate * weightDecay) -
-        learningRate * mHat[i]! / (Math.sqrt(vHat[i]!) + epsilon);
+        (learningRate * mHat[i]!) / (Math.sqrt(vHat[i]!) + epsilon);
     }
   }
 
@@ -224,7 +222,7 @@ export function adamW(
 export function radam(
   lossFunction: LossFunction,
   initialParams: ReadonlyArray<number>,
-  options: AdamOptions = {}
+  options: AdamOptions = {},
 ): AdamResult {
   const {
     learningRate = 0.001,
@@ -236,7 +234,7 @@ export function radam(
   } = options;
 
   const d = initialParams.length;
-  let params = [...initialParams];
+  const params = [...initialParams];
 
   const m = new Array(d).fill(0);
   const v = new Array(d).fill(0);
@@ -264,17 +262,16 @@ export function radam(
     }
 
     // Bias correction
-    const mHat = m.map(mi => mi / (1 - Math.pow(beta1, t)));
-    const vHat = v.map(vi => vi / (1 - Math.pow(beta2, t)));
+    const mHat = m.map((mi) => mi / (1 - beta1 ** t));
+    const vHat = v.map((vi) => vi / (1 - beta2 ** t));
 
     // Compute variance rectification term
-    const rho = rhoInf - 2 * t * Math.pow(beta2, t) / (1 - Math.pow(beta2, t));
+    const rho = rhoInf - (2 * t * beta2 ** t) / (1 - beta2 ** t);
 
     // If variance is tractable, use adaptive learning rate
     if (rho > 4) {
       const rectificationTerm = Math.sqrt(
-        ((rho - 4) * (rho - 2) * rhoInf) /
-        ((rhoInf - 4) * (rhoInf - 2) * rho)
+        ((rho - 4) * (rho - 2) * rhoInf) / ((rhoInf - 4) * (rhoInf - 2) * rho),
       );
 
       for (let i = 0; i < d; i++) {
@@ -282,7 +279,8 @@ export function radam(
         const mHatVal = mHat[i];
         const vHatVal = vHat[i];
         if (param !== undefined && mHatVal !== undefined && vHatVal !== undefined) {
-          params[i] = param - learningRate * rectificationTerm * mHatVal / (Math.sqrt(vHatVal) + epsilon);
+          params[i] =
+            param - (learningRate * rectificationTerm * mHatVal) / (Math.sqrt(vHatVal) + epsilon);
         }
       }
     } else {
@@ -315,7 +313,7 @@ export function trainNeuralNetworkAdam(
   X: ReadonlyArray<ReadonlyArray<number>>,
   y: ReadonlyArray<number>,
   hiddenSize: number,
-  options: AdamOptions = {}
+  options: AdamOptions = {},
 ): {
   weights1: ReadonlyArray<number>;
   weights2: ReadonlyArray<number>;
@@ -330,10 +328,7 @@ export function trainNeuralNetworkAdam(
   const w2Size = hiddenSize * outputSize;
   const totalParams = w1Size + w2Size;
 
-  const initialParams = Array.from(
-    { length: totalParams },
-    () => (Math.random() - 0.5) * 0.1
-  );
+  const initialParams = Array.from({ length: totalParams }, () => (Math.random() - 0.5) * 0.1);
 
   // Sigmoid activation
   const sigmoid = (z: number): number => 1 / (1 + Math.exp(-z));

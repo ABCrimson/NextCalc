@@ -2,8 +2,8 @@
  * Unit tests for correlation and covariance
  */
 
-import { describe, it, expect } from 'vitest';
-import { correlation, covariance, spearmanCorrelation, rSquared } from './correlation';
+import { describe, expect, it } from 'vitest';
+import { correlation, covariance, rSquared, spearmanCorrelation } from './correlation';
 
 describe('Correlation and Covariance', () => {
   describe('covariance', () => {
@@ -218,7 +218,7 @@ describe('Correlation and Covariance', () => {
 
     it('handles small values in correlation', () => {
       const x = [0.001, 0.002, 0.003, 0.004, 0.005];
-      const y = [0.002, 0.004, 0.006, 0.008, 0.010];
+      const y = [0.002, 0.004, 0.006, 0.008, 0.01];
       const result = correlation(x, y);
 
       expect(result).toBeCloseTo(1.0, 10);

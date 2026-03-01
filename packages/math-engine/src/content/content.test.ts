@@ -5,27 +5,27 @@
  * - Problem set validator
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import {
-  parseMarkdown,
-  generateTOC,
   extractCodeBlocks,
-  extractLinks,
   extractImages,
+  extractLinks,
+  generateTOC,
+  parseMarkdown,
 } from './markdown/parser';
 
 import {
+  createProblemSetIndex,
   loadProblemSet,
   loadProblemSetsFromFiles,
-  createProblemSetIndex,
 } from './problem-sets/loader';
 
 import {
-  validateProblemSet,
-  validateProblem,
-  validateLatex,
   formatValidationReport,
+  validateLatex,
+  validateProblem,
+  validateProblemSet,
 } from './problem-sets/validator';
 
 // ============================================================================
@@ -114,7 +114,7 @@ describe('parseMarkdown - math blocks', () => {
   it('extracts display math blocks ($$...$$)', () => {
     const md = 'Some text.\n$$x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}$$\nMore text.';
     const result = parseMarkdown(md);
-    const displayBlocks = result.mathBlocks.filter(b => b.type === 'display');
+    const displayBlocks = result.mathBlocks.filter((b) => b.type === 'display');
     expect(displayBlocks.length).toBe(1);
     expect(displayBlocks[0]!.content).toContain('frac');
   });
@@ -122,7 +122,7 @@ describe('parseMarkdown - math blocks', () => {
   it('extracts inline math blocks ($...$)', () => {
     const md = 'When $x > 0$ the function is positive.';
     const result = parseMarkdown(md);
-    const inlineBlocks = result.mathBlocks.filter(b => b.type === 'inline');
+    const inlineBlocks = result.mathBlocks.filter((b) => b.type === 'inline');
     expect(inlineBlocks.length).toBeGreaterThan(0);
     expect(inlineBlocks[0]!.content).toContain('x > 0');
   });
@@ -130,7 +130,7 @@ describe('parseMarkdown - math blocks', () => {
   it('assigns unique IDs to math blocks', () => {
     const md = 'Text $a$ and $b$ and $$c$$.';
     const result = parseMarkdown(md);
-    const ids = result.mathBlocks.map(b => b.id);
+    const ids = result.mathBlocks.map((b) => b.id);
     const unique = new Set(ids);
     expect(unique.size).toBe(ids.length);
   });
@@ -139,7 +139,9 @@ describe('parseMarkdown - math blocks', () => {
     const md = 'First $a$ then $b$.';
     const result = parseMarkdown(md);
     for (let i = 1; i < result.mathBlocks.length; i++) {
-      expect(result.mathBlocks[i]!.position).toBeGreaterThanOrEqual(result.mathBlocks[i - 1]!.position);
+      expect(result.mathBlocks[i]!.position).toBeGreaterThanOrEqual(
+        result.mathBlocks[i - 1]!.position,
+      );
     }
   });
 
@@ -499,7 +501,7 @@ describe('validateProblemSet', () => {
     const badSet = { ...set, title: '' };
     const result = validateProblemSet(badSet);
     expect(result.valid).toBe(false);
-    expect(result.errors.some(e => e.message.includes('title'))).toBe(true);
+    expect(result.errors.some((e) => e.message.includes('title'))).toBe(true);
   });
 
   it('reports error for missing category', () => {
@@ -507,14 +509,14 @@ describe('validateProblemSet', () => {
     const badSet = { ...set, category: '' };
     const result = validateProblemSet(badSet);
     expect(result.valid).toBe(false);
-    expect(result.errors.some(e => e.message.includes('category'))).toBe(true);
+    expect(result.errors.some((e) => e.message.includes('category'))).toBe(true);
   });
 
   it('warns for empty problem array', () => {
     const set = loadProblemSet(sampleProblemSetMd, 'test-set');
     const emptySet = { ...set, problems: [] };
     const result = validateProblemSet(emptySet);
-    expect(result.warnings.some(w => w.message.includes('no problems'))).toBe(true);
+    expect(result.warnings.some((w) => w.message.includes('no problems'))).toBe(true);
   });
 });
 
@@ -543,38 +545,40 @@ describe('validateProblem', () => {
     const bad = { ...goodProblem, statement: '' };
     const result = validateProblem(bad);
     expect(result.valid).toBe(false);
-    expect(result.errors.some(e => e.message.includes('statement'))).toBe(true);
+    expect(result.errors.some((e) => e.message.includes('statement'))).toBe(true);
   });
 
   it('warns for missing solution', () => {
     const noSolution = { ...goodProblem, solution: undefined };
     const result = validateProblem(noSolution);
-    expect(result.warnings.some(w => w.message.includes('solution'))).toBe(true);
+    expect(result.warnings.some((w) => w.message.includes('solution'))).toBe(true);
   });
 
   it('warns for missing hints', () => {
     const noHints = { ...goodProblem, hints: [] };
     const result = validateProblem(noHints);
-    expect(result.warnings.some(w => w.message.includes('hints'))).toBe(true);
+    expect(result.warnings.some((w) => w.message.includes('hints'))).toBe(true);
   });
 
   it('warns for missing tags', () => {
     const noTags = { ...goodProblem, tags: [] };
     const result = validateProblem(noTags);
-    expect(result.warnings.some(w => w.message.includes('tags'))).toBe(true);
+    expect(result.warnings.some((w) => w.message.includes('tags'))).toBe(true);
   });
 
   it('reports error for solution with empty answer', () => {
     const badSolution = { ...goodProblem, solution: { ...goodProblem.solution, answer: '' } };
     const result = validateProblem(badSolution);
     expect(result.valid).toBe(false);
-    expect(result.errors.some(e => e.message.includes('answer'))).toBe(true);
+    expect(result.errors.some((e) => e.message.includes('answer'))).toBe(true);
   });
 
   it('warns when solution has neither steps nor explanation', () => {
     const minimalSolution = { ...goodProblem, solution: { answer: 'x=2' } };
     const result = validateProblem(minimalSolution);
-    expect(result.warnings.some(w => w.message.includes('steps') || w.message.includes('explanation'))).toBe(true);
+    expect(
+      result.warnings.some((w) => w.message.includes('steps') || w.message.includes('explanation')),
+    ).toBe(true);
   });
 });
 
@@ -588,18 +592,18 @@ describe('validateLatex', () => {
   it('reports error for odd number of dollar signs', () => {
     const result = validateLatex('$x + y');
     expect(result.valid).toBe(false);
-    expect(result.errors.some(e => e.message.includes('$'))).toBe(true);
+    expect(result.errors.some((e) => e.message.includes('$'))).toBe(true);
   });
 
   it('reports error for empty \\frac{}', () => {
     const result = validateLatex('\\frac{}');
     expect(result.valid).toBe(false);
-    expect(result.errors.some(e => e.message.includes('frac'))).toBe(true);
+    expect(result.errors.some((e) => e.message.includes('frac'))).toBe(true);
   });
 
   it('warns for empty \\sqrt{}', () => {
     const result = validateLatex('\\sqrt{}');
-    expect(result.warnings.some(w => w.message.includes('sqrt'))).toBe(true);
+    expect(result.warnings.some((w) => w.message.includes('sqrt'))).toBe(true);
   });
 
   it('is valid for a complex but correct expression', () => {

@@ -2,16 +2,16 @@
  * Comprehensive tests for Computer Algebra System
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import { createConstantNode, createOperatorNode, createSymbolNode } from '../parser/ast';
+import { parse } from '../parser/parser';
 import {
   ComputerAlgebraSystem,
   createCAS,
-  RuleCategory,
-  type RewriteRule,
   type Pattern,
+  type RewriteRule,
+  RuleCategory,
 } from './computer-algebra-system';
-import { parse } from '../parser/parser';
-import { createConstantNode, createSymbolNode, createOperatorNode } from '../parser/ast';
 
 describe('ComputerAlgebraSystem', () => {
   describe('Pattern Matching', () => {
@@ -487,10 +487,7 @@ describe('ComputerAlgebraSystem', () => {
         },
         replacement: (bindings) => {
           const a = bindings.get('A')!;
-          return createOperatorNode('*', 'multiply', [
-            createConstantNode(2),
-            a,
-          ] as const);
+          return createOperatorNode('*', 'multiply', [createConstantNode(2), a] as const);
         },
       };
 

@@ -2,15 +2,15 @@
  * Comprehensive tests for Chaos Theory
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
+  autocorrelation,
+  boxCountingDimension,
+  HenonMap,
   LogisticMap,
   LorenzAttractor,
-  RosslerAttractor,
-  HenonMap,
-  boxCountingDimension,
-  autocorrelation,
   powerSpectrum,
+  RosslerAttractor,
 } from './chaos-theory';
 
 describe('Logistic Map', () => {
@@ -58,10 +58,11 @@ describe('Logistic Map', () => {
 
       // Check convergence
       const last10 = series.slice(-10);
-      const variance = last10.reduce((sum, x) => {
-        const mean = last10.reduce((a, b) => a + b, 0) / last10.length;
-        return sum + (x - mean) ** 2;
-      }, 0) / last10.length;
+      const variance =
+        last10.reduce((sum, x) => {
+          const mean = last10.reduce((a, b) => a + b, 0) / last10.length;
+          return sum + (x - mean) ** 2;
+        }, 0) / last10.length;
 
       expect(variance).toBeLessThan(1e-10); // Should converge
     });
@@ -81,8 +82,8 @@ describe('Logistic Map', () => {
       const map = new LogisticMap(3.5);
       const diagram = map.bifurcationDiagram(3.0, 3.5, 10);
 
-      const minParam = Math.min(...diagram.map(p => p.parameter));
-      const maxParam = Math.max(...diagram.map(p => p.parameter));
+      const minParam = Math.min(...diagram.map((p) => p.parameter));
+      const maxParam = Math.max(...diagram.map((p) => p.parameter));
 
       // Use lower precision (1 decimal place) as implementation may not include exact endpoints
       expect(minParam).toBeCloseTo(3.0, 1);
@@ -207,7 +208,7 @@ describe('Lorenz Attractor', () => {
       const section = lorenz.poincareSection(27, 10000, 0.01);
 
       expect(section.length).toBeGreaterThan(0);
-      section.forEach(point => {
+      section.forEach((point) => {
         expect(point).toHaveProperty('x');
         expect(point).toHaveProperty('y');
       });
@@ -357,12 +358,12 @@ describe('Time Series Analysis', () => {
       const spectrum = powerSpectrum(series);
 
       expect(spectrum.length).toBe(64); // Half of input length
-      expect(spectrum.every(val => val >= 0)).toBe(true); // Power is non-negative
+      expect(spectrum.every((val) => val >= 0)).toBe(true); // Power is non-negative
     });
 
     it('should detect periodicity', () => {
       // Create periodic signal
-      const series = Array.from({ length: 128 }, (_, i) => Math.sin(2 * Math.PI * i / 10));
+      const series = Array.from({ length: 128 }, (_, i) => Math.sin((2 * Math.PI * i) / 10));
 
       const spectrum = powerSpectrum(series);
 

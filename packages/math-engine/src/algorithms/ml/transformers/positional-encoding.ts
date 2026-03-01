@@ -27,7 +27,7 @@ export function generatePositionalEncoding(maxLen: number, dim: number): Matrix 
     encoding[pos] = [];
 
     for (let i = 0; i < dim; i++) {
-      const angle = pos / Math.pow(10000, (2 * Math.floor(i / 2)) / dim);
+      const angle = pos / 10000 ** ((2 * Math.floor(i / 2)) / dim);
 
       // Even indices: sin, Odd indices: cos
       if (i % 2 === 0) {
@@ -48,10 +48,7 @@ export function generatePositionalEncoding(maxLen: number, dim: number): Matrix 
  * @param positionalEncoding - Pre-computed positional encodings
  * @returns Embeddings with position information
  */
-export function addPositionalEncoding(
-  embeddings: Matrix,
-  positionalEncoding: Matrix
-): Matrix {
+export function addPositionalEncoding(embeddings: Matrix, positionalEncoding: Matrix): Matrix {
   const seqLen = embeddings.length;
   const dim = embeddings[0]?.length || 0;
 
@@ -82,7 +79,7 @@ export class LearnedPositionalEmbedding {
 
   constructor(
     public readonly maxLen: number,
-    public readonly dim: number
+    public readonly dim: number,
   ) {
     // Initialize with small random values
     this.embeddings = this.initialize();
@@ -106,7 +103,7 @@ export class LearnedPositionalEmbedding {
    * Get positional embedding for given positions
    */
   getEmbedding(positions: ReadonlyArray<number>): Matrix {
-    return positions.map(pos => {
+    return positions.map((pos) => {
       if (pos >= this.maxLen) {
         throw new Error(`Position ${pos} exceeds max length ${this.maxLen}`);
       }
@@ -136,7 +133,7 @@ export class LearnedPositionalEmbedding {
    */
   update(gradients: Matrix, learningRate: number): void {
     // Create mutable copy for update
-    const mutableEmbeddings = this.embeddings.map(row => [...row]);
+    const mutableEmbeddings = this.embeddings.map((row) => [...row]);
 
     for (let i = 0; i < Math.min(gradients.length, this.maxLen); i++) {
       for (let j = 0; j < this.dim; j++) {
@@ -162,7 +159,7 @@ export class RelativePositionalEncoding {
 
   constructor(
     public readonly maxRelativePosition: number,
-    public readonly numHeads: number
+    public readonly numHeads: number,
   ) {
     this.biases = this.initialize();
   }
@@ -189,7 +186,7 @@ export class RelativePositionalEncoding {
     const relativePos = keyPos - queryPos;
     const clampedPos = Math.max(
       -this.maxRelativePosition,
-      Math.min(this.maxRelativePosition, relativePos)
+      Math.min(this.maxRelativePosition, relativePos),
     );
 
     const index = clampedPos + this.maxRelativePosition;
@@ -226,7 +223,7 @@ export class RelativePositionalEncoding {
 export function applyRotaryEmbedding(
   vectors: Matrix,
   positions: ReadonlyArray<number>,
-  dim: number
+  dim: number,
 ): Matrix {
   const seqLen = vectors.length;
   const result: number[][] = [];
@@ -236,7 +233,7 @@ export function applyRotaryEmbedding(
     const pos = positions[i]!;
 
     for (let j = 0; j < dim; j += 2) {
-      const freq = 1.0 / Math.pow(10000, j / dim);
+      const freq = 1.0 / 10000 ** (j / dim);
       const angle = pos * freq;
 
       const cos = Math.cos(angle);
@@ -274,10 +271,10 @@ export class ALiBiPositionalBias {
    */
   private computeSlopes(): ReadonlyArray<number> {
     const slopes: number[] = [];
-    const ratio = Math.pow(2, -8 / this.numHeads);
+    const ratio = 2 ** (-8 / this.numHeads);
 
     for (let i = 0; i < this.numHeads; i++) {
-      slopes.push(Math.pow(ratio, i + 1));
+      slopes.push(ratio ** (i + 1));
     }
 
     return slopes;

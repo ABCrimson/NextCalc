@@ -8,7 +8,7 @@
  * - Diophantine equations
  */
 
-import { createTemplate, type ProblemTemplate, narrow } from './template-engine';
+import { createTemplate, narrow, type ProblemTemplate } from './template-engine';
 
 /**
  * Prime factorization
@@ -20,7 +20,7 @@ export const primeFactorizationTemplate = createTemplate({
   difficulty: 2,
   template: 'Find the prime factorization of {{n}}.',
   parameters: [{ name: 'n', type: 'integer', min: 12, max: 100 }],
-  solution: params => {
+  solution: (params) => {
     const { n } = narrow<{ n: number }>(params);
     const factors = primeFactorize(n);
 
@@ -34,10 +34,7 @@ export const primeFactorizationTemplate = createTemplate({
       ],
     };
   },
-  hints: [
-    () => 'Start by dividing by the smallest prime (2)',
-    () => 'Continue until you reach 1',
-  ],
+  hints: [() => 'Start by dividing by the smallest prime (2)', () => 'Continue until you reach 1'],
   commonMistakes: [],
   tags: ['primes', 'factorization', 'number-theory'],
   prerequisites: ['primes', 'division'],
@@ -57,7 +54,7 @@ export const gcdTemplate = createTemplate({
     { name: 'a', type: 'integer', min: 10, max: 100 },
     { name: 'b', type: 'integer', min: 10, max: 100 },
   ],
-  solution: params => {
+  solution: (params) => {
     const { a, b } = narrow<{ a: number; b: number }>(params);
     const result = gcd(a, b);
 
@@ -91,7 +88,7 @@ export const modularArithmeticTemplate = createTemplate({
     { name: 'a', type: 'integer', min: 10, max: 100 },
     { name: 'm', type: 'integer', min: 3, max: 20 },
   ],
-  solution: params => {
+  solution: (params) => {
     const { a, m } = narrow<{ a: number; m: number }>(params);
     const result = a % m;
 

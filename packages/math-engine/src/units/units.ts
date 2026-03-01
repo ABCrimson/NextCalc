@@ -4,11 +4,11 @@
 
 import type { Dimension } from './dimensions';
 import {
-  SI_BASE_DIMENSIONS,
   DERIVED_DIMENSIONS,
+  DimensionalError,
   dimensionsEqual,
   multiplyDimensions,
-  DimensionalError,
+  SI_BASE_DIMENSIONS,
 } from './dimensions';
 
 /**
@@ -348,7 +348,7 @@ export function convertUnit(quantity: Quantity, targetUnit: UnitDefinition): Qua
     throw new DimensionalError(
       'Cannot convert between incompatible dimensions',
       targetUnit.dimension,
-      quantity.unit.dimension
+      quantity.unit.dimension,
     );
   }
 
@@ -374,7 +374,7 @@ export function addQuantities(a: Quantity, b: Quantity): Quantity {
     throw new DimensionalError(
       'Cannot add quantities with different dimensions',
       a.unit.dimension,
-      b.unit.dimension
+      b.unit.dimension,
     );
   }
 

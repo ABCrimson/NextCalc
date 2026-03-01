@@ -9,11 +9,11 @@
 
 import type { Matrix } from './attention';
 import {
-  multiHeadSelfAttention,
-  multiHeadCrossAttention,
-  maskedMultiHeadAttention,
-  type MultiHeadWeights,
   type MultiHeadAttentionConfig,
+  type MultiHeadWeights,
+  maskedMultiHeadAttention,
+  multiHeadCrossAttention,
+  multiHeadSelfAttention,
 } from './multi-head-attention';
 
 /**
@@ -86,11 +86,7 @@ export interface LayerNormParams {
  *
  * Applied to each position independently and identically.
  */
-export function feedForwardNetwork(
-  input: Matrix,
-  weights: FFNWeights,
-  config: FFNConfig
-): Matrix {
+export function feedForwardNetwork(input: Matrix, weights: FFNWeights, config: FFNConfig): Matrix {
   const { dropout = 0 } = config;
   const seqLen = input.length;
 
@@ -134,11 +130,7 @@ export function feedForwardNetwork(
  *
  * Normalizes across features (not batch like BatchNorm).
  */
-export function layerNorm(
-  input: Matrix,
-  params: LayerNormParams,
-  epsilon = 1e-6
-): Matrix {
+export function layerNorm(input: Matrix, params: LayerNormParams, epsilon = 1e-6): Matrix {
   const seqLen = input.length;
   const dim = input[0]?.length || 0;
   const output: number[][] = [];
@@ -150,7 +142,7 @@ export function layerNorm(
     const mean = row.reduce((sum, val) => sum + val, 0) / dim;
 
     // Compute variance
-    const variance = row.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / dim;
+    const variance = row.reduce((sum, val) => sum + (val - mean) ** 2, 0) / dim;
 
     // Normalize
     output[i] = [];
@@ -175,7 +167,7 @@ export function layerNorm(
 export function transformerEncoderBlock(
   input: Matrix,
   weights: EncoderBlockWeights,
-  config: EncoderBlockConfig
+  config: EncoderBlockConfig,
 ): Matrix {
   const { modelDim, numHeads, ffnHiddenDim, dropout = 0 } = config;
 
@@ -186,11 +178,7 @@ export function transformerEncoderBlock(
     dropout,
   };
 
-  const { output: attnOutput } = multiHeadSelfAttention(
-    input,
-    weights.attention,
-    attnConfig
-  );
+  const { output: attnOutput } = multiHeadSelfAttention(input, weights.attention, attnConfig);
 
   // 2. Add & Norm (post-norm variant)
   const attnResidual = addResidual(input, attnOutput);
@@ -236,7 +224,7 @@ export function transformerDecoderBlock(
   input: Matrix,
   encoderOutput: Matrix,
   weights: DecoderBlockWeights,
-  config: EncoderBlockConfig
+  config: EncoderBlockConfig,
 ): Matrix {
   const { modelDim, numHeads, ffnHiddenDim, dropout = 0 } = config;
 
@@ -252,7 +240,7 @@ export function transformerDecoderBlock(
     input,
     input,
     weights.selfAttention,
-    attnConfig
+    attnConfig,
   );
 
   const residual1 = addResidual(input, selfAttnOutput);
@@ -263,7 +251,7 @@ export function transformerDecoderBlock(
     norm1Output,
     encoderOutput,
     weights.crossAttention,
-    attnConfig
+    attnConfig,
   );
 
   const residual2 = addResidual(norm1Output, crossAttnOutput);
@@ -313,9 +301,7 @@ function applyDropout(matrix: Matrix, probability: number): Matrix {
   if (probability === 0) return matrix as Matrix;
 
   const scale = 1 / (1 - probability);
-  return matrix.map(row =>
-    row.map(val => (Math.random() < probability ? 0 : val * scale))
-  );
+  return matrix.map((row) => row.map((val) => (Math.random() < probability ? 0 : val * scale)));
 }
 
 /**

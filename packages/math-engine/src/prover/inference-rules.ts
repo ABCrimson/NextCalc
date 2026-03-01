@@ -10,7 +10,7 @@
  */
 
 import type { Formula, Term } from './logic-core';
-import { and, or, not, implies, atom } from './logic-core';
+import { and, atom, implies, not, or } from './logic-core';
 
 /**
  * Inference rule interface
@@ -239,7 +239,12 @@ export class ConjunctionElimination implements InferenceRule {
 
   isApplicable(premises: Formula[]): boolean {
     const formula = premises[0];
-    return premises.length === 1 && formula !== undefined && formula.type === 'binary' && formula.operator === 'AND';
+    return (
+      premises.length === 1 &&
+      formula !== undefined &&
+      formula.type === 'binary' &&
+      formula.operator === 'AND'
+    );
   }
 
   apply(premises: Formula[]): Formula[] {
@@ -336,8 +341,13 @@ export class Resolution implements InferenceRule {
 
   private findComplementaryLiterals(
     f1: Formula,
-    f2: Formula
-  ): { literal: Formula; negatedLiteral: Formula; f1Other: Formula | null; f2Other: Formula | null } | null {
+    f2: Formula,
+  ): {
+    literal: Formula;
+    negatedLiteral: Formula;
+    f1Other: Formula | null;
+    f2Other: Formula | null;
+  } | null {
     if (f1.type !== 'binary' || f2.type !== 'binary') return null;
 
     // Check all combinations
@@ -375,7 +385,7 @@ export class ChainRule implements InferenceRule {
     if (premises.length < 2) return false;
 
     // All must be implications
-    if (!premises.every(p => p.type === 'binary' && p.operator === 'IMPLIES')) {
+    if (!premises.every((p) => p.type === 'binary' && p.operator === 'IMPLIES')) {
       return false;
     }
 
@@ -544,15 +554,15 @@ export const INFERENCE_RULES = {
 /**
  * Try to apply any applicable inference rule
  */
-export function applyAnyRule(premises: Formula[]): { rule: InferenceRule; conclusions: Formula[] } | null {
+export function applyAnyRule(
+  premises: Formula[],
+): { rule: InferenceRule; conclusions: Formula[] } | null {
   for (const rule of Object.values(INFERENCE_RULES)) {
     if (rule.isApplicable(premises)) {
       try {
         const conclusions = rule.apply(premises);
         return { rule, conclusions };
-      } catch {
-        continue;
-      }
+      } catch {}
     }
   }
 
@@ -563,5 +573,5 @@ export function applyAnyRule(premises: Formula[]): { rule: InferenceRule; conclu
  * Find all applicable rules for given premises
  */
 export function findApplicableRules(premises: Formula[]): InferenceRule[] {
-  return Object.values(INFERENCE_RULES).filter(rule => rule.isApplicable(premises));
+  return Object.values(INFERENCE_RULES).filter((rule) => rule.isApplicable(premises));
 }

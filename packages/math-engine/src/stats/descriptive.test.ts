@@ -2,8 +2,18 @@
  * Unit tests for descriptive statistics
  */
 
-import { describe, it, expect } from 'vitest';
-import { mean, median, mode, variance, stdDev, range, quartiles, sum, product } from './descriptive';
+import { describe, expect, it } from 'vitest';
+import {
+  mean,
+  median,
+  mode,
+  product,
+  quartiles,
+  range,
+  stdDev,
+  sum,
+  variance,
+} from './descriptive';
 
 describe('Descriptive Statistics', () => {
   describe('mean', () => {

@@ -39,16 +39,13 @@ export type Parameters = ReadonlyArray<number>;
  */
 export type ModelFunction = (
   input: ReadonlyArray<number>,
-  params: Parameters
+  params: Parameters,
 ) => ReadonlyArray<number>;
 
 /**
  * Loss function type
  */
-export type LossFunction = (
-  prediction: ReadonlyArray<number>,
-  label: number
-) => number;
+export type LossFunction = (prediction: ReadonlyArray<number>, label: number) => number;
 
 /**
  * MAML Configuration
@@ -92,11 +89,11 @@ export function maml(
   initialParams: Parameters,
   model: ModelFunction,
   loss: LossFunction,
-  config: MAMLConfig
+  config: MAMLConfig,
 ): Parameters {
   const { innerLR, outerLR, innerSteps, outerSteps } = config;
 
-  let metaParams = [...initialParams];
+  const metaParams = [...initialParams];
 
   // Outer loop (meta-training)
   for (let epoch = 0; epoch < outerSteps; epoch++) {
@@ -114,7 +111,7 @@ export function maml(
           task.support.inputs,
           task.support.labels,
           model,
-          loss
+          loss,
         );
 
         // Update task-specific parameters
@@ -127,7 +124,7 @@ export function maml(
         task.query.inputs,
         task.query.labels,
         model,
-        loss
+        loss,
       );
 
       // Accumulate meta-gradient
@@ -169,7 +166,7 @@ export function maml(
  */
 export function prototypicalNetworks(
   task: Task,
-  embedModel: (input: ReadonlyArray<number>) => ReadonlyArray<number>
+  embedModel: (input: ReadonlyArray<number>) => ReadonlyArray<number>,
 ): ReadonlyArray<number> {
   // Step 1: Compute prototypes (class centroids in embedding space)
   const prototypes = computePrototypes(task.support, embedModel);
@@ -205,7 +202,7 @@ export function prototypicalNetworks(
  */
 function computePrototypes(
   support: Task['support'],
-  embedModel: (input: ReadonlyArray<number>) => ReadonlyArray<number>
+  embedModel: (input: ReadonlyArray<number>) => ReadonlyArray<number>,
 ): ReadonlyArray<ReadonlyArray<number>> {
   const { inputs, labels } = support;
 
@@ -249,12 +246,12 @@ function computePrototypes(
 export function matchingNetworks(
   task: Task,
   embedModel: (input: ReadonlyArray<number>) => ReadonlyArray<number>,
-  attentionKernel: (a: ReadonlyArray<number>, b: ReadonlyArray<number>) => number
+  attentionKernel: (a: ReadonlyArray<number>, b: ReadonlyArray<number>) => number,
 ): ReadonlyArray<number> {
   const { support, query } = task;
 
   // Embed all support examples
-  const supportEmbeds = support.inputs.map(x => embedModel(x));
+  const supportEmbeds = support.inputs.map((x) => embedModel(x));
 
   const predictions: number[] = [];
 
@@ -262,8 +259,8 @@ export function matchingNetworks(
     const queryEmbed = embedModel(queryInput);
 
     // Compute attention weights
-    const attentionWeights = supportEmbeds.map(supportEmbed =>
-      attentionKernel(queryEmbed, supportEmbed)
+    const attentionWeights = supportEmbeds.map((supportEmbed) =>
+      attentionKernel(queryEmbed, supportEmbed),
     );
 
     // Softmax normalization
@@ -314,11 +311,11 @@ export function reptile(
     outerLR: number;
     innerSteps: number;
     outerSteps: number;
-  }
+  },
 ): Parameters {
   const { innerLR, outerLR, innerSteps, outerSteps } = config;
 
-  let metaParams = [...initialParams];
+  const metaParams = [...initialParams];
 
   for (let epoch = 0; epoch < outerSteps; epoch++) {
     for (const task of tasks) {
@@ -331,7 +328,7 @@ export function reptile(
           task.support.inputs,
           task.support.labels,
           model,
-          loss
+          loss,
         );
 
         taskParams = taskParams.map((p, i) => p - innerLR * gradient[i]!);
@@ -364,7 +361,7 @@ function computeGradient(
   labels: ReadonlyArray<number>,
   model: ModelFunction,
   loss: LossFunction,
-  epsilon = 1e-5
+  epsilon = 1e-5,
 ): ReadonlyArray<number> {
   const gradient: number[] = new Array(params.length).fill(0);
 
@@ -392,7 +389,7 @@ function computeTaskLoss(
   inputs: ReadonlyArray<ReadonlyArray<number>>,
   labels: ReadonlyArray<number>,
   model: ModelFunction,
-  loss: LossFunction
+  loss: LossFunction,
 ): number {
   let totalLoss = 0;
 
@@ -411,18 +408,12 @@ function evaluateTasks(
   tasks: ReadonlyArray<Task>,
   params: Parameters,
   model: ModelFunction,
-  loss: LossFunction
+  loss: LossFunction,
 ): number {
   let totalLoss = 0;
 
   for (const task of tasks) {
-    const taskLoss = computeTaskLoss(
-      params,
-      task.query.inputs,
-      task.query.labels,
-      model,
-      loss
-    );
+    const taskLoss = computeTaskLoss(params, task.query.inputs, task.query.labels, model, loss);
     totalLoss += taskLoss;
   }
 
@@ -432,10 +423,7 @@ function evaluateTasks(
 /**
  * Euclidean distance
  */
-function euclideanDistance(
-  a: ReadonlyArray<number>,
-  b: ReadonlyArray<number>
-): number {
+function euclideanDistance(a: ReadonlyArray<number>, b: ReadonlyArray<number>): number {
   let sum = 0;
   for (let i = 0; i < a.length; i++) {
     const diff = a[i]! - b[i]!;
@@ -447,9 +435,7 @@ function euclideanDistance(
 /**
  * Compute centroid of vectors
  */
-function computeCentroid(
-  vectors: ReadonlyArray<ReadonlyArray<number>>
-): ReadonlyArray<number> {
+function computeCentroid(vectors: ReadonlyArray<ReadonlyArray<number>>): ReadonlyArray<number> {
   const dim = vectors[0]?.length || 0;
   const centroid = new Array(dim).fill(0);
 
@@ -459,7 +445,7 @@ function computeCentroid(
     }
   }
 
-  return centroid.map(x => x / vectors.length);
+  return centroid.map((x) => x / vectors.length);
 }
 
 /**
@@ -467,18 +453,15 @@ function computeCentroid(
  */
 function softmax(values: ReadonlyArray<number>): ReadonlyArray<number> {
   const maxVal = Math.max(...values);
-  const exps = values.map(x => Math.exp(x - maxVal));
+  const exps = values.map((x) => Math.exp(x - maxVal));
   const sum = exps.reduce((a, b) => a + b, 0);
-  return exps.map(x => x / sum);
+  return exps.map((x) => x / sum);
 }
 
 /**
  * Cosine similarity attention kernel
  */
-export function cosineSimilarity(
-  a: ReadonlyArray<number>,
-  b: ReadonlyArray<number>
-): number {
+export function cosineSimilarity(a: ReadonlyArray<number>, b: ReadonlyArray<number>): number {
   let dotProduct = 0;
   let normA = 0;
   let normB = 0;

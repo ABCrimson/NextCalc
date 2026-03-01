@@ -48,7 +48,7 @@ export function pageRank(
   graph: Graph,
   dampingFactor = 0.85,
   maxIterations = 100,
-  tolerance = 1e-6
+  tolerance = 1e-6,
 ): PageRankResult {
   const n = graph.length;
 
@@ -57,7 +57,7 @@ export function pageRank(
   let newRanks = new Array(n).fill(0);
 
   // Compute outdegrees
-  const outdegrees = graph.map(neighbors => neighbors.length);
+  const outdegrees = graph.map((neighbors) => neighbors.length);
 
   let converged = false;
   let iter = 0;
@@ -87,10 +87,7 @@ export function pageRank(
     }
 
     // Check convergence
-    const diff = ranks.reduce(
-      (acc, r, i) => acc + Math.abs(r - newRanks[i]!),
-      0
-    );
+    const diff = ranks.reduce((acc, r, i) => acc + Math.abs(r - newRanks[i]!), 0);
 
     if (diff < tolerance) {
       converged = true;
@@ -125,18 +122,18 @@ export function personalizedPageRank(
   graph: Graph,
   personalVector: ReadonlyArray<number>,
   dampingFactor = 0.85,
-  maxIterations = 100
+  maxIterations = 100,
 ): ReadonlyArray<number> {
   const n = graph.length;
 
   // Normalize personal vector
   const sum = personalVector.reduce((a, b) => a + b, 0);
-  const normalized = personalVector.map(v => v / sum);
+  const normalized = personalVector.map((v) => v / sum);
 
   let ranks = [...normalized];
   let newRanks = new Array(n).fill(0);
 
-  const outdegrees = graph.map(neighbors => neighbors.length);
+  const outdegrees = graph.map((neighbors) => neighbors.length);
 
   for (let iter = 0; iter < maxIterations; iter++) {
     // Calculate dangling node contribution
@@ -157,7 +154,9 @@ export function personalizedPageRank(
       }
 
       // Distribute dangling nodes according to personal vector
-      newRanks[i] = (1 - dampingFactor) * normalized[i]! + dampingFactor * (linkSum + danglingSum * normalized[i]!);
+      newRanks[i] =
+        (1 - dampingFactor) * normalized[i]! +
+        dampingFactor * (linkSum + danglingSum * normalized[i]!);
     }
 
     [ranks, newRanks] = [newRanks, ranks];
@@ -174,15 +173,18 @@ export function personalizedPageRank(
 export function topicSensitivePageRank(
   graph: Graph,
   topics: ReadonlyArray<ReadonlyArray<number>>,
-  dampingFactor = 0.85
+  dampingFactor = 0.85,
 ): ReadonlyArray<ReadonlyArray<number>> {
-  return topics.map(topic => personalizedPageRank(graph, topic, dampingFactor));
+  return topics.map((topic) => personalizedPageRank(graph, topic, dampingFactor));
 }
 
 /**
  * Find top-k pages by PageRank
  */
-export function topKPages(ranks: ReadonlyArray<number>, k: number): ReadonlyArray<{
+export function topKPages(
+  ranks: ReadonlyArray<number>,
+  k: number,
+): ReadonlyArray<{
   node: number;
   rank: number;
 }> {
@@ -203,17 +205,17 @@ export function demonstratePageRank(): void {
   // C -> A
   // D -> C
   const graph: Graph = [
-    [1, 2],  // A links to B, C
-    [2],     // B links to C
-    [0],     // C links to A
-    [2],     // D links to C
+    [1, 2], // A links to B, C
+    [2], // B links to C
+    [0], // C links to A
+    [2], // D links to C
   ];
 
   const nodes = ['A', 'B', 'C', 'D'];
 
   console.log('Graph structure:');
   for (let i = 0; i < graph.length; i++) {
-    const links = graph[i]!.map(j => nodes[j]).join(', ');
+    const links = graph[i]!.map((j) => nodes[j]).join(', ');
     console.log(`  ${nodes[i]} -> ${links || '(none)'}`);
   }
 

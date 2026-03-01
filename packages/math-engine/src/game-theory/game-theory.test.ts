@@ -2,21 +2,30 @@
  * Comprehensive tests for Game Theory
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  NormalFormGame,
-  MinimaxSolver,
-  EvolutionaryGameDynamics,
-  createPrisonersDilemma,
   createBattleOfSexes,
   createMatchingPennies,
+  createPrisonersDilemma,
+  EvolutionaryGameDynamics,
   type GameNode,
+  MinimaxSolver,
+  NormalFormGame,
 } from './game-theory';
 
 describe('Normal Form Games', () => {
   describe('Payoff Computation', () => {
     it('should compute pure strategy payoffs', () => {
-      const game = new NormalFormGame([[3, 0], [5, 1]], [[3, 5], [0, 1]]);
+      const game = new NormalFormGame(
+        [
+          [3, 0],
+          [5, 1],
+        ],
+        [
+          [3, 5],
+          [0, 1],
+        ],
+      );
 
       expect(game.getPayoff([0, 0], 0)).toBe(3);
       expect(game.getPayoff([0, 0], 1)).toBe(3);
@@ -25,7 +34,16 @@ describe('Normal Form Games', () => {
     });
 
     it('should compute mixed strategy payoffs', () => {
-      const game = new NormalFormGame([[3, 0], [0, 3]], [[3, 0], [0, 3]]);
+      const game = new NormalFormGame(
+        [
+          [3, 0],
+          [0, 3],
+        ],
+        [
+          [3, 0],
+          [0, 3],
+        ],
+      );
 
       const mixed1 = [0.5, 0.5];
       const mixed2 = [0.5, 0.5];
@@ -37,13 +55,22 @@ describe('Normal Form Games', () => {
 
   describe('Nash Equilibrium', () => {
     it('should find pure Nash equilibrium in coordination game', () => {
-      const game = new NormalFormGame([[2, 0], [0, 1]], [[1, 0], [0, 2]]);
+      const game = new NormalFormGame(
+        [
+          [2, 0],
+          [0, 1],
+        ],
+        [
+          [1, 0],
+          [0, 2],
+        ],
+      );
 
       const equilibria = game.findPureNashEquilibria();
 
       expect(equilibria.length).toBeGreaterThan(0);
-      expect(equilibria.some(eq => eq.strategies[0] === 0 && eq.strategies[1] === 0)).toBe(true);
-      expect(equilibria.some(eq => eq.strategies[0] === 1 && eq.strategies[1] === 1)).toBe(true);
+      expect(equilibria.some((eq) => eq.strategies[0] === 0 && eq.strategies[1] === 0)).toBe(true);
+      expect(equilibria.some((eq) => eq.strategies[0] === 1 && eq.strategies[1] === 1)).toBe(true);
     });
 
     it('should find Nash equilibrium in Prisoners Dilemma', () => {
@@ -76,7 +103,16 @@ describe('Normal Form Games', () => {
     });
 
     it('should compute equilibrium payoffs correctly', () => {
-      const game = new NormalFormGame([[3, 0], [0, 3]], [[3, 0], [0, 3]]);
+      const game = new NormalFormGame(
+        [
+          [3, 0],
+          [0, 3],
+        ],
+        [
+          [3, 0],
+          [0, 3],
+        ],
+      );
 
       const equilibria = game.findPureNashEquilibria();
 
@@ -99,7 +135,7 @@ describe('Normal Form Games', () => {
           [3, 2],
           [4, 1],
           [1, 3],
-        ]
+        ],
       );
 
       const result = game.eliminateDominatedStrategies();
@@ -111,7 +147,16 @@ describe('Normal Form Games', () => {
     });
 
     it('should not eliminate in symmetric coordination game', () => {
-      const game = new NormalFormGame([[1, 0], [0, 1]], [[1, 0], [0, 1]]);
+      const game = new NormalFormGame(
+        [
+          [1, 0],
+          [0, 1],
+        ],
+        [
+          [1, 0],
+          [0, 1],
+        ],
+      );
 
       const result = game.eliminateDominatedStrategies();
 
@@ -303,7 +348,7 @@ describe('Evolutionary Game Theory', () => {
       expect(trajectory[0]).toEqual([0.3, 0.7]);
 
       // Population proportions should sum to 1
-      trajectory.forEach(pop => {
+      trajectory.forEach((pop) => {
         const sum = pop.reduce((a, b) => a + b, 0);
         expect(sum).toBeCloseTo(1.0, 5);
       });
@@ -376,7 +421,7 @@ describe('Integration Tests', () => {
         [5, 3],
         [1, 4],
         [2, 1],
-      ]
+      ],
     );
 
     const result = game.eliminateDominatedStrategies();

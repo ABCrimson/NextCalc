@@ -9,13 +9,13 @@
  * - Zero-knowledge properties
  */
 
-import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
+import { describe, expect, it } from 'vitest';
 import {
+  PedersenCommitment,
+  RangeProof,
   SchnorrProof,
   ZKSnarkSimulation,
-  RangeProof,
-  PedersenCommitment,
 } from '../zero-knowledge-proofs';
 
 describe('Zero-Knowledge Proofs', () => {
@@ -24,7 +24,7 @@ describe('Zero-Knowledge Proofs', () => {
       const p = 23n;
       const g = 5n;
       const secret = 7n;
-      const y = (g ** secret) % p;
+      const y = g ** secret % p;
 
       const schnorr = new SchnorrProof(p, g, y);
 
@@ -42,7 +42,7 @@ describe('Zero-Knowledge Proofs', () => {
       const g = 5n;
       const secret = 7n;
       const wrongSecret = 8n;
-      const y = (g ** secret) % p;
+      const y = g ** secret % p;
 
       const schnorr = new SchnorrProof(p, g, y);
 
@@ -59,7 +59,7 @@ describe('Zero-Knowledge Proofs', () => {
       const p = 23n;
       const g = 5n;
       const secret = 7n;
-      const y = (g ** secret) % p;
+      const y = g ** secret % p;
 
       const schnorr = new SchnorrProof(p, g, y);
 
@@ -75,7 +75,7 @@ describe('Zero-Knowledge Proofs', () => {
       const p = 23n;
       const g = 5n;
       const secret = 7n;
-      const y = (g ** secret) % p;
+      const y = g ** secret % p;
 
       const schnorr = new SchnorrProof(p, g, y);
 
@@ -90,7 +90,7 @@ describe('Zero-Knowledge Proofs', () => {
       const p = 23n;
       const g = 5n;
       const secret = 7n;
-      const y = (g ** secret) % p;
+      const y = g ** secret % p;
 
       const schnorr = new SchnorrProof(p, g, y);
 
@@ -110,7 +110,7 @@ describe('Zero-Knowledge Proofs', () => {
           (secret, challenge) => {
             const p = 23n;
             const g = 5n;
-            const y = (g ** secret) % p;
+            const y = g ** secret % p;
 
             const schnorr = new SchnorrProof(p, g, y);
 
@@ -120,9 +120,9 @@ describe('Zero-Knowledge Proofs', () => {
             const verified = schnorr.verify(commitment, challenge, response);
 
             expect(verified).toBe(true);
-          }
+          },
         ),
-        { numRuns: 20 }
+        { numRuns: 20 },
       );
     });
 
@@ -130,7 +130,7 @@ describe('Zero-Knowledge Proofs', () => {
       const p = 23n;
       const g = 5n;
       const secret = 15n; // Larger than p
-      const y = (g ** secret) % p;
+      const y = g ** secret % p;
 
       const schnorr = new SchnorrProof(p, g, y);
 
@@ -204,9 +204,7 @@ describe('Zero-Knowledge Proofs', () => {
       const value = 256; // Out of range for 8 bits
       const maxBits = 8;
 
-      expect(() => rangeProof.prove(value, maxBits)).toThrow(
-        'Value 256 not in range [0, 255]'
-      );
+      expect(() => rangeProof.prove(value, maxBits)).toThrow('Value 256 not in range [0, 255]');
     });
 
     it('should throw error for negative values', () => {
@@ -246,19 +244,16 @@ describe('Zero-Knowledge Proofs', () => {
 
     it('property: all values in range can be proven', () => {
       fc.assert(
-        fc.property(
-          fc.integer({ min: 0, max: 255 }),
-          (value) => {
-            const rangeProof = new RangeProof();
-            const maxBits = 8;
+        fc.property(fc.integer({ min: 0, max: 255 }), (value) => {
+          const rangeProof = new RangeProof();
+          const maxBits = 8;
 
-            const { commitment, proof } = rangeProof.prove(value, maxBits);
+          const { commitment, proof } = rangeProof.prove(value, maxBits);
 
-            expect(commitment).toBeDefined();
-            expect(proof).toHaveLength(maxBits);
-          }
-        ),
-        { numRuns: 50 }
+          expect(commitment).toBeDefined();
+          expect(proof).toHaveLength(maxBits);
+        }),
+        { numRuns: 50 },
       );
     });
   });
@@ -382,9 +377,9 @@ describe('Zero-Knowledge Proofs', () => {
             const opened = pedersen.open(commitment, value2, randomness);
 
             expect(opened).toBe(false);
-          }
+          },
         ),
-        { numRuns: 30 }
+        { numRuns: 30 },
       );
     });
   });
@@ -394,7 +389,7 @@ describe('Zero-Knowledge Proofs', () => {
       const p = 23n;
       const g = 5n;
       const secret = 7n;
-      const y = (g ** secret) % p;
+      const y = g ** secret % p;
 
       const schnorr = new SchnorrProof(p, g, y);
 
@@ -427,7 +422,7 @@ describe('Zero-Knowledge Proofs', () => {
       const p = 23n;
       const g = 5n;
       const secret = 7n;
-      const y = (g ** secret) % p;
+      const y = g ** secret % p;
 
       const schnorr = new SchnorrProof(p, g, y);
 
@@ -446,7 +441,7 @@ describe('Zero-Knowledge Proofs', () => {
       const p = 23n;
       const g = 5n;
       const secret = 7n;
-      const y = (g ** secret) % p;
+      const y = g ** secret % p;
 
       const schnorr = new SchnorrProof(p, g, y);
 
@@ -480,7 +475,7 @@ describe('Zero-Knowledge Proofs', () => {
       const p = 23n;
       const g = 5n;
       const secret = 100n; // Large secret
-      const y = (g ** secret) % p;
+      const y = g ** secret % p;
 
       const schnorr = new SchnorrProof(p, g, y);
 

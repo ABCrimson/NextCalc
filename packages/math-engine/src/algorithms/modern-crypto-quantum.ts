@@ -71,22 +71,19 @@ export class SchnorrProtocol {
   /**
    * Verifier: Verify the proof
    */
-  verify(
-    commitment: BigInt,
-    challenge: BigInt,
-    response: BigInt,
-    publicKey: BigInt
-  ): boolean {
+  verify(commitment: BigInt, challenge: BigInt, response: BigInt, publicKey: BigInt): boolean {
     const left = this.modPow(this.g, response, this.p);
-    const right =
-      (commitment * this.modPow(publicKey, challenge, this.p)) % this.p;
+    const right = (commitment * this.modPow(publicKey, challenge, this.p)) % this.p;
     return left === right;
   }
 
   /**
    * Full interactive protocol
    */
-  prove(privateKey: BigInt, challenge: BigInt): {
+  prove(
+    privateKey: BigInt,
+    challenge: BigInt,
+  ): {
     commitment: BigInt;
     response: BigInt;
   } {
@@ -117,7 +114,7 @@ export class SchnorrProtocol {
     const randomHex = Array.from({ length: Math.ceil(bytes) }, () =>
       Math.floor(Math.random() * 256)
         .toString(16)
-        .padStart(2, '0')
+        .padStart(2, '0'),
     ).join('');
     return BigInt('0x' + randomHex) % max;
   }
@@ -205,7 +202,7 @@ export class PaillierEncryption {
     if (gcd !== BigInt(1)) {
       throw new Error('Modular inverse does not exist');
     }
-    return (x % m + m) % m;
+    return ((x % m) + m) % m;
   }
 
   private extendedGCD(a: BigInt, b: BigInt): [BigInt, BigInt, BigInt] {
@@ -236,7 +233,7 @@ export class PaillierEncryption {
     const randomHex = Array.from({ length: Math.ceil(bytes) }, () =>
       Math.floor(Math.random() * 256)
         .toString(16)
-        .padStart(2, '0')
+        .padStart(2, '0'),
     ).join('');
     return BigInt('0x' + randomHex) % max;
   }
@@ -326,7 +323,7 @@ export class ShamirSecretSharing {
     if (gcd !== BigInt(1)) {
       throw new Error('Modular inverse does not exist');
     }
-    return (x % m + m) % m;
+    return ((x % m) + m) % m;
   }
 
   private extendedGCD(a: BigInt, b: BigInt): [BigInt, BigInt, BigInt] {
@@ -346,7 +343,7 @@ export class ShamirSecretSharing {
     const randomHex = Array.from({ length: Math.ceil(bytes) }, () =>
       Math.floor(Math.random() * 256)
         .toString(16)
-        .padStart(2, '0')
+        .padStart(2, '0'),
     ).join('');
     return BigInt('0x' + randomHex) % max;
   }
@@ -404,7 +401,7 @@ export class LWEEncryption {
     }
 
     const error = Math.round(this.gaussianRandom() * this.sigma);
-    c = (c + error + (bit * Math.floor(this.q / 2))) % this.q;
+    c = (c + error + bit * Math.floor(this.q / 2)) % this.q;
 
     return { u, c };
   }
@@ -482,8 +479,14 @@ export class QuantumGates {
    */
   static Y(): Complex[][] {
     return [
-      [{ real: 0, imag: 0 }, { real: 0, imag: -1 }],
-      [{ real: 0, imag: 1 }, { real: 0, imag: 0 }],
+      [
+        { real: 0, imag: 0 },
+        { real: 0, imag: -1 },
+      ],
+      [
+        { real: 0, imag: 1 },
+        { real: 0, imag: 0 },
+      ],
     ];
   }
 
@@ -577,23 +580,21 @@ export class GroverAlgorithm {
     // Apply Grover iterations
     for (let iter = 0; iter < iterations; iter++) {
       // Oracle: flip phase of target
-      state = state.map((amp, i) =>
-        i === target ? { real: -amp.real, imag: -amp.imag } : amp
-      );
+      state = state.map((amp, i) => (i === target ? { real: -amp.real, imag: -amp.imag } : amp));
 
       // Diffusion operator
       state = this.diffusion(state);
     }
 
     // Return probability distribution
-    return state.map(amp => amp.real * amp.real + amp.imag * amp.imag);
+    return state.map((amp) => amp.real * amp.real + amp.imag * amp.imag);
   }
 
   private diffusion(state: Complex[]): Complex[] {
     const N = state.length;
     const avg = state.reduce((sum, amp) => sum + amp.real, 0) / N;
 
-    return state.map(amp => ({
+    return state.map((amp) => ({
       real: 2 * avg - amp.real,
       imag: -amp.imag,
     }));

@@ -9,17 +9,17 @@
  * - ALiBi positional bias
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
 import * as fc from 'fast-check';
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
-  generatePositionalEncoding,
-  addPositionalEncoding,
-  LearnedPositionalEmbedding,
-  RelativePositionalEncoding,
-  applyRotaryEmbedding,
   ALiBiPositionalBias,
-  visualizePositionalEncoding,
+  addPositionalEncoding,
+  applyRotaryEmbedding,
+  generatePositionalEncoding,
+  LearnedPositionalEmbedding,
   type Matrix,
+  RelativePositionalEncoding,
+  visualizePositionalEncoding,
 } from '../positional-encoding';
 
 describe('Positional Encoding', () => {
@@ -73,9 +73,9 @@ describe('Positional Encoding', () => {
                 expect(val).toBeLessThanOrEqual(1);
               }
             }
-          }
+          },
         ),
-        { numRuns: 30 }
+        { numRuns: 30 },
       );
     });
 
@@ -117,7 +117,7 @@ describe('Positional Encoding', () => {
       const positionalEncoding = generatePositionalEncoding(2, 2); // Max length 2
 
       expect(() => addPositionalEncoding(embeddings, positionalEncoding)).toThrow(
-        'Sequence length 3 exceeds max length 2'
+        'Sequence length 3 exceeds max length 2',
       );
     });
 
@@ -128,7 +128,7 @@ describe('Positional Encoding', () => {
           fc.integer({ min: 2, max: 8 }),
           (seqLen, dim) => {
             const embeddings: Matrix = Array.from({ length: seqLen }, () =>
-              Array.from({ length: dim }, () => Math.random())
+              Array.from({ length: dim }, () => Math.random()),
             );
             const positionalEncoding = generatePositionalEncoding(seqLen + 5, dim);
 
@@ -136,9 +136,9 @@ describe('Positional Encoding', () => {
 
             expect(result).toHaveLength(seqLen);
             expect(result[0]).toHaveLength(dim);
-          }
+          },
         ),
-        { numRuns: 30 }
+        { numRuns: 30 },
       );
     });
   });
@@ -167,9 +167,7 @@ describe('Positional Encoding', () => {
       const learned = new LearnedPositionalEmbedding(5, 4);
       const positions = [0, 1, 5]; // Position 5 >= maxLen
 
-      expect(() => learned.getEmbedding(positions)).toThrow(
-        'Position 5 exceeds max length 5'
-      );
+      expect(() => learned.getEmbedding(positions)).toThrow('Position 5 exceeds max length 5');
     });
 
     it('should add to input embeddings', () => {
@@ -316,7 +314,7 @@ describe('Positional Encoding', () => {
 
       const originalNorm = Math.sqrt(3 * 3 + 4 * 4);
       const rotatedNorm = Math.sqrt(
-        result[0]![0]! ** 2 + result[0]![1]! ** 2 + result[0]![2]! ** 2 + result[0]![3]! ** 2
+        result[0]![0]! ** 2 + result[0]![1]! ** 2 + result[0]![2]! ** 2 + result[0]![3]! ** 2,
       );
 
       // Rotation preserves norm (approximately)
@@ -342,9 +340,9 @@ describe('Positional Encoding', () => {
               // Skip near-zero vectors
               expect(rotatedNorm).toBeCloseTo(originalNorm, 4);
             }
-          }
+          },
         ),
-        { numRuns: 50 }
+        { numRuns: 50 },
       );
     });
   });
@@ -470,9 +468,9 @@ describe('Positional Encoding', () => {
             const enc2 = generatePositionalEncoding(maxLen, dim);
 
             expect(enc1).toEqual(enc2);
-          }
+          },
         ),
-        { numRuns: 20 }
+        { numRuns: 20 },
       );
     });
   });

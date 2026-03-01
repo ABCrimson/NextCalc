@@ -120,10 +120,7 @@ export type HintGenerator = (params: TemplateParams, progress?: number) => strin
 /**
  * Mistake detector function
  */
-export type MistakeDetector = (
-  params: TemplateParams,
-  userAnswer: string
-) => Mistake | null;
+export type MistakeDetector = (params: TemplateParams, userAnswer: string) => Mistake | null;
 
 /**
  * Problem template definition
@@ -173,7 +170,7 @@ export class TemplateEngine {
    * Register multiple templates
    */
   registerMany(templates: ProblemTemplate[]): void {
-    templates.forEach(t => this.register(t));
+    templates.forEach((t) => this.register(t));
   }
 
   /**
@@ -200,11 +197,11 @@ export class TemplateEngine {
     const solution = template.solution(parameters);
 
     // Generate hints
-    const hints = template.hints.map(hintGen => hintGen(parameters));
+    const hints = template.hints.map((hintGen) => hintGen(parameters));
 
     // Generate mistake detectors
     const commonMistakes = template.commonMistakes
-      .map(detector => detector(parameters, ''))
+      .map((detector) => detector(parameters, ''))
       .filter((m): m is Mistake => m !== null);
 
     return {
@@ -241,20 +238,18 @@ export class TemplateEngine {
     let templates = Array.from(this.templates.values());
 
     if (criteria.category) {
-      templates = templates.filter(t => t.category === criteria.category);
+      templates = templates.filter((t) => t.category === criteria.category);
     }
 
     if (criteria.difficulty !== undefined) {
       const difficulties = Array.isArray(criteria.difficulty)
         ? criteria.difficulty
         : [criteria.difficulty];
-      templates = templates.filter(t => difficulties.includes(t.difficulty));
+      templates = templates.filter((t) => difficulties.includes(t.difficulty));
     }
 
     if (criteria.tags) {
-      templates = templates.filter(t =>
-        criteria.tags!.some(tag => t.tags?.includes(tag))
-      );
+      templates = templates.filter((t) => criteria.tags!.some((tag) => t.tags?.includes(tag)));
     }
 
     return templates;

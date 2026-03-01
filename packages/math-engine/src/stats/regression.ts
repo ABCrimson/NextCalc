@@ -25,7 +25,7 @@ function validateRegressionData(x: number[], y: number[], functionName: string):
     throw new Error(`${functionName}: x and y arrays must have the same length`);
   }
 
-  if (x.some(val => !Number.isFinite(val)) || y.some(val => !Number.isFinite(val))) {
+  if (x.some((val) => !Number.isFinite(val)) || y.some((val) => !Number.isFinite(val))) {
     throw new Error(`${functionName}: Data arrays contain invalid values (NaN or Infinity)`);
   }
 
@@ -64,7 +64,7 @@ function calculateR2(yActual: number[], yPredicted: number[]): number {
   }
 
   // R² = 1 - (RSS / TSS)
-  return tss === 0 ? 0 : 1 - (rss / tss);
+  return tss === 0 ? 0 : 1 - rss / tss;
 }
 
 /**
@@ -123,7 +123,7 @@ export function linearRegression(x: number[], y: number[]): LinearRegressionResu
   const intercept = yMean - slope * xMean;
 
   // Calculate R²
-  const yPredicted = x.map(xi => slope * xi + intercept);
+  const yPredicted = x.map((xi) => slope * xi + intercept);
   const r2 = calculateR2(y, yPredicted);
 
   return { slope, intercept, r2 };
@@ -158,7 +158,7 @@ export interface PolynomialRegressionResult {
 export function polynomialRegression(
   x: number[],
   y: number[],
-  degree: number
+  degree: number,
 ): PolynomialRegressionResult {
   validateRegressionData(x, y, 'polynomialRegression');
 
@@ -184,7 +184,7 @@ export function polynomialRegression(
     const row = X[i];
     if (!row) continue;
     for (let j = 0; j <= degree; j++) {
-      row[j] = Math.pow(xVal, j);
+      row[j] = xVal ** j;
     }
   }
 
@@ -230,12 +230,12 @@ export function polynomialRegression(
   const coefficients = solveLinearSystem(XtX, Xty);
 
   // Calculate R²
-  const yPredicted = x.map(xi => {
+  const yPredicted = x.map((xi) => {
     let yPred = 0;
     for (let j = 0; j <= degree; j++) {
       const coeff = coefficients[j];
       if (coeff !== undefined) {
-        yPred += coeff * Math.pow(xi, j);
+        yPred += coeff * xi ** j;
       }
     }
     return yPred;
@@ -377,12 +377,12 @@ export function exponentialRegression(x: number[], y: number[]): ExponentialRegr
   validateRegressionData(x, y, 'exponentialRegression');
 
   // Check that all y values are positive
-  if (y.some(yi => yi <= 0)) {
+  if (y.some((yi) => yi <= 0)) {
     throw new Error('exponentialRegression: All y values must be positive');
   }
 
   // Transform to linear: ln(y) = ln(a) + b*x
-  const lnY = y.map(yi => Math.log(yi));
+  const lnY = y.map((yi) => Math.log(yi));
 
   // Perform linear regression on ln(y) vs x
   const linearResult = linearRegression(x, lnY);
@@ -392,7 +392,7 @@ export function exponentialRegression(x: number[], y: number[]): ExponentialRegr
   const b = linearResult.slope;
 
   // Calculate R² in original space (not transformed)
-  const yPredicted = x.map(xi => a * Math.exp(b * xi));
+  const yPredicted = x.map((xi) => a * Math.exp(b * xi));
   const r2 = calculateR2(y, yPredicted);
 
   return { a, b, r2 };
@@ -412,7 +412,7 @@ export function exponentialRegression(x: number[], y: number[]): ExponentialRegr
  */
 export function predict(
   regression: LinearRegressionResult | PolynomialRegressionResult | ExponentialRegressionResult,
-  x: number | number[]
+  x: number | number[],
 ): number | number[] {
   const predictSingle = (xi: number): number => {
     if ('slope' in regression) {
@@ -424,7 +424,7 @@ export function predict(
       for (let i = 0; i < regression.coefficients.length; i++) {
         const coeff = regression.coefficients[i];
         if (coeff !== undefined) {
-          result += coeff * Math.pow(xi, i);
+          result += coeff * xi ** i;
         }
       }
       return result;

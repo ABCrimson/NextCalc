@@ -83,7 +83,7 @@ export function verifyGroupAxioms<T extends GroupElement>(
   elements: ReadonlyArray<T>,
   operation: GroupOperation<T>,
   identity: T,
-  inverse: (element: T) => T
+  inverse: (element: T) => T,
 ): {
   readonly isGroup: boolean;
   readonly closure: boolean;
@@ -125,7 +125,7 @@ export function verifyGroupAxioms<T extends GroupElement>(
         if (left !== right) {
           associativity = false;
           errors.push(
-            `Associativity fails: (${String(a)} * ${String(b)}) * ${String(c)} ≠ ${String(a)} * (${String(b)} * ${String(c)})`
+            `Associativity fails: (${String(a)} * ${String(b)}) * ${String(c)} ≠ ${String(a)} * (${String(b)} * ${String(c)})`,
           );
         }
       }
@@ -304,7 +304,7 @@ export function composePermutations(sigma: Permutation, tau: Permutation): Permu
 
   return sigma.map((_, i) => {
     const tauI = tau[i];
-    return tauI !== undefined ? sigma[tauI] ?? i : i;
+    return tauI !== undefined ? (sigma[tauI] ?? i) : i;
   });
 }
 
@@ -375,10 +375,7 @@ export function permutationToCycles(sigma: Permutation): CycleNotation {
  * console.log(cyclesToPermutation(cycles, 5)); // [1, 2, 0, 4, 3]
  */
 export function cyclesToPermutation(cycles: CycleNotation, n?: number): Permutation {
-  const maxElement = Math.max(
-    ...cycles.flatMap((cycle) => cycle),
-    0
-  );
+  const maxElement = Math.max(...cycles.flatMap((cycle) => cycle), 0);
   const size = n ?? maxElement + 1;
   const permutation = Array.from({ length: size }, (_, i) => i);
 
@@ -567,7 +564,7 @@ export function createDihedralGroup(n: number): Group<string> {
  */
 export function isSubgroup<T extends GroupElement>(
   group: Group<T>,
-  subset: ReadonlyArray<T>
+  subset: ReadonlyArray<T>,
 ): boolean {
   // Check if identity is in subset
   if (!subset.includes(group.identity)) {
@@ -610,7 +607,7 @@ export function isSubgroup<T extends GroupElement>(
 export function leftCoset<T extends GroupElement>(
   group: Group<T>,
   subgroup: ReadonlyArray<T>,
-  a: T
+  a: T,
 ): ReadonlyArray<T> {
   return subgroup.map((h) => group.operation(a, h));
 }
@@ -632,7 +629,7 @@ export function leftCoset<T extends GroupElement>(
  */
 export function allLeftCosets<T extends GroupElement>(
   group: Group<T>,
-  subgroup: ReadonlyArray<T>
+  subgroup: ReadonlyArray<T>,
 ): ReadonlyArray<ReadonlyArray<T>> {
   const cosets: T[][] = [];
   const covered = new Set<T>();
@@ -659,7 +656,7 @@ export function allLeftCosets<T extends GroupElement>(
  */
 export function groupIndex<T extends GroupElement>(
   group: Group<T>,
-  subgroup: ReadonlyArray<T>
+  subgroup: ReadonlyArray<T>,
 ): number {
   if (!isSubgroup(group, subgroup)) {
     throw new Error('groupIndex: Subset is not a subgroup');
@@ -696,7 +693,7 @@ export type GroupHomomorphism<S extends GroupElement, T extends GroupElement> = 
 export function isHomomorphism<S extends GroupElement, T extends GroupElement>(
   source: Group<S>,
   target: Group<T>,
-  phi: GroupHomomorphism<S, T>
+  phi: GroupHomomorphism<S, T>,
 ): boolean {
   // Check if phi(ab) = phi(a)phi(b) for all a, b
   for (const a of source.elements) {
@@ -726,7 +723,7 @@ export function isHomomorphism<S extends GroupElement, T extends GroupElement>(
 export function isIsomorphism<S extends GroupElement, T extends GroupElement>(
   source: Group<S>,
   target: Group<T>,
-  phi: GroupHomomorphism<S, T>
+  phi: GroupHomomorphism<S, T>,
 ): boolean {
   if (!isHomomorphism(source, target, phi)) {
     return false;
@@ -750,7 +747,7 @@ export function isIsomorphism<S extends GroupElement, T extends GroupElement>(
 export function kernel<S extends GroupElement, T extends GroupElement>(
   source: Group<S>,
   target: Group<T>,
-  phi: GroupHomomorphism<S, T>
+  phi: GroupHomomorphism<S, T>,
 ): ReadonlyArray<S> {
   return source.elements.filter((g) => phi(g) === target.identity);
 }
@@ -766,7 +763,7 @@ export function kernel<S extends GroupElement, T extends GroupElement>(
  */
 export function image<S extends GroupElement, T extends GroupElement>(
   source: Group<S>,
-  phi: GroupHomomorphism<S, T>
+  phi: GroupHomomorphism<S, T>,
 ): ReadonlyArray<T> {
   return [...new Set(source.elements.map(phi))];
 }

@@ -229,7 +229,7 @@ export class Complex {
     }
 
     // For large exponents, use De Moivre's formula
-    const r = Math.pow(this.magnitude, n);
+    const r = this.magnitude ** n;
     const theta = n * this.argument;
     return Complex.fromPolar(r, theta);
   }
@@ -341,7 +341,7 @@ export class Complex {
     // sinh(a + bi) = sinh(a)cos(b) + i*cosh(a)sin(b)
     return new Complex(
       Math.sinh(this.real) * Math.cos(this.imag),
-      Math.cosh(this.real) * Math.sin(this.imag)
+      Math.cosh(this.real) * Math.sin(this.imag),
     );
   }
 
@@ -356,7 +356,7 @@ export class Complex {
     // cosh(a + bi) = cosh(a)cos(b) + i*sinh(a)sin(b)
     return new Complex(
       Math.cosh(this.real) * Math.cos(this.imag),
-      Math.sinh(this.real) * Math.sin(this.imag)
+      Math.sinh(this.real) * Math.sin(this.imag),
     );
   }
 

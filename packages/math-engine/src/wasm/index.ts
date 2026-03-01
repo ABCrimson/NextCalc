@@ -11,24 +11,28 @@
  */
 
 // Original WASM bindings
-export { getWASMManager, getHighPrecision, MPFRWASMManager, MPFRNumber, type MPFRModule } from './loader';
-
-// Enhanced wrapper with better API
 export {
-  HighPrecisionNumber,
-  HighPrecisionScope,
-  HighPrecisionManager,
-  createHighPrecision,
-  WASMArithmeticError,
-  type PrecisionMode,
-  type RoundingMode,
-  type WASMConfig,
-} from './wrapper';
-
+  getHighPrecision,
+  getWASMManager,
+  type MPFRModule,
+  MPFRNumber,
+  MPFRWASMManager,
+} from './loader';
 // Mock implementation for development/fallback
 export {
-  MockHighPrecisionNumber,
-  MockWASMManager,
   createMockWASM,
+  MockHighPrecisionNumber,
   type MockMPFRModule,
+  MockWASMManager,
 } from './mock';
+// Enhanced wrapper with better API
+export {
+  createHighPrecision,
+  HighPrecisionManager,
+  HighPrecisionNumber,
+  HighPrecisionScope,
+  type PrecisionMode,
+  type RoundingMode,
+  WASMArithmeticError,
+  type WASMConfig,
+} from './wrapper';

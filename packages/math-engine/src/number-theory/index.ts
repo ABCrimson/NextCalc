@@ -9,5 +9,5 @@
  * @module number-theory
  */
 
-export * from './primes';
 export * from './modular';
+export * from './primes';

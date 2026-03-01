@@ -12,23 +12,23 @@
 
 import type { ExpressionNode } from '../parser/ast';
 import {
-  NodeType,
   createConstantNode,
-  createSymbolNode,
-  createOperatorNode,
-  createUnaryOperatorNode,
   createFunctionNode,
+  createOperatorNode,
+  createSymbolNode,
+  createUnaryOperatorNode,
+  type FunctionNode,
+  NodeType,
   type OperatorNode,
   type UnaryOperatorNode,
-  type FunctionNode,
 } from '../parser/ast';
-import { parse } from '../parser/parser';
 import { evaluate } from '../parser/evaluator';
+import { parse } from '../parser/parser';
 import {
+  IntegrationError,
+  type IntegrationResult,
   integrateNumerical,
   type NumericalIntegrationConfig,
-  type IntegrationResult,
-  IntegrationError,
 } from './integrate-numerical';
 
 /**
@@ -55,7 +55,7 @@ export interface ImproperIntegralConfig extends NumericalIntegrationConfig {
 function substituteVariable(
   expr: ExpressionNode,
   variable: string,
-  replacement: ExpressionNode
+  replacement: ExpressionNode,
 ): ExpressionNode {
   switch (expr.type) {
     case NodeType.ConstantNode:
@@ -69,30 +69,24 @@ function substituteVariable(
 
     case NodeType.OperatorNode: {
       const opNode = expr as OperatorNode;
-      return createOperatorNode(
-        opNode.op,
-        opNode.fn,
-        [
-          substituteVariable(opNode.args[0], variable, replacement),
-          substituteVariable(opNode.args[1], variable, replacement),
-        ] as const
-      );
+      return createOperatorNode(opNode.op, opNode.fn, [
+        substituteVariable(opNode.args[0], variable, replacement),
+        substituteVariable(opNode.args[1], variable, replacement),
+      ] as const);
     }
 
     case NodeType.UnaryOperatorNode: {
       const unaryNode = expr as UnaryOperatorNode;
-      return createUnaryOperatorNode(
-        unaryNode.op,
-        unaryNode.fn,
-        [substituteVariable(unaryNode.args[0], variable, replacement)] as const
-      );
+      return createUnaryOperatorNode(unaryNode.op, unaryNode.fn, [
+        substituteVariable(unaryNode.args[0], variable, replacement),
+      ] as const);
     }
 
     case NodeType.FunctionNode: {
       const fnNode = expr as FunctionNode;
       return createFunctionNode(
         fnNode.fn,
-        fnNode.args.map(arg => substituteVariable(arg, variable, replacement))
+        fnNode.args.map((arg) => substituteVariable(arg, variable, replacement)),
       );
     }
 
@@ -142,14 +136,9 @@ function detectSingularity(
   expr: ExpressionNode,
   variable: string,
   point: number,
-  epsilon = 1e-6
+  epsilon = 1e-6,
 ): boolean {
-  const testPoints = [
-    point - epsilon,
-    point - epsilon / 10,
-    point + epsilon / 10,
-    point + epsilon,
-  ];
+  const testPoints = [point - epsilon, point - epsilon / 10, point + epsilon / 10, point + epsilon];
 
   for (const x of testPoints) {
     const result = evaluate(expr, { variables: { [variable]: x } });
@@ -172,7 +161,7 @@ function findTruncationPoint(
   expr: ExpressionNode,
   variable: string,
   start: number,
-  tolerance: number
+  tolerance: number,
 ): number {
   let x = Math.abs(start) + 10;
   const maxX = 1e6;
@@ -205,21 +194,18 @@ function integrateToInfinity(
   expr: ExpressionNode,
   variable: string,
   a: number,
-  config: ImproperIntegralConfig
+  config: ImproperIntegralConfig,
 ): IntegrationResult {
   const strategy = config.infiniteStrategy ?? 'substitution';
 
   if (strategy === 'truncation' || a === 0) {
     // Use truncation method
     const tolerance = config.tolerance ?? 1e-10;
-    const truncPoint = config.truncationPoint
-      ?? findTruncationPoint(expr, variable, a, tolerance);
+    const truncPoint = config.truncationPoint ?? findTruncationPoint(expr, variable, a, tolerance);
 
     const result = integrateNumerical(expr, variable, a, truncPoint, config);
 
-    result.warnings.push(
-      `Infinite integral truncated at ${truncPoint.toExponential(2)}`
-    );
+    result.warnings.push(`Infinite integral truncated at ${truncPoint.toExponential(2)}`);
 
     return result;
   }
@@ -248,10 +234,7 @@ function integrateToInfinity(
     createConstantNode(2),
   ] as const);
 
-  const oneOverUSq = createOperatorNode('/', 'divide', [
-    createConstantNode(1),
-    uSquared,
-  ] as const);
+  const oneOverUSq = createOperatorNode('/', 'divide', [createConstantNode(1), uSquared] as const);
 
   const substitutedExpr: ExpressionNode = createOperatorNode('*', 'multiply', [
     substituteVariable(expr, variable, oneOverU),
@@ -264,9 +247,7 @@ function integrateToInfinity(
     subdivisions: Math.max(config.subdivisions ?? 50, 100), // More subdivisions for accuracy
   });
 
-  result.warnings.push(
-    `Used substitution u = 1/${variable} for infinite integral`
-  );
+  result.warnings.push(`Used substitution u = 1/${variable} for infinite integral`);
 
   return result;
 }
@@ -282,7 +263,7 @@ function integrateFromNegInfinity(
   expr: ExpressionNode,
   variable: string,
   b: number,
-  config: ImproperIntegralConfig
+  config: ImproperIntegralConfig,
 ): IntegrationResult {
   const strategy = config.infiniteStrategy ?? 'substitution';
   const tolerance = config.tolerance ?? 1e-10;
@@ -293,9 +274,7 @@ function integrateFromNegInfinity(
 
     const result = integrateNumerical(expr, variable, truncPoint, b, config);
 
-    result.warnings.push(
-      `Infinite integral truncated at ${truncPoint.toExponential(2)}`
-    );
+    result.warnings.push(`Infinite integral truncated at ${truncPoint.toExponential(2)}`);
 
     return result;
   }
@@ -319,10 +298,7 @@ function integrateFromNegInfinity(
 
   // Create the final transformed expression
   const tExpr: ExpressionNode = createOperatorNode('/', 'divide', [
-    createOperatorNode('-', 'subtract', [
-      createConstantNode(1),
-      createSymbolNode('u'),
-    ] as const),
+    createOperatorNode('-', 'subtract', [createConstantNode(1), createSymbolNode('u')] as const),
     createSymbolNode('u'),
   ] as const);
 
@@ -333,10 +309,7 @@ function integrateFromNegInfinity(
 
   const finalExpr: ExpressionNode = createOperatorNode('*', 'multiply', [
     substituteVariable(substitutedExpr, 't', tExpr),
-    createOperatorNode('/', 'divide', [
-      createConstantNode(1),
-      uSquaredFinal,
-    ] as const),
+    createOperatorNode('/', 'divide', [createConstantNode(1), uSquaredFinal] as const),
   ] as const);
 
   // Small epsilon to avoid singularity at u = 0
@@ -349,7 +322,7 @@ function integrateFromNegInfinity(
   });
 
   result.warnings.push(
-    `Used substitution ${variable} = ${b} - (1-u)/u for infinite integral from -∞`
+    `Used substitution ${variable} = ${b} - (1-u)/u for infinite integral from -∞`,
   );
 
   return result;
@@ -363,7 +336,7 @@ function integrateFromNegInfinity(
 function integrateOverRealLine(
   expr: ExpressionNode,
   variable: string,
-  config: ImproperIntegralConfig
+  config: ImproperIntegralConfig,
 ): IntegrationResult {
   // Split at x = 0
   const negPart = integrateFromNegInfinity(expr, variable, 0, config);
@@ -391,7 +364,7 @@ function integrateSingularEndpoint(
   a: number,
   b: number,
   singularAt: 'left' | 'right',
-  config: ImproperIntegralConfig
+  config: ImproperIntegralConfig,
 ): IntegrationResult {
   // Use a more aggressive epsilon for singularities
   // For integrable singularities like 1/sqrt(x), we need to avoid the singularity but get close
@@ -417,7 +390,7 @@ function integrateSingularEndpoint(
   const result = integrateNumerical(expr, variable, adjustedA, adjustedB, singularityConfig);
 
   result.warnings.push(
-    `Singularity at ${singularAt} endpoint avoided with ε = ${epsilonStart.toExponential(2)}`
+    `Singularity at ${singularAt} endpoint avoided with ε = ${epsilonStart.toExponential(2)}`,
   );
 
   return result;
@@ -435,26 +408,14 @@ function integrateAroundSingularity(
   a: number,
   b: number,
   singularity: number,
-  config: ImproperIntegralConfig
+  config: ImproperIntegralConfig,
 ): IntegrationResult {
   const epsilon = config.tolerance ?? 1e-10;
   const eps = Math.max(epsilon, Math.abs(singularity) * 1e-10);
 
-  const leftPart = integrateNumerical(
-    expr,
-    variable,
-    a,
-    singularity - eps,
-    config
-  );
+  const leftPart = integrateNumerical(expr, variable, a, singularity - eps, config);
 
-  const rightPart = integrateNumerical(
-    expr,
-    variable,
-    singularity + eps,
-    b,
-    config
-  );
+  const rightPart = integrateNumerical(expr, variable, singularity + eps, b, config);
 
   return {
     value: leftPart.value + rightPart.value,
@@ -528,7 +489,7 @@ export function integrateImproper(
   variable: string,
   a: number,
   b: number,
-  config: ImproperIntegralConfig = {}
+  config: ImproperIntegralConfig = {},
 ): IntegrationResult {
   const expr = typeof expression === 'string' ? parse(expression) : expression;
 
@@ -551,9 +512,7 @@ export function integrateImproper(
     const rightSingular = detectSingularity(expr, variable, b);
 
     if (leftSingular && rightSingular) {
-      throw new IntegrationError(
-        'Singularities at both endpoints - integral may not converge'
-      );
+      throw new IntegrationError('Singularities at both endpoints - integral may not converge');
     }
 
     if (leftSingular) {
@@ -565,11 +524,7 @@ export function integrateImproper(
     }
 
     // Check for interior singularities (sample points)
-    const samplePoints = [
-      a + (b - a) * 0.25,
-      a + (b - a) * 0.5,
-      a + (b - a) * 0.75,
-    ];
+    const samplePoints = [a + (b - a) * 0.25, a + (b - a) * 0.5, a + (b - a) * 0.75];
 
     for (const point of samplePoints) {
       if (detectSingularity(expr, variable, point)) {
@@ -592,7 +547,7 @@ export function integrateAuto(
   variable: string,
   a: number,
   b: number,
-  config: ImproperIntegralConfig = {}
+  config: ImproperIntegralConfig = {},
 ): IntegrationResult {
   // Enable singularity detection by default
   const autoConfig = {

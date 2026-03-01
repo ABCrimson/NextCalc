@@ -2,9 +2,9 @@
  * Critical parser tests for missing functionality
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import { type FunctionNode, NodeType, type OperatorNode } from './ast';
 import { parse } from './parser';
-import { NodeType, type OperatorNode, type FunctionNode } from './ast';
 
 describe('Parser - Critical Missing Features', () => {
   describe('exp() function', () => {

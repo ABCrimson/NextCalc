@@ -8,26 +8,26 @@
  * discreteLog
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  modAdd,
-  modSub,
-  modMul,
-  modPow,
-  extendedGCD,
-  modInverse,
   crt,
+  discreteLog,
   eulerPhi,
-  verifyEulerTheorem,
-  multiplicativeOrder,
-  isPrimitiveRoot,
+  extendedGCD,
   findAllPrimitiveRoots,
   hasPrimitiveRoot,
+  isPrimitiveRoot,
   isQuadraticResidue,
-  legendreSymbol,
   jacobiSymbol,
+  legendreSymbol,
+  modAdd,
+  modInverse,
+  modMul,
+  modPow,
   modSqrt,
-  discreteLog,
+  modSub,
+  multiplicativeOrder,
+  verifyEulerTheorem,
 } from './modular';
 
 // ===========================================================================
@@ -143,7 +143,12 @@ describe('extendedGCD', () => {
   });
 
   it('Bezout identity always holds', () => {
-    const pairs = [[12, 8], [35, 15], [99, 78], [17, 13]];
+    const pairs = [
+      [12, 8],
+      [35, 15],
+      [99, 78],
+      [17, 13],
+    ];
     for (const [a, b] of pairs) {
       const result = extendedGCD(a, b);
       expect(a * result.x + b * result.y).toBe(result.gcd);
@@ -170,7 +175,10 @@ describe('modInverse', () => {
 
   it('a * modInverse(a, m) mod m = 1', () => {
     const cases = [
-      [3, 11], [5, 13], [7, 19], [2, 5],
+      [3, 11],
+      [5, 13],
+      [7, 19],
+      [2, 5],
     ];
     for (const [a, m] of cases) {
       const inv = modInverse(a, m);
@@ -242,7 +250,7 @@ describe('eulerPhi', () => {
   });
 
   it('phi(p^2) = p*(p-1) for prime p', () => {
-    expect(eulerPhi(9)).toBe(6);   // 3^2: 3*(3-1) = 6
+    expect(eulerPhi(9)).toBe(6); // 3^2: 3*(3-1) = 6
     expect(eulerPhi(25)).toBe(20); // 5^2: 5*(5-1) = 20
   });
 
@@ -369,9 +377,9 @@ describe('hasPrimitiveRoot', () => {
   });
 
   it('2p^k has primitive roots for odd prime p', () => {
-    expect(hasPrimitiveRoot(6)).toBe(true);   // 2 * 3
-    expect(hasPrimitiveRoot(10)).toBe(true);  // 2 * 5
-    expect(hasPrimitiveRoot(14)).toBe(true);  // 2 * 7
+    expect(hasPrimitiveRoot(6)).toBe(true); // 2 * 3
+    expect(hasPrimitiveRoot(10)).toBe(true); // 2 * 5
+    expect(hasPrimitiveRoot(14)).toBe(true); // 2 * 7
   });
 });
 

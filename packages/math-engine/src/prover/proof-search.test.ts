@@ -11,20 +11,20 @@
  *  - End-to-end resolutionProof on standard propositional theorems.
  */
 
-import { describe, it, expect } from 'vitest';
-import {
-  atom,
-  not,
-  and,
-  or,
-  implies,
-  iff,
-  isTautology,
-  isEquivalent,
-  LogicalOperator,
-} from './logic-core';
+import { describe, expect, it } from 'vitest';
 import type { Formula } from './logic-core';
-import { resolutionProof, formulasEqual } from './proof-search';
+import {
+  and,
+  atom,
+  iff,
+  implies,
+  isEquivalent,
+  isTautology,
+  LogicalOperator,
+  not,
+  or,
+} from './logic-core';
+import { formulasEqual, resolutionProof } from './proof-search';
 
 // ---------------------------------------------------------------------------
 // Tiny inline re-exports of the private helpers under test.
@@ -268,14 +268,14 @@ describe('resolutionProof – proof structure', () => {
   it('all premises appear as initial steps', () => {
     const proof = resolutionProof([P, implies(P, Q)], Q);
     expect(proof).not.toBeNull();
-    const premises = proof!.steps.filter(s => s.justification === 'Premise');
+    const premises = proof!.steps.filter((s) => s.justification === 'Premise');
     expect(premises.length).toBe(2);
   });
 
   it('negated goal step is present', () => {
     const proof = resolutionProof([P, implies(P, Q)], Q);
     expect(proof).not.toBeNull();
-    const negGoal = proof!.steps.find(s => s.justification === 'Negated goal');
+    const negGoal = proof!.steps.find((s) => s.justification === 'Negated goal');
     expect(negGoal).toBeDefined();
   });
 

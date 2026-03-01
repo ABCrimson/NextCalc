@@ -12,25 +12,20 @@
  * Falls back to numerical integration for complex expressions.
  */
 
-import type {
-  ExpressionNode,
-  ConstantNode,
-  OperatorNode,
-  MathFunction,
-} from '../parser/ast';
+import type { ConstantNode, ExpressionNode, MathFunction, OperatorNode } from '../parser/ast';
 import {
   createConstantNode,
-  createSymbolNode,
-  createOperatorNode,
   createFunctionNode,
+  createOperatorNode,
+  createSymbolNode,
   isConstantNode,
-  isSymbolNode,
-  isOperatorNode,
-  isUnaryOperatorNode,
   isFunctionNode,
+  isOperatorNode,
+  isSymbolNode,
+  isUnaryOperatorNode,
 } from '../parser/ast';
-import { parse } from '../parser/parser';
 import { evaluate } from '../parser/evaluator';
+import { parse } from '../parser/parser';
 import { differentiate } from './differentiate';
 
 /**
@@ -39,8 +34,8 @@ import { differentiate } from './differentiate';
 function containsVariable(expr: ExpressionNode, variable: string): boolean {
   if (isConstantNode(expr)) return false;
   if (isSymbolNode(expr)) return expr.name === variable;
-  if (isOperatorNode(expr)) return expr.args.some(a => containsVariable(a, variable));
-  if (isFunctionNode(expr)) return expr.args.some(a => containsVariable(a, variable));
+  if (isOperatorNode(expr)) return expr.args.some((a) => containsVariable(a, variable));
+  if (isFunctionNode(expr)) return expr.args.some((a) => containsVariable(a, variable));
   return false;
 }
 
@@ -135,7 +130,10 @@ function buildProduct(constant: number, factors: ExpressionNode[]): ExpressionNo
  *   c/x^n  → -n
  * Returns null if the expression is not a simple power of the variable.
  */
-function extractVariablePower(expr: ExpressionNode, variable: string): { power: number; coefficient: number } | null {
+function extractVariablePower(
+  expr: ExpressionNode,
+  variable: string,
+): { power: number; coefficient: number } | null {
   // x → power 1
   if (isSymbolNode(expr) && expr.name === variable) {
     return { power: 1, coefficient: 1 };
@@ -158,11 +156,7 @@ function extractVariablePower(expr: ExpressionNode, variable: string): { power: 
     const denominator = expr.args[1];
 
     // 1/x → power -1
-    if (
-      isConstantNode(numerator) &&
-      isSymbolNode(denominator) &&
-      denominator.name === variable
-    ) {
+    if (isConstantNode(numerator) && isSymbolNode(denominator) && denominator.name === variable) {
       return { power: -1, coefficient: Number(numerator.value) };
     }
 
@@ -195,7 +189,7 @@ function extractVariablePower(expr: ExpressionNode, variable: string): { power: 
 function simplifyFactors(
   constant: number,
   factors: ExpressionNode[],
-  variable: string
+  variable: string,
 ): { constant: number; factors: ExpressionNode[] } {
   let combinedPower = 0;
   let combinedCoeff = 1;
@@ -230,7 +224,7 @@ function simplifyFactors(
       createOperatorNode('^', 'pow', [
         createSymbolNode(variable),
         createConstantNode(combinedPower),
-      ] as const)
+      ] as const),
     );
   }
 
@@ -260,21 +254,33 @@ function liateRank(expr: ExpressionNode, variable: string): number {
   if (isFunctionNode(expr)) {
     const fn = expr.fn;
     if (fn === 'log' || fn === 'ln' || fn === 'log10' || fn === 'log2') return 0;
-    if (fn === 'asin' || fn === 'acos' || fn === 'atan' || fn === 'asec' || fn === 'acsc' || fn === 'acot') return 1;
-    if (fn === 'sin' || fn === 'cos' || fn === 'tan' || fn === 'sec' || fn === 'csc' || fn === 'cot') return 3;
+    if (
+      fn === 'asin' ||
+      fn === 'acos' ||
+      fn === 'atan' ||
+      fn === 'asec' ||
+      fn === 'acsc' ||
+      fn === 'acot'
+    )
+      return 1;
+    if (
+      fn === 'sin' ||
+      fn === 'cos' ||
+      fn === 'tan' ||
+      fn === 'sec' ||
+      fn === 'csc' ||
+      fn === 'cot'
+    )
+      return 3;
     if (fn === 'exp' || fn === 'sinh' || fn === 'cosh' || fn === 'tanh') return 4;
   }
 
   if (isConstantNode(expr)) return 2; // treat constant as algebraic
-  if (isSymbolNode(expr)) return 2;   // variable = algebraic
+  if (isSymbolNode(expr)) return 2; // variable = algebraic
 
   if (isOperatorNode(expr)) {
     // x^n where n is a constant → algebraic / polynomial
-    if (
-      expr.op === '^' &&
-      isSymbolNode(expr.args[0]) &&
-      isConstantNode(expr.args[1])
-    ) {
+    if (expr.op === '^' && isSymbolNode(expr.args[0]) && isConstantNode(expr.args[1])) {
       return 2;
     }
 
@@ -289,7 +295,7 @@ function liateRank(expr: ExpressionNode, variable: string): number {
       // "Minimum" because the factor with the lowest LIATE number is the one
       // that defines what category the whole product belongs to for the
       // purpose of choosing u.
-      return Math.min(...factors.map(f => liateRank(f, variable)));
+      return Math.min(...factors.map((f) => liateRank(f, variable)));
     }
 
     if (expr.op === '/') {
@@ -335,10 +341,7 @@ class IntegrationEngine {
         return true;
       },
       apply: (_expr, variable) => {
-        return createOperatorNode('*', 'multiply', [
-          _expr,
-          createSymbolNode(variable),
-        ] as const);
+        return createOperatorNode('*', 'multiply', [_expr, createSymbolNode(variable)] as const);
       },
     });
 
@@ -371,11 +374,7 @@ class IntegrationEngine {
         const base = expr.args[0];
         const exponent = expr.args[1];
         if (!base || !exponent) return false;
-        return (
-          isSymbolNode(base) &&
-          base.name === variable &&
-          isConstantNode(exponent)
-        );
+        return isSymbolNode(base) && base.name === variable && isConstantNode(exponent);
       },
       apply: (expr, variable) => {
         const power = expr as OperatorNode;
@@ -546,10 +545,48 @@ class IntegrationEngine {
     }> = [
       { from: 'sin', to: 'cos', sign: -1 },
       { from: 'cos', to: 'sin', sign: 1 },
-      { from: 'tan', to: (v) => createFunctionNode('log', [createFunctionNode('abs', [createFunctionNode('sec', [createSymbolNode(v)])])]), sign: 1 },
-      { from: 'sec', to: (v) => createFunctionNode('log', [createFunctionNode('abs', [createOperatorNode('+', 'add', [createFunctionNode('sec', [createSymbolNode(v)]), createFunctionNode('tan', [createSymbolNode(v)])] as const)])]), sign: 1 },
-      { from: 'csc', to: (v) => createFunctionNode('log', [createFunctionNode('abs', [createOperatorNode('+', 'add', [createFunctionNode('csc', [createSymbolNode(v)]), createFunctionNode('cot', [createSymbolNode(v)])] as const)])]), sign: -1 },
-      { from: 'cot', to: (v) => createFunctionNode('log', [createFunctionNode('abs', [createFunctionNode('sin', [createSymbolNode(v)])])]), sign: 1 },
+      {
+        from: 'tan',
+        to: (v) =>
+          createFunctionNode('log', [
+            createFunctionNode('abs', [createFunctionNode('sec', [createSymbolNode(v)])]),
+          ]),
+        sign: 1,
+      },
+      {
+        from: 'sec',
+        to: (v) =>
+          createFunctionNode('log', [
+            createFunctionNode('abs', [
+              createOperatorNode('+', 'add', [
+                createFunctionNode('sec', [createSymbolNode(v)]),
+                createFunctionNode('tan', [createSymbolNode(v)]),
+              ] as const),
+            ]),
+          ]),
+        sign: 1,
+      },
+      {
+        from: 'csc',
+        to: (v) =>
+          createFunctionNode('log', [
+            createFunctionNode('abs', [
+              createOperatorNode('+', 'add', [
+                createFunctionNode('csc', [createSymbolNode(v)]),
+                createFunctionNode('cot', [createSymbolNode(v)]),
+              ] as const),
+            ]),
+          ]),
+        sign: -1,
+      },
+      {
+        from: 'cot',
+        to: (v) =>
+          createFunctionNode('log', [
+            createFunctionNode('abs', [createFunctionNode('sin', [createSymbolNode(v)])]),
+          ]),
+        sign: 1,
+      },
     ];
 
     for (const rule of trigRules) {
@@ -565,15 +602,13 @@ class IntegrationEngine {
           return isSymbolNode(arg) && arg.name === variable;
         },
         apply: (_expr, variable) => {
-          const resultFn = typeof rule.to === 'string'
-            ? createFunctionNode(rule.to as MathFunction, [createSymbolNode(variable)])
-            : rule.to(variable);
+          const resultFn =
+            typeof rule.to === 'string'
+              ? createFunctionNode(rule.to as MathFunction, [createSymbolNode(variable)])
+              : rule.to(variable);
 
           return rule.sign === -1
-            ? createOperatorNode('*', 'multiply', [
-                createConstantNode(-1),
-                resultFn,
-              ] as const)
+            ? createOperatorNode('*', 'multiply', [createConstantNode(-1), resultFn] as const)
             : resultFn;
         },
       });
@@ -815,7 +850,7 @@ class IntegrationEngine {
         // Flatten the multiply tree to extract the real factors
         const { constant: _c, factors } = flattenMultiply(expr);
         // After extracting constants we need at least two variable factors
-        const varFactors = factors.filter(f => containsVariable(f, variable));
+        const varFactors = factors.filter((f) => containsVariable(f, variable));
         if (varFactors.length < 2) return false;
 
         // Pair up: try the first two variable factors
@@ -828,20 +863,24 @@ class IntegrationEngine {
       },
       apply: (expr, variable) => {
         const { constant, factors } = flattenMultiply(expr);
-        const varFactors = factors.filter(f => containsVariable(f, variable));
+        const varFactors = factors.filter((f) => containsVariable(f, variable));
 
         // Choose u (lower rank) and dv (higher rank) from the first two variable factors
         const leftRank = liateRank(varFactors[0]!, variable);
         const rightRank = liateRank(varFactors[1]!, variable);
-        const [u, dv] = leftRank <= rightRank
-          ? [varFactors[0]!, varFactors[1]!]
-          : [varFactors[1]!, varFactors[0]!];
+        const [u, dv] =
+          leftRank <= rightRank
+            ? [varFactors[0]!, varFactors[1]!]
+            : [varFactors[1]!, varFactors[0]!];
 
         const ibpResult = this.applyIBP(u, dv, variable, 0);
 
         // Re-apply the overall constant factor (scalar extracted from the tree)
         if (constant === 1) return ibpResult;
-        return createOperatorNode('*', 'multiply', [createConstantNode(constant), ibpResult] as const);
+        return createOperatorNode('*', 'multiply', [
+          createConstantNode(constant),
+          ibpResult,
+        ] as const);
       },
     });
   }
@@ -850,7 +889,12 @@ class IntegrationEngine {
    * Recursively apply integration by parts: ∫u·dv = u·v − ∫v·du
    * @param depth - current recursion depth; prevents infinite loops
    */
-  private applyIBP(u: ExpressionNode, dv: ExpressionNode, variable: string, depth: number): ExpressionNode {
+  private applyIBP(
+    u: ExpressionNode,
+    dv: ExpressionNode,
+    variable: string,
+    depth: number,
+  ): ExpressionNode {
     if (depth > 4) {
       throw new Error('Integration by parts exceeded maximum depth');
     }
@@ -900,12 +944,12 @@ class IntegrationEngine {
         // handle the result.  Pass depth+1 into IBP via the patched apply closure.
         const vduExpr = buildProduct(vduFlat.constant, vduFlat.factors);
 
-        const ibpRule = this.rules.find(r => r.name === 'integration-by-parts');
+        const ibpRule = this.rules.find((r) => r.name === 'integration-by-parts');
         if (ibpRule) {
           const origApply = ibpRule.apply;
           ibpRule.apply = (e, v2) => {
             const { constant: c2, factors: fs2 } = flattenMultiply(e);
-            const varFs = fs2.filter(f => containsVariable(f, v2));
+            const varFs = fs2.filter((f) => containsVariable(f, v2));
             const lR = liateRank(varFs[0]!, v2);
             const rR = liateRank(varFs[1]!, v2);
             const [u2, dv2] = lR <= rR ? [varFs[0]!, varFs[1]!] : [varFs[1]!, varFs[0]!];
@@ -919,11 +963,16 @@ class IntegrationEngine {
             ibpRule.apply = origApply;
           }
         } else {
-          integralVdu = this.integrate(createOperatorNode('*', 'multiply', [v, du] as const), variable);
+          integralVdu = this.integrate(
+            createOperatorNode('*', 'multiply', [v, du] as const),
+            variable,
+          );
         }
       }
     } catch {
-      throw new Error('Cannot integrate expression (integration by parts failed). Try numerical integration instead.');
+      throw new Error(
+        'Cannot integrate expression (integration by parts failed). Try numerical integration instead.',
+      );
     }
 
     // u·v − ∫v·du
@@ -996,12 +1045,12 @@ class IntegrationEngine {
         // Rule applies when there is a non-trivial scalar constant AND at least
         // one variable-dependent factor remaining.
         if (constant === 1) return false;
-        if (factors.filter(f => containsVariable(f, variable)).length === 0) return false;
+        if (factors.filter((f) => containsVariable(f, variable)).length === 0) return false;
         return true;
       },
       apply: (expr, variable) => {
         const { constant, factors } = flattenMultiply(expr);
-        const varFactors = factors.filter(f => containsVariable(f, variable));
+        const varFactors = factors.filter((f) => containsVariable(f, variable));
         const innerExpr = buildProduct(1, varFactors);
 
         return createOperatorNode('*', 'multiply', [
@@ -1036,7 +1085,7 @@ class IntegrationEngine {
 
     // No rule matched
     throw new Error(
-      `Cannot integrate expression (no matching rule). Try numerical integration instead.`
+      `Cannot integrate expression (no matching rule). Try numerical integration instead.`,
     );
   }
 
@@ -1073,8 +1122,8 @@ class IntegrationEngine {
       ) {
         throw new Error(
           `∫exp(${variable}²) requires the Error Function erf(${variable}), ` +
-          `which is not expressible in elementary functions. ` +
-          `Use numerical integration instead.`
+            `which is not expressible in elementary functions. ` +
+            `Use numerical integration instead.`,
         );
       }
     }
@@ -1139,17 +1188,14 @@ const engine = new IntegrationEngine();
  * @returns Integrated expression as AST
  * @throws Error when no elementary anti-derivative exists
  */
-export function integrate(
-  expression: string | ExpressionNode,
-  variable = 'x'
-): ExpressionNode {
+export function integrate(expression: string | ExpressionNode, variable = 'x'): ExpressionNode {
   const expr = typeof expression === 'string' ? parse(expression) : expression;
 
   try {
     return engine.integrate(expr, variable);
   } catch (error) {
     throw new Error(
-      `Cannot integrate expression: ${error instanceof Error ? error.message : 'Unknown error'}`
+      `Cannot integrate expression: ${error instanceof Error ? error.message : 'Unknown error'}`,
     );
   }
 }
@@ -1168,7 +1214,7 @@ export function integrateDefinite(
   variable: string,
   lowerBound: number,
   upperBound: number,
-  method: 'symbolic' | 'numerical' = 'symbolic'
+  method: 'symbolic' | 'numerical' = 'symbolic',
 ): number {
   if (method === 'symbolic') {
     try {
@@ -1209,7 +1255,7 @@ function numericalIntegrate(
   variable: string,
   a: number,
   b: number,
-  n = 1000
+  n = 1000,
 ): number {
   // Ensure n is even
   if (n % 2 !== 0) n++;
@@ -1277,11 +1323,16 @@ export function astToString(node: ExpressionNode): string {
     const argsStr = node.args.map(astToString).join(', ');
     // Special function display names
     switch (node.fn) {
-      case 'Si': return `Si(${argsStr})`;
-      case 'Ci': return `Ci(${argsStr})`;
-      case 'li': return `li(${argsStr})`;
-      case 'erf': return `erf(${argsStr})`;
-      default: return `${node.fn}(${argsStr})`;
+      case 'Si':
+        return `Si(${argsStr})`;
+      case 'Ci':
+        return `Ci(${argsStr})`;
+      case 'li':
+        return `li(${argsStr})`;
+      case 'erf':
+        return `erf(${argsStr})`;
+      default:
+        return `${node.fn}(${argsStr})`;
     }
   }
 

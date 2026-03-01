@@ -2,13 +2,16 @@
  * Tests for Matrix class
  */
 
-import { describe, it, expect } from 'vitest';
-import { Matrix, matrix, det, inv, transpose } from './Matrix';
+import { describe, expect, it } from 'vitest';
+import { det, inv, Matrix, matrix, transpose } from './Matrix';
 
 describe('Matrix', () => {
   describe('constructor', () => {
     it('creates matrix from 2D array', () => {
-      const m = new Matrix([[1, 2], [3, 4]]);
+      const m = new Matrix([
+        [1, 2],
+        [3, 4],
+      ]);
       expect(m.rows).toBe(2);
       expect(m.cols).toBe(2);
       expect(m.get(0, 0)).toBe(1);
@@ -34,7 +37,10 @@ describe('Matrix', () => {
 
   describe('get and set', () => {
     it('gets values correctly', () => {
-      const m = new Matrix([[1, 2], [3, 4]]);
+      const m = new Matrix([
+        [1, 2],
+        [3, 4],
+      ]);
       expect(m.get(0, 0)).toBe(1);
       expect(m.get(0, 1)).toBe(2);
       expect(m.get(1, 0)).toBe(3);
@@ -42,7 +48,10 @@ describe('Matrix', () => {
     });
 
     it('sets values immutably', () => {
-      const m1 = new Matrix([[1, 2], [3, 4]]);
+      const m1 = new Matrix([
+        [1, 2],
+        [3, 4],
+      ]);
       const m2 = m1.set(0, 0, 10);
 
       expect(m1.get(0, 0)).toBe(1); // Original unchanged
@@ -50,7 +59,10 @@ describe('Matrix', () => {
     });
 
     it('throws on out of bounds access', () => {
-      const m = new Matrix([[1, 2], [3, 4]]);
+      const m = new Matrix([
+        [1, 2],
+        [3, 4],
+      ]);
       expect(() => m.get(5, 0)).toThrow('Index out of bounds');
       expect(() => m.set(0, 5, 1)).toThrow('Index out of bounds');
     });
@@ -58,8 +70,14 @@ describe('Matrix', () => {
 
   describe('add', () => {
     it('adds matrices of same dimensions', () => {
-      const a = new Matrix([[1, 2], [3, 4]]);
-      const b = new Matrix([[5, 6], [7, 8]]);
+      const a = new Matrix([
+        [1, 2],
+        [3, 4],
+      ]);
+      const b = new Matrix([
+        [5, 6],
+        [7, 8],
+      ]);
       const c = a.add(b);
 
       expect(c.get(0, 0)).toBe(6);
@@ -77,8 +95,14 @@ describe('Matrix', () => {
 
   describe('subtract', () => {
     it('subtracts matrices', () => {
-      const a = new Matrix([[5, 6], [7, 8]]);
-      const b = new Matrix([[1, 2], [3, 4]]);
+      const a = new Matrix([
+        [5, 6],
+        [7, 8],
+      ]);
+      const b = new Matrix([
+        [1, 2],
+        [3, 4],
+      ]);
       const c = a.subtract(b);
 
       expect(c.get(0, 0)).toBe(4);
@@ -88,7 +112,10 @@ describe('Matrix', () => {
 
   describe('scale', () => {
     it('scales matrix by scalar', () => {
-      const m = new Matrix([[1, 2], [3, 4]]);
+      const m = new Matrix([
+        [1, 2],
+        [3, 4],
+      ]);
       const scaled = m.scale(2);
 
       expect(scaled.get(0, 0)).toBe(2);
@@ -98,8 +125,14 @@ describe('Matrix', () => {
 
   describe('multiply', () => {
     it('multiplies matrices correctly', () => {
-      const a = new Matrix([[1, 2], [3, 4]]);
-      const b = new Matrix([[5, 6], [7, 8]]);
+      const a = new Matrix([
+        [1, 2],
+        [3, 4],
+      ]);
+      const b = new Matrix([
+        [5, 6],
+        [7, 8],
+      ]);
       const c = a.multiply(b);
 
       // [1 2] [5 6]   [1*5+2*7  1*6+2*8]   [19 22]
@@ -122,14 +155,21 @@ describe('Matrix', () => {
 
     it('throws on incompatible dimensions', () => {
       const a = new Matrix([[1, 2]]);
-      const b = new Matrix([[1, 2], [3, 4], [5, 6]]);
+      const b = new Matrix([
+        [1, 2],
+        [3, 4],
+        [5, 6],
+      ]);
       expect(() => a.multiply(b)).toThrow('Cannot multiply');
     });
   });
 
   describe('transpose', () => {
     it('transposes square matrix', () => {
-      const m = new Matrix([[1, 2], [3, 4]]);
+      const m = new Matrix([
+        [1, 2],
+        [3, 4],
+      ]);
       const t = m.transpose();
 
       expect(t.get(0, 0)).toBe(1);
@@ -139,7 +179,10 @@ describe('Matrix', () => {
     });
 
     it('transposes rectangular matrix', () => {
-      const m = new Matrix([[1, 2, 3], [4, 5, 6]]); // 2x3
+      const m = new Matrix([
+        [1, 2, 3],
+        [4, 5, 6],
+      ]); // 2x3
       const t = m.transpose(); // 3x2
 
       expect(t.rows).toBe(3);
@@ -156,7 +199,10 @@ describe('Matrix', () => {
     });
 
     it('calculates determinant of 2x2 matrix', () => {
-      const m = new Matrix([[1, 2], [3, 4]]);
+      const m = new Matrix([
+        [1, 2],
+        [3, 4],
+      ]);
       expect(m.determinant()).toBe(-2); // 1*4 - 2*3
     });
 
@@ -164,7 +210,7 @@ describe('Matrix', () => {
       const m = new Matrix([
         [1, 2, 3],
         [4, 5, 6],
-        [7, 8, 9]
+        [7, 8, 9],
       ]);
       expect(m.determinant()).toBeCloseTo(0, 5); // Singular matrix
     });
@@ -182,7 +228,10 @@ describe('Matrix', () => {
 
   describe('inverse', () => {
     it('calculates inverse of 2x2 matrix', () => {
-      const m = new Matrix([[1, 2], [3, 4]]);
+      const m = new Matrix([
+        [1, 2],
+        [3, 4],
+      ]);
       const mInv = m.inverse();
       const identity = m.multiply(mInv);
 
@@ -197,7 +246,7 @@ describe('Matrix', () => {
       const m = new Matrix([
         [2, -1, 0],
         [-1, 2, -1],
-        [0, -1, 2]
+        [0, -1, 2],
       ]);
       const mInv = m.inverse();
       const identity = m.multiply(mInv);
@@ -208,7 +257,10 @@ describe('Matrix', () => {
     });
 
     it('throws for singular matrix', () => {
-      const m = new Matrix([[1, 2], [2, 4]]); // Determinant = 0
+      const m = new Matrix([
+        [1, 2],
+        [2, 4],
+      ]); // Determinant = 0
       expect(() => m.inverse()).toThrow('Matrix is singular');
     });
 
@@ -259,24 +311,36 @@ describe('Matrix', () => {
 
   describe('convenience functions', () => {
     it('matrix() creates Matrix', () => {
-      const m = matrix([[1, 2], [3, 4]]);
+      const m = matrix([
+        [1, 2],
+        [3, 4],
+      ]);
       expect(m).toBeInstanceOf(Matrix);
       expect(m.rows).toBe(2);
     });
 
     it('det() calculates determinant', () => {
-      const m = matrix([[1, 2], [3, 4]]);
+      const m = matrix([
+        [1, 2],
+        [3, 4],
+      ]);
       expect(det(m)).toBe(-2);
     });
 
     it('inv() calculates inverse', () => {
-      const m = matrix([[1, 2], [3, 4]]);
+      const m = matrix([
+        [1, 2],
+        [3, 4],
+      ]);
       const mInv = inv(m);
       expect(mInv).toBeInstanceOf(Matrix);
     });
 
     it('transpose() transposes matrix', () => {
-      const m = matrix([[1, 2], [3, 4]]);
+      const m = matrix([
+        [1, 2],
+        [3, 4],
+      ]);
       const t = transpose(m);
       expect(t.get(0, 1)).toBe(3);
     });
@@ -284,22 +348,40 @@ describe('Matrix', () => {
 
   describe('utility methods', () => {
     it('toArray() returns 2D array', () => {
-      const m = new Matrix([[1, 2], [3, 4]]);
+      const m = new Matrix([
+        [1, 2],
+        [3, 4],
+      ]);
       const arr = m.toArray();
-      expect(arr).toEqual([[1, 2], [3, 4]]);
+      expect(arr).toEqual([
+        [1, 2],
+        [3, 4],
+      ]);
     });
 
     it('equals() compares matrices', () => {
-      const m1 = new Matrix([[1, 2], [3, 4]]);
-      const m2 = new Matrix([[1, 2], [3, 4]]);
-      const m3 = new Matrix([[1, 2], [3, 5]]);
+      const m1 = new Matrix([
+        [1, 2],
+        [3, 4],
+      ]);
+      const m2 = new Matrix([
+        [1, 2],
+        [3, 4],
+      ]);
+      const m3 = new Matrix([
+        [1, 2],
+        [3, 5],
+      ]);
 
       expect(m1.equals(m2)).toBe(true);
       expect(m1.equals(m3)).toBe(false);
     });
 
     it('toLatex() generates LaTeX string', () => {
-      const m = new Matrix([[1, 2], [3, 4]]);
+      const m = new Matrix([
+        [1, 2],
+        [3, 4],
+      ]);
       const latex = m.toLatex();
       expect(latex).toContain('\\begin{bmatrix}');
       expect(latex).toContain('\\end{bmatrix}');

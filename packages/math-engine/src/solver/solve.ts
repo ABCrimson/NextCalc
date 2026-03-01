@@ -9,15 +9,18 @@
  */
 
 import type { ExpressionNode, OperatorNode } from '../parser/ast';
-import { parse } from '../parser/parser';
 import { evaluate } from '../parser/evaluator';
+import { parse } from '../parser/parser';
 import { differentiate } from '../symbolic/differentiate';
 
 /**
  * Complex number for complex solutions
  */
 export class Complex {
-  constructor(public real: number, public imag: number) {}
+  constructor(
+    public real: number,
+    public imag: number,
+  ) {}
 
   toString(): string {
     if (this.imag === 0) return this.real.toString();
@@ -28,8 +31,7 @@ export class Complex {
 
   equals(other: Complex, tolerance = 1e-10): boolean {
     return (
-      Math.abs(this.real - other.real) < tolerance &&
-      Math.abs(this.imag - other.imag) < tolerance
+      Math.abs(this.real - other.real) < tolerance && Math.abs(this.imag - other.imag) < tolerance
     );
   }
 }
@@ -98,7 +100,7 @@ function solveQuadratic(a: number, b: number, c: number): Solution[] {
  */
 function extractLinearCoefficients(
   expr: ExpressionNode,
-  variable: string
+  variable: string,
 ): { a: number; b: number } | null {
   // Try to evaluate as ax + b
   try {
@@ -131,7 +133,7 @@ function extractLinearCoefficients(
  */
 function extractQuadraticCoefficients(
   expr: ExpressionNode,
-  variable: string
+  variable: string,
 ): { a: number; b: number; c: number } | null {
   try {
     // Evaluate at x=0,1,2 to get three equations
@@ -178,7 +180,7 @@ function solveNumerical(
   variable: string,
   initialGuess = 0,
   tolerance = 1e-10,
-  maxIterations = 100
+  maxIterations = 100,
 ): Solution[] {
   try {
     // Newton-Raphson: x_{n+1} = x_n - f(x_n)/f'(x_n)
@@ -215,7 +217,7 @@ function solveNumerical(
     throw new Error('Newton-Raphson did not converge');
   } catch (error) {
     throw new Error(
-      `Numerical solving failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      `Numerical solving failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
     );
   }
 }
@@ -228,7 +230,7 @@ export function solveInRange(
   variable: string,
   min: number,
   max: number,
-  numGuesses = 10
+  numGuesses = 10,
 ): Solution[] {
   const expr = typeof equation === 'string' ? parse(equation) : equation;
   const solutions: Solution[] = [];
@@ -244,15 +246,12 @@ export function solveInRange(
       const isNew = !solutions.some((s) =>
         typeof s.value === 'number' && typeof firstSol.value === 'number'
           ? Math.abs(s.value - firstSol.value) < 1e-6
-          : false
+          : false,
       );
       if (isNew) {
         solutions.push(...sol);
       }
-    } catch {
-      // Try next guess
-      continue;
-    }
+    } catch {}
   }
 
   return solutions.sort((a, b) => {
@@ -276,7 +275,7 @@ export function solveInRange(
 export function solve(
   equation: string | ExpressionNode,
   variable = 'x',
-  options: { method?: 'auto' | 'numerical'; initialGuess?: number } = {}
+  options: { method?: 'auto' | 'numerical'; initialGuess?: number } = {},
 ): Solution[] {
   const { method = 'auto', initialGuess = 0 } = options;
 

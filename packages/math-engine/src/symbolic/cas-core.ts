@@ -13,24 +13,19 @@
  */
 
 import type { ExpressionNode } from '../parser/ast';
-import {
-  isConstantNode,
-  isSymbolNode,
-  isOperatorNode,
-  isFunctionNode,
-} from '../parser/ast';
+import { isConstantNode, isFunctionNode, isOperatorNode, isSymbolNode } from '../parser/ast';
 import { parse } from '../parser/parser';
-import { differentiate } from './differentiate';
-import { simplify, expand, factor, substitute } from './simplify';
-import { integrate, integrateDefinite } from './integrate';
-import { solve } from '../solver/solve';
 import type { Solution } from '../solver/solve';
+import { solve } from '../solver/solve';
+import { differentiate } from './differentiate';
 import {
   analyzeExpression,
   type EnhancedExpression,
-  getVariables,
   getPolynomialDegree,
+  getVariables,
 } from './expression-tree';
+import { integrate, integrateDefinite } from './integrate';
+import { expand, factor, simplify, substitute } from './simplify';
 
 /**
  * CAS computation result
@@ -194,7 +189,7 @@ export class CAS {
   substitute(
     expr: string | ExpressionNode,
     variable: string,
-    value: ExpressionNode | number
+    value: ExpressionNode | number,
   ): CASResult<ExpressionNode> {
     try {
       const node = typeof expr === 'string' ? parse(expr) : expr;
@@ -237,7 +232,7 @@ export class CAS {
   integrate(
     expr: string | ExpressionNode,
     variable = 'x',
-    options?: { lower?: number; upper?: number }
+    options?: { lower?: number; upper?: number },
   ): CASResult<ExpressionNode | number> {
     try {
       const node = typeof expr === 'string' ? parse(expr) : expr;
@@ -271,7 +266,7 @@ export class CAS {
   solve(
     equation: string | ExpressionNode,
     variable = 'x',
-    options?: { method?: 'auto' | 'numerical'; initialGuess?: number }
+    options?: { method?: 'auto' | 'numerical'; initialGuess?: number },
   ): CASResult<ReadonlyArray<Solution>> {
     try {
       const node = typeof equation === 'string' ? parse(equation) : equation;

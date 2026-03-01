@@ -2,9 +2,14 @@
  * Tests for advanced simplification engine
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import {
+  createConstantNode,
+  createFunctionNode,
+  createOperatorNode,
+  createSymbolNode,
+} from '../parser/ast';
 import { simplifyAdvanced } from './simplify-advanced';
-import { createConstantNode, createSymbolNode, createOperatorNode, createFunctionNode } from '../parser/ast';
 
 describe('Advanced Simplify - Trigonometric Identities', () => {
   it('should simplify sin²(x) + cos²(x) to 1', () => {
@@ -101,10 +106,7 @@ describe('Advanced Simplify - Logarithmic Rules', () => {
   it('should apply power rule: log(a^b) = b*log(a)', () => {
     // log(x^2) = 2*log(x)
     const expr = createFunctionNode('log', [
-      createOperatorNode('^', 'pow', [
-        createSymbolNode('x'),
-        createConstantNode(2),
-      ]),
+      createOperatorNode('^', 'pow', [createSymbolNode('x'), createConstantNode(2)]),
     ]);
 
     const result = simplifyAdvanced(expr);
@@ -118,10 +120,7 @@ describe('Advanced Simplify - Logarithmic Rules', () => {
   it('should apply product rule: log(a*b) = log(a) + log(b)', () => {
     // log(x*y) = log(x) + log(y)
     const expr = createFunctionNode('log', [
-      createOperatorNode('*', 'multiply', [
-        createSymbolNode('x'),
-        createSymbolNode('y'),
-      ]),
+      createOperatorNode('*', 'multiply', [createSymbolNode('x'), createSymbolNode('y')]),
     ]);
 
     const result = simplifyAdvanced(expr);
@@ -135,10 +134,7 @@ describe('Advanced Simplify - Logarithmic Rules', () => {
   it('should apply quotient rule: log(a/b) = log(a) - log(b)', () => {
     // log(x/y) = log(x) - log(y)
     const expr = createFunctionNode('log', [
-      createOperatorNode('/', 'divide', [
-        createSymbolNode('x'),
-        createSymbolNode('y'),
-      ]),
+      createOperatorNode('/', 'divide', [createSymbolNode('x'), createSymbolNode('y')]),
     ]);
 
     const result = simplifyAdvanced(expr);
@@ -163,9 +159,7 @@ describe('Advanced Simplify - Logarithmic Rules', () => {
 describe('Advanced Simplify - Exponential Rules', () => {
   it('should simplify exp(ln(x)) to x', () => {
     // exp(ln(x)) = x
-    const expr = createFunctionNode('exp', [
-      createFunctionNode('ln', [createSymbolNode('x')]),
-    ]);
+    const expr = createFunctionNode('exp', [createFunctionNode('ln', [createSymbolNode('x')])]);
 
     const result = simplifyAdvanced(expr);
 
@@ -177,9 +171,7 @@ describe('Advanced Simplify - Exponential Rules', () => {
 
   it('should simplify ln(exp(x)) to x', () => {
     // ln(exp(x)) = x
-    const expr = createFunctionNode('ln', [
-      createFunctionNode('exp', [createSymbolNode('x')]),
-    ]);
+    const expr = createFunctionNode('ln', [createFunctionNode('exp', [createSymbolNode('x')])]);
 
     const result = simplifyAdvanced(expr);
 
@@ -224,10 +216,7 @@ describe('Advanced Simplify - Radical Simplification', () => {
   it('should simplify √(x²) to |x|', () => {
     // √(x²) = |x|
     const expr = createFunctionNode('sqrt', [
-      createOperatorNode('^', 'pow', [
-        createSymbolNode('x'),
-        createConstantNode(2),
-      ]),
+      createOperatorNode('^', 'pow', [createSymbolNode('x'), createConstantNode(2)]),
     ]);
 
     const result = simplifyAdvanced(expr);
@@ -241,10 +230,7 @@ describe('Advanced Simplify - Radical Simplification', () => {
   it('should simplify √(x⁴) to x²', () => {
     // √(x⁴) = x²
     const expr = createFunctionNode('sqrt', [
-      createOperatorNode('^', 'pow', [
-        createSymbolNode('x'),
-        createConstantNode(4),
-      ]),
+      createOperatorNode('^', 'pow', [createSymbolNode('x'), createConstantNode(4)]),
     ]);
 
     const result = simplifyAdvanced(expr);
@@ -258,10 +244,7 @@ describe('Advanced Simplify - Radical Simplification', () => {
   it('should split √(a*b) to √a * √b', () => {
     // √(x*y) = √x * √y
     const expr = createFunctionNode('sqrt', [
-      createOperatorNode('*', 'multiply', [
-        createSymbolNode('x'),
-        createSymbolNode('y'),
-      ]),
+      createOperatorNode('*', 'multiply', [createSymbolNode('x'), createSymbolNode('y')]),
     ]);
 
     const result = simplifyAdvanced(expr);
@@ -275,10 +258,7 @@ describe('Advanced Simplify - Radical Simplification', () => {
   it('should split √(a/b) to √a / √b', () => {
     // √(x/y) = √x / √y
     const expr = createFunctionNode('sqrt', [
-      createOperatorNode('/', 'divide', [
-        createSymbolNode('x'),
-        createSymbolNode('y'),
-      ]),
+      createOperatorNode('/', 'divide', [createSymbolNode('x'), createSymbolNode('y')]),
     ]);
 
     const result = simplifyAdvanced(expr);
@@ -354,9 +334,7 @@ describe('Advanced Simplify - Configuration Options', () => {
   });
 
   it('should respect expRules option', () => {
-    const expr = createFunctionNode('exp', [
-      createFunctionNode('ln', [createSymbolNode('x')]),
-    ]);
+    const expr = createFunctionNode('exp', [createFunctionNode('ln', [createSymbolNode('x')])]);
 
     const withExp = simplifyAdvanced(expr, { expRules: true });
     const withoutExp = simplifyAdvanced(expr, { expRules: false });
@@ -412,9 +390,7 @@ describe('Advanced Simplify - Combined Transformations', () => {
       ]),
     ]);
 
-    const expr = createFunctionNode('log', [
-      createFunctionNode('exp', [innerExpr]),
-    ]);
+    const expr = createFunctionNode('log', [createFunctionNode('exp', [innerExpr])]);
 
     const result = simplifyAdvanced(expr);
 
@@ -448,10 +424,7 @@ describe('Advanced Simplify - Edge Cases', () => {
     // exp(log(x^2))
     const expr = createFunctionNode('exp', [
       createFunctionNode('log', [
-        createOperatorNode('^', 'pow', [
-          createSymbolNode('x'),
-          createConstantNode(2),
-        ]),
+        createOperatorNode('^', 'pow', [createSymbolNode('x'), createConstantNode(2)]),
       ]),
     ]);
 

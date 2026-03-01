@@ -9,17 +9,17 @@
  * - Epsilon-delta guarantees
  */
 
-import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
+import { describe, expect, it } from 'vitest';
 import {
-  laplaceMechanism,
-  gaussianMechanism,
   exponentialMechanism,
-  privateCount,
-  privateSum,
-  privateMean,
-  privateHistogram,
+  gaussianMechanism,
+  laplaceMechanism,
   PrivacyBudget,
+  privateCount,
+  privateHistogram,
+  privateMean,
+  privateSum,
   reportNoisyMax,
 } from '../differential-privacy';
 
@@ -78,16 +78,16 @@ describe('Differential Privacy', () => {
 
             const samples = 100;
             const values = Array.from({ length: samples }, () =>
-              laplaceMechanism(trueValue, sensitivity, epsilon)
+              laplaceMechanism(trueValue, sensitivity, epsilon),
             );
 
             const mean = values.reduce((a, b) => a + b, 0) / samples;
 
             // Mean should be close to true value (noise is zero-centered)
             expect(Math.abs(mean - trueValue)).toBeLessThan(sensitivity / epsilon);
-          }
+          },
         ),
-        { numRuns: 5 } // Fewer runs due to sampling
+        { numRuns: 5 }, // Fewer runs due to sampling
       );
     });
 
@@ -101,11 +101,11 @@ describe('Differential Privacy', () => {
       const trials = 100;
 
       const lowSensErrors = Array.from({ length: trials }, () =>
-        Math.abs(laplaceMechanism(trueValue, lowSensitivity, epsilon) - trueValue)
+        Math.abs(laplaceMechanism(trueValue, lowSensitivity, epsilon) - trueValue),
       );
 
       const highSensErrors = Array.from({ length: trials }, () =>
-        Math.abs(laplaceMechanism(trueValue, highSensitivity, epsilon) - trueValue)
+        Math.abs(laplaceMechanism(trueValue, highSensitivity, epsilon) - trueValue),
       );
 
       const avgLowError = lowSensErrors.reduce((a, b) => a + b) / trials;
@@ -142,11 +142,11 @@ describe('Differential Privacy', () => {
       const trials = 100;
 
       const highEpsilonErrors = Array.from({ length: trials }, () =>
-        Math.abs(gaussianMechanism(trueValue, sensitivity, 10.0, delta) - trueValue)
+        Math.abs(gaussianMechanism(trueValue, sensitivity, 10.0, delta) - trueValue),
       );
 
       const lowEpsilonErrors = Array.from({ length: trials }, () =>
-        Math.abs(gaussianMechanism(trueValue, sensitivity, 0.1, delta) - trueValue)
+        Math.abs(gaussianMechanism(trueValue, sensitivity, 0.1, delta) - trueValue),
       );
 
       const avgHighError = highEpsilonErrors.reduce((a, b) => a + b) / trials;
@@ -181,7 +181,7 @@ describe('Differential Privacy', () => {
 
       const trials = 100;
       const selections = Array.from({ length: trials }, () =>
-        exponentialMechanism(outputs, utilityFunction, sensitivity, epsilon)
+        exponentialMechanism(outputs, utilityFunction, sensitivity, epsilon),
       );
 
       const countB = selections.filter((s) => s === 'B').length;
@@ -199,12 +199,12 @@ describe('Differential Privacy', () => {
 
       // High epsilon: should select 5 frequently
       const highEpsilonSelections = Array.from({ length: trials }, () =>
-        exponentialMechanism(outputs, utilityFunction, sensitivity, 10.0)
+        exponentialMechanism(outputs, utilityFunction, sensitivity, 10.0),
       );
 
       // Low epsilon: more random selections
       const lowEpsilonSelections = Array.from({ length: trials }, () =>
-        exponentialMechanism(outputs, utilityFunction, sensitivity, 0.1)
+        exponentialMechanism(outputs, utilityFunction, sensitivity, 0.1),
       );
 
       const highCount5 = highEpsilonSelections.filter((s) => s === 5).length;
@@ -222,7 +222,7 @@ describe('Differential Privacy', () => {
 
       const trials = 300;
       const selections = Array.from({ length: trials }, () =>
-        exponentialMechanism(outputs, utilityFunction, sensitivity, epsilon)
+        exponentialMechanism(outputs, utilityFunction, sensitivity, epsilon),
       );
 
       const counts = [1, 2, 3].map((val) => selections.filter((s) => s === val).length);
@@ -251,9 +251,7 @@ describe('Differential Privacy', () => {
       const epsilon = 1.0;
 
       const trials = 100;
-      const noisyCounts = Array.from({ length: trials }, () =>
-        privateCount(trueCount, epsilon)
-      );
+      const noisyCounts = Array.from({ length: trials }, () => privateCount(trueCount, epsilon));
 
       const errors = noisyCounts.map((c) => Math.abs(c - trueCount));
       const avgError = errors.reduce((a, b) => a + b) / trials;
@@ -282,11 +280,11 @@ describe('Differential Privacy', () => {
       const trials = 100;
 
       const lowContribErrors = Array.from({ length: trials }, () =>
-        Math.abs(privateSum(trueSum, 1, epsilon) - trueSum)
+        Math.abs(privateSum(trueSum, 1, epsilon) - trueSum),
       );
 
       const highContribErrors = Array.from({ length: trials }, () =>
-        Math.abs(privateSum(trueSum, 100, epsilon) - trueSum)
+        Math.abs(privateSum(trueSum, 100, epsilon) - trueSum),
       );
 
       const avgLowError = lowContribErrors.reduce((a, b) => a + b) / trials;
@@ -334,11 +332,11 @@ describe('Differential Privacy', () => {
       const trials = 50;
 
       const smallErrors = Array.from({ length: trials }, () =>
-        Math.abs(privateMean(smallDataset, bounds, epsilon) - 50)
+        Math.abs(privateMean(smallDataset, bounds, epsilon) - 50),
       );
 
       const largeErrors = Array.from({ length: trials }, () =>
-        Math.abs(privateMean(largeDataset, bounds, epsilon) - 50)
+        Math.abs(privateMean(largeDataset, bounds, epsilon) - 50),
       );
 
       const avgSmallError = smallErrors.reduce((a, b) => a + b) / trials;
@@ -365,7 +363,9 @@ describe('Differential Privacy', () => {
     });
 
     it('should distribute privacy budget across bins', () => {
-      const data = Array(100).fill(0).map((_, i) => i);
+      const data = Array(100)
+        .fill(0)
+        .map((_, i) => i);
       const bins = 10;
       const epsilon = 1.0;
 
@@ -449,7 +449,7 @@ describe('Differential Privacy', () => {
 
       const trials = 100;
       const indices = Array.from({ length: trials }, () =>
-        reportNoisyMax(values, sensitivity, epsilon)
+        reportNoisyMax(values, sensitivity, epsilon),
       );
 
       const count2 = indices.filter((i) => i === 2).length;
@@ -464,11 +464,11 @@ describe('Differential Privacy', () => {
       const trials = 100;
 
       const highEpsilonIndices = Array.from({ length: trials }, () =>
-        reportNoisyMax(values, 1, 10.0)
+        reportNoisyMax(values, 1, 10.0),
       );
 
       const lowEpsilonIndices = Array.from({ length: trials }, () =>
-        reportNoisyMax(values, 1, 0.1)
+        reportNoisyMax(values, 1, 0.1),
       );
 
       const highCount4 = highEpsilonIndices.filter((i) => i === 4).length;
@@ -519,15 +519,15 @@ describe('Differential Privacy', () => {
 
             const lowNoise = Math.abs(laplaceMechanism(trueValue, sensitivity, lowEps) - trueValue);
             const highNoise = Math.abs(
-              laplaceMechanism(trueValue, sensitivity, highEps) - trueValue
+              laplaceMechanism(trueValue, sensitivity, highEps) - trueValue,
             );
 
             // This is probabilistic, but generally true
             // Low epsilon should have higher average noise
             expect(lowEps).toBeLessThan(highEps);
-          }
+          },
         ),
-        { numRuns: 10 }
+        { numRuns: 10 },
       );
     });
 

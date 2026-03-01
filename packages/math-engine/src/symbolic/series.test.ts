@@ -2,9 +2,21 @@
  * Tests for Taylor/Maclaurin series expansion
  */
 
-import { describe, it, expect } from 'vitest';
-import { taylorSeries, maclaurinSeries, getKnownSeries, computeBernoulliNumbers, astToLatex } from './series';
-import { createConstantNode, createSymbolNode, createOperatorNode, createUnaryOperatorNode, createFunctionNode } from '../parser/ast';
+import { describe, expect, it } from 'vitest';
+import {
+  createConstantNode,
+  createFunctionNode,
+  createOperatorNode,
+  createSymbolNode,
+  createUnaryOperatorNode,
+} from '../parser/ast';
+import {
+  astToLatex,
+  computeBernoulliNumbers,
+  getKnownSeries,
+  maclaurinSeries,
+  taylorSeries,
+} from './series';
 
 describe('Series - Maclaurin Series', () => {
   it('should compute Maclaurin series of sin(x)', () => {
@@ -39,14 +51,8 @@ describe('Series - Maclaurin Series', () => {
     // x² + 2x + 1 (should be exact)
     const expr = createOperatorNode('+', 'add', [
       createOperatorNode('+', 'add', [
-        createOperatorNode('^', 'pow', [
-          createSymbolNode('x'),
-          createConstantNode(2),
-        ]),
-        createOperatorNode('*', 'multiply', [
-          createConstantNode(2),
-          createSymbolNode('x'),
-        ]),
+        createOperatorNode('^', 'pow', [createSymbolNode('x'), createConstantNode(2)]),
+        createOperatorNode('*', 'multiply', [createConstantNode(2), createSymbolNode('x')]),
       ]),
       createConstantNode(1),
     ]);
@@ -60,10 +66,7 @@ describe('Series - Maclaurin Series', () => {
 describe('Series - Taylor Series', () => {
   it('should compute Taylor series around x=1', () => {
     // Simple polynomial around x=1
-    const expr = createOperatorNode('^', 'pow', [
-      createSymbolNode('x'),
-      createConstantNode(2),
-    ]);
+    const expr = createOperatorNode('^', 'pow', [createSymbolNode('x'), createConstantNode(2)]);
 
     const result = taylorSeries(expr, 'x', { center: 1, terms: 3 });
 
@@ -200,10 +203,7 @@ describe('Series - Configuration Options', () => {
   });
 
   it('should handle simplifyTerms option', () => {
-    const expr = createOperatorNode('^', 'pow', [
-      createSymbolNode('x'),
-      createConstantNode(2),
-    ]);
+    const expr = createOperatorNode('^', 'pow', [createSymbolNode('x'), createConstantNode(2)]);
 
     const result1 = maclaurinSeries(expr, 'x', { terms: 3, simplifyTerms: true });
     const result2 = maclaurinSeries(expr, 'x', { terms: 3, simplifyTerms: false });
@@ -341,7 +341,7 @@ describe('Series - Known Series (Bernoulli-based)', () => {
     const x = 0.3;
     const expected = 1 / Math.cos(x);
     // Build approximate value from known coefficients (5 terms)
-    const approx = 1 + x ** 2 / 2 + 5 * x ** 4 / 24 + 61 * x ** 6 / 720 + 277 * x ** 8 / 8064;
+    const approx = 1 + x ** 2 / 2 + (5 * x ** 4) / 24 + (61 * x ** 6) / 720 + (277 * x ** 8) / 8064;
     expect(approx).toBeCloseTo(expected, 5);
   });
 
@@ -359,7 +359,7 @@ describe('Series - Known Series (Bernoulli-based)', () => {
     const x = 0.5;
     const expected = Math.cos(x) / Math.sin(x);
     // Laurent series approximation
-    const approx = 1 / x - x / 3 - x ** 3 / 45 - 2 * x ** 5 / 945;
+    const approx = 1 / x - x / 3 - x ** 3 / 45 - (2 * x ** 5) / 945;
     expect(approx).toBeCloseTo(expected, 3);
   });
 
@@ -375,7 +375,7 @@ describe('Series - Known Series (Bernoulli-based)', () => {
     // tanh(x) = x - x^3/3 + 2x^5/15 - 17x^7/315 + ...
     const x = 0.5;
     const expected = Math.tanh(x);
-    const approx = x - x ** 3 / 3 + 2 * x ** 5 / 15 - 17 * x ** 7 / 315;
+    const approx = x - x ** 3 / 3 + (2 * x ** 5) / 15 - (17 * x ** 7) / 315;
     expect(approx).toBeCloseTo(expected, 4);
   });
 
@@ -386,7 +386,7 @@ describe('Series - Known Series (Bernoulli-based)', () => {
 
     const x = 0.3;
     const expected = Math.tan(x);
-    const approx = x + x ** 3 / 3 + 2 * x ** 5 / 15 + 17 * x ** 7 / 315;
+    const approx = x + x ** 3 / 3 + (2 * x ** 5) / 15 + (17 * x ** 7) / 315;
     expect(approx).toBeCloseTo(expected, 5);
   });
 });
@@ -408,10 +408,7 @@ describe('astToLatex', () => {
   });
 
   it('should render addition', () => {
-    const expr = createOperatorNode('+', 'add', [
-      createSymbolNode('a'),
-      createSymbolNode('b'),
-    ]);
+    const expr = createOperatorNode('+', 'add', [createSymbolNode('a'), createSymbolNode('b')]);
     expect(astToLatex(expr)).toBe('a + b');
   });
 
@@ -442,37 +439,25 @@ describe('astToLatex', () => {
   it('should render multiplication with juxtaposition for number * power', () => {
     const expr = createOperatorNode('*', 'multiply', [
       createConstantNode(2),
-      createOperatorNode('^', 'pow', [
-        createSymbolNode('x'),
-        createConstantNode(3),
-      ]),
+      createOperatorNode('^', 'pow', [createSymbolNode('x'), createConstantNode(3)]),
     ]);
     expect(astToLatex(expr)).toBe('2x^{3}');
   });
 
   it('should render division as frac', () => {
-    const expr = createOperatorNode('/', 'divide', [
-      createSymbolNode('a'),
-      createSymbolNode('b'),
-    ]);
+    const expr = createOperatorNode('/', 'divide', [createSymbolNode('a'), createSymbolNode('b')]);
     expect(astToLatex(expr)).toBe('\\frac{a}{b}');
   });
 
   it('should render powers', () => {
-    const expr = createOperatorNode('^', 'pow', [
-      createSymbolNode('x'),
-      createConstantNode(2),
-    ]);
+    const expr = createOperatorNode('^', 'pow', [createSymbolNode('x'), createConstantNode(2)]);
     expect(astToLatex(expr)).toBe('x^{2}');
   });
 
   it('should render nested powers with parentheses on base', () => {
     // (a + b)^2
     const expr = createOperatorNode('^', 'pow', [
-      createOperatorNode('+', 'add', [
-        createSymbolNode('a'),
-        createSymbolNode('b'),
-      ]),
+      createOperatorNode('+', 'add', [createSymbolNode('a'), createSymbolNode('b')]),
       createConstantNode(2),
     ]);
     expect(astToLatex(expr)).toBe('\\left(a + b\\right)^{2}');
@@ -548,10 +533,7 @@ describe('astToLatex', () => {
     // sin(x^2) + 1/3
     const expr = createOperatorNode('+', 'add', [
       createFunctionNode('sin', [
-        createOperatorNode('^', 'pow', [
-          createSymbolNode('x'),
-          createConstantNode(2),
-        ]),
+        createOperatorNode('^', 'pow', [createSymbolNode('x'), createConstantNode(2)]),
       ]),
       createConstantNode(1 / 3),
     ]);
@@ -564,10 +546,7 @@ describe('astToLatex', () => {
   it('should parenthesize addition inside multiplication', () => {
     // (a + b) * c
     const expr = createOperatorNode('*', 'multiply', [
-      createOperatorNode('+', 'add', [
-        createSymbolNode('a'),
-        createSymbolNode('b'),
-      ]),
+      createOperatorNode('+', 'add', [createSymbolNode('a'), createSymbolNode('b')]),
       createSymbolNode('c'),
     ]);
     const latex = astToLatex(expr);
@@ -580,9 +559,15 @@ describe('astToLatex', () => {
   });
 
   it('should handle sec, csc, cot functions', () => {
-    expect(astToLatex(createFunctionNode('sec', [createSymbolNode('x')]))).toBe('\\sec\\left(x\\right)');
-    expect(astToLatex(createFunctionNode('csc', [createSymbolNode('x')]))).toBe('\\csc\\left(x\\right)');
-    expect(astToLatex(createFunctionNode('cot', [createSymbolNode('x')]))).toBe('\\cot\\left(x\\right)');
+    expect(astToLatex(createFunctionNode('sec', [createSymbolNode('x')]))).toBe(
+      '\\sec\\left(x\\right)',
+    );
+    expect(astToLatex(createFunctionNode('csc', [createSymbolNode('x')]))).toBe(
+      '\\csc\\left(x\\right)',
+    );
+    expect(astToLatex(createFunctionNode('cot', [createSymbolNode('x')]))).toBe(
+      '\\cot\\left(x\\right)',
+    );
   });
 
   it('should handle erf as operatorname', () => {

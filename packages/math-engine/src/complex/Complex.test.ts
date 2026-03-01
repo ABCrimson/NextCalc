@@ -2,8 +2,8 @@
  * Unit tests for Complex number class
  */
 
-import { describe, it, expect } from 'vitest';
-import { Complex, Re, Im, abs, arg, conj } from './Complex';
+import { describe, expect, it } from 'vitest';
+import { abs, arg, Complex, conj, Im, Re } from './Complex';
 
 describe('Complex Numbers', () => {
   describe('constructor', () => {

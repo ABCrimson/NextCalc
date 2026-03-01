@@ -2,13 +2,13 @@
  * Tests for ODE and PDE solvers
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import {
+  adaptiveRK4,
   eulerMethod,
   improvedEuler,
   rungeKutta4,
-  adaptiveRK4,
   solveExponentialGrowth,
   solveHarmonicOscillator,
   solveLogisticGrowth,
@@ -16,13 +16,13 @@ import {
 } from './ode-solvers';
 
 import {
+  exportSolutionToString,
   solveHeatEquationExplicit,
   solveHeatEquationImplicit,
-  solveWaveEquation,
   solveLaplaceEquation,
   solveLaplaceEquationGaussSeidel,
   solvePoissonEquation,
-  exportSolutionToString,
+  solveWaveEquation,
 } from './pde-solvers';
 
 // ============================================================================
@@ -45,7 +45,7 @@ describe('eulerMethod - basic structure', () => {
     expect(sol.points[0]!.y).toBe(5);
   });
 
-  it('constant ODE (y\' = 0) keeps y constant', () => {
+  it("constant ODE (y' = 0) keeps y constant", () => {
     const f = (_t: number, _y: number | readonly number[]) => 0;
     const sol = eulerMethod(f, 0, 42, 1, 0.1);
     for (const pt of sol.points) {
@@ -60,7 +60,7 @@ describe('eulerMethod - basic structure', () => {
     expect(sol.points.length).toBe(sol.steps + 1);
   });
 
-  it('approximates exponential decay y\' = -y with acceptable error', () => {
+  it("approximates exponential decay y' = -y with acceptable error", () => {
     const f = (_t: number, y: number | readonly number[]) => -(y as number);
     const sol = eulerMethod(f, 0, 1, 1, 0.01);
     const last = sol.points[sol.points.length - 1]!;
@@ -122,14 +122,14 @@ describe('rungeKutta4 - scalar', () => {
     expect(sol.points[0]!.y).toBe(0);
   });
 
-  it('solves y\' = y exactly with RK4 precision', () => {
+  it("solves y' = y exactly with RK4 precision", () => {
     const f = (_t: number, y: number | readonly number[]) => y as number;
     const sol = rungeKutta4(f, 0, 1, 2, 0.01);
     const last = sol.points[sol.points.length - 1]!;
     expect(last.y as number).toBeCloseTo(Math.exp(2), 4);
   });
 
-  it('solves constant ODE y\' = c accurately', () => {
+  it("solves constant ODE y' = c accurately", () => {
     const c = 3;
     const f = (_t: number, _y: number | readonly number[]) => c;
     const sol = rungeKutta4(f, 0, 0, 2, 0.1);
@@ -138,7 +138,7 @@ describe('rungeKutta4 - scalar', () => {
     expect(last.y as number).toBeCloseTo(6, 5);
   });
 
-  it('solves y\' = -y with RK4 precision', () => {
+  it("solves y' = -y with RK4 precision", () => {
     const f = (_t: number, y: number | readonly number[]) => -(y as number);
     const sol = rungeKutta4(f, 0, 1, 1, 0.01);
     const last = sol.points[sol.points.length - 1]!;
@@ -177,7 +177,7 @@ describe('adaptiveRK4', () => {
     expect(sol.points[0]!.y).toBe(5);
   });
 
-  it('solves y\' = y with tight tolerance', () => {
+  it("solves y' = y with tight tolerance", () => {
     const f = (_t: number, y: number | readonly number[]) => y as number;
     const sol = adaptiveRK4(f, 0, 1, 1, 1e-8);
     const last = sol.points[sol.points.length - 1]!;
@@ -281,7 +281,7 @@ describe('solvePredatorPrey', () => {
     const first = sol.points[0]!.y as readonly number[];
     expect(first.length).toBe(2);
     expect(first[0]).toBe(10); // x0
-    expect(first[1]).toBe(5);  // y0
+    expect(first[1]).toBe(5); // y0
   });
 
   it('both populations remain positive', () => {
@@ -312,7 +312,7 @@ describe('solveHeatEquationExplicit', () => {
       0.01,
       (_x) => 1,
       { type: 'dirichlet', value: 0 },
-      { type: 'dirichlet', value: 0 }
+      { type: 'dirichlet', value: 0 },
     );
     expect(sol.x.length).toBe(domain.nx);
     expect(sol.solution.length).toBe(domain.nt);
@@ -325,7 +325,7 @@ describe('solveHeatEquationExplicit', () => {
       0.01,
       (_x) => Math.sin(Math.PI * _x),
       { type: 'dirichlet', value: 0 },
-      { type: 'dirichlet', value: 0 }
+      { type: 'dirichlet', value: 0 },
     );
     for (const row of sol.solution) {
       expect(row[0]).toBeCloseTo(0, 10);
@@ -340,7 +340,7 @@ describe('solveHeatEquationExplicit', () => {
       0.01,
       ic,
       { type: 'dirichlet', value: 0 },
-      { type: 'dirichlet', value: 0 }
+      { type: 'dirichlet', value: 0 },
     );
     const firstRow = sol.solution[0]!;
     for (let i = 0; i < domain.nx; i++) {
@@ -355,7 +355,7 @@ describe('solveHeatEquationExplicit', () => {
       0.01,
       (_x) => Math.sin(Math.PI * _x),
       { type: 'dirichlet', value: 0 },
-      { type: 'dirichlet', value: 0 }
+      { type: 'dirichlet', value: 0 },
     );
     const firstMax = Math.max(...(sol.solution[0] as number[]));
     const lastMax = Math.max(...(sol.solution[sol.solution.length - 1] as number[]));
@@ -369,8 +369,8 @@ describe('solveHeatEquationExplicit', () => {
         0.01,
         (_x) => 0,
         { type: 'dirichlet', value: 0 },
-        { type: 'dirichlet', value: 0 }
-      )
+        { type: 'dirichlet', value: 0 },
+      ),
     ).toThrow();
   });
 
@@ -380,7 +380,7 @@ describe('solveHeatEquationExplicit', () => {
       0.01,
       (_x) => 1,
       { type: 'dirichlet', value: (x, _t) => x },
-      { type: 'dirichlet', value: 1 }
+      { type: 'dirichlet', value: 1 },
     );
     expect(sol.converged).toBe(true);
   });
@@ -400,7 +400,7 @@ describe('solveHeatEquationImplicit (Crank-Nicolson)', () => {
       0.01,
       (x) => Math.sin(Math.PI * x),
       { type: 'dirichlet', value: 0 },
-      { type: 'dirichlet', value: 0 }
+      { type: 'dirichlet', value: 0 },
     );
     expect(sol.converged).toBe(true);
     expect(sol.x.length).toBe(domain.nx);
@@ -413,7 +413,7 @@ describe('solveHeatEquationImplicit (Crank-Nicolson)', () => {
       0.01,
       (x) => x * (1 - x),
       { type: 'dirichlet', value: 0 },
-      { type: 'dirichlet', value: 0 }
+      { type: 'dirichlet', value: 0 },
     );
     for (const row of sol.solution) {
       expect(row[0]).toBeCloseTo(0, 5);
@@ -428,8 +428,8 @@ describe('solveHeatEquationImplicit (Crank-Nicolson)', () => {
         0.01,
         (_x) => 0,
         { type: 'dirichlet', value: 0 },
-        { type: 'dirichlet', value: 0 }
-      )
+        { type: 'dirichlet', value: 0 },
+      ),
     ).toThrow();
   });
 });
@@ -449,7 +449,7 @@ describe('solveWaveEquation', () => {
       (x) => Math.sin(Math.PI * x),
       (_x) => 0,
       { type: 'dirichlet', value: 0 },
-      { type: 'dirichlet', value: 0 }
+      { type: 'dirichlet', value: 0 },
     );
     expect(sol.x.length).toBe(domain.nx);
     expect(sol.solution.length).toBe(domain.nt);
@@ -463,7 +463,7 @@ describe('solveWaveEquation', () => {
       (x) => Math.sin(Math.PI * x),
       (_x) => 0,
       { type: 'dirichlet', value: 0 },
-      { type: 'dirichlet', value: 0 }
+      { type: 'dirichlet', value: 0 },
     );
     for (const row of sol.solution) {
       expect(row[0]).toBeCloseTo(0, 10);
@@ -479,7 +479,7 @@ describe('solveWaveEquation', () => {
       ic,
       (_x) => 0,
       { type: 'dirichlet', value: 0 },
-      { type: 'dirichlet', value: 0 }
+      { type: 'dirichlet', value: 0 },
     );
     const firstRow = sol.solution[0]!;
     for (let i = 0; i < domain.nx; i++) {
@@ -495,8 +495,8 @@ describe('solveWaveEquation', () => {
         (_x) => 0,
         (_x) => 0,
         { type: 'dirichlet', value: 0 },
-        { type: 'dirichlet', value: 0 }
-      )
+        { type: 'dirichlet', value: 0 },
+      ),
     ).toThrow();
   });
 });
@@ -510,7 +510,7 @@ describe('solveLaplaceEquation (Jacobi)', () => {
       10,
       (_x, y) => (y >= 1 ? 1 : 0),
       1e-4,
-      5000
+      5000,
     );
     expect(sol.converged).toBe(true);
     expect(sol.x.length).toBe(10);
@@ -525,7 +525,7 @@ describe('solveLaplaceEquation (Jacobi)', () => {
       10,
       (_x, y) => (y >= 1 ? 1 : 0),
       1e-4,
-      5000
+      5000,
     );
     // Bottom row (j=0) should be 0
     const bottom = sol.solution[0]!;
@@ -540,15 +540,7 @@ describe('solveLaplaceEquation (Jacobi)', () => {
   });
 
   it('interior values are between 0 and 1 for [0,1] boundary', () => {
-    const sol = solveLaplaceEquation(
-      [0, 1],
-      [0, 1],
-      8,
-      8,
-      (_x, y) => (y >= 1 ? 1 : 0),
-      1e-4,
-      5000
-    );
+    const sol = solveLaplaceEquation([0, 1], [0, 1], 8, 8, (_x, y) => (y >= 1 ? 1 : 0), 1e-4, 5000);
     for (let j = 1; j < 7; j++) {
       for (let i = 1; i < 7; i++) {
         const val = sol.solution[j]![i]!;
@@ -559,30 +551,14 @@ describe('solveLaplaceEquation (Jacobi)', () => {
   });
 
   it('records iteration count', () => {
-    const sol = solveLaplaceEquation(
-      [0, 1],
-      [0, 1],
-      8,
-      8,
-      () => 0,
-      1e-6,
-      100
-    );
+    const sol = solveLaplaceEquation([0, 1], [0, 1], 8, 8, () => 0, 1e-6, 100);
     expect(typeof sol.iterations).toBe('number');
   });
 });
 
 describe('solveLaplaceEquationGaussSeidel', () => {
   it('converges for zero-everywhere boundary', () => {
-    const sol = solveLaplaceEquationGaussSeidel(
-      [0, 1],
-      [0, 1],
-      8,
-      8,
-      () => 0,
-      1e-8,
-      5000
-    );
+    const sol = solveLaplaceEquationGaussSeidel([0, 1], [0, 1], 8, 8, () => 0, 1e-8, 5000);
     expect(sol.converged).toBe(true);
     // All interior values should be 0
     for (let j = 1; j < 7; j++) {
@@ -619,7 +595,7 @@ describe('solvePoissonEquation', () => {
       () => 0,
       () => 0,
       1e-6,
-      5000
+      5000,
     );
     expect(sol.converged).toBe(true);
     // All values should be 0 (same as Laplace with zero boundary)
@@ -639,7 +615,7 @@ describe('solvePoissonEquation', () => {
       () => -1, // uniform source
       () => 0,
       1e-7,
-      20000
+      20000,
     );
     expect(sol.converged).toBe(true);
     // By symmetry, solution should be approximately symmetric about x=0.5.
@@ -665,7 +641,7 @@ describe('exportSolutionToString', () => {
       0.01,
       (_x) => 1,
       { type: 'dirichlet', value: 0 },
-      { type: 'dirichlet', value: 0 }
+      { type: 'dirichlet', value: 0 },
     );
     const output = exportSolutionToString(sol);
     expect(typeof output).toBe('string');
@@ -675,15 +651,7 @@ describe('exportSolutionToString', () => {
   });
 
   it('produces a string for a steady-state solution', () => {
-    const sol = solveLaplaceEquation(
-      [0, 1],
-      [0, 1],
-      4,
-      4,
-      () => 0,
-      1e-6,
-      100
-    );
+    const sol = solveLaplaceEquation([0, 1], [0, 1], 4, 4, () => 0, 1e-6, 100);
     const output = exportSolutionToString(sol);
     expect(typeof output).toBe('string');
     // Steady-state header starts differently

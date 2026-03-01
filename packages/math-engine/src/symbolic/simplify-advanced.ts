@@ -13,18 +13,16 @@
  * mathematical transformations while preserving mathematical equivalence.
  */
 
-import type {
-  ExpressionNode,
-} from '../parser/ast';
+import type { ExpressionNode } from '../parser/ast';
 import {
   createConstantNode,
-  createSymbolNode,
-  createOperatorNode,
   createFunctionNode,
+  createOperatorNode,
+  createSymbolNode,
   isConstantNode,
-  isSymbolNode,
-  isOperatorNode,
   isFunctionNode,
+  isOperatorNode,
+  isSymbolNode,
 } from '../parser/ast';
 import { simplify } from './simplify';
 
@@ -63,7 +61,7 @@ export interface AdvancedSimplifyConfig {
  */
 export function simplifyAdvanced(
   expr: ExpressionNode,
-  config: AdvancedSimplifyConfig = {}
+  config: AdvancedSimplifyConfig = {},
 ): ExpressionNode {
   const {
     trigIdentities = true,
@@ -165,10 +163,7 @@ function applyTrigIdentities(expr: ExpressionNode): ExpressionNode {
 /**
  * Match sin²(x) + cos²(x) = 1
  */
-function matchPythagorean(
-  left: ExpressionNode,
-  right: ExpressionNode
-): ExpressionNode | null {
+function matchPythagorean(left: ExpressionNode, right: ExpressionNode): ExpressionNode | null {
   // Check if left is sin²(x) and right is cos²(x) (or vice versa)
   const leftSq = extractSquaredTrig(left);
   const rightSq = extractSquaredTrig(right);
@@ -176,19 +171,11 @@ function matchPythagorean(
   if (!leftSq || !rightSq) return null;
 
   // Check if one is sin and other is cos with same argument
-  if (
-    leftSq.fn === 'sin' &&
-    rightSq.fn === 'cos' &&
-    astEquals(leftSq.arg, rightSq.arg)
-  ) {
+  if (leftSq.fn === 'sin' && rightSq.fn === 'cos' && astEquals(leftSq.arg, rightSq.arg)) {
     return createConstantNode(1);
   }
 
-  if (
-    leftSq.fn === 'cos' &&
-    rightSq.fn === 'sin' &&
-    astEquals(leftSq.arg, rightSq.arg)
-  ) {
+  if (leftSq.fn === 'cos' && rightSq.fn === 'sin' && astEquals(leftSq.arg, rightSq.arg)) {
     return createConstantNode(1);
   }
 
@@ -200,7 +187,7 @@ function matchPythagorean(
  */
 function matchPythagoreanSubtract(
   left: ExpressionNode,
-  right: ExpressionNode
+  right: ExpressionNode,
 ): ExpressionNode | null {
   // 1 - sin²(x) → cos²(x)
   if (isConstantNode(left) && left.value === 1) {
@@ -227,10 +214,7 @@ function matchPythagoreanSubtract(
 /**
  * Match 2*sin(x)*cos(x) = sin(2x)
  */
-function matchDoubleAngleSin(
-  left: ExpressionNode,
-  right: ExpressionNode
-): ExpressionNode | null {
+function matchDoubleAngleSin(left: ExpressionNode, right: ExpressionNode): ExpressionNode | null {
   // Pattern: 2 * sin(x) * cos(x) or sin(x) * cos(x) * 2
   let coefficient: number | null = null;
   let sinTerm: ExpressionNode | null = null;
@@ -254,15 +238,18 @@ function matchDoubleAngleSin(
     }
   }
 
-  if (coefficient === 2 && sinTerm && cosTerm && isFunctionNode(sinTerm) && isFunctionNode(cosTerm)) {
+  if (
+    coefficient === 2 &&
+    sinTerm &&
+    cosTerm &&
+    isFunctionNode(sinTerm) &&
+    isFunctionNode(cosTerm)
+  ) {
     const sinArg = sinTerm.args[0];
     const cosArg = cosTerm.args[0];
     if (sinArg && cosArg && astEquals(sinArg, cosArg)) {
       // Create 2*x
-      const doubleArg = createOperatorNode('*', 'multiply', [
-        createConstantNode(2),
-        sinArg,
-      ]);
+      const doubleArg = createOperatorNode('*', 'multiply', [createConstantNode(2), sinArg]);
       return createFunctionNode('sin', [doubleArg]);
     }
   }
@@ -274,7 +261,7 @@ function matchDoubleAngleSin(
  * Extract f²(x) as { fn: 'sin'|'cos', arg: x }
  */
 function extractSquaredTrig(
-  expr: ExpressionNode
+  expr: ExpressionNode,
 ): { fn: 'sin' | 'cos'; arg: ExpressionNode } | null {
   if (!isOperatorNode(expr) || expr.op !== '^') return null;
 
@@ -343,10 +330,7 @@ function applyLogRules(expr: ExpressionNode): ExpressionNode {
       // Power rule: log(a^b) = b*log(a)
       if (isOperatorNode(arg) && arg.op === '^') {
         const [base, exponent] = arg.args;
-        return createOperatorNode('*', 'multiply', [
-          exponent,
-          createFunctionNode(expr.fn, [base]),
-        ]);
+        return createOperatorNode('*', 'multiply', [exponent, createFunctionNode(expr.fn, [base])]);
       }
 
       // Product rule: log(a*b) = log(a) + log(b)
@@ -409,9 +393,7 @@ function applyExpRules(expr: ExpressionNode): ExpressionNode {
         const argLeft = leftSimp.args[0];
         const argRight = rightSimp.args[0];
         if (argLeft && argRight) {
-          return createFunctionNode('exp', [
-            createOperatorNode('+', 'add', [argLeft, argRight]),
-          ]);
+          return createFunctionNode('exp', [createOperatorNode('+', 'add', [argLeft, argRight])]);
         }
       }
     }
@@ -506,10 +488,7 @@ function simplifyRadicals(expr: ExpressionNode): ExpressionNode {
           typeof exponent.value === 'number' &&
           exponent.value % 2 === 0
         ) {
-          return createOperatorNode('^', 'pow', [
-            base,
-            createConstantNode(exponent.value / 2),
-          ]);
+          return createOperatorNode('^', 'pow', [base, createConstantNode(exponent.value / 2)]);
         }
       }
 
@@ -582,10 +561,7 @@ function rationalizeDenominator(expr: ExpressionNode): ExpressionNode {
             const conjugate = createOperatorNode('-', 'subtract', [a, b]);
 
             // New numerator: left * conjugate
-            const newNum = createOperatorNode('*', 'multiply', [
-              leftSimp,
-              conjugate,
-            ]);
+            const newNum = createOperatorNode('*', 'multiply', [leftSimp, conjugate]);
 
             // New denominator: a² - b
             const newDen = createOperatorNode('-', 'subtract', [
@@ -630,11 +606,7 @@ function astEquals(a: ExpressionNode | null, b: ExpressionNode | null): boolean 
   }
 
   if (isOperatorNode(a) && isOperatorNode(b)) {
-    return (
-      a.op === b.op &&
-      astEquals(a.args[0], b.args[0]) &&
-      astEquals(a.args[1], b.args[1])
-    );
+    return a.op === b.op && astEquals(a.args[0], b.args[0]) && astEquals(a.args[1], b.args[1]);
   }
 
   if (isFunctionNode(a) && isFunctionNode(b)) {
@@ -664,10 +636,7 @@ function cloneNode(node: ExpressionNode): ExpressionNode {
     const left = node.args[0];
     const right = node.args[1];
     if (!left || !right) return node;
-    return createOperatorNode(node.op, node.fn, [
-      cloneNode(left),
-      cloneNode(right),
-    ]);
+    return createOperatorNode(node.op, node.fn, [cloneNode(left), cloneNode(right)]);
   }
 
   if (isFunctionNode(node)) {

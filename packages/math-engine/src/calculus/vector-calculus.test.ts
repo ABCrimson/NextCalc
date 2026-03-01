@@ -2,18 +2,18 @@
  * Vector Calculus Tests
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { parse } from '../parser/parser';
 import {
-  gradient,
-  divergence,
-  curl,
-  laplacian,
-  directionalDerivative,
-  lineIntegral,
-  isConservativeField,
-  dotProduct,
   crossProduct,
+  curl,
+  directionalDerivative,
+  divergence,
+  dotProduct,
+  gradient,
+  isConservativeField,
+  laplacian,
+  lineIntegral,
   magnitude,
   normalize,
   type Vector3D,

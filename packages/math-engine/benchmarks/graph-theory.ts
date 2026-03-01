@@ -5,13 +5,13 @@
  */
 
 import {
-  kruskal,
-  prim,
-  topologicalSort,
-  tarjanSCC,
-  maxFlow,
-  graphColoring,
   type Graph,
+  graphColoring,
+  kruskal,
+  maxFlow,
+  prim,
+  tarjanSCC,
+  topologicalSort,
 } from '../src/graph-theory/algorithms';
 
 console.log('='.repeat(70));
@@ -159,7 +159,9 @@ flowSizes.forEach(({ v, e }) => {
   // Modify edge weights to be integers (capacities)
   const capacityGraph: Graph = {
     ...graph,
-    edges: graph.edges.map(([u, vx, _]) => [u, vx, Math.floor(Math.random() * 100) + 1] as [number, number, number]),
+    edges: graph.edges.map(
+      ([u, vx, _]) => [u, vx, Math.floor(Math.random() * 100) + 1] as [number, number, number],
+    ),
   };
 
   const source = 0;
@@ -181,23 +183,23 @@ const scaleFactors = [100, 200, 400, 800];
 
 // Kruskal scalability
 const kruskalTimes: number[] = [];
-scaleFactors.forEach(n => {
+scaleFactors.forEach((n) => {
   const graph = generateRandomGraph(n, n * 3);
   const start = performance.now();
   kruskal(graph);
   kruskalTimes.push(performance.now() - start);
 });
-console.log(`Kruskal\t\t\t${kruskalTimes.map(t => t.toFixed(2)).join('\t\t')}`);
+console.log(`Kruskal\t\t\t${kruskalTimes.map((t) => t.toFixed(2)).join('\t\t')}`);
 
 // Tarjan scalability
 const tarjanTimes: number[] = [];
-scaleFactors.forEach(n => {
+scaleFactors.forEach((n) => {
   const graph = generateRandomGraph(n, n * 3, true);
   const start = performance.now();
   tarjanSCC(graph);
   tarjanTimes.push(performance.now() - start);
 });
-console.log(`Tarjan SCC\t\t${tarjanTimes.map(t => t.toFixed(2)).join('\t\t')}`);
+console.log(`Tarjan SCC\t\t${tarjanTimes.map((t) => t.toFixed(2)).join('\t\t')}`);
 
 console.log('\n' + '='.repeat(70));
 console.log('BENCHMARKS COMPLETE');
@@ -205,5 +207,13 @@ console.log('='.repeat(70));
 
 // Print complexity verification
 console.log('\nComplexity Verification:');
-console.log('- Kruskal doubling ratio:', (kruskalTimes[3]! / kruskalTimes[2]!).toFixed(2), '(expected: ~2.0 for O(E log E))');
-console.log('- Tarjan doubling ratio:', (tarjanTimes[3]! / tarjanTimes[2]!).toFixed(2), '(expected: ~2.0 for O(V+E))');
+console.log(
+  '- Kruskal doubling ratio:',
+  (kruskalTimes[3]! / kruskalTimes[2]!).toFixed(2),
+  '(expected: ~2.0 for O(E log E))',
+);
+console.log(
+  '- Tarjan doubling ratio:',
+  (tarjanTimes[3]! / tarjanTimes[2]!).toFixed(2),
+  '(expected: ~2.0 for O(V+E))',
+);
