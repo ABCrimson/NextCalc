@@ -1,38 +1,37 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Hash,
-  GitBranch,
-  Divide,
-  Layers,
-  Grid,
-  Circle,
-  Infinity,
-  Shuffle,
-  ChevronRight,
-  Play,
-  Pause,
-  RotateCcw,
-  CheckCircle2,
-  XCircle,
   ArrowRight,
+  CheckCircle2,
+  ChevronRight,
+  Circle,
+  Divide,
+  GitBranch,
+  Grid,
+  Hash,
+  Infinity,
+  Layers,
+  Pause,
+  Play,
+  RotateCcw,
+  Shuffle,
+  XCircle,
 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { MathRenderer, DisplayMath } from '@/components/ui/math-renderer';
 import { useTranslations } from 'next-intl';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { DisplayMath, MathRenderer } from '@/components/ui/math-renderer';
 import { cn } from '@/lib/utils';
 
 // =============================================================================
 // WEBGPU DETECTION
 // =============================================================================
 
-const supportsWebGPU =
-  typeof navigator !== 'undefined' && 'gpu' in navigator;
+const supportsWebGPU = typeof navigator !== 'undefined' && 'gpu' in navigator;
 
 // =============================================================================
 // WGSL SHADERS
@@ -45,7 +44,7 @@ const supportsWebGPU =
  * Each cell is an instance with (col, row, state) packed into a storage buffer.
  * state: 0=default, 1=prime, 2=eliminated, 3=current-factor
  */
-const SIEVE_SHADER = /* wgsl */`
+const SIEVE_SHADER = /* wgsl */ `
 struct Uniforms {
   cols    : u32,
   rows    : u32,
@@ -135,7 +134,7 @@ fn fs_main(in : VOut) -> @location(0) vec4<f32> {
  * Renders a bar chart via instanced rendering.
  * Each bar is an instance with (barIndex, normalizedHeight, r, g, b).
  */
-const BAR_SHADER = /* wgsl */`
+const BAR_SHADER = /* wgsl */ `
 struct Uniforms {
   barCount : u32,
   canvasW  : f32,
@@ -215,7 +214,7 @@ fn fs_main(in : VOut) -> @location(0) vec4<f32> {
  * Renders a polyline as instanced quads (segment-per-instance).
  * Each segment: (x0,y0,x1,y1,r,g,b,_pad)
  */
-const LINE_SHADER = /* wgsl */`
+const LINE_SHADER = /* wgsl */ `
 struct Uniforms {
   minVal   : f32,
   maxVal   : f32,
@@ -334,8 +333,13 @@ async function initGPUWithShader(
   bindGroupLayout: GPUBindGroupLayoutDescriptor,
   width: number,
   height: number,
-  blendAlpha: boolean
-): Promise<{ device: GPUDevice; context: GPUCanvasContext; pipeline: GPURenderPipeline; format: GPUTextureFormat } | null> {
+  blendAlpha: boolean,
+): Promise<{
+  device: GPUDevice;
+  context: GPUCanvasContext;
+  pipeline: GPURenderPipeline;
+  format: GPUTextureFormat;
+} | null> {
   if (!supportsWebGPU) return null;
   try {
     const adapter = await navigator.gpu.requestAdapter({ powerPreference: 'high-performance' });
@@ -387,36 +391,96 @@ const SIEVE_BGL: GPUBindGroupLayoutDescriptor = {
   ],
 };
 
-async function initSieveGPU(canvas: HTMLCanvasElement, w: number, h: number, maxCells: number): Promise<SieveGPUResources | null> {
-  const base = await initGPUWithShader(canvas, SIEVE_SHADER, 'vs_main', 'fs_main', SIEVE_BGL, w, h, true);
+async function initSieveGPU(
+  canvas: HTMLCanvasElement,
+  w: number,
+  h: number,
+  maxCells: number,
+): Promise<SieveGPUResources | null> {
+  const base = await initGPUWithShader(
+    canvas,
+    SIEVE_SHADER,
+    'vs_main',
+    'fs_main',
+    SIEVE_BGL,
+    w,
+    h,
+    true,
+  );
   if (!base) return null;
   const { device, context, pipeline } = base;
   // Uniform: cols(u32), rows(u32), cellPx(f32), canvasW(f32), canvasH(f32), _p0,_p1,_p2 = 32 bytes
-  const uniformBuffer = device.createBuffer({ size: 32, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
+  const uniformBuffer = device.createBuffer({
+    size: 32,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
   // Each cell: col(u32), row(u32), state(u32), _pad(u32) = 16 bytes
-  const cellBuffer = device.createBuffer({ size: maxCells * 16, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST });
+  const cellBuffer = device.createBuffer({
+    size: maxCells * 16,
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+  });
   return { device, context, pipeline, uniformBuffer, cellBuffer, maxCells };
 }
 
-async function initBarGPU(canvas: HTMLCanvasElement, w: number, h: number, maxBars: number): Promise<BarGPUResources | null> {
-  const base = await initGPUWithShader(canvas, BAR_SHADER, 'vs_main', 'fs_main', SIEVE_BGL, w, h, false);
+async function initBarGPU(
+  canvas: HTMLCanvasElement,
+  w: number,
+  h: number,
+  maxBars: number,
+): Promise<BarGPUResources | null> {
+  const base = await initGPUWithShader(
+    canvas,
+    BAR_SHADER,
+    'vs_main',
+    'fs_main',
+    SIEVE_BGL,
+    w,
+    h,
+    false,
+  );
   if (!base) return null;
   const { device, context, pipeline } = base;
   // Uniform: barCount(u32), canvasW(f32), canvasH(f32), padPx(f32) = 16 bytes
-  const uniformBuffer = device.createBuffer({ size: 16, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
+  const uniformBuffer = device.createBuffer({
+    size: 16,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
   // Each bar: barIndex(u32), normH(f32), r,g,b(f32), _p0,_p1,_p2(f32) = 32 bytes
-  const barBuffer = device.createBuffer({ size: maxBars * 32, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST });
+  const barBuffer = device.createBuffer({
+    size: maxBars * 32,
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+  });
   return { device, context, pipeline, uniformBuffer, barBuffer, maxBars };
 }
 
-async function initLineGPU(canvas: HTMLCanvasElement, w: number, h: number, maxSegs: number): Promise<LineGPUResources | null> {
-  const base = await initGPUWithShader(canvas, LINE_SHADER, 'vs_main', 'fs_main', SIEVE_BGL, w, h, true);
+async function initLineGPU(
+  canvas: HTMLCanvasElement,
+  w: number,
+  h: number,
+  maxSegs: number,
+): Promise<LineGPUResources | null> {
+  const base = await initGPUWithShader(
+    canvas,
+    LINE_SHADER,
+    'vs_main',
+    'fs_main',
+    SIEVE_BGL,
+    w,
+    h,
+    true,
+  );
   if (!base) return null;
   const { device, context, pipeline } = base;
   // Uniform: minVal,maxVal(f32), numPts(u32), canvasW,canvasH,padPx,lineW,_p(f32) = 32 bytes
-  const uniformBuffer = device.createBuffer({ size: 32, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
+  const uniformBuffer = device.createBuffer({
+    size: 32,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
   // Each seg: x0,y0,x1,y1,r,g,b,_p = 8 floats = 32 bytes
-  const segBuffer = device.createBuffer({ size: maxSegs * 32, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST });
+  const segBuffer = device.createBuffer({
+    size: maxSegs * 32,
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+  });
   return { device, context, pipeline, uniformBuffer, segBuffer, maxSegs };
 }
 
@@ -436,7 +500,7 @@ async function initLineGPU(canvas: HTMLCanvasElement, w: number, h: number, maxS
  * Thread global_id.x handles the composite at index: prime*prime + global_id.x * prime
  * i.e. thread k marks the (k+1)-th multiple starting from prime^2.
  */
-const SIEVE_COMPUTE_SHADER = /* wgsl */`
+const SIEVE_COMPUTE_SHADER = /* wgsl */ `
 struct SieveUniforms {
   prime     : u32,
   sieveSize : u32,
@@ -525,7 +589,8 @@ async function gpuSieveStep(
   resources: SieveComputeGPUResources,
   prime: number,
 ): Promise<Uint32Array | null> {
-  const { device, computePipeline, computeUniformBuffer, sieveBuffer, stagingBuffer, sieveSize } = resources;
+  const { device, computePipeline, computeUniformBuffer, sieveBuffer, stagingBuffer, sieveSize } =
+    resources;
 
   // Write uniform: prime, sieveSize
   const uniData = new Uint32Array([prime, sieveSize]);
@@ -618,7 +683,11 @@ function safeNum(n: bigint): number {
 function gcd(a: bigint, b: bigint): bigint {
   let x = a < 0n ? -a : a;
   let y = b < 0n ? -b : b;
-  while (y !== 0n) { const t = y; y = x % y; x = t; }
+  while (y !== 0n) {
+    const t = y;
+    y = x % y;
+    x = t;
+  }
   return x;
 }
 
@@ -668,7 +737,10 @@ function isPrime(n: bigint): boolean {
 
   let d = n - 1n;
   let r = 0n;
-  while (d % 2n === 0n) { d /= 2n; r++; }
+  while (d % 2n === 0n) {
+    d /= 2n;
+    r++;
+  }
 
   const witnesses = [2n, 3n, 5n, 7n, 11n, 13n, 17n, 19n, 23n, 29n, 31n, 37n];
 
@@ -708,7 +780,10 @@ function primeFactorization(n: bigint): FactorResult[] {
   for (let f = 2n; f * f <= remaining; f++) {
     if (remaining % f === 0n) {
       let exp = 0;
-      while (remaining % f === 0n) { remaining /= f; exp++; }
+      while (remaining % f === 0n) {
+        remaining /= f;
+        exp++;
+      }
       factors.push({ factor: f, exponent: exp });
     }
   }
@@ -721,7 +796,7 @@ function eulerTotient(n: bigint): bigint {
   if (n === 1n) return 1n;
   const factors = primeFactorization(n);
   let result = n;
-  for (const { factor } of factors) result = result / factor * (factor - 1n);
+  for (const { factor } of factors) result = (result / factor) * (factor - 1n);
   return result;
 }
 
@@ -731,10 +806,13 @@ function totientSteps(n: bigint): Array<{ text: string; latex: string }> {
 
   const steps: Array<{ text: string; latex: string }> = [];
   const factorStr = factors
-    .map(({ factor, exponent }) => exponent === 1 ? `${factor}` : `${factor}^{${exponent}}`)
+    .map(({ factor, exponent }) => (exponent === 1 ? `${factor}` : `${factor}^{${exponent}}`))
     .join(' \\cdot ');
   steps.push({ text: `Factor ${n}`, latex: `${n} = ${factorStr}` });
-  steps.push({ text: 'Apply multiplicativity of φ', latex: `\\varphi(n) = n \\prod_{p \\mid n} \\left(1 - \\frac{1}{p}\\right)` });
+  steps.push({
+    text: 'Apply multiplicativity of φ',
+    latex: `\\varphi(n) = n \\prod_{p \\mid n} \\left(1 - \\frac{1}{p}\\right)`,
+  });
   const parts = factors.map(({ factor }) => `\\left(1 - \\frac{1}{${factor}}\\right)`).join('');
   steps.push({ text: 'Substitute prime factors', latex: `\\varphi(${n}) = ${n} \\cdot ${parts}` });
   steps.push({ text: 'Result', latex: `\\varphi(${n}) = ${eulerTotient(n)}` });
@@ -744,16 +822,22 @@ function totientSteps(n: bigint): Array<{ text: string; latex: string }> {
 function fibonacci(n: number): bigint {
   if (n <= 0) return 0n;
   if (n === 1) return 1n;
-  let a = 0n, b = 1n;
-  for (let i = 2; i <= n; i++) { [a, b] = [b, a + b]; }
+  let a = 0n,
+    b = 1n;
+  for (let i = 2; i <= n; i++) {
+    [a, b] = [b, a + b];
+  }
   return b;
 }
 
 function lucas(n: number): bigint {
   if (n === 0) return 2n;
   if (n === 1) return 1n;
-  let a = 2n, b = 1n;
-  for (let i = 2; i <= n; i++) { [a, b] = [b, a + b]; }
+  let a = 2n,
+    b = 1n;
+  for (let i = 2; i <= n; i++) {
+    [a, b] = [b, a + b];
+  }
   return b;
 }
 
@@ -769,7 +853,8 @@ function collatz(n: bigint, maxSteps = 500): bigint[] {
 
 function sieve(limit: number): boolean[] {
   const composite = new Uint8Array(limit + 1);
-  composite[0] = 1; composite[1] = 1;
+  composite[0] = 1;
+  composite[1] = 1;
   for (let i = 2; i * i <= limit; i++) {
     if (!composite[i]) {
       for (let j = i * i; j <= limit; j += i) composite[j] = 1;
@@ -782,7 +867,12 @@ function sieve(limit: number): boolean[] {
 // SHARED UI PRIMITIVES
 // =============================================================================
 
-function SectionHeader({ icon: Icon, title, description, gradient }: {
+function SectionHeader({
+  icon: Icon,
+  title,
+  description,
+  gradient,
+}: {
   icon: React.ElementType;
   title: string;
   description: string;
@@ -790,7 +880,12 @@ function SectionHeader({ icon: Icon, title, description, gradient }: {
 }) {
   return (
     <div className="flex items-start gap-4 mb-6">
-      <div className={cn('w-12 h-12 rounded-xl flex items-center justify-center text-white flex-shrink-0', gradient)}>
+      <div
+        className={cn(
+          'w-12 h-12 rounded-xl flex items-center justify-center text-white flex-shrink-0',
+          gradient,
+        )}
+      >
         <Icon className="w-6 h-6" />
       </div>
       <div>
@@ -843,11 +938,13 @@ function StepList({ steps }: { steps: Array<{ label: string; latex: string; note
 function RenderModeBadge({ mode }: { mode: 'WebGPU' | 'Canvas 2D' }) {
   return (
     <div className="absolute top-2 right-2 pointer-events-none z-10">
-      <span className={`text-xs px-1.5 py-0.5 rounded font-mono backdrop-blur-sm border ${
-        mode === 'WebGPU'
-          ? 'bg-violet-900/60 border-violet-500/40 text-violet-300'
-          : 'bg-slate-900/60 border-slate-500/40 text-slate-400'
-      }`}>
+      <span
+        className={`text-xs px-1.5 py-0.5 rounded font-mono backdrop-blur-sm border ${
+          mode === 'WebGPU'
+            ? 'bg-violet-900/60 border-violet-500/40 text-violet-300'
+            : 'bg-slate-900/60 border-slate-500/40 text-slate-400'
+        }`}
+      >
         {mode}
       </span>
     </div>
@@ -870,11 +967,20 @@ function PrimeChecker() {
   const check = useCallback(() => {
     setError('');
     const trimmed = input.trim();
-    if (!/^\d+$/.test(trimmed)) { setError('Enter a positive integer.'); return; }
+    if (!/^\d+$/.test(trimmed)) {
+      setError('Enter a positive integer.');
+      return;
+    }
     try {
       const n = BigInt(trimmed);
-      if (n < 2n) { setError('Enter an integer ≥ 2.'); return; }
-      if (n > 10n ** 18n) { setError('Number too large (max 10¹⁸).'); return; }
+      if (n < 2n) {
+        setError('Enter an integer ≥ 2.');
+        return;
+      }
+      if (n > 10n ** 18n) {
+        setError('Number too large (max 10¹⁸).');
+        return;
+      }
       setResult({ n, prime: isPrime(n), factors: primeFactorization(n) });
     } catch {
       setError('Invalid input.');
@@ -892,7 +998,9 @@ function PrimeChecker() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
-          <CardHeader><CardTitle className="text-base">Input</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="text-base">Input</CardTitle>
+          </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex gap-2">
               <Input
@@ -917,7 +1025,10 @@ function PrimeChecker() {
                   key={String(n)}
                   variant="outline"
                   size="sm"
-                  onClick={() => { setInput(String(n)); setError(''); }}
+                  onClick={() => {
+                    setInput(String(n));
+                    setError('');
+                  }}
                   className="font-mono text-xs"
                 >
                   {String(n)}
@@ -935,13 +1046,19 @@ function PrimeChecker() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
             >
-              <Card className={cn('border-l-4', result.prime ? 'border-l-green-500' : 'border-l-amber-500')}>
+              <Card
+                className={cn(
+                  'border-l-4',
+                  result.prime ? 'border-l-green-500' : 'border-l-amber-500',
+                )}
+              >
                 <CardHeader>
                   <div className="flex items-center gap-3">
-                    {result.prime
-                      ? <CheckCircle2 className="w-8 h-8 text-green-500" />
-                      : <XCircle className="w-8 h-8 text-amber-500" />
-                    }
+                    {result.prime ? (
+                      <CheckCircle2 className="w-8 h-8 text-green-500" />
+                    ) : (
+                      <XCircle className="w-8 h-8 text-amber-500" />
+                    )}
                     <div>
                       <CardTitle className="text-base font-mono">{String(result.n)}</CardTitle>
                       <Badge variant={result.prime ? 'default' : 'secondary'} className="mt-1">
@@ -953,10 +1070,13 @@ function PrimeChecker() {
                 <CardContent className="space-y-3">
                   {result.prime ? (
                     <div className="space-y-2">
-                      <FormulaBox latex={`${String(result.n)} \\text{ is prime}`} displayMode={false} />
+                      <FormulaBox
+                        latex={`${String(result.n)} \\text{ is prime}`}
+                        displayMode={false}
+                      />
                       <p className="text-sm text-muted-foreground">
-                        Divisible only by 1 and itself. Verified via deterministic
-                        Miller-Rabin with witnesses {'{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37}'}.
+                        Divisible only by 1 and itself. Verified via deterministic Miller-Rabin with
+                        witnesses {'{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37}'}.
                       </p>
                     </div>
                   ) : (
@@ -964,10 +1084,11 @@ function PrimeChecker() {
                       <p className="text-sm font-medium">Prime factorization:</p>
                       <FormulaBox
                         latex={
-                          String(result.n) + ' = ' +
+                          String(result.n) +
+                          ' = ' +
                           result.factors
                             .map(({ factor, exponent }) =>
-                              exponent === 1 ? String(factor) : `${factor}^{${exponent}}`
+                              exponent === 1 ? String(factor) : `${factor}^{${exponent}}`,
                             )
                             .join(' \\times ')
                         }
@@ -983,15 +1104,16 @@ function PrimeChecker() {
       </div>
 
       <Card>
-        <CardHeader><CardTitle className="text-base">Miller-Rabin Primality Test</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="text-base">Miller-Rabin Primality Test</CardTitle>
+        </CardHeader>
         <CardContent className="space-y-3">
           <FormulaBox latex="n - 1 = 2^r \cdot d \quad (d \text{ odd})" />
           <p className="text-sm text-muted-foreground">
             For each witness <MathRenderer expression="a" />, compute{' '}
             <MathRenderer expression="x = a^d \bmod n" />. If{' '}
-            <MathRenderer expression="x \equiv 1" /> or{' '}
-            <MathRenderer expression="x \equiv n-1" />, the test passes.
-            Otherwise square repeatedly: if{' '}
+            <MathRenderer expression="x \equiv 1" /> or <MathRenderer expression="x \equiv n-1" />,
+            the test passes. Otherwise square repeatedly: if{' '}
             <MathRenderer expression="x^{2^j} \equiv n-1" /> for some{' '}
             <MathRenderer expression="j" />, it passes. Failure means <em>n</em> is composite.
           </p>
@@ -1033,7 +1155,15 @@ function buildFactorTree(n: bigint): FactorNode {
     const leftNode = build(f, depth + 1);
     const rightNode = build(other, depth + 1);
     const w = leftNode.width + rightNode.width;
-    return { value: val, left: leftNode, right: rightNode, isPrime: false, x: 0, y: depth * 80, width: w };
+    return {
+      value: val,
+      left: leftNode,
+      right: rightNode,
+      isPrime: false,
+      x: 0,
+      y: depth * 80,
+      width: w,
+    };
   }
 
   function layout(node: FactorNode, xOffset: number): void {
@@ -1060,7 +1190,8 @@ function FactorTreeCanvas({ root }: { root: FactorNode }) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let maxX = 0, maxY = 0;
+    let maxX = 0,
+      maxY = 0;
     function measure(node: FactorNode) {
       if (node.x > maxX) maxX = node.x;
       if (node.y > maxY) maxY = node.y;
@@ -1116,21 +1247,36 @@ function FactorTreeCanvas({ root }: { root: FactorNode }) {
     drawNode(root);
   }, [root]);
 
-  return <canvas ref={canvasRef} className="max-w-full mx-auto" aria-label="Prime factor tree diagram" />;
+  return (
+    <canvas ref={canvasRef} className="max-w-full mx-auto" aria-label="Prime factor tree diagram" />
+  );
 }
 
 function FactorizationPanel() {
   const [input, setInput] = useState('360');
-  const [result, setResult] = useState<{ n: bigint; factors: FactorResult[]; tree: FactorNode } | null>(null);
+  const [result, setResult] = useState<{
+    n: bigint;
+    factors: FactorResult[];
+    tree: FactorNode;
+  } | null>(null);
   const [error, setError] = useState('');
 
   const compute = useCallback(() => {
     setError('');
-    if (!/^\d+$/.test(input.trim())) { setError('Enter a positive integer.'); return; }
+    if (!/^\d+$/.test(input.trim())) {
+      setError('Enter a positive integer.');
+      return;
+    }
     try {
       const n = BigInt(input.trim());
-      if (n < 2n) { setError('Enter an integer ≥ 2.'); return; }
-      if (n > 10n ** 12n) { setError('Number too large for factor tree (max 10¹²).'); return; }
+      if (n < 2n) {
+        setError('Enter an integer ≥ 2.');
+        return;
+      }
+      if (n > 10n ** 12n) {
+        setError('Number too large for factor tree (max 10¹²).');
+        return;
+      }
       const factors = primeFactorization(n);
       const tree = buildFactorTree(n);
       setResult({ n, factors, tree });
@@ -1164,7 +1310,16 @@ function FactorizationPanel() {
           {error && <p className="text-sm text-destructive">{error}</p>}
           <div className="flex flex-wrap gap-2">
             {[12n, 360n, 2520n, 9699690n].map((n) => (
-              <Button key={String(n)} variant="outline" size="sm" onClick={() => { setInput(String(n)); setError(''); }} className="font-mono text-xs">
+              <Button
+                key={String(n)}
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setInput(String(n));
+                  setError('');
+                }}
+                className="font-mono text-xs"
+              >
                 {String(n)}
               </Button>
             ))}
@@ -1182,14 +1337,17 @@ function FactorizationPanel() {
             className="space-y-4"
           >
             <Card>
-              <CardHeader><CardTitle className="text-base">Result</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle className="text-base">Result</CardTitle>
+              </CardHeader>
               <CardContent className="space-y-3">
                 <FormulaBox
                   latex={
-                    String(result.n) + ' = ' +
+                    String(result.n) +
+                    ' = ' +
                     result.factors
                       .map(({ factor, exponent }) =>
-                        exponent === 1 ? String(factor) : `${factor}^{${exponent}}`
+                        exponent === 1 ? String(factor) : `${factor}^{${exponent}}`,
                       )
                       .join(' \\times ')
                   }
@@ -1197,7 +1355,8 @@ function FactorizationPanel() {
                 <div className="flex flex-wrap gap-2">
                   {result.factors.map(({ factor, exponent }) => (
                     <Badge key={String(factor)} variant="outline" className="font-mono">
-                      {String(factor)}{exponent > 1 ? `^${exponent}` : ''}
+                      {String(factor)}
+                      {exponent > 1 ? `^${exponent}` : ''}
                     </Badge>
                   ))}
                 </div>
@@ -1207,7 +1366,9 @@ function FactorizationPanel() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Factor Tree</CardTitle>
-                <CardDescription>Green nodes are prime. Purple nodes are composite.</CardDescription>
+                <CardDescription>
+                  Green nodes are prime. Purple nodes are composite.
+                </CardDescription>
               </CardHeader>
               <CardContent className="overflow-x-auto">
                 <FactorTreeCanvas root={result.tree} />
@@ -1227,16 +1388,28 @@ function FactorizationPanel() {
 function GCDPanel() {
   const [aInput, setAInput] = useState('48');
   const [bInput, setBInput] = useState('36');
-  const [result, setResult] = useState<{ a: bigint; b: bigint; g: bigint; l: bigint; steps: GCDStep[] } | null>(null);
+  const [result, setResult] = useState<{
+    a: bigint;
+    b: bigint;
+    g: bigint;
+    l: bigint;
+    steps: GCDStep[];
+  } | null>(null);
   const [error, setError] = useState('');
 
   const compute = useCallback(() => {
     setError('');
-    if (!/^\d+$/.test(aInput.trim()) || !/^\d+$/.test(bInput.trim())) { setError('Enter two positive integers.'); return; }
+    if (!/^\d+$/.test(aInput.trim()) || !/^\d+$/.test(bInput.trim())) {
+      setError('Enter two positive integers.');
+      return;
+    }
     try {
       const a = BigInt(aInput.trim());
       const b = BigInt(bInput.trim());
-      if (a <= 0n || b <= 0n) { setError('Both values must be positive.'); return; }
+      if (a <= 0n || b <= 0n) {
+        setError('Both values must be positive.');
+        return;
+      }
       setResult({ a, b, g: gcd(a, b), l: lcm(a, b), steps: euclideanSteps(a, b) });
     } catch {
       setError('Invalid input.');
@@ -1256,15 +1429,35 @@ function GCDPanel() {
         <CardContent className="pt-6 space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-sm font-medium text-foreground mb-1 block" htmlFor="gcd-a">a</label>
-              <Input id="gcd-a" value={aInput} onChange={(e) => setAInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && compute()} className="font-mono" aria-label="First number" />
+              <label className="text-sm font-medium text-foreground mb-1 block" htmlFor="gcd-a">
+                a
+              </label>
+              <Input
+                id="gcd-a"
+                value={aInput}
+                onChange={(e) => setAInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && compute()}
+                className="font-mono"
+                aria-label="First number"
+              />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground mb-1 block" htmlFor="gcd-b">b</label>
-              <Input id="gcd-b" value={bInput} onChange={(e) => setBInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && compute()} className="font-mono" aria-label="Second number" />
+              <label className="text-sm font-medium text-foreground mb-1 block" htmlFor="gcd-b">
+                b
+              </label>
+              <Input
+                id="gcd-b"
+                value={bInput}
+                onChange={(e) => setBInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && compute()}
+                className="font-mono"
+                aria-label="Second number"
+              />
             </div>
           </div>
-          <Button onClick={compute} className="w-full">Compute GCD &amp; LCM</Button>
+          <Button onClick={compute} className="w-full">
+            Compute GCD &amp; LCM
+          </Button>
           {error && <p className="text-sm text-destructive">{error}</p>}
         </CardContent>
       </Card>
@@ -1280,17 +1473,33 @@ function GCDPanel() {
           >
             <div className="grid grid-cols-2 gap-4">
               <Card className="border-l-4 border-l-emerald-500">
-                <CardHeader><CardTitle className="text-sm text-muted-foreground">GCD</CardTitle></CardHeader>
+                <CardHeader>
+                  <CardTitle className="text-sm text-muted-foreground">GCD</CardTitle>
+                </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold font-mono text-foreground">{String(result.g)}</div>
-                  <MathRenderer expression={`\\gcd(${result.a},\\,${result.b}) = ${result.g}`} displayMode={false} className="text-sm mt-1" />
+                  <div className="text-3xl font-bold font-mono text-foreground">
+                    {String(result.g)}
+                  </div>
+                  <MathRenderer
+                    expression={`\\gcd(${result.a},\\,${result.b}) = ${result.g}`}
+                    displayMode={false}
+                    className="text-sm mt-1"
+                  />
                 </CardContent>
               </Card>
               <Card className="border-l-4 border-l-teal-500">
-                <CardHeader><CardTitle className="text-sm text-muted-foreground">LCM</CardTitle></CardHeader>
+                <CardHeader>
+                  <CardTitle className="text-sm text-muted-foreground">LCM</CardTitle>
+                </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold font-mono text-foreground">{String(result.l)}</div>
-                  <MathRenderer expression={`\\text{lcm}(${result.a},\\,${result.b}) = ${result.l}`} displayMode={false} className="text-sm mt-1" />
+                  <div className="text-3xl font-bold font-mono text-foreground">
+                    {String(result.l)}
+                  </div>
+                  <MathRenderer
+                    expression={`\\text{lcm}(${result.a},\\,${result.b}) = ${result.l}`}
+                    displayMode={false}
+                    className="text-sm mt-1"
+                  />
                 </CardContent>
               </Card>
             </div>
@@ -1312,22 +1521,34 @@ function GCDPanel() {
                       transition={{ delay: i * 0.07 }}
                       className="flex items-center gap-3 p-2 rounded-lg bg-muted/30"
                     >
-                      <span className="text-xs text-muted-foreground w-6 text-right flex-shrink-0">{i + 1}</span>
+                      <span className="text-xs text-muted-foreground w-6 text-right flex-shrink-0">
+                        {i + 1}
+                      </span>
                       <div className="overflow-x-auto">
-                        <MathRenderer expression={`${step.a} = ${step.quotient} \\times ${step.b} + ${step.remainder}`} displayMode={false} />
+                        <MathRenderer
+                          expression={`${step.a} = ${step.quotient} \\times ${step.b} + ${step.remainder}`}
+                          displayMode={false}
+                        />
                       </div>
                       {step.remainder === 0n && (
-                        <Badge variant="default" className="ml-auto flex-shrink-0 text-xs">Done</Badge>
+                        <Badge variant="default" className="ml-auto flex-shrink-0 text-xs">
+                          Done
+                        </Badge>
                       )}
                     </motion.div>
                   ))}
                   <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
-                    <MathRenderer expression={`\\therefore \\gcd(${result.a},\\,${result.b}) = ${result.g}`} displayMode={false} />
+                    <MathRenderer
+                      expression={`\\therefore \\gcd(${result.a},\\,${result.b}) = ${result.g}`}
+                      displayMode={false}
+                    />
                   </div>
                 </div>
                 <div className="mt-4 pt-4 border-t space-y-2">
                   <p className="text-sm font-medium">Relationship:</p>
-                  <FormulaBox latex={`\\text{lcm}(a,b) = \\frac{a \\cdot b}{\\gcd(a,b)} = \\frac{${result.a} \\cdot ${result.b}}{${result.g}} = ${result.l}`} />
+                  <FormulaBox
+                    latex={`\\text{lcm}(a,b) = \\frac{a \\cdot b}{\\gcd(a,b)} = \\frac{${result.a} \\cdot ${result.b}}{${result.g}} = ${result.l}`}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -1346,12 +1567,23 @@ function ModularPanel() {
   const [aInput, setAInput] = useState('17');
   const [nInput, setNInput] = useState('5');
   const [expInput, setExpInput] = useState('3');
-  const [result, setResult] = useState<{ a: bigint; n: bigint; exp: bigint; mod: bigint; inv: bigint | null; pow: bigint } | null>(null);
+  const [result, setResult] = useState<{
+    a: bigint;
+    n: bigint;
+    exp: bigint;
+    mod: bigint;
+    inv: bigint | null;
+    pow: bigint;
+  } | null>(null);
   const [error, setError] = useState('');
 
   const compute = useCallback(() => {
     setError('');
-    if (!/^-?\d+$/.test(aInput.trim()) || !/^\d+$/.test(nInput.trim()) || !/^\d+$/.test(expInput.trim())) {
+    if (
+      !/^-?\d+$/.test(aInput.trim()) ||
+      !/^\d+$/.test(nInput.trim()) ||
+      !/^\d+$/.test(expInput.trim())
+    ) {
       setError('Enter integers for a, n, and exponent.');
       return;
     }
@@ -1359,8 +1591,14 @@ function ModularPanel() {
       const a = BigInt(aInput.trim());
       const n = BigInt(nInput.trim());
       const exp = BigInt(expInput.trim());
-      if (n <= 0n) { setError('Modulus n must be positive.'); return; }
-      if (exp < 0n) { setError('Exponent must be non-negative.'); return; }
+      if (n <= 0n) {
+        setError('Modulus n must be positive.');
+        return;
+      }
+      if (exp < 0n) {
+        setError('Exponent must be non-negative.');
+        return;
+      }
       const amod = ((a % n) + n) % n;
       setResult({ a, n, exp, mod: amod, inv: modInverse(amod, n), pow: modPow(amod, exp, n) });
     } catch {
@@ -1381,19 +1619,45 @@ function ModularPanel() {
         <CardContent className="pt-6 space-y-4">
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="text-sm font-medium text-foreground mb-1 block" htmlFor="mod-a">a</label>
-              <Input id="mod-a" value={aInput} onChange={(e) => setAInput(e.target.value)} className="font-mono" aria-label="Base value a" />
+              <label className="text-sm font-medium text-foreground mb-1 block" htmlFor="mod-a">
+                a
+              </label>
+              <Input
+                id="mod-a"
+                value={aInput}
+                onChange={(e) => setAInput(e.target.value)}
+                className="font-mono"
+                aria-label="Base value a"
+              />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground mb-1 block" htmlFor="mod-n">n (modulus)</label>
-              <Input id="mod-n" value={nInput} onChange={(e) => setNInput(e.target.value)} className="font-mono" aria-label="Modulus n" />
+              <label className="text-sm font-medium text-foreground mb-1 block" htmlFor="mod-n">
+                n (modulus)
+              </label>
+              <Input
+                id="mod-n"
+                value={nInput}
+                onChange={(e) => setNInput(e.target.value)}
+                className="font-mono"
+                aria-label="Modulus n"
+              />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground mb-1 block" htmlFor="mod-exp">exponent k</label>
-              <Input id="mod-exp" value={expInput} onChange={(e) => setExpInput(e.target.value)} className="font-mono" aria-label="Exponent k" />
+              <label className="text-sm font-medium text-foreground mb-1 block" htmlFor="mod-exp">
+                exponent k
+              </label>
+              <Input
+                id="mod-exp"
+                value={expInput}
+                onChange={(e) => setExpInput(e.target.value)}
+                className="font-mono"
+                aria-label="Exponent k"
+              />
             </div>
           </div>
-          <Button onClick={compute} className="w-full">Compute</Button>
+          <Button onClick={compute} className="w-full">
+            Compute
+          </Button>
           {error && <p className="text-sm text-destructive">{error}</p>}
         </CardContent>
       </Card>
@@ -1409,50 +1673,88 @@ function ModularPanel() {
           >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className="border-l-4 border-l-orange-500">
-                <CardHeader><CardTitle className="text-sm text-muted-foreground">a mod n</CardTitle></CardHeader>
+                <CardHeader>
+                  <CardTitle className="text-sm text-muted-foreground">a mod n</CardTitle>
+                </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold font-mono">{String(result.mod)}</div>
-                  <MathRenderer expression={`${result.a} \\equiv ${result.mod} \\pmod{${result.n}}`} displayMode={false} className="text-sm mt-1" />
+                  <MathRenderer
+                    expression={`${result.a} \\equiv ${result.mod} \\pmod{${result.n}}`}
+                    displayMode={false}
+                    className="text-sm mt-1"
+                  />
                 </CardContent>
               </Card>
               <Card className="border-l-4 border-l-red-500">
-                <CardHeader><CardTitle className="text-sm text-muted-foreground">Modular Inverse</CardTitle></CardHeader>
+                <CardHeader>
+                  <CardTitle className="text-sm text-muted-foreground">Modular Inverse</CardTitle>
+                </CardHeader>
                 <CardContent>
                   {result.inv !== null ? (
                     <>
                       <div className="text-3xl font-bold font-mono">{String(result.inv)}</div>
-                      <MathRenderer expression={`${result.a}^{-1} \\equiv ${result.inv} \\pmod{${result.n}}`} displayMode={false} className="text-sm mt-1" />
+                      <MathRenderer
+                        expression={`${result.a}^{-1} \\equiv ${result.inv} \\pmod{${result.n}}`}
+                        displayMode={false}
+                        className="text-sm mt-1"
+                      />
                     </>
                   ) : (
                     <>
                       <div className="text-lg font-bold text-muted-foreground">Does not exist</div>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Inverse exists iff <MathRenderer expression={`\\gcd(${result.mod},${result.n})=1`} displayMode={false} />
+                        Inverse exists iff{' '}
+                        <MathRenderer
+                          expression={`\\gcd(${result.mod},${result.n})=1`}
+                          displayMode={false}
+                        />
                       </p>
                     </>
                   )}
                 </CardContent>
               </Card>
               <Card className="border-l-4 border-l-amber-500">
-                <CardHeader><CardTitle className="text-sm text-muted-foreground">
-                  <MathRenderer expression="a^k \\bmod n" displayMode={false} />
-                </CardTitle></CardHeader>
+                <CardHeader>
+                  <CardTitle className="text-sm text-muted-foreground">
+                    <MathRenderer expression="a^k \\bmod n" displayMode={false} />
+                  </CardTitle>
+                </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold font-mono">{String(result.pow)}</div>
-                  <MathRenderer expression={`${result.a}^{${result.exp}} \\equiv ${result.pow} \\pmod{${result.n}}`} displayMode={false} className="text-sm mt-1" />
+                  <MathRenderer
+                    expression={`${result.a}^{${result.exp}} \\equiv ${result.pow} \\pmod{${result.n}}`}
+                    displayMode={false}
+                    className="text-sm mt-1"
+                  />
                 </CardContent>
               </Card>
             </div>
 
             <Card>
-              <CardHeader><CardTitle className="text-base">Key Formulas</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle className="text-base">Key Formulas</CardTitle>
+              </CardHeader>
               <CardContent className="space-y-3">
-                <StepList steps={[
-                  { label: 'Reduction', latex: `a \\bmod n \\;=\\; a - n\\left\\lfloor \\frac{a}{n} \\right\\rfloor` },
-                  { label: 'Modular inverse (Extended Euclidean)', latex: `a^{-1} \\bmod n \\text{ exists} \\iff \\gcd(a, n) = 1` },
-                  { label: 'Modular exponentiation (binary method)', latex: `a^k \\bmod n \\quad \\mathcal{O}(\\log k) \\text{ multiplications}` },
-                  { label: "Fermat's little theorem (p prime, gcd(a,p)=1)", latex: `a^{p-1} \\equiv 1 \\pmod{p}` },
-                ]} />
+                <StepList
+                  steps={[
+                    {
+                      label: 'Reduction',
+                      latex: `a \\bmod n \\;=\\; a - n\\left\\lfloor \\frac{a}{n} \\right\\rfloor`,
+                    },
+                    {
+                      label: 'Modular inverse (Extended Euclidean)',
+                      latex: `a^{-1} \\bmod n \\text{ exists} \\iff \\gcd(a, n) = 1`,
+                    },
+                    {
+                      label: 'Modular exponentiation (binary method)',
+                      latex: `a^k \\bmod n \\quad \\mathcal{O}(\\log k) \\text{ multiplications}`,
+                    },
+                    {
+                      label: "Fermat's little theorem (p prime, gcd(a,p)=1)",
+                      latex: `a^{p-1} \\equiv 1 \\pmod{p}`,
+                    },
+                  ]}
+                />
               </CardContent>
             </Card>
           </motion.div>
@@ -1644,7 +1946,7 @@ function SieveCanvas({ cells, limit, currentPrime }: SieveCanvasProps) {
       gpuRef.current = null;
       webgpuActiveRef.current = false;
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [limit]);
 
   // Render whenever cells/currentPrime changes
@@ -1700,12 +2002,14 @@ function SieveCanvas({ cells, limit, currentPrime }: SieveCanvasProps) {
       const texture = gpu.context.getCurrentTexture().createView();
       const enc = gpu.device.createCommandEncoder();
       const pass = enc.beginRenderPass({
-        colorAttachments: [{
-          view: texture,
-          loadOp: 'clear',
-          storeOp: 'store',
-          clearValue: { r: 0.05, g: 0.05, b: 0.08, a: 1.0 },
-        }],
+        colorAttachments: [
+          {
+            view: texture,
+            loadOp: 'clear',
+            storeOp: 'store',
+            clearValue: { r: 0.05, g: 0.05, b: 0.08, a: 1.0 },
+          },
+        ],
       });
       pass.setPipeline(gpu.pipeline);
       pass.setBindGroup(0, bindGroup);
@@ -1742,14 +2046,14 @@ function SieveCanvas({ cells, limit, currentPrime }: SieveCanvasProps) {
 
       // Only draw text if cells are large enough
       if (cellSize >= 14) {
-        ctx.fillStyle = (state === 1 || state === 3) ? '#ffffff' : '#64748b';
+        ctx.fillStyle = state === 1 || state === 3 ? '#ffffff' : '#64748b';
         ctx.font = `${cellSize >= 20 ? 11 : 8}px monospace`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(String(n), x + cellSize / 2, y + cellSize / 2);
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cells, limit, currentPrime, cols, rows]);
 
   return (
@@ -1837,8 +2141,14 @@ function SievePanel() {
   }, []);
 
   const stopTimers = useCallback(() => {
-    if (animRef.current) { clearTimeout(animRef.current); animRef.current = null; }
-    if (elapsedTimerRef.current) { clearInterval(elapsedTimerRef.current); elapsedTimerRef.current = null; }
+    if (animRef.current) {
+      clearTimeout(animRef.current);
+      animRef.current = null;
+    }
+    if (elapsedTimerRef.current) {
+      clearInterval(elapsedTimerRef.current);
+      elapsedTimerRef.current = null;
+    }
   }, []);
 
   const reset = useCallback(() => {
@@ -1863,132 +2173,135 @@ function SievePanel() {
   }, [safeLimit, stopTimers]);
 
   // Perform one GPU-assisted compute step
-  const performGpuStep = useCallback(async (
-    currentState: SieveState,
-    gpuRes: SieveComputeGPUResources,
-  ): Promise<SieveState | null> => {
-    if (currentState.done || currentState.factorIdx >= currentState.factors.length) {
-      return null;
-    }
-
-    const p = currentState.factors[currentState.factorIdx]!;
-    const newState: SieveState = {
-      ...currentState,
-      cells: new Uint8Array(currentState.cells),
-      currentPrime: p,
-      factorIdx: currentState.factorIdx + 1,
-    };
-
-    // Mark p as current factor
-    if (newState.cells[p] !== 2) newState.cells[p] = 3;
-
-    // GPU dispatch: mark multiples of p
-    const result = await gpuSieveStep(gpuRes, p);
-    if (result) {
-      // Merge GPU composite marks back into cells
-      for (let n = p * p; n <= newState.limit; n += p) {
-        if (result[n] === 1) newState.cells[n] = 2;
+  const performGpuStep = useCallback(
+    async (
+      currentState: SieveState,
+      gpuRes: SieveComputeGPUResources,
+    ): Promise<SieveState | null> => {
+      if (currentState.done || currentState.factorIdx >= currentState.factors.length) {
+        return null;
       }
-    } else {
-      // GPU failed — fall back to CPU marking
-      for (let m = p * p; m <= newState.limit; m += p) {
-        newState.cells[m] = 2;
+
+      const p = currentState.factors[currentState.factorIdx]!;
+      const newState: SieveState = {
+        ...currentState,
+        cells: new Uint8Array(currentState.cells),
+        currentPrime: p,
+        factorIdx: currentState.factorIdx + 1,
+      };
+
+      // Mark p as current factor
+      if (newState.cells[p] !== 2) newState.cells[p] = 3;
+
+      // GPU dispatch: mark multiples of p
+      const result = await gpuSieveStep(gpuRes, p);
+      if (result) {
+        // Merge GPU composite marks back into cells
+        for (let n = p * p; n <= newState.limit; n += p) {
+          if (result[n] === 1) newState.cells[n] = 2;
+        }
+      } else {
+        // GPU failed — fall back to CPU marking
+        for (let m = p * p; m <= newState.limit; m += p) {
+          newState.cells[m] = 2;
+        }
       }
-    }
 
-    // Count primes
-    let count = 0;
-    for (let n = 2; n <= newState.limit; n++) {
-      if (newState.cells[n] === 1 || newState.cells[n] === 3) count++;
-    }
-    newState.primeCount = count;
-
-    // Check if done
-    if (newState.factorIdx >= newState.factors.length) {
-      // Final pass: mark all remaining unchecked as prime
+      // Count primes
+      let count = 0;
       for (let n = 2; n <= newState.limit; n++) {
-        if (newState.cells[n] === 0) newState.cells[n] = 1;
-        if (newState.cells[n] === 3) newState.cells[n] = 1; // current factor -> prime
+        if (newState.cells[n] === 1 || newState.cells[n] === 3) count++;
       }
-      let finalCount = 0;
-      for (let n = 2; n <= newState.limit; n++) {
-        if (newState.cells[n] === 1) finalCount++;
-      }
-      newState.primeCount = finalCount;
-      newState.done = true;
-      newState.currentPrime = -1;
-    }
+      newState.primeCount = count;
 
-    return newState;
-  }, []);
+      // Check if done
+      if (newState.factorIdx >= newState.factors.length) {
+        // Final pass: mark all remaining unchecked as prime
+        for (let n = 2; n <= newState.limit; n++) {
+          if (newState.cells[n] === 0) newState.cells[n] = 1;
+          if (newState.cells[n] === 3) newState.cells[n] = 1; // current factor -> prime
+        }
+        let finalCount = 0;
+        for (let n = 2; n <= newState.limit; n++) {
+          if (newState.cells[n] === 1) finalCount++;
+        }
+        newState.primeCount = finalCount;
+        newState.done = true;
+        newState.currentPrime = -1;
+      }
+
+      return newState;
+    },
+    [],
+  );
 
   // Step forward callback (used by both Play and Step button)
-  const stepForward = useCallback((
-    currentSieveState: SieveState,
-    scheduleNext: boolean,
-  ) => {
-    const gpuRes = gpuComputeRef.current;
-    const useGpu = gpuRes !== null && gpuMode && gpuRes.sieveSize === currentSieveState.limit;
+  const stepForward = useCallback(
+    (currentSieveState: SieveState, scheduleNext: boolean) => {
+      const gpuRes = gpuComputeRef.current;
+      const useGpu = gpuRes !== null && gpuMode && gpuRes.sieveSize === currentSieveState.limit;
 
-    if (useGpu && gpuRes !== null) {
-      // Async GPU step
-      performGpuStep(currentSieveState, gpuRes).then((nextState) => {
-        if (nextState === null) {
-          // Already done
-          const finalState: SieveState = { ...currentSieveState };
-          // Final pass
-          for (let n = 2; n <= finalState.limit; n++) {
-            if (finalState.cells[n] === 0) finalState.cells[n] = 1;
-            if (finalState.cells[n] === 3) finalState.cells[n] = 1;
+      if (useGpu && gpuRes !== null) {
+        // Async GPU step
+        performGpuStep(currentSieveState, gpuRes).then((nextState) => {
+          if (nextState === null) {
+            // Already done
+            const finalState: SieveState = { ...currentSieveState };
+            // Final pass
+            for (let n = 2; n <= finalState.limit; n++) {
+              if (finalState.cells[n] === 0) finalState.cells[n] = 1;
+              if (finalState.cells[n] === 3) finalState.cells[n] = 1;
+            }
+            let fc = 0;
+            for (let n = 2; n <= finalState.limit; n++) {
+              if (finalState.cells[n] === 1) fc++;
+            }
+            finalState.primeCount = fc;
+            finalState.done = true;
+            finalState.currentPrime = -1;
+            setSieveState(finalState);
+            setAnimating(false);
+            stopTimers();
+            return;
           }
-          let fc = 0;
-          for (let n = 2; n <= finalState.limit; n++) {
-            if (finalState.cells[n] === 1) fc++;
+          setSieveState(nextState);
+          if (nextState.done) {
+            setAnimating(false);
+            stopTimers();
+          } else if (scheduleNext) {
+            animRef.current = setTimeout(() => {
+              // Use functional update to get latest state
+              setSieveState((prev) => {
+                stepForward(prev, true);
+                return prev;
+              });
+            }, speed);
           }
-          finalState.primeCount = fc;
-          finalState.done = true;
-          finalState.currentPrime = -1;
-          setSieveState(finalState);
-          setAnimating(false);
-          stopTimers();
-          return;
-        }
+        });
+      } else {
+        // CPU step
+        const nextState: SieveState = {
+          ...currentSieveState,
+          cells: new Uint8Array(currentSieveState.cells),
+        };
+        const stepped = applyCpuSieveStep(nextState);
         setSieveState(nextState);
-        if (nextState.done) {
+
+        if (!stepped || nextState.done) {
           setAnimating(false);
           stopTimers();
         } else if (scheduleNext) {
           animRef.current = setTimeout(() => {
-            // Use functional update to get latest state
             setSieveState((prev) => {
               stepForward(prev, true);
               return prev;
             });
           }, speed);
         }
-      });
-    } else {
-      // CPU step
-      const nextState: SieveState = {
-        ...currentSieveState,
-        cells: new Uint8Array(currentSieveState.cells),
-      };
-      const stepped = applyCpuSieveStep(nextState);
-      setSieveState(nextState);
-
-      if (!stepped || nextState.done) {
-        setAnimating(false);
-        stopTimers();
-      } else if (scheduleNext) {
-        animRef.current = setTimeout(() => {
-          setSieveState((prev) => {
-            stepForward(prev, true);
-            return prev;
-          });
-        }, speed);
       }
-    }
-  }, [gpuMode, performGpuStep, speed, stopTimers]);
+    },
+    [gpuMode, performGpuStep, speed, stopTimers],
+  );
 
   const handlePlay = useCallback(() => {
     if (sieveState.done) return;
@@ -2021,7 +2334,7 @@ function SievePanel() {
   // Compute prime list for display when done
   const primeList: number[] = sieveState.done
     ? Array.from({ length: safeLimit - 1 }, (_, i) => i + 2).filter(
-        (n) => sieveState.cells[n] === 1
+        (n) => sieveState.cells[n] === 1,
       )
     : [];
 
@@ -2040,7 +2353,6 @@ function SievePanel() {
       {/* Controls card */}
       <Card>
         <CardContent className="pt-6 space-y-4">
-
           {/* Limit slider */}
           <div>
             <label className="text-sm font-medium text-foreground mb-1 block" htmlFor="sieve-limit">
@@ -2053,7 +2365,9 @@ function SievePanel() {
               max={SIEVE_DISPLAY_MAX}
               step={10}
               value={limitInput}
-              onChange={(e) => { setLimitInput(Number(e.target.value)); }}
+              onChange={(e) => {
+                setLimitInput(Number(e.target.value));
+              }}
               className="w-full"
               aria-label="Sieve upper limit"
               disabled={animating}
@@ -2119,11 +2433,7 @@ function SievePanel() {
               <ChevronRight className="w-4 h-4 mr-1" />
               Step
             </Button>
-            <Button
-              variant="outline"
-              onClick={reset}
-              aria-label="Reset sieve"
-            >
+            <Button variant="outline" onClick={reset} aria-label="Reset sieve">
               <RotateCcw className="w-4 h-4" />
             </Button>
           </div>
@@ -2198,17 +2508,21 @@ function SievePanel() {
             <Card className="border-amber-500/30 bg-amber-500/5">
               <CardContent className="py-3 px-4">
                 <div className="flex items-center gap-3 flex-wrap">
-                  <Badge variant="outline" className="font-mono text-amber-400 border-amber-500/40 text-base px-3 py-1">
+                  <Badge
+                    variant="outline"
+                    className="font-mono text-amber-400 border-amber-500/40 text-base px-3 py-1"
+                  >
                     p = {sieveState.currentPrime}
                   </Badge>
                   <p className="text-sm text-muted-foreground">
                     Marking multiples of{' '}
-                    <strong className="text-foreground">{sieveState.currentPrime}</strong>{' '}
-                    as composite, starting at{' '}
+                    <strong className="text-foreground">{sieveState.currentPrime}</strong> as
+                    composite, starting at{' '}
                     <strong className="text-foreground">
                       {sieveState.currentPrime * sieveState.currentPrime}
-                    </strong>
-                    {' '}— computed via <span className="text-violet-400 font-mono text-xs">{computeBackend}</span>
+                    </strong>{' '}
+                    — computed via{' '}
+                    <span className="text-violet-400 font-mono text-xs">{computeBackend}</span>
                   </p>
                 </div>
               </CardContent>
@@ -2216,11 +2530,7 @@ function SievePanel() {
           </motion.div>
         )}
         {sieveState.done && (
-          <motion.div
-            key="done"
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
+          <motion.div key="done" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}>
             <Card className="border-green-500/30 bg-green-500/5">
               <CardContent className="py-3 px-4">
                 <p className="text-sm text-green-400 font-medium">
@@ -2266,14 +2576,18 @@ function SievePanel() {
             <CardHeader>
               <CardTitle className="text-base">
                 Primes up to {safeLimit}{' '}
-                <Badge variant="default" className="ml-2">{primeList.length} primes</Badge>
+                <Badge variant="default" className="ml-2">
+                  {primeList.length} primes
+                </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Show prime badges (cap at 200 for display) */}
               <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto">
                 {primeList.slice(0, 200).map((p) => (
-                  <Badge key={p} variant="outline" className="font-mono text-xs">{p}</Badge>
+                  <Badge key={p} variant="outline" className="font-mono text-xs">
+                    {p}
+                  </Badge>
                 ))}
                 {primeList.length > 200 && (
                   <Badge variant="outline" className="text-xs text-muted-foreground">
@@ -2283,10 +2597,12 @@ function SievePanel() {
               </div>
 
               <div className="pt-4 border-t">
-                <FormulaBox latex={`\\pi(${safeLimit}) = ${primeList.length} \\approx \\frac{${safeLimit}}{\\ln ${safeLimit}} \\approx ${(safeLimit / Math.log(safeLimit)).toFixed(1)}`} />
+                <FormulaBox
+                  latex={`\\pi(${safeLimit}) = ${primeList.length} \\approx \\frac{${safeLimit}}{\\ln ${safeLimit}} \\approx ${(safeLimit / Math.log(safeLimit)).toFixed(1)}`}
+                />
                 <p className="text-xs text-muted-foreground mt-2">
-                  <MathRenderer expression="\pi(x)" displayMode={false} /> is the prime-counting function;
-                  the prime number theorem gives{' '}
+                  <MathRenderer expression="\pi(x)" displayMode={false} /> is the prime-counting
+                  function; the prime number theorem gives{' '}
                   <MathRenderer expression="\pi(x) \sim \frac{x}{\ln x}" displayMode={false} />.
                 </p>
               </div>
@@ -2297,15 +2613,32 @@ function SievePanel() {
 
       {/* Algorithm card */}
       <Card>
-        <CardHeader><CardTitle className="text-base">Algorithm</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="text-base">Algorithm</CardTitle>
+        </CardHeader>
         <CardContent className="space-y-3">
           <FormulaBox latex="\text{For each prime } p \leq \sqrt{N}: \text{ mark } p^2, p^2+p, p^2+2p, \ldots \text{ composite}" />
-          <StepList steps={[
-            { label: 'Initialize', latex: '\\text{Mark } 0, 1 \\text{ composite; all } n \\geq 2 \\text{ unchecked}' },
-            { label: 'Find next prime', latex: 'p = \\min\\{n \\geq 2 : n \\text{ unchecked}\\}' },
-            { label: 'GPU dispatch', latex: '\\text{dispatch}(\\lceil(N - p^2)/p / 256\\rceil) \\text{ workgroups, each thread marks } p(p+k)' },
-            { label: 'Repeat', latex: 'p \\leftarrow \\text{next unchecked}; \\text{ stop when } p^2 > N' },
-          ]} />
+          <StepList
+            steps={[
+              {
+                label: 'Initialize',
+                latex: '\\text{Mark } 0, 1 \\text{ composite; all } n \\geq 2 \\text{ unchecked}',
+              },
+              {
+                label: 'Find next prime',
+                latex: 'p = \\min\\{n \\geq 2 : n \\text{ unchecked}\\}',
+              },
+              {
+                label: 'GPU dispatch',
+                latex:
+                  '\\text{dispatch}(\\lceil(N - p^2)/p / 256\\rceil) \\text{ workgroups, each thread marks } p(p+k)',
+              },
+              {
+                label: 'Repeat',
+                latex: 'p \\leftarrow \\text{next unchecked}; \\text{ stop when } p^2 > N',
+              },
+            ]}
+          />
           <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
             <Badge variant="outline">Time: O(n log log n)</Badge>
             <Badge variant="outline">GPU workgroup size: 256 threads</Badge>
@@ -2323,20 +2656,36 @@ function SievePanel() {
 
 function TotientPanel() {
   const [input, setInput] = useState('36');
-  const [result, setResult] = useState<{ n: bigint; phi: bigint; steps: Array<{ text: string; latex: string }>; coprimes: number[] } | null>(null);
+  const [result, setResult] = useState<{
+    n: bigint;
+    phi: bigint;
+    steps: Array<{ text: string; latex: string }>;
+    coprimes: number[];
+  } | null>(null);
   const [error, setError] = useState('');
 
   const compute = useCallback(() => {
     setError('');
-    if (!/^\d+$/.test(input.trim())) { setError('Enter a positive integer.'); return; }
+    if (!/^\d+$/.test(input.trim())) {
+      setError('Enter a positive integer.');
+      return;
+    }
     try {
       const n = BigInt(input.trim());
-      if (n < 1n) { setError('Enter an integer ≥ 1.'); return; }
-      if (n > 10n ** 9n) { setError('Number too large (max 10⁹).'); return; }
+      if (n < 1n) {
+        setError('Enter an integer ≥ 1.');
+        return;
+      }
+      if (n > 10n ** 9n) {
+        setError('Number too large (max 10⁹).');
+        return;
+      }
       const phi = eulerTotient(n);
       const steps = totientSteps(n);
       const nNum = safeNum(n);
-      const coprimes = Array.from({ length: nNum }, (_, i) => i + 1).filter((k) => safeNum(gcd(BigInt(k), n)) === 1);
+      const coprimes = Array.from({ length: nNum }, (_, i) => i + 1).filter(
+        (k) => safeNum(gcd(BigInt(k), n)) === 1,
+      );
       setResult({ n, phi, steps, coprimes });
     } catch {
       setError('Invalid input.');
@@ -2368,7 +2717,16 @@ function TotientPanel() {
           {error && <p className="text-sm text-destructive">{error}</p>}
           <div className="flex flex-wrap gap-2">
             {[12n, 36n, 100n, 720n].map((n) => (
-              <Button key={String(n)} variant="outline" size="sm" onClick={() => { setInput(String(n)); setError(''); }} className="font-mono text-xs">
+              <Button
+                key={String(n)}
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setInput(String(n));
+                  setError('');
+                }}
+                className="font-mono text-xs"
+              >
                 φ({String(n)})
               </Button>
             ))}
@@ -2391,13 +2749,16 @@ function TotientPanel() {
                   φ({String(result.n)}) = {String(result.phi)}
                 </CardTitle>
                 <CardDescription>
-                  {String(result.phi)} integers in [1, {String(result.n)}] are coprime to {String(result.n)}.
+                  {String(result.phi)} integers in [1, {String(result.n)}] are coprime to{' '}
+                  {String(result.n)}.
                 </CardDescription>
               </CardHeader>
             </Card>
 
             <Card>
-              <CardHeader><CardTitle className="text-base">Derivation</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle className="text-base">Derivation</CardTitle>
+              </CardHeader>
               <CardContent>
                 <StepList steps={result.steps.map((s) => ({ label: s.text, latex: s.latex }))} />
               </CardContent>
@@ -2405,11 +2766,15 @@ function TotientPanel() {
 
             {result.coprimes.length <= 72 && (
               <Card>
-                <CardHeader><CardTitle className="text-base">Coprime integers</CardTitle></CardHeader>
+                <CardHeader>
+                  <CardTitle className="text-base">Coprime integers</CardTitle>
+                </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto">
                     {result.coprimes.map((k) => (
-                      <Badge key={k} variant="outline" className="font-mono text-xs">{k}</Badge>
+                      <Badge key={k} variant="outline" className="font-mono text-xs">
+                        {k}
+                      </Badge>
                     ))}
                   </div>
                 </CardContent>
@@ -2417,14 +2782,27 @@ function TotientPanel() {
             )}
 
             <Card>
-              <CardHeader><CardTitle className="text-base">Key Properties</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle className="text-base">Key Properties</CardTitle>
+              </CardHeader>
               <CardContent>
-                <StepList steps={[
-                  { label: 'Multiplicativity', latex: '\\varphi(mn) = \\varphi(m)\\varphi(n) \\text{ when } \\gcd(m,n) = 1' },
-                  { label: 'Prime formula', latex: '\\varphi(p^k) = p^k - p^{k-1} = p^{k-1}(p-1)' },
-                  { label: "Euler's theorem", latex: 'a^{\\varphi(n)} \\equiv 1 \\pmod{n} \\text{ when } \\gcd(a,n)=1' },
-                  { label: 'Sum identity', latex: '\\sum_{d \\mid n} \\varphi(d) = n' },
-                ]} />
+                <StepList
+                  steps={[
+                    {
+                      label: 'Multiplicativity',
+                      latex: '\\varphi(mn) = \\varphi(m)\\varphi(n) \\text{ when } \\gcd(m,n) = 1',
+                    },
+                    {
+                      label: 'Prime formula',
+                      latex: '\\varphi(p^k) = p^k - p^{k-1} = p^{k-1}(p-1)',
+                    },
+                    {
+                      label: "Euler's theorem",
+                      latex: 'a^{\\varphi(n)} \\equiv 1 \\pmod{n} \\text{ when } \\gcd(a,n)=1',
+                    },
+                    { label: 'Sum identity', latex: '\\sum_{d \\mid n} \\varphi(d) = n' },
+                  ]}
+                />
               </CardContent>
             </Card>
           </motion.div>
@@ -2479,7 +2857,7 @@ function FibonacciCanvas({ terms }: { terms: bigint[] }) {
       gpuRef.current = null;
       webgpuActiveRef.current = false;
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -2539,12 +2917,14 @@ function FibonacciCanvas({ terms }: { terms: bigint[] }) {
       const texture = gpu.context.getCurrentTexture().createView();
       const enc = gpu.device.createCommandEncoder();
       const pass = enc.beginRenderPass({
-        colorAttachments: [{
-          view: texture,
-          loadOp: 'clear',
-          storeOp: 'store',
-          clearValue: { r: 0.04, g: 0.04, b: 0.06, a: 1.0 },
-        }],
+        colorAttachments: [
+          {
+            view: texture,
+            loadOp: 'clear',
+            storeOp: 'store',
+            clearValue: { r: 0.04, g: 0.04, b: 0.06, a: 1.0 },
+          },
+        ],
       });
       pass.setPipeline(gpu.pipeline);
       pass.setBindGroup(0, bindGroup);
@@ -2598,7 +2978,11 @@ function FibonacciCanvas({ terms }: { terms: bigint[] }) {
 
   return (
     <div className="relative">
-      <canvas ref={canvasRef} className="w-full rounded-lg" aria-label="Fibonacci sequence bar chart" />
+      <canvas
+        ref={canvasRef}
+        className="w-full rounded-lg"
+        aria-label="Fibonacci sequence bar chart"
+      />
       <RenderModeBadge mode={renderMode} />
     </div>
   );
@@ -2606,15 +2990,26 @@ function FibonacciCanvas({ terms }: { terms: bigint[] }) {
 
 function FibLucasPanel() {
   const [nInput, setNInput] = useState('15');
-  const [result, setResult] = useState<{ n: number; fibTerms: bigint[]; lucasTerms: bigint[]; ratio: string } | null>(null);
+  const [result, setResult] = useState<{
+    n: number;
+    fibTerms: bigint[];
+    lucasTerms: bigint[];
+    ratio: string;
+  } | null>(null);
   const [error, setError] = useState('');
   const [mode, setMode] = useState<'fibonacci' | 'lucas'>('fibonacci');
 
   const compute = useCallback(() => {
     setError('');
     const nNum = parseInt(nInput, 10);
-    if (isNaN(nNum) || nNum < 1) { setError('Enter a positive integer.'); return; }
-    if (nNum > 80) { setError('Max n = 80 for display.'); return; }
+    if (isNaN(nNum) || nNum < 1) {
+      setError('Enter a positive integer.');
+      return;
+    }
+    if (nNum > 80) {
+      setError('Max n = 80 for display.');
+      return;
+    }
     const fibTerms = Array.from({ length: nNum + 1 }, (_, i) => fibonacci(i));
     const lucasTerms = Array.from({ length: nNum + 1 }, (_, i) => lucas(i));
     const fn = safeNum(fibonacci(nNum));
@@ -2624,7 +3019,11 @@ function FibLucasPanel() {
   }, [nInput]);
 
   const terms = result ? (mode === 'fibonacci' ? result.fibTerms : result.lucasTerms) : [];
-  const currentValue = result ? (mode === 'fibonacci' ? fibonacci(result.n) : lucas(result.n)) : null;
+  const currentValue = result
+    ? mode === 'fibonacci'
+      ? fibonacci(result.n)
+      : lucas(result.n)
+    : null;
 
   return (
     <div className="space-y-6">
@@ -2663,15 +3062,23 @@ function FibLucasPanel() {
           >
             <div className="grid grid-cols-2 gap-4">
               <Card className="border-l-4 border-l-amber-500">
-                <CardHeader><CardTitle className="text-sm text-muted-foreground">F({result.n})</CardTitle></CardHeader>
+                <CardHeader>
+                  <CardTitle className="text-sm text-muted-foreground">F({result.n})</CardTitle>
+                </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold font-mono break-all">{String(fibonacci(result.n))}</div>
+                  <div className="text-2xl font-bold font-mono break-all">
+                    {String(fibonacci(result.n))}
+                  </div>
                 </CardContent>
               </Card>
               <Card className="border-l-4 border-l-orange-500">
-                <CardHeader><CardTitle className="text-sm text-muted-foreground">L({result.n})</CardTitle></CardHeader>
+                <CardHeader>
+                  <CardTitle className="text-sm text-muted-foreground">L({result.n})</CardTitle>
+                </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold font-mono break-all">{String(lucas(result.n))}</div>
+                  <div className="text-2xl font-bold font-mono break-all">
+                    {String(lucas(result.n))}
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -2681,8 +3088,20 @@ function FibLucasPanel() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base">Sequence Visualization</CardTitle>
                   <div className="flex gap-2">
-                    <Button size="sm" variant={mode === 'fibonacci' ? 'default' : 'outline'} onClick={() => setMode('fibonacci')}>Fibonacci</Button>
-                    <Button size="sm" variant={mode === 'lucas' ? 'default' : 'outline'} onClick={() => setMode('lucas')}>Lucas</Button>
+                    <Button
+                      size="sm"
+                      variant={mode === 'fibonacci' ? 'default' : 'outline'}
+                      onClick={() => setMode('fibonacci')}
+                    >
+                      Fibonacci
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={mode === 'lucas' ? 'default' : 'outline'}
+                      onClick={() => setMode('lucas')}
+                    >
+                      Lucas
+                    </Button>
                   </div>
                 </div>
               </CardHeader>
@@ -2690,26 +3109,39 @@ function FibLucasPanel() {
                 <FibonacciCanvas terms={terms} />
                 <div className="mt-2 flex flex-wrap gap-1 max-h-20 overflow-y-auto">
                   {terms.slice(0, 30).map((t, i) => (
-                    <Badge key={i} variant={i === result.n ? 'default' : 'outline'} className="font-mono text-xs">
+                    <Badge
+                      key={i}
+                      variant={i === result.n ? 'default' : 'outline'}
+                      className="font-mono text-xs"
+                    >
                       {String(t)}
                     </Badge>
                   ))}
-                  {terms.length > 30 && <Badge variant="outline" className="text-xs">+{terms.length - 30} more</Badge>}
+                  {terms.length > 30 && (
+                    <Badge variant="outline" className="text-xs">
+                      +{terms.length - 30} more
+                    </Badge>
+                  )}
                 </div>
               </CardContent>
             </Card>
 
             <Card>
-              <CardHeader><CardTitle className="text-base">Mathematical Properties</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle className="text-base">Mathematical Properties</CardTitle>
+              </CardHeader>
               <CardContent className="space-y-3">
                 <FormulaBox latex="F_n = F_{n-1} + F_{n-2}, \quad F_0 = 0,\; F_1 = 1" />
                 <FormulaBox latex="L_n = L_{n-1} + L_{n-2}, \quad L_0 = 2,\; L_1 = 1" />
                 <FormulaBox latex="\phi = \frac{1 + \sqrt{5}}{2} \approx 1.6180339887\ldots" />
-                <FormulaBox latex={`\\frac{F_{${result.n}}}{F_{${result.n - 1}}} = ${result.ratio}`} />
+                <FormulaBox
+                  latex={`\\frac{F_{${result.n}}}{F_{${result.n - 1}}} = ${result.ratio}`}
+                />
                 <FormulaBox latex="F_n = \frac{\phi^n - \psi^n}{\sqrt{5}}, \quad \psi = \frac{1-\sqrt{5}}{2}" />
                 <p className="text-xs text-muted-foreground">
-                  As <MathRenderer expression="n \to \infty" displayMode={false} />,{' '}
-                  the ratio <MathRenderer expression="F_n / F_{n-1} \to \phi" displayMode={false} /> (golden ratio).
+                  As <MathRenderer expression="n \to \infty" displayMode={false} />, the ratio{' '}
+                  <MathRenderer expression="F_n / F_{n-1} \to \phi" displayMode={false} /> (golden
+                  ratio).
                 </p>
                 {currentValue !== null && (
                   <div className="pt-2 border-t">
@@ -2771,7 +3203,7 @@ function CollatzCanvas({ seq }: { seq: bigint[] }) {
       gpuRef.current = null;
       webgpuActiveRef.current = false;
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -2842,12 +3274,14 @@ function CollatzCanvas({ seq }: { seq: bigint[] }) {
       const texture = gpu.context.getCurrentTexture().createView();
       const enc = gpu.device.createCommandEncoder();
       const pass = enc.beginRenderPass({
-        colorAttachments: [{
-          view: texture,
-          loadOp: 'clear',
-          storeOp: 'store',
-          clearValue: { r: 0.04, g: 0.04, b: 0.06, a: 1.0 },
-        }],
+        colorAttachments: [
+          {
+            view: texture,
+            loadOp: 'clear',
+            storeOp: 'store',
+            clearValue: { r: 0.04, g: 0.04, b: 0.06, a: 1.0 },
+          },
+        ],
       });
       pass.setPipeline(gpu.pipeline);
       pass.setBindGroup(0, bindGroup);
@@ -2911,7 +3345,11 @@ function CollatzCanvas({ seq }: { seq: bigint[] }) {
 
   return (
     <div className="relative">
-      <canvas ref={canvasRef} className="w-full rounded-lg" aria-label="Collatz sequence trajectory" />
+      <canvas
+        ref={canvasRef}
+        className="w-full rounded-lg"
+        aria-label="Collatz sequence trajectory"
+      />
       <RenderModeBadge mode={renderMode} />
     </div>
   );
@@ -2919,16 +3357,30 @@ function CollatzCanvas({ seq }: { seq: bigint[] }) {
 
 function CollatzPanel() {
   const [input, setInput] = useState('27');
-  const [result, setResult] = useState<{ n: bigint; seq: bigint[]; peak: bigint; steps: number } | null>(null);
+  const [result, setResult] = useState<{
+    n: bigint;
+    seq: bigint[];
+    peak: bigint;
+    steps: number;
+  } | null>(null);
   const [error, setError] = useState('');
 
   const compute = useCallback(() => {
     setError('');
-    if (!/^\d+$/.test(input.trim())) { setError('Enter a positive integer.'); return; }
+    if (!/^\d+$/.test(input.trim())) {
+      setError('Enter a positive integer.');
+      return;
+    }
     try {
       const n = BigInt(input.trim());
-      if (n < 1n) { setError('Enter an integer ≥ 1.'); return; }
-      if (n > 10n ** 15n) { setError('Number too large (max 10¹⁵).'); return; }
+      if (n < 1n) {
+        setError('Enter an integer ≥ 1.');
+        return;
+      }
+      if (n > 10n ** 15n) {
+        setError('Number too large (max 10¹⁵).');
+        return;
+      }
       const seq = collatz(n);
       const peak = seq.reduce((m, v) => (v > m ? v : m), n);
       setResult({ n, seq, peak, steps: seq.length - 1 });
@@ -2965,7 +3417,16 @@ function CollatzPanel() {
           {error && <p className="text-sm text-destructive">{error}</p>}
           <div className="flex flex-wrap gap-2">
             {[27n, 97n, 871n, 6171n].map((n) => (
-              <Button key={String(n)} variant="outline" size="sm" onClick={() => { setInput(String(n)); setError(''); }} className="font-mono text-xs">
+              <Button
+                key={String(n)}
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setInput(String(n));
+                  setError('');
+                }}
+                className="font-mono text-xs"
+              >
                 {String(n)}
               </Button>
             ))}
@@ -2984,28 +3445,47 @@ function CollatzPanel() {
           >
             <div className="grid grid-cols-3 gap-4">
               <Card className="border-l-4 border-l-rose-500">
-                <CardHeader><CardTitle className="text-sm text-muted-foreground">Steps to 1</CardTitle></CardHeader>
-                <CardContent><div className="text-3xl font-bold font-mono">{result.steps}</div></CardContent>
+                <CardHeader>
+                  <CardTitle className="text-sm text-muted-foreground">Steps to 1</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold font-mono">{result.steps}</div>
+                </CardContent>
               </Card>
               <Card className="border-l-4 border-l-pink-500">
-                <CardHeader><CardTitle className="text-sm text-muted-foreground">Peak value</CardTitle></CardHeader>
-                <CardContent><div className="text-2xl font-bold font-mono break-all">{String(result.peak)}</div></CardContent>
+                <CardHeader>
+                  <CardTitle className="text-sm text-muted-foreground">Peak value</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold font-mono break-all">
+                    {String(result.peak)}
+                  </div>
+                </CardContent>
               </Card>
               <Card className="border-l-4 border-l-fuchsia-500">
-                <CardHeader><CardTitle className="text-sm text-muted-foreground">Sequence length</CardTitle></CardHeader>
-                <CardContent><div className="text-3xl font-bold font-mono">{result.seq.length}</div></CardContent>
+                <CardHeader>
+                  <CardTitle className="text-sm text-muted-foreground">Sequence length</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold font-mono">{result.seq.length}</div>
+                </CardContent>
               </Card>
             </div>
 
             <Card>
-              <CardHeader><CardTitle className="text-base">Trajectory</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle className="text-base">Trajectory</CardTitle>
+              </CardHeader>
               <CardContent>
                 <CollatzCanvas seq={result.seq} />
                 {result.seq.length <= 50 && (
                   <div className="mt-3 flex flex-wrap gap-1 text-xs">
                     {result.seq.map((v, i) => (
                       <span key={i} className="font-mono">
-                        {String(v)}{i < result.seq.length - 1 ? <ArrowRight className="w-3 h-3 inline mx-0.5" /> : null}
+                        {String(v)}
+                        {i < result.seq.length - 1 ? (
+                          <ArrowRight className="w-3 h-3 inline mx-0.5" />
+                        ) : null}
                       </span>
                     ))}
                   </div>
@@ -3014,14 +3494,17 @@ function CollatzPanel() {
             </Card>
 
             <Card>
-              <CardHeader><CardTitle className="text-base">The Rule</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle className="text-base">The Rule</CardTitle>
+              </CardHeader>
               <CardContent className="space-y-3">
                 <FormulaBox latex="f(n) = \begin{cases} n/2 & \text{if } n \equiv 0 \pmod 2 \\ 3n + 1 & \text{if } n \equiv 1 \pmod 2 \end{cases}" />
                 <p className="text-sm text-muted-foreground">
-                  The Collatz conjecture states that for any positive integer <em>n</em>,
-                  repeated application of <MathRenderer expression="f" displayMode={false} /> eventually reaches 1.
-                  It has been verified for all <MathRenderer expression="n < 2^{68}" displayMode={false} />{' '}
-                  but remains unproven in general.
+                  The Collatz conjecture states that for any positive integer <em>n</em>, repeated
+                  application of <MathRenderer expression="f" displayMode={false} /> eventually
+                  reaches 1. It has been verified for all{' '}
+                  <MathRenderer expression="n < 2^{68}" displayMode={false} /> but remains unproven
+                  in general.
                 </p>
               </CardContent>
             </Card>
@@ -3037,17 +3520,17 @@ function CollatzPanel() {
 // =============================================================================
 
 const TABS = [
-  { id: 'prime',         label: 'Prime Checker', icon: Hash,      component: PrimeChecker },
-  { id: 'factorization', label: 'Factor Tree',   icon: GitBranch, component: FactorizationPanel },
-  { id: 'gcd',           label: 'GCD / LCM',     icon: Divide,    component: GCDPanel },
-  { id: 'modular',       label: 'Modular',        icon: Layers,    component: ModularPanel },
-  { id: 'sieve',         label: 'Sieve',          icon: Grid,      component: SievePanel },
-  { id: 'totient',       label: "Euler's φ",      icon: Circle,    component: TotientPanel },
-  { id: 'fibonacci',     label: 'Fibonacci',      icon: Infinity,  component: FibLucasPanel },
-  { id: 'collatz',       label: 'Collatz',        icon: Shuffle,   component: CollatzPanel },
+  { id: 'prime', label: 'Prime Checker', icon: Hash, component: PrimeChecker },
+  { id: 'factorization', label: 'Factor Tree', icon: GitBranch, component: FactorizationPanel },
+  { id: 'gcd', label: 'GCD / LCM', icon: Divide, component: GCDPanel },
+  { id: 'modular', label: 'Modular', icon: Layers, component: ModularPanel },
+  { id: 'sieve', label: 'Sieve', icon: Grid, component: SievePanel },
+  { id: 'totient', label: "Euler's φ", icon: Circle, component: TotientPanel },
+  { id: 'fibonacci', label: 'Fibonacci', icon: Infinity, component: FibLucasPanel },
+  { id: 'collatz', label: 'Collatz', icon: Shuffle, component: CollatzPanel },
 ] as const;
 
-type TabId = typeof TABS[number]['id'];
+type TabId = (typeof TABS)[number]['id'];
 
 // =============================================================================
 // PAGE ENTRY POINT
@@ -3074,14 +3557,15 @@ export default function NumberTheoryPage() {
             </h1>
           </div>
         </div>
-        <p className="text-muted-foreground text-lg max-w-2xl">
-          {t('description')}
-        </p>
+        <p className="text-muted-foreground text-lg max-w-2xl">{t('description')}</p>
 
         <div className="flex flex-wrap gap-2 mt-4">
           <DisplayMath expression="\mathbb{Z} / n\mathbb{Z} \quad \varphi(n) \quad \gcd(a,b) \quad p \in \mathbb{P}" />
           {supportsWebGPU && (
-            <Badge variant="outline" className="gap-1 backdrop-blur-sm bg-violet-500/10 border-violet-500/40 text-violet-300 text-xs">
+            <Badge
+              variant="outline"
+              className="gap-1 backdrop-blur-sm bg-violet-500/10 border-violet-500/40 text-violet-300 text-xs"
+            >
               {t('webgpuActive')}
             </Badge>
           )}
@@ -3100,7 +3584,7 @@ export default function NumberTheoryPage() {
                 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
                 activeTab === id
                   ? 'bg-primary text-primary-foreground shadow-md'
-                  : 'bg-muted hover:bg-accent text-muted-foreground hover:text-foreground'
+                  : 'bg-muted hover:bg-accent text-muted-foreground hover:text-foreground',
               )}
               aria-pressed={activeTab === id}
               aria-label={`Open ${label} tool`}
@@ -3132,13 +3616,15 @@ export default function NumberTheoryPage() {
           Miller-Rabin primality testing is deterministic for n &lt; 3.3 &times; 10&sup2;&sup4;.
         </p>
         <p>
-          Sieve of Eratosthenes time complexity: <MathRenderer expression="O(n \log \log n)" displayMode={false} />.
-          GCD: <MathRenderer expression="O(\log \min(a,b))" displayMode={false} />.
-          Modular exponentiation: <MathRenderer expression="O(\log k)" displayMode={false} />.
+          Sieve of Eratosthenes time complexity:{' '}
+          <MathRenderer expression="O(n \log \log n)" displayMode={false} />. GCD:{' '}
+          <MathRenderer expression="O(\log \min(a,b))" displayMode={false} />. Modular
+          exponentiation: <MathRenderer expression="O(\log k)" displayMode={false} />.
         </p>
         {supportsWebGPU && (
           <p className="text-violet-400/60">
-            WebGPU rendering active: Sieve grid, Fibonacci bars, and Collatz trajectories are GPU-accelerated.
+            WebGPU rendering active: Sieve grid, Fibonacci bars, and Collatz trajectories are
+            GPU-accelerated.
           </p>
         )}
       </div>

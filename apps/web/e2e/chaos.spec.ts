@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Chaos Theory Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -7,9 +7,9 @@ test.describe('Chaos Theory Page', () => {
   });
 
   test('page loads with heading visible', async ({ page }) => {
-    await expect(
-      page.getByRole('heading', { name: /chaos theory/i }).first(),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /chaos theory/i }).first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('badges for attractor types are displayed', async ({ page }) => {

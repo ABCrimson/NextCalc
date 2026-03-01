@@ -1,9 +1,9 @@
 'use client';
 
-import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
-import { MSTVisualizer } from '@/components/algorithms/MSTVisualizer';
 import { GitMerge } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
+import { MSTVisualizer } from '@/components/algorithms/MSTVisualizer';
 
 /**
  * Minimum Spanning Tree Page (Kruskal's Algorithm)

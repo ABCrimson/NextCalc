@@ -1,11 +1,11 @@
 'use client';
 
+import { Cpu, Shield, Zap } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
-import { ZKPDemo } from '@/components/algorithms/ZKPDemo';
 import { ZKPComputeVisualizer } from '@/components/algorithms/ZKPComputeVisualizer';
-import { Shield, Zap, Cpu } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { ZKPDemo } from '@/components/algorithms/ZKPDemo';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 /** Glass-morphism card style used across NextCalc chaos/algorithm pages. */
@@ -30,9 +30,7 @@ function ZeroKnowledgeContent() {
           <Zap className="w-4 h-4 text-indigo-400" aria-hidden="true" />
         </div>
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-foreground">
-            {t('webgpuAvailable')}
-          </p>
+          <p className="text-sm font-semibold text-foreground">{t('webgpuAvailable')}</p>
           <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
             {t('webgpuDescription')}
           </p>
@@ -40,10 +38,7 @@ function ZeroKnowledgeContent() {
       </div>
 
       {/* Main tabs */}
-      <Tabs
-        value={activeTab}
-        onValueChange={v => setActiveTab(v as 'interactive' | 'gpu')}
-      >
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'interactive' | 'gpu')}>
         <TabsList
           className="grid w-full grid-cols-2 h-auto p-1 rounded-xl"
           style={{
@@ -74,22 +69,14 @@ function ZeroKnowledgeContent() {
         </TabsContent>
 
         <TabsContent value="gpu" className="mt-6">
-          <ZKPComputeVisualizer
-            roundCount={64}
-            injectFailures={true}
-          />
+          <ZKPComputeVisualizer roundCount={64} injectFailures={true} />
 
           {/* Backend comparison info */}
           <div className="mt-6 grid sm:grid-cols-2 gap-4">
-            <div
-              className={`${GLASS_CARD} rounded-xl p-4`}
-              aria-label="GPU backend description"
-            >
+            <div className={`${GLASS_CARD} rounded-xl p-4`} aria-label="GPU backend description">
               <div className="flex items-center gap-2 mb-2">
                 <Zap className="w-4 h-4 text-emerald-400" aria-hidden="true" />
-                <span className="text-sm font-semibold text-foreground">
-                  {t('webgpuPrimary')}
-                </span>
+                <span className="text-sm font-semibold text-foreground">{t('webgpuPrimary')}</span>
               </div>
               <ul className="space-y-1 text-xs text-muted-foreground list-none">
                 <li className="flex items-start gap-1.5">
@@ -115,15 +102,10 @@ function ZeroKnowledgeContent() {
               </ul>
             </div>
 
-            <div
-              className={`${GLASS_CARD} rounded-xl p-4`}
-              aria-label="CPU fallback description"
-            >
+            <div className={`${GLASS_CARD} rounded-xl p-4`} aria-label="CPU fallback description">
               <div className="flex items-center gap-2 mb-2">
                 <Cpu className="w-4 h-4 text-amber-400" aria-hidden="true" />
-                <span className="text-sm font-semibold text-foreground">
-                  {t('cpuFallback')}
-                </span>
+                <span className="text-sm font-semibold text-foreground">{t('cpuFallback')}</span>
               </div>
               <ul className="space-y-1 text-xs text-muted-foreground list-none">
                 <li className="flex items-start gap-1.5">

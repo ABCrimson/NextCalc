@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Algorithms Hub Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -7,9 +7,9 @@ test.describe('Algorithms Hub Page', () => {
   });
 
   test('page loads with heading visible', async ({ page }) => {
-    await expect(
-      page.getByRole('heading', { name: /algorithm visualizations/i }),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /algorithm visualizations/i })).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('interactive learning badge is displayed', async ({ page }) => {
@@ -34,7 +34,9 @@ test.describe('Algorithms Hub Page', () => {
 
   test('algorithm cards link to sub-pages', async ({ page }) => {
     // Check that links to sub-pages exist
-    const links = page.locator('a[href*="/algorithms/"], a[href*="/fourier"], a[href*="/game-theory"], a[href*="/chaos"]');
+    const links = page.locator(
+      'a[href*="/algorithms/"], a[href*="/fourier"], a[href*="/game-theory"], a[href*="/chaos"]',
+    );
     const count = await links.count();
     expect(count).toBeGreaterThanOrEqual(5);
   });

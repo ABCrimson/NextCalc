@@ -3,11 +3,11 @@
  * Tests user interactions, state management, and accessibility
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Calculator } from './calculator';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { resetCalculatorStore } from '@/lib/stores/calculator-store';
+import { Calculator } from './calculator';
 
 // Mock the compute manager
 vi.mock('@/lib/workers/compute-manager', () => ({
@@ -68,7 +68,7 @@ describe('Calculator Component', () => {
         const resultElement = screen.getByLabelText(/result:/i);
         expect(resultElement).toHaveTextContent('4');
       },
-      { timeout: 3000 }
+      { timeout: 3000 },
     );
   });
 
@@ -119,7 +119,7 @@ describe('Calculator Component', () => {
         const resultElement = screen.getByLabelText(/result:/i);
         expect(resultElement).toHaveTextContent('50');
       },
-      { timeout: 3000 }
+      { timeout: 3000 },
     );
   });
 

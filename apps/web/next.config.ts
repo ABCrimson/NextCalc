@@ -1,8 +1,8 @@
 import { resolve } from 'node:path';
-import type { NextConfig } from 'next';
 import { withSentryConfig } from '@sentry/nextjs';
-import createNextIntlPlugin from 'next-intl/plugin';
 import withSerwistInit from '@serwist/next';
+import type { NextConfig } from 'next';
+import createNextIntlPlugin from 'next-intl/plugin';
 
 /**
  * Next.js 16.2.0 Configuration
@@ -52,11 +52,7 @@ const nextConfig: NextConfig = {
   },
 
   // Transpile workspace packages
-  transpilePackages: [
-    '@nextcalc/types',
-    '@nextcalc/math-engine',
-    '@nextcalc/plot-engine',
-  ],
+  transpilePackages: ['@nextcalc/types', '@nextcalc/math-engine', '@nextcalc/plot-engine'],
 
   // Experimental features in Next.js 16.2.0
   experimental: {
@@ -95,9 +91,7 @@ const nextConfig: NextConfig = {
       },
       {
         source: '/api/auth/:path*',
-        headers: [
-          { key: 'Cache-Control', value: 'no-store, max-age=0' },
-        ],
+        headers: [{ key: 'Cache-Control', value: 'no-store, max-age=0' }],
       },
       {
         source: '/wasm/:path*',
@@ -127,9 +121,7 @@ export default withSentryConfig(withSerwist(withNextIntl(nextConfig)), {
 
   // Upload source maps to Sentry for better stack traces
   // Requires SENTRY_AUTH_TOKEN to be set
-  ...(process.env['SENTRY_AUTH_TOKEN']
-    ? { authToken: process.env['SENTRY_AUTH_TOKEN'] }
-    : {}),
+  ...(process.env['SENTRY_AUTH_TOKEN'] ? { authToken: process.env['SENTRY_AUTH_TOKEN'] } : {}),
 
   // Tree-shake Sentry debug logging statements to reduce bundle size
   webpack: {

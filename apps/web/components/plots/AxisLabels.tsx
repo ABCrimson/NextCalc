@@ -9,8 +9,8 @@
  * @module components/plots/AxisLabels
  */
 
-import { useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { useMemo } from 'react';
 
 export interface AxisLabelsProps {
   viewport: {
@@ -40,12 +40,7 @@ export interface AxisLabelsProps {
 /**
  * Converts viewport coordinates to pixel coordinates
  */
-function viewportToPixel(
-  value: number,
-  min: number,
-  max: number,
-  pixelSize: number
-): number {
+function viewportToPixel(value: number, min: number, max: number, pixelSize: number): number {
   return ((value - min) / (max - min)) * pixelSize;
 }
 
@@ -58,14 +53,14 @@ function viewportToPixel(
 function calculateAdaptiveStep(
   range: number,
   pixelSize: number,
-  minPixelsBetweenLabels = 60
+  minPixelsBetweenLabels = 60,
 ): number {
   const maxLabels = Math.max(1, Math.floor(pixelSize / minPixelsBetweenLabels));
   const rawStep = range / maxLabels;
 
   // Round to nearest "nice" number (1, 2, 5 × power-of-10)
   if (rawStep <= 0) return 1;
-  const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)));
+  const magnitude = 10 ** Math.floor(Math.log10(rawStep));
   const normalized = rawStep / magnitude;
 
   let niceStep: number;
@@ -110,13 +105,7 @@ const axisLabelVariants = {
  * Tick values are derived entirely from the live viewport so they are always
  * correct after pan and zoom operations.
  */
-export function AxisLabels({
-  viewport,
-  width,
-  height,
-  xAxisConfig,
-  yAxisConfig,
-}: AxisLabelsProps) {
+export function AxisLabels({ viewport, width, height, xAxisConfig, yAxisConfig }: AxisLabelsProps) {
   const xTicks = useMemo(() => {
     const range = viewport.xMax - viewport.xMin;
     // Always calculate from the current viewport range — do not hard-code the
@@ -128,7 +117,9 @@ export function AxisLabels({
     for (let x = start; x <= viewport.xMax + 1e-10; x += step) {
       const rounded = Math.round(x / step) * step; // avoid float drift
       const position = viewportToPixel(rounded, viewport.xMin, viewport.xMax, width);
-      const label = xAxisConfig?.format ? xAxisConfig.format(rounded) : rounded.toPrecision(4).replace(/\.?0+$/, '');
+      const label = xAxisConfig?.format
+        ? xAxisConfig.format(rounded)
+        : rounded.toPrecision(4).replace(/\.?0+$/, '');
       ticks.push({ value: rounded, label, position });
     }
 
@@ -145,7 +136,9 @@ export function AxisLabels({
       const rounded = Math.round(y / step) * step;
       // Invert Y axis for screen coordinates
       const position = height - viewportToPixel(rounded, viewport.yMin, viewport.yMax, height);
-      const label = yAxisConfig?.format ? yAxisConfig.format(rounded) : rounded.toPrecision(4).replace(/\.?0+$/, '');
+      const label = yAxisConfig?.format
+        ? yAxisConfig.format(rounded)
+        : rounded.toPrecision(4).replace(/\.?0+$/, '');
       ticks.push({ value: rounded, label, position });
     }
 

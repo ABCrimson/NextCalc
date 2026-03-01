@@ -5,10 +5,7 @@ import { prisma } from '@/lib/prisma';
 /**
  * DELETE /api/worksheets/:id — Soft-delete a worksheet
  */
-export async function DELETE(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
   const session = await auth();

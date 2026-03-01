@@ -16,23 +16,19 @@
  * @module components/calculator/export-menu
  */
 
-import { useState, useCallback } from 'react';
-import { Download, FileText, Image, FileCode, ChevronDown, Loader2 } from 'lucide-react';
+import { ChevronDown, Download, FileCode, FileText, Image, Loader2 } from 'lucide-react';
+import { useCallback, useState } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
+import { ExportError, type ExportFormat, exportAndDownload } from '@/lib/export-client';
 import { cn } from '@/lib/utils';
-import {
-  exportAndDownload,
-  ExportError,
-  type ExportFormat,
-} from '@/lib/export-client';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -118,7 +114,9 @@ export function ExportMenu({ latex, className }: ExportMenuProps) {
 
           {/* PDF */}
           <DropdownMenuItem
-            onSelect={() => { void handleExport('pdf'); }}
+            onSelect={() => {
+              void handleExport('pdf');
+            }}
             disabled={isExporting}
             className="gap-2 cursor-pointer"
           >
@@ -132,7 +130,9 @@ export function ExportMenu({ latex, className }: ExportMenuProps) {
 
           {/* PNG */}
           <DropdownMenuItem
-            onSelect={() => { void handleExport('png'); }}
+            onSelect={() => {
+              void handleExport('png');
+            }}
             disabled={isExporting}
             className="gap-2 cursor-pointer"
           >
@@ -146,7 +146,9 @@ export function ExportMenu({ latex, className }: ExportMenuProps) {
 
           {/* SVG */}
           <DropdownMenuItem
-            onSelect={() => { void handleExport('svg'); }}
+            onSelect={() => {
+              void handleExport('svg');
+            }}
             disabled={isExporting}
             className="gap-2 cursor-pointer"
           >

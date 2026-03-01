@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Navigation', () => {
   test.beforeEach(async ({ page }) => {
@@ -21,17 +21,25 @@ test.describe('Navigation', () => {
   test('command palette opens with Ctrl+K', async ({ page }) => {
     await page.keyboard.press('Control+k');
     // The command palette should appear as a dialog/modal
-    const palette = page.locator('[role="dialog"], [data-command-palette], [cmdk-dialog], [data-radix-popper-content-wrapper]');
-    await expect(palette.first()).toBeVisible({ timeout: 5000 }).catch(async () => {
-      // Some implementations use a different structure
-      const searchInput = page.locator('input[placeholder*="search" i], input[placeholder*="command" i]');
-      await expect(searchInput.first()).toBeVisible({ timeout: 3000 });
-    });
+    const palette = page.locator(
+      '[role="dialog"], [data-command-palette], [cmdk-dialog], [data-radix-popper-content-wrapper]',
+    );
+    await expect(palette.first())
+      .toBeVisible({ timeout: 5000 })
+      .catch(async () => {
+        // Some implementations use a different structure
+        const searchInput = page.locator(
+          'input[placeholder*="search" i], input[placeholder*="command" i]',
+        );
+        await expect(searchInput.first()).toBeVisible({ timeout: 3000 });
+      });
   });
 
   test('clicking a nav link navigates to the correct page', async ({ page }) => {
     // Find and click a nav link to the plot page
-    const plotLink = page.locator('nav a[href="/plot"], [role="navigation"] a[href="/plot"]').first();
+    const plotLink = page
+      .locator('nav a[href="/plot"], [role="navigation"] a[href="/plot"]')
+      .first();
     if (await plotLink.isVisible()) {
       await plotLink.click();
       await expect(page).toHaveURL(/\/plot/);

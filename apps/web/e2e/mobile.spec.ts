@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Mobile Responsiveness', () => {
   test.beforeEach(async ({ page }) => {
@@ -21,9 +21,7 @@ test.describe('Mobile Responsiveness', () => {
     await page.goto('/forum');
     await page.waitForLoadState('domcontentloaded');
 
-    await expect(
-      page.getByRole('heading', { name: /community/i }),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /community/i })).toBeVisible({ timeout: 10000 });
 
     // Verify no horizontal overflow
     const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
@@ -35,9 +33,9 @@ test.describe('Mobile Responsiveness', () => {
     await page.goto('/plot');
     await page.waitForLoadState('domcontentloaded');
 
-    await expect(
-      page.getByRole('heading', { name: /interactive plots/i }),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /interactive plots/i })).toBeVisible({
+      timeout: 10000,
+    });
 
     // Canvas should still render
     await expect(page.locator('canvas').first()).toBeVisible({ timeout: 10000 });
@@ -53,7 +51,8 @@ test.describe('Mobile Responsiveness', () => {
     await page.waitForLoadState('domcontentloaded');
 
     // On mobile, the nav should show a hamburger/menu toggle button
-    const menuButton = page.getByRole('button', { name: /menu|toggle|navigation/i })
+    const menuButton = page
+      .getByRole('button', { name: /menu|toggle|navigation/i })
       .or(page.locator('[aria-label*="menu" i]'))
       .or(page.locator('button[data-mobile-menu]'));
 
@@ -64,7 +63,8 @@ test.describe('Mobile Responsiveness', () => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
 
-    const menuButton = page.getByRole('button', { name: /menu|toggle|navigation/i })
+    const menuButton = page
+      .getByRole('button', { name: /menu|toggle|navigation/i })
       .or(page.locator('[aria-label*="menu" i]'))
       .or(page.locator('button[data-mobile-menu]'));
 
@@ -83,9 +83,9 @@ test.describe('Mobile Responsiveness', () => {
     await page.goto('/matrix');
     await page.waitForLoadState('domcontentloaded');
 
-    await expect(
-      page.getByRole('heading', { name: /matrix operations/i }),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /matrix operations/i })).toBeVisible({
+      timeout: 10000,
+    });
 
     // Matrix inputs should be accessible
     const matrixInputs = page.locator('input[type="number"]');

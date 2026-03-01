@@ -215,7 +215,9 @@ export async function captureError(error: Error, context?: ErrorContext): Promis
     await errorTrackingService.captureError(error, context);
   } catch (e) {
     // Fail silently to avoid cascading errors
-    structuredLog('error', 'Failed to capture error', { error: e instanceof Error ? e.message : String(e) });
+    structuredLog('error', 'Failed to capture error', {
+      error: e instanceof Error ? e.message : String(e),
+    });
   }
 }
 
@@ -226,7 +228,9 @@ export async function captureMessage(message: string, context?: ErrorContext): P
   try {
     await errorTrackingService.captureMessage(message, context);
   } catch (e) {
-    structuredLog('error', 'Failed to capture message', { error: e instanceof Error ? e.message : String(e) });
+    structuredLog('error', 'Failed to capture message', {
+      error: e instanceof Error ? e.message : String(e),
+    });
   }
 }
 
@@ -238,7 +242,9 @@ export function setUser(userId: string, userData?: Record<string, unknown>): voi
     errorTrackingService.setUser(userId, userData);
     analyticsService.identifyUser(userId, userData);
   } catch (e) {
-    structuredLog('error', 'Failed to set user', { error: e instanceof Error ? e.message : String(e) });
+    structuredLog('error', 'Failed to set user', {
+      error: e instanceof Error ? e.message : String(e),
+    });
   }
 }
 
@@ -249,7 +255,9 @@ export function addBreadcrumb(message: string, data?: Record<string, unknown>): 
   try {
     errorTrackingService.addBreadcrumb(message, data);
   } catch (e) {
-    structuredLog('error', 'Failed to add breadcrumb', { error: e instanceof Error ? e.message : String(e) });
+    structuredLog('error', 'Failed to add breadcrumb', {
+      error: e instanceof Error ? e.message : String(e),
+    });
   }
 }
 
@@ -260,7 +268,9 @@ export async function recordMetric(metric: PerformanceMetric): Promise<void> {
   try {
     await metricsService.recordMetric(metric);
   } catch (e) {
-    structuredLog('error', 'Failed to record metric', { error: e instanceof Error ? e.message : String(e) });
+    structuredLog('error', 'Failed to record metric', {
+      error: e instanceof Error ? e.message : String(e),
+    });
   }
 }
 
@@ -270,12 +280,14 @@ export async function recordMetric(metric: PerformanceMetric): Promise<void> {
 export async function recordHistogram(
   name: string,
   value: number,
-  tags?: Record<string, string>
+  tags?: Record<string, string>,
 ): Promise<void> {
   try {
     await metricsService.recordHistogram(name, value, tags);
   } catch (e) {
-    structuredLog('error', 'Failed to record histogram', { error: e instanceof Error ? e.message : String(e) });
+    structuredLog('error', 'Failed to record histogram', {
+      error: e instanceof Error ? e.message : String(e),
+    });
   }
 }
 
@@ -286,7 +298,9 @@ export async function incrementCounter(name: string, tags?: Record<string, strin
   try {
     await metricsService.incrementCounter(name, tags);
   } catch (e) {
-    structuredLog('error', 'Failed to increment counter', { error: e instanceof Error ? e.message : String(e) });
+    structuredLog('error', 'Failed to increment counter', {
+      error: e instanceof Error ? e.message : String(e),
+    });
   }
 }
 
@@ -297,7 +311,9 @@ export async function trackEvent(event: AnalyticsEvent): Promise<void> {
   try {
     await analyticsService.trackEvent(event);
   } catch (e) {
-    structuredLog('error', 'Failed to track event', { error: e instanceof Error ? e.message : String(e) });
+    structuredLog('error', 'Failed to track event', {
+      error: e instanceof Error ? e.message : String(e),
+    });
   }
 }
 
@@ -308,7 +324,9 @@ export function trackPageView(path: string, properties?: Record<string, unknown>
   try {
     analyticsService.trackPageView(path, properties);
   } catch (e) {
-    structuredLog('error', 'Failed to track page view', { error: e instanceof Error ? e.message : String(e) });
+    structuredLog('error', 'Failed to track page view', {
+      error: e instanceof Error ? e.message : String(e),
+    });
   }
 }
 
@@ -321,7 +339,7 @@ export function trackPageView(path: string, properties?: Record<string, unknown>
  */
 export function withErrorCapture<T extends (...args: unknown[]) => unknown>(
   fn: T,
-  context?: ErrorContext
+  context?: ErrorContext,
 ): T {
   return ((...args: Parameters<T>) => {
     try {

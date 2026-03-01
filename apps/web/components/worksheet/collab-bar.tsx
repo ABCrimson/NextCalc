@@ -22,18 +22,18 @@
  *   - Live pulse respects prefers-reduced-motion (Framer Motion built-in)
  */
 
-import { useState, useCallback, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Share2, Users } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import {
-  useCollabStatus,
-  useRemotePeers,
-  useLocalPeer,
-  useCollabSession,
-} from '@/lib/stores/collab-store';
 import { useWorksheetCollab } from '@/lib/hooks/use-worksheet-collab';
+import {
+  useCollabSession,
+  useCollabStatus,
+  useLocalPeer,
+  useRemotePeers,
+} from '@/lib/stores/collab-store';
+import { cn } from '@/lib/utils';
 import { ShareDialog } from './share-dialog';
 
 // ---------------------------------------------------------------------------
@@ -109,7 +109,7 @@ function AvatarStack({ maxVisible = 4 }: AvatarStackProps) {
                   'text-xs font-bold text-background',
                   'ring-2 ring-background',
                   peer.isLocal && 'ring-primary/40',
-                  'cursor-default select-none'
+                  'cursor-default select-none',
                 )}
                 style={{ backgroundColor: peer.color }}
                 aria-label={`${peer.name}${peer.isLocal ? ' (you)' : ''}`}
@@ -122,12 +122,7 @@ function AvatarStack({ maxVisible = 4 }: AvatarStackProps) {
         </AnimatePresence>
 
         {overflow > 0 && (
-          <motion.li
-            layout
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="ml-1"
-          >
+          <motion.li layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="ml-1">
             <span
               className="flex items-center justify-center h-7 w-7 rounded-full bg-muted border border-border/60 text-xs font-medium text-muted-foreground ring-2 ring-background cursor-default select-none"
               aria-label={`${overflow} more collaborator${overflow !== 1 ? 's' : ''}`}
@@ -164,8 +159,8 @@ function AutoJoinEffect() {
     }, 300);
 
     return () => clearTimeout(timer);
-  // We intentionally only run this once on mount.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // We intentionally only run this once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return null;
@@ -196,15 +191,9 @@ export function CollabBar() {
       <AutoJoinEffect />
 
       {/* Collab section in toolbar */}
-      <div
-        className="flex items-center gap-2"
-        role="group"
-        aria-label="Collaboration controls"
-      >
+      <div className="flex items-center gap-2" role="group" aria-label="Collaboration controls">
         {/* Live indicator */}
-        <AnimatePresence>
-          {isLive && <LiveIndicator key="live" />}
-        </AnimatePresence>
+        <AnimatePresence>{isLive && <LiveIndicator key="live" />}</AnimatePresence>
 
         {/* Avatar stack — shown when session is active */}
         <AnimatePresence>
@@ -227,8 +216,9 @@ export function CollabBar() {
           size="sm"
           className={cn(
             'gap-2 text-xs h-8 transition-all duration-200',
-            isLive && 'border-emerald-500/40 text-emerald-400 hover:text-emerald-300 hover:border-emerald-500/60',
-            isConnecting && 'border-amber-500/40 text-amber-400'
+            isLive &&
+              'border-emerald-500/40 text-emerald-400 hover:text-emerald-300 hover:border-emerald-500/60',
+            isConnecting && 'border-amber-500/40 text-amber-400',
           )}
           onClick={handleOpenDialog}
           aria-label={
@@ -244,14 +234,12 @@ export function CollabBar() {
           ) : (
             <Share2 className="h-3.5 w-3.5" aria-hidden="true" />
           )}
-          <span className="hidden sm:inline">
-            {hasSession ? 'Collaborating' : 'Share'}
-          </span>
+          <span className="hidden sm:inline">{hasSession ? 'Collaborating' : 'Share'}</span>
           {hasSession && peerCount > 0 && (
             <span
               className={cn(
                 'inline-flex items-center justify-center h-4 w-4 rounded-full text-[10px] font-bold',
-                isLive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-muted text-muted-foreground'
+                isLive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-muted text-muted-foreground',
               )}
               aria-hidden="true"
             >

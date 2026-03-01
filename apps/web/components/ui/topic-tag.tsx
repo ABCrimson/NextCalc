@@ -1,8 +1,8 @@
 'use client';
 
+import { X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { X } from 'lucide-react';
 
 /**
  * Mathematical topics as branded type
@@ -66,59 +66,73 @@ export interface TopicTagProps {
 const topicConfig: Record<MathTopic, { label: string; color: string }> = {
   calculus: {
     label: 'Calculus',
-    color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border-blue-300 dark:border-blue-700',
+    color:
+      'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border-blue-300 dark:border-blue-700',
   },
   algebra: {
     label: 'Algebra',
-    color: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 border-purple-300 dark:border-purple-700',
+    color:
+      'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 border-purple-300 dark:border-purple-700',
   },
   geometry: {
     label: 'Geometry',
-    color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border-green-300 dark:border-green-700',
+    color:
+      'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border-green-300 dark:border-green-700',
   },
   topology: {
     label: 'Topology',
-    color: 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400 border-pink-300 dark:border-pink-700',
+    color:
+      'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400 border-pink-300 dark:border-pink-700',
   },
   'number-theory': {
     label: 'Number Theory',
-    color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 border-yellow-300 dark:border-yellow-700',
+    color:
+      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 border-yellow-300 dark:border-yellow-700',
   },
   combinatorics: {
     label: 'Combinatorics',
-    color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400 border-orange-300 dark:border-orange-700',
+    color:
+      'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400 border-orange-300 dark:border-orange-700',
   },
   'linear-algebra': {
     label: 'Linear Algebra',
-    color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400 border-indigo-300 dark:border-indigo-700',
+    color:
+      'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400 border-indigo-300 dark:border-indigo-700',
   },
   'differential-equations': {
     label: 'Differential Equations',
-    color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-red-300 dark:border-red-700',
+    color:
+      'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-red-300 dark:border-red-700',
   },
   'complex-analysis': {
     label: 'Complex Analysis',
-    color: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-400 border-cyan-300 dark:border-cyan-700',
+    color:
+      'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-400 border-cyan-300 dark:border-cyan-700',
   },
   probability: {
     label: 'Probability',
-    color: 'bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-400 border-teal-300 dark:border-teal-700',
+    color:
+      'bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-400 border-teal-300 dark:border-teal-700',
   },
   statistics: {
     label: 'Statistics',
-    color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 border-emerald-300 dark:border-emerald-700',
+    color:
+      'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 border-emerald-300 dark:border-emerald-700',
   },
   logic: {
     label: 'Logic',
-    color: 'bg-muted/50 text-muted-foreground dark:bg-background/30 dark:text-muted-foreground border-border dark:border-border',
+    color:
+      'bg-muted/50 text-muted-foreground dark:bg-background/30 dark:text-muted-foreground border-border dark:border-border',
   },
   'set-theory': {
     label: 'Set Theory',
-    color: 'bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-400 border-violet-300 dark:border-violet-700',
+    color:
+      'bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-400 border-violet-300 dark:border-violet-700',
   },
   'graph-theory': {
     label: 'Graph Theory',
-    color: 'bg-fuchsia-100 text-fuchsia-800 dark:bg-fuchsia-900/30 dark:text-fuchsia-400 border-fuchsia-300 dark:border-fuchsia-700',
+    color:
+      'bg-fuchsia-100 text-fuchsia-800 dark:bg-fuchsia-900/30 dark:text-fuchsia-400 border-fuchsia-300 dark:border-fuchsia-700',
   },
 };
 
@@ -145,7 +159,7 @@ export function TopicTag({
         config.color,
         sizeClasses[size],
         removable && 'pr-1 gap-1',
-        className
+        className,
       )}
     >
       <span>{config.label}</span>
@@ -193,11 +207,7 @@ export function TopicTagGroup({
   className?: string;
 }) {
   return (
-    <div
-      className={cn('flex flex-wrap gap-2', className)}
-      role="group"
-      aria-label="Topic tags"
-    >
+    <div className={cn('flex flex-wrap gap-2', className)} role="group" aria-label="Topic tags">
       {topics.map((topic) => (
         <TopicTag
           key={topic}

@@ -6,6 +6,21 @@
  * @module cms
  */
 
-export { ProblemManager, type ProblemCreateInput, type ProblemUpdateInput, type ProblemFilters } from './problem-manager';
-export { KnowledgeBaseManager, type TopicCreateInput, type TheoremCreateInput, type TopicNode, type SearchResult } from './knowledge-base';
-export { AlgorithmRepository, type AlgorithmCreateInput, type ImplementationCreateInput } from './algorithm-repository';
+export {
+  type AlgorithmCreateInput,
+  AlgorithmRepository,
+  type ImplementationCreateInput,
+} from './algorithm-repository';
+export {
+  KnowledgeBaseManager,
+  type SearchResult,
+  type TheoremCreateInput,
+  type TopicCreateInput,
+  type TopicNode,
+} from './knowledge-base';
+export {
+  type ProblemCreateInput,
+  type ProblemFilters,
+  ProblemManager,
+  type ProblemUpdateInput,
+} from './problem-manager';

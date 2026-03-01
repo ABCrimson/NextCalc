@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Moon, Sun } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 
 /**
@@ -134,10 +134,7 @@ export function ThemeToggle() {
               exit={{ rotate: 90, scale: 0 }}
               transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
             >
-              <Moon
-                className="h-5 w-5 text-blue-300"
-                aria-hidden="true"
-              />
+              <Moon className="h-5 w-5 text-blue-300" aria-hidden="true" />
             </motion.div>
           ) : (
             <motion.div
@@ -147,10 +144,7 @@ export function ThemeToggle() {
               exit={{ rotate: 90, scale: 0 }}
               transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
             >
-              <Sun
-                className="h-5 w-5 text-amber-500"
-                aria-hidden="true"
-              />
+              <Sun className="h-5 w-5 text-amber-500" aria-hidden="true" />
             </motion.div>
           )}
         </AnimatePresence>
@@ -161,9 +155,10 @@ export function ThemeToggle() {
           initial={{ opacity: 0 }}
           whileHover={{
             opacity: 1,
-            boxShadow: theme === 'dark'
-              ? '0 0 20px rgba(96, 165, 250, 0.3)'
-              : '0 0 20px rgba(251, 191, 36, 0.3)',
+            boxShadow:
+              theme === 'dark'
+                ? '0 0 20px rgba(96, 165, 250, 0.3)'
+                : '0 0 20px rgba(251, 191, 36, 0.3)',
           }}
           transition={{ duration: 0.2 }}
         />

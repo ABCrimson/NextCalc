@@ -7,11 +7,7 @@
  * arithmetic without blocking the UI thread.
  */
 
-import {
-  getHighPrecision,
-  HighPrecisionScope,
-  type MPFRModule,
-} from '@nextcalc/math-engine/wasm';
+import { getHighPrecision, HighPrecisionScope, type MPFRModule } from '@nextcalc/math-engine/wasm';
 
 // ============ Message Protocol ============
 
@@ -46,10 +42,7 @@ async function ensureInit(): Promise<MPFRModule> {
  * with full precision. The expression is parsed as a decimal number
  * and evaluated through the MPFR/mock backend.
  */
-async function evaluateExpression(
-  expression: string,
-  precision?: number,
-): Promise<string> {
+async function evaluateExpression(expression: string, precision?: number): Promise<string> {
   const mod = await ensureInit();
 
   if (precision) {

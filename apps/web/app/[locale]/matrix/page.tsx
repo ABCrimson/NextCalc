@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
-import { MatrixPanel } from '@/components/calculator/matrix-panel';
 import { EigenPanel } from '@/components/calculator/eigen-panel';
 import { MatrixFeatureCards } from '@/components/calculator/matrix-feature-cards';
+import { MatrixPanel } from '@/components/calculator/matrix-panel';
 
 export const metadata: Metadata = {
   title: 'Matrix Operations',
-  description: 'Linear algebra with matrices - add, multiply, determinant, inverse, eigenvalues, and more',
+  description:
+    'Linear algebra with matrices - add, multiply, determinant, inverse, eigenvalues, and more',
 };
 
 export default async function MatrixPage() {
@@ -59,8 +60,7 @@ export default async function MatrixPage() {
         <div
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-3xl"
           style={{
-            background:
-              'radial-gradient(circle, oklch(0.62 0.18 275 / 0.08) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, oklch(0.62 0.18 275 / 0.08) 0%, transparent 70%)',
             animation: 'float 32s ease-in-out infinite 8s',
           }}
         />
@@ -104,9 +104,7 @@ export default async function MatrixPage() {
               <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
                 {t('pageTitle')}
               </h1>
-              <p className="text-base text-muted-foreground mt-1">
-                {t('pageSubtitle')}
-              </p>
+              <p className="text-base text-muted-foreground mt-1">{t('pageSubtitle')}</p>
             </div>
           </div>
 
@@ -250,10 +248,7 @@ export default async function MatrixPage() {
                     className="font-mono text-sm text-foreground/80 overflow-x-auto whitespace-nowrap"
                     style={{ marginTop: i > 0 ? '0.25rem' : undefined }}
                   >
-                    <span
-                      className="font-semibold"
-                      style={{ color: `oklch(0.75 0.18 ${hue})` }}
-                    >
+                    <span className="font-semibold" style={{ color: `oklch(0.75 0.18 ${hue})` }}>
                       {prefix}
                     </span>{' '}
                     {value}

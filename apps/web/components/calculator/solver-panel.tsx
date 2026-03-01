@@ -1,13 +1,28 @@
 'use client';
 
-import { useState, useTransition, useCallback, useId } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+  AlertCircle,
+  BookOpen,
+  Brackets,
+  Calculator,
+  Check,
+  ChevronDown,
+  ChevronUp,
+  Copy,
+  Loader2,
+  RotateCcw,
+  Sigma,
+  TrendingUp,
+} from 'lucide-react';
+import { useCallback, useId, useState, useTransition } from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
+import { MathRenderer } from '@/components/ui/math-renderer';
 import {
   Select,
   SelectContent,
@@ -16,21 +31,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MathRenderer } from '@/components/ui/math-renderer';
-import {
-  AlertCircle,
-  ChevronDown,
-  ChevronUp,
-  Copy,
-  Check,
-  Loader2,
-  Calculator,
-  BookOpen,
-  Sigma,
-  TrendingUp,
-  Brackets,
-  RotateCcw,
-} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // ============================================================================
@@ -51,11 +51,7 @@ type VariableName = string & { readonly __brand: unique symbol };
  * Problem mode supported by the step-by-step solver.
  * Discriminated union used to drive tab selection and example lookup.
  */
-type ProblemMode =
-  | 'equation'
-  | 'simplify'
-  | 'derivative'
-  | 'integral';
+type ProblemMode = 'equation' | 'simplify' | 'derivative' | 'integral';
 
 /** Category badge color mapping */
 type StepCategoryStyle = {
@@ -183,11 +179,21 @@ const DEFAULT_CATEGORY_STYLE: StepCategoryStyle = {
 };
 
 /** Example expressions per mode */
-const MODE_EXAMPLES: Readonly<Record<ProblemMode, ReadonlyArray<{ label: string; input: string; desc: string }>>> = {
+const MODE_EXAMPLES: Readonly<
+  Record<ProblemMode, ReadonlyArray<{ label: string; input: string; desc: string }>>
+> = {
   equation: [
     { label: 'Linear', input: '2*x + 3 = 7', desc: 'Simple linear equation' },
-    { label: 'Quadratic (factor)', input: 'x^2 + 5*x + 6 = 0', desc: 'x = -2 and x = -3 (factors nicely)' },
-    { label: 'Quadratic (formula)', input: 'x^2 - 3*x + 1 = 0', desc: 'Irrational roots via quadratic formula' },
+    {
+      label: 'Quadratic (factor)',
+      input: 'x^2 + 5*x + 6 = 0',
+      desc: 'x = -2 and x = -3 (factors nicely)',
+    },
+    {
+      label: 'Quadratic (formula)',
+      input: 'x^2 - 3*x + 1 = 0',
+      desc: 'Irrational roots via quadratic formula',
+    },
     { label: 'Complex roots', input: 'x^2 + 1 = 0', desc: 'Complex solutions ±i' },
     { label: 'Cubic', input: 'x^3 - 6*x^2 + 11*x - 6 = 0', desc: 'Three real roots' },
     { label: 'Trig', input: 'sin(x) - 0.5 = 0', desc: 'Trigonometric equation' },
@@ -220,7 +226,9 @@ const MODE_EXAMPLES: Readonly<Record<ProblemMode, ReadonlyArray<{ label: string;
 };
 
 /** Mode metadata for tabs */
-const MODE_META: Readonly<Record<ProblemMode, { label: string; placeholder: string; hint: string }>> = {
+const MODE_META: Readonly<
+  Record<ProblemMode, { label: string; placeholder: string; hint: string }>
+> = {
   equation: {
     label: 'Solve Equation',
     placeholder: 'x^2 - 4 = 0',
@@ -291,21 +299,26 @@ function astNodeToLatex(node: unknown): string {
     const op = String(n.op ?? '');
 
     switch (op) {
-      case '+': return `${left} + ${right}`;
-      case '-': return `${left} - ${right}`;
+      case '+':
+        return `${left} + ${right}`;
+      case '-':
+        return `${left} - ${right}`;
       case '*': {
         // Wrap additive sub-expressions in parentheses
         const l = needsParens(args[0]) ? `\\left(${left}\\right)` : left;
         const r = needsParens(args[1]) ? `\\left(${right}\\right)` : right;
         return `${l} \\cdot ${r}`;
       }
-      case '/': return `\\frac{${left}}{${right}}`;
+      case '/':
+        return `\\frac{${left}}{${right}}`;
       case '^': {
         const base = needsParens(args[0]) ? `\\left(${left}\\right)` : left;
         return `${base}^{${right}}`;
       }
-      case '%': return `${left} \\bmod ${right}`;
-      default: return `${left} ${op} ${right}`;
+      case '%':
+        return `${left} \\bmod ${right}`;
+      default:
+        return `${left} ${op} ${right}`;
     }
   }
 
@@ -320,27 +333,47 @@ function astNodeToLatex(node: unknown): string {
     const args = (n.args ?? []).map(astNodeToLatex);
 
     switch (fn) {
-      case 'sin': return `\\sin\\left(${args[0]}\\right)`;
-      case 'cos': return `\\cos\\left(${args[0]}\\right)`;
-      case 'tan': return `\\tan\\left(${args[0]}\\right)`;
-      case 'asin': return `\\arcsin\\left(${args[0]}\\right)`;
-      case 'acos': return `\\arccos\\left(${args[0]}\\right)`;
-      case 'atan': return `\\arctan\\left(${args[0]}\\right)`;
-      case 'sinh': return `\\sinh\\left(${args[0]}\\right)`;
-      case 'cosh': return `\\cosh\\left(${args[0]}\\right)`;
-      case 'tanh': return `\\tanh\\left(${args[0]}\\right)`;
-      case 'sqrt': return `\\sqrt{${args[0]}}`;
-      case 'cbrt': return `\\sqrt[3]{${args[0]}}`;
-      case 'exp': return `e^{${args[0]}}`;
+      case 'sin':
+        return `\\sin\\left(${args[0]}\\right)`;
+      case 'cos':
+        return `\\cos\\left(${args[0]}\\right)`;
+      case 'tan':
+        return `\\tan\\left(${args[0]}\\right)`;
+      case 'asin':
+        return `\\arcsin\\left(${args[0]}\\right)`;
+      case 'acos':
+        return `\\arccos\\left(${args[0]}\\right)`;
+      case 'atan':
+        return `\\arctan\\left(${args[0]}\\right)`;
+      case 'sinh':
+        return `\\sinh\\left(${args[0]}\\right)`;
+      case 'cosh':
+        return `\\cosh\\left(${args[0]}\\right)`;
+      case 'tanh':
+        return `\\tanh\\left(${args[0]}\\right)`;
+      case 'sqrt':
+        return `\\sqrt{${args[0]}}`;
+      case 'cbrt':
+        return `\\sqrt[3]{${args[0]}}`;
+      case 'exp':
+        return `e^{${args[0]}}`;
       case 'log':
-      case 'ln': return `\\ln\\left(${args[0]}\\right)`;
-      case 'log10': return `\\log_{10}\\left(${args[0]}\\right)`;
-      case 'log2': return `\\log_{2}\\left(${args[0]}\\right)`;
-      case 'abs': return `\\left|${args[0]}\\right|`;
-      case 'ceil': return `\\lceil ${args[0]} \\rceil`;
-      case 'floor': return `\\lfloor ${args[0]} \\rfloor`;
-      case 'factorial': return `${args[0]}!`;
-      default: return `\\operatorname{${fn}}\\left(${args.join(', ')}\\right)`;
+      case 'ln':
+        return `\\ln\\left(${args[0]}\\right)`;
+      case 'log10':
+        return `\\log_{10}\\left(${args[0]}\\right)`;
+      case 'log2':
+        return `\\log_{2}\\left(${args[0]}\\right)`;
+      case 'abs':
+        return `\\left|${args[0]}\\right|`;
+      case 'ceil':
+        return `\\lceil ${args[0]} \\rceil`;
+      case 'floor':
+        return `\\lfloor ${args[0]} \\rfloor`;
+      case 'factorial':
+        return `${args[0]}!`;
+      default:
+        return `\\operatorname{${fn}}\\left(${args.join(', ')}\\right)`;
     }
   }
 
@@ -369,7 +402,9 @@ function solutionToLatex(sol: { value: unknown }): string {
     const c = v as { real?: number; imag?: number };
     if (c.real !== undefined && c.imag !== undefined) {
       const r = c.real.toFixed(6).replace(/\.?0+$/, '');
-      const absI = Math.abs(c.imag).toFixed(6).replace(/\.?0+$/, '');
+      const absI = Math.abs(c.imag)
+        .toFixed(6)
+        .replace(/\.?0+$/, '');
       if (c.imag === 0) return r;
       if (c.real === 0) return `${absI}i`;
       const sign = c.imag > 0 ? '+' : '-';
@@ -453,7 +488,13 @@ function identifyIntegrationRule(
       const args = n.args ?? [];
       const base = toAstShape(args[0]);
       const exp = toAstShape(args[1]);
-      if (base && base.type === 'SymbolNode' && base.name === varName && exp && exp.type === 'ConstantNode') {
+      if (
+        base &&
+        base.type === 'SymbolNode' &&
+        base.name === varName &&
+        exp &&
+        exp.type === 'ConstantNode'
+      ) {
         const nVal = exp.value;
         if (nVal === -1) {
           return {
@@ -475,7 +516,13 @@ function identifyIntegrationRule(
         };
       }
       // a^x → exponential with constant base
-      if (base && base.type === 'ConstantNode' && exp && exp.type === 'SymbolNode' && exp.name === varName) {
+      if (
+        base &&
+        base.type === 'ConstantNode' &&
+        exp &&
+        exp.type === 'SymbolNode' &&
+        exp.name === varName
+      ) {
         const a = base.value;
         return {
           ruleName: 'exponential rule',
@@ -519,7 +566,13 @@ function identifyIntegrationRule(
       const args = n.args ?? [];
       const num = toAstShape(args[0]);
       const den = toAstShape(args[1]);
-      if (num && num.type === 'ConstantNode' && den && den.type === 'SymbolNode' && den.name === varName) {
+      if (
+        num &&
+        num.type === 'ConstantNode' &&
+        den &&
+        den.type === 'SymbolNode' &&
+        den.name === varName
+      ) {
         return {
           ruleName: 'logarithmic rule',
           description: `Logarithmic rule: \\u222B1/${varName} d${varName} = ln|${varName}|`,
@@ -678,7 +731,7 @@ function CategoryBadge({ category }: { category: string }) {
         'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold border',
         style.bg,
         style.text,
-        style.border
+        style.border,
       )}
     >
       {style.label}
@@ -711,9 +764,7 @@ function StepCard({ step, index, isExpanded, onToggle, isFinal }: StepCardProps)
       transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1], delay: index * 0.04 }}
       className={cn(
         'rounded-lg border overflow-hidden',
-        isFinal
-          ? 'border-primary/40 bg-primary/5'
-          : 'border-border bg-card'
+        isFinal ? 'border-primary/40 bg-primary/5' : 'border-border bg-card',
       )}
     >
       {/* Step header — clickable toggle */}
@@ -727,18 +778,14 @@ function StepCard({ step, index, isExpanded, onToggle, isFinal }: StepCardProps)
           'w-full flex items-start gap-3 px-4 py-3 text-left',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
           'transition-colors duration-150',
-          isExpanded
-            ? 'bg-muted/40'
-            : 'hover:bg-muted/20'
+          isExpanded ? 'bg-muted/40' : 'hover:bg-muted/20',
         )}
       >
         {/* Step number bubble */}
         <span
           className={cn(
             'flex-none mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold shrink-0',
-            isFinal
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-muted text-muted-foreground'
+            isFinal ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground',
           )}
           aria-hidden="true"
         >
@@ -754,25 +801,14 @@ function StepCard({ step, index, isExpanded, onToggle, isFinal }: StepCardProps)
             <CategoryBadge category={step.category} />
           </div>
           {/* LaTeX preview of step result — always visible */}
-          <div
-            className="mt-1.5 overflow-x-auto"
-            aria-label={`Step ${step.stepNumber} expression`}
-          >
-            <MathRenderer
-              expression={step.latex}
-              displayMode={false}
-              className="text-base"
-            />
+          <div className="mt-1.5 overflow-x-auto" aria-label={`Step ${step.stepNumber} expression`}>
+            <MathRenderer expression={step.latex} displayMode={false} className="text-base" />
           </div>
         </div>
 
         {/* Expand/collapse chevron */}
         <span className="flex-none mt-0.5 text-muted-foreground" aria-hidden="true">
-          {isExpanded ? (
-            <ChevronUp className="h-4 w-4" />
-          ) : (
-            <ChevronDown className="h-4 w-4" />
-          )}
+          {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </span>
       </button>
 
@@ -798,11 +834,7 @@ function StepCard({ step, index, isExpanded, onToggle, isFinal }: StepCardProps)
                 className="mt-3 rounded-md bg-muted/50 px-4 py-3 overflow-x-auto"
                 aria-label={`Step ${step.stepNumber} expression, display mode`}
               >
-                <MathRenderer
-                  expression={step.latex}
-                  displayMode={true}
-                  className="text-base"
-                />
+                <MathRenderer expression={step.latex} displayMode={true} className="text-base" />
               </div>
               <p className="mt-2 text-xs text-muted-foreground/70 font-mono">
                 Operation: {step.operation}
@@ -843,7 +875,7 @@ function ExampleButtons({ mode, onSelect }: ExampleButtonsProps) {
               'inline-flex items-center gap-1.5 rounded-md border border-border bg-muted/40',
               'px-2.5 py-1 text-xs font-mono transition-colors duration-150',
               'hover:bg-accent hover:text-accent-foreground hover:border-accent-foreground/20',
-              'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring'
+              'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
             )}
           >
             <span className="text-[10px] font-sans text-muted-foreground not-italic">
@@ -869,7 +901,7 @@ interface ResultsPanelProps {
 
 function ResultsPanel({ solution, onCopyAnswer, copied }: ResultsPanelProps) {
   const [expandedSteps, setExpandedSteps] = useState<ReadonlySet<number>>(
-    new Set([solution.steps.length]) // final step open by default
+    new Set([solution.steps.length]), // final step open by default
   );
 
   const toggleStep = useCallback((stepNumber: number) => {
@@ -937,10 +969,7 @@ function ResultsPanel({ solution, onCopyAnswer, copied }: ResultsPanelProps) {
       </div>
 
       {/* Step list */}
-      <ol
-        className="list-none"
-        aria-label={`${solution.steps.length} solution steps`}
-      >
+      <ol className="list-none" aria-label={`${solution.steps.length} solution steps`}>
         <AnimatePresence mode="popLayout">
           {solution.steps.map((step, idx) => {
             const isLast = idx === solution.steps.length - 1;
@@ -1205,7 +1234,10 @@ export function SolverPanel() {
         }
 
         // Map UI mode → ProblemType enum
-        const typeMap: Record<Exclude<ProblemMode, 'integral'>, typeof ProblemType[keyof typeof ProblemType]> = {
+        const typeMap: Record<
+          Exclude<ProblemMode, 'integral'>,
+          (typeof ProblemType)[keyof typeof ProblemType]
+        > = {
           equation: ProblemType.Equation,
           simplify: ProblemType.Simplification,
           derivative: ProblemType.Derivative,
@@ -1250,7 +1282,7 @@ export function SolverPanel() {
         handleSolve();
       }
     },
-    [handleSolve, isPending]
+    [handleSolve, isPending],
   );
 
   const meta = MODE_META[mode];
@@ -1276,10 +1308,7 @@ export function SolverPanel() {
       <CardContent className="space-y-6">
         {/* Mode tabs */}
         <Tabs value={mode} onValueChange={handleModeChange}>
-          <TabsList
-            className="grid grid-cols-4 w-full"
-            aria-label="Problem type"
-          >
+          <TabsList className="grid grid-cols-4 w-full" aria-label="Problem type">
             <TabsTrigger value="equation" className="gap-1.5 text-xs sm:text-sm">
               <Calculator className="h-3.5 w-3.5 flex-none" aria-hidden="true" />
               <span className="hidden sm:inline">Equation</span>
@@ -1308,9 +1337,7 @@ export function SolverPanel() {
               {/* Input row */}
               <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
                 <div className="space-y-1.5">
-                  <Label htmlFor={inputId}>
-                    {meta.label}
-                  </Label>
+                  <Label htmlFor={inputId}>{meta.label}</Label>
                   <Input
                     id={inputId}
                     value={input}
@@ -1435,11 +1462,7 @@ export function SolverPanel() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.18 }}
             >
-              <ResultsPanel
-                solution={solution}
-                onCopyAnswer={handleCopyAnswer}
-                copied={copied}
-              />
+              <ResultsPanel solution={solution} onCopyAnswer={handleCopyAnswer} copied={copied} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -1460,7 +1483,7 @@ export function SolverPanel() {
 function buildProblemInput(
   expr: ValidExpression,
   mode: ProblemMode,
-  variable: VariableName
+  variable: VariableName,
 ): string {
   switch (mode) {
     case 'equation':
@@ -1482,10 +1505,7 @@ function buildProblemInput(
  * Converts the `answer` field from a StepSolution into a display LaTeX string.
  * The answer can be an ExpressionNode, a number, or an array of Solutions.
  */
-function buildFinalLatex(
-  answer: unknown,
-  variable: VariableName
-): string {
+function buildFinalLatex(answer: unknown, variable: VariableName): string {
   if (answer === null || answer === undefined) return '\\text{No answer}';
 
   // Array of solutions from equation solver
@@ -1501,9 +1521,7 @@ function buildFinalLatex(
       return `${variable} = ${valLatex}${mult}`;
     });
 
-    return parts.length === 1
-      ? (parts[0] ?? '\\text{No answer}')
-      : parts.join(' \\;,\\quad ');
+    return parts.length === 1 ? (parts[0] ?? '\\text{No answer}') : parts.join(' \\;,\\quad ');
   }
 
   // Number (e.g. numeric evaluation result)

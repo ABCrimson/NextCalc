@@ -1,24 +1,28 @@
 'use client';
 
-import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Brain,
-  Shield,
-  Atom,
-  Network,
-  Sparkles,
-  BookOpen,
-  TrendingUp,
   Activity,
+  Atom,
+  BookOpen,
+  Box,
+  Brain,
+  Flame,
+  type LucideIcon,
+  Network,
+  Shield,
+  Sparkles,
+  TrendingUp,
   Trophy,
   Wind,
-  Flame,
-  Box,
-  type LucideIcon,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { AlgorithmCard, type AlgorithmCategory, type DifficultyLevel } from '@/components/algorithms/AlgorithmCard';
+import { useMemo, useState } from 'react';
+import {
+  AlgorithmCard,
+  type AlgorithmCategory,
+  type DifficultyLevel,
+} from '@/components/algorithms/AlgorithmCard';
 import { CategoryFilter } from '@/components/algorithms/CategoryFilter';
 
 /**
@@ -183,18 +187,12 @@ export default function AlgorithmsPage() {
   const filteredAlgorithms = useMemo(() => {
     return algorithmDefs.filter((algorithm) => {
       // Category filter
-      if (
-        selectedCategories.length > 0 &&
-        !selectedCategories.includes(algorithm.category)
-      ) {
+      if (selectedCategories.length > 0 && !selectedCategories.includes(algorithm.category)) {
         return false;
       }
 
       // Difficulty filter
-      if (
-        selectedDifficulties.length > 0 &&
-        !selectedDifficulties.includes(algorithm.difficulty)
-      ) {
+      if (selectedDifficulties.length > 0 && !selectedDifficulties.includes(algorithm.difficulty)) {
         return false;
       }
 
@@ -219,7 +217,10 @@ export default function AlgorithmsPage() {
         {/* Background decorations */}
         <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
           <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+          <div
+            className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl animate-pulse"
+            style={{ animationDelay: '1s' }}
+          />
         </div>
 
         <div className="max-w-7xl mx-auto text-center">
@@ -313,7 +314,9 @@ export default function AlgorithmsPage() {
                       difficulty={algorithm.difficulty}
                       href={algorithm.href}
                       icon={algorithm.icon}
-                      {...(algorithm.timeComplexity ? { timeComplexity: algorithm.timeComplexity } : {})}
+                      {...(algorithm.timeComplexity
+                        ? { timeComplexity: algorithm.timeComplexity }
+                        : {})}
                       {...(algorithm.disabled ? { disabled: algorithm.disabled } : {})}
                     />
                   </motion.div>
@@ -326,11 +329,12 @@ export default function AlgorithmsPage() {
                 animate={{ opacity: 1 }}
                 className="text-center py-16"
               >
-                <TrendingUp className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" aria-hidden="true" />
+                <TrendingUp
+                  className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4"
+                  aria-hidden="true"
+                />
                 <h3 className="text-xl font-semibold mb-2">{t('noAlgorithmsFound')}</h3>
-                <p className="text-muted-foreground mb-6">
-                  {t('noAlgorithmsHint')}
-                </p>
+                <p className="text-muted-foreground mb-6">{t('noAlgorithmsHint')}</p>
                 <button
                   onClick={() => {
                     setSelectedCategories([]);
@@ -361,12 +365,8 @@ export default function AlgorithmsPage() {
               <BookOpen className="h-6 w-6 text-primary" aria-hidden="true" />
             </div>
             <div className="flex-1">
-              <h3 className="text-xl font-semibold mb-2">
-                {t('learningTitle')}
-              </h3>
-              <p className="text-muted-foreground leading-relaxed">
-                {t('learningDescription')}
-              </p>
+              <h3 className="text-xl font-semibold mb-2">{t('learningTitle')}</h3>
+              <p className="text-muted-foreground leading-relaxed">{t('learningDescription')}</p>
             </div>
           </div>
         </motion.div>

@@ -9,9 +9,9 @@
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import { getOrCreateUserProgress } from './problems';
-import type { ActionResult } from './problems';
 import { BookmarkToggleSchema } from '@/lib/validations/learning';
+import type { ActionResult } from './problems';
+import { getOrCreateUserProgress } from './problems';
 
 // ---------------------------------------------------------------------------
 // toggleBookmark

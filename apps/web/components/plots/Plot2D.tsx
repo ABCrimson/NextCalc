@@ -10,12 +10,20 @@
  * @module components/plots/Plot2D
  */
 
-import { useEffect, useRef, useState, useTransition, useCallback, useId } from 'react';
-import { WebGL2DRenderer, Plot2DController, type PlotConfig, type Plot2DCartesianConfig, type Plot2DParametricConfig, type Plot2DPolarConfig, type ControlEvent } from '@nextcalc/plot-engine';
+import {
+  type ControlEvent,
+  type Plot2DCartesianConfig,
+  Plot2DController,
+  type Plot2DParametricConfig,
+  type Plot2DPolarConfig,
+  type PlotConfig,
+  WebGL2DRenderer,
+} from '@nextcalc/plot-engine';
+import { useCallback, useEffect, useId, useRef, useState, useTransition } from 'react';
+import { type Annotation, Annotations, type Viewport } from './Annotations';
+import { type AnnotationMode, AnnotationToolbar } from './AnnotationToolbar';
 import { AxisLabels } from './AxisLabels';
 import { PolarAxisLabels } from './PolarAxisLabels';
-import { Annotations, type Annotation, type Viewport } from './Annotations';
-import { AnnotationToolbar, type AnnotationMode } from './AnnotationToolbar';
 
 export interface Plot2DProps {
   config: PlotConfig;
@@ -73,17 +81,18 @@ export function Plot2D({
   const arrowTailRef = useRef<{ x: number; y: number } | null>(null);
 
   // --- Fix 2: live viewport state drives AxisLabels so ticks update on zoom/pan ---
-  const initialCartesianViewport = (
+  const initialCartesianViewport =
     config.type === '2d-cartesian' || config.type === '2d-parametric'
-  ) ? (config as Plot2DCartesianConfig | Plot2DParametricConfig).viewport
-    : { xMin: -10, xMax: 10, yMin: -10, yMax: 10 };
+      ? (config as Plot2DCartesianConfig | Plot2DParametricConfig).viewport
+      : { xMin: -10, xMax: 10, yMin: -10, yMax: 10 };
 
   const [liveViewport, setLiveViewport] = useState(initialCartesianViewport);
 
   // --- Fix 3: live polar rRange state so zoom works on polar plots ---
-  const initialRRange = config.type === '2d-polar'
-    ? (config as Plot2DPolarConfig).rRange ?? { min: 0, max: 5 }
-    : { min: 0, max: 5 };
+  const initialRRange =
+    config.type === '2d-polar'
+      ? ((config as Plot2DPolarConfig).rRange ?? { min: 0, max: 5 })
+      : { min: 0, max: 5 };
 
   const [liveRRange, setLiveRRange] = useState(initialRRange);
 
@@ -246,7 +255,7 @@ export function Plot2D({
         return;
       }
     },
-    [instanceId]
+    [instanceId],
   );
 
   // Attach / detach the annotation click listener on the canvas.
@@ -451,22 +460,21 @@ export function Plot2D({
         };
 
   return (
-    <div
-      ref={containerRef}
-      className={`relative w-full h-full min-h-[400px] ${className}`}
-    >
+    <div ref={containerRef} className={`relative w-full h-full min-h-[400px] ${className}`}>
       {/* ------------------------------------------------------------------ */}
       {/* Annotation toolbar — rendered above the canvas, inside the wrapper  */}
       {/* ------------------------------------------------------------------ */}
       {enableAnnotations && isReady && !error && (
         <div className="absolute top-2 left-2 right-2 z-30 pointer-events-none">
           <div className="pointer-events-auto">
-            <div className="
+            <div
+              className="
               px-3 py-2 rounded-xl
               bg-background/80 backdrop-blur-md
               border border-border
               shadow-[0_4px_16px_rgba(0,0,0,0.4)]
-            ">
+            "
+            >
               <AnnotationToolbar
                 mode={annotationMode}
                 onModeChange={setAnnotationMode}
@@ -488,7 +496,9 @@ export function Plot2D({
           height: '100%',
           ...(canvasCursor ? { cursor: canvasCursor } : {}),
         }}
-        aria-label={config.type === '2d-cartesian' && config.title ? config.title : '2D mathematical plot'}
+        aria-label={
+          config.type === '2d-cartesian' && config.title ? config.title : '2D mathematical plot'
+        }
         role="img"
       />
 

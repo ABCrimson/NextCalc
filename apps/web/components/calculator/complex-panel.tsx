@@ -229,9 +229,9 @@ function toComplex(cv: ComplexValue): Complex | null {
 
 /** Vivid OKLCH colors keyed to semantic roles */
 const POINT_COLORS = {
-  z1: 'oklch(0.70 0.22 264)',       // Blue — real-axis association
-  z2: 'oklch(0.72 0.20 300)',       // Purple — imaginary-axis association
-  result: 'oklch(0.72 0.20 155)',   // Emerald — result/magnitude association
+  z1: 'oklch(0.70 0.22 264)', // Blue — real-axis association
+  z2: 'oklch(0.72 0.20 300)', // Purple — imaginary-axis association
+  result: 'oklch(0.72 0.20 155)', // Emerald — result/magnitude association
   unaryInput: 'oklch(0.70 0.22 264)',
   unaryResult: 'oklch(0.72 0.20 155)',
 } as const;
@@ -328,11 +328,7 @@ function ArgandDiagram({ points, width = 420, height = 340 }: ArgandDiagramProps
 
         {/* Per-point glow gradients */}
         {points.map((p) => (
-          <radialGradient
-            key={`glow-${p.label}`}
-            id={`glow-${p.label}`}
-            cx="50%" cy="50%" r="50%"
-          >
+          <radialGradient key={`glow-${p.label}`} id={`glow-${p.label}`} cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor={p.color} stopOpacity="0.5" />
             <stop offset="100%" stopColor={p.color} stopOpacity="0" />
           </radialGradient>
@@ -356,13 +352,7 @@ function ArgandDiagram({ points, width = 420, height = 340 }: ArgandDiagramProps
 
         {/* Clip the plot region */}
         <clipPath id="plot-clip">
-          <rect
-            x={padding.left}
-            y={padding.top}
-            width={innerW}
-            height={innerH}
-            rx="6"
-          />
+          <rect x={padding.left} y={padding.top} width={innerW} height={innerH} rx="6" />
         </clipPath>
       </defs>
 
@@ -379,12 +369,7 @@ function ArgandDiagram({ points, width = 420, height = 340 }: ArgandDiagramProps
       />
 
       {/* Radial background glow at origin */}
-      <circle
-        cx={cx}
-        cy={cy}
-        r={Math.min(innerW, innerH) * 0.45}
-        fill="url(#quad-fill)"
-      />
+      <circle cx={cx} cy={cy} r={Math.min(innerW, innerH) * 0.45} fill="url(#quad-fill)" />
 
       {/* Unit circle — subtle guide */}
       {unitR > 8 && (
@@ -562,14 +547,7 @@ function ArgandDiagram({ points, width = 420, height = 340 }: ArgandDiagramProps
         return (
           <g key={p.label}>
             {/* Glow bloom behind point */}
-            {isHovered && (
-              <circle
-                cx={px}
-                cy={py}
-                r={20}
-                fill={`url(#glow-${p.label})`}
-              />
-            )}
+            {isHovered && <circle cx={px} cy={py} r={20} fill={`url(#glow-${p.label})`} />}
 
             {/* Projection lines with gradient fade */}
             <line
@@ -579,7 +557,7 @@ function ArgandDiagram({ points, width = 420, height = 340 }: ArgandDiagramProps
               y2={py}
               stroke={p.color}
               strokeWidth={isHovered ? 1.5 : 1}
-              strokeOpacity={isHovered ? 0.55 : 0.30}
+              strokeOpacity={isHovered ? 0.55 : 0.3}
               strokeDasharray="4 4"
             />
             <line
@@ -589,27 +567,15 @@ function ArgandDiagram({ points, width = 420, height = 340 }: ArgandDiagramProps
               y2={py}
               stroke={p.color}
               strokeWidth={isHovered ? 1.5 : 1}
-              strokeOpacity={isHovered ? 0.55 : 0.30}
+              strokeOpacity={isHovered ? 0.55 : 0.3}
               strokeDasharray="4 4"
             />
 
             {/* Projection endpoint dots on axes */}
             {len > 2 && (
               <>
-                <circle
-                  cx={px}
-                  cy={cy}
-                  r="2.5"
-                  fill={p.color}
-                  fillOpacity="0.5"
-                />
-                <circle
-                  cx={cx}
-                  cy={py}
-                  r="2.5"
-                  fill={p.color}
-                  fillOpacity="0.5"
-                />
+                <circle cx={px} cy={cy} r="2.5" fill={p.color} fillOpacity="0.5" />
+                <circle cx={cx} cy={py} r="2.5" fill={p.color} fillOpacity="0.5" />
               </>
             )}
 
@@ -779,9 +745,11 @@ function ResultDisplay({ result }: ResultDisplayProps) {
             variant="ghost"
             size="icon"
             className="h-8 w-8 shrink-0 transition-all duration-150"
-            style={copied === row.key
-              ? { color: 'oklch(0.72 0.20 155)', background: 'oklch(0.65 0.18 155 / 0.12)' }
-              : undefined}
+            style={
+              copied === row.key
+                ? { color: 'oklch(0.72 0.20 155)', background: 'oklch(0.65 0.18 155 / 0.12)' }
+                : undefined
+            }
             onClick={() => handleCopy(row.text, row.key)}
             aria-label={`Copy ${row.label} form`}
           >
@@ -804,34 +772,30 @@ function ResultDisplay({ result }: ResultDisplayProps) {
         <div
           className="p-3 rounded-xl border"
           style={{
-            background: 'linear-gradient(135deg, oklch(0.18 0.025 155 / 0.3), oklch(0.14 0.015 250 / 0.4))',
+            background:
+              'linear-gradient(135deg, oklch(0.18 0.025 155 / 0.3), oklch(0.14 0.015 250 / 0.4))',
             borderColor: 'oklch(0.65 0.18 155 / 0.3)',
           }}
         >
           <p className="text-xs font-semibold mb-1" style={{ color: 'oklch(0.72 0.15 155)' }}>
             Modulus |z|
           </p>
-          <p
-            className="text-base font-mono font-bold"
-            style={{ color: 'oklch(0.85 0.15 155)' }}
-          >
+          <p className="text-base font-mono font-bold" style={{ color: 'oklch(0.85 0.15 155)' }}>
             {fmt(result.value.magnitude)}
           </p>
         </div>
         <div
           className="p-3 rounded-xl border"
           style={{
-            background: 'linear-gradient(135deg, oklch(0.18 0.025 30 / 0.3), oklch(0.14 0.015 250 / 0.4))',
+            background:
+              'linear-gradient(135deg, oklch(0.18 0.025 30 / 0.3), oklch(0.14 0.015 250 / 0.4))',
             borderColor: 'oklch(0.65 0.18 30 / 0.3)',
           }}
         >
           <p className="text-xs font-semibold mb-1" style={{ color: 'oklch(0.72 0.15 30)' }}>
             Argument arg(z)
           </p>
-          <p
-            className="text-base font-mono font-bold"
-            style={{ color: 'oklch(0.85 0.15 30)' }}
-          >
+          <p className="text-base font-mono font-bold" style={{ color: 'oklch(0.85 0.15 30)' }}>
             {fmt((result.value.argument * 180) / Math.PI)}&deg;
           </p>
         </div>
@@ -859,7 +823,8 @@ function ArgandDiagramCard({ points }: ArgandDiagramCardProps) {
         background:
           'linear-gradient(135deg, oklch(0.16 0.03 264 / 0.6), oklch(0.14 0.02 250 / 0.7))',
         borderColor: 'oklch(0.65 0.22 264 / 0.2)',
-        boxShadow: '0 0 30px oklch(0.55 0.27 264 / 0.12), inset 0 1px 0 oklch(0.80 0.10 264 / 0.08)',
+        boxShadow:
+          '0 0 30px oklch(0.55 0.27 264 / 0.12), inset 0 1px 0 oklch(0.80 0.10 264 / 0.08)',
       }}
     >
       {/* Header bar */}
@@ -870,12 +835,12 @@ function ArgandDiagramCard({ points }: ArgandDiagramCardProps) {
         <div className="flex items-center gap-2">
           <div
             className="w-2 h-2 rounded-full"
-            style={{ background: 'oklch(0.65 0.22 264)', boxShadow: '0 0 6px oklch(0.65 0.22 264 / 0.8)' }}
+            style={{
+              background: 'oklch(0.65 0.22 264)',
+              boxShadow: '0 0 6px oklch(0.65 0.22 264 / 0.8)',
+            }}
           />
-          <h3
-            className="text-sm font-semibold"
-            style={{ color: 'oklch(0.82 0.15 264)' }}
-          >
+          <h3 className="text-sm font-semibold" style={{ color: 'oklch(0.82 0.15 264)' }}>
             Argand Diagram
           </h3>
         </div>
@@ -960,8 +925,10 @@ function ComplexInput({
         >
           {label}
         </Label>
-        <div className="flex items-center gap-0.5 text-xs rounded-lg overflow-hidden border"
-          style={{ borderColor: `oklch(0.60 0.18 ${accentHue} / 0.25)` }}>
+        <div
+          className="flex items-center gap-0.5 text-xs rounded-lg overflow-hidden border"
+          style={{ borderColor: `oklch(0.60 0.18 ${accentHue} / 0.25)` }}
+        >
           {(['rectangular', 'polar'] as InputMode[]).map((m) => (
             <button
               key={m}
@@ -999,9 +966,7 @@ function ComplexInput({
               error && 'border-destructive focus-visible:outline-destructive',
             )}
             style={
-              !error && parsed
-                ? { borderColor: `oklch(0.60 0.18 ${accentHue} / 0.4)` }
-                : undefined
+              !error && parsed ? { borderColor: `oklch(0.60 0.18 ${accentHue} / 0.4)` } : undefined
             }
             aria-describedby={error ? `${id}-error` : `${id}-hint`}
             aria-invalid={!!error}
@@ -1272,16 +1237,30 @@ export function ComplexPanel() {
     const z1 = parseZ1();
     const z2 = parseZ2();
 
-    if (!z1) { setBinaryError('Invalid value for z\u2081'); return; }
-    if (!z2) { setBinaryError('Invalid value for z\u2082'); return; }
+    if (!z1) {
+      setBinaryError('Invalid value for z\u2081');
+      return;
+    }
+    if (!z2) {
+      setBinaryError('Invalid value for z\u2082');
+      return;
+    }
 
     try {
       let resultZ: Complex;
       switch (binaryOp) {
-        case 'add': resultZ = z1.add(z2); break;
-        case 'subtract': resultZ = z1.subtract(z2); break;
-        case 'multiply': resultZ = z1.multiply(z2); break;
-        case 'divide': resultZ = z1.divide(z2); break;
+        case 'add':
+          resultZ = z1.add(z2);
+          break;
+        case 'subtract':
+          resultZ = z1.subtract(z2);
+          break;
+        case 'multiply':
+          resultZ = z1.multiply(z2);
+          break;
+        case 'divide':
+          resultZ = z1.divide(z2);
+          break;
         case 'power': {
           if (z2.isReal() && Number.isInteger(z2.real)) {
             resultZ = z1.pow(z2.real);
@@ -1319,20 +1298,41 @@ export function ComplexPanel() {
     setUnaryResult(null);
 
     const z = parseUZ();
-    if (!z) { setUnaryError('Invalid complex number'); return; }
+    if (!z) {
+      setUnaryError('Invalid complex number');
+      return;
+    }
 
     try {
       let resultZ: Complex;
       switch (unaryOp) {
-        case 'conjugate': resultZ = z.conjugate; break;
-        case 'modulus': resultZ = new Complex(z.magnitude, 0); break;
-        case 'argument': resultZ = new Complex(z.argument, 0); break;
-        case 'sqrt': resultZ = z.sqrt(); break;
-        case 'exp': resultZ = z.exp(); break;
-        case 'ln': resultZ = z.ln(); break;
-        case 'sin': resultZ = z.sin(); break;
-        case 'cos': resultZ = z.cos(); break;
-        case 'negate': resultZ = z.negate(); break;
+        case 'conjugate':
+          resultZ = z.conjugate;
+          break;
+        case 'modulus':
+          resultZ = new Complex(z.magnitude, 0);
+          break;
+        case 'argument':
+          resultZ = new Complex(z.argument, 0);
+          break;
+        case 'sqrt':
+          resultZ = z.sqrt();
+          break;
+        case 'exp':
+          resultZ = z.exp();
+          break;
+        case 'ln':
+          resultZ = z.ln();
+          break;
+        case 'sin':
+          resultZ = z.sin();
+          break;
+        case 'cos':
+          resultZ = z.cos();
+          break;
+        case 'negate':
+          resultZ = z.negate();
+          break;
       }
 
       const res = buildResult(resultZ);
@@ -1361,16 +1361,31 @@ export function ComplexPanel() {
     if (parsedZ2)
       pts.push({ z: parsedZ2, label: 'z\u2082', color: POINT_COLORS.z2, glowColor: POINT_GLOW.z2 });
     if (binaryResult)
-      pts.push({ z: binaryResult.value, label: 'Result', color: POINT_COLORS.result, glowColor: POINT_GLOW.result });
+      pts.push({
+        z: binaryResult.value,
+        label: 'Result',
+        color: POINT_COLORS.result,
+        glowColor: POINT_GLOW.result,
+      });
     return pts;
   }, [parsedZ1, parsedZ2, binaryResult]);
 
   const unaryArgandPoints = useMemo((): ArgandPoint[] => {
     const pts: ArgandPoint[] = [];
     if (parsedUZ)
-      pts.push({ z: parsedUZ, label: 'z', color: POINT_COLORS.unaryInput, glowColor: POINT_GLOW.unaryInput });
+      pts.push({
+        z: parsedUZ,
+        label: 'z',
+        color: POINT_COLORS.unaryInput,
+        glowColor: POINT_GLOW.unaryInput,
+      });
     if (unaryResult)
-      pts.push({ z: unaryResult.value, label: 'Result', color: POINT_COLORS.unaryResult, glowColor: POINT_GLOW.unaryResult });
+      pts.push({
+        z: unaryResult.value,
+        label: 'Result',
+        color: POINT_COLORS.unaryResult,
+        glowColor: POINT_GLOW.unaryResult,
+      });
     return pts;
   }, [parsedUZ, unaryResult]);
 
@@ -1443,7 +1458,8 @@ export function ComplexPanel() {
         <div
           className="flex items-center justify-center w-10 h-10 rounded-xl"
           style={{
-            background: 'linear-gradient(135deg, oklch(0.65 0.22 264 / 0.25), oklch(0.58 0.22 300 / 0.25))',
+            background:
+              'linear-gradient(135deg, oklch(0.65 0.22 264 / 0.25), oklch(0.58 0.22 300 / 0.25))',
             border: '1px solid oklch(0.65 0.22 264 / 0.30)',
           }}
         >
@@ -1485,8 +1501,8 @@ export function ComplexPanel() {
                 {tab === 'binary'
                   ? 'Binary Operations'
                   : tab === 'unary'
-                  ? 'Unary Functions'
-                  : 'History'}
+                    ? 'Unary Functions'
+                    : 'History'}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -1519,7 +1535,8 @@ export function ComplexPanel() {
               <div
                 className="p-4 rounded-xl border"
                 style={{
-                  background: 'linear-gradient(135deg, oklch(0.16 0.03 264 / 0.4), oklch(0.14 0.02 250 / 0.3))',
+                  background:
+                    'linear-gradient(135deg, oklch(0.16 0.03 264 / 0.4), oklch(0.14 0.02 250 / 0.3))',
                   borderColor: 'oklch(0.65 0.22 264 / 0.20)',
                 }}
               >
@@ -1529,11 +1546,20 @@ export function ComplexPanel() {
                   mode={z1Mode}
                   onModeChange={handleZ1ModeChange}
                   rectValue={z1Rect}
-                  onRectChange={(v) => { setZ1Rect(v); setBinaryResult(null); }}
+                  onRectChange={(v) => {
+                    setZ1Rect(v);
+                    setBinaryResult(null);
+                  }}
                   polarR={z1PolarR}
-                  onPolarRChange={(v) => { setZ1PolarR(v); setBinaryResult(null); }}
+                  onPolarRChange={(v) => {
+                    setZ1PolarR(v);
+                    setBinaryResult(null);
+                  }}
                   polarTheta={z1PolarTheta}
-                  onPolarThetaChange={(v) => { setZ1PolarTheta(v); setBinaryResult(null); }}
+                  onPolarThetaChange={(v) => {
+                    setZ1PolarTheta(v);
+                    setBinaryResult(null);
+                  }}
                   parsed={parsedZ1}
                   error={z1Error}
                   accentHue="264"
@@ -1547,12 +1573,16 @@ export function ComplexPanel() {
                     <button
                       key={op}
                       type="button"
-                      onClick={() => { setBinaryOp(op); setBinaryResult(null); }}
+                      onClick={() => {
+                        setBinaryOp(op);
+                        setBinaryResult(null);
+                      }}
                       className="w-10 h-10 rounded-lg text-lg font-bold transition-all duration-150 border"
                       style={
                         binaryOp === op
                           ? {
-                              background: 'linear-gradient(135deg, oklch(0.55 0.27 264 / 0.25), oklch(0.58 0.22 300 / 0.20))',
+                              background:
+                                'linear-gradient(135deg, oklch(0.55 0.27 264 / 0.25), oklch(0.58 0.22 300 / 0.20))',
                               borderColor: 'oklch(0.65 0.22 264 / 0.60)',
                               color: 'oklch(0.85 0.18 264)',
                               boxShadow: '0 0 12px oklch(0.65 0.22 264 / 0.3)',
@@ -1585,7 +1615,8 @@ export function ComplexPanel() {
               <div
                 className="p-4 rounded-xl border"
                 style={{
-                  background: 'linear-gradient(135deg, oklch(0.16 0.03 300 / 0.4), oklch(0.14 0.02 250 / 0.3))',
+                  background:
+                    'linear-gradient(135deg, oklch(0.16 0.03 300 / 0.4), oklch(0.14 0.02 250 / 0.3))',
                   borderColor: 'oklch(0.63 0.20 300 / 0.20)',
                 }}
               >
@@ -1595,11 +1626,20 @@ export function ComplexPanel() {
                   mode={z2Mode}
                   onModeChange={handleZ2ModeChange}
                   rectValue={z2Rect}
-                  onRectChange={(v) => { setZ2Rect(v); setBinaryResult(null); }}
+                  onRectChange={(v) => {
+                    setZ2Rect(v);
+                    setBinaryResult(null);
+                  }}
                   polarR={z2PolarR}
-                  onPolarRChange={(v) => { setZ2PolarR(v); setBinaryResult(null); }}
+                  onPolarRChange={(v) => {
+                    setZ2PolarR(v);
+                    setBinaryResult(null);
+                  }}
                   polarTheta={z2PolarTheta}
-                  onPolarThetaChange={(v) => { setZ2PolarTheta(v); setBinaryResult(null); }}
+                  onPolarThetaChange={(v) => {
+                    setZ2PolarTheta(v);
+                    setBinaryResult(null);
+                  }}
                   parsed={parsedZ2}
                   error={z2Error}
                   accentHue="300"
@@ -1612,16 +1652,14 @@ export function ComplexPanel() {
               type="button"
               className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 border hover:scale-[1.01] hover:-translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:translate-y-0"
               style={{
-                background: parsedZ1 && parsedZ2
-                  ? 'linear-gradient(135deg, oklch(0.55 0.27 264), oklch(0.58 0.22 300))'
-                  : 'oklch(0.25 0.02 250)',
-                borderColor: parsedZ1 && parsedZ2
-                  ? 'oklch(0.65 0.22 264 / 0.5)'
-                  : 'oklch(0.35 0.02 250)',
+                background:
+                  parsedZ1 && parsedZ2
+                    ? 'linear-gradient(135deg, oklch(0.55 0.27 264), oklch(0.58 0.22 300))'
+                    : 'oklch(0.25 0.02 250)',
+                borderColor:
+                  parsedZ1 && parsedZ2 ? 'oklch(0.65 0.22 264 / 0.5)' : 'oklch(0.35 0.02 250)',
                 color: parsedZ1 && parsedZ2 ? 'oklch(1.0 0 0)' : 'oklch(0.45 0.02 250)',
-                boxShadow: parsedZ1 && parsedZ2
-                  ? '0 0 20px oklch(0.55 0.27 264 / 0.35)'
-                  : 'none',
+                boxShadow: parsedZ1 && parsedZ2 ? '0 0 20px oklch(0.55 0.27 264 / 0.35)' : 'none',
               }}
               onClick={handleBinaryCalculate}
               disabled={!parsedZ1 || !parsedZ2}
@@ -1704,7 +1742,8 @@ export function ComplexPanel() {
             <div
               className="p-4 rounded-xl border"
               style={{
-                background: 'linear-gradient(135deg, oklch(0.16 0.03 264 / 0.4), oklch(0.14 0.02 250 / 0.3))',
+                background:
+                  'linear-gradient(135deg, oklch(0.16 0.03 264 / 0.4), oklch(0.14 0.02 250 / 0.3))',
                 borderColor: 'oklch(0.65 0.22 264 / 0.20)',
               }}
             >
@@ -1714,11 +1753,20 @@ export function ComplexPanel() {
                 mode={uzMode}
                 onModeChange={handleUZModeChange}
                 rectValue={uzRect}
-                onRectChange={(v) => { setUzRect(v); setUnaryResult(null); }}
+                onRectChange={(v) => {
+                  setUzRect(v);
+                  setUnaryResult(null);
+                }}
                 polarR={uzPolarR}
-                onPolarRChange={(v) => { setUzPolarR(v); setUnaryResult(null); }}
+                onPolarRChange={(v) => {
+                  setUzPolarR(v);
+                  setUnaryResult(null);
+                }}
                 polarTheta={uzPolarTheta}
-                onPolarThetaChange={(v) => { setUzPolarTheta(v); setUnaryResult(null); }}
+                onPolarThetaChange={(v) => {
+                  setUzPolarTheta(v);
+                  setUnaryResult(null);
+                }}
                 parsed={parsedUZ}
                 error={uzError}
                 accentHue="264"
@@ -1735,12 +1783,16 @@ export function ComplexPanel() {
                   <button
                     key={op}
                     type="button"
-                    onClick={() => { setUnaryOp(op); setUnaryResult(null); }}
+                    onClick={() => {
+                      setUnaryOp(op);
+                      setUnaryResult(null);
+                    }}
                     className="px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 border text-left"
                     style={
                       unaryOp === op
                         ? {
-                            background: 'linear-gradient(135deg, oklch(0.58 0.22 300 / 0.25), oklch(0.55 0.27 264 / 0.20))',
+                            background:
+                              'linear-gradient(135deg, oklch(0.58 0.22 300 / 0.25), oklch(0.55 0.27 264 / 0.20))',
                             borderColor: 'oklch(0.63 0.20 300 / 0.55)',
                             color: 'oklch(0.85 0.16 300)',
                             boxShadow: '0 0 10px oklch(0.63 0.20 300 / 0.25)',
@@ -1767,13 +1819,9 @@ export function ComplexPanel() {
                 background: parsedUZ
                   ? 'linear-gradient(135deg, oklch(0.58 0.22 300), oklch(0.55 0.27 264))'
                   : 'oklch(0.25 0.02 250)',
-                borderColor: parsedUZ
-                  ? 'oklch(0.63 0.20 300 / 0.5)'
-                  : 'oklch(0.35 0.02 250)',
+                borderColor: parsedUZ ? 'oklch(0.63 0.20 300 / 0.5)' : 'oklch(0.35 0.02 250)',
                 color: parsedUZ ? 'oklch(1.0 0 0)' : 'oklch(0.45 0.02 250)',
-                boxShadow: parsedUZ
-                  ? '0 0 20px oklch(0.58 0.22 300 / 0.35)'
-                  : 'none',
+                boxShadow: parsedUZ ? '0 0 20px oklch(0.58 0.22 300 / 0.35)' : 'none',
               }}
               onClick={handleUnaryCalculate}
               disabled={!parsedUZ}
@@ -1878,7 +1926,8 @@ export function ComplexPanel() {
                       transition={{ duration: 0.25, delay: idx * 0.02 }}
                       className="rounded-xl border p-3 transition-colors duration-150"
                       style={{
-                        background: 'linear-gradient(135deg, oklch(0.16 0.025 264 / 0.3), oklch(0.14 0.015 250 / 0.4))',
+                        background:
+                          'linear-gradient(135deg, oklch(0.16 0.025 264 / 0.3), oklch(0.14 0.015 250 / 0.4))',
                         borderColor: 'oklch(0.65 0.22 264 / 0.15)',
                       }}
                     >
@@ -1953,11 +2002,7 @@ export function ComplexPanel() {
                 {
                   hue: '30',
                   title: 'Conjugate & Modulus',
-                  items: [
-                    'ζ of a+bi = a−bi',
-                    'z·ζ = |z|²',
-                    'arg(z) ∈ (−π, π]',
-                  ],
+                  items: ['ζ of a+bi = a−bi', 'z·ζ = |z|²', 'arg(z) ∈ (−π, π]'],
                 },
               ].map(({ hue, title, items }) => (
                 <div key={title}>

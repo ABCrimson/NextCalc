@@ -1,23 +1,23 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useMutation } from '@apollo/client/react';
+import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useCallback, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/ui/dialog';
-import { ActivityCalendar } from './activity-calendar';
+import { Input } from '@/components/ui/input';
 import { UPDATE_PROFILE_MUTATION } from '@/lib/graphql/operations';
+import { ActivityCalendar } from './activity-calendar';
 
 // ---------------------------------------------------------------------------
 // Domain types
@@ -141,7 +141,10 @@ const itemVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] },
+    transition: {
+      duration: 0.35,
+      ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number],
+    },
   },
 } as const;
 
@@ -159,7 +162,10 @@ const statsItemVariants = {
     opacity: 1,
     scale: 1,
     y: 0,
-    transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] },
+    transition: {
+      duration: 0.3,
+      ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number],
+    },
   },
 } as const;
 
@@ -168,7 +174,10 @@ const feedItemVariants = {
   visible: {
     opacity: 1,
     x: 0,
-    transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] },
+    transition: {
+      duration: 0.28,
+      ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number],
+    },
   },
 } as const;
 
@@ -212,9 +221,7 @@ function StatCard({ label, value, icon, accent = false, description }: StatCardP
           >
             {typeof value === 'number' ? value.toLocaleString() : value}
           </p>
-          {description && (
-            <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
-          )}
+          {description && <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>}
         </div>
       </CardContent>
     </Card>
@@ -262,11 +269,7 @@ function QuickActions({ locale }: { locale?: string }) {
   ];
 
   return (
-    <div
-      className="grid grid-cols-1 gap-3 sm:grid-cols-3"
-      role="list"
-      aria-label="Quick actions"
-    >
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3" role="list" aria-label="Quick actions">
       {actions.map((action) => (
         <Link
           key={action.href}
@@ -302,7 +305,14 @@ function QuickActions({ locale }: { locale?: string }) {
 
 type ActivityEntry =
   | { kind: 'calculation'; id: string; label: string; sub: string; time: string }
-  | { kind: 'worksheet'; id: string; label: string; sub: string; time: string; visibility: 'PRIVATE' | 'UNLISTED' | 'PUBLIC' };
+  | {
+      kind: 'worksheet';
+      id: string;
+      label: string;
+      sub: string;
+      time: string;
+      visibility: 'PRIVATE' | 'UNLISTED' | 'PUBLIC';
+    };
 
 function visibilityBadge(v: 'PRIVATE' | 'UNLISTED' | 'PUBLIC'): string {
   if (v === 'PUBLIC') return 'Public';
@@ -328,24 +338,32 @@ function RecentActivityFeed({ calculations, worksheets, locale }: RecentActivity
         label: c.expression.length > 60 ? `${c.expression.slice(0, 60)}…` : c.expression,
         sub: `= ${c.result}`,
         time: c.timestamp,
-      })
+      }),
     ),
     ...worksheets.map(
       (w): ActivityEntry => ({
         kind: 'worksheet',
         id: `ws-${w.id}`,
         label: w.title,
-        sub: w.description ? (w.description.length > 60 ? `${w.description.slice(0, 60)}…` : w.description) : '',
+        sub: w.description
+          ? w.description.length > 60
+            ? `${w.description.slice(0, 60)}…`
+            : w.description
+          : '',
         time: w.updatedAt,
         visibility: w.visibility,
-      })
+      }),
     ),
-  ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 10);
+  ]
+    .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+    .slice(0, 10);
 
   if (entries.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
-        <span className="mb-3 text-4xl" aria-hidden="true">📭</span>
+        <span className="mb-3 text-4xl" aria-hidden="true">
+          📭
+        </span>
         <p className="text-sm font-medium text-foreground">{t('recentActivityEmpty')}</p>
         <p className="mt-1 text-xs text-muted-foreground">{t('recentActivityEmptyHint')}</p>
       </div>
@@ -395,7 +413,9 @@ function RecentActivityFeed({ calculations, worksheets, locale }: RecentActivity
                 </span>
               )}
               <Badge variant="outline" className="flex-shrink-0 text-xs">
-                {entry.kind === 'calculation' ? t('recentActivityCalculation') : t('recentActivityWorksheet')}
+                {entry.kind === 'calculation'
+                  ? t('recentActivityCalculation')
+                  : t('recentActivityWorksheet')}
               </Badge>
               {entry.kind === 'worksheet' && (
                 <Badge
@@ -410,9 +430,7 @@ function RecentActivityFeed({ calculations, worksheets, locale }: RecentActivity
               )}
             </div>
             {entry.sub && (
-              <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                {entry.sub}
-              </p>
+              <p className="mt-0.5 truncate text-xs text-muted-foreground">{entry.sub}</p>
             )}
           </div>
 
@@ -465,9 +483,8 @@ function EditProfileDialog({
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  const [updateProfile, { loading }] = useMutation<UpdateProfileMutationData>(
-    UPDATE_PROFILE_MUTATION
-  );
+  const [updateProfile, { loading }] =
+    useMutation<UpdateProfileMutationData>(UPDATE_PROFILE_MUTATION);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -500,7 +517,7 @@ function EditProfileDialog({
         setSaveError(err instanceof Error ? err.message : t('editError'));
       }
     },
-    [updateProfile, name, bio, initialBio, onSuccess, onOpenChange, t]
+    [updateProfile, name, bio, initialBio, onSuccess, onOpenChange, t],
   );
 
   const handleOpenChange = (next: boolean) => {
@@ -527,10 +544,7 @@ function EditProfileDialog({
         <form onSubmit={handleSubmit} className="space-y-4 py-2">
           {/* Name field */}
           <div className="space-y-1.5">
-            <label
-              htmlFor="edit-profile-name"
-              className="text-sm font-medium text-foreground"
-            >
+            <label htmlFor="edit-profile-name" className="text-sm font-medium text-foreground">
               {t('editName')}
             </label>
             <Input
@@ -547,10 +561,7 @@ function EditProfileDialog({
 
           {/* Bio field */}
           <div className="space-y-1.5">
-            <label
-              htmlFor="edit-profile-bio"
-              className="text-sm font-medium text-foreground"
-            >
+            <label htmlFor="edit-profile-bio" className="text-sm font-medium text-foreground">
               {t('editBio')}
             </label>
             <textarea
@@ -610,9 +621,10 @@ function EditProfileDialog({
               disabled={loading || saveSuccess}
               className="inline-flex h-9 items-center justify-center rounded-md px-4 text-sm font-semibold text-white transition-all disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               style={{
-                background: loading || saveSuccess
-                  ? 'oklch(0.55 0.10 264)'
-                  : 'linear-gradient(135deg, oklch(0.55 0.27 264), oklch(0.60 0.25 300))',
+                background:
+                  loading || saveSuccess
+                    ? 'oklch(0.55 0.10 264)'
+                    : 'linear-gradient(135deg, oklch(0.55 0.27 264), oklch(0.60 0.25 300))',
               }}
             >
               {loading ? t('editSaving') : t('editSave')}
@@ -660,7 +672,8 @@ function HeroCard({ user, progress, onEditClick }: HeroCardProps) {
                 role="img"
                 aria-label={`Avatar for ${user.name ?? 'user'}`}
                 style={{
-                  background: 'linear-gradient(135deg, oklch(0.55 0.27 264 / 0.18), oklch(0.60 0.25 300 / 0.18))',
+                  background:
+                    'linear-gradient(135deg, oklch(0.55 0.27 264 / 0.18), oklch(0.60 0.25 300 / 0.18))',
                 }}
               >
                 {getInitials(user.name)}
@@ -719,8 +732,12 @@ function HeroCard({ user, progress, onEditClick }: HeroCardProps) {
             {/* XP Progress bar */}
             <div className="mt-3 max-w-sm">
               <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
-                <span>{t('level')} {currentLevel}</span>
-                <span>{currentXp.toLocaleString()} / {xpNeeded.toLocaleString()} XP</span>
+                <span>
+                  {t('level')} {currentLevel}
+                </span>
+                <span>
+                  {currentXp.toLocaleString()} / {xpNeeded.toLocaleString()} XP
+                </span>
               </div>
               <div
                 className="h-2 w-full overflow-hidden rounded-full bg-muted"
@@ -734,7 +751,8 @@ function HeroCard({ user, progress, onEditClick }: HeroCardProps) {
                   className="h-full rounded-full transition-all duration-700 ease-out"
                   style={{
                     width: `${xpProgress}%`,
-                    background: 'linear-gradient(to right, oklch(0.55 0.22 264), oklch(0.65 0.28 300))',
+                    background:
+                      'linear-gradient(to right, oklch(0.55 0.22 264), oklch(0.65 0.28 300))',
                   }}
                 />
               </div>
@@ -771,7 +789,7 @@ export function ProfileOverview({
       setLocalUser((prev) => ({ ...prev, ...updated }));
       onProfileUpdated?.(updated);
     },
-    [onProfileUpdated]
+    [onProfileUpdated],
   );
 
   const stats: StatCardProps[] = [
@@ -801,7 +819,11 @@ export function ProfileOverview({
       description: 'contributed',
     },
     { label: t('level'), value: progress?.level ?? 1, icon: '⭐', accent: true },
-    { label: t('experience'), value: `${(progress?.experience ?? 0).toLocaleString()} XP`, icon: '✨' },
+    {
+      label: t('experience'),
+      value: `${(progress?.experience ?? 0).toLocaleString()} XP`,
+      icon: '✨',
+    },
     { label: t('problemsSolved'), value: progress?.problemsSolved ?? 0, icon: '🧩' },
     { label: t('totalPoints'), value: progress?.totalPoints ?? 0, icon: '💎' },
   ];
@@ -815,11 +837,7 @@ export function ProfileOverview({
     >
       {/* Hero card — avatar, name, bio, edit */}
       <motion.div variants={itemVariants}>
-        <HeroCard
-          user={localUser}
-          progress={progress}
-          onEditClick={() => setEditOpen(true)}
-        />
+        <HeroCard user={localUser} progress={progress} onEditClick={() => setEditOpen(true)} />
       </motion.div>
 
       {/* Stats grid — 4 primary KPIs at top, rest below */}
@@ -867,10 +885,7 @@ export function ProfileOverview({
       </motion.div>
 
       {/* Recent Activity Feed + Activity Calendar — side by side on large screens */}
-      <motion.div
-        variants={itemVariants}
-        className="grid grid-cols-1 gap-6 lg:grid-cols-2"
-      >
+      <motion.div variants={itemVariants} className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Recent Activity */}
         <Card className="flex flex-col">
           <CardHeader className="pb-3">
@@ -887,10 +902,7 @@ export function ProfileOverview({
             </div>
           </CardHeader>
           <CardContent className="flex-1">
-            <RecentActivityFeed
-              calculations={recentCalculations}
-              worksheets={recentWorksheets}
-            />
+            <RecentActivityFeed calculations={recentCalculations} worksheets={recentWorksheets} />
           </CardContent>
         </Card>
 
@@ -919,7 +931,9 @@ export function ProfileOverview({
                     key={achievement.id}
                     className="flex items-center gap-3 rounded-lg border border-border/50 bg-muted/20 px-3 py-2.5 transition-colors hover:bg-muted/40"
                   >
-                    <span className="text-xl" aria-hidden="true">{achievement.icon}</span>
+                    <span className="text-xl" aria-hidden="true">
+                      {achievement.icon}
+                    </span>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium text-foreground">
                         {achievement.name}

@@ -171,7 +171,9 @@ async function seed() {
       },
     });
 
-    console.log(`✅ Created worksheets: ${worksheet1.title}, ${worksheet2.title}, ${worksheet3.title}\n`);
+    console.log(
+      `✅ Created worksheets: ${worksheet1.title}, ${worksheet2.title}, ${worksheet3.title}\n`,
+    );
 
     // Create forum posts
     console.log('Creating forum posts...');
@@ -189,7 +191,8 @@ async function seed() {
     const post2 = await prisma.forumPost.create({
       data: {
         title: 'Welcome to NextCalc Pro!',
-        content: 'This is a community forum for discussing math, calculations, and features. Feel free to ask questions!',
+        content:
+          'This is a community forum for discussing math, calculations, and features. Feel free to ask questions!',
         tags: ['announcement', 'welcome'],
         userId: adminUser.id,
         isPinned: true,
@@ -203,7 +206,8 @@ async function seed() {
 
     const comment1 = await prisma.comment.create({
       data: {
-        content: 'Go to the Plot page and select "3D Surface" from the dropdown. Then enter your function!',
+        content:
+          'Go to the Plot page and select "3D Surface" from the dropdown. Then enter your function!',
         postId: post1.id,
         userId: adminUser.id,
       },
@@ -300,7 +304,6 @@ async function seed() {
     console.log('');
     console.log('View data in Prisma Studio: pnpm prisma studio');
     console.log('');
-
   } catch (error) {
     console.error('\n❌ Seeding failed:', error);
     throw error;
@@ -310,8 +313,7 @@ async function seed() {
 }
 
 // Run the seed
-seed()
-  .catch((error) => {
-    console.error('Unexpected error:', error);
-    process.exit(1);
-  });
+seed().catch((error) => {
+  console.error('Unexpected error:', error);
+  process.exit(1);
+});

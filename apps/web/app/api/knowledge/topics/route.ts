@@ -4,11 +4,11 @@
  * GET /api/knowledge/topics - Get topic hierarchy
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import type { Category } from '@nextcalc/database';
+import { type NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { KnowledgeBaseManager } from '@/lib/cms/knowledge-base';
 import { TopicQuerySchema } from '@/lib/validations/learning';
-import { z } from 'zod';
-import type { Category } from '@nextcalc/database';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = request.nextUrl;
 
     const queryParams = {
-      category: searchParams.get('category')
+      category: searchParams.get('category'),
     };
 
     const { category } = TopicQuerySchema.parse(queryParams);
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: topicTree
+      data: topicTree,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -35,9 +35,9 @@ export async function GET(request: NextRequest) {
         {
           success: false,
           error: 'Invalid query parameters',
-          details: error.issues
+          details: error.issues,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -45,9 +45,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: 'Internal server error'
+        error: 'Internal server error',
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

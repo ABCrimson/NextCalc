@@ -20,18 +20,18 @@
  *  - `Escape`          — close the dialog (Radix built-in, also caught in global handler)
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { Keyboard, X } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { Keyboard, X } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -145,7 +145,10 @@ function ShortcutRow({ entry }: ShortcutRowProps) {
         {entry.keys.map((key, i) => (
           <span key={i} className="flex items-center gap-1">
             {i > 0 && (
-              <span className="text-muted-foreground/60 text-xs font-mono select-none" aria-hidden="true">
+              <span
+                className="text-muted-foreground/60 text-xs font-mono select-none"
+                aria-hidden="true"
+              >
                 +
               </span>
             )}
@@ -337,9 +340,7 @@ export function ShortcutsModal({ registerGlobalHotkey = true }: ShortcutsModalPr
       }
 
       // `?` is Shift+/ on most layouts — handle both forms.
-      const isQuestionMark =
-        event.key === '?' ||
-        (event.key === '/' && event.shiftKey);
+      const isQuestionMark = event.key === '?' || (event.key === '/' && event.shiftKey);
 
       if (isQuestionMark) {
         event.preventDefault();
@@ -402,10 +403,7 @@ export function ShortcutsModal({ registerGlobalHotkey = true }: ShortcutsModalPr
               showOnboarding && 'animate-pulse',
             )}
           >
-            <span
-              className="font-semibold text-sm leading-none select-none"
-              aria-hidden="true"
-            >
+            <span className="font-semibold text-sm leading-none select-none" aria-hidden="true">
               ?
             </span>
           </motion.button>
@@ -466,8 +464,7 @@ export function ShortcutsModal({ registerGlobalHotkey = true }: ShortcutsModalPr
 
               {/* Footer hint */}
               <p className="mt-4 text-xs text-center text-muted-foreground/70">
-                Open this dialog at any time by pressing{' '}
-                <Kbd>?</Kbd>
+                Open this dialog at any time by pressing <Kbd>?</Kbd>
               </p>
             </div>
           </ScrollArea>

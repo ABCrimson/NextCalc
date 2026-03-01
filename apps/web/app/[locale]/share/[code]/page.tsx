@@ -8,8 +8,8 @@
 
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { query } from '@/lib/graphql/rsc-client';
 import { SHARED_CALCULATION_QUERY } from '@/lib/graphql/operations';
+import { query } from '@/lib/graphql/rsc-client';
 import { SharedCalculationView } from './shared-calculation-view';
 
 // ---------------------------------------------------------------------------
@@ -41,9 +41,7 @@ interface PageProps {
 // Data fetching
 // ---------------------------------------------------------------------------
 
-async function getSharedCalculation(
-  shortCode: string,
-): Promise<SharedCalculationData | null> {
+async function getSharedCalculation(shortCode: string): Promise<SharedCalculationData | null> {
   try {
     const { data } = await query({
       query: SHARED_CALCULATION_QUERY,
@@ -61,9 +59,7 @@ async function getSharedCalculation(
 // Metadata (OG tags for social preview)
 // ---------------------------------------------------------------------------
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { code } = await params;
   const shared = await getSharedCalculation(code);
 

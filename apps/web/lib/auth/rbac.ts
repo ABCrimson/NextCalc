@@ -83,7 +83,7 @@ export function canAccess(
   userId: string,
   resourceOwnerId: string,
   ownPermission: Permission,
-  anyPermission: Permission
+  anyPermission: Permission,
 ): boolean {
   // Check if user owns the resource
   const isOwner = userId === resourceOwnerId;
@@ -109,9 +109,7 @@ export function canAccess(
  */
 export function assertPermission(role: UserRole, permission: Permission): void {
   if (!can(role, permission)) {
-    throw new Error(
-      `Forbidden - ${permission} permission required for role ${role}`
-    );
+    throw new Error(`Forbidden - ${permission} permission required for role ${role}`);
   }
 }
 

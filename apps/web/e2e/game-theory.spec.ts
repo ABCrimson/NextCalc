@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Game Theory Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -7,9 +7,9 @@ test.describe('Game Theory Page', () => {
   });
 
   test('page loads with heading visible', async ({ page }) => {
-    await expect(
-      page.getByRole('heading', { name: /game theory/i }).first(),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /game theory/i }).first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('Nash equilibrium badge is displayed', async ({ page }) => {
@@ -34,9 +34,9 @@ test.describe('Game Theory Page', () => {
   });
 
   test('Find Nash Equilibrium button is present', async ({ page }) => {
-    await expect(
-      page.getByRole('button', { name: /find nash equilibrium/i }),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('button', { name: /find nash equilibrium/i })).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('can click a preset to load it', async ({ page }) => {

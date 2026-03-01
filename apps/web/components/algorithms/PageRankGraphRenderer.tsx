@@ -1,8 +1,16 @@
 'use client';
 
-import { useRef, useEffect, useCallback, useMemo, useState, type PointerEvent, type WheelEvent } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import type { GraphNode, GraphEdge, NodeId, PageRankScore } from './types';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import {
+  type PointerEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type WheelEvent,
+} from 'react';
+import type { GraphEdge, GraphNode, NodeId, PageRankScore } from './types';
 
 /**
  * Configuration for graph renderer
@@ -82,17 +90,17 @@ class ForceSimulation {
     nodes: ReadonlyArray<GraphNode>,
     edges: ReadonlyArray<GraphEdge>,
     width: number,
-    height: number
+    height: number,
   ) {
     this.width = width;
     this.height = height;
     this.nodes = new Map(
-      nodes.map(node => [
+      nodes.map((node) => [
         node.id,
         { x: node.position.x, y: node.position.y, vx: 0, vy: 0, fixed: false },
-      ])
+      ]),
     );
-    this.edges = edges.map(edge => ({
+    this.edges = edges.map((edge) => ({
       source: edge.source,
       target: edge.target,
       weight: edge.weight,
@@ -101,7 +109,10 @@ class ForceSimulation {
 
   tick(): void {
     for (const [, node] of Array.from(this.nodes)) {
-      if (!node.fixed) { node.vx = 0; node.vy = 0; }
+      if (!node.fixed) {
+        node.vx = 0;
+        node.vy = 0;
+      }
     }
 
     const nodeArray = Array.from(this.nodes.entries());
@@ -119,8 +130,12 @@ class ForceSimulation {
         const force = this.repulsionStrength / distSq;
         const fx = (dx / dist) * force;
         const fy = (dy / dist) * force;
-        node1.vx -= fx; node1.vy -= fy;
-        if (!node2.fixed) { node2.vx += fx; node2.vy += fy; }
+        node1.vx -= fx;
+        node1.vy -= fy;
+        if (!node2.fixed) {
+          node2.vx += fx;
+          node2.vy += fy;
+        }
       }
     }
 
@@ -135,8 +150,14 @@ class ForceSimulation {
       const displacement = (dist - this.springLength * edge.weight) * this.springStrength;
       const fx = (dx / dist) * displacement;
       const fy = (dy / dist) * displacement;
-      if (!source.fixed) { source.vx += fx; source.vy += fy; }
-      if (!target.fixed) { target.vx -= fx; target.vy -= fy; }
+      if (!source.fixed) {
+        source.vx += fx;
+        source.vy += fy;
+      }
+      if (!target.fixed) {
+        target.vx -= fx;
+        target.vy -= fy;
+      }
     }
 
     // Centering
@@ -176,13 +197,21 @@ class ForceSimulation {
     const node = this.nodes.get(nodeId);
     if (node) {
       node.fixed = fixed;
-      if (!fixed) { node.vx = 0; node.vy = 0; }
+      if (!fixed) {
+        node.vx = 0;
+        node.vy = 0;
+      }
     }
   }
 
   setNodePosition(nodeId: NodeId, x: number, y: number): void {
     const node = this.nodes.get(nodeId);
-    if (node) { node.x = x; node.y = y; node.vx = 0; node.vy = 0; }
+    if (node) {
+      node.x = x;
+      node.y = y;
+      node.vx = 0;
+      node.vy = 0;
+    }
   }
 
   setDimensions(width: number, height: number): void {
@@ -323,8 +352,8 @@ export function PageRankGraphRenderer({
 
   // ── Derived data ────────────────────────────────────────────────────────
   const maxRank = useMemo(
-    () => Math.max(...Array.from(ranks.values()).map(r => r as number), 0.001),
-    [ranks]
+    () => Math.max(...Array.from(ranks.values()).map((r) => r as number), 0.001),
+    [ranks],
   );
 
   // ── ViewBox ─────────────────────────────────────────────────────────────
@@ -341,14 +370,17 @@ export function PageRankGraphRenderer({
   useEffect(() => {
     if (hasCenteredRef.current || positions.size === 0) return;
     hasCenteredRef.current = true;
-    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    let minX = Infinity,
+      maxX = -Infinity,
+      minY = Infinity,
+      maxY = -Infinity;
     for (const pos of Array.from(positions.values())) {
       if (pos.x < minX) minX = pos.x;
       if (pos.x > maxX) maxX = pos.x;
       if (pos.y < minY) minY = pos.y;
       if (pos.y > maxY) maxY = pos.y;
     }
-    setCamera(prev => ({ ...prev, x: (minX + maxX) / 2, y: (minY + maxY) / 2 }));
+    setCamera((prev) => ({ ...prev, x: (minX + maxX) / 2, y: (minY + maxY) / 2 }));
   }, [positions]);
 
   // ── Pointer → SVG coordinate conversion ─────────────────────────────────
@@ -365,41 +397,49 @@ export function PageRankGraphRenderer({
   }, []);
 
   // ── Interaction handlers ────────────────────────────────────────────────
-  const handlePointerDown = useCallback((event: PointerEvent<SVGSVGElement>) => {
-    const target = event.target as SVGElement;
-    const nodeId = target.closest('[data-node-id]')?.getAttribute('data-node-id') as NodeId | null;
+  const handlePointerDown = useCallback(
+    (event: PointerEvent<SVGSVGElement>) => {
+      const target = event.target as SVGElement;
+      const nodeId = target
+        .closest('[data-node-id]')
+        ?.getAttribute('data-node-id') as NodeId | null;
 
-    if (nodeId) {
-      isDraggingRef.current = true;
-      draggedNodeRef.current = nodeId;
-      simulationRef.current?.fixNode(nodeId, true);
-      onInteraction?.({ type: 'click', nodeId });
-      (event.currentTarget as SVGSVGElement).setPointerCapture(event.pointerId);
-    } else {
-      isPanningRef.current = true;
-      lastPointerRef.current = { x: event.clientX, y: event.clientY };
-      (event.currentTarget as SVGSVGElement).setPointerCapture(event.pointerId);
-    }
-  }, [onInteraction]);
+      if (nodeId) {
+        isDraggingRef.current = true;
+        draggedNodeRef.current = nodeId;
+        simulationRef.current?.fixNode(nodeId, true);
+        onInteraction?.({ type: 'click', nodeId });
+        (event.currentTarget as SVGSVGElement).setPointerCapture(event.pointerId);
+      } else {
+        isPanningRef.current = true;
+        lastPointerRef.current = { x: event.clientX, y: event.clientY };
+        (event.currentTarget as SVGSVGElement).setPointerCapture(event.pointerId);
+      }
+    },
+    [onInteraction],
+  );
 
-  const handlePointerMove = useCallback((event: PointerEvent<SVGSVGElement>) => {
-    if (isDraggingRef.current && draggedNodeRef.current) {
-      const svgPos = pointerToSVG(event.clientX, event.clientY);
-      simulationRef.current?.setNodePosition(draggedNodeRef.current, svgPos.x, svgPos.y);
-      onNodePositionUpdate?.(draggedNodeRef.current, svgPos);
-      onInteraction?.({ type: 'drag', nodeId: draggedNodeRef.current, position: svgPos });
-    } else if (isPanningRef.current) {
-      const dx = event.clientX - lastPointerRef.current.x;
-      const dy = event.clientY - lastPointerRef.current.y;
-      lastPointerRef.current = { x: event.clientX, y: event.clientY };
-      setCamera(prev => ({
-        ...prev,
-        x: prev.x - dx / prev.zoom,
-        y: prev.y - dy / prev.zoom,
-      }));
-      onInteraction?.({ type: 'pan' });
-    }
-  }, [pointerToSVG, onInteraction, onNodePositionUpdate]);
+  const handlePointerMove = useCallback(
+    (event: PointerEvent<SVGSVGElement>) => {
+      if (isDraggingRef.current && draggedNodeRef.current) {
+        const svgPos = pointerToSVG(event.clientX, event.clientY);
+        simulationRef.current?.setNodePosition(draggedNodeRef.current, svgPos.x, svgPos.y);
+        onNodePositionUpdate?.(draggedNodeRef.current, svgPos);
+        onInteraction?.({ type: 'drag', nodeId: draggedNodeRef.current, position: svgPos });
+      } else if (isPanningRef.current) {
+        const dx = event.clientX - lastPointerRef.current.x;
+        const dy = event.clientY - lastPointerRef.current.y;
+        lastPointerRef.current = { x: event.clientX, y: event.clientY };
+        setCamera((prev) => ({
+          ...prev,
+          x: prev.x - dx / prev.zoom,
+          y: prev.y - dy / prev.zoom,
+        }));
+        onInteraction?.({ type: 'pan' });
+      }
+    },
+    [pointerToSVG, onInteraction, onNodePositionUpdate],
+  );
 
   const handlePointerUp = useCallback((event: PointerEvent<SVGSVGElement>) => {
     if (draggedNodeRef.current) {
@@ -411,30 +451,50 @@ export function PageRankGraphRenderer({
     (event.currentTarget as SVGSVGElement).releasePointerCapture(event.pointerId);
   }, []);
 
-  const handleWheel = useCallback((event: WheelEvent<SVGSVGElement>) => {
-    event.preventDefault();
-    const factor = event.deltaY > 0 ? 0.88 : 1.14;
-    setCamera(prev => {
-      const newZoom = Math.max(config.minZoom, Math.min(config.maxZoom, prev.zoom * factor));
-      return { ...prev, zoom: newZoom };
-    });
-    onInteraction?.({ type: 'zoom' });
-  }, [config.minZoom, config.maxZoom, onInteraction]);
+  const handleWheel = useCallback(
+    (event: WheelEvent<SVGSVGElement>) => {
+      event.preventDefault();
+      const factor = event.deltaY > 0 ? 0.88 : 1.14;
+      setCamera((prev) => {
+        const newZoom = Math.max(config.minZoom, Math.min(config.maxZoom, prev.zoom * factor));
+        return { ...prev, zoom: newZoom };
+      });
+      onInteraction?.({ type: 'zoom' });
+    },
+    [config.minZoom, config.maxZoom, onInteraction],
+  );
 
   // ── Render ──────────────────────────────────────────────────────────────
-  const edgePairs = useMemo(() => edges.map(e => ({
-    edge: e,
-    key: `${e.source}-${e.target}`,
-  })), [edges]);
+  const edgePairs = useMemo(
+    () =>
+      edges.map((e) => ({
+        edge: e,
+        key: `${e.source}-${e.target}`,
+      })),
+    [edges],
+  );
 
   return (
-    <div className={className} style={{ width: config.width, height: config.height, position: 'relative', touchAction: 'none' }}>
+    <div
+      className={className}
+      style={{
+        width: config.width,
+        height: config.height,
+        position: 'relative',
+        touchAction: 'none',
+      }}
+    >
       <svg
         ref={svgRef}
         viewBox={viewBox}
         width={config.width}
         height={config.height}
-        style={{ display: 'block', width: '100%', height: '100%', cursor: isDraggingRef.current ? 'grabbing' : 'grab' }}
+        style={{
+          display: 'block',
+          width: '100%',
+          height: '100%',
+          cursor: isDraggingRef.current ? 'grabbing' : 'grab',
+        }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -473,13 +533,16 @@ export function PageRankGraphRenderer({
           </filter>
 
           {/* Node gradients */}
-          {nodes.map(node => {
+          {nodes.map((node) => {
             const rank = (ranks.get(node.id) as number) ?? 0;
             const nr = rank / maxRank;
             const { l, c, h } = rankToOklch(nr);
             return (
               <radialGradient key={`ng-${node.id}`} id={`ng-${node.id}`} cx="35%" cy="30%" r="65%">
-                <stop offset="0%" stopColor={oklchStr(Math.min(l + 0.22, 0.90), Math.min(c + 0.04, 0.35), h)} />
+                <stop
+                  offset="0%"
+                  stopColor={oklchStr(Math.min(l + 0.22, 0.9), Math.min(c + 0.04, 0.35), h)}
+                />
                 <stop offset="55%" stopColor={oklchStr(l, c, h)} />
                 <stop offset="100%" stopColor={oklchStr(Math.max(l - 0.14, 0.15), c, h)} />
               </radialGradient>
@@ -487,7 +550,7 @@ export function PageRankGraphRenderer({
           })}
 
           {/* Node outer glow gradients (used for halo) */}
-          {nodes.map(node => {
+          {nodes.map((node) => {
             const rank = (ranks.get(node.id) as number) ?? 0;
             const nr = rank / maxRank;
             const { l, c, h } = rankToOklch(nr);
@@ -505,11 +568,20 @@ export function PageRankGraphRenderer({
             const nr = srcRank / maxRank;
             const { l, c, h } = rankToOklch(nr);
             return (
-              <marker key={`am-${key}`} id={`am-${key}`}
-                markerWidth="10" markerHeight="8" refX="9" refY="4"
-                orient="auto" markerUnits="userSpaceOnUse"
+              <marker
+                key={`am-${key}`}
+                id={`am-${key}`}
+                markerWidth="10"
+                markerHeight="8"
+                refX="9"
+                refY="4"
+                orient="auto"
+                markerUnits="userSpaceOnUse"
               >
-                <polygon points="0,0.5 10,4 0,7.5" fill={oklchStr(l + 0.15, c, h, config.edgeOpacity + 0.2)} />
+                <polygon
+                  points="0,0.5 10,4 0,7.5"
+                  fill={oklchStr(l + 0.15, c, h, config.edgeOpacity + 0.2)}
+                />
               </marker>
             );
           })}
@@ -558,8 +630,10 @@ export function PageRankGraphRenderer({
             return (
               <line
                 key={key}
-                x1={sx} y1={sy}
-                x2={ex} y2={ey}
+                x1={sx}
+                y1={sy}
+                x2={ex}
+                y2={ey}
                 stroke={oklchStr(l + 0.12, c * 0.8, h, config.edgeOpacity)}
                 strokeWidth="2.5"
                 strokeLinecap="round"
@@ -572,7 +646,7 @@ export function PageRankGraphRenderer({
 
         {/* ── Nodes ───────────────────────────────────────────────────── */}
         <AnimatePresence>
-          {nodes.map(node => {
+          {nodes.map((node) => {
             const pos = positions.get(node.id);
             if (!pos) return null;
 
@@ -589,17 +663,22 @@ export function PageRankGraphRenderer({
                 data-node-id={node.id}
                 {...(prefersReduced
                   ? {}
-                  : { initial: { scale: 0, opacity: 0 }, exit: { scale: 0, opacity: 0 } }
-                )}
+                  : { initial: { scale: 0, opacity: 0 }, exit: { scale: 0, opacity: 0 } })}
                 animate={{ scale: 1, opacity: 1 }}
-                transition={prefersReduced ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 22 }}
+                transition={
+                  prefersReduced ? { duration: 0 } : { type: 'spring', stiffness: 300, damping: 22 }
+                }
                 style={{ cursor: 'pointer' }}
-                onPointerEnter={() => { setHoveredNode(node.id); onInteraction?.({ type: 'hover', nodeId: node.id }); }}
+                onPointerEnter={() => {
+                  setHoveredNode(node.id);
+                  onInteraction?.({ type: 'hover', nodeId: node.id });
+                }}
                 onPointerLeave={() => setHoveredNode(null)}
               >
                 {/* Outer glow halo */}
                 <circle
-                  cx={pos.x} cy={pos.y}
+                  cx={pos.x}
+                  cy={pos.y}
                   r={radius * 1.8}
                   fill={`url(#nh-${node.id})`}
                   style={{ pointerEvents: 'none' }}
@@ -608,7 +687,8 @@ export function PageRankGraphRenderer({
                 {/* Selection pulse ring */}
                 {isSelected && (
                   <motion.circle
-                    cx={pos.x} cy={pos.y}
+                    cx={pos.x}
+                    cy={pos.y}
                     r={radius + 8}
                     fill="none"
                     stroke={oklchStr(l + 0.25, c + 0.05, h, 0.7)}
@@ -619,9 +699,10 @@ export function PageRankGraphRenderer({
                       r: [radius + 6, radius + 12, radius + 6],
                       opacity: [0.8, 0.3, 0.8],
                     }}
-                    transition={prefersReduced
-                      ? { duration: 0 }
-                      : { duration: 2, repeat: Infinity, ease: 'easeInOut' }
+                    transition={
+                      prefersReduced
+                        ? { duration: 0 }
+                        : { duration: 2, repeat: Infinity, ease: 'easeInOut' }
                     }
                   />
                 )}
@@ -629,15 +710,11 @@ export function PageRankGraphRenderer({
                 {/* Main node circle */}
                 <circle
                   data-node-id={node.id}
-                  cx={pos.x} cy={pos.y}
+                  cx={pos.x}
+                  cy={pos.y}
                   r={isHovered ? radius * 1.06 : radius}
                   fill={`url(#ng-${node.id})`}
-                  stroke={oklchStr(
-                    Math.min(l + 0.28, 0.92),
-                    c * 0.9,
-                    h,
-                    isSelected ? 0.9 : 0.5
-                  )}
+                  stroke={oklchStr(Math.min(l + 0.28, 0.92), c * 0.9, h, isSelected ? 0.9 : 0.5)}
                   strokeWidth={isSelected ? 2.5 : 1.5}
                   filter="url(#pr-glow)"
                   style={{
@@ -660,8 +737,10 @@ export function PageRankGraphRenderer({
                 {config.showLabels && (
                   <>
                     <text
-                      x={pos.x} y={pos.y + 1}
-                      textAnchor="middle" dominantBaseline="middle"
+                      x={pos.x}
+                      y={pos.y + 1}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
                       fontSize={Math.max(10, Math.min(14, radius * 0.5))}
                       fontWeight="700"
                       fill="white"
@@ -670,11 +749,12 @@ export function PageRankGraphRenderer({
                       {node.label}
                     </text>
                     <text
-                      x={pos.x} y={pos.y + radius + 16}
+                      x={pos.x}
+                      y={pos.y + radius + 16}
                       textAnchor="middle"
                       fontSize="10"
                       fontWeight="600"
-                      fill={oklchStr(l + 0.30, c * 0.6, h)}
+                      fill={oklchStr(l + 0.3, c * 0.6, h)}
                       style={{ pointerEvents: 'none' }}
                     >
                       {rank.toFixed(3)}

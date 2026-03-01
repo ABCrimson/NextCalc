@@ -1,14 +1,14 @@
 'use client';
 
-import { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Card } from '@/components/ui/card';
+import { useMemo } from 'react';
 import { LaTeXRenderer } from '@/components/math/latex-renderer';
+import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ShareButton } from './share-button';
+import type { ShareAngleMode, ShareMode } from '@/lib/share';
+import { formatResultWithSeparators, useThousandsSeparator } from '@/lib/stores/settings-store';
 import { ExportMenu } from './export-menu';
-import type { ShareMode, ShareAngleMode } from '@/lib/share';
-import { useThousandsSeparator, formatResultWithSeparators } from '@/lib/stores/settings-store';
+import { ShareButton } from './share-button';
 
 interface DisplayProps {
   expression: string;
@@ -32,13 +32,7 @@ function convertToLatex(expr: string): string {
     .replace(/tan\((.*?)\)/g, '\\tan($1)');
 }
 
-export function Display({
-  expression,
-  result,
-  isPending = false,
-  mode,
-  angle,
-}: DisplayProps) {
+export function Display({ expression, result, isPending = false, mode, angle }: DisplayProps) {
   const latex = convertToLatex(expression);
   const thousandsSeparator = useThousandsSeparator();
 
@@ -52,11 +46,12 @@ export function Display({
   );
 
   // Determine aria-live announcement
-  const liveAnnouncement = displayResult !== null
-    ? `Result: ${formattedResult}`
-    : expression
-    ? `Expression: ${expression}`
-    : 'Calculator ready';
+  const liveAnnouncement =
+    displayResult !== null
+      ? `Result: ${formattedResult}`
+      : expression
+        ? `Expression: ${expression}`
+        : 'Calculator ready';
 
   // Stringify result for share payload (share only actual computed results)
   const shareResult = useMemo<string | undefined>(() => {
@@ -73,7 +68,7 @@ export function Display({
       animate: { opacity: 1, y: 0 },
       transition: { duration: 0.4, ease: [0.4, 0, 0.2, 1] as const },
     }),
-    []
+    [],
   );
 
   const contentVariants = useMemo(
@@ -82,7 +77,7 @@ export function Display({
       animate: { opacity: 1 },
       transition: { duration: 0.3 },
     }),
-    []
+    [],
   );
 
   const resultVariants = useMemo(
@@ -91,18 +86,13 @@ export function Display({
       animate: { scale: 1, opacity: isPending ? 0.7 : 1 },
       transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] as const },
     }),
-    [isPending]
+    [isPending],
   );
 
   return (
     <motion.div {...containerVariants}>
       {/* ARIA live region for screen readers */}
-      <div
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-        className="sr-only"
-      >
+      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
         {liveAnnouncement}
       </div>
 
@@ -159,11 +149,7 @@ export function Display({
                     role="status"
                     aria-label={`LaTeX expression: ${expression}`}
                   >
-                    <LaTeXRenderer
-                      expression={latex}
-                      displayMode={true}
-                      className="text-base"
-                    />
+                    <LaTeXRenderer expression={latex} displayMode={true} className="text-base" />
                   </div>
                 )}
                 {displayResult !== null && (

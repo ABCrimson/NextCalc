@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface PracticeSession {
   id: string;
@@ -108,13 +108,13 @@ export function PracticeHistoryTable({ sessions }: PracticeHistoryTableProps) {
                       idx % 2 === 0 ? '' : 'bg-muted/10',
                     ].join(' ')}
                   >
-                    <td className="px-4 py-3 font-medium text-foreground">
-                      {session.topic}
-                    </td>
+                    <td className="px-4 py-3 font-medium text-foreground">{session.topic}</td>
                     <td className="px-4 py-3 text-right tabular-nums text-foreground">
                       {session.score.toLocaleString()}
                     </td>
-                    <td className={`px-4 py-3 text-right tabular-nums font-medium ${getAccuracyColor(session.accuracy)}`}>
+                    <td
+                      className={`px-4 py-3 text-right tabular-nums font-medium ${getAccuracyColor(session.accuracy)}`}
+                    >
                       {session.accuracy.toFixed(1)}%
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">

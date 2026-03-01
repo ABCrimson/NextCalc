@@ -3,9 +3,9 @@
  * Provides REST API endpoint for calculations
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { evaluate } from '@nextcalc/math-engine';
 import type { ComputeMode } from '@nextcalc/types';
+import { type NextRequest, NextResponse } from 'next/server';
 
 export const runtime = 'nodejs'; // Use Node.js runtime for math-engine compatibility
 
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<Calculate
           success: false,
           error: 'Invalid or missing expression',
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<Calculate
           success: false,
           error: 'Expression too long (max 1000 characters)',
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -76,14 +76,15 @@ export async function POST(request: NextRequest): Promise<NextResponse<Calculate
             executionTime,
           },
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     return NextResponse.json(
       {
         success: true,
-        result: typeof evalResult.value === 'bigint' ? evalResult.value.toString() : evalResult.value,
+        result:
+          typeof evalResult.value === 'bigint' ? evalResult.value.toString() : evalResult.value,
         metadata: {
           evaluatedAt: new Date().toISOString(),
           mode,
@@ -95,7 +96,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<Calculate
           'Cache-Control': 'no-store',
           'Content-Type': 'application/json',
         },
-      }
+      },
     );
   } catch (error) {
     const executionTime = performance.now() - startTime;
@@ -110,7 +111,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<Calculate
           executionTime,
         },
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -133,7 +134,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<CalculateR
           success: false,
           error: 'Missing expression parameter',
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -152,14 +153,15 @@ export async function GET(request: NextRequest): Promise<NextResponse<CalculateR
             executionTime,
           },
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     return NextResponse.json(
       {
         success: true,
-        result: typeof evalResult.value === 'bigint' ? evalResult.value.toString() : evalResult.value,
+        result:
+          typeof evalResult.value === 'bigint' ? evalResult.value.toString() : evalResult.value,
         metadata: {
           evaluatedAt: new Date().toISOString(),
           mode,
@@ -171,7 +173,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<CalculateR
           'Cache-Control': 'public, max-age=3600', // Cache GET requests for 1 hour
           'Content-Type': 'application/json',
         },
-      }
+      },
     );
   } catch (error) {
     const executionTime = performance.now() - startTime;
@@ -186,7 +188,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<CalculateR
           executionTime,
         },
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

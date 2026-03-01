@@ -21,7 +21,7 @@ export interface CalculationResult {
  */
 export async function evaluateExpression(
   expression: string,
-  mode: ComputeMode = 'approximate'
+  mode: ComputeMode = 'approximate',
 ): Promise<CalculationResult> {
   try {
     // Validate input
@@ -77,7 +77,7 @@ export async function evaluateExpression(
  */
 export async function saveCalculation(
   expression: string,
-  result: string | number
+  result: string | number,
 ): Promise<{ success: boolean; id?: string; error?: string }> {
   try {
     // Validate inputs

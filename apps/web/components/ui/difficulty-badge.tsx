@@ -1,8 +1,8 @@
 'use client';
 
+import { Crown, Flame, Sparkles, Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { Zap, Flame, Sparkles, Crown } from 'lucide-react';
 
 /**
  * Difficulty levels as branded type for type safety
@@ -50,22 +50,26 @@ const difficultyConfig = {
   beginner: {
     label: 'Beginner',
     icon: Sparkles,
-    className: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border-green-300 dark:border-green-700',
+    className:
+      'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border-green-300 dark:border-green-700',
   },
   intermediate: {
     label: 'Intermediate',
     icon: Zap,
-    className: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border-blue-300 dark:border-blue-700',
+    className:
+      'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border-blue-300 dark:border-blue-700',
   },
   advanced: {
     label: 'Advanced',
     icon: Flame,
-    className: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400 border-orange-300 dark:border-orange-700',
+    className:
+      'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400 border-orange-300 dark:border-orange-700',
   },
   master: {
     label: 'Master',
     icon: Crown,
-    className: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 border-purple-300 dark:border-purple-700',
+    className:
+      'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 border-purple-300 dark:border-purple-700',
   },
 } as const;
 
@@ -92,7 +96,7 @@ export function DifficultyBadge({
         config.className,
         sizeClasses[size],
         showIcon && 'gap-1.5',
-        className
+        className,
       )}
       aria-label={`Difficulty: ${config.label}`}
     >
@@ -137,8 +141,8 @@ export function DifficultyScale({
             className={cn(
               'h-2 flex-1 rounded-full transition-all',
               isCurrent
-                ? config.className.split(' ')[0]?.replace('bg-', 'bg-') ?? 'bg-primary' // Extract background color
-                : 'bg-muted opacity-30'
+                ? (config.className.split(' ')[0]?.replace('bg-', 'bg-') ?? 'bg-primary') // Extract background color
+                : 'bg-muted opacity-30',
             )}
             aria-label={isCurrent ? `Current difficulty: ${config.label}` : config.label}
             aria-current={isCurrent ? 'true' : undefined}

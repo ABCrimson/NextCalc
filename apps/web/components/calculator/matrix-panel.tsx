@@ -1,11 +1,10 @@
 'use client';
 
+import { AlertCircle, Check, Copy, Info, MoreVertical, Plus } from 'lucide-react';
 import { useState, useTransition } from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +13,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { AlertCircle, Info, Copy, Check, Plus, MoreVertical } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 /**
  * Matrix Operations Panel
@@ -82,8 +82,14 @@ type MatrixOperation =
 export function MatrixPanel() {
   const [rows, setRows] = useState(2);
   const [cols, setCols] = useState(2);
-  const [matrixA, setMatrixA] = useState<number[][]>([[1, 0], [0, 1]]);
-  const [matrixB, setMatrixB] = useState<number[][]>([[1, 0], [0, 1]]);
+  const [matrixA, setMatrixA] = useState<number[][]>([
+    [1, 0],
+    [0, 1],
+  ]);
+  const [matrixB, setMatrixB] = useState<number[][]>([
+    [1, 0],
+    [0, 1],
+  ]);
   const [result, setResult] = useState<MatrixResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copiedResult, setCopiedResult] = useState(false);
@@ -100,10 +106,18 @@ export function MatrixPanel() {
     // Create new matrices with identity pattern
     const newA = Array(newRows)
       .fill(0)
-      .map((_, i) => Array(newCols).fill(0).map((_, j) => (i === j ? 1 : 0)));
+      .map((_, i) =>
+        Array(newCols)
+          .fill(0)
+          .map((_, j) => (i === j ? 1 : 0)),
+      );
     const newB = Array(newRows)
       .fill(0)
-      .map((_, i) => Array(newCols).fill(0).map((_, j) => (i === j ? 1 : 0)));
+      .map((_, i) =>
+        Array(newCols)
+          .fill(0)
+          .map((_, j) => (i === j ? 1 : 0)),
+      );
 
     setMatrixA(newA);
     setMatrixB(newB);
@@ -130,17 +144,18 @@ export function MatrixPanel() {
   /**
    * Set matrix to factory preset
    */
-  const setMatrixPreset = (
-    matrix: 'A' | 'B',
-    preset: 'identity' | 'zeros' | 'ones' | 'random'
-  ) => {
+  const setMatrixPreset = (matrix: 'A' | 'B', preset: 'identity' | 'zeros' | 'ones' | 'random') => {
     let newMatrix: number[][];
 
     switch (preset) {
       case 'identity':
         newMatrix = Array(rows)
           .fill(0)
-          .map((_, i) => Array(cols).fill(0).map((_, j) => (i === j ? 1 : 0)));
+          .map((_, i) =>
+            Array(cols)
+              .fill(0)
+              .map((_, j) => (i === j ? 1 : 0)),
+          );
         break;
       case 'zeros':
         newMatrix = Array(rows)
@@ -155,7 +170,11 @@ export function MatrixPanel() {
       case 'random':
         newMatrix = Array(rows)
           .fill(0)
-          .map(() => Array(cols).fill(0).map(() => Math.floor(Math.random() * 10)));
+          .map(() =>
+            Array(cols)
+              .fill(0)
+              .map(() => Math.floor(Math.random() * 10)),
+          );
         break;
     }
 
@@ -538,11 +557,7 @@ export function MatrixPanel() {
         <Label className="text-base font-semibold">Matrix {label}</Label>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              aria-label={`Matrix ${label} preset options`}
-            >
+            <Button variant="ghost" size="sm" aria-label={`Matrix ${label} preset options`}>
               <Plus className="h-4 w-4 mr-1" />
               Preset
             </Button>
@@ -566,28 +581,28 @@ export function MatrixPanel() {
         </DropdownMenu>
       </div>
       <div className="overflow-x-auto">
-      <div
-        className="grid gap-1"
-        style={{
-          gridTemplateColumns: `repeat(${matrix[0]?.length || 1}, minmax(3rem, 1fr))`,
-        }}
-        role="grid"
-        aria-label={`Matrix ${label}`}
-      >
-        {matrix.map((row, i) =>
-          row.map((val, j) => (
-            <Input
-              key={`${matrixKey}-${i}-${j}`}
-              type="number"
-              step="any"
-              value={val}
-              onChange={(e) => handleCellChange(matrixKey, i, j, e.target.value)}
-              className="w-full text-center font-mono text-sm p-2"
-              aria-label={`${label} row ${i + 1} column ${j + 1}`}
-            />
-          ))
-        )}
-      </div>
+        <div
+          className="grid gap-1"
+          style={{
+            gridTemplateColumns: `repeat(${matrix[0]?.length || 1}, minmax(3rem, 1fr))`,
+          }}
+          role="grid"
+          aria-label={`Matrix ${label}`}
+        >
+          {matrix.map((row, i) =>
+            row.map((val, j) => (
+              <Input
+                key={`${matrixKey}-${i}-${j}`}
+                type="number"
+                step="any"
+                value={val}
+                onChange={(e) => handleCellChange(matrixKey, i, j, e.target.value)}
+                className="w-full text-center font-mono text-sm p-2"
+                aria-label={`${label} row ${i + 1} column ${j + 1}`}
+              />
+            )),
+          )}
+        </div>
       </div>
     </div>
   );
@@ -606,7 +621,9 @@ export function MatrixPanel() {
           aria-label="Result"
         >
           <div className="text-sm text-muted-foreground font-semibold mb-2">Result:</div>
-          <div className="text-3xl font-mono overflow-x-auto whitespace-nowrap pr-10 scrollbar-none">{(result.value as number).toFixed(8)}</div>
+          <div className="text-3xl font-mono overflow-x-auto whitespace-nowrap pr-10 scrollbar-none">
+            {(result.value as number).toFixed(8)}
+          </div>
           <Button
             variant="ghost"
             size="icon"
@@ -655,26 +672,26 @@ export function MatrixPanel() {
           </div>
         </div>
         <div className="overflow-x-auto">
-        <div
-          className="grid gap-1 p-4 bg-muted rounded-lg"
-          style={{
-            gridTemplateColumns: `repeat(${matrix[0]?.length || 1}, minmax(0, 1fr))`,
-          }}
-          role="grid"
-          aria-label="Result matrix"
-        >
-          {matrix.map((row, i) =>
-            row.map((val, j) => (
-              <div
-                key={`result-${i}-${j}`}
-                className="p-2 text-center font-mono text-sm bg-background rounded border"
-                role="gridcell"
-              >
-                {val.toFixed(4)}
-              </div>
-            ))
-          )}
-        </div>
+          <div
+            className="grid gap-1 p-4 bg-muted rounded-lg"
+            style={{
+              gridTemplateColumns: `repeat(${matrix[0]?.length || 1}, minmax(0, 1fr))`,
+            }}
+            role="grid"
+            aria-label="Result matrix"
+          >
+            {matrix.map((row, i) =>
+              row.map((val, j) => (
+                <div
+                  key={`result-${i}-${j}`}
+                  className="p-2 text-center font-mono text-sm bg-background rounded border"
+                  role="gridcell"
+                >
+                  {val.toFixed(4)}
+                </div>
+              )),
+            )}
+          </div>
         </div>
         {result.latex && (
           <details className="text-sm">
@@ -704,8 +721,8 @@ export function MatrixPanel() {
         <Alert>
           <Info className="h-4 w-4" />
           <AlertDescription>
-            All operations use Gauss-Jordan elimination for maximum numerical stability.
-            Matrices up to 10×10 supported.
+            All operations use Gauss-Jordan elimination for maximum numerical stability. Matrices up
+            to 10×10 supported.
           </AlertDescription>
         </Alert>
 
@@ -857,7 +874,9 @@ export function MatrixPanel() {
                   size="sm"
                   onClick={() => performOperation('trace-a')}
                   disabled={rows !== cols || isPending}
-                  title={rows !== cols ? 'Trace requires square matrix' : 'Sum of diagonal elements'}
+                  title={
+                    rows !== cols ? 'Trace requires square matrix' : 'Sum of diagonal elements'
+                  }
                 >
                   tr(A)
                 </Button>
@@ -884,7 +903,11 @@ export function MatrixPanel() {
                   size="sm"
                   onClick={() => performOperation('condition-number-a')}
                   disabled={rows !== cols || isPending}
-                  title={rows !== cols ? 'Condition number requires square matrix' : 'κ(A) - Numerical stability measure'}
+                  title={
+                    rows !== cols
+                      ? 'Condition number requires square matrix'
+                      : 'κ(A) - Numerical stability measure'
+                  }
                 >
                   κ(A)
                 </Button>
@@ -909,7 +932,11 @@ export function MatrixPanel() {
                   size="sm"
                   onClick={() => performOperation('lu-a')}
                   disabled={rows !== cols || isPending}
-                  title={rows !== cols ? 'LU requires square matrix' : 'LU decomposition (returns L matrix)'}
+                  title={
+                    rows !== cols
+                      ? 'LU requires square matrix'
+                      : 'LU decomposition (returns L matrix)'
+                  }
                 >
                   LU(A)
                 </Button>
@@ -934,7 +961,11 @@ export function MatrixPanel() {
                   size="sm"
                   onClick={() => performOperation('eigenvalue-a')}
                   disabled={rows !== cols || isPending}
-                  title={rows !== cols ? 'Eigenvalues require square matrix' : 'Dominant eigenvalue via power iteration'}
+                  title={
+                    rows !== cols
+                      ? 'Eigenvalues require square matrix'
+                      : 'Dominant eigenvalue via power iteration'
+                  }
                 >
                   λ(A)
                 </Button>
@@ -943,7 +974,11 @@ export function MatrixPanel() {
                   size="sm"
                   onClick={() => performOperation('eigenvalue-b')}
                   disabled={rows !== cols || isPending}
-                  title={rows !== cols ? 'Eigenvalues require square matrix' : 'Dominant eigenvalue via power iteration'}
+                  title={
+                    rows !== cols
+                      ? 'Eigenvalues require square matrix'
+                      : 'Dominant eigenvalue via power iteration'
+                  }
                 >
                   λ(B)
                 </Button>
@@ -1010,16 +1045,20 @@ export function MatrixPanel() {
                 has dimensions rows(A) × cols(B).
               </p>
               <p>
-                <strong>Transpose (A<sup>T</sup>):</strong> Flips matrix over its diagonal. Result
-                dimensions are cols(A) × rows(A).
+                <strong>
+                  Transpose (A<sup>T</sup>):
+                </strong>{' '}
+                Flips matrix over its diagonal. Result dimensions are cols(A) × rows(A).
               </p>
               <p>
                 <strong>Determinant det(A):</strong> Only for square matrices. Measures scaling
                 factor of linear transformation. Zero determinant indicates singular matrix.
               </p>
               <p>
-                <strong>Inverse (A<sup>-1</sup>):</strong> Only for non-singular square matrices
-                (det ≠ 0). A × A<sup>-1</sup> = I (identity).
+                <strong>
+                  Inverse (A<sup>-1</sup>):
+                </strong>{' '}
+                Only for non-singular square matrices (det ≠ 0). A × A<sup>-1</sup> = I (identity).
               </p>
             </div>
 
@@ -1035,8 +1074,11 @@ export function MatrixPanel() {
                 Indicates dimension of column/row space. Maximum rank is min(rows, cols).
               </p>
               <p>
-                <strong>Frobenius Norm ||A||<sub>F</sub>:</strong> Square root of sum of squared
-                elements. Measures matrix magnitude. Always non-negative.
+                <strong>
+                  Frobenius Norm ||A||<sub>F</sub>:
+                </strong>{' '}
+                Square root of sum of squared elements. Measures matrix magnitude. Always
+                non-negative.
               </p>
               <p>
                 <strong>Condition Number κ(A):</strong> Ratio of largest to smallest singular value.
@@ -1049,8 +1091,8 @@ export function MatrixPanel() {
             <div className="space-y-2 pt-2 border-t">
               <h4 className="font-semibold text-foreground text-sm">Matrix Decompositions</h4>
               <p>
-                <strong>QR Decomposition QR(A):</strong> Factorizes A = QR where Q is orthogonal
-                (Q<sup>T</sup>Q = I) and R is upper triangular. Used for solving least squares
+                <strong>QR Decomposition QR(A):</strong> Factorizes A = QR where Q is orthogonal (Q
+                <sup>T</sup>Q = I) and R is upper triangular. Used for solving least squares
                 problems and eigenvalue algorithms.
               </p>
               <p>

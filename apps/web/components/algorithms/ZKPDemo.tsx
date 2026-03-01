@@ -1,42 +1,40 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
-import { motion, AnimatePresence, useReducedMotion, type Variants } from 'framer-motion';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Alert } from '@/components/ui/alert';
-import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Slider } from '@/components/ui/slider';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { RangeProof } from '@nextcalc/math-engine/algorithms';
+import { AnimatePresence, motion, useReducedMotion, type Variants } from 'framer-motion';
 // import { Progress } from '@/components/ui/progress'; // Unused
 import {
-  Check,
-  X,
-  Key,
-  Lock,
-  Unlock,
-  ShieldCheck,
   AlertTriangle,
-  Info,
-  Play,
-  RotateCcw,
-  Users,
+  ArrowRight,
+  Binary,
+  Check,
+  ChevronRight,
   Eye,
   EyeOff,
-  ArrowRight,
-  ChevronRight,
-  Zap,
   FileCheck,
-  Binary,
   Hash,
+  Info,
+  Key,
+  Lock,
+  Play,
+  RotateCcw,
+  ShieldCheck,
+  Unlock,
+  Users,
+  X,
+  Zap,
 } from 'lucide-react';
+import { useCallback, useMemo, useState } from 'react';
+import { Alert } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { Slider } from '@/components/ui/slider';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
-import {
-  RangeProof,
-} from '@nextcalc/math-engine/algorithms';
 
 // ============================================================================
 // PROTOCOL SEQUENCE DIAGRAM
@@ -101,9 +99,9 @@ function ProtocolSequenceDiagram({
   // SVG layout constants
   const SVG_W = 600;
   const SVG_H = 320;
-  const PROVER_X = 110;  // Centre of prover lifeline
+  const PROVER_X = 110; // Centre of prover lifeline
   const VERIFIER_X = 490; // Centre of verifier lifeline
-  const HEADER_Y = 56;   // Bottom of header cards
+  const HEADER_Y = 56; // Bottom of header cards
   const LIFELINE_TOP = HEADER_Y + 8;
   const LIFELINE_BOT = SVG_H - 10;
 
@@ -119,10 +117,10 @@ function ProtocolSequenceDiagram({
       label: 't (commitment)',
       math: 't = g\u02B3 mod p',
       color: {
-        stroke: 'oklch(0.65 0.22 210)',   // cyan-blue
-        band:   'oklch(0.65 0.22 210 / 0.10)',
-        badge:  'oklch(0.65 0.22 210)',
-        text:   'oklch(0.88 0.08 210)',   // light cyan for dark bg contrast
+        stroke: 'oklch(0.65 0.22 210)', // cyan-blue
+        band: 'oklch(0.65 0.22 210 / 0.10)',
+        badge: 'oklch(0.65 0.22 210)',
+        text: 'oklch(0.88 0.08 210)', // light cyan for dark bg contrast
       },
       visible: hasCommitment,
     },
@@ -132,10 +130,10 @@ function ProtocolSequenceDiagram({
       label: 'c (challenge)',
       math: 'c \u2208 {0,1}',
       color: {
-        stroke: 'oklch(0.72 0.20 60)',    // amber-orange
-        band:   'oklch(0.72 0.20 60 / 0.10)',
-        badge:  'oklch(0.72 0.20 60)',
-        text:   'oklch(0.90 0.08 60)',    // light amber for dark bg contrast
+        stroke: 'oklch(0.72 0.20 60)', // amber-orange
+        band: 'oklch(0.72 0.20 60 / 0.10)',
+        badge: 'oklch(0.72 0.20 60)',
+        text: 'oklch(0.90 0.08 60)', // light amber for dark bg contrast
       },
       visible: hasChallenge,
     },
@@ -145,10 +143,10 @@ function ProtocolSequenceDiagram({
       label: 's (response)',
       math: 's = r + c\u00B7x mod q',
       color: {
-        stroke: 'oklch(0.62 0.20 145)',   // green
-        band:   'oklch(0.62 0.20 145 / 0.10)',
-        badge:  'oklch(0.62 0.20 145)',
-        text:   'oklch(0.86 0.10 145)',   // light green for dark bg contrast
+        stroke: 'oklch(0.62 0.20 145)', // green
+        band: 'oklch(0.62 0.20 145 / 0.10)',
+        badge: 'oklch(0.62 0.20 145)',
+        text: 'oklch(0.86 0.10 145)', // light green for dark bg contrast
       },
       visible: hasResponse,
     },
@@ -157,7 +155,7 @@ function ProtocolSequenceDiagram({
   // Arrow shaft endpoints (with small inset from lifeline centres)
   const INSET = 16;
   const arrowXRight = { x1: PROVER_X + INSET, x2: VERIFIER_X - INSET };
-  const arrowXLeft  = { x1: VERIFIER_X - INSET, x2: PROVER_X + INSET };
+  const arrowXLeft = { x1: VERIFIER_X - INSET, x2: PROVER_X + INSET };
 
   // Framer Motion variants — all typed as Variants to satisfy TS6 exactOptionalPropertyTypes
   const pathVariants: Variants = {
@@ -241,8 +239,10 @@ function ProtocolSequenceDiagram({
         {[PROVER_X, VERIFIER_X].map((x) => (
           <line
             key={x}
-            x1={x} y1={LIFELINE_TOP}
-            x2={x} y2={LIFELINE_BOT}
+            x1={x}
+            y1={LIFELINE_TOP}
+            x2={x}
+            y2={LIFELINE_BOT}
             stroke="oklch(0.55 0.02 250 / 0.35)"
             strokeWidth={1.5}
             strokeDasharray="6 4"
@@ -251,37 +251,75 @@ function ProtocolSequenceDiagram({
 
         {/* ── Participant header cards ──────────────────────────────── */}
         {/* Prover */}
-        <rect x={PROVER_X - 52} y={4} width={104} height={52} rx={10}
+        <rect
+          x={PROVER_X - 52}
+          y={4}
+          width={104}
+          height={52}
+          rx={10}
           fill="oklch(0.55 0.27 264 / 0.12)"
           stroke="oklch(0.55 0.27 264 / 0.35)"
           strokeWidth={1.5}
         />
         {/* Key icon path — simplified lucide key */}
-        <g transform={`translate(${PROVER_X - 9}, 14)`} fill="none" stroke="oklch(0.55 0.27 264)" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+        <g
+          transform={`translate(${PROVER_X - 9}, 14)`}
+          fill="none"
+          stroke="oklch(0.55 0.27 264)"
+          strokeWidth={1.8}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <circle cx={6} cy={6} r={4} />
           <path d="M10 10 L18 18 M15 15 L18 12" />
         </g>
-        <text x={PROVER_X} y={44} textAnchor="middle" fontFamily="inherit"
-          fontSize={12} fontWeight={600}
+        <text
+          x={PROVER_X}
+          y={44}
+          textAnchor="middle"
+          fontFamily="inherit"
+          fontSize={12}
+          fontWeight={600}
           fill="oklch(0.85 0.12 264)"
-        >Prover (Alice)</text>
+        >
+          Prover (Alice)
+        </text>
 
         {/* Verifier */}
-        <rect x={VERIFIER_X - 60} y={4} width={120} height={52} rx={10}
+        <rect
+          x={VERIFIER_X - 60}
+          y={4}
+          width={120}
+          height={52}
+          rx={10}
           fill="oklch(0.55 0.22 300 / 0.12)"
           stroke="oklch(0.55 0.22 300 / 0.35)"
           strokeWidth={1.5}
         />
         {/* Lock icon path — simplified lucide lock */}
-        <g transform={`translate(${VERIFIER_X - 9}, 14)`} fill="none" stroke="oklch(0.55 0.22 300)" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+        <g
+          transform={`translate(${VERIFIER_X - 9}, 14)`}
+          fill="none"
+          stroke="oklch(0.55 0.22 300)"
+          strokeWidth={1.8}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <rect x={2} y={8} width={14} height={10} rx={2} />
           <path d="M5 8 V5 A4 4 0 0 1 13 5 V8" />
           <circle cx={9} cy={13} r={1.5} fill="oklch(0.55 0.22 300)" stroke="none" />
         </g>
-        <text x={VERIFIER_X} y={44} textAnchor="middle" fontFamily="inherit"
-          fontSize={12} fontWeight={600}
+        <text
+          x={VERIFIER_X}
+          y={44}
+          textAnchor="middle"
+          fontFamily="inherit"
+          fontSize={12}
+          fontWeight={600}
           fill="oklch(0.85 0.12 300)"
-        >Verifier (Bob)</text>
+        >
+          Verifier (Bob)
+        </text>
 
         {/* ── Step numbers on left edge ─────────────────────────────── */}
         <AnimatePresence>
@@ -295,14 +333,18 @@ function ProtocolSequenceDiagram({
                 animate="visible"
                 exit="exit"
               >
-                <circle cx={22} cy={ROW_Y[i] ?? 0} r={14}
-                  fill={arrow.color.stroke}
-                  opacity={0.9}
-                />
-                <text x={22} y={(ROW_Y[i] ?? 0) + 4.5} textAnchor="middle"
-                  fontFamily="inherit" fontSize={11} fontWeight={700}
+                <circle cx={22} cy={ROW_Y[i] ?? 0} r={14} fill={arrow.color.stroke} opacity={0.9} />
+                <text
+                  x={22}
+                  y={(ROW_Y[i] ?? 0) + 4.5}
+                  textAnchor="middle"
+                  fontFamily="inherit"
+                  fontSize={11}
+                  fontWeight={700}
                   fill="oklch(1 0 0)"
-                >{i + 1}</text>
+                >
+                  {i + 1}
+                </text>
               </motion.g>
             ) : null,
           )}
@@ -435,7 +477,11 @@ function ProtocolSequenceDiagram({
             <motion.div
               initial={{ scale: 0, rotate: -30 }}
               animate={{ scale: 1, rotate: 0 }}
-              transition={prefersReduced ? { duration: 0 } : { type: 'spring', stiffness: 260, damping: 18, delay: 0.1 }}
+              transition={
+                prefersReduced
+                  ? { duration: 0 }
+                  : { type: 'spring', stiffness: 260, damping: 18, delay: 0.1 }
+              }
               className={cn(
                 'flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
                 verified
@@ -447,10 +493,12 @@ function ProtocolSequenceDiagram({
             </motion.div>
 
             <div className="min-w-0">
-              <p className={cn(
-                'text-xs font-semibold',
-                verified ? 'text-[oklch(0.82_0.12_145)]' : 'text-[oklch(0.82_0.12_25)]',
-              )}>
+              <p
+                className={cn(
+                  'text-xs font-semibold',
+                  verified ? 'text-[oklch(0.82_0.12_145)]' : 'text-[oklch(0.82_0.12_25)]',
+                )}
+              >
                 {verified ? 'Proof Accepted' : 'Proof Rejected'}
               </p>
               <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">
@@ -556,11 +604,7 @@ interface RangeState {
  * />
  * ```
  */
-export function ZKPDemo({
-  showExplanations = true,
-  onProofCompleted,
-  className,
-}: ZKPDemoProps) {
+export function ZKPDemo({ showExplanations = true, onProofCompleted, className }: ZKPDemoProps) {
   // Protocol selection
   const [activeProtocol, setActiveProtocol] = useState<ProtocolType>('schnorr');
 
@@ -656,7 +700,7 @@ export function ZKPDemo({
     const randomness = randomBigInt(cryptoParams.p - 1n);
     const commitment = modPow(cryptoParams.g, randomness, cryptoParams.p);
 
-    setSchnorrState(prev => ({
+    setSchnorrState((prev) => ({
       ...prev,
       step: 'challenge',
       commitment,
@@ -667,7 +711,7 @@ export function ZKPDemo({
   const schnorrChallenge = useCallback(() => {
     const challenge = randomBigInt(BigInt(1000000));
 
-    setSchnorrState(prev => ({
+    setSchnorrState((prev) => ({
       ...prev,
       step: 'response',
       challenge,
@@ -677,9 +721,11 @@ export function ZKPDemo({
   const schnorrResponse = useCallback(() => {
     if (!schnorrState.secret || !schnorrState.randomness || !schnorrState.challenge) return;
 
-    const response = (schnorrState.randomness + schnorrState.challenge * schnorrState.secret) % (cryptoParams.p - 1n);
+    const response =
+      (schnorrState.randomness + schnorrState.challenge * schnorrState.secret) %
+      (cryptoParams.p - 1n);
 
-    setSchnorrState(prev => ({
+    setSchnorrState((prev) => ({
       ...prev,
       step: 'verification',
       response,
@@ -687,14 +733,23 @@ export function ZKPDemo({
   }, [schnorrState, cryptoParams]);
 
   const schnorrVerify = useCallback(() => {
-    if (!schnorrState.commitment || !schnorrState.publicKey || !schnorrState.challenge || !schnorrState.response) return;
+    if (
+      !schnorrState.commitment ||
+      !schnorrState.publicKey ||
+      !schnorrState.challenge ||
+      !schnorrState.response
+    )
+      return;
 
     const leftSide = modPow(cryptoParams.g, schnorrState.response, cryptoParams.p);
-    const rightSide = (schnorrState.commitment * modPow(schnorrState.publicKey, schnorrState.challenge, cryptoParams.p)) % cryptoParams.p;
+    const rightSide =
+      (schnorrState.commitment *
+        modPow(schnorrState.publicKey, schnorrState.challenge, cryptoParams.p)) %
+      cryptoParams.p;
 
     const verified = leftSide === rightSide;
 
-    setSchnorrState(prev => ({
+    setSchnorrState((prev) => ({
       ...prev,
       verified,
     }));
@@ -714,10 +769,12 @@ export function ZKPDemo({
     if (!pedersenState.value) return;
 
     const randomness = randomBigInt(cryptoParams.p - 1n);
-    const commitment = (modPow(cryptoParams.g, pedersenState.value, cryptoParams.p) *
-                       modPow(cryptoParams.h, randomness, cryptoParams.p)) % cryptoParams.p;
+    const commitment =
+      (modPow(cryptoParams.g, pedersenState.value, cryptoParams.p) *
+        modPow(cryptoParams.h, randomness, cryptoParams.p)) %
+      cryptoParams.p;
 
-    setPedersenState(prev => ({
+    setPedersenState((prev) => ({
       ...prev,
       step: 'open',
       commitment,
@@ -728,12 +785,14 @@ export function ZKPDemo({
   const pedersenOpen = useCallback(() => {
     if (!pedersenState.commitment || !pedersenState.value || !pedersenState.randomness) return;
 
-    const recomputed = (modPow(cryptoParams.g, pedersenState.value, cryptoParams.p) *
-                       modPow(cryptoParams.h, pedersenState.randomness, cryptoParams.p)) % cryptoParams.p;
+    const recomputed =
+      (modPow(cryptoParams.g, pedersenState.value, cryptoParams.p) *
+        modPow(cryptoParams.h, pedersenState.randomness, cryptoParams.p)) %
+      cryptoParams.p;
 
     const opened = recomputed === pedersenState.commitment;
 
-    setPedersenState(prev => ({
+    setPedersenState((prev) => ({
       ...prev,
       opened,
     }));
@@ -746,19 +805,25 @@ export function ZKPDemo({
     const r1 = randomBigInt(cryptoParams.p - 1n);
     const r2 = randomBigInt(cryptoParams.p - 1n);
 
-    const c1 = (modPow(cryptoParams.g, value1, cryptoParams.p) *
-               modPow(cryptoParams.h, r1, cryptoParams.p)) % cryptoParams.p;
-    const c2 = (modPow(cryptoParams.g, value2, cryptoParams.p) *
-               modPow(cryptoParams.h, r2, cryptoParams.p)) % cryptoParams.p;
+    const c1 =
+      (modPow(cryptoParams.g, value1, cryptoParams.p) *
+        modPow(cryptoParams.h, r1, cryptoParams.p)) %
+      cryptoParams.p;
+    const c2 =
+      (modPow(cryptoParams.g, value2, cryptoParams.p) *
+        modPow(cryptoParams.h, r2, cryptoParams.p)) %
+      cryptoParams.p;
 
     const cProduct = (c1 * c2) % cryptoParams.p;
 
     const valueSum = value1 + value2;
     const rSum = r1 + r2;
-    const cSum = (modPow(cryptoParams.g, valueSum, cryptoParams.p) *
-                 modPow(cryptoParams.h, rSum, cryptoParams.p)) % cryptoParams.p;
+    const cSum =
+      (modPow(cryptoParams.g, valueSum, cryptoParams.p) *
+        modPow(cryptoParams.h, rSum, cryptoParams.p)) %
+      cryptoParams.p;
 
-    setPedersenState(prev => ({
+    setPedersenState((prev) => ({
       ...prev,
       step: 'homomorphic',
       commitment: c1,
@@ -781,7 +846,7 @@ export function ZKPDemo({
   // ============================================================================
 
   const rangeSetup = useCallback(() => {
-    setRangeState(prev => ({
+    setRangeState((prev) => ({
       ...prev,
       step: 'decompose',
     }));
@@ -797,7 +862,7 @@ export function ZKPDemo({
       value >>= 1;
     }
 
-    setRangeState(prev => ({
+    setRangeState((prev) => ({
       ...prev,
       step: 'prove',
       bitDecomposition: bits,
@@ -808,7 +873,7 @@ export function ZKPDemo({
     const rangeProof = new RangeProof();
     const { commitment, proof } = rangeProof.prove(rangeState.value, rangeState.bitLength);
 
-    setRangeState(prev => ({
+    setRangeState((prev) => ({
       ...prev,
       step: 'verify',
       commitment,
@@ -820,9 +885,13 @@ export function ZKPDemo({
     if (!rangeState.commitment || !rangeState.proof) return;
 
     const rangeProof = new RangeProof();
-    const verified = rangeProof.verify(rangeState.commitment, rangeState.proof, rangeState.bitLength);
+    const verified = rangeProof.verify(
+      rangeState.commitment,
+      rangeState.proof,
+      rangeState.bitLength,
+    );
 
-    setRangeState(prev => ({
+    setRangeState((prev) => ({
       ...prev,
       verified,
     }));
@@ -847,10 +916,12 @@ export function ZKPDemo({
       {/* Two Column Layout: Prover | Verifier */}
       <div className="grid md:grid-cols-2 gap-4">
         {/* Prover Side */}
-        <Card className={cn(
-          'transition-all',
-          (roleView === 'both' || roleView === 'prover') ? 'opacity-100' : 'opacity-50'
-        )}>
+        <Card
+          className={cn(
+            'transition-all',
+            roleView === 'both' || roleView === 'prover' ? 'opacity-100' : 'opacity-50',
+          )}
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Key className="h-5 w-5 text-primary" />
@@ -875,13 +946,17 @@ export function ZKPDemo({
               <div className="space-y-2">
                 <Label className="flex items-center justify-between">
                   <span>Secret (x)</span>
-                  <Badge variant="destructive" className="text-xs">Private</Badge>
+                  <Badge variant="destructive" className="text-xs">
+                    Private
+                  </Badge>
                 </Label>
                 <div className="relative">
-                  <code className={cn(
-                    'block text-xs bg-destructive/10 p-2 rounded border border-destructive/20 font-mono break-all overflow-x-auto',
-                    !showSecret && 'blur-sm select-none'
-                  )}>
+                  <code
+                    className={cn(
+                      'block text-xs bg-destructive/10 p-2 rounded border border-destructive/20 font-mono break-all overflow-x-auto',
+                      !showSecret && 'blur-sm select-none',
+                    )}
+                  >
                     {formatBigInt(schnorrState.secret)}
                   </code>
                   <Button
@@ -900,7 +975,9 @@ export function ZKPDemo({
               <div className="space-y-2">
                 <Label className="flex items-center justify-between">
                   <span>Public Key (y)</span>
-                  <Badge variant="outline" className="text-xs">Public</Badge>
+                  <Badge variant="outline" className="text-xs">
+                    Public
+                  </Badge>
                 </Label>
                 <code className="block text-xs bg-muted p-2 rounded font-mono break-all overflow-x-auto">
                   {formatBigInt(schnorrState.publicKey)}
@@ -919,7 +996,9 @@ export function ZKPDemo({
               <div className="space-y-2">
                 <Label className="flex items-center justify-between">
                   <span>Commitment (t)</span>
-                  <Badge variant="outline" className="text-xs">Public</Badge>
+                  <Badge variant="outline" className="text-xs">
+                    Public
+                  </Badge>
                 </Label>
                 <code className="block text-xs bg-muted p-2 rounded font-mono break-all overflow-x-auto">
                   {formatBigInt(schnorrState.commitment)}
@@ -946,24 +1025,26 @@ export function ZKPDemo({
               <div className="space-y-2">
                 <Label className="flex items-center justify-between">
                   <span>Response (s)</span>
-                  <Badge variant="outline" className="text-xs">Public</Badge>
+                  <Badge variant="outline" className="text-xs">
+                    Public
+                  </Badge>
                 </Label>
                 <code className="block text-xs bg-muted p-2 rounded font-mono break-all overflow-x-auto">
                   {formatBigInt(schnorrState.response)}
                 </code>
-                <p className="text-xs text-muted-foreground">
-                  s = r + c·x mod (p-1)
-                </p>
+                <p className="text-xs text-muted-foreground">s = r + c·x mod (p-1)</p>
               </div>
             )}
           </CardContent>
         </Card>
 
         {/* Verifier Side */}
-        <Card className={cn(
-          'transition-all',
-          (roleView === 'both' || roleView === 'verifier') ? 'opacity-100' : 'opacity-50'
-        )}>
+        <Card
+          className={cn(
+            'transition-all',
+            roleView === 'both' || roleView === 'verifier' ? 'opacity-100' : 'opacity-50',
+          )}
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Lock className="h-5 w-5 text-secondary" />
@@ -1019,9 +1100,7 @@ export function ZKPDemo({
                 </Button>
                 <Alert className="text-xs">
                   <Info className="h-4 w-4" />
-                  <p className="ml-2">
-                    Check: g^s ≡ t·y^c (mod p)
-                  </p>
+                  <p className="ml-2">Check: g^s ≡ t·y^c (mod p)</p>
                 </Alert>
               </div>
             )}
@@ -1086,7 +1165,10 @@ export function ZKPDemo({
 
   const renderPedersenCommitment = () => (
     <div className="space-y-6">
-      <Tabs value={pedersenState.step} onValueChange={(v) => setPedersenState(prev => ({ ...prev, step: v as PedersenStep }))}>
+      <Tabs
+        value={pedersenState.step}
+        onValueChange={(v) => setPedersenState((prev) => ({ ...prev, step: v as PedersenStep }))}
+      >
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="commit">Commit</TabsTrigger>
           <TabsTrigger value="open">Open</TabsTrigger>
@@ -1108,10 +1190,12 @@ export function ZKPDemo({
                   id="commit-value"
                   type="number"
                   value={Number(pedersenState.value)}
-                  onChange={(e) => setPedersenState(prev => ({
-                    ...prev,
-                    value: BigInt(e.target.value)
-                  }))}
+                  onChange={(e) =>
+                    setPedersenState((prev) => ({
+                      ...prev,
+                      value: BigInt(e.target.value),
+                    }))
+                  }
                 />
               </div>
 
@@ -1131,15 +1215,14 @@ export function ZKPDemo({
                     <code className="block text-xs bg-muted p-2 rounded font-mono break-all overflow-x-auto">
                       {formatBigInt(pedersenState.commitment)}
                     </code>
-                    <p className="text-xs text-muted-foreground">
-                      C = g^m · h^r mod p
-                    </p>
+                    <p className="text-xs text-muted-foreground">C = g^m · h^r mod p</p>
                   </div>
 
                   <Alert>
                     <Info className="h-4 w-4" />
                     <p className="ml-2 text-xs">
-                      The commitment reveals nothing about the value m due to random blinding factor r
+                      The commitment reveals nothing about the value m due to random blinding factor
+                      r
                     </p>
                   </Alert>
                 </div>
@@ -1160,9 +1243,7 @@ export function ZKPDemo({
               {!pedersenState.commitment ? (
                 <Alert>
                   <AlertTriangle className="h-4 w-4" />
-                  <p className="ml-2 text-sm">
-                    Create a commitment first in the Commit tab
-                  </p>
+                  <p className="ml-2 text-sm">Create a commitment first in the Commit tab</p>
                 </Alert>
               ) : (
                 <>
@@ -1185,9 +1266,7 @@ export function ZKPDemo({
                           <Check className="h-4 w-4" />
                           <div className="ml-2">
                             <h4 className="font-semibold">Commitment Opened Successfully</h4>
-                            <p className="text-sm mt-1">
-                              Value: {pedersenState.value?.toString()}
-                            </p>
+                            <p className="text-sm mt-1">Value: {pedersenState.value?.toString()}</p>
                             <p className="text-xs text-muted-foreground mt-1">
                               Verification: C = g^{pedersenState.value?.toString()} · h^r mod p ✓
                             </p>
@@ -1216,9 +1295,7 @@ export function ZKPDemo({
           <Card>
             <CardHeader>
               <CardTitle>Homomorphic Property</CardTitle>
-              <CardDescription>
-                Demonstrate that C(m1 + m2) = C(m1) · C(m2)
-              </CardDescription>
+              <CardDescription>Demonstrate that C(m1 + m2) = C(m1) · C(m2)</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <Button onClick={pedersenHomomorphic} className="w-full">
@@ -1263,9 +1340,7 @@ export function ZKPDemo({
                         <Check className="h-4 w-4" />
                         <div className="ml-2">
                           <h4 className="font-semibold">Homomorphic Property Verified</h4>
-                          <p className="text-sm mt-1">
-                            C(10) · C(15) = C(25) ✓
-                          </p>
+                          <p className="text-sm mt-1">C(10) · C(15) = C(25) ✓</p>
                         </div>
                       </>
                     ) : (
@@ -1311,7 +1386,7 @@ export function ZKPDemo({
             <Slider
               id="range-value"
               value={[rangeState.value]}
-              onValueChange={([value]) => setRangeState(prev => ({ ...prev, value: value || 0 }))}
+              onValueChange={([value]) => setRangeState((prev) => ({ ...prev, value: value || 0 }))}
               min={0}
               max={2 ** rangeState.bitLength - 1}
               step={1}
@@ -1320,17 +1395,17 @@ export function ZKPDemo({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="bit-length">
-              Bit Length: {rangeState.bitLength}
-            </Label>
+            <Label htmlFor="bit-length">Bit Length: {rangeState.bitLength}</Label>
             <Slider
               id="bit-length"
               value={[rangeState.bitLength]}
-              onValueChange={([value]) => setRangeState(prev => ({
-                ...prev,
-                bitLength: value || 8,
-                value: Math.min(prev.value, 2 ** (value || 8) - 1)
-              }))}
+              onValueChange={([value]) =>
+                setRangeState((prev) => ({
+                  ...prev,
+                  bitLength: value || 8,
+                  value: Math.min(prev.value, 2 ** (value || 8) - 1),
+                }))
+              }
               min={4}
               max={16}
               step={1}
@@ -1374,17 +1449,14 @@ export function ZKPDemo({
             <CardContent>
               <div className="flex flex-wrap gap-2">
                 {rangeState.bitDecomposition.map((bit, i) => (
-                  <Badge
-                    key={i}
-                    variant={bit === 1 ? 'default' : 'outline'}
-                    className="font-mono"
-                  >
+                  <Badge key={i} variant={bit === 1 ? 'default' : 'outline'} className="font-mono">
                     {bit}
                   </Badge>
                 ))}
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                Binary: {rangeState.bitDecomposition.slice().reverse().join('')} = {rangeState.value}
+                Binary: {rangeState.bitDecomposition.slice().reverse().join('')} ={' '}
+                {rangeState.value}
               </p>
             </CardContent>
           </Card>
@@ -1517,12 +1589,14 @@ export function ZKPDemo({
               <div className="flex-1">
                 <h3 className="font-semibold">Soundness</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  If the statement is false, no cheating prover can convince the verifier (except with negligible probability)
+                  If the statement is false, no cheating prover can convince the verifier (except
+                  with negligible probability)
                 </p>
                 <Alert className="mt-3">
                   <AlertTriangle className="h-4 w-4" />
                   <p className="ml-2 text-xs">
-                    Without the secret, verification will fail. The probability of cheating successfully is cryptographically negligible.
+                    Without the secret, verification will fail. The probability of cheating
+                    successfully is cryptographically negligible.
                   </p>
                 </Alert>
               </div>
@@ -1543,7 +1617,8 @@ export function ZKPDemo({
                 <Alert className="mt-3">
                   <Info className="h-4 w-4" />
                   <p className="ml-2 text-xs">
-                    The proof transcript (commitment, challenge, response) reveals no information about the secret value x.
+                    The proof transcript (commitment, challenge, response) reveals no information
+                    about the secret value x.
                   </p>
                 </Alert>
               </div>
@@ -1569,7 +1644,10 @@ export function ZKPDemo({
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b hover:bg-muted/50 cursor-pointer" onClick={() => setActiveProtocol('schnorr')}>
+                <tr
+                  className="border-b hover:bg-muted/50 cursor-pointer"
+                  onClick={() => setActiveProtocol('schnorr')}
+                >
                   <td className="p-2 font-semibold">Schnorr</td>
                   <td className="p-2">
                     <Badge variant="outline">Sigma Protocol</Badge>
@@ -1579,7 +1657,10 @@ export function ZKPDemo({
                   </td>
                   <td className="p-2">Authentication</td>
                 </tr>
-                <tr className="border-b hover:bg-muted/50 cursor-pointer" onClick={() => setActiveProtocol('pedersen')}>
+                <tr
+                  className="border-b hover:bg-muted/50 cursor-pointer"
+                  onClick={() => setActiveProtocol('pedersen')}
+                >
                   <td className="p-2 font-semibold">Pedersen</td>
                   <td className="p-2">
                     <Badge variant="outline">Commitment</Badge>
@@ -1589,7 +1670,10 @@ export function ZKPDemo({
                   </td>
                   <td className="p-2">Voting, Auctions</td>
                 </tr>
-                <tr className="border-b hover:bg-muted/50 cursor-pointer" onClick={() => setActiveProtocol('range')}>
+                <tr
+                  className="border-b hover:bg-muted/50 cursor-pointer"
+                  onClick={() => setActiveProtocol('range')}
+                >
                   <td className="p-2 font-semibold">Range Proof</td>
                   <td className="p-2">
                     <Badge variant="outline">Non-interactive</Badge>
@@ -1619,7 +1703,8 @@ export function ZKPDemo({
                 <span className="break-words">Zero-Knowledge Proof Demonstrations</span>
               </CardTitle>
               <CardDescription className="break-words">
-                Interactive demonstrations of cryptographic protocols that prove knowledge without revealing information
+                Interactive demonstrations of cryptographic protocols that prove knowledge without
+                revealing information
               </CardDescription>
             </div>
           </div>
@@ -1629,10 +1714,18 @@ export function ZKPDemo({
       {/* Main Tabs */}
       <Tabs value={activeProtocol} onValueChange={(v) => setActiveProtocol(v as ProtocolType)}>
         <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
-          <TabsTrigger value="schnorr" className="text-xs sm:text-sm truncate">Schnorr</TabsTrigger>
-          <TabsTrigger value="pedersen" className="text-xs sm:text-sm truncate">Pedersen</TabsTrigger>
-          <TabsTrigger value="range" className="text-xs sm:text-sm truncate">Range Proof</TabsTrigger>
-          <TabsTrigger value="properties" className="text-xs sm:text-sm truncate">Properties</TabsTrigger>
+          <TabsTrigger value="schnorr" className="text-xs sm:text-sm truncate">
+            Schnorr
+          </TabsTrigger>
+          <TabsTrigger value="pedersen" className="text-xs sm:text-sm truncate">
+            Pedersen
+          </TabsTrigger>
+          <TabsTrigger value="range" className="text-xs sm:text-sm truncate">
+            Range Proof
+          </TabsTrigger>
+          <TabsTrigger value="properties" className="text-xs sm:text-sm truncate">
+            Properties
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="schnorr" className="space-y-6">
@@ -1674,17 +1767,11 @@ export function ZKPDemo({
           {renderSchnorrProtocol()}
         </TabsContent>
 
-        <TabsContent value="pedersen">
-          {renderPedersenCommitment()}
-        </TabsContent>
+        <TabsContent value="pedersen">{renderPedersenCommitment()}</TabsContent>
 
-        <TabsContent value="range">
-          {renderRangeProof()}
-        </TabsContent>
+        <TabsContent value="range">{renderRangeProof()}</TabsContent>
 
-        <TabsContent value="properties">
-          {renderProperties()}
-        </TabsContent>
+        <TabsContent value="properties">{renderProperties()}</TabsContent>
       </Tabs>
 
       {/* Educational Explanation */}
@@ -1699,23 +1786,38 @@ export function ZKPDemo({
           <CardContent>
             <Tabs defaultValue="concept">
               <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
-                <TabsTrigger value="concept" className="text-xs sm:text-sm truncate">Concept</TabsTrigger>
-                <TabsTrigger value="math" className="text-xs sm:text-sm truncate">Mathematics</TabsTrigger>
-                <TabsTrigger value="security" className="text-xs sm:text-sm truncate">Security</TabsTrigger>
-                <TabsTrigger value="applications" className="text-xs sm:text-sm truncate">Applications</TabsTrigger>
+                <TabsTrigger value="concept" className="text-xs sm:text-sm truncate">
+                  Concept
+                </TabsTrigger>
+                <TabsTrigger value="math" className="text-xs sm:text-sm truncate">
+                  Mathematics
+                </TabsTrigger>
+                <TabsTrigger value="security" className="text-xs sm:text-sm truncate">
+                  Security
+                </TabsTrigger>
+                <TabsTrigger value="applications" className="text-xs sm:text-sm truncate">
+                  Applications
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="concept" className="space-y-3 text-sm">
                 <p>
-                  <strong>Zero-Knowledge Proofs (ZKP)</strong> allow one party (the prover) to prove to another party (the verifier) that a statement is true, without revealing any information beyond the validity of the statement itself.
+                  <strong>Zero-Knowledge Proofs (ZKP)</strong> allow one party (the prover) to prove
+                  to another party (the verifier) that a statement is true, without revealing any
+                  information beyond the validity of the statement itself.
                 </p>
                 <p>
-                  Think of it like proving you know a password without typing it, or proving you're over 21 without revealing your exact age.
+                  Think of it like proving you know a password without typing it, or proving you're
+                  over 21 without revealing your exact age.
                 </p>
                 <div className="bg-muted p-4 rounded-lg mt-4">
                   <h4 className="font-semibold mb-2">Example: Ali Baba's Cave</h4>
                   <p className="text-xs text-muted-foreground">
-                    Peggy wants to prove she knows the secret word to open a magic door in a circular cave, without revealing the word to Victor. She enters the cave through one path, Victor doesn't see which. Victor asks her to exit from a specific side. If Peggy knows the secret, she can always comply; if not, she has only 50% chance. After many rounds, Victor is convinced without learning the secret.
+                    Peggy wants to prove she knows the secret word to open a magic door in a
+                    circular cave, without revealing the word to Victor. She enters the cave through
+                    one path, Victor doesn't see which. Victor asks her to exit from a specific
+                    side. If Peggy knows the secret, she can always comply; if not, she has only 50%
+                    chance. After many rounds, Victor is convinced without learning the secret.
                   </p>
                 </div>
               </TabsContent>
@@ -1763,7 +1865,8 @@ export function ZKPDemo({
                       Completeness
                     </h4>
                     <p className="text-muted-foreground mt-1">
-                      If the prover knows the secret, verification always succeeds. There are no false negatives.
+                      If the prover knows the secret, verification always succeeds. There are no
+                      false negatives.
                     </p>
                   </div>
 
@@ -1773,7 +1876,8 @@ export function ZKPDemo({
                       Soundness
                     </h4>
                     <p className="text-muted-foreground mt-1">
-                      Without the secret, the probability of successful cheating is negligibly small (e.g., 2^-128). Based on hardness of discrete logarithm problem.
+                      Without the secret, the probability of successful cheating is negligibly small
+                      (e.g., 2^-128). Based on hardness of discrete logarithm problem.
                     </p>
                   </div>
 
@@ -1783,14 +1887,18 @@ export function ZKPDemo({
                       Zero-Knowledge
                     </h4>
                     <p className="text-muted-foreground mt-1">
-                      The random value r masks the secret x in the response s = r + c·x. The verifier sees only random-looking values that could be simulated without knowing x.
+                      The random value r masks the secret x in the response s = r + c·x. The
+                      verifier sees only random-looking values that could be simulated without
+                      knowing x.
                     </p>
                   </div>
 
                   <Alert className="mt-4">
                     <AlertTriangle className="h-4 w-4" />
                     <p className="ml-2 text-xs">
-                      <strong>Note:</strong> This demo uses small numbers for educational purposes. Production systems use 2048+ bit primes and additional security measures (Fiat-Shamir transform, etc.).
+                      <strong>Note:</strong> This demo uses small numbers for educational purposes.
+                      Production systems use 2048+ bit primes and additional security measures
+                      (Fiat-Shamir transform, etc.).
                     </p>
                   </Alert>
                 </div>
@@ -1801,38 +1909,44 @@ export function ZKPDemo({
                   <div>
                     <h4 className="font-semibold">Cryptocurrency Privacy</h4>
                     <p className="text-muted-foreground text-xs mt-1">
-                      <strong>Zcash:</strong> Uses zk-SNARKs to hide transaction amounts, sender, and receiver while proving validity.
+                      <strong>Zcash:</strong> Uses zk-SNARKs to hide transaction amounts, sender,
+                      and receiver while proving validity.
                     </p>
                     <p className="text-muted-foreground text-xs mt-1">
-                      <strong>Monero:</strong> Uses bulletproofs for confidential transactions with range proofs.
+                      <strong>Monero:</strong> Uses bulletproofs for confidential transactions with
+                      range proofs.
                     </p>
                   </div>
 
                   <div>
                     <h4 className="font-semibold">Authentication</h4>
                     <p className="text-muted-foreground text-xs mt-1">
-                      Prove you know a password without transmitting it. Protects against eavesdropping and server breaches.
+                      Prove you know a password without transmitting it. Protects against
+                      eavesdropping and server breaches.
                     </p>
                   </div>
 
                   <div>
                     <h4 className="font-semibold">Private Voting</h4>
                     <p className="text-muted-foreground text-xs mt-1">
-                      Prove your vote is valid (one vote, valid candidate) without revealing who you voted for.
+                      Prove your vote is valid (one vote, valid candidate) without revealing who you
+                      voted for.
                     </p>
                   </div>
 
                   <div>
                     <h4 className="font-semibold">Verifiable Computation</h4>
                     <p className="text-muted-foreground text-xs mt-1">
-                      Prove a computation was executed correctly without re-running it. Used in blockchain scaling (zkRollups).
+                      Prove a computation was executed correctly without re-running it. Used in
+                      blockchain scaling (zkRollups).
                     </p>
                   </div>
 
                   <div>
                     <h4 className="font-semibold">Identity Verification</h4>
                     <p className="text-muted-foreground text-xs mt-1">
-                      Prove you're over 18, have a valid credential, or meet requirements without revealing unnecessary personal information.
+                      Prove you're over 18, have a valid credential, or meet requirements without
+                      revealing unnecessary personal information.
                     </p>
                   </div>
                 </div>

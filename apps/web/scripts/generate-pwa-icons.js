@@ -30,17 +30,11 @@ async function generateIcons() {
     console.log('Generating PWA icons...');
 
     // Generate 192x192 icon
-    await sharp(svgPath)
-      .resize(192, 192)
-      .png()
-      .toFile(path.join(outputDir, 'icon-192.png'));
+    await sharp(svgPath).resize(192, 192).png().toFile(path.join(outputDir, 'icon-192.png'));
     console.log('✓ Generated icon-192.png');
 
     // Generate 512x512 icon
-    await sharp(svgPath)
-      .resize(512, 512)
-      .png()
-      .toFile(path.join(outputDir, 'icon-512.png'));
+    await sharp(svgPath).resize(512, 512).png().toFile(path.join(outputDir, 'icon-512.png'));
     console.log('✓ Generated icon-512.png');
 
     // Generate maskable icons (with safe zone padding)
@@ -51,7 +45,7 @@ async function generateIcons() {
         bottom: 20,
         left: 20,
         right: 20,
-        background: { r: 37, g: 99, b: 235, alpha: 1 }
+        background: { r: 37, g: 99, b: 235, alpha: 1 },
       })
       .png()
       .toFile(path.join(outputDir, 'icon-192-maskable.png'));
@@ -64,7 +58,7 @@ async function generateIcons() {
         bottom: 53,
         left: 53,
         right: 53,
-        background: { r: 37, g: 99, b: 235, alpha: 1 }
+        background: { r: 37, g: 99, b: 235, alpha: 1 },
       })
       .png()
       .toFile(path.join(outputDir, 'icon-512-maskable.png'));

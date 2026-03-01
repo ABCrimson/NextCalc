@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Matrix Operations Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -7,9 +7,9 @@ test.describe('Matrix Operations Page', () => {
   });
 
   test('page loads with heading visible', async ({ page }) => {
-    await expect(
-      page.getByRole('heading', { name: /matrix operations/i }),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /matrix operations/i })).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('feature badges are displayed', async ({ page }) => {
@@ -31,14 +31,14 @@ test.describe('Matrix Operations Page', () => {
   });
 
   test('eigenvalue section is visible', async ({ page }) => {
-    await expect(
-      page.getByRole('heading', { name: /eigenvalue/i }).first(),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /eigenvalue/i }).first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('example usage section is visible', async ({ page }) => {
-    await expect(
-      page.getByRole('heading', { name: /example usage/i }),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /example usage/i })).toBeVisible({
+      timeout: 10000,
+    });
   });
 });

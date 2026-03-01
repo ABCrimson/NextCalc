@@ -1,12 +1,12 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
+import { ArrowRight, Award, Bookmark, BookOpen, CheckCircle2, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BookOpen, TrendingUp, Award, ArrowRight, CheckCircle2, Bookmark } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useBookmarksStore } from '@/lib/stores/bookmarks-store';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -201,10 +201,7 @@ function AnimatedBackground({ shouldReduceMotion }: { shouldReduceMotion: boolea
   };
 
   return (
-    <div
-      className="fixed inset-0 -z-10 overflow-hidden pointer-events-none"
-      aria-hidden="true"
-    >
+    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none" aria-hidden="true">
       {/* Orb 1 — top-right: blue/indigo */}
       <motion.div
         className="absolute -top-40 -right-40 w-[640px] h-[640px] rounded-full blur-3xl"
@@ -301,15 +298,10 @@ function TopicCard({ topic, definitionCount, shouldReduceMotion }: TopicCardProp
   const toggleBookmark = useBookmarksStore((s) => s.toggleBookmark);
   const isBookmarked = useBookmarksStore((s) => s.bookmarks.some((b) => b.id === bookmarkId));
 
-  const hoverProps = shouldReduceMotion
-    ? {}
-    : { whileHover: { scale: 1.025, y: -3 } as const };
+  const hoverProps = shouldReduceMotion ? {} : { whileHover: { scale: 1.025, y: -3 } as const };
 
   return (
-    <motion.div
-      {...hoverProps}
-      transition={{ duration: 0.2, ease: [0, 0, 0.2, 1] }}
-    >
+    <motion.div {...hoverProps} transition={{ duration: 0.2, ease: [0, 0, 0.2, 1] }}>
       <div className="block h-full rounded-xl">
         <Card className="h-full relative overflow-hidden backdrop-blur-md bg-card/50 border-border group">
           {/* Subtle gradient wash on hover */}
@@ -320,7 +312,10 @@ function TopicCard({ topic, definitionCount, shouldReduceMotion }: TopicCardProp
 
           <CardHeader>
             <div className="flex items-start justify-between">
-              <Link href={href} className="flex-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded">
+              <Link
+                href={href}
+                className="flex-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded"
+              >
                 <div className="flex items-center gap-3 mb-2">
                   {/* Gradient icon badge with glow on hover */}
                   <div
@@ -328,7 +323,7 @@ function TopicCard({ topic, definitionCount, shouldReduceMotion }: TopicCardProp
                     style={
                       shouldReduceMotion
                         ? {}
-                        : { '--icon-glow': config.glowColor } as React.CSSProperties
+                        : ({ '--icon-glow': config.glowColor } as React.CSSProperties)
                     }
                   >
                     <span aria-hidden="true">{config.icon}</span>
@@ -347,12 +342,14 @@ function TopicCard({ topic, definitionCount, shouldReduceMotion }: TopicCardProp
               <div className="flex items-center gap-1 shrink-0">
                 <button
                   type="button"
-                  onClick={() => toggleBookmark({
-                    id: bookmarkId,
-                    type: 'topic',
-                    title: topic,
-                    path: `/learn/${topic.toLowerCase().replace(/\s+/g, '-')}`,
-                  })}
+                  onClick={() =>
+                    toggleBookmark({
+                      id: bookmarkId,
+                      type: 'topic',
+                      title: topic,
+                      path: `/learn/${topic.toLowerCase().replace(/\s+/g, '-')}`,
+                    })
+                  }
                   className="p-1.5 rounded-md hover:bg-muted/60 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                   aria-label={isBookmarked ? `Remove ${topic} bookmark` : `Bookmark ${topic}`}
                 >
@@ -360,7 +357,10 @@ function TopicCard({ topic, definitionCount, shouldReduceMotion }: TopicCardProp
                     className={`h-4 w-4 transition-colors ${isBookmarked ? 'fill-primary text-primary' : 'text-muted-foreground'}`}
                   />
                 </button>
-                <Link href={href} className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded">
+                <Link
+                  href={href}
+                  className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded"
+                >
                   <ArrowRight
                     className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-200"
                     aria-hidden="true"
@@ -440,9 +440,7 @@ export function LearnContent({ topics, definitionCounts }: LearnContentProps) {
               {t('title')}
             </span>
           </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            {t('heroDescription')}
-          </p>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">{t('heroDescription')}</p>
         </motion.div>
 
         {/* ── Stats Overview ── */}
@@ -483,10 +481,7 @@ export function LearnContent({ topics, definitionCounts }: LearnContentProps) {
 
         {/* ── Topics Grid ── */}
         <section aria-labelledby="topics-heading">
-          <h2
-            id="topics-heading"
-            className="text-3xl font-bold mb-6 text-foreground"
-          >
+          <h2 id="topics-heading" className="text-3xl font-bold mb-6 text-foreground">
             {t('exploreByTopic')}
           </h2>
 
@@ -519,12 +514,8 @@ export function LearnContent({ topics, definitionCounts }: LearnContentProps) {
         >
           <Card className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-border backdrop-blur-md bg-card/50">
             <CardContent className="pt-6">
-              <h2 className="text-2xl font-bold mb-2 text-foreground">
-                {t('readyToStart')}
-              </h2>
-              <p className="text-muted-foreground mb-4">
-                {t('readyToStartHint')}
-              </p>
+              <h2 className="text-2xl font-bold mb-2 text-foreground">{t('readyToStart')}</h2>
+              <p className="text-muted-foreground mb-4">{t('readyToStartHint')}</p>
               <div className="flex gap-3 justify-center flex-wrap">
                 <Button asChild>
                   <Link href="/problems">

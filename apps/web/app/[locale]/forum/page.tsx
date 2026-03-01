@@ -10,49 +10,49 @@
  * Now wired to Apollo Client for real CRUD + upvotes.
  */
 
-import { useState, useMemo, useCallback, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useQuery } from '@apollo/client/react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
-  MessageSquare,
-  TrendingUp,
-  Clock,
-  Flame,
-  ThumbsUp,
-  Search,
-  Plus,
-  Hash,
-  Filter,
   ArrowUpRight,
-  Sparkles,
-  Users,
   Award,
-  Zap,
+  Clock,
+  Filter,
+  Flame,
+  Hash,
   Loader2,
+  MessageSquare,
+  Plus,
+  Search,
+  Sparkles,
+  ThumbsUp,
+  TrendingUp,
+  Users,
+  Zap,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { PostCard, MockPostCard, TagPill } from '@/components/forum/post-card';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ForumBackground } from '@/components/forum/forum-background';
-import { FORUM_POSTS_QUERY } from '@/lib/graphql/forum-operations';
-import { useSession } from '@/lib/auth/hooks';
 import {
   type ForumPostNode,
-  type MockForumPost,
-  type SortMode,
-  TAGS,
-  TIER_CONFIG,
-  MOCK_POSTS,
   formatNumber,
   getStoredUpvotes,
+  MOCK_POSTS,
+  type MockForumPost,
+  type SortMode,
   setStoredUpvote,
+  TAGS,
+  TIER_CONFIG,
 } from '@/components/forum/forum-shared';
-import { useTranslations } from 'next-intl';
+import { MockPostCard, PostCard, TagPill } from '@/components/forum/post-card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useSession } from '@/lib/auth/hooks';
+import { FORUM_POSTS_QUERY } from '@/lib/graphql/forum-operations';
 import { cn } from '@/lib/utils';
 
 // ============================================================================
@@ -114,7 +114,7 @@ export default function ForumPage() {
   const [mockPosts, setMockPosts] = useState<MockForumPost[]>(() => {
     const stored = getStoredUpvotes();
     if (Object.keys(stored).length === 0) return MOCK_POSTS;
-    return MOCK_POSTS.map(p => {
+    return MOCK_POSTS.map((p) => {
       const wasUpvoted = stored[p.id] === true;
       if (wasUpvoted === p.hasUpvoted) return p;
       return {
@@ -158,8 +158,8 @@ export default function ForumPage() {
     if (!useGraphQL) return [];
     const posts = [...graphqlPosts];
 
-    const pinned = posts.filter(p => p.isPinned);
-    const unpinned = posts.filter(p => !p.isPinned);
+    const pinned = posts.filter((p) => p.isPinned);
+    const unpinned = posts.filter((p) => !p.isPinned);
 
     switch (sortMode) {
       case 'hot': {
@@ -167,8 +167,8 @@ export default function ForumPage() {
         unpinned.sort((a, b) => {
           const hoursA = Math.max(1, (now - new Date(a.createdAt).getTime()) / 3_600_000);
           const hoursB = Math.max(1, (now - new Date(b.createdAt).getTime()) / 3_600_000);
-          const scoreA = (a.upvoteCount + (a.comments?.length ?? 0) * 0.5) / Math.pow(hoursA + 2, 1.5);
-          const scoreB = (b.upvoteCount + (b.comments?.length ?? 0) * 0.5) / Math.pow(hoursB + 2, 1.5);
+          const scoreA = (a.upvoteCount + (a.comments?.length ?? 0) * 0.5) / (hoursA + 2) ** 1.5;
+          const scoreB = (b.upvoteCount + (b.comments?.length ?? 0) * 0.5) / (hoursB + 2) ** 1.5;
           return scoreB - scoreA;
         });
         break;
@@ -186,12 +186,16 @@ export default function ForumPage() {
 
   // Client-side sort/filter for mock data (when GraphQL is unavailable)
   const toggleMockUpvote = useCallback((postId: string) => {
-    setMockPosts(prev =>
-      prev.map(p => {
+    setMockPosts((prev) =>
+      prev.map((p) => {
         if (p.id !== postId) return p;
         const newUpvoted = !p.hasUpvoted;
         setStoredUpvote(postId, newUpvoted);
-        return { ...p, hasUpvoted: newUpvoted, upvotes: newUpvoted ? p.upvotes + 1 : p.upvotes - 1 };
+        return {
+          ...p,
+          hasUpvoted: newUpvoted,
+          upvotes: newUpvoted ? p.upvotes + 1 : p.upvotes - 1,
+        };
       }),
     );
   }, []);
@@ -202,19 +206,19 @@ export default function ForumPage() {
     if (searchInput.trim()) {
       const q = searchInput.toLowerCase();
       filtered = filtered.filter(
-        p =>
+        (p) =>
           p.title.toLowerCase().includes(q) ||
           p.content.toLowerCase().includes(q) ||
-          p.tags.some(t => t.includes(q)),
+          p.tags.some((t) => t.includes(q)),
       );
     }
 
     if (selectedTag) {
-      filtered = filtered.filter(p => p.tags.includes(selectedTag));
+      filtered = filtered.filter((p) => p.tags.includes(selectedTag));
     }
 
-    const pinned = filtered.filter(p => p.isPinned);
-    const unpinned = filtered.filter(p => !p.isPinned);
+    const pinned = filtered.filter((p) => p.isPinned);
+    const unpinned = filtered.filter((p) => !p.isPinned);
 
     switch (sortMode) {
       case 'hot': {
@@ -223,8 +227,8 @@ export default function ForumPage() {
         unpinned.sort((a, b) => {
           const hoursA = Math.max(1, (now - a.createdAt.getTime()) / 3_600_000);
           const hoursB = Math.max(1, (now - b.createdAt.getTime()) / 3_600_000);
-          const scoreA = (a.upvotes + a.commentCount * 0.5) / Math.pow(hoursA + 2, 1.5);
-          const scoreB = (b.upvotes + b.commentCount * 0.5) / Math.pow(hoursB + 2, 1.5);
+          const scoreA = (a.upvotes + a.commentCount * 0.5) / (hoursA + 2) ** 1.5;
+          const scoreB = (b.upvotes + b.commentCount * 0.5) / (hoursB + 2) ** 1.5;
           return scoreB - scoreA;
         });
         break;
@@ -249,7 +253,7 @@ export default function ForumPage() {
     : mockPosts.reduce((sum, p) => sum + p.commentCount, 0);
   const totalContributors = useGraphQL
     ? new Set(graphqlPosts.map((p: ForumPostNode) => p.user.id)).size
-    : new Set(mockPosts.map(p => p.author.name)).size;
+    : new Set(mockPosts.map((p) => p.author.name)).size;
 
   const handleNewPost = useCallback(() => {
     if (authStatus !== 'authenticated') {
@@ -266,7 +270,6 @@ export default function ForumPage() {
       {/* Content */}
       <div className="relative z-10 py-12 px-4">
         <div className="container mx-auto max-w-5xl">
-
           {/* Hero Header */}
           <motion.header
             className="mb-10"
@@ -289,27 +292,37 @@ export default function ForumPage() {
                 <h1 className="text-5xl font-extrabold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent tracking-tight">
                   {t('title')}
                 </h1>
-                <p className="text-muted-foreground mt-1">
-                  {t('subtitle')}
-                </p>
+                <p className="text-muted-foreground mt-1">{t('subtitle')}</p>
               </div>
             </div>
 
             {/* Stats bar */}
             <div className="flex flex-wrap gap-3 mt-5">
-              <Badge variant="outline" className="gap-1.5 py-1 px-3 backdrop-blur-sm bg-muted/30 border-border text-foreground">
+              <Badge
+                variant="outline"
+                className="gap-1.5 py-1 px-3 backdrop-blur-sm bg-muted/30 border-border text-foreground"
+              >
                 <MessageSquare className="w-3.5 h-3.5 text-indigo-400" />
                 {t('discussions', { count: totalPosts })}
               </Badge>
-              <Badge variant="outline" className="gap-1.5 py-1 px-3 backdrop-blur-sm bg-muted/30 border-border text-foreground">
+              <Badge
+                variant="outline"
+                className="gap-1.5 py-1 px-3 backdrop-blur-sm bg-muted/30 border-border text-foreground"
+              >
                 <Users className="w-3.5 h-3.5 text-purple-400" />
                 {t('contributors', { count: totalContributors })}
               </Badge>
-              <Badge variant="outline" className="gap-1.5 py-1 px-3 backdrop-blur-sm bg-muted/30 border-border text-foreground">
+              <Badge
+                variant="outline"
+                className="gap-1.5 py-1 px-3 backdrop-blur-sm bg-muted/30 border-border text-foreground"
+              >
                 <MessageSquare className="w-3.5 h-3.5 text-pink-400" />
                 {t('replies', { count: totalComments })}
               </Badge>
-              <Badge variant="outline" className="gap-1.5 py-1 px-3 backdrop-blur-sm bg-emerald-500/10 border-emerald-500/30 text-emerald-400">
+              <Badge
+                variant="outline"
+                className="gap-1.5 py-1 px-3 backdrop-blur-sm bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+              >
                 <Sparkles className="w-3.5 h-3.5" />
                 {tCommon('realTime')}
               </Badge>
@@ -318,10 +331,8 @@ export default function ForumPage() {
 
           {/* Main layout */}
           <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
-
             {/* Left: Posts */}
             <div className="space-y-4">
-
               {/* Search + Sort + New Post */}
               <motion.div
                 className="flex flex-col sm:flex-row gap-3"
@@ -339,18 +350,18 @@ export default function ForumPage() {
                   <Input
                     placeholder={t('search')}
                     value={searchInput}
-                    onChange={e => setSearchInput(e.target.value)}
+                    onChange={(e) => setSearchInput(e.target.value)}
                     className="pl-9 bg-card/50 backdrop-blur-md border-border"
                   />
                 </div>
 
                 {/* Sort tabs */}
                 <div className="flex rounded-xl bg-muted/30 backdrop-blur-sm border border-border p-1 gap-1">
-                  {([
+                  {[
                     { mode: 'hot' as const, icon: Flame, label: t('sort.hot') },
                     { mode: 'new' as const, icon: Clock, label: t('sort.new') },
                     { mode: 'top' as const, icon: TrendingUp, label: t('sort.top') },
-                  ]).map(({ mode, icon: Icon, label }) => (
+                  ].map(({ mode, icon: Icon, label }) => (
                     <button
                       key={mode}
                       onClick={() => setSortMode(mode)}
@@ -471,10 +482,12 @@ export default function ForumPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
-                    {TAGS.map(tag => (
+                    {TAGS.map((tag) => (
                       <button
                         key={tag.name}
-                        onClick={() => setSelectedTag(prev => prev === tag.name ? null : tag.name)}
+                        onClick={() =>
+                          setSelectedTag((prev) => (prev === tag.name ? null : tag.name))
+                        }
                         className={cn(
                           'px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all',
                           'border backdrop-blur-sm bg-gradient-to-r',
@@ -529,7 +542,13 @@ export default function ForumPage() {
                     { name: 'David Kim', rep: 1670, tier: 'expert', id: 'david-kim' },
                     { name: 'James Wright', rep: 1200, tier: 'contributor', id: 'james-wright' },
                   ].map((user, i) => {
-                    const tier = TIER_CONFIG[user.tier] ?? TIER_CONFIG['newcomer'] ?? { label: 'Newcomer', color: 'text-zinc-400', icon: null, glow: '' };
+                    const tier = TIER_CONFIG[user.tier] ??
+                      TIER_CONFIG['newcomer'] ?? {
+                        label: 'Newcomer',
+                        color: 'text-zinc-400',
+                        icon: null,
+                        glow: '',
+                      };
                     const TIcon = tier.icon;
                     return (
                       <Link
@@ -550,7 +569,7 @@ export default function ForumPage() {
                           <span className={tier.color}>
                             {user.name
                               .split(' ')
-                              .map(n => n[0])
+                              .map((n) => n[0])
                               .join('')}
                           </span>
                         </div>
@@ -581,7 +600,7 @@ export default function ForumPage() {
                     { label: t('link.complex'), href: '/complex' },
                     { label: t('link.pde'), href: '/pde' },
                     { label: t('link.practice'), href: '/practice' },
-                  ].map(link => (
+                  ].map((link) => (
                     <Link
                       key={link.href}
                       href={link.href}

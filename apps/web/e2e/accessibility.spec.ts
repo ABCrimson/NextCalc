@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Accessibility', () => {
   test('calculator page has proper ARIA landmarks', async ({ page }) => {
@@ -67,9 +67,7 @@ test.describe('Accessibility', () => {
     // Check first 5 buttons have accessible names
     for (let i = 0; i < Math.min(count, 5); i++) {
       const button = buttons.nth(i);
-      const name = await button.getAttribute('aria-label')
-        ?? await button.textContent()
-        ?? '';
+      const name = (await button.getAttribute('aria-label')) ?? (await button.textContent()) ?? '';
       expect(name.trim().length).toBeGreaterThan(0);
     }
   });

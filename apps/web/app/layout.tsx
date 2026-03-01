@@ -1,9 +1,9 @@
-import { type ReactNode } from 'react';
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Metadata, Viewport } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import { cookies } from 'next/headers';
-import { Analytics } from '@vercel/analytics/next';
-import { SpeedInsights } from '@vercel/speed-insights/next';
+import type { ReactNode } from 'react';
 import './globals.css';
 
 const inter = Inter({
@@ -25,7 +25,8 @@ export const metadata: Metadata = {
     template: '%s | NextCalc Pro',
     default: 'NextCalc Pro - Modern Scientific Calculator',
   },
-  description: 'Advanced scientific calculator powered by React 19.3.0, Next.js 16.2.0, with symbolic math, WASM-powered precision, and real-time calculations',
+  description:
+    'Advanced scientific calculator powered by React 19.3.0, Next.js 16.2.0, with symbolic math, WASM-powered precision, and real-time calculations',
   keywords: [
     'calculator',
     'scientific calculator',
@@ -50,7 +51,8 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'NextCalc Pro - Modern Scientific Calculator',
-    description: 'Advanced scientific calculator with symbolic math, plotting, and WASM-powered precision',
+    description:
+      'Advanced scientific calculator with symbolic math, plotting, and WASM-powered precision',
     type: 'website',
     locale: 'en_US',
     siteName: 'NextCalc Pro',
@@ -130,11 +132,14 @@ export default async function RootLayout({
         <script
           suppressHydrationWarning
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);document.cookie='theme='+t+';path=/;max-age=31536000;SameSite=Lax'}catch(e){}})()`
+            __html: `(function(){try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);document.cookie='theme='+t+';path=/;max-age=31536000;SameSite=Lax'}catch(e){}})()`,
           }}
         />
       </head>
-      <body className={`${inter.variable} ${jetbrainsMono.variable} antialiased`} suppressHydrationWarning>
+      <body
+        className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
+        suppressHydrationWarning
+      >
         {children}
         <Analytics />
         <SpeedInsights />

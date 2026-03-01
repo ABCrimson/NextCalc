@@ -1,30 +1,33 @@
 'use client';
 
-import { Suspense, type CSSProperties } from 'react';
+import { motion } from 'framer-motion';
+import { Grid3x3, Infinity, Ruler, Sparkles, Square, TrendingUp, Variable } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/navigation';
-import { motion } from 'framer-motion';
+import { type CSSProperties, Suspense } from 'react';
 import { InstallPWA } from '@/components/install-pwa';
-import { TrendingUp, Variable, Grid3x3, Square, Ruler, Sparkles, Infinity } from 'lucide-react';
+import { Link } from '@/i18n/navigation';
 
 // Dynamic import for Calculator with client-only rendering
 // This prevents Radix UI tabs from generating different IDs on server vs client
-const Calculator = dynamic(() => import('@/components/calculator/calculator').then(mod => ({ default: mod.Calculator })), {
-  ssr: false,
-  loading: () => (
-    <div className="max-w-3xl mx-auto p-6">
-      <div className="animate-pulse space-y-6">
-        <div className="h-32 bg-muted rounded-xl" />
-        <div className="grid grid-cols-5 gap-3">
-          {Array.from({ length: 25 }).map((_, i) => (
-            <div key={i} className="aspect-square bg-muted rounded-2xl" />
-          ))}
+const Calculator = dynamic(
+  () => import('@/components/calculator/calculator').then((mod) => ({ default: mod.Calculator })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="max-w-3xl mx-auto p-6">
+        <div className="animate-pulse space-y-6">
+          <div className="h-32 bg-muted rounded-xl" />
+          <div className="grid grid-cols-5 gap-3">
+            {Array.from({ length: 25 }).map((_, i) => (
+              <div key={i} className="aspect-square bg-muted rounded-2xl" />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
-  ),
-});
+    ),
+  },
+);
 
 type FeatureCard = {
   href: string;
@@ -175,12 +178,8 @@ export default function Home() {
           </div>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             {t.rich('home.hero.subtitle' as Parameters<typeof t>[0], {
-              react: () => (
-                <span className="font-semibold text-foreground">React 19.3.0</span>
-              ),
-              nextjs: () => (
-                <span className="font-semibold text-foreground">Next.js 16.2.0</span>
-              ),
+              react: () => <span className="font-semibold text-foreground">React 19.3.0</span>,
+              nextjs: () => <span className="font-semibold text-foreground">Next.js 16.2.0</span>,
             })}
           </p>
 
@@ -224,18 +223,20 @@ export default function Home() {
         </motion.header>
 
         {/* Suspense boundary for calculator */}
-        <Suspense fallback={
-          <div className="max-w-3xl mx-auto p-6">
-            <div className="animate-pulse space-y-6">
-              <div className="h-32 bg-muted rounded-xl" />
-              <div className="grid grid-cols-5 gap-3">
-                {Array.from({ length: 25 }).map((_, i) => (
-                  <div key={i} className="aspect-square bg-muted rounded-2xl" />
-                ))}
+        <Suspense
+          fallback={
+            <div className="max-w-3xl mx-auto p-6">
+              <div className="animate-pulse space-y-6">
+                <div className="h-32 bg-muted rounded-xl" />
+                <div className="grid grid-cols-5 gap-3">
+                  {Array.from({ length: 25 }).map((_, i) => (
+                    <div key={i} className="aspect-square bg-muted rounded-2xl" />
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        }>
+          }
+        >
           <Calculator />
         </Suspense>
 
@@ -279,10 +280,13 @@ export default function Home() {
                     className="group relative block h-full p-6 rounded-2xl glass-heavy noise cursor-pointer
                       transition-all duration-500 ease-out
                       hover:shadow-[0_0_30px_var(--_glow)] hover:-translate-y-1"
-                    style={{
-                      '--_glow': card.glowColor,
-                      transition: 'transform 0.5s cubic-bezier(0.4,0,0.2,1), box-shadow 0.5s cubic-bezier(0.4,0,0.2,1)',
-                    } as CSSProperties}
+                    style={
+                      {
+                        '--_glow': card.glowColor,
+                        transition:
+                          'transform 0.5s cubic-bezier(0.4,0,0.2,1), box-shadow 0.5s cubic-bezier(0.4,0,0.2,1)',
+                      } as CSSProperties
+                    }
                     onMouseMove={(e) => {
                       const rect = e.currentTarget.getBoundingClientRect();
                       const x = (e.clientX - rect.left) / rect.width - 0.5;
@@ -290,7 +294,8 @@ export default function Home() {
                       e.currentTarget.style.transform = `perspective(800px) rotateY(${x * 4}deg) rotateX(${-y * 4}deg) translateY(-4px)`;
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'perspective(800px) rotateY(0deg) rotateX(0deg) translateY(0px)';
+                      e.currentTarget.style.transform =
+                        'perspective(800px) rotateY(0deg) rotateX(0deg) translateY(0px)';
                     }}
                   >
                     {/* Animated glow border on hover */}
@@ -301,11 +306,17 @@ export default function Home() {
                       }}
                     />
                     <div className="relative flex items-center gap-4">
-                      <div className={`p-3 rounded-xl ${card.iconBg} transition-colors duration-300`}>
-                        <Icon className={`h-6 w-6 ${card.accentClass} group-hover:scale-110 transition-transform duration-300`} />
+                      <div
+                        className={`p-3 rounded-xl ${card.iconBg} transition-colors duration-300`}
+                      >
+                        <Icon
+                          className={`h-6 w-6 ${card.accentClass} group-hover:scale-110 transition-transform duration-300`}
+                        />
                       </div>
                       <div className="flex flex-col items-start">
-                        <span className={`font-semibold ${card.accentClass} group-hover:brightness-125 transition-all duration-300`}>
+                        <span
+                          className={`font-semibold ${card.accentClass} group-hover:brightness-125 transition-all duration-300`}
+                        >
                           {t(card.titleKey as Parameters<typeof t>[0])}
                         </span>
                         <span className="text-xs text-muted-foreground mt-0.5">

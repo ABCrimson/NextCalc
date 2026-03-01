@@ -1,29 +1,29 @@
 'use client';
 
-import { useState, useRef, useMemo, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import type { Hint, Problem, SolutionStep } from '@nextcalc/math-engine/problems';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-  ChevronRight,
-  ChevronDown,
-  Lightbulb,
+  ArrowRight,
+  BookOpen,
   CheckCircle2,
-  XCircle,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
   Eye,
   EyeOff,
-  ChevronLeft,
-  Trophy,
-  Clock,
+  Lightbulb,
   Sparkles,
-  BookOpen,
-  ArrowRight,
+  Trophy,
+  XCircle,
 } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import type { Problem, SolutionStep, Hint } from '@nextcalc/math-engine/problems';
 
 /**
  * Branded type for solution reveal state
@@ -163,7 +163,7 @@ export function InteractiveSolver({
       if (e.ctrlKey && e.key === 's') {
         e.preventDefault();
         setRevealState((prev) =>
-          prev === 'hidden' ? ('full' as RevealState) : ('hidden' as RevealState)
+          prev === 'hidden' ? ('full' as RevealState) : ('hidden' as RevealState),
         );
       }
       // Escape: Close modals
@@ -174,10 +174,21 @@ export function InteractiveSolver({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [answer, answerChecked, revealedHints.length, problem.hints.length, onSubmitAnswer, onRequestHint]);
+  }, [
+    answer,
+    answerChecked,
+    revealedHints.length,
+    problem.hints.length,
+    onSubmitAnswer,
+    onRequestHint,
+  ]);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6" role="main" aria-label="Interactive Problem Solver">
+    <div
+      className="max-w-6xl mx-auto space-y-6"
+      role="main"
+      aria-label="Interactive Problem Solver"
+    >
       {/* Problem Header */}
       <Card className="border-l-4 border-l-primary">
         <CardHeader>
@@ -255,7 +266,7 @@ export function InteractiveSolver({
                       'mt-4 p-4 rounded-lg flex items-start gap-3',
                       isCorrect
                         ? 'bg-green-500/10 border border-green-500/30'
-                        : 'bg-red-500/10 border border-red-500/30'
+                        : 'bg-red-500/10 border border-red-500/30',
                     )}
                     role="alert"
                     aria-live="polite"
@@ -280,7 +291,8 @@ export function InteractiveSolver({
                             Not quite right
                           </h4>
                           <p className="text-sm text-red-600 dark:text-red-300">
-                            Review your work and try again. Consider requesting a hint if you're stuck.
+                            Review your work and try again. Consider requesting a hint if you're
+                            stuck.
                           </p>
                         </div>
                       </>
@@ -303,11 +315,7 @@ export function InteractiveSolver({
                   </kbd>
                 </Button>
                 {answer.trim() && !answerChecked && (
-                  <Button
-                    variant="outline"
-                    onClick={() => setAnswer('')}
-                    aria-label="Clear answer"
-                  >
+                  <Button variant="outline" onClick={() => setAnswer('')} aria-label="Clear answer">
                     Clear
                   </Button>
                 )}
@@ -329,7 +337,7 @@ export function InteractiveSolver({
                     size="sm"
                     onClick={() =>
                       setRevealState((prev) =>
-                        prev === 'hidden' ? ('full' as RevealState) : ('hidden' as RevealState)
+                        prev === 'hidden' ? ('full' as RevealState) : ('hidden' as RevealState),
                       )
                     }
                     aria-label={revealState === 'hidden' ? 'Show solution' : 'Hide solution'}
@@ -348,10 +356,13 @@ export function InteractiveSolver({
                   </Button>
                 </div>
               </div>
-              {problem.solution.alternativeSolutions && problem.solution.alternativeSolutions.length > 0 && (
-                <div className="flex gap-2 mt-3">
-                  {['Primary Method', ...problem.solution.alternativeSolutions.map((s) => s.method)].map(
-                    (method, index) => (
+              {problem.solution.alternativeSolutions &&
+                problem.solution.alternativeSolutions.length > 0 && (
+                  <div className="flex gap-2 mt-3">
+                    {[
+                      'Primary Method',
+                      ...problem.solution.alternativeSolutions.map((s) => s.method),
+                    ].map((method, index) => (
                       <Button
                         key={index}
                         variant={activeMethodIndex === index ? 'default' : 'outline'}
@@ -360,10 +371,9 @@ export function InteractiveSolver({
                       >
                         {method}
                       </Button>
-                    )
-                  )}
-                </div>
-              )}
+                    ))}
+                  </div>
+                )}
             </CardHeader>
             <CardContent>
               <AnimatePresence mode="wait">
@@ -438,9 +448,7 @@ export function InteractiveSolver({
                   </Badge>
                 )}
               </CardTitle>
-              <CardDescription>
-                Hints reduce your potential score. Use them wisely!
-              </CardDescription>
+              <CardDescription>Hints reduce your potential score. Use them wisely!</CardDescription>
             </CardHeader>
             <CardContent>
               <ScrollArea className="max-h-[400px]">
@@ -558,10 +566,7 @@ function SolutionStepCard({ step, isExpanded, onToggle }: SolutionStepCardProps)
                 </div>
                 <CardTitle className="text-base">{step.description}</CardTitle>
               </div>
-              <motion.div
-                animate={{ rotate: isExpanded ? 180 : 0 }}
-                transition={{ duration: 0.2 }}
-              >
+              <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
                 <ChevronDown className="h-5 w-5 text-muted-foreground" />
               </motion.div>
             </div>
@@ -662,7 +667,9 @@ function HintCard({ hint, index, isRevealed, onReveal, disabled }: HintCardProps
 /**
  * Helper functions
  */
-function getDifficultyVariant(difficulty: number): 'beginner' | 'intermediate' | 'advanced' | 'expert' | 'research' {
+function getDifficultyVariant(
+  difficulty: number,
+): 'beginner' | 'intermediate' | 'advanced' | 'expert' | 'research' {
   const variants = ['beginner', 'intermediate', 'advanced', 'expert', 'research'] as const;
   return variants[difficulty - 1] || 'intermediate';
 }

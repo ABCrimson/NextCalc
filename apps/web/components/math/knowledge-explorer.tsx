@@ -1,15 +1,23 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Search, BookOpen, Lightbulb, Network, ChevronRight, ExternalLink, Bookmark, BookmarkPlus } from 'lucide-react';
+import type { Definition, MathTopic } from '@nextcalc/math-engine/knowledge';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+  Bookmark,
+  BookmarkPlus,
+  BookOpen,
+  ChevronRight,
+  ExternalLink,
+  Lightbulb,
+  Network,
+  Search,
+} from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import type { Definition } from '@nextcalc/math-engine/knowledge';
-import type { MathTopic } from '@nextcalc/math-engine/knowledge';
 
 /**
  * Props for KnowledgeExplorer component
@@ -68,7 +76,7 @@ export function KnowledgeExplorer({
         (d) =>
           d.term.toLowerCase().includes(query) ||
           d.formal.toLowerCase().includes(query) ||
-          d.intuitive.toLowerCase().includes(query)
+          d.intuitive.toLowerCase().includes(query),
       );
     }
 
@@ -86,7 +94,7 @@ export function KnowledgeExplorer({
   // Get unique topics
   const topics = useMemo(
     () => Array.from(new Set(definitions.map((d) => d.topic))).sort(),
-    [definitions]
+    [definitions],
   );
 
   return (
@@ -140,9 +148,7 @@ export function KnowledgeExplorer({
             <select
               value={selectedDifficulty}
               onChange={(e) =>
-                setSelectedDifficulty(
-                  e.target.value === 'all' ? 'all' : Number(e.target.value)
-                )
+                setSelectedDifficulty(e.target.value === 'all' ? 'all' : Number(e.target.value))
               }
               className="px-4 py-2 rounded-md border bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               aria-label="Filter by difficulty"

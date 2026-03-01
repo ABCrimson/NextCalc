@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import katex from 'katex';
+import { useEffect, useRef } from 'react';
 
 interface LaTeXRendererProps {
   expression: string;

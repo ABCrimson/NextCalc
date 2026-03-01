@@ -8,13 +8,9 @@
  */
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { Calendar, MessageSquare, FileText, Shield, Crown, User } from 'lucide-react';
+import { Calendar, Crown, FileText, MessageSquare, Shield, User } from 'lucide-react';
+import { formatDate, getInitials, type UserProfileData } from '@/components/forum/forum-shared';
 import { Badge } from '@/components/ui/badge';
-import {
-  type UserProfileData,
-  formatDate,
-  getInitials,
-} from '@/components/forum/forum-shared';
 import { cn } from '@/lib/utils';
 
 interface UserProfileCardProps {
@@ -41,7 +37,12 @@ const ROLE_CONFIG: Record<string, { label: string; icon: typeof Shield; classNam
 
 export function UserProfileCard({ user }: UserProfileCardProps) {
   const prefersReduced = useReducedMotion();
-  const roleConfig = ROLE_CONFIG[user.role] ?? ROLE_CONFIG['USER'] ?? { label: 'Member', icon: User, className: 'bg-blue-500/20 border-blue-500/40 text-blue-400' };
+  const roleConfig = ROLE_CONFIG[user.role] ??
+    ROLE_CONFIG['USER'] ?? {
+      label: 'Member',
+      icon: User,
+      className: 'bg-blue-500/20 border-blue-500/40 text-blue-400',
+    };
   const RoleIcon = roleConfig.icon;
 
   const totalUpvotes = user.forumPosts.reduce((sum, p) => sum + p.upvoteCount, 0);
@@ -81,21 +82,14 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
         {/* Info */}
         <div className="flex-1 text-center sm:text-left space-y-2">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-2">
-            <h2 className="text-2xl font-bold text-foreground">
-              {user.name ?? 'Anonymous User'}
-            </h2>
-            <Badge
-              variant="outline"
-              className={cn('gap-1 text-xs', roleConfig.className)}
-            >
+            <h2 className="text-2xl font-bold text-foreground">{user.name ?? 'Anonymous User'}</h2>
+            <Badge variant="outline" className={cn('gap-1 text-xs', roleConfig.className)}>
               <RoleIcon className="h-3 w-3" />
               {roleConfig.label}
             </Badge>
           </div>
 
-          {user.bio && (
-            <p className="text-sm text-muted-foreground max-w-md">{user.bio}</p>
-          )}
+          {user.bio && <p className="text-sm text-muted-foreground max-w-md">{user.bio}</p>}
 
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-muted-foreground pt-1">
             <span className="flex items-center gap-1">

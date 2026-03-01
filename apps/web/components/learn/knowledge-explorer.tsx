@@ -1,17 +1,17 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Book, ChevronRight, Bookmark, ExternalLink, Lightbulb } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Book, Bookmark, ChevronRight, ExternalLink, Lightbulb, Search } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Input } from '@/components/ui/input';
 import { DisplayMath } from '@/components/ui/math-renderer';
-import { TopicTag, type MathTopic } from '@/components/ui/topic-tag';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { type MathTopic, TopicTag } from '@/components/ui/topic-tag';
 import { cn, fuzzyMatch } from '@/lib/utils';
 
 /**
@@ -100,7 +100,11 @@ export function KnowledgeExplorer({
   // Filter items
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
-      if (searchQuery && !fuzzyMatch(item.title, searchQuery) && !fuzzyMatch(item.content, searchQuery)) {
+      if (
+        searchQuery &&
+        !fuzzyMatch(item.title, searchQuery) &&
+        !fuzzyMatch(item.content, searchQuery)
+      ) {
         return false;
       }
       if (selectedTopic && item.topic !== selectedTopic) {
@@ -144,7 +148,10 @@ export function KnowledgeExplorer({
           <CardContent className="space-y-4">
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+              <Search
+                className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+                aria-hidden="true"
+              />
               <Input
                 type="search"
                 placeholder="Search..."
@@ -156,7 +163,10 @@ export function KnowledgeExplorer({
             </div>
 
             {/* Type Filter Tabs */}
-            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as KnowledgeItemType | 'all')}>
+            <Tabs
+              value={activeTab}
+              onValueChange={(v) => setActiveTab(v as KnowledgeItemType | 'all')}
+            >
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="all">All</TabsTrigger>
                 <TabsTrigger value="definition">Def</TabsTrigger>
@@ -177,7 +187,7 @@ export function KnowledgeExplorer({
                     <Card
                       className={cn(
                         'cursor-pointer transition-all hover:shadow-md',
-                        selectedItem?.id === item.id && 'border-primary'
+                        selectedItem?.id === item.id && 'border-primary',
                       )}
                       onClick={() => handleItemSelect(item)}
                       role="button"
@@ -192,9 +202,7 @@ export function KnowledgeExplorer({
                       <CardHeader className="p-4">
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1">
-                            <Badge className={cn('mb-2', typeColors[item.type])}>
-                              {item.type}
-                            </Badge>
+                            <Badge className={cn('mb-2', typeColors[item.type])}>{item.type}</Badge>
                             <CardTitle className="text-sm">{item.title}</CardTitle>
                           </div>
                           {onToggleBookmark && (
@@ -206,12 +214,14 @@ export function KnowledgeExplorer({
                                 e.stopPropagation();
                                 onToggleBookmark(item.id);
                               }}
-                              aria-label={bookmarkedIds.has(item.id) ? 'Remove bookmark' : 'Add bookmark'}
+                              aria-label={
+                                bookmarkedIds.has(item.id) ? 'Remove bookmark' : 'Add bookmark'
+                              }
                             >
                               <Bookmark
                                 className={cn(
                                   'h-4 w-4',
-                                  bookmarkedIds.has(item.id) && 'fill-primary text-primary'
+                                  bookmarkedIds.has(item.id) && 'fill-primary text-primary',
                                 )}
                                 aria-hidden="true"
                               />
@@ -225,9 +235,7 @@ export function KnowledgeExplorer({
                 ))}
 
                 {filteredItems.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No items found
-                  </div>
+                  <div className="text-center py-8 text-muted-foreground">No items found</div>
                 )}
               </div>
             </ScrollArea>
@@ -318,7 +326,10 @@ export function KnowledgeExplorer({
                               className="justify-start h-auto p-3"
                               onClick={() => handleItemSelect(item)}
                             >
-                              <ChevronRight className="h-4 w-4 mr-2 flex-shrink-0" aria-hidden="true" />
+                              <ChevronRight
+                                className="h-4 w-4 mr-2 flex-shrink-0"
+                                aria-hidden="true"
+                              />
                               <div className="text-left">
                                 <div className="font-medium text-sm">{item.title}</div>
                                 <div className="text-xs text-muted-foreground">{item.type}</div>

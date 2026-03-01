@@ -1,12 +1,12 @@
 'use client';
 
-import { useTransition, useState, useMemo, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AlertCircle, BarChart3, Check, Copy, Sparkles, TrendingUp, X } from 'lucide-react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
+import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
   SelectContent,
@@ -14,16 +14,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Alert } from '@/components/ui/alert';
-import {
-  Copy,
-  Check,
-  TrendingUp,
-  BarChart3,
-  AlertCircle,
-  Sparkles,
-  X
-} from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 
 /**
@@ -92,10 +84,10 @@ const EXAMPLE_DATASETS = {
 function parseNumbers(input: string): number[] {
   return input
     .split(/[\s,;]+/)
-    .map(s => s.trim())
-    .filter(s => s.length > 0)
-    .map(s => parseFloat(s))
-    .filter(n => !isNaN(n));
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0)
+    .map((s) => parseFloat(s))
+    .filter((n) => !isNaN(n));
 }
 
 /**
@@ -104,10 +96,10 @@ function parseNumbers(input: string): number[] {
 function parseMultilineNumbers(input: string): number[] {
   return input
     .split('\n')
-    .map(s => s.trim())
-    .filter(s => s.length > 0)
-    .map(s => parseFloat(s))
-    .filter(n => !isNaN(n));
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0)
+    .map((s) => parseFloat(s))
+    .filter((n) => !isNaN(n));
 }
 
 /**
@@ -115,7 +107,7 @@ function parseMultilineNumbers(input: string): number[] {
  */
 function validateDataset(data: number[]): ValidatedDataset | null {
   if (data.length === 0) return null;
-  if (data.some(n => !Number.isFinite(n))) return null;
+  if (data.some((n) => !Number.isFinite(n))) return null;
   return data as ValidatedDataset;
 }
 
@@ -186,10 +178,7 @@ function StatCard({ label, value, accent, onCopy, copied }: StatCardProps) {
       {/* Left accent strip */}
       {accent && (
         <div
-          className={cn(
-            'absolute left-0 top-3 bottom-3 w-0.5 rounded-full',
-            accentBar[accent],
-          )}
+          className={cn('absolute left-0 top-3 bottom-3 w-0.5 rounded-full', accentBar[accent])}
           aria-hidden="true"
         />
       )}
@@ -259,7 +248,7 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    setHoveredStat(prev => prev ? { ...prev, x: e.clientX, y: e.clientY } : null);
+    setHoveredStat((prev) => (prev ? { ...prev, x: e.clientX, y: e.clientY } : null));
   };
 
   const handleMouseLeave = () => {
@@ -496,8 +485,7 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
           className="fixed bg-popover text-popover-foreground border border-border rounded-lg px-3 py-2 text-sm shadow-lg pointer-events-none z-50"
           style={{ left: hoveredStat.x + 12, top: hoveredStat.y - 10 }}
         >
-          <span className="font-medium">{hoveredStat.label}:</span>{' '}
-          {hoveredStat.value.toFixed(4)}
+          <span className="font-medium">{hoveredStat.label}:</span> {hoveredStat.value.toFixed(4)}
         </div>
       )}
     </>
@@ -565,7 +553,10 @@ function R2Badge({ r2, quality }: R2BadgeProps) {
 function SectionDivider({ className }: { className?: string }) {
   return (
     <div
-      className={cn('h-px w-full bg-gradient-to-r from-transparent via-primary/40 to-transparent', className)}
+      className={cn(
+        'h-px w-full bg-gradient-to-r from-transparent via-primary/40 to-transparent',
+        className,
+      )}
       aria-hidden="true"
     />
   );
@@ -583,9 +574,12 @@ interface GlassPanelProps {
 
 function GlassPanel({ children, className, accent = 'primary' }: GlassPanelProps) {
   const accentGradient = {
-    primary: 'from-[oklch(0.65_0.22_264/0.6)] via-[oklch(0.63_0.20_300/0.4)] to-[oklch(0.65_0.22_264/0.6)]',
-    emerald: 'from-[oklch(0.65_0.18_155/0.6)] via-[oklch(0.65_0.22_264/0.4)] to-[oklch(0.65_0.18_155/0.6)]',
-    violet: 'from-[oklch(0.63_0.20_300/0.6)] via-[oklch(0.65_0.18_155/0.4)] to-[oklch(0.63_0.20_300/0.6)]',
+    primary:
+      'from-[oklch(0.65_0.22_264/0.6)] via-[oklch(0.63_0.20_300/0.4)] to-[oklch(0.65_0.22_264/0.6)]',
+    emerald:
+      'from-[oklch(0.65_0.18_155/0.6)] via-[oklch(0.65_0.22_264/0.4)] to-[oklch(0.65_0.18_155/0.6)]',
+    violet:
+      'from-[oklch(0.63_0.20_300/0.6)] via-[oklch(0.65_0.18_155/0.4)] to-[oklch(0.63_0.20_300/0.6)]',
   } satisfies Record<NonNullable<GlassPanelProps['accent']>, string>;
 
   return (
@@ -601,10 +595,7 @@ function GlassPanel({ children, className, accent = 'primary' }: GlassPanelProps
     >
       {/* Top accent line */}
       <div
-        className={cn(
-          'absolute inset-x-0 top-0 h-px bg-gradient-to-r',
-          accentGradient[accent],
-        )}
+        className={cn('absolute inset-x-0 top-0 h-px bg-gradient-to-r', accentGradient[accent])}
         aria-hidden="true"
       />
       <div className="p-4">{children}</div>
@@ -628,7 +619,9 @@ export function StatsPanel() {
   const [yInput, setYInput] = useState('');
   const [xData, setXData] = useState<number[]>([]);
   const [yData, setYData] = useState<number[]>([]);
-  const [regressionType, setRegressionType] = useState<'linear' | 'polynomial' | 'exponential'>('linear');
+  const [regressionType, setRegressionType] = useState<'linear' | 'polynomial' | 'exponential'>(
+    'linear',
+  );
   const [polynomialDegree, setPolynomialDegree] = useState(2);
   const [predictionInput, setPredictionInput] = useState('');
   const [predictionResult, setPredictionResult] = useState<number | null>(null);
@@ -639,13 +632,15 @@ export function StatsPanel() {
   const [useSampleStats, setUseSampleStats] = useState(true);
 
   // Dynamic imports for math-engine
-  const [statsModule, setStatsModule] = useState<typeof import('@nextcalc/math-engine/stats') | null>(null);
+  const [statsModule, setStatsModule] = useState<
+    typeof import('@nextcalc/math-engine/stats') | null
+  >(null);
 
   // Load stats module on mount
   useEffect(() => {
     import('@nextcalc/math-engine/stats')
-      .then(module => setStatsModule(module))
-      .catch(err => {
+      .then((module) => setStatsModule(module))
+      .catch((err) => {
         console.error('Failed to load stats module:', err);
         setError('Failed to load statistics module');
       });
@@ -701,15 +696,20 @@ export function StatsPanel() {
       if (regressionType === 'linear') {
         const linear = statsModule.linearRegression(xData, yData);
         equation = `y = ${formatNumber(linear.slope)}x + ${formatNumber(linear.intercept)}`;
-        coeffs = [`Slope: ${formatNumber(linear.slope)}`, `Intercept: ${formatNumber(linear.intercept)}`];
+        coeffs = [
+          `Slope: ${formatNumber(linear.slope)}`,
+          `Intercept: ${formatNumber(linear.intercept)}`,
+        ];
         r2 = linear.r2;
       } else if (regressionType === 'polynomial') {
         const poly = statsModule.polynomialRegression(xData, yData, polynomialDegree);
-        const terms = poly.coefficients.map((c: number, i: number) => {
-          if (i === 0) return formatNumber(c);
-          if (i === 1) return `${formatNumber(c)}x`;
-          return `${formatNumber(c)}x^${i}`;
-        }).reverse();
+        const terms = poly.coefficients
+          .map((c: number, i: number) => {
+            if (i === 0) return formatNumber(c);
+            if (i === 1) return `${formatNumber(c)}x`;
+            return `${formatNumber(c)}x^${i}`;
+          })
+          .reverse();
         equation = `y = ${terms.join(' + ')}`;
         coeffs = poly.coefficients.map((c: number, i: number) => `a${i}: ${formatNumber(c)}`);
         r2 = poly.r2;
@@ -742,9 +742,8 @@ export function StatsPanel() {
   const handleProcessData = () => {
     startTransition(() => {
       setError(null);
-      const parsed = inputMode === 'manual'
-        ? parseNumbers(dataInput)
-        : parseMultilineNumbers(dataInput);
+      const parsed =
+        inputMode === 'manual' ? parseNumbers(dataInput) : parseMultilineNumbers(dataInput);
 
       const validated = validateDataset(parsed);
       if (!validated) {
@@ -771,7 +770,9 @@ export function StatsPanel() {
       }
 
       if (parsedX.length !== parsedY.length) {
-        setError(`Data length mismatch: X has ${parsedX.length} values, Y has ${parsedY.length} values`);
+        setError(
+          `Data length mismatch: X has ${parsedX.length} values, Y has ${parsedY.length} values`,
+        );
         return;
       }
 
@@ -811,7 +812,7 @@ export function StatsPanel() {
       }
 
       const predicted = statsModule.predict(regression!, xValue);
-      setPredictionResult(typeof predicted === 'number' ? predicted : predicted[0] ?? null);
+      setPredictionResult(typeof predicted === 'number' ? predicted : (predicted[0] ?? null));
       setError(null);
     } catch (err) {
       setError(`Prediction error: ${err instanceof Error ? err.message : String(err)}`);
@@ -841,9 +842,9 @@ export function StatsPanel() {
   const handleCopyStat = async (label: string, value: string) => {
     const success = await copyToClipboard(value);
     if (success) {
-      setCopiedStats(prev => new Set(prev).add(label));
+      setCopiedStats((prev) => new Set(prev).add(label));
       setTimeout(() => {
-        setCopiedStats(prev => {
+        setCopiedStats((prev) => {
           const next = new Set(prev);
           next.delete(label);
           return next;
@@ -942,10 +943,7 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
             }}
             aria-hidden="true"
           >
-            <BarChart3
-              className="h-6 w-6"
-              style={{ color: 'oklch(0.65 0.22 264)' }}
-            />
+            <BarChart3 className="h-6 w-6" style={{ color: 'oklch(0.65 0.22 264)' }} />
           </div>
           <div>
             <CardTitle className="text-xl font-bold text-foreground">
@@ -1060,12 +1058,7 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
             </Button>
 
             {data.length > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleClear}
-                className="ml-auto"
-              >
+              <Button variant="outline" size="sm" onClick={handleClear} className="ml-auto">
                 Clear
               </Button>
             )}
@@ -1078,10 +1071,7 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
             <SectionDivider />
 
             <div className="flex items-center justify-between pt-1">
-              <h2
-                id="descriptive-stats-heading"
-                className="text-lg font-semibold text-foreground"
-              >
+              <h2 id="descriptive-stats-heading" className="text-lg font-semibold text-foreground">
                 Descriptive Statistics
               </h2>
               <label
@@ -1265,25 +1255,16 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
               }}
               aria-hidden="true"
             >
-              <TrendingUp
-                className="h-4 w-4"
-                style={{ color: 'oklch(0.63 0.20 300)' }}
-              />
+              <TrendingUp className="h-4 w-4" style={{ color: 'oklch(0.63 0.20 300)' }} />
             </div>
-            <h2
-              id="regression-heading"
-              className="text-lg font-semibold text-foreground"
-            >
+            <h2 id="regression-heading" className="text-lg font-semibold text-foreground">
               Regression Analysis
             </h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label
-                htmlFor="x-values"
-                className="text-sm font-medium text-foreground"
-              >
+              <Label htmlFor="x-values" className="text-sm font-medium text-foreground">
                 X Values
                 <span className="ml-1 text-xs text-muted-foreground font-normal">
                   (independent)
@@ -1299,14 +1280,9 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
             </div>
 
             <div className="space-y-2">
-              <Label
-                htmlFor="y-values"
-                className="text-sm font-medium text-foreground"
-              >
+              <Label htmlFor="y-values" className="text-sm font-medium text-foreground">
                 Y Values
-                <span className="ml-1 text-xs text-muted-foreground font-normal">
-                  (dependent)
-                </span>
+                <span className="ml-1 text-xs text-muted-foreground font-normal">(dependent)</span>
               </Label>
               <Input
                 id="y-values"
@@ -1320,10 +1296,7 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
 
           <div className="flex flex-wrap gap-3">
             <div className="flex-1 min-w-[200px] space-y-2">
-              <Label
-                htmlFor="regression-type"
-                className="text-sm font-medium text-foreground"
-              >
+              <Label htmlFor="regression-type" className="text-sm font-medium text-foreground">
                 Regression Type
               </Label>
               <Select
@@ -1345,10 +1318,7 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
 
             {regressionType === 'polynomial' && (
               <div className="w-32 space-y-2">
-                <Label
-                  htmlFor="poly-degree"
-                  className="text-sm font-medium text-foreground"
-                >
+                <Label htmlFor="poly-degree" className="text-sm font-medium text-foreground">
                   Degree
                 </Label>
                 <Select
@@ -1433,10 +1403,7 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
                     </p>
                     <div className="space-y-1">
                       {regressionResult.coefficients.map((coeff, i) => (
-                        <p
-                          key={i}
-                          className="text-sm font-mono text-foreground"
-                        >
+                        <p key={i} className="text-sm font-mono text-foreground">
                           {coeff}
                         </p>
                       ))}
@@ -1463,9 +1430,7 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
                   borderTop: '1px solid oklch(0.63 0.20 300 / 0.20)',
                 }}
               >
-                <h4 className="font-semibold text-sm text-foreground">
-                  Prediction Tool
-                </h4>
+                <h4 className="font-semibold text-sm text-foreground">Prediction Tool</h4>
                 <div className="flex gap-2">
                   <Input
                     placeholder="Enter X value to predict Y"
@@ -1479,10 +1444,7 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
                     className="flex-1"
                     aria-label="Prediction X value input"
                   />
-                  <Button
-                    onClick={handlePredict}
-                    disabled={!predictionInput.trim()}
-                  >
+                  <Button onClick={handlePredict} disabled={!predictionInput.trim()}>
                     Predict Y
                   </Button>
                 </div>

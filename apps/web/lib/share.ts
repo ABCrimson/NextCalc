@@ -65,12 +65,8 @@ export function decodeCalculation(encoded: string): SharePayload | null {
     return {
       expression,
       ...(typeof obj['result'] === 'string' ? { result: obj['result'] } : {}),
-      ...(obj['mode'] === 'exact' || obj['mode'] === 'approximate'
-        ? { mode: obj['mode'] }
-        : {}),
-      ...(obj['angle'] === 'deg' || obj['angle'] === 'rad'
-        ? { angle: obj['angle'] }
-        : {}),
+      ...(obj['mode'] === 'exact' || obj['mode'] === 'approximate' ? { mode: obj['mode'] } : {}),
+      ...(obj['angle'] === 'deg' || obj['angle'] === 'rad' ? { angle: obj['angle'] } : {}),
       ...(obj['type'] === 'basic' ||
       obj['type'] === 'matrix' ||
       obj['type'] === 'solver' ||

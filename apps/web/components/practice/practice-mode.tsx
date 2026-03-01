@@ -1,26 +1,26 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
+  Award,
+  CheckCircle2,
+  Flame,
+  Pause,
+  Play,
+  SkipForward,
+  Target,
   Timer,
   Trophy,
-  Flame,
-  Target,
-  CheckCircle2,
   XCircle,
-  Play,
-  Pause,
-  SkipForward,
-  Award,
 } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { ProgressRing } from '@/components/ui/progress-ring';
 import { DifficultyBadge } from '@/components/ui/difficulty-badge';
+import { Progress } from '@/components/ui/progress';
+import { ProgressRing } from '@/components/ui/progress-ring';
+import { Separator } from '@/components/ui/separator';
 import { TopicTag } from '@/components/ui/topic-tag';
 import { cn } from '@/lib/utils';
 import type { Problem } from '@/types/problems';
@@ -200,7 +200,17 @@ export function PracticeMode({
         }
       }
     },
-    [currentProblem, problemStartTime, currentStreak, maxStreak, isLastProblem, results, mode, timeLimit, onAnswer]
+    [
+      currentProblem,
+      problemStartTime,
+      currentStreak,
+      maxStreak,
+      isLastProblem,
+      results,
+      mode,
+      timeLimit,
+      onAnswer,
+    ],
   );
 
   // Handle timeout
@@ -234,7 +244,7 @@ export function PracticeMode({
 
       onComplete?.(practiceResults);
     },
-    [currentStreak, maxStreak, onComplete]
+    [currentStreak, maxStreak, onComplete],
   );
 
   // Format time display
@@ -259,9 +269,7 @@ export function PracticeMode({
         <Card>
           <CardHeader>
             <CardTitle>Practice Mode</CardTitle>
-            <CardDescription>
-              Challenge yourself with {targetCount} problems
-            </CardDescription>
+            <CardDescription>Challenge yourself with {targetCount} problems</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -330,7 +338,9 @@ export function PracticeMode({
                 </div>
 
                 <div className="p-4 border rounded-lg">
-                  <div className="text-3xl font-bold text-primary">{Math.round(stats.accuracy)}%</div>
+                  <div className="text-3xl font-bold text-primary">
+                    {Math.round(stats.accuracy)}%
+                  </div>
                   <div className="text-sm text-muted-foreground">Accuracy</div>
                 </div>
 
@@ -340,7 +350,9 @@ export function PracticeMode({
                 </div>
 
                 <div className="p-4 border rounded-lg">
-                  <div className="text-3xl font-bold text-primary">{formatTime(Math.floor(stats.averageTime))}</div>
+                  <div className="text-3xl font-bold text-primary">
+                    {formatTime(Math.floor(stats.averageTime))}
+                  </div>
                   <div className="text-sm text-muted-foreground">Avg Time</div>
                 </div>
               </div>
@@ -407,7 +419,11 @@ export function PracticeMode({
                   {currentProblemIndex + 1}/{Math.min(targetCount, problems.length)}
                 </div>
                 <div className="text-sm text-muted-foreground">Progress</div>
-                <Progress value={progress} className="mt-2" aria-label={`Progress: ${Math.round(progress)}%`} />
+                <Progress
+                  value={progress}
+                  className="mt-2"
+                  aria-label={`Progress: ${Math.round(progress)}%`}
+                />
               </div>
             </div>
           </CardContent>
@@ -418,11 +434,14 @@ export function PracticeMode({
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <Timer className={cn('h-8 w-8', {
-                  'text-primary': getTimerColor() === 'primary',
-                  'text-yellow-500': getTimerColor() === 'warning',
-                  'text-destructive': getTimerColor() === 'destructive',
-                })} aria-hidden="true" />
+                <Timer
+                  className={cn('h-8 w-8', {
+                    'text-primary': getTimerColor() === 'primary',
+                    'text-yellow-500': getTimerColor() === 'warning',
+                    'text-destructive': getTimerColor() === 'destructive',
+                  })}
+                  aria-hidden="true"
+                />
                 <div className="flex-1">
                   <div className="text-2xl font-bold">{formatTime(timeRemaining)}</div>
                   <div className="text-sm text-muted-foreground">Time Left</div>
@@ -436,7 +455,13 @@ export function PracticeMode({
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <Flame className={cn('h-8 w-8', currentStreak >= 3 ? 'text-orange-500' : 'text-muted-foreground')} aria-hidden="true" />
+              <Flame
+                className={cn(
+                  'h-8 w-8',
+                  currentStreak >= 3 ? 'text-orange-500' : 'text-muted-foreground',
+                )}
+                aria-hidden="true"
+              />
               <div className="flex-1">
                 <div className="text-2xl font-bold">{currentStreak}</div>
                 <div className="text-sm text-muted-foreground">Streak</div>
@@ -488,45 +513,40 @@ export function PracticeMode({
                 <CardTitle className="text-xl mt-4">{currentProblem.title}</CardTitle>
                 <CardDescription>{currentProblem.description}</CardDescription>
               </CardHeader>
-            <CardContent className="space-y-4">
-              <Separator />
+              <CardContent className="space-y-4">
+                <Separator />
 
-              {/* Answer buttons (simplified - in production, this would be a proper answer input) */}
-              <div className="grid gap-3 sm:grid-cols-2">
-                <Button
-                  onClick={() => handleAnswer(true)}
-                  disabled={isPaused}
-                  size="lg"
-                  variant="outline"
-                  className="h-20 text-lg"
-                >
-                  <CheckCircle2 className="h-6 w-6 mr-2 text-green-500" aria-hidden="true" />
-                  Mark Correct
-                </Button>
-                <Button
-                  onClick={() => handleAnswer(false)}
-                  disabled={isPaused}
-                  size="lg"
-                  variant="outline"
-                  className="h-20 text-lg"
-                >
-                  <XCircle className="h-6 w-6 mr-2 text-red-500" aria-hidden="true" />
-                  Mark Incorrect
-                </Button>
-              </div>
+                {/* Answer buttons (simplified - in production, this would be a proper answer input) */}
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <Button
+                    onClick={() => handleAnswer(true)}
+                    disabled={isPaused}
+                    size="lg"
+                    variant="outline"
+                    className="h-20 text-lg"
+                  >
+                    <CheckCircle2 className="h-6 w-6 mr-2 text-green-500" aria-hidden="true" />
+                    Mark Correct
+                  </Button>
+                  <Button
+                    onClick={() => handleAnswer(false)}
+                    disabled={isPaused}
+                    size="lg"
+                    variant="outline"
+                    className="h-20 text-lg"
+                  >
+                    <XCircle className="h-6 w-6 mr-2 text-red-500" aria-hidden="true" />
+                    Mark Incorrect
+                  </Button>
+                </div>
 
-              <Button
-                onClick={handleSkip}
-                disabled={isPaused}
-                variant="ghost"
-                className="w-full"
-              >
-                <SkipForward className="h-4 w-4 mr-2" aria-hidden="true" />
-                Skip Problem
-              </Button>
-            </CardContent>
-          </Card>
-        </motion.div>
+                <Button onClick={handleSkip} disabled={isPaused} variant="ghost" className="w-full">
+                  <SkipForward className="h-4 w-4 mr-2" aria-hidden="true" />
+                  Skip Problem
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>

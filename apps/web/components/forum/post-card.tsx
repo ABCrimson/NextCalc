@@ -8,30 +8,23 @@
  * Supports both GraphQL data and mock fallback data.
  */
 
-import { useCallback } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { ChevronRight, Clock, Eye, Hash, MessageSquare, Pin } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { motion, useReducedMotion } from 'framer-motion';
-import {
-  MessageSquare,
-  Eye,
-  Clock,
-  Pin,
-  ChevronRight,
-  Hash,
-} from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { UpvoteButton } from '@/components/forum/upvote-button';
+import { useCallback } from 'react';
 import {
   type ForumPostNode,
-  type MockForumPost,
-  getPostHue,
-  getTagStyle,
-  timeAgo,
   formatNumber,
   getInitials,
   getMockUserSlug,
+  getPostHue,
+  getTagStyle,
+  type MockForumPost,
+  timeAgo,
 } from '@/components/forum/forum-shared';
+import { UpvoteButton } from '@/components/forum/upvote-button';
+import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
 // ============================================================================
@@ -150,7 +143,10 @@ export function PostCard({ post, index }: PostCardProps) {
           <div className="space-y-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               {post.isPinned && (
-                <Badge variant="outline" className="gap-1 text-[10px] py-0 h-5 bg-amber-500/10 border-amber-500/30 text-amber-400">
+                <Badge
+                  variant="outline"
+                  className="gap-1 text-[10px] py-0 h-5 bg-amber-500/10 border-amber-500/30 text-amber-400"
+                >
                   <Pin className="h-2.5 w-2.5" />
                   Pinned
                 </Badge>
@@ -166,7 +162,7 @@ export function PostCard({ post, index }: PostCardProps) {
 
         {/* Tags */}
         <div className="flex flex-wrap gap-1.5">
-          {post.tags.map(tag => (
+          {post.tags.map((tag) => (
             <TagPill key={tag} name={tag} />
           ))}
         </div>
@@ -281,7 +277,10 @@ export function MockPostCard({ post, index, onUpvote }: MockPostCardProps) {
           <div className="space-y-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               {post.isPinned && (
-                <Badge variant="outline" className="gap-1 text-[10px] py-0 h-5 bg-amber-500/10 border-amber-500/30 text-amber-400">
+                <Badge
+                  variant="outline"
+                  className="gap-1 text-[10px] py-0 h-5 bg-amber-500/10 border-amber-500/30 text-amber-400"
+                >
                   <Pin className="h-2.5 w-2.5" />
                   Pinned
                 </Badge>
@@ -297,7 +296,7 @@ export function MockPostCard({ post, index, onUpvote }: MockPostCardProps) {
 
         {/* Tags */}
         <div className="flex flex-wrap gap-1.5">
-          {post.tags.map(tag => (
+          {post.tags.map((tag) => (
             <TagPill key={tag} name={tag} />
           ))}
         </div>
@@ -316,7 +315,9 @@ export function MockPostCard({ post, index, onUpvote }: MockPostCardProps) {
               <span className="text-xs font-semibold text-foreground hover:text-indigo-400 transition-colors truncate block">
                 {post.author.name}
               </span>
-              <span className="text-[10px] text-muted-foreground">{formatNumber(post.author.reputation)} rep</span>
+              <span className="text-[10px] text-muted-foreground">
+                {formatNumber(post.author.reputation)} rep
+              </span>
             </div>
           </Link>
 

@@ -99,16 +99,11 @@ interface WorksheetStore {
   updatePlotExpressions: (id: string, expressions: string) => void;
   updatePlotViewport: (
     id: string,
-    viewport: { xMin: number; xMax: number; yMin: number; yMax: number }
+    viewport: { xMin: number; xMax: number; yMin: number; yMax: number },
   ) => void;
 
   // Evaluation (called by components, not by the store itself)
-  setMathResult: (
-    id: string,
-    result: string,
-    latex: string,
-    variables: VariableBinding[]
-  ) => void;
+  setMathResult: (id: string, result: string, latex: string, variables: VariableBinding[]) => void;
   setMathError: (id: string, message: string) => void;
   setMathPending: (id: string) => void;
   setPlotStatus: (id: string, status: EvalStatus, errorMessage?: string) => void;
@@ -121,7 +116,12 @@ interface WorksheetStore {
   worksheetId: string | null;
   version: number;
   isDirty: boolean;
-  hydrate: (data: { worksheetId: string; title: string; cells: WorksheetCell[]; version: number }) => void;
+  hydrate: (data: {
+    worksheetId: string;
+    title: string;
+    cells: WorksheetCell[];
+    version: number;
+  }) => void;
   markClean: (version: number, worksheetId: string) => void;
 
   // Derived
@@ -477,60 +477,60 @@ export const useWorksheetStore = create<WorksheetStore>()(
       {
         name: 'worksheet-storage',
         // Persist the whole worksheet document
-        partialize: (store) => ({ worksheet: store.worksheet, worksheetId: store.worksheetId, version: store.version }),
-      }
+        partialize: (store) => ({
+          worksheet: store.worksheet,
+          worksheetId: store.worksheetId,
+          version: store.version,
+        }),
+      },
     ),
     {
       name: 'worksheet-store',
       enabled: process.env.NODE_ENV === 'development',
-    }
-  )
+    },
+  ),
 );
 
 // ---------------------------------------------------------------------------
 // Selector hooks for performance-optimised subscriptions
 // ---------------------------------------------------------------------------
 
-export const useWorksheet = () =>
-  useWorksheetStore((s) => s.worksheet);
+export const useWorksheet = () => useWorksheetStore((s) => s.worksheet);
 
-export const useWorksheetCells = () =>
-  useWorksheetStore((s) => s.worksheet.cells);
+export const useWorksheetCells = () => useWorksheetStore((s) => s.worksheet.cells);
 
-export const useWorksheetTitle = () =>
-  useWorksheetStore((s) => s.worksheet.title);
+export const useWorksheetTitle = () => useWorksheetStore((s) => s.worksheet.title);
 
 export const useWorksheetCell = (id: string) =>
   useWorksheetStore((s) => s.worksheet.cells.find((c) => c.id === id));
 
 export const useWorksheetActions = () =>
-  useWorksheetStore(useShallow((s) => ({
-    addCell: s.addCell,
-    deleteCell: s.deleteCell,
-    moveCellUp: s.moveCellUp,
-    moveCellDown: s.moveCellDown,
-    updateMathInput: s.updateMathInput,
-    updateTextContent: s.updateTextContent,
-    updatePlotExpressions: s.updatePlotExpressions,
-    updatePlotViewport: s.updatePlotViewport,
-    setMathResult: s.setMathResult,
-    setMathError: s.setMathError,
-    setMathPending: s.setMathPending,
-    setPlotStatus: s.setPlotStatus,
-    setTitle: s.setTitle,
-    resetWorksheet: s.resetWorksheet,
-    getVariablesUpTo: s.getVariablesUpTo,
-    exportAsJSON: s.exportAsJSON,
-    importFromJSON: s.importFromJSON,
-    hydrate: s.hydrate,
-    markClean: s.markClean,
-  })));
+  useWorksheetStore(
+    useShallow((s) => ({
+      addCell: s.addCell,
+      deleteCell: s.deleteCell,
+      moveCellUp: s.moveCellUp,
+      moveCellDown: s.moveCellDown,
+      updateMathInput: s.updateMathInput,
+      updateTextContent: s.updateTextContent,
+      updatePlotExpressions: s.updatePlotExpressions,
+      updatePlotViewport: s.updatePlotViewport,
+      setMathResult: s.setMathResult,
+      setMathError: s.setMathError,
+      setMathPending: s.setMathPending,
+      setPlotStatus: s.setPlotStatus,
+      setTitle: s.setTitle,
+      resetWorksheet: s.resetWorksheet,
+      getVariablesUpTo: s.getVariablesUpTo,
+      exportAsJSON: s.exportAsJSON,
+      importFromJSON: s.importFromJSON,
+      hydrate: s.hydrate,
+      markClean: s.markClean,
+    })),
+  );
 
-export const useWorksheetId = () =>
-  useWorksheetStore((s) => s.worksheetId);
+export const useWorksheetId = () => useWorksheetStore((s) => s.worksheetId);
 
-export const useWorksheetVersion = () =>
-  useWorksheetStore((s) => s.version);
+export const useWorksheetVersion = () => useWorksheetStore((s) => s.version);
 
-export const useWorksheetDirty = () =>
-  useWorksheetStore((s) => s.isDirty);
+export const useWorksheetDirty = () => useWorksheetStore((s) => s.isDirty);

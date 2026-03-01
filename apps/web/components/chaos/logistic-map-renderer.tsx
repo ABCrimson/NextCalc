@@ -1,16 +1,16 @@
 'use client';
 
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-  useEffect,
-  useRef,
-  useState,
-  useCallback,
-  useMemo,
-  useTransition,
   type MouseEvent,
   type TouchEvent as ReactTouchEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
 } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 interface LogisticMapRendererProps {
   data: number[];
@@ -22,8 +22,7 @@ const MARGIN = { top: 44, right: 36, bottom: 52, left: 64 } as const;
 // ---------------------------------------------------------------------------
 // WebGPU feature detection (safe for SSR)
 // ---------------------------------------------------------------------------
-const supportsWebGPU =
-  typeof navigator !== 'undefined' && 'gpu' in navigator;
+const supportsWebGPU = typeof navigator !== 'undefined' && 'gpu' in navigator;
 
 // ---------------------------------------------------------------------------
 // WGSL shaders
@@ -150,10 +149,7 @@ interface GPUResources {
  *    render pipeline draws the gradient line strip in a single pass.
  * 2. Canvas 2D fallback: full existing implementation, unchanged.
  */
-export function LogisticMapRenderer({
-  data,
-  title = 'x(n)',
-}: LogisticMapRendererProps) {
+export function LogisticMapRenderer({ data, title = 'x(n)' }: LogisticMapRendererProps) {
   // Shared refs
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -186,7 +182,7 @@ export function LogisticMapRenderer({
 
   const zoomBy = useCallback((factor: number) => {
     startTransition(() => {
-      setZoom(prev => Math.max(1, Math.min(20, prev * factor)));
+      setZoom((prev) => Math.max(1, Math.min(20, prev * factor)));
     });
   }, []);
 
@@ -260,10 +256,8 @@ export function LogisticMapRenderer({
     const dispMinI = Math.max(0, Math.floor(centerI - zoomedRangeI / 2));
     const dispMaxI = Math.min(data.length - 1, Math.ceil(centerI + zoomedRangeI / 2));
 
-    const xScale = (i: number) =>
-      m.left + ((i - dispMinI) / (dispMaxI - dispMinI)) * plotW;
-    const yScale = (v: number) =>
-      m.top + plotH - ((v - dispMinY) / (dispMaxY - dispMinY)) * plotH;
+    const xScale = (i: number) => m.left + ((i - dispMinI) / (dispMaxI - dispMinI)) * plotW;
+    const yScale = (v: number) => m.top + plotH - ((v - dispMinY) / (dispMaxY - dispMinY)) * plotH;
 
     ctx.save();
     const NUM_H = 8;
@@ -272,7 +266,7 @@ export function LogisticMapRenderer({
     for (let i = 0; i <= NUM_H; i++) {
       const y = m.top + (i * plotH) / NUM_H;
       const val = dispMaxY - (i / NUM_H) * (dispMaxY - dispMinY);
-      ctx.globalAlpha = i % 2 === 0 ? 0.45 : 0.20;
+      ctx.globalAlpha = i % 2 === 0 ? 0.45 : 0.2;
       ctx.strokeStyle = '#334155';
       ctx.lineWidth = 1;
       ctx.beginPath();
@@ -289,7 +283,7 @@ export function LogisticMapRenderer({
     for (let i = 0; i <= NUM_V; i++) {
       const x = m.left + (i * plotW) / NUM_V;
       const idx = Math.round(dispMinI + (i / NUM_V) * (dispMaxI - dispMinI));
-      ctx.globalAlpha = i % 2 === 0 ? 0.45 : 0.20;
+      ctx.globalAlpha = i % 2 === 0 ? 0.45 : 0.2;
       ctx.strokeStyle = '#334155';
       ctx.lineWidth = 1;
       ctx.beginPath();
@@ -332,7 +326,7 @@ export function LogisticMapRenderer({
     lineGrad.addColorStop(0, '#06d6a0');
     lineGrad.addColorStop(0.25, '#0ea5e9');
     lineGrad.addColorStop(0.55, '#818cf8');
-    lineGrad.addColorStop(0.80, '#c084fc');
+    lineGrad.addColorStop(0.8, '#c084fc');
     lineGrad.addColorStop(1, '#f472b6');
 
     const pointsPerPixel = (dispMaxI - dispMinI) / plotW;
@@ -456,7 +450,10 @@ export function LogisticMapRenderer({
 
     if (zoom !== 1 || pan.x !== 0 || pan.y !== 0) {
       ctx.save();
-      const bx = W - 76, by = 8, bw = 66, bh = 22;
+      const bx = W - 76,
+        by = 8,
+        bw = 66,
+        bh = 22;
       ctx.fillStyle = 'rgba(6,182,212,0.14)';
       ctx.fillRect(bx, by, bw, bh);
       ctx.strokeStyle = 'rgba(6,182,212,0.5)';
@@ -484,16 +481,30 @@ export function LogisticMapRenderer({
     (async () => {
       try {
         const adapter = await navigator.gpu.requestAdapter();
-        if (!adapter || cancelled) { setRenderMode('canvas2d'); return; }
+        if (!adapter || cancelled) {
+          setRenderMode('canvas2d');
+          return;
+        }
 
         const device = await adapter.requestDevice();
-        if (cancelled) { device.destroy(); return; }
+        if (cancelled) {
+          device.destroy();
+          return;
+        }
 
         const canvas = canvasRef.current;
-        if (!canvas) { device.destroy(); setRenderMode('canvas2d'); return; }
+        if (!canvas) {
+          device.destroy();
+          setRenderMode('canvas2d');
+          return;
+        }
 
         const context = canvas.getContext('webgpu') as GPUCanvasContext | null;
-        if (!context) { device.destroy(); setRenderMode('canvas2d'); return; }
+        if (!context) {
+          device.destroy();
+          setRenderMode('canvas2d');
+          return;
+        }
 
         const format = navigator.gpu.getPreferredCanvasFormat();
         context.configure({ device, format, alphaMode: 'opaque' });
@@ -635,12 +646,18 @@ export function LogisticMapRenderer({
 
     // Upload render uniforms
     const uniformData = new Float32Array([
-      0,                  // dispMinI mapped to 0 (relative)
-      pointCount - 1,     // dispMaxI mapped to N-1
-      dispMinY, dispMaxY,
-      m.left * dpr, m.top * dpr, plotW, plotH,
-      W, H,
-      pointCount, 0,
+      0, // dispMinI mapped to 0 (relative)
+      pointCount - 1, // dispMaxI mapped to N-1
+      dispMinY,
+      dispMaxY,
+      m.left * dpr,
+      m.top * dpr,
+      plotW,
+      plotH,
+      W,
+      H,
+      pointCount,
+      0,
     ]);
     gpu.device.queue.writeBuffer(gpu.renderUniformBuffer, 0, uniformData);
 
@@ -657,12 +674,14 @@ export function LogisticMapRenderer({
     const encoder = gpu.device.createCommandEncoder();
 
     const pass = encoder.beginRenderPass({
-      colorAttachments: [{
-        view: texture.createView(),
-        clearValue: { r: 0.027, g: 0.035, b: 0.098, a: 1 },
-        loadOp: 'clear',
-        storeOp: 'store',
-      }],
+      colorAttachments: [
+        {
+          view: texture.createView(),
+          clearValue: { r: 0.027, g: 0.035, b: 0.098, a: 1 },
+          loadOp: 'clear',
+          storeOp: 'store',
+        },
+      ],
     });
 
     pass.setPipeline(gpu.renderPipeline);
@@ -708,7 +727,7 @@ export function LogisticMapRenderer({
     e.preventDefault();
     const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
     startTransition(() => {
-      setZoom(prev => Math.max(1, Math.min(20, prev * factor)));
+      setZoom((prev) => Math.max(1, Math.min(20, prev * factor)));
     });
   }, []);
 
@@ -717,7 +736,7 @@ export function LogisticMapRenderer({
       setIsPanning(true);
       setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
     },
-    [pan]
+    [pan],
   );
 
   const handleMouseMove = useCallback(
@@ -743,7 +762,7 @@ export function LogisticMapRenderer({
         if (v !== undefined) setHoveredPoint({ index: idx, value: v, x: mx, y: my });
       }
     },
-    [isPanning, dragStart, data]
+    [isPanning, dragStart, data],
   );
 
   const handleMouseUp = useCallback(() => setIsPanning(false), []);
@@ -764,26 +783,23 @@ export function LogisticMapRenderer({
     }
   }, []);
 
-  const handleTouchMove = useCallback(
-    (e: ReactTouchEvent) => {
-      if (e.touches.length === 2) {
-        e.preventDefault();
-        const t0 = e.touches[0];
-        const t1 = e.touches[1];
-        if (t0 && t1 && lastPinchDistRef.current !== null) {
-          const dx = t0.clientX - t1.clientX;
-          const dy = t0.clientY - t1.clientY;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          const factor = dist / lastPinchDistRef.current;
-          lastPinchDistRef.current = dist;
-          startTransition(() => {
-            setZoom(prev => Math.max(1, Math.min(20, prev * factor)));
-          });
-        }
+  const handleTouchMove = useCallback((e: ReactTouchEvent) => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const t0 = e.touches[0];
+      const t1 = e.touches[1];
+      if (t0 && t1 && lastPinchDistRef.current !== null) {
+        const dx = t0.clientX - t1.clientX;
+        const dy = t0.clientY - t1.clientY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const factor = dist / lastPinchDistRef.current;
+        lastPinchDistRef.current = dist;
+        startTransition(() => {
+          setZoom((prev) => Math.max(1, Math.min(20, prev * factor)));
+        });
       }
-    },
-    []
-  );
+    }
+  }, []);
 
   const handleTouchEnd = useCallback(() => {
     lastPinchDistRef.current = null;

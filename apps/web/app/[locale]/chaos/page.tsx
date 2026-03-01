@@ -1,18 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { LogisticMap, LorenzAttractor } from '@nextcalc/math-engine/chaos/chaos-theory';
+import { GitBranch, Wind, Zap } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useEffect, useState } from 'react';
+import { BifurcationDiagramRenderer } from '@/components/chaos/bifurcation-diagram-renderer';
+import { LogisticMapRenderer } from '@/components/chaos/logistic-map-renderer';
+import { Lorenz3DRenderer } from '@/components/chaos/lorenz-3d-renderer';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Wind, Zap, GitBranch } from 'lucide-react';
-import { LorenzAttractor, LogisticMap } from '@nextcalc/math-engine/chaos/chaos-theory';
-import { Lorenz3DRenderer } from '@/components/chaos/lorenz-3d-renderer';
-import { LogisticMapRenderer } from '@/components/chaos/logistic-map-renderer';
-import { BifurcationDiagramRenderer } from '@/components/chaos/bifurcation-diagram-renderer';
 
 interface Point3D {
   x: number;
@@ -77,8 +77,8 @@ export default function ChaosTheoryPage() {
       const points: { r: number; x: number }[] = [];
       const rStart = 2.5;
       const rEnd = 4.0;
-      const rSteps = 500;   // 500 r-values gives dense coverage
-      const burnIn = 500;   // discard transient behaviour
+      const rSteps = 500; // 500 r-values gives dense coverage
+      const burnIn = 500; // discard transient behaviour
       const plotPoints = 150;
 
       for (let i = 0; i < rSteps; i++) {
@@ -118,9 +118,7 @@ export default function ChaosTheoryPage() {
             <Wind className="w-10 h-10 text-cyan-500" />
             <h1 className="text-4xl font-bold text-foreground">{t('title')}</h1>
           </div>
-          <p className="text-lg text-muted-foreground">
-            {t('subtitle')}
-          </p>
+          <p className="text-lg text-muted-foreground">{t('subtitle')}</p>
           <div className="flex gap-2 mt-4">
             <Badge variant="outline">{t('lorenz')}</Badge>
             <Badge variant="outline">{t('logistic')}</Badge>
@@ -142,14 +140,13 @@ export default function ChaosTheoryPage() {
               <Card className={GLASS_CARD}>
                 <CardHeader>
                   <CardTitle className="text-foreground">{t('lorenzParameters')}</CardTitle>
-                  <CardDescription>
-                    {t('lorenzParametersDesc')}
-                  </CardDescription>
+                  <CardDescription>{t('lorenzParametersDesc')}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-2">
                     <Label htmlFor="sigma" className="text-foreground">
-                      σ (Prandtl number): <span className="text-cyan-400 font-mono">{sigma.toFixed(2)}</span>
+                      σ (Prandtl number):{' '}
+                      <span className="text-cyan-400 font-mono">{sigma.toFixed(2)}</span>
                     </Label>
                     <Slider
                       id="sigma"
@@ -164,7 +161,8 @@ export default function ChaosTheoryPage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="rho" className="text-foreground">
-                      ρ ({t('rayleighNumber')}): <span className="text-purple-400 font-mono">{rho.toFixed(2)}</span>
+                      ρ ({t('rayleighNumber')}):{' '}
+                      <span className="text-purple-400 font-mono">{rho.toFixed(2)}</span>
                     </Label>
                     <Slider
                       id="rho"
@@ -179,7 +177,8 @@ export default function ChaosTheoryPage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="beta" className="text-foreground">
-                      β ({t('geometricFactor')}): <span className="text-rose-400 font-mono">{beta.toFixed(2)}</span>
+                      β ({t('geometricFactor')}):{' '}
+                      <span className="text-rose-400 font-mono">{beta.toFixed(2)}</span>
                     </Label>
                     <Slider
                       id="beta"
@@ -194,7 +193,8 @@ export default function ChaosTheoryPage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="steps" className="text-foreground">
-                      Time Steps: <span className="text-amber-400 font-mono">{timeSteps.toLocaleString()}</span>
+                      Time Steps:{' '}
+                      <span className="text-amber-400 font-mono">{timeSteps.toLocaleString()}</span>
                     </Label>
                     <Slider
                       id="steps"
@@ -237,9 +237,7 @@ export default function ChaosTheoryPage() {
                     <Zap className="w-5 h-5 text-cyan-400" />
                     {t('trajectory3d')}
                   </CardTitle>
-                  <CardDescription>
-                    {t('trajectory3dDesc')}
-                  </CardDescription>
+                  <CardDescription>{t('trajectory3dDesc')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="h-[420px] rounded-lg border border-border overflow-hidden bg-[#050912]">
@@ -267,9 +265,9 @@ export default function ChaosTheoryPage() {
                         >
                           <div className={`${color} font-semibold`}>{label}</div>
                           <div className="text-muted-foreground font-mono">
-                            {Math.min(...lorenzData.map(p => p[key])).toFixed(1)}
+                            {Math.min(...lorenzData.map((p) => p[key])).toFixed(1)}
                             {' to '}
-                            {Math.max(...lorenzData.map(p => p[key])).toFixed(1)}
+                            {Math.max(...lorenzData.map((p) => p[key])).toFixed(1)}
                           </div>
                         </div>
                       ))}
@@ -292,7 +290,8 @@ export default function ChaosTheoryPage() {
                 <CardContent className="space-y-6">
                   <div className="space-y-2">
                     <Label htmlFor="r" className="text-foreground">
-                      {t('growthRate')}: <span className="text-emerald-400 font-mono">{r.toFixed(3)}</span>
+                      {t('growthRate')}:{' '}
+                      <span className="text-emerald-400 font-mono">{r.toFixed(3)}</span>
                     </Label>
                     <Slider
                       id="r"
@@ -312,7 +311,8 @@ export default function ChaosTheoryPage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="iterations" className="text-foreground">
-                      {t('iterations')}: <span className="text-sky-400 font-mono">{iterations}</span>
+                      {t('iterations')}:{' '}
+                      <span className="text-sky-400 font-mono">{iterations}</span>
                     </Label>
                     <Slider
                       id="iterations"
@@ -334,9 +334,7 @@ export default function ChaosTheoryPage() {
               <Card className={GLASS_CARD}>
                 <CardHeader>
                   <CardTitle className="text-foreground">{t('timeSeries')}</CardTitle>
-                  <CardDescription>
-                    {t('timeSeriesDesc')}
-                  </CardDescription>
+                  <CardDescription>{t('timeSeriesDesc')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="h-[420px] rounded-lg border border-border overflow-hidden bg-[#07091a]">
@@ -361,9 +359,7 @@ export default function ChaosTheoryPage() {
                   <GitBranch className="w-5 h-5 text-emerald-400" />
                   {t('bifurcation')}
                 </CardTitle>
-                <CardDescription>
-                  {t('bifurcationDesc')}
-                </CardDescription>
+                <CardDescription>{t('bifurcationDesc')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex gap-3 mb-4">
@@ -398,9 +394,9 @@ export default function ChaosTheoryPage() {
                     <div className="p-2 bg-background/50 rounded border border-border">
                       <div className="text-cyan-400 font-semibold">{t('rRange')}</div>
                       <div className="text-muted-foreground font-mono">
-                        {Math.min(...bifurcationData.map(p => p.r)).toFixed(2)}
+                        {Math.min(...bifurcationData.map((p) => p.r)).toFixed(2)}
                         {' – '}
-                        {Math.max(...bifurcationData.map(p => p.r)).toFixed(2)}
+                        {Math.max(...bifurcationData.map((p) => p.r)).toFixed(2)}
                       </div>
                     </div>
                   </div>
@@ -417,13 +413,13 @@ export default function ChaosTheoryPage() {
           <div className="grid gap-6 md:grid-cols-2">
             <div className="group relative p-6 rounded-xl bg-gradient-to-br from-cyan-950/40 to-cyan-900/30 border border-cyan-500/30 hover:border-cyan-400/60 transition-all duration-300 shadow-[0_4px_24px_rgba(0,0,0,0.3)]">
               <h3 className="text-lg font-semibold mb-2 text-cyan-300">{t('lorenz')}</h3>
-              <p className="text-sm text-cyan-200/75 leading-relaxed">
-                {t('lorenzAbout')}
-              </p>
+              <p className="text-sm text-cyan-200/75 leading-relaxed">{t('lorenzAbout')}</p>
             </div>
 
             <div className="group relative p-6 rounded-xl bg-gradient-to-br from-purple-950/40 to-purple-900/30 border border-purple-500/30 hover:border-purple-400/60 transition-all duration-300 shadow-[0_4px_24px_rgba(0,0,0,0.3)]">
-              <h3 className="text-lg font-semibold mb-2 text-purple-300">{t('strangeAttractors')}</h3>
+              <h3 className="text-lg font-semibold mb-2 text-purple-300">
+                {t('strangeAttractors')}
+              </h3>
               <p className="text-sm text-purple-200/75 leading-relaxed">
                 {t('strangeAttractorsAbout')}
               </p>
@@ -431,16 +427,12 @@ export default function ChaosTheoryPage() {
 
             <div className="group relative p-6 rounded-xl bg-gradient-to-br from-emerald-950/40 to-emerald-900/30 border border-emerald-500/30 hover:border-emerald-400/60 transition-all duration-300 shadow-[0_4px_24px_rgba(0,0,0,0.3)]">
               <h3 className="text-lg font-semibold mb-2 text-emerald-300">{t('logistic')}</h3>
-              <p className="text-sm text-emerald-200/75 leading-relaxed">
-                {t('logisticAbout')}
-              </p>
+              <p className="text-sm text-emerald-200/75 leading-relaxed">{t('logisticAbout')}</p>
             </div>
 
             <div className="group relative p-6 rounded-xl bg-gradient-to-br from-rose-950/40 to-rose-900/30 border border-rose-500/30 hover:border-rose-400/60 transition-all duration-300 shadow-[0_4px_24px_rgba(0,0,0,0.3)]">
               <h3 className="text-lg font-semibold mb-2 text-rose-300">{t('applicationsTitle')}</h3>
-              <p className="text-sm text-rose-200/75 leading-relaxed">
-                {t('applicationsAbout')}
-              </p>
+              <p className="text-sm text-rose-200/75 leading-relaxed">{t('applicationsAbout')}</p>
             </div>
           </div>
         </section>

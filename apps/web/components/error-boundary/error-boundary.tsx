@@ -1,7 +1,7 @@
 'use client';
 
-import { Component, type ComponentType, type ReactNode, type ErrorInfo } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { Component, type ComponentType, type ErrorInfo, type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
@@ -88,11 +88,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
               <div className="flex-1 space-y-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-foreground mb-2">
-                    Something went wrong
-                  </h2>
+                  <h2 className="text-2xl font-bold text-foreground mb-2">Something went wrong</h2>
                   <p className="text-muted-foreground">
-                    An unexpected error occurred. Please try refreshing the page or contact support if the problem persists.
+                    An unexpected error occurred. Please try refreshing the page or contact support
+                    if the problem persists.
                   </p>
                 </div>
 
@@ -123,10 +122,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                     Try Again
                   </Button>
 
-                  <Button
-                    variant="outline"
-                    onClick={() => window.location.href = '/'}
-                  >
+                  <Button variant="outline" onClick={() => (window.location.href = '/')}>
                     Go Home
                   </Button>
                 </div>
@@ -149,7 +145,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
  */
 export function withErrorBoundary<P extends object>(
   Component: ComponentType<P>,
-  fallback?: ErrorBoundaryProps['fallback']
+  fallback?: ErrorBoundaryProps['fallback'],
 ): ComponentType<P> {
   return function WithErrorBoundaryWrapper(props: P) {
     return (

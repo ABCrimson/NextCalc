@@ -5,7 +5,7 @@
  * and formatting helpers used across all forum components.
  */
 
-import { Zap, Award, Sparkles, type LucideIcon } from 'lucide-react';
+import { Award, type LucideIcon, Sparkles, Zap } from 'lucide-react';
 
 // ============================================================================
 // TYPES
@@ -109,7 +109,12 @@ export interface MockForumPost {
   id: string;
   title: string;
   content: string;
-  author: { name: string; avatar: string; reputation: number; tier: 'newcomer' | 'contributor' | 'expert' | 'legend' };
+  author: {
+    name: string;
+    avatar: string;
+    reputation: number;
+    tier: 'newcomer' | 'contributor' | 'expert' | 'legend';
+  };
   tags: string[];
   upvotes: number;
   views: number;
@@ -128,19 +133,40 @@ export type SortMode = 'hot' | 'new' | 'top';
 
 export const TAGS = [
   { name: 'calculus', color: 'from-blue-500/20 to-blue-600/20 text-blue-300 border-blue-500/30' },
-  { name: 'linear-algebra', color: 'from-purple-500/20 to-purple-600/20 text-purple-300 border-purple-500/30' },
-  { name: 'statistics', color: 'from-emerald-500/20 to-emerald-600/20 text-emerald-300 border-emerald-500/30' },
-  { name: 'differential-eq', color: 'from-orange-500/20 to-orange-600/20 text-orange-300 border-orange-500/30' },
-  { name: 'number-theory', color: 'from-rose-500/20 to-rose-600/20 text-rose-300 border-rose-500/30' },
-  { name: 'complex-analysis', color: 'from-cyan-500/20 to-cyan-600/20 text-cyan-300 border-cyan-500/30' },
-  { name: 'help', color: 'from-yellow-500/20 to-yellow-600/20 text-yellow-300 border-yellow-500/30' },
-  { name: 'discussion', color: 'from-indigo-500/20 to-indigo-600/20 text-indigo-300 border-indigo-500/30' },
+  {
+    name: 'linear-algebra',
+    color: 'from-purple-500/20 to-purple-600/20 text-purple-300 border-purple-500/30',
+  },
+  {
+    name: 'statistics',
+    color: 'from-emerald-500/20 to-emerald-600/20 text-emerald-300 border-emerald-500/30',
+  },
+  {
+    name: 'differential-eq',
+    color: 'from-orange-500/20 to-orange-600/20 text-orange-300 border-orange-500/30',
+  },
+  {
+    name: 'number-theory',
+    color: 'from-rose-500/20 to-rose-600/20 text-rose-300 border-rose-500/30',
+  },
+  {
+    name: 'complex-analysis',
+    color: 'from-cyan-500/20 to-cyan-600/20 text-cyan-300 border-cyan-500/30',
+  },
+  {
+    name: 'help',
+    color: 'from-yellow-500/20 to-yellow-600/20 text-yellow-300 border-yellow-500/30',
+  },
+  {
+    name: 'discussion',
+    color: 'from-indigo-500/20 to-indigo-600/20 text-indigo-300 border-indigo-500/30',
+  },
   { name: 'showcase', color: 'from-pink-500/20 to-pink-600/20 text-pink-300 border-pink-500/30' },
   { name: 'bug-report', color: 'from-red-500/20 to-red-600/20 text-red-300 border-red-500/30' },
 ] as const;
 
 export function getTagStyle(tagName: string): string {
-  const tag = TAGS.find(t => t.name === tagName);
+  const tag = TAGS.find((t) => t.name === tagName);
   return tag?.color ?? 'from-muted/30 to-muted/20 text-muted-foreground border-border';
 }
 
@@ -157,12 +183,32 @@ export interface TierConfig {
 
 export const TIER_CONFIG: Record<string, TierConfig> = {
   newcomer: { label: 'Newcomer', color: 'text-zinc-400', icon: null, glow: '' },
-  contributor: { label: 'Contributor', color: 'text-blue-400', icon: Zap, glow: 'shadow-[0_0_8px_oklch(0.65_0.22_264/0.3)]' },
-  expert: { label: 'Expert', color: 'text-purple-400', icon: Award, glow: 'shadow-[0_0_12px_oklch(0.63_0.20_300/0.4)]' },
-  legend: { label: 'Legend', color: 'text-amber-400', icon: Sparkles, glow: 'shadow-[0_0_16px_oklch(0.75_0.18_70/0.5)]' },
+  contributor: {
+    label: 'Contributor',
+    color: 'text-blue-400',
+    icon: Zap,
+    glow: 'shadow-[0_0_8px_oklch(0.65_0.22_264/0.3)]',
+  },
+  expert: {
+    label: 'Expert',
+    color: 'text-purple-400',
+    icon: Award,
+    glow: 'shadow-[0_0_12px_oklch(0.63_0.20_300/0.4)]',
+  },
+  legend: {
+    label: 'Legend',
+    color: 'text-amber-400',
+    icon: Sparkles,
+    glow: 'shadow-[0_0_16px_oklch(0.75_0.18_70/0.5)]',
+  },
 } as const;
 
-const DEFAULT_TIER: TierConfig = { label: 'Newcomer', color: 'text-zinc-400', icon: null, glow: '' };
+const DEFAULT_TIER: TierConfig = {
+  label: 'Newcomer',
+  color: 'text-zinc-400',
+  icon: null,
+  glow: '',
+};
 
 export function getTierFromRole(role: string): TierConfig {
   if (role === 'ADMIN') return TIER_CONFIG['legend'] ?? DEFAULT_TIER;
@@ -222,7 +268,7 @@ export function getInitials(name: string | null | undefined): string {
   if (!name) return '?';
   return name
     .split(' ')
-    .map(n => n[0])
+    .map((n) => n[0])
     .join('')
     .toUpperCase()
     .slice(0, 2);
@@ -238,7 +284,9 @@ export function getStoredUpvotes(): Record<string, boolean> {
   if (typeof window === 'undefined') return {};
   try {
     return JSON.parse(localStorage.getItem(UPVOTE_STORAGE_KEY) || '{}');
-  } catch { return {}; }
+  } catch {
+    return {};
+  }
 }
 
 export function setStoredUpvote(postId: string, upvoted: boolean): void {
@@ -273,32 +321,74 @@ export interface MockUser {
 
 export const MOCK_USERS: Record<string, MockUser> = {
   'alice-chen': {
-    id: 'alice-chen', name: 'Alice Chen', bio: 'Passionate about real analysis and topology. PhD candidate in mathematics.',
-    reputation: 4280, tier: 'legend', role: 'ADMIN', createdAt: new Date('2024-03-15'), postIds: ['1'],
+    id: 'alice-chen',
+    name: 'Alice Chen',
+    bio: 'Passionate about real analysis and topology. PhD candidate in mathematics.',
+    reputation: 4280,
+    tier: 'legend',
+    role: 'ADMIN',
+    createdAt: new Date('2024-03-15'),
+    postIds: ['1'],
   },
   'marcus-liu': {
-    id: 'marcus-liu', name: 'Marcus Liu', bio: 'Undergraduate math major. Loves linear algebra and its applications.',
-    reputation: 890, tier: 'contributor', role: 'USER', createdAt: new Date('2025-01-10'), postIds: ['2'],
+    id: 'marcus-liu',
+    name: 'Marcus Liu',
+    bio: 'Undergraduate math major. Loves linear algebra and its applications.',
+    reputation: 890,
+    tier: 'contributor',
+    role: 'USER',
+    createdAt: new Date('2025-01-10'),
+    postIds: ['2'],
   },
   'priya-sharma': {
-    id: 'priya-sharma', name: 'Priya Sharma', bio: 'Complex analysis enthusiast. Building beautiful fractals with math.',
-    reputation: 2150, tier: 'expert', role: 'MODERATOR', createdAt: new Date('2024-06-22'), postIds: ['3'],
+    id: 'priya-sharma',
+    name: 'Priya Sharma',
+    bio: 'Complex analysis enthusiast. Building beautiful fractals with math.',
+    reputation: 2150,
+    tier: 'expert',
+    role: 'MODERATOR',
+    createdAt: new Date('2024-06-22'),
+    postIds: ['3'],
   },
   'david-kim': {
-    id: 'david-kim', name: 'David Kim', bio: 'Differential equations are my jam. Teaching assistant at university.',
-    reputation: 1670, tier: 'expert', role: 'MODERATOR', createdAt: new Date('2024-08-05'), postIds: ['4'],
+    id: 'david-kim',
+    name: 'David Kim',
+    bio: 'Differential equations are my jam. Teaching assistant at university.',
+    reputation: 1670,
+    tier: 'expert',
+    role: 'MODERATOR',
+    createdAt: new Date('2024-08-05'),
+    postIds: ['4'],
   },
   'raj-patel': {
-    id: 'raj-patel', name: 'Raj Patel', bio: 'Computational fluid dynamics researcher. New to the community!',
-    reputation: 340, tier: 'newcomer', role: 'USER', createdAt: new Date('2025-11-20'), postIds: ['5'],
+    id: 'raj-patel',
+    name: 'Raj Patel',
+    bio: 'Computational fluid dynamics researcher. New to the community!',
+    reputation: 340,
+    tier: 'newcomer',
+    role: 'USER',
+    createdAt: new Date('2025-11-20'),
+    postIds: ['5'],
   },
   'sofia-rossi': {
-    id: 'sofia-rossi', name: 'Sofia Rossi', bio: 'Statistics professor. I believe everyone can learn to love data.',
-    reputation: 3100, tier: 'legend', role: 'ADMIN', createdAt: new Date('2024-04-01'), postIds: ['6'],
+    id: 'sofia-rossi',
+    name: 'Sofia Rossi',
+    bio: 'Statistics professor. I believe everyone can learn to love data.',
+    reputation: 3100,
+    tier: 'legend',
+    role: 'ADMIN',
+    createdAt: new Date('2024-04-01'),
+    postIds: ['6'],
   },
   'james-wright': {
-    id: 'james-wright', name: 'James Wright', bio: 'Number theory hobbyist. Always chasing primes.',
-    reputation: 1200, tier: 'contributor', role: 'USER', createdAt: new Date('2024-11-15'), postIds: ['7'],
+    id: 'james-wright',
+    name: 'James Wright',
+    bio: 'Number theory hobbyist. Always chasing primes.',
+    reputation: 1200,
+    tier: 'contributor',
+    role: 'USER',
+    createdAt: new Date('2024-11-15'),
+    postIds: ['7'],
   },
 };
 
@@ -309,7 +399,7 @@ export function getMockUser(slug: string): MockUser | undefined {
 
 /** Find mock post by ID */
 export function getMockPostById(id: string): MockForumPost | undefined {
-  return MOCK_POSTS.find(p => p.id === id);
+  return MOCK_POSTS.find((p) => p.id === id);
 }
 
 /** Build a ForumPostDetail from a mock post (for detail page fallback) */
@@ -343,7 +433,7 @@ export function buildMockPostDetail(post: MockForumPost): ForumPostDetail {
 /** Build a UserProfileData from a mock user (for profile page fallback) */
 export function buildMockUserProfile(user: MockUser): UserProfileData {
   const posts = user.postIds
-    .map(id => MOCK_POSTS.find(p => p.id === id))
+    .map((id) => MOCK_POSTS.find((p) => p.id === id))
     .filter((p): p is MockForumPost => p !== undefined);
 
   return {
@@ -354,7 +444,7 @@ export function buildMockUserProfile(user: MockUser): UserProfileData {
     role: user.role,
     createdAt: user.createdAt.toISOString(),
     worksheetCount: 0,
-    forumPosts: posts.map(p => ({
+    forumPosts: posts.map((p) => ({
       id: p.id,
       title: p.title,
       tags: p.tags,
@@ -373,7 +463,8 @@ export const MOCK_POSTS: MockForumPost[] = [
   {
     id: '1',
     title: 'Elegant proof: Every continuous function on [0,1] attains its maximum',
-    content: 'I\'ve been working through the extreme value theorem and found a particularly clean proof using sequences...',
+    content:
+      "I've been working through the extreme value theorem and found a particularly clean proof using sequences...",
     author: { name: 'Alice Chen', avatar: 'AC', reputation: 4280, tier: 'legend' },
     tags: ['calculus', 'discussion'],
     upvotes: 142,
@@ -387,7 +478,8 @@ export const MOCK_POSTS: MockForumPost[] = [
   {
     id: '2',
     title: 'Help understanding eigenvalue decomposition for symmetric matrices',
-    content: 'I\'m struggling with why the spectral theorem guarantees orthogonal eigenvectors. Can someone explain intuitively?',
+    content:
+      "I'm struggling with why the spectral theorem guarantees orthogonal eigenvectors. Can someone explain intuitively?",
     author: { name: 'Marcus Liu', avatar: 'ML', reputation: 890, tier: 'contributor' },
     tags: ['linear-algebra', 'help'],
     upvotes: 67,
@@ -400,8 +492,9 @@ export const MOCK_POSTS: MockForumPost[] = [
   },
   {
     id: '3',
-    title: 'Visualising the Mandelbrot set with NextCalc\'s complex number engine',
-    content: 'Just built an amazing Mandelbrot zoom using the complex number calculator. Here\'s how I did it with 1000 iterations...',
+    title: "Visualising the Mandelbrot set with NextCalc's complex number engine",
+    content:
+      "Just built an amazing Mandelbrot zoom using the complex number calculator. Here's how I did it with 1000 iterations...",
     author: { name: 'Priya Sharma', avatar: 'PS', reputation: 2150, tier: 'expert' },
     tags: ['complex-analysis', 'showcase'],
     upvotes: 203,
@@ -414,8 +507,9 @@ export const MOCK_POSTS: MockForumPost[] = [
   },
   {
     id: '4',
-    title: 'Solving a tricky ODE: y\'\' + 4y\' + 5y = e^(-2x)cos(x)',
-    content: 'This undetermined coefficients problem has a resonance case. Let me walk through my approach...',
+    title: "Solving a tricky ODE: y'' + 4y' + 5y = e^(-2x)cos(x)",
+    content:
+      'This undetermined coefficients problem has a resonance case. Let me walk through my approach...',
     author: { name: 'David Kim', avatar: 'DK', reputation: 1670, tier: 'expert' },
     tags: ['differential-eq', 'calculus'],
     upvotes: 89,
@@ -429,7 +523,8 @@ export const MOCK_POSTS: MockForumPost[] = [
   {
     id: '5',
     title: 'Feature request: GPU-accelerated matrix multiplication for large systems',
-    content: 'For my fluid dynamics research, I need to multiply 10000x10000 matrices. Would love WebGPU compute shader support...',
+    content:
+      'For my fluid dynamics research, I need to multiply 10000x10000 matrices. Would love WebGPU compute shader support...',
     author: { name: 'Raj Patel', avatar: 'RP', reputation: 340, tier: 'newcomer' },
     tags: ['linear-algebra', 'discussion'],
     upvotes: 45,
@@ -443,7 +538,8 @@ export const MOCK_POSTS: MockForumPost[] = [
   {
     id: '6',
     title: 'Central Limit Theorem: Interactive demonstration with NextCalc stats',
-    content: 'I created a demonstration showing convergence to normal distribution with sample sizes 1 to 1000...',
+    content:
+      'I created a demonstration showing convergence to normal distribution with sample sizes 1 to 1000...',
     author: { name: 'Sofia Rossi', avatar: 'SR', reputation: 3100, tier: 'legend' },
     tags: ['statistics', 'showcase'],
     upvotes: 178,
@@ -457,7 +553,8 @@ export const MOCK_POSTS: MockForumPost[] = [
   {
     id: '7',
     title: 'Goldbach conjecture: Exploring patterns with the number theory tools',
-    content: 'Ran some experiments up to 10^8 and found interesting patterns in prime pair distributions...',
+    content:
+      'Ran some experiments up to 10^8 and found interesting patterns in prime pair distributions...',
     author: { name: 'James Wright', avatar: 'JW', reputation: 1200, tier: 'contributor' },
     tags: ['number-theory', 'discussion'],
     upvotes: 56,

@@ -5,8 +5,8 @@
  * Uses NextAuth.js v5 with Next.js 16 App Router.
  */
 
-import { auth } from '../../auth';
 import type { User, UserRole } from '@nextcalc/database';
+import { auth } from '../../auth';
 import { prisma } from '../prisma';
 
 /**

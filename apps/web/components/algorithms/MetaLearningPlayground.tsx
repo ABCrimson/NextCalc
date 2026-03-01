@@ -1,34 +1,29 @@
 'use client';
 
-import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Slider } from '@/components/ui/slider';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
 import {
-  Play,
-  Pause,
-  RotateCcw,
-  Info,
   Brain,
-  TrendingDown,
+  Info,
+  Maximize2,
+  Pause,
+  Play,
+  RotateCcw,
   Target,
+  TrendingDown,
   Zap,
   ZoomIn,
   ZoomOut,
-  Maximize2,
 } from 'lucide-react';
-import {
-  type MAMLState,
-  type MAMLTask,
-  type AnimationSpeed,
-  ANIMATION_DURATIONS,
-} from './types';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { Slider } from '@/components/ui/slider';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
+import { ANIMATION_DURATIONS, type AnimationSpeed, type MAMLState, type MAMLTask } from './types';
 
 /**
  * Props for MetaLearningPlayground component
@@ -89,7 +84,7 @@ function generateTask(
   slope: number,
   intercept: number,
   noise: number = 0.1,
-  rng: () => number = Math.random
+  rng: () => number = Math.random,
 ): MAMLTask {
   const data = Array.from({ length: 10 }, (_, i) => {
     const x = (i - 5) / 5; // Range [-1, 1]
@@ -124,11 +119,7 @@ function computeLoss(model: LinearModel, task: MAMLTask): number {
 /**
  * Gradient descent step
  */
-function gradientStep(
-  model: LinearModel,
-  task: MAMLTask,
-  learningRate: number
-): LinearModel {
+function gradientStep(model: LinearModel, task: MAMLTask, learningRate: number): LinearModel {
   const [w, b] = model.weights;
   let gradW = 0;
   let gradB = 0;
@@ -157,7 +148,7 @@ function innerLoop(
   model: LinearModel,
   task: MAMLTask,
   steps: number,
-  learningRate: number
+  learningRate: number,
 ): LinearModel {
   let adapted = model;
   for (let i = 0; i < steps; i++) {
@@ -220,32 +211,32 @@ export function MetaLearningPlayground({
     const rng = seededRandom(42);
 
     return {
-    metaParameters: [0.5, 0.5], // Initialize with reasonable values
-    tasks: [
-      // Basic tasks (1-4): Simple linear relationships
-      generateTask('1', 2.0, 1.0, 0.1, rng),
-      generateTask('2', -1.5, 0.5, 0.1, rng),
-      generateTask('3', 1.0, -0.5, 0.1, rng),
-      generateTask('4', -2.0, 1.5, 0.1, rng),
+      metaParameters: [0.5, 0.5], // Initialize with reasonable values
+      tasks: [
+        // Basic tasks (1-4): Simple linear relationships
+        generateTask('1', 2.0, 1.0, 0.1, rng),
+        generateTask('2', -1.5, 0.5, 0.1, rng),
+        generateTask('3', 1.0, -0.5, 0.1, rng),
+        generateTask('4', -2.0, 1.5, 0.1, rng),
 
-      // Intermediate tasks (5-6): Varied slopes and intercepts
-      generateTask('5', 3.5, -1.0, 0.1, rng),
-      generateTask('6', -2.5, 2.0, 0.1, rng),
+        // Intermediate tasks (5-6): Varied slopes and intercepts
+        generateTask('5', 3.5, -1.0, 0.1, rng),
+        generateTask('6', -2.5, 2.0, 0.1, rng),
 
-      // Advanced tasks (7-8): Steeper slopes and larger offsets
-      generateTask('7', 4.5, -2.5, 0.15, rng),
-      generateTask('8', -3.8, 2.8, 0.15, rng),
+        // Advanced tasks (7-8): Steeper slopes and larger offsets
+        generateTask('7', 4.5, -2.5, 0.15, rng),
+        generateTask('8', -3.8, 2.8, 0.15, rng),
 
-      // Expert tasks (9-10): Extreme values and higher noise
-      generateTask('9', 5.5, -3.5, 0.2, rng),
-      generateTask('10', -5.0, 4.0, 0.2, rng),
-    ],
-    innerSteps: 5,
-    outerSteps: 10,
-    innerLearningRate: 0.01,
-    outerLearningRate: 0.01,
-    ...initialConfig,
-  };
+        // Expert tasks (9-10): Extreme values and higher noise
+        generateTask('9', 5.5, -3.5, 0.2, rng),
+        generateTask('10', -5.0, 4.0, 0.2, rng),
+      ],
+      innerSteps: 5,
+      outerSteps: 10,
+      innerLearningRate: 0.01,
+      outerLearningRate: 0.01,
+      ...initialConfig,
+    };
   });
 
   const [currentOuterStep, setCurrentOuterStep] = useState<number>(0);
@@ -268,18 +259,13 @@ export function MetaLearningPlayground({
   // Compute current model
   const currentModel = useMemo<LinearModel>(
     () => ({ weights: mamlState.metaParameters }),
-    [mamlState.metaParameters]
+    [mamlState.metaParameters],
   );
 
   // Compute adapted model for selected task
   const adaptedModel = useMemo(() => {
     if (!selectedTask) return null;
-    return innerLoop(
-      currentModel,
-      selectedTask,
-      mamlState.innerSteps,
-      mamlState.innerLearningRate
-    );
+    return innerLoop(currentModel, selectedTask, mamlState.innerSteps, mamlState.innerLearningRate);
   }, [selectedTask, currentModel, mamlState.innerSteps, mamlState.innerLearningRate]);
 
   // Keep canvasDisplaySize in sync with the wrapper's true CSS dimensions.
@@ -328,14 +314,9 @@ export function MetaLearningPlayground({
     let totalGradB = 0;
 
     // For each task, adapt and compute gradient
-    mamlState.tasks.forEach(task => {
+    mamlState.tasks.forEach((task) => {
       // Inner loop: adapt to task
-      const adapted = innerLoop(
-        model,
-        task,
-        mamlState.innerSteps,
-        mamlState.innerLearningRate
-      );
+      const adapted = innerLoop(model, task, mamlState.innerSteps, mamlState.innerLearningRate);
 
       // Compute loss gradient after adaptation
       const [w, b] = adapted.weights;
@@ -363,18 +344,18 @@ export function MetaLearningPlayground({
           { weights: [newMetaW, newMetaB] },
           task,
           mamlState.innerSteps,
-          mamlState.innerLearningRate
+          mamlState.innerLearningRate,
         );
         return sum + computeLoss(adapted, task);
       }, 0) / mamlState.tasks.length;
 
-    setMamlState(prev => ({
+    setMamlState((prev) => ({
       ...prev,
       metaParameters: [newMetaW, newMetaB],
     }));
 
-    setLossHistory(prev => [...prev, avgLoss]);
-    setCurrentOuterStep(prev => prev + 1);
+    setLossHistory((prev) => [...prev, avgLoss]);
+    setCurrentOuterStep((prev) => prev + 1);
   }, [currentModel, mamlState]);
 
   // Train for multiple steps
@@ -402,7 +383,7 @@ export function MetaLearningPlayground({
 
   // Reset
   const reset = useCallback(() => {
-    setMamlState(prev => ({
+    setMamlState((prev) => ({
       ...prev,
       metaParameters: [0.5, 0.5],
     }));
@@ -432,29 +413,29 @@ export function MetaLearningPlayground({
 
     // Fall back to a sensible default only on the very first render before
     // ResizeObserver has fired.
-    const displayWidth  = canvasDisplaySize.width  > 0 ? canvasDisplaySize.width  : 600;
+    const displayWidth = canvasDisplaySize.width > 0 ? canvasDisplaySize.width : 600;
     const displayHeight = canvasDisplaySize.height > 0 ? canvasDisplaySize.height : 320;
 
     const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
 
     // Clamp DPR to 3 to avoid excessive memory use on 4K displays.
-    const dpr  = Math.min(window.devicePixelRatio || 1, 3);
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
     const zoom = canvasZoom;
 
-    const bufW = Math.round(displayWidth  * dpr);
+    const bufW = Math.round(displayWidth * dpr);
     const bufH = Math.round(displayHeight * dpr);
 
     // Resize the backing buffer only when the dimensions change.
     // Resizing clears the canvas and triggers a GPU texture re-upload.
     if (canvas.width !== bufW || canvas.height !== bufH) {
-      canvas.width  = bufW;
+      canvas.width = bufW;
       canvas.height = bufH;
     }
 
     // Base transform: 1 drawing-unit = 1 CSS pixel, plus zoom centred on the
     // canvas middle.
-    const offsetX = (displayWidth  * (1 - zoom)) / 2;
+    const offsetX = (displayWidth * (1 - zoom)) / 2;
     const offsetY = (displayHeight * (1 - zoom)) / 2;
     ctx.setTransform(dpr * zoom, 0, 0, dpr * zoom, offsetX * dpr, offsetY * dpr);
 
@@ -479,7 +460,7 @@ export function MetaLearningPlayground({
     ctx.fillRect(0, 0, W, H);
 
     // Grid
-    const pad   = 38;
+    const pad = 38;
     const plotW = W - pad * 2;
     const plotH = H - pad * 2;
 
@@ -490,8 +471,14 @@ export function MetaLearningPlayground({
     for (let i = 0; i <= 8; i++) {
       const gx = pad + (i / 8) * plotW;
       const gy = pad + (i / 8) * plotH;
-      ctx.beginPath(); ctx.moveTo(gx, pad);       ctx.lineTo(gx, pad + plotH); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(pad, gy);       ctx.lineTo(pad + plotW, gy); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(gx, pad);
+      ctx.lineTo(gx, pad + plotH);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(pad, gy);
+      ctx.lineTo(pad + plotW, gy);
+      ctx.stroke();
     }
     ctx.restore();
 
@@ -501,8 +488,14 @@ export function MetaLearningPlayground({
     ctx.save();
     ctx.strokeStyle = 'rgba(100, 80, 200, 0.40)';
     ctx.lineWidth = 1.5 / zoom;
-    ctx.beginPath(); ctx.moveTo(pad, yZero);  ctx.lineTo(pad + plotW, yZero); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(xZero, pad);  ctx.lineTo(xZero, pad + plotH); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(pad, yZero);
+    ctx.lineTo(pad + plotW, yZero);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(xZero, pad);
+    ctx.lineTo(xZero, pad + plotH);
+    ctx.stroke();
     ctx.restore();
 
     // Helpers: data coords → logical canvas coords
@@ -513,7 +506,7 @@ export function MetaLearningPlayground({
     // Meta-model line (dashed, purple)
     const [mw, mb] = currentModel.weights;
     const metaY1 = (mw ?? 0) * -1.1 + (mb ?? 0);
-    const metaY2 = (mw ?? 0) *  1.1 + (mb ?? 0);
+    const metaY2 = (mw ?? 0) * 1.1 + (mb ?? 0);
     ctx.save();
     ctx.setLineDash([9 / zoom, 7 / zoom]);
     ctx.strokeStyle = '#7c5ce8';
@@ -522,7 +515,7 @@ export function MetaLearningPlayground({
     ctx.shadowColor = 'rgba(124, 92, 232, 0.60)';
     ctx.beginPath();
     ctx.moveTo(toCanvasX(-1.1), toCanvasY(metaY1));
-    ctx.lineTo(toCanvasX( 1.1), toCanvasY(metaY2));
+    ctx.lineTo(toCanvasX(1.1), toCanvasY(metaY2));
     ctx.stroke();
     ctx.restore();
 
@@ -531,12 +524,12 @@ export function MetaLearningPlayground({
       const [aw, ab] = adaptedModel.weights;
       const acx1 = toCanvasX(-1.1);
       const acy1 = toCanvasY((aw ?? 0) * -1.1 + (ab ?? 0));
-      const acx2 = toCanvasX( 1.1);
-      const acy2 = toCanvasY((aw ?? 0) *  1.1 + (ab ?? 0));
+      const acx2 = toCanvasX(1.1);
+      const acy2 = toCanvasY((aw ?? 0) * 1.1 + (ab ?? 0));
       const lg = ctx.createLinearGradient(acx1, 0, acx2, 0);
-      lg.addColorStop(0,   '#10b981');
+      lg.addColorStop(0, '#10b981');
       lg.addColorStop(0.5, '#06b6d4');
-      lg.addColorStop(1,   '#6366f1');
+      lg.addColorStop(1, '#6366f1');
       ctx.save();
       ctx.strokeStyle = lg;
       ctx.lineWidth = 3.5 / zoom;
@@ -551,9 +544,9 @@ export function MetaLearningPlayground({
     }
 
     // Data points with glow halos
-    const ptRadius     = 5   / zoom;
+    const ptRadius = 5 / zoom;
     const ptCoreRadius = 2.2 / zoom;
-    const ptGlowRadius = 10  / zoom;
+    const ptGlowRadius = 10 / zoom;
     selectedTask.data.forEach(({ x, y }) => {
       const cx = toCanvasX(x);
       const cy = toCanvasY(y);
@@ -664,7 +657,7 @@ export function MetaLearningPlayground({
 
     const maxLoss = Math.max(...lossHistory);
     const minLoss = Math.min(...lossHistory);
-    const range   = maxLoss - minLoss || 1;
+    const range = maxLoss - minLoss || 1;
 
     const plotW = SVG_W - SVG_PAD_X * 2;
     const plotH = SVG_H - SVG_PAD_Y * 2;
@@ -674,9 +667,9 @@ export function MetaLearningPlayground({
       y: SVG_PAD_Y + plotH - ((loss - minLoss) / range) * (plotH * 0.85) - plotH * 0.075,
     }));
 
-    const linePath  = buildSmoothPath(points);
-    const last      = points[points.length - 1];
-    const areaPath  = last
+    const linePath = buildSmoothPath(points);
+    const last = points[points.length - 1];
+    const areaPath = last
       ? `${linePath} L ${last.x} ${SVG_PAD_Y + plotH} L ${SVG_PAD_X} ${SVG_PAD_Y + plotH} Z`
       : '';
 
@@ -703,9 +696,7 @@ export function MetaLearningPlayground({
                 Step {currentOuterStep}/{mamlState.outerSteps}
               </Badge>
               {lossHistory.length > 0 && (
-                <Badge variant="outline">
-                  Loss: {statistics.currentLoss.toFixed(4)}
-                </Badge>
+                <Badge variant="outline">Loss: {statistics.currentLoss.toFixed(4)}</Badge>
               )}
             </div>
           </div>
@@ -759,17 +750,19 @@ export function MetaLearningPlayground({
                         variant="ghost"
                         size="sm"
                         className="h-7 w-7 p-0"
-                        onClick={() => setCanvasZoom(z => Math.max(0.5, z - 0.25))}
+                        onClick={() => setCanvasZoom((z) => Math.max(0.5, z - 0.25))}
                         aria-label="Zoom out"
                       >
                         <ZoomOut className="h-3.5 w-3.5" />
                       </Button>
-                      <span className="w-10 text-center font-mono">{Math.round(canvasZoom * 100)}%</span>
+                      <span className="w-10 text-center font-mono">
+                        {Math.round(canvasZoom * 100)}%
+                      </span>
                       <Button
                         variant="ghost"
                         size="sm"
                         className="h-7 w-7 p-0"
-                        onClick={() => setCanvasZoom(z => Math.min(2.0, z + 0.25))}
+                        onClick={() => setCanvasZoom((z) => Math.min(2.0, z + 0.25))}
                         aria-label="Zoom in"
                       >
                         <ZoomIn className="h-3.5 w-3.5" />
@@ -817,7 +810,7 @@ export function MetaLearningPlayground({
                   <div className="flex flex-wrap items-center gap-5 text-xs text-muted-foreground pt-1">
                     <div className="flex items-center gap-2">
                       <div className="flex gap-0.5">
-                        {[0, 1, 2, 3].map(i => (
+                        {[0, 1, 2, 3].map((i) => (
                           <div
                             key={i}
                             className="w-1.5 h-0.5 rounded"
@@ -828,11 +821,17 @@ export function MetaLearningPlayground({
                       <span>Meta-model (init)</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-0.5 rounded" style={{ background: 'linear-gradient(90deg,#10b981,#6366f1)' }} />
+                      <div
+                        className="w-8 h-0.5 rounded"
+                        style={{ background: 'linear-gradient(90deg,#10b981,#6366f1)' }}
+                      />
                       <span>Adapted ({mamlState.innerSteps} steps)</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#3b82f6', border: '1px solid #fff' }} />
+                      <div
+                        className="w-2.5 h-2.5 rounded-full"
+                        style={{ background: '#3b82f6', border: '1px solid #fff' }}
+                      />
                       <span>Data points</span>
                     </div>
                   </div>
@@ -878,7 +877,8 @@ export function MetaLearningPlayground({
                   <div
                     className="relative rounded-xl overflow-hidden"
                     style={{
-                      background: 'linear-gradient(135deg, rgba(12,10,32,0.6) 0%, rgba(20,16,50,0.6) 100%)',
+                      background:
+                        'linear-gradient(135deg, rgba(12,10,32,0.6) 0%, rgba(20,16,50,0.6) 100%)',
                       backdropFilter: 'blur(8px)',
                       border: '1px solid rgba(90,70,160,0.3)',
                     }}
@@ -893,7 +893,7 @@ export function MetaLearningPlayground({
                     >
                       <defs>
                         <linearGradient id="lossAreaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                          <stop offset="0%"   stopColor="#6366f1" stopOpacity="0.50" />
+                          <stop offset="0%" stopColor="#6366f1" stopOpacity="0.50" />
                           <stop offset="100%" stopColor="#6366f1" stopOpacity="0.04" />
                         </linearGradient>
                         {/*
@@ -917,7 +917,13 @@ export function MetaLearningPlayground({
                           </feMerge>
                         </filter>
                         {/* Subtle grid lines inside the chart */}
-                        <line id="hGridLine" x1={SVG_PAD_X} x2={SVG_W - SVG_PAD_X} stroke="rgba(90,70,160,0.20)" strokeWidth="0.75" />
+                        <line
+                          id="hGridLine"
+                          x1={SVG_PAD_X}
+                          x2={SVG_W - SVG_PAD_X}
+                          stroke="rgba(90,70,160,0.20)"
+                          strokeWidth="0.75"
+                        />
                       </defs>
 
                       {/* Horizontal grid lines at 25% intervals */}
@@ -935,10 +941,7 @@ export function MetaLearningPlayground({
                       {lossChartData && (
                         <>
                           {/* Area fill under curve */}
-                          <path
-                            d={lossChartData.areaPath}
-                            fill="url(#lossAreaGradient)"
-                          />
+                          <path d={lossChartData.areaPath} fill="url(#lossAreaGradient)" />
 
                           {/* Glowing loss line */}
                           <path
@@ -965,7 +968,9 @@ export function MetaLearningPlayground({
                               animate={{ scale: 1 }}
                               transition={{ delay: i * 0.04, type: 'spring', stiffness: 300 }}
                             >
-                              <title>Step {i + 1}: {lossHistory[i]?.toFixed(4)}</title>
+                              <title>
+                                Step {i + 1}: {lossHistory[i]?.toFixed(4)}
+                              </title>
                             </motion.circle>
                           ))}
                         </>
@@ -976,10 +981,25 @@ export function MetaLearningPlayground({
                   {/* Statistics with glass-morphism */}
                   <div className="grid grid-cols-3 gap-3">
                     {[
-                      { label: 'Current Loss', value: statistics.currentLoss.toFixed(4), hue: 264, delay: 0.1 },
-                      { label: 'Best Loss',    value: statistics.bestLoss.toFixed(4),    hue: 155, delay: 0.2 },
-                      { label: 'Avg Loss',     value: statistics.avgLoss.toFixed(4),     hue: 250, delay: 0.3 },
-                    ].map(s => (
+                      {
+                        label: 'Current Loss',
+                        value: statistics.currentLoss.toFixed(4),
+                        hue: 264,
+                        delay: 0.1,
+                      },
+                      {
+                        label: 'Best Loss',
+                        value: statistics.bestLoss.toFixed(4),
+                        hue: 155,
+                        delay: 0.2,
+                      },
+                      {
+                        label: 'Avg Loss',
+                        value: statistics.avgLoss.toFixed(4),
+                        hue: 250,
+                        delay: 0.3,
+                      },
+                    ].map((s) => (
                       <motion.div
                         key={s.label}
                         initial={{ opacity: 0, y: 10 }}
@@ -1014,13 +1034,13 @@ export function MetaLearningPlayground({
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-3">
-                {mamlState.tasks.map(task => {
+                {mamlState.tasks.map((task) => {
                   const isSelected = selectedTask?.taskId === task.taskId;
                   const adapted = innerLoop(
                     currentModel,
                     task,
                     mamlState.innerSteps,
-                    mamlState.innerLearningRate
+                    mamlState.innerLearningRate,
                   );
                   const loss = computeLoss(adapted, task);
 
@@ -1033,9 +1053,7 @@ export function MetaLearningPlayground({
                     >
                       <div className="flex-1 text-left">
                         <div className="font-semibold">{task.name}</div>
-                        <div className="text-xs opacity-70 mt-1">
-                          Loss: {loss.toFixed(4)}
-                        </div>
+                        <div className="text-xs opacity-70 mt-1">Loss: {loss.toFixed(4)}</div>
                       </div>
                     </Button>
                   );
@@ -1053,7 +1071,11 @@ export function MetaLearningPlayground({
               <CardTitle>Training</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button className="w-full" onClick={train} disabled={currentOuterStep >= mamlState.outerSteps}>
+              <Button
+                className="w-full"
+                onClick={train}
+                disabled={currentOuterStep >= mamlState.outerSteps}
+              >
                 {isTraining ? (
                   <>
                     <Pause className="h-4 w-4 mr-2" />
@@ -1106,7 +1128,7 @@ export function MetaLearningPlayground({
                   step={1}
                   value={[mamlState.innerSteps]}
                   onValueChange={([value]: number[]) =>
-                    setMamlState(prev => ({ ...prev, innerSteps: value ?? 5 }))
+                    setMamlState((prev) => ({ ...prev, innerSteps: value ?? 5 }))
                   }
                   disabled={isTraining}
                 />
@@ -1126,7 +1148,7 @@ export function MetaLearningPlayground({
                   step={5}
                   value={[mamlState.outerSteps]}
                   onValueChange={([value]: number[]) =>
-                    setMamlState(prev => ({ ...prev, outerSteps: value ?? 10 }))
+                    setMamlState((prev) => ({ ...prev, outerSteps: value ?? 10 }))
                   }
                   disabled={isTraining}
                 />
@@ -1146,7 +1168,7 @@ export function MetaLearningPlayground({
                   step={0.001}
                   value={[mamlState.innerLearningRate]}
                   onValueChange={([value]: number[]) =>
-                    setMamlState(prev => ({ ...prev, innerLearningRate: value ?? 0.01 }))
+                    setMamlState((prev) => ({ ...prev, innerLearningRate: value ?? 0.01 }))
                   }
                   disabled={isTraining}
                 />
@@ -1166,7 +1188,7 @@ export function MetaLearningPlayground({
                   step={0.001}
                   value={[mamlState.outerLearningRate]}
                   onValueChange={([value]: number[]) =>
-                    setMamlState(prev => ({ ...prev, outerLearningRate: value ?? 0.01 }))
+                    setMamlState((prev) => ({ ...prev, outerLearningRate: value ?? 0.01 }))
                   }
                   disabled={isTraining}
                 />
@@ -1211,16 +1233,37 @@ export function MetaLearningPlayground({
               <TabsList
                 className="grid w-full grid-cols-4 h-auto p-1 rounded-xl"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(10,8,28,0.55) 0%, rgba(18,14,42,0.55) 100%)',
+                  background:
+                    'linear-gradient(135deg, rgba(10,8,28,0.55) 0%, rgba(18,14,42,0.55) 100%)',
                   backdropFilter: 'blur(12px)',
                   border: '1px solid rgba(90,70,180,0.25)',
                   boxShadow: '0 4px 16px rgba(0,0,0,0.28), inset 0 1px 1px rgba(255,255,255,0.06)',
                 }}
               >
-                <TabsTrigger value="concept" className="py-2 text-xs sm:text-sm rounded-lg data-[state=active]:bg-white/10 data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=inactive]:text-muted-foreground">Concept</TabsTrigger>
-                <TabsTrigger value="algorithm" className="py-2 text-xs sm:text-sm rounded-lg data-[state=active]:bg-white/10 data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=inactive]:text-muted-foreground">Algorithm</TabsTrigger>
-                <TabsTrigger value="visualization" className="py-2 text-xs sm:text-sm rounded-lg data-[state=active]:bg-white/10 data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=inactive]:text-muted-foreground">Visualization</TabsTrigger>
-                <TabsTrigger value="tips" className="py-2 text-xs sm:text-sm rounded-lg data-[state=active]:bg-white/10 data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=inactive]:text-muted-foreground">Tips</TabsTrigger>
+                <TabsTrigger
+                  value="concept"
+                  className="py-2 text-xs sm:text-sm rounded-lg data-[state=active]:bg-white/10 data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=inactive]:text-muted-foreground"
+                >
+                  Concept
+                </TabsTrigger>
+                <TabsTrigger
+                  value="algorithm"
+                  className="py-2 text-xs sm:text-sm rounded-lg data-[state=active]:bg-white/10 data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=inactive]:text-muted-foreground"
+                >
+                  Algorithm
+                </TabsTrigger>
+                <TabsTrigger
+                  value="visualization"
+                  className="py-2 text-xs sm:text-sm rounded-lg data-[state=active]:bg-white/10 data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=inactive]:text-muted-foreground"
+                >
+                  Visualization
+                </TabsTrigger>
+                <TabsTrigger
+                  value="tips"
+                  className="py-2 text-xs sm:text-sm rounded-lg data-[state=active]:bg-white/10 data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=inactive]:text-muted-foreground"
+                >
+                  Tips
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="concept" className="space-y-3 text-sm">

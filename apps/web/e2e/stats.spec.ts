@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Statistical Analysis Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -7,9 +7,9 @@ test.describe('Statistical Analysis Page', () => {
   });
 
   test('page loads with heading visible', async ({ page }) => {
-    await expect(
-      page.getByRole('heading', { name: /statistical analysis/i }),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /statistical analysis/i })).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('feature badges are displayed', async ({ page }) => {

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Forum Detail Page', () => {
   test('navigating from forum list to a post detail page', async ({ page }) => {

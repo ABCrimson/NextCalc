@@ -1,21 +1,21 @@
 'use client';
 
+import { AnimatePresence, motion } from 'framer-motion';
+import { ChevronDown, Cpu, Zap } from 'lucide-react';
 import {
-  useEffect,
-  useRef,
-  useState,
-  useCallback,
-  useMemo,
   type MouseEvent,
   type TouchEvent as ReactTouchEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, Cpu, ChevronDown } from 'lucide-react';
 import {
-  computeBifurcationGPU,
-  type BifurcationPoint,
   type BifurcationGPUParams,
   type BifurcationMapType,
+  type BifurcationPoint,
+  computeBifurcationGPU,
 } from './webgpu-bifurcation';
 
 export type { BifurcationPoint, BifurcationMapType };
@@ -64,12 +64,42 @@ interface MapMeta {
 }
 
 const MAP_META: Record<BifurcationMapType, MapMeta> = {
-  logistic: { label: 'Logistic Map', defaultRMin: 2.5, defaultRMax: 4.0,  description: 'x_{n+1} = r·x·(1−x)' },
-  sine:     { label: 'Sine Map',     defaultRMin: 0.0, defaultRMax: 1.0,  description: 'x_{n+1} = r·sin(π·x)' },
-  tent:     { label: 'Tent Map',     defaultRMin: 0.0, defaultRMax: 2.0,  description: 'x_{n+1} = r·min(x, 1−x)' },
-  cubic:    { label: 'Cubic Map',    defaultRMin: 0.0, defaultRMax: 3.0,  description: 'x_{n+1} = r·x − x³' },
-  gauss:    { label: 'Gauss Map',    defaultRMin: -1,  defaultRMax: 1.0,  description: 'x_{n+1} = exp(−αx²) + β' },
-  circle:   { label: 'Circle Map',   defaultRMin: 0.0, defaultRMax: 3.0,  description: 'x_{n+1} = x + Ω − k/(2π)·sin(2πx)' },
+  logistic: {
+    label: 'Logistic Map',
+    defaultRMin: 2.5,
+    defaultRMax: 4.0,
+    description: 'x_{n+1} = r·x·(1−x)',
+  },
+  sine: {
+    label: 'Sine Map',
+    defaultRMin: 0.0,
+    defaultRMax: 1.0,
+    description: 'x_{n+1} = r·sin(π·x)',
+  },
+  tent: {
+    label: 'Tent Map',
+    defaultRMin: 0.0,
+    defaultRMax: 2.0,
+    description: 'x_{n+1} = r·min(x, 1−x)',
+  },
+  cubic: {
+    label: 'Cubic Map',
+    defaultRMin: 0.0,
+    defaultRMax: 3.0,
+    description: 'x_{n+1} = r·x − x³',
+  },
+  gauss: {
+    label: 'Gauss Map',
+    defaultRMin: -1,
+    defaultRMax: 1.0,
+    description: 'x_{n+1} = exp(−αx²) + β',
+  },
+  circle: {
+    label: 'Circle Map',
+    defaultRMin: 0.0,
+    defaultRMax: 3.0,
+    description: 'x_{n+1} = x + Ω − k/(2π)·sin(2πx)',
+  },
 };
 
 const MAP_TYPES: BifurcationMapType[] = ['logistic', 'sine', 'tent', 'cubic', 'gauss', 'circle'];
@@ -88,16 +118,106 @@ interface BifurcationPreset {
 }
 
 const BIFURCATION_PRESETS: readonly BifurcationPreset[] = [
-  { name: 'Logistic Map (Classic)',    rMin: 2.5,  rMax: 4.0,  xMin: 0,    xMax: 1,    equation: 'r*x*(1-x)',                 mapType: 'logistic', x0: 0.5 },
-  { name: 'Logistic Map (Full Range)', rMin: 0,    rMax: 4.0,  xMin: 0,    xMax: 1,    equation: 'r*x*(1-x)',                 mapType: 'logistic', x0: 0.5 },
-  { name: 'Period-Doubling Cascade',   rMin: 3.4,  rMax: 3.6,  xMin: 0.3,  xMax: 0.9,  equation: 'r*x*(1-x)',                 mapType: 'logistic', x0: 0.5 },
-  { name: 'Onset of Chaos',            rMin: 3.54, rMax: 3.58, xMin: 0.34, xMax: 0.9,  equation: 'r*x*(1-x)',                 mapType: 'logistic', x0: 0.5 },
-  { name: 'Band-Merging Region',       rMin: 3.57, rMax: 3.83, xMin: 0.1,  xMax: 0.95, equation: 'r*x*(1-x)',                 mapType: 'logistic', x0: 0.5 },
-  { name: 'Sine Map',                  rMin: 0,    rMax: 1,    xMin: 0,    xMax: 1,    equation: 'r*sin(pi*x)',               mapType: 'sine',     x0: 0.5 },
-  { name: 'Cubic Map',                 rMin: 0,    rMax: 3,    xMin: -2,   xMax: 2,    equation: 'r*x-x^3',                  mapType: 'cubic',    x0: 0.5 },
-  { name: 'Tent Map',                  rMin: 0,    rMax: 2,    xMin: 0,    xMax: 1,    equation: 'r*min(x,1-x)',              mapType: 'tent',     x0: 0.5 },
-  { name: 'Gauss Iterated Map',        rMin: -1,   rMax: 1,    xMin: -1,   xMax: 1,    equation: 'exp(-alpha*x^2)+beta',      mapType: 'gauss',    x0: 0.5 },
-  { name: 'Circle Map',                rMin: 0,    rMax: 3,    xMin: 0,    xMax: 1,    equation: 'x+omega-k/(2*pi)*sin(2*pi*x)', mapType: 'circle', x0: 0.5 },
+  {
+    name: 'Logistic Map (Classic)',
+    rMin: 2.5,
+    rMax: 4.0,
+    xMin: 0,
+    xMax: 1,
+    equation: 'r*x*(1-x)',
+    mapType: 'logistic',
+    x0: 0.5,
+  },
+  {
+    name: 'Logistic Map (Full Range)',
+    rMin: 0,
+    rMax: 4.0,
+    xMin: 0,
+    xMax: 1,
+    equation: 'r*x*(1-x)',
+    mapType: 'logistic',
+    x0: 0.5,
+  },
+  {
+    name: 'Period-Doubling Cascade',
+    rMin: 3.4,
+    rMax: 3.6,
+    xMin: 0.3,
+    xMax: 0.9,
+    equation: 'r*x*(1-x)',
+    mapType: 'logistic',
+    x0: 0.5,
+  },
+  {
+    name: 'Onset of Chaos',
+    rMin: 3.54,
+    rMax: 3.58,
+    xMin: 0.34,
+    xMax: 0.9,
+    equation: 'r*x*(1-x)',
+    mapType: 'logistic',
+    x0: 0.5,
+  },
+  {
+    name: 'Band-Merging Region',
+    rMin: 3.57,
+    rMax: 3.83,
+    xMin: 0.1,
+    xMax: 0.95,
+    equation: 'r*x*(1-x)',
+    mapType: 'logistic',
+    x0: 0.5,
+  },
+  {
+    name: 'Sine Map',
+    rMin: 0,
+    rMax: 1,
+    xMin: 0,
+    xMax: 1,
+    equation: 'r*sin(pi*x)',
+    mapType: 'sine',
+    x0: 0.5,
+  },
+  {
+    name: 'Cubic Map',
+    rMin: 0,
+    rMax: 3,
+    xMin: -2,
+    xMax: 2,
+    equation: 'r*x-x^3',
+    mapType: 'cubic',
+    x0: 0.5,
+  },
+  {
+    name: 'Tent Map',
+    rMin: 0,
+    rMax: 2,
+    xMin: 0,
+    xMax: 1,
+    equation: 'r*min(x,1-x)',
+    mapType: 'tent',
+    x0: 0.5,
+  },
+  {
+    name: 'Gauss Iterated Map',
+    rMin: -1,
+    rMax: 1,
+    xMin: -1,
+    xMax: 1,
+    equation: 'exp(-alpha*x^2)+beta',
+    mapType: 'gauss',
+    x0: 0.5,
+  },
+  {
+    name: 'Circle Map',
+    rMin: 0,
+    rMax: 3,
+    xMin: 0,
+    xMax: 1,
+    equation: 'x+omega-k/(2*pi)*sin(2*pi*x)',
+    mapType: 'circle',
+    x0: 0.5,
+  },
 ];
 
 /**
@@ -107,12 +227,18 @@ const BIFURCATION_PRESETS: readonly BifurcationPreset[] = [
  */
 function cpuIterateMap(mapType: BifurcationMapType, r: number, x: number): number {
   switch (mapType) {
-    case 'logistic': return r * x * (1 - x);
-    case 'sine':     return r * Math.sin(Math.PI * x);
-    case 'tent':     return r * Math.min(x, 1 - x);
-    case 'cubic':    return r * x - x * x * x;
-    case 'gauss':    return Math.exp(-6.2 * x * x) + r; // alpha=6.2, beta=r
-    case 'circle':   return (x + r - (0.5 / Math.PI) * Math.sin(2 * Math.PI * x)) % 1;
+    case 'logistic':
+      return r * x * (1 - x);
+    case 'sine':
+      return r * Math.sin(Math.PI * x);
+    case 'tent':
+      return r * Math.min(x, 1 - x);
+    case 'cubic':
+      return r * x - x * x * x;
+    case 'gauss':
+      return Math.exp(-6.2 * x * x) + r; // alpha=6.2, beta=r
+    case 'circle':
+      return (x + r - (0.5 / Math.PI) * Math.sin(2 * Math.PI * x)) % 1;
   }
 }
 
@@ -254,8 +380,8 @@ export function BifurcationDiagramRenderer({
     return () => {
       cancelled = true;
     };
-  // gpuParams changes are intentionally excluded — local state takes priority.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // gpuParams changes are intentionally excluded — local state takes priority.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enableGPU, mapType, rMin, rMax, x0]);
 
   // ── Bounds ──────────────────────────────────────────────────────────────────
@@ -280,56 +406,53 @@ export function BifurcationDiagramRenderer({
    * Emerald → cyan → indigo → violet palette.
    * Canvas renderers may use dynamic HSL (acceptable per project conventions).
    */
-  const progressToRGBA = useCallback(
-    (progress: number): [number, number, number] => {
-      let hue: number;
-      let sat: number;
-      let lit: number;
+  const progressToRGBA = useCallback((progress: number): [number, number, number] => {
+    let hue: number;
+    let sat: number;
+    let lit: number;
 
-      if (progress < 0.25) {
-        const t = progress / 0.25;
-        hue = 160 + t * 26;
-        sat = 72 + t * 10;
-        lit = 56;
-      } else if (progress < 0.5) {
-        const t = (progress - 0.25) / 0.25;
-        hue = 186 + t * 18;
-        sat = 82;
-        lit = 58 + t * 4;
-      } else if (progress < 0.75) {
-        const t = (progress - 0.5) / 0.25;
-        hue = 204 + t * 35;
-        sat = 82 - t * 14;
-        lit = 62 - t * 4;
-      } else {
-        const t = (progress - 0.75) / 0.25;
-        hue = 239 + t * 33;
-        sat = 68 + t * 14;
-        lit = 58 + t * 6;
-      }
+    if (progress < 0.25) {
+      const t = progress / 0.25;
+      hue = 160 + t * 26;
+      sat = 72 + t * 10;
+      lit = 56;
+    } else if (progress < 0.5) {
+      const t = (progress - 0.25) / 0.25;
+      hue = 186 + t * 18;
+      sat = 82;
+      lit = 58 + t * 4;
+    } else if (progress < 0.75) {
+      const t = (progress - 0.5) / 0.25;
+      hue = 204 + t * 35;
+      sat = 82 - t * 14;
+      lit = 62 - t * 4;
+    } else {
+      const t = (progress - 0.75) / 0.25;
+      hue = 239 + t * 33;
+      sat = 68 + t * 14;
+      lit = 58 + t * 6;
+    }
 
-      const h = hue / 360;
-      const s = sat / 100;
-      const l = lit / 100;
-      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-      const p = 2 * l - q;
-      const hue2rgb = (tt: number) => {
-        let t = tt;
-        if (t < 0) t += 1;
-        if (t > 1) t -= 1;
-        if (t < 1 / 6) return p + (q - p) * 6 * t;
-        if (t < 1 / 2) return q;
-        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-        return p;
-      };
-      return [
-        Math.round(hue2rgb(h + 1 / 3) * 255),
-        Math.round(hue2rgb(h) * 255),
-        Math.round(hue2rgb(h - 1 / 3) * 255),
-      ];
-    },
-    []
-  );
+    const h = hue / 360;
+    const s = sat / 100;
+    const l = lit / 100;
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    const hue2rgb = (tt: number) => {
+      let t = tt;
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1 / 6) return p + (q - p) * 6 * t;
+      if (t < 1 / 2) return q;
+      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+      return p;
+    };
+    return [
+      Math.round(hue2rgb(h + 1 / 3) * 255),
+      Math.round(hue2rgb(h) * 255),
+      Math.round(hue2rgb(h - 1 / 3) * 255),
+    ];
+  }, []);
 
   // ── Helpers to commit string inputs to numeric state ────────────────────────
   const commitRMin = useCallback(() => {
@@ -447,8 +570,7 @@ export function BifurcationDiagramRenderer({
     const dispMinX = bounds.minX + (bounds.rangeX - visibleRangeX) / 2 - pan.x;
     const dispMaxX = dispMinX + visibleRangeX;
 
-    const rToScreenX = (rv: number) =>
-      m.left + ((rv - dispMinR) / (dispMaxR - dispMinR)) * plotW;
+    const rToScreenX = (rv: number) => m.left + ((rv - dispMinR) / (dispMaxR - dispMinR)) * plotW;
     const xToScreenY = (xv: number) =>
       m.top + plotH - ((xv - dispMinX) / (dispMaxX - dispMinX)) * plotH;
 
@@ -532,8 +654,14 @@ export function BifurcationDiagramRenderer({
      */
     const OFFSETS: ReadonlyArray<readonly [number, number, number]> = [
       [0, 0, 255],
-      [-1, 0, 140], [1, 0, 140], [0, -1, 140], [0, 1, 140],
-      [-1, -1, 70], [1, -1, 70], [-1, 1, 70], [1, 1, 70],
+      [-1, 0, 140],
+      [1, 0, 140],
+      [0, -1, 140],
+      [0, 1, 140],
+      [-1, -1, 70],
+      [1, -1, 70],
+      [-1, 1, 70],
+      [1, 1, 70],
     ];
 
     const paintPixel = (px: number, py: number, cr: number, cg: number, cb: number) => {
@@ -544,7 +672,7 @@ export function BifurcationDiagramRenderer({
         const ny = iy + dy;
         if (nx < 0 || ny < 0 || nx >= bufW || ny >= bufH) continue;
         const idx = (ny * bufW + nx) * 4;
-        pixels[idx]     = Math.min(255, (pixels[idx]     ?? 0) + Math.round((cr * alpha) / 255));
+        pixels[idx] = Math.min(255, (pixels[idx] ?? 0) + Math.round((cr * alpha) / 255));
         pixels[idx + 1] = Math.min(255, (pixels[idx + 1] ?? 0) + Math.round((cg * alpha) / 255));
         pixels[idx + 2] = Math.min(255, (pixels[idx + 2] ?? 0) + Math.round((cb * alpha) / 255));
       }
@@ -552,10 +680,8 @@ export function BifurcationDiagramRenderer({
 
     let visibleCount = 0;
     for (const point of activeData) {
-      if (
-        point.r < dispMinR || point.r > dispMaxR ||
-        point.x < dispMinX || point.x > dispMaxX
-      ) continue;
+      if (point.r < dispMinR || point.r > dispMaxR || point.x < dispMinX || point.x > dispMaxX)
+        continue;
 
       const sx = (rToScreenX(point.r) - m.left) * dpr;
       const sy = (xToScreenY(point.x) - m.top) * dpr;
@@ -608,7 +734,10 @@ export function BifurcationDiagramRenderer({
 
     ctx.save();
     ctx.shadowBlur = 0;
-    const bx = W - 148, by = 8, bw = 138, bh = 24;
+    const bx = W - 148,
+      by = 8,
+      bw = 138,
+      bh = 24;
     ctx.fillStyle = 'rgba(6,182,212,0.12)';
     ctx.fillRect(bx, by, bw, bh);
     ctx.strokeStyle = 'rgba(6,182,212,0.45)';
@@ -620,7 +749,7 @@ export function BifurcationDiagramRenderer({
     ctx.fillText(
       `${visibleCount.toLocaleString()} pts · ${elapsed.toFixed(1)}ms`,
       bx + bw / 2,
-      by + 15
+      by + 15,
     );
     ctx.restore();
   }, [activeData, zoom, pan, bounds, progressToRGBA, mapType]);
@@ -638,7 +767,7 @@ export function BifurcationDiagramRenderer({
   const handleWheel = useCallback((e: WheelEvent) => {
     e.preventDefault();
     const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
-    setZoom(prev => ({
+    setZoom((prev) => ({
       x: Math.max(1, Math.min(12, prev.x * factor)),
       y: Math.max(1, Math.min(12, prev.y * factor)),
     }));
@@ -651,7 +780,7 @@ export function BifurcationDiagramRenderer({
       setIsPanning(true);
       setDragStart({ clientX: e.clientX, clientY: e.clientY, panR: pan.r, panX: pan.x });
     },
-    [pan]
+    [pan],
   );
 
   const handleMouseMove = useCallback(
@@ -694,7 +823,7 @@ export function BifurcationDiagramRenderer({
       const relX = (mx - m.left) / plotW;
       const rVal = dispMinR + relX * (dispMaxR - dispMinR);
       const tolerance = bounds.rangeR / (zoom.x * 80);
-      const near = activeData.filter(p => Math.abs(p.r - rVal) < tolerance);
+      const near = activeData.filter((p) => Math.abs(p.r - rVal) < tolerance);
       if (near.length > 0) {
         const pt = near[Math.floor(near.length / 2)];
         if (pt) setHoveredPoint({ r: pt.r, x: pt.x, screenX: mx, screenY: my });
@@ -703,7 +832,7 @@ export function BifurcationDiagramRenderer({
         setHoveredPoint(null);
       }
     },
-    [isPanning, dragStart, activeData, bounds, pan, zoom]
+    [isPanning, dragStart, activeData, bounds, pan, zoom],
   );
 
   const handleMouseUp = useCallback(() => setIsPanning(false), []);
@@ -736,7 +865,7 @@ export function BifurcationDiagramRenderer({
         const dist = Math.sqrt(dx * dx + dy * dy);
         const factor = dist / lastPinchDistRef.current;
         lastPinchDistRef.current = dist;
-        setZoom(prev => ({
+        setZoom((prev) => ({
           x: Math.max(1, Math.min(12, prev.x * factor)),
           y: Math.max(1, Math.min(12, prev.y * factor)),
         }));
@@ -754,7 +883,7 @@ export function BifurcationDiagramRenderer({
   }, []);
 
   const zoomBy = useCallback((factor: number) => {
-    setZoom(prev => ({
+    setZoom((prev) => ({
       x: Math.max(1, Math.min(12, prev.x * factor)),
       y: Math.max(1, Math.min(12, prev.y * factor)),
     }));
@@ -772,18 +901,23 @@ export function BifurcationDiagramRenderer({
   // ── GPU status badge label ───────────────────────────────────────────────
   const gpuBadgeLabel: string = (() => {
     switch (gpuStatus) {
-      case 'loading':    return 'GPU computing...';
-      case 'done':       return `WebGPU ${gpuMs !== null ? `${gpuMs.toFixed(0)}ms` : ''}`;
-      case 'unavailable': return 'CPU fallback';
-      default:           return enableGPU ? 'WebGPU ready' : 'CPU mode';
+      case 'loading':
+        return 'GPU computing...';
+      case 'done':
+        return `WebGPU ${gpuMs !== null ? `${gpuMs.toFixed(0)}ms` : ''}`;
+      case 'unavailable':
+        return 'CPU fallback';
+      default:
+        return enableGPU ? 'WebGPU ready' : 'CPU mode';
     }
   })();
 
-  const gpuBadgeColor: string = gpuStatus === 'done'
-    ? 'from-emerald-500/20 to-cyan-500/20 border-emerald-500/40 text-emerald-300'
-    : gpuStatus === 'unavailable'
-    ? 'from-amber-500/20 to-orange-500/20 border-amber-500/40 text-amber-300'
-    : 'from-indigo-500/20 to-violet-500/20 border-indigo-500/40 text-indigo-300';
+  const gpuBadgeColor: string =
+    gpuStatus === 'done'
+      ? 'from-emerald-500/20 to-cyan-500/20 border-emerald-500/40 text-emerald-300'
+      : gpuStatus === 'unavailable'
+        ? 'from-amber-500/20 to-orange-500/20 border-amber-500/40 text-amber-300'
+        : 'from-indigo-500/20 to-violet-500/20 border-indigo-500/40 text-indigo-300';
 
   return (
     <div ref={containerRef} className="relative w-full h-full">
@@ -806,7 +940,7 @@ export function BifurcationDiagramRenderer({
       <div className="absolute bottom-14 left-3">
         <button
           type="button"
-          onClick={() => setShowPresets(v => !v)}
+          onClick={() => setShowPresets((v) => !v)}
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-mono font-semibold
             bg-black/60 backdrop-blur-sm border border-white/10 text-white/70
             hover:border-white/30 hover:text-white transition-colors duration-150
@@ -816,7 +950,10 @@ export function BifurcationDiagramRenderer({
           aria-label="Select bifurcation preset"
         >
           Presets
-          <ChevronDown className={`w-3 h-3 transition-transform duration-150 ${showPresets ? 'rotate-180' : ''}`} aria-hidden="true" />
+          <ChevronDown
+            className={`w-3 h-3 transition-transform duration-150 ${showPresets ? 'rotate-180' : ''}`}
+            aria-hidden="true"
+          />
         </button>
 
         <AnimatePresence>
@@ -843,7 +980,9 @@ export function BifurcationDiagramRenderer({
                     key={preset.name}
                     type="button"
                     role="option"
-                    aria-selected={mapType === preset.mapType && rMin === preset.rMin && rMax === preset.rMax}
+                    aria-selected={
+                      mapType === preset.mapType && rMin === preset.rMin && rMax === preset.rMax
+                    }
                     onClick={() => handlePresetChange(preset)}
                     className="w-full text-left px-3 py-2 hover:bg-white/8 transition-colors duration-100
                       focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring"
@@ -866,7 +1005,7 @@ export function BifurcationDiagramRenderer({
       {/* Toggle button */}
       <button
         type="button"
-        onClick={() => setShowControls(v => !v)}
+        onClick={() => setShowControls((v) => !v)}
         className="absolute bottom-14 right-3 px-2.5 py-1.5 rounded-lg text-[11px] font-mono font-semibold
           bg-black/60 backdrop-blur-sm border border-white/10 text-white/70
           hover:border-white/30 hover:text-white transition-colors duration-150
@@ -896,7 +1035,6 @@ export function BifurcationDiagramRenderer({
               </p>
             </div>
             <div className="px-4 py-3 space-y-4">
-
               {/* Map type selector */}
               <div className="space-y-1.5">
                 <label className="text-[10px] font-mono text-white/50 uppercase tracking-wider">
@@ -929,7 +1067,10 @@ export function BifurcationDiagramRenderer({
               {/* r range */}
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <label htmlFor="bifurcation-rmin" className="text-[10px] font-mono text-white/50 uppercase tracking-wider">
+                  <label
+                    htmlFor="bifurcation-rmin"
+                    className="text-[10px] font-mono text-white/50 uppercase tracking-wider"
+                  >
                     r min
                   </label>
                   <input
@@ -939,14 +1080,19 @@ export function BifurcationDiagramRenderer({
                     value={rMinStr}
                     onChange={(e) => setRMinStr(e.target.value)}
                     onBlur={commitRMin}
-                    onKeyDown={(e) => { if (e.key === 'Enter') commitRMin(); }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') commitRMin();
+                    }}
                     className="w-full px-2 py-1 rounded bg-white/5 border border-white/10
                       text-[11px] font-mono text-white/80
                       focus:border-indigo-400/50 focus:outline-none focus:ring-1 focus:ring-indigo-400/40"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label htmlFor="bifurcation-rmax" className="text-[10px] font-mono text-white/50 uppercase tracking-wider">
+                  <label
+                    htmlFor="bifurcation-rmax"
+                    className="text-[10px] font-mono text-white/50 uppercase tracking-wider"
+                  >
                     r max
                   </label>
                   <input
@@ -956,7 +1102,9 @@ export function BifurcationDiagramRenderer({
                     value={rMaxStr}
                     onChange={(e) => setRMaxStr(e.target.value)}
                     onBlur={commitRMax}
-                    onKeyDown={(e) => { if (e.key === 'Enter') commitRMax(); }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') commitRMax();
+                    }}
                     className="w-full px-2 py-1 rounded bg-white/5 border border-white/10
                       text-[11px] font-mono text-white/80
                       focus:border-indigo-400/50 focus:outline-none focus:ring-1 focus:ring-indigo-400/40"
@@ -966,7 +1114,10 @@ export function BifurcationDiagramRenderer({
 
               {/* Initial condition x₀ */}
               <div className="space-y-1">
-                <label htmlFor="bifurcation-x0" className="text-[10px] font-mono text-white/50 uppercase tracking-wider">
+                <label
+                  htmlFor="bifurcation-x0"
+                  className="text-[10px] font-mono text-white/50 uppercase tracking-wider"
+                >
                   Initial condition x₀ (0 &lt; x₀ &lt; 1)
                 </label>
                 <input
@@ -978,7 +1129,9 @@ export function BifurcationDiagramRenderer({
                   value={x0Str}
                   onChange={(e) => setX0Str(e.target.value)}
                   onBlur={commitX0}
-                  onKeyDown={(e) => { if (e.key === 'Enter') commitX0(); }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') commitX0();
+                  }}
                   className="w-full px-2 py-1 rounded bg-white/5 border border-white/10
                     text-[11px] font-mono text-white/80
                     focus:border-indigo-400/50 focus:outline-none focus:ring-1 focus:ring-indigo-400/40"
@@ -1044,17 +1197,17 @@ export function BifurcationDiagramRenderer({
             exit={{ opacity: 0 }}
             className="absolute inset-0 flex items-center justify-center pointer-events-none"
           >
-            <div className="flex flex-col items-center gap-3 px-6 py-4 rounded-xl
-              bg-black/70 backdrop-blur-md border border-indigo-500/30">
+            <div
+              className="flex flex-col items-center gap-3 px-6 py-4 rounded-xl
+              bg-black/70 backdrop-blur-md border border-indigo-500/30"
+            >
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
                 className="w-7 h-7 rounded-full border-2 border-indigo-400 border-t-transparent"
                 aria-hidden="true"
               />
-              <div className="text-sm font-semibold text-indigo-300">
-                WebGPU Compute Running...
-              </div>
+              <div className="text-sm font-semibold text-indigo-300">WebGPU Compute Running...</div>
               <div className="text-xs text-slate-400 font-mono">
                 Parallelising {(gpuParams?.rSteps ?? 512).toLocaleString()} r-values
               </div>
@@ -1163,7 +1316,8 @@ export function BifurcationDiagramRenderer({
           color: '#475569',
         }}
       >
-        <span className="text-emerald-300 font-semibold">{activeData.length.toLocaleString()}</span> pts
+        <span className="text-emerald-300 font-semibold">{activeData.length.toLocaleString()}</span>{' '}
+        pts
         <span className="mx-1.5">·</span>
         scroll/pinch to zoom
         <span className="mx-1.5">·</span>

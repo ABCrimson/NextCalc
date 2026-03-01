@@ -1,34 +1,43 @@
 'use client';
 
-import { useState, useRef, useMemo, useEffect, useCallback } from 'react';
-import type { ReactNode } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import type { MathTopic } from '@nextcalc/math-engine/knowledge';
+import type { Problem } from '@nextcalc/math-engine/problems';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Timer,
-  Trophy,
-  Target,
+  ArrowRight,
   Award,
-  Zap,
-  Flame,
   BarChart3,
   CheckCircle2,
-  Play,
+  Flame,
   Pause,
+  Play,
   RotateCcw,
-  ArrowRight,
+  Target,
+  Timer,
+  Trophy,
+  Zap,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import type { ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import type { Problem } from '@nextcalc/math-engine/problems';
-import type { MathTopic } from '@nextcalc/math-engine/knowledge';
 
 /**
  * Branded type for practice mode state
  */
-type PracticeModeState = ('setup' | 'active' | 'paused' | 'completed') & { __brand: 'PracticeModeState' };
+type PracticeModeState = ('setup' | 'active' | 'paused' | 'completed') & {
+  __brand: 'PracticeModeState';
+};
 
 /**
  * Performance metrics for a practice session
@@ -113,12 +122,7 @@ export function PracticeMode({
   onResume,
   userPerformance: _userPerformance = new Map(),
 }: PracticeModeProps) {
-  const {
-    timeLimit = 0,
-    questionCount = 10,
-    topic,
-    adaptiveDifficulty = false,
-  } = config;
+  const { timeLimit = 0, questionCount = 10, topic, adaptiveDifficulty = false } = config;
 
   // State
   const [state, setState] = useState<PracticeModeState>('setup' as PracticeModeState);
@@ -214,7 +218,8 @@ export function PracticeMode({
         setBestStreak((prev) => Math.max(prev, newStreak));
         // Award points based on difficulty and time
         const basePoints = currentProblem!.points;
-        const timeBonus = timeLimit > 0 ? Math.max(0, (timeLimit - questionTimer) / timeLimit) * 0.5 : 0;
+        const timeBonus =
+          timeLimit > 0 ? Math.max(0, (timeLimit - questionTimer) / timeLimit) * 0.5 : 0;
         const streakBonus = Math.min(newStreak * 0.1, 1.0);
         const earnedPoints = Math.floor(basePoints * (1 + timeBonus + streakBonus));
         setScore((prev) => prev + earnedPoints);
@@ -251,7 +256,7 @@ export function PracticeMode({
       isLastQuestion,
       onComplete,
       score,
-    ]
+    ],
   );
 
   // Check answer
@@ -290,9 +295,7 @@ export function PracticeMode({
               </div>
               <div className="p-4 bg-muted/50 rounded-lg">
                 <div className="text-sm text-muted-foreground mb-1">Time Limit</div>
-                <div className="text-2xl font-bold">
-                  {timeLimit > 0 ? `${timeLimit}s` : 'None'}
-                </div>
+                <div className="text-2xl font-bold">{timeLimit > 0 ? `${timeLimit}s` : 'None'}</div>
               </div>
               {topic && (
                 <div className="col-span-2 p-4 bg-muted/50 rounded-lg">
@@ -420,9 +423,7 @@ export function PracticeMode({
                             transition={{ duration: 0.3, delay: 0.4 + index * 0.05 }}
                             className={cn(
                               'flex-1 rounded-t',
-                              answer.correct
-                                ? 'bg-green-500/50'
-                                : 'bg-red-500/50'
+                              answer.correct ? 'bg-green-500/50' : 'bg-red-500/50',
                             )}
                             title={`Question ${index + 1}: ${time}s ${answer.correct ? '✓' : '✗'}`}
                           />
@@ -505,13 +506,9 @@ export function PracticeMode({
               <div className="text-sm text-muted-foreground mb-1" aria-live="polite">
                 Time
               </div>
-              <div className="text-2xl font-bold tabular-nums">
-                {formatTime(questionTimer)}
-              </div>
+              <div className="text-2xl font-bold tabular-nums">{formatTime(questionTimer)}</div>
               {timeLimit > 0 && (
-                <div className="text-xs text-muted-foreground">
-                  / {formatTime(timeLimit)}
-                </div>
+                <div className="text-xs text-muted-foreground">/ {formatTime(timeLimit)}</div>
               )}
             </div>
           </div>
@@ -653,7 +650,9 @@ function MetricCard({ icon, label, value, color }: MetricCardProps) {
 /**
  * Helper functions
  */
-function getDifficultyVariant(difficulty: number): 'beginner' | 'intermediate' | 'advanced' | 'expert' | 'research' {
+function getDifficultyVariant(
+  difficulty: number,
+): 'beginner' | 'intermediate' | 'advanced' | 'expert' | 'research' {
   const variants = ['beginner', 'intermediate', 'advanced', 'expert', 'research'] as const;
   return variants[difficulty - 1] || 'intermediate';
 }

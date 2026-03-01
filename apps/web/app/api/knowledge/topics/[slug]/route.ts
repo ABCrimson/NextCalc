@@ -4,15 +4,12 @@
  * GET /api/knowledge/topics/[slug] - Get topic details
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { KnowledgeBaseManager } from '@/lib/cms/knowledge-base';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(
-  _request: NextRequest,
-  context: { params: Promise<{ slug: string }> }
-) {
+export async function GET(_request: NextRequest, context: { params: Promise<{ slug: string }> }) {
   const { params } = context;
   try {
     const { slug } = await params;
@@ -23,9 +20,9 @@ export async function GET(
       return NextResponse.json(
         {
           success: false,
-          error: 'Topic not found'
+          error: 'Topic not found',
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -36,17 +33,17 @@ export async function GET(
       success: true,
       data: {
         ...topic,
-        path
-      }
+        path,
+      },
     });
   } catch (error) {
     console.error('Error fetching topic:', error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Internal server error'
+        error: 'Internal server error',
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

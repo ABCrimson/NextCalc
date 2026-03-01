@@ -1,7 +1,7 @@
 'use client';
 
-import Link from 'next/link';
 import { ChevronRight, Home } from 'lucide-react';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 
@@ -43,17 +43,11 @@ export interface AlgorithmBreadcrumbProps {
  * />
  * ```
  */
-export function AlgorithmBreadcrumb({
-  items,
-  className,
-}: AlgorithmBreadcrumbProps) {
+export function AlgorithmBreadcrumb({ items, className }: AlgorithmBreadcrumbProps) {
   const t = useTranslations('algorithms.page');
 
   return (
-    <nav
-      aria-label="Breadcrumb navigation"
-      className={cn('flex items-center text-sm', className)}
-    >
+    <nav aria-label="Breadcrumb navigation" className={cn('flex items-center text-sm', className)}>
       <ol className="flex items-center gap-2 flex-wrap">
         {/* Home link */}
         <li>
@@ -74,10 +68,7 @@ export function AlgorithmBreadcrumb({
           return (
             <li key={`${item.label}-${index}`} className="flex items-center gap-2">
               {/* Separator */}
-              <ChevronRight
-                className="h-4 w-4 text-muted-foreground"
-                aria-hidden="true"
-              />
+              <ChevronRight className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
 
               {/* Link or text */}
               {item.href && !isLast ? (
@@ -91,7 +82,7 @@ export function AlgorithmBreadcrumb({
                 <span
                   className={cn(
                     'font-medium',
-                    isLast ? 'text-foreground' : 'text-muted-foreground'
+                    isLast ? 'text-foreground' : 'text-muted-foreground',
                   )}
                   aria-current={isLast ? 'page' : undefined}
                 >

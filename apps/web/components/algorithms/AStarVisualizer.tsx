@@ -16,35 +16,28 @@
  * ```
  */
 
-import { useState, useCallback, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Compass, Info, Pause, Play, RotateCcw, SkipForward } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Slider } from '@/components/ui/slider';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  Play,
-  Pause,
-  RotateCcw,
-  SkipForward,
-  Compass,
-  Info,
-} from 'lucide-react';
-import {
-  UnifiedGraphRenderer,
-  type GraphNode,
   type GraphEdge,
+  type GraphNode,
   type NodeId,
+  UnifiedGraphRenderer,
 } from './UnifiedGraphRenderer';
 
 // ============================================================================
@@ -71,7 +64,7 @@ type HeuristicType = 'manhattan' | 'euclidean' | 'chebyshev';
 function generateGridGraph(
   rows: number,
   cols: number,
-  obstacles: Set<string> = new Set()
+  obstacles: Set<string> = new Set(),
 ): { nodes: GraphNode[]; edges: GraphEdge[] } {
   const nodes: GraphNode[] = [];
   const edges: GraphEdge[] = [];
@@ -178,7 +171,7 @@ function* aStarGenerator(
   edges: GraphEdge[],
   startId: NodeId,
   endId: NodeId,
-  heuristicType: HeuristicType
+  heuristicType: HeuristicType,
 ): Generator<AStarState> {
   const heuristic = getHeuristic(heuristicType);
 
@@ -328,10 +321,26 @@ const PRESET_SCENARIOS = [
     start: '1,1',
     end: '8,10',
     obstacles: new Set([
-      '2,2', '2,3', '2,4', '2,5', '2,6',
-      '4,2', '4,3', '4,4', '4,5', '4,6',
-      '6,2', '6,3', '6,4', '6,5', '6,6',
-      '3,8', '4,8', '5,8', '6,8', '7,8',
+      '2,2',
+      '2,3',
+      '2,4',
+      '2,5',
+      '2,6',
+      '4,2',
+      '4,3',
+      '4,4',
+      '4,5',
+      '4,6',
+      '6,2',
+      '6,3',
+      '6,4',
+      '6,5',
+      '6,6',
+      '3,8',
+      '4,8',
+      '5,8',
+      '6,8',
+      '7,8',
     ]),
   },
   {
@@ -359,7 +368,7 @@ export function AStarVisualizer() {
   const scenario = PRESET_SCENARIOS[selectedPreset]!;
   const { nodes, edges } = useMemo(
     () => generateGridGraph(scenario.rows, scenario.cols, scenario.obstacles),
-    [scenario]
+    [scenario],
   );
 
   // Generate algorithm steps
@@ -494,7 +503,10 @@ export function AStarVisualizer() {
           </div>
 
           <div className="flex gap-2">
-            <Badge variant="outline" className="bg-purple-500/10 text-purple-700 dark:text-purple-300">
+            <Badge
+              variant="outline"
+              className="bg-purple-500/10 text-purple-700 dark:text-purple-300"
+            >
               <Compass className="h-3 w-3 mr-1" />
               Heuristic
             </Badge>
@@ -586,8 +598,22 @@ export function AStarVisualizer() {
               {/* Playback */}
               <div className="space-y-3">
                 <div className="flex gap-2">
-                  <Button onClick={handlePlayPause} className="flex-1" variant={isPlaying ? 'default' : 'outline'}>
-                    {isPlaying ? <><Pause className="h-4 w-4 mr-2" />Pause</> : <><Play className="h-4 w-4 mr-2" />Play</>}
+                  <Button
+                    onClick={handlePlayPause}
+                    className="flex-1"
+                    variant={isPlaying ? 'default' : 'outline'}
+                  >
+                    {isPlaying ? (
+                      <>
+                        <Pause className="h-4 w-4 mr-2" />
+                        Pause
+                      </>
+                    ) : (
+                      <>
+                        <Play className="h-4 w-4 mr-2" />
+                        Play
+                      </>
+                    )}
                   </Button>
                   <Button onClick={handleStepForward} variant="outline" size="icon">
                     <SkipForward className="h-4 w-4" />

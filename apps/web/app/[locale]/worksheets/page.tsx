@@ -5,24 +5,24 @@
  * and management actions (open, delete, create new).
  */
 
-import { useState, useEffect, useCallback, useTransition } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+  Clock,
+  Eye,
+  FileText,
+  Grid3X3,
+  List,
+  Loader2,
+  Plus,
+  Search,
+  SortAsc,
+  SortDesc,
+  Trash2,
+} from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Plus,
-  Search,
-  FileText,
-  Trash2,
-  Clock,
-  Eye,
-  Grid3X3,
-  List,
-  SortAsc,
-  SortDesc,
-  Loader2,
-} from 'lucide-react';
+import { useCallback, useEffect, useState, useTransition } from 'react';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -83,30 +83,36 @@ export default function WorksheetsPage() {
         setLoading(false);
       }
     });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Delete handler
-  const handleDelete = useCallback(async (id: string) => {
-    if (!confirm(t('deleteConfirm'))) return;
-    setDeletingId(id);
-    try {
-      const res = await fetch(`/api/worksheets/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        startTransition(() => {
-          setWorksheets((prev) => prev.filter((w) => w.id !== id));
-        });
+  const handleDelete = useCallback(
+    async (id: string) => {
+      if (!confirm(t('deleteConfirm'))) return;
+      setDeletingId(id);
+      try {
+        const res = await fetch(`/api/worksheets/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          startTransition(() => {
+            setWorksheets((prev) => prev.filter((w) => w.id !== id));
+          });
+        }
+      } finally {
+        setDeletingId(null);
       }
-    } finally {
-      setDeletingId(null);
-    }
-  }, [t]);
+    },
+    [t],
+  );
 
   // Filter and sort
   const filtered = worksheets
-    .filter((w) =>
-      w.title.toLowerCase().includes(search.toLowerCase()) ||
-      (w.description ?? '').toLowerCase().includes(search.toLowerCase()),
+    .filter(
+      (w) =>
+        w.title.toLowerCase().includes(search.toLowerCase()) ||
+        (w.description ?? '').toLowerCase().includes(search.toLowerCase()),
     )
     .sort((a, b) => {
       let cmp: number;
@@ -136,12 +142,8 @@ export default function WorksheetsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-foreground tracking-tight">
-            {t('title')}
-          </h1>
-          <p className="mt-1 text-muted-foreground text-sm">
-            {t('subtitle')}
-          </p>
+          <h1 className="text-3xl font-bold text-foreground tracking-tight">{t('title')}</h1>
+          <p className="mt-1 text-muted-foreground text-sm">{t('subtitle')}</p>
         </div>
         <Link
           href={`/${locale}/worksheet`}
@@ -173,7 +175,11 @@ export default function WorksheetsPage() {
             className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl border border-border bg-card text-foreground text-sm hover:bg-accent transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             title={t('sortDirection')}
           >
-            {sortDir === 'desc' ? <SortDesc className="h-4 w-4" /> : <SortAsc className="h-4 w-4" />}
+            {sortDir === 'desc' ? (
+              <SortDesc className="h-4 w-4" />
+            ) : (
+              <SortAsc className="h-4 w-4" />
+            )}
           </button>
 
           {/* Sort field */}
@@ -193,7 +199,9 @@ export default function WorksheetsPage() {
               type="button"
               onClick={() => setViewMode('grid')}
               className={`px-3 py-2.5 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${
-                viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'bg-card text-foreground hover:bg-accent'
+                viewMode === 'grid'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-card text-foreground hover:bg-accent'
               }`}
               aria-label={t('gridView')}
             >
@@ -203,7 +211,9 @@ export default function WorksheetsPage() {
               type="button"
               onClick={() => setViewMode('list')}
               className={`px-3 py-2.5 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${
-                viewMode === 'list' ? 'bg-primary text-primary-foreground' : 'bg-card text-foreground hover:bg-accent'
+                viewMode === 'list'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-card text-foreground hover:bg-accent'
               }`}
               aria-label={t('listView')}
             >
@@ -258,10 +268,7 @@ export default function WorksheetsPage() {
                 transition={{ duration: 0.2 }}
               >
                 <div className="group relative rounded-2xl border border-border bg-card/80 backdrop-blur-sm p-5 hover:border-primary/30 hover:shadow-lg transition-all">
-                  <Link
-                    href={`/${locale}/worksheet?id=${ws.id}`}
-                    className="block"
-                  >
+                  <Link href={`/${locale}/worksheet?id=${ws.id}`} className="block">
                     <h3 className="font-semibold text-foreground truncate group-hover:text-primary transition-colors">
                       {ws.title}
                     </h3>
@@ -318,11 +325,10 @@ export default function WorksheetsPage() {
                 exit={{ opacity: 0, x: -10 }}
                 transition={{ duration: 0.15, delay: i * 0.03 }}
               >
-                <div className={`group flex items-center gap-4 px-5 py-4 hover:bg-accent/50 transition-colors ${i > 0 ? 'border-t border-border' : ''}`}>
-                  <Link
-                    href={`/${locale}/worksheet?id=${ws.id}`}
-                    className="flex-1 min-w-0"
-                  >
+                <div
+                  className={`group flex items-center gap-4 px-5 py-4 hover:bg-accent/50 transition-colors ${i > 0 ? 'border-t border-border' : ''}`}
+                >
+                  <Link href={`/${locale}/worksheet?id=${ws.id}`} className="flex-1 min-w-0">
                     <div className="flex items-center gap-3">
                       <FileText className="h-5 w-5 text-muted-foreground shrink-0" />
                       <div className="min-w-0">
@@ -330,7 +336,8 @@ export default function WorksheetsPage() {
                           {ws.title}
                         </h3>
                         <p className="text-xs text-muted-foreground">
-                          {relativeTime(ws.updatedAt)} · {t('cellCount', { count: ws.cellCount })} · {ws.views} {t('views')}
+                          {relativeTime(ws.updatedAt)} · {t('cellCount', { count: ws.cellCount })} ·{' '}
+                          {ws.views} {t('views')}
                         </p>
                       </div>
                     </div>

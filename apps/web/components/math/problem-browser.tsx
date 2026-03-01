@@ -1,19 +1,37 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
-import type { KeyboardEvent } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Grid3x3, List, SlidersHorizontal, BookmarkPlus, Bookmark, Clock, Trophy, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { cn } from '@/lib/utils';
-import type { Problem, DifficultyLevel, ProblemFilter } from '@nextcalc/math-engine/problems';
-import { ProblemType } from '@nextcalc/math-engine/problems';
 import type { MathTopic } from '@nextcalc/math-engine/knowledge';
+import type { DifficultyLevel, Problem, ProblemFilter } from '@nextcalc/math-engine/problems';
+import { ProblemType } from '@nextcalc/math-engine/problems';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+  Bookmark,
+  BookmarkPlus,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Grid3x3,
+  List,
+  Search,
+  SlidersHorizontal,
+  Trophy,
+} from 'lucide-react';
+import type { KeyboardEvent } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
 
 /**
  * Branded type for view mode
@@ -50,7 +68,11 @@ export interface ProblemBrowserProps {
  */
 const DIFFICULTY_CONFIG = {
   1: { label: 'Beginner', variant: 'beginner' as const, color: 'from-green-500 to-emerald-500' },
-  2: { label: 'Intermediate', variant: 'intermediate' as const, color: 'from-blue-500 to-cyan-500' },
+  2: {
+    label: 'Intermediate',
+    variant: 'intermediate' as const,
+    color: 'from-blue-500 to-cyan-500',
+  },
   3: { label: 'Advanced', variant: 'advanced' as const, color: 'from-purple-500 to-pink-500' },
   4: { label: 'Expert', variant: 'expert' as const, color: 'from-orange-500 to-red-500' },
   5: { label: 'Research', variant: 'research' as const, color: 'from-red-600 to-rose-600' },
@@ -122,7 +144,7 @@ export function ProblemBrowser({
         (p) =>
           p.title.toLowerCase().includes(query) ||
           p.statement.toLowerCase().includes(query) ||
-          p.tags.some((tag) => tag.toLowerCase().includes(query))
+          p.tags.some((tag) => tag.toLowerCase().includes(query)),
       );
     }
 
@@ -165,7 +187,7 @@ export function ProblemBrowser({
   const totalPages = Math.ceil(filteredProblems.length / problemsPerPage);
   const paginatedProblems = filteredProblems.slice(
     (currentPage - 1) * problemsPerPage,
-    currentPage * problemsPerPage
+    currentPage * problemsPerPage,
   );
 
   // Reset to first page when filters change
@@ -197,7 +219,7 @@ export function ProblemBrowser({
   // Extract unique topics from problems
   const availableTopics = useMemo(
     () => Array.from(new Set(problems.map((p) => p.topic))).sort(),
-    [problems]
+    [problems],
   );
 
   // Keyboard navigation
@@ -208,7 +230,7 @@ export function ProblemBrowser({
         onSelectProblem?.(problem);
       }
     },
-    [onSelectProblem]
+    [onSelectProblem],
   );
 
   return (
@@ -217,7 +239,7 @@ export function ProblemBrowser({
       <aside
         className={cn(
           'lg:w-80 space-y-4 transition-all duration-300',
-          showFilters ? 'block' : 'hidden lg:block'
+          showFilters ? 'block' : 'hidden lg:block',
         )}
         aria-label="Filter Controls"
       >
@@ -464,9 +486,7 @@ export function ProblemBrowser({
               transition={{ duration: 0.2 }}
               className={cn(
                 'grid gap-4',
-                viewMode === 'grid'
-                  ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
-                  : 'grid-cols-1'
+                viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1',
               )}
             >
               {paginatedProblems.map((problem, index) => {
@@ -545,7 +565,8 @@ function ProblemCard({
   index,
 }: ProblemCardProps) {
   const difficultyConfig = DIFFICULTY_CONFIG[problem.difficulty];
-  const topicColor = (TOPIC_COLORS as Record<string, string>)[problem.topic] || 'from-muted to-muted/80';
+  const topicColor =
+    (TOPIC_COLORS as Record<string, string>)[problem.topic] || 'from-muted to-muted/80';
 
   return (
     <motion.div
@@ -556,7 +577,7 @@ function ProblemCard({
       <Card
         className={cn(
           'group cursor-pointer hover:shadow-lg transition-all duration-300 relative overflow-hidden',
-          'focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2'
+          'focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
         )}
         onClick={onSelect}
         onKeyDown={onKeyDown}
@@ -570,7 +591,7 @@ function ProblemCard({
             'absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300',
             'bg-gradient-to-br',
             topicColor,
-            'blur-xl -z-10'
+            'blur-xl -z-10',
           )}
         />
 
@@ -596,7 +617,12 @@ function ProblemCard({
                   {difficultyConfig.label}
                 </Badge>
                 <span className="mx-2 text-muted-foreground">•</span>
-                <span className={cn('font-medium bg-gradient-to-r bg-clip-text text-transparent', topicColor)}>
+                <span
+                  className={cn(
+                    'font-medium bg-gradient-to-r bg-clip-text text-transparent',
+                    topicColor,
+                  )}
+                >
                   {problem.topic}
                 </span>
               </CardDescription>
@@ -621,7 +647,12 @@ function ProblemCard({
         </CardHeader>
 
         <CardContent>
-          <p className={cn('text-sm text-muted-foreground', viewMode === 'grid' ? 'line-clamp-3' : 'line-clamp-2')}>
+          <p
+            className={cn(
+              'text-sm text-muted-foreground',
+              viewMode === 'grid' ? 'line-clamp-3' : 'line-clamp-2',
+            )}
+          >
             {problem.statement}
           </p>
 
@@ -642,7 +673,10 @@ function ProblemCard({
 
         <CardFooter className="text-xs text-muted-foreground flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1" title={`Estimated time: ${problem.estimatedTime} minutes`}>
+            <div
+              className="flex items-center gap-1"
+              title={`Estimated time: ${problem.estimatedTime} minutes`}
+            >
               <Clock className="h-3 w-3" />
               <span>{problem.estimatedTime}m</span>
             </div>

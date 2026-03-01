@@ -15,11 +15,11 @@
  * @see https://nextjs.org/docs/app/api-reference/file-conventions/not-found
  */
 
+import { Calculator, Home, TrendingUp, Variable } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Home, Calculator, TrendingUp, Variable } from 'lucide-react';
+import { Link } from '@/i18n/navigation';
 
 export default function NotFound() {
   const t = useTranslations();
@@ -29,7 +29,10 @@ export default function NotFound() {
       {/* Animated background elements */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-calculator-operator/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div
+          className="absolute bottom-20 right-20 w-96 h-96 bg-calculator-operator/10 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: '1s' }}
+        />
       </div>
 
       <Card className="max-w-2xl w-full p-8 md:p-12 bg-card/95 backdrop-blur-md border-border shadow-2xl">

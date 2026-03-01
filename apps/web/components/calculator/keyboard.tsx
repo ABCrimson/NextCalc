@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useCallback, useRef } from 'react';
+import type { AngleMode, CalculatorAction } from '@nextcalc/types';
 import { motion } from 'framer-motion';
-import type { CalculatorAction, AngleMode } from '@nextcalc/types';
+import { useCallback, useEffect, useRef } from 'react';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -53,12 +53,12 @@ interface CalcButton {
  * These sit above the scientific functions to make their special nature clear.
  */
 const UTILITY_ROW: readonly CalcButton[] = [
-  { label: 'DEG',  ariaLabel: 'Toggle angle mode: currently degrees',   kind: 'angle-toggle' },
-  { label: 'M+',   ariaLabel: 'Memory add: add result to memory',        kind: 'memory' },
-  { label: 'MR',   ariaLabel: 'Memory recall: insert stored value',      kind: 'memory' },
-  { label: 'MC',   ariaLabel: 'Memory clear: erase stored value',        kind: 'memory' },
-  { label: '(',    kind: 'scientific', payload: '(' },
-  { label: ')',    kind: 'scientific', payload: ')' },
+  { label: 'DEG', ariaLabel: 'Toggle angle mode: currently degrees', kind: 'angle-toggle' },
+  { label: 'M+', ariaLabel: 'Memory add: add result to memory', kind: 'memory' },
+  { label: 'MR', ariaLabel: 'Memory recall: insert stored value', kind: 'memory' },
+  { label: 'MC', ariaLabel: 'Memory clear: erase stored value', kind: 'memory' },
+  { label: '(', kind: 'scientific', payload: '(' },
+  { label: ')', kind: 'scientific', payload: ')' },
 ] as const;
 
 /**
@@ -66,18 +66,18 @@ const UTILITY_ROW: readonly CalcButton[] = [
  * "sin(" which the math engine can parse.
  */
 const SCIENTIFIC_ROW: readonly CalcButton[] = [
-  { label: 'sin',  ariaLabel: 'sine',                  kind: 'scientific', payload: 'sin(' },
-  { label: 'cos',  ariaLabel: 'cosine',                kind: 'scientific', payload: 'cos(' },
-  { label: 'tan',  ariaLabel: 'tangent',               kind: 'scientific', payload: 'tan(' },
-  { label: 'log',  ariaLabel: 'base-10 logarithm',     kind: 'scientific', payload: 'log(' },
-  { label: 'ln',   ariaLabel: 'natural logarithm',     kind: 'scientific', payload: 'ln(' },
-  { label: 'exp',  ariaLabel: 'exponential e to the x', kind: 'scientific', payload: 'exp(' },
-  { label: '√',    ariaLabel: 'square root',           kind: 'scientific', payload: 'sqrt(' },
-  { label: 'x²',   ariaLabel: 'square',                kind: 'scientific', payload: '^2' },
-  { label: '|x|',  ariaLabel: 'absolute value',        kind: 'scientific', payload: 'abs(' },
-  { label: 'n!',   ariaLabel: 'factorial',             kind: 'scientific', payload: '!' },
-  { label: 'nCr',  ariaLabel: 'combinations n choose r', kind: 'scientific', payload: 'nCr(' },
-  { label: 'mod',  ariaLabel: 'modulo',                kind: 'scientific', payload: '%' },
+  { label: 'sin', ariaLabel: 'sine', kind: 'scientific', payload: 'sin(' },
+  { label: 'cos', ariaLabel: 'cosine', kind: 'scientific', payload: 'cos(' },
+  { label: 'tan', ariaLabel: 'tangent', kind: 'scientific', payload: 'tan(' },
+  { label: 'log', ariaLabel: 'base-10 logarithm', kind: 'scientific', payload: 'log(' },
+  { label: 'ln', ariaLabel: 'natural logarithm', kind: 'scientific', payload: 'ln(' },
+  { label: 'exp', ariaLabel: 'exponential e to the x', kind: 'scientific', payload: 'exp(' },
+  { label: '√', ariaLabel: 'square root', kind: 'scientific', payload: 'sqrt(' },
+  { label: 'x²', ariaLabel: 'square', kind: 'scientific', payload: '^2' },
+  { label: '|x|', ariaLabel: 'absolute value', kind: 'scientific', payload: 'abs(' },
+  { label: 'n!', ariaLabel: 'factorial', kind: 'scientific', payload: '!' },
+  { label: 'nCr', ariaLabel: 'combinations n choose r', kind: 'scientific', payload: 'nCr(' },
+  { label: 'mod', ariaLabel: 'modulo', kind: 'scientific', payload: '%' },
 ] as const;
 
 /**
@@ -85,32 +85,32 @@ const SCIENTIFIC_ROW: readonly CalcButton[] = [
  */
 const NUMERIC_ROWS: readonly (readonly CalcButton[])[] = [
   [
-    { label: '7',   kind: 'digit',    payload: '7' },
-    { label: '8',   kind: 'digit',    payload: '8' },
-    { label: '9',   kind: 'digit',    payload: '9' },
-    { label: '/',   ariaLabel: 'divide',   kind: 'operator', payload: '/' },
-    { label: '^',   ariaLabel: 'power',    kind: 'operator', payload: '^' },
+    { label: '7', kind: 'digit', payload: '7' },
+    { label: '8', kind: 'digit', payload: '8' },
+    { label: '9', kind: 'digit', payload: '9' },
+    { label: '/', ariaLabel: 'divide', kind: 'operator', payload: '/' },
+    { label: '^', ariaLabel: 'power', kind: 'operator', payload: '^' },
   ],
   [
-    { label: '4',   kind: 'digit',    payload: '4' },
-    { label: '5',   kind: 'digit',    payload: '5' },
-    { label: '6',   kind: 'digit',    payload: '6' },
-    { label: '*',   ariaLabel: 'multiply', kind: 'operator', payload: '*' },
-    { label: 'π',   ariaLabel: 'pi',       kind: 'scientific', payload: 'pi' },
+    { label: '4', kind: 'digit', payload: '4' },
+    { label: '5', kind: 'digit', payload: '5' },
+    { label: '6', kind: 'digit', payload: '6' },
+    { label: '*', ariaLabel: 'multiply', kind: 'operator', payload: '*' },
+    { label: 'π', ariaLabel: 'pi', kind: 'scientific', payload: 'pi' },
   ],
   [
-    { label: '1',   kind: 'digit',    payload: '1' },
-    { label: '2',   kind: 'digit',    payload: '2' },
-    { label: '3',   kind: 'digit',    payload: '3' },
-    { label: '-',   ariaLabel: 'minus',    kind: 'operator', payload: '-' },
-    { label: 'e',   ariaLabel: 'Euler\'s number', kind: 'scientific', payload: 'e' },
+    { label: '1', kind: 'digit', payload: '1' },
+    { label: '2', kind: 'digit', payload: '2' },
+    { label: '3', kind: 'digit', payload: '3' },
+    { label: '-', ariaLabel: 'minus', kind: 'operator', payload: '-' },
+    { label: 'e', ariaLabel: "Euler's number", kind: 'scientific', payload: 'e' },
   ],
   [
-    { label: '0',   kind: 'digit',    payload: '0' },
-    { label: '.',   ariaLabel: 'decimal point',   kind: 'digit',    payload: '.' },
-    { label: '=',   ariaLabel: 'equals',           kind: 'equals' },
-    { label: '+',   ariaLabel: 'plus',             kind: 'operator', payload: '+' },
-    { label: 'C',   ariaLabel: 'clear all',        kind: 'clear' },
+    { label: '0', kind: 'digit', payload: '0' },
+    { label: '.', ariaLabel: 'decimal point', kind: 'digit', payload: '.' },
+    { label: '=', ariaLabel: 'equals', kind: 'equals' },
+    { label: '+', ariaLabel: 'plus', kind: 'operator', payload: '+' },
+    { label: 'C', ariaLabel: 'clear all', kind: 'clear' },
   ],
 ] as const;
 
@@ -166,10 +166,8 @@ export function Keyboard({
       if (disabled) return;
 
       // Don't interfere with normal typing in inputs
-      if (
-        event.target instanceof HTMLInputElement ||
-        event.target instanceof HTMLTextAreaElement
-      ) return;
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement)
+        return;
 
       const key = event.key;
 
@@ -214,9 +212,18 @@ export function Keyboard({
           return;
 
         case 'memory':
-          if (btn.label === 'M+') { onInput({ type: 'MEMORY_ADD' });    return; }
-          if (btn.label === 'MR') { onInput({ type: 'MEMORY_RECALL' }); return; }
-          if (btn.label === 'MC') { onInput({ type: 'MEMORY_CLEAR' });  return; }
+          if (btn.label === 'M+') {
+            onInput({ type: 'MEMORY_ADD' });
+            return;
+          }
+          if (btn.label === 'MR') {
+            onInput({ type: 'MEMORY_RECALL' });
+            return;
+          }
+          if (btn.label === 'MC') {
+            onInput({ type: 'MEMORY_CLEAR' });
+            return;
+          }
           return;
 
         default:
@@ -294,8 +301,8 @@ export function Keyboard({
       {/* Screen reader instructions */}
       <div className="sr-only" aria-live="polite">
         Scientific calculator keyboard active. Use number keys, operators, and Enter to calculate.
-        Press Escape to clear. Memory functions: M plus, M R, M C. Toggle angle mode with the DEG
-        or RAD button.
+        Press Escape to clear. Memory functions: M plus, M R, M C. Toggle angle mode with the DEG or
+        RAD button.
       </div>
 
       {/* Memory indicator — shows stored value when memory is non-null */}
@@ -305,8 +312,8 @@ export function Keyboard({
           aria-live="polite"
           aria-label={`Memory contains ${memory}`}
         >
-          <span className="inline-block w-2 h-2 rounded-full bg-violet-400" aria-hidden="true" />
-          M = {memory}
+          <span className="inline-block w-2 h-2 rounded-full bg-violet-400" aria-hidden="true" />M ={' '}
+          {memory}
         </div>
       )}
 
@@ -336,38 +343,24 @@ export function Keyboard({
         {/* ---------------------------------------------------------------- */}
         <div role="row" aria-label="Scientific functions" className="space-y-2">
           <div className="grid grid-cols-6 gap-2">
-            {SCIENTIFIC_ROW.slice(0, 6).map((btn, colIdx) =>
-              renderButton(btn, 1, colIdx),
-            )}
+            {SCIENTIFIC_ROW.slice(0, 6).map((btn, colIdx) => renderButton(btn, 1, colIdx))}
           </div>
           <div className="grid grid-cols-6 gap-2">
-            {SCIENTIFIC_ROW.slice(6).map((btn, colIdx) =>
-              renderButton(btn, 2, colIdx),
-            )}
+            {SCIENTIFIC_ROW.slice(6).map((btn, colIdx) => renderButton(btn, 2, colIdx))}
           </div>
         </div>
 
         {/* ---------------------------------------------------------------- */}
         {/* Divider                                                           */}
         {/* ---------------------------------------------------------------- */}
-        <div
-          className="border-t border-border/30 my-1"
-          role="separator"
-          aria-hidden="true"
-        />
+        <div className="border-t border-border/30 my-1" role="separator" aria-hidden="true" />
 
         {/* ---------------------------------------------------------------- */}
         {/* Rows 3–6: Numeric + operator grid (5 columns)                    */}
         {/* ---------------------------------------------------------------- */}
         {NUMERIC_ROWS.map((row, rowIdx) => (
-          <div
-            key={rowIdx}
-            className="grid grid-cols-5 gap-2"
-            role="row"
-          >
-            {row.map((btn, colIdx) =>
-              renderButton(btn, rowIdx + 3, colIdx),
-            )}
+          <div key={rowIdx} className="grid grid-cols-5 gap-2" role="row">
+            {row.map((btn, colIdx) => renderButton(btn, rowIdx + 3, colIdx))}
           </div>
         ))}
       </motion.div>

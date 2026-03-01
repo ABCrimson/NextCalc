@@ -224,9 +224,9 @@ export async function gpuModExp(tasks: ModExpTask[]): Promise<ModExpResult | nul
   });
   const taskData = new Uint32Array(n * 4);
   for (let i = 0; i < n; i++) {
-    taskData[i * 4]     = tasks[i]?.base ?? 0;
-    taskData[i * 4 + 1] = tasks[i]?.exp  ?? 0;
-    taskData[i * 4 + 2] = tasks[i]?.mod  ?? 1;
+    taskData[i * 4] = tasks[i]?.base ?? 0;
+    taskData[i * 4 + 1] = tasks[i]?.exp ?? 0;
+    taskData[i * 4 + 2] = tasks[i]?.mod ?? 1;
     taskData[i * 4 + 3] = 0;
   }
   device.queue.writeBuffer(taskBuf, 0, taskData.buffer);
@@ -314,7 +314,7 @@ export async function gpuBatchVerify(rounds: SchnorrRound[]): Promise<BatchVerif
   for (let i = 0; i < n; i++) {
     const rnd = rounds[i];
     if (!rnd) continue;
-    roundData[i * 8]     = rnd.t;
+    roundData[i * 8] = rnd.t;
     roundData[i * 8 + 1] = rnd.c;
     roundData[i * 8 + 2] = rnd.s;
     roundData[i * 8 + 3] = rnd.y;
@@ -384,7 +384,7 @@ export async function gpuBatchVerify(rounds: SchnorrRound[]): Promise<BatchVerif
   device.destroy();
 
   return {
-    verified: Array.from(raw).map(v => v === 1),
+    verified: Array.from(raw).map((v) => v === 1),
     gpuMs,
     usedGPU: true,
   };
@@ -410,9 +410,9 @@ export function cpuBatchVerify(rounds: SchnorrRound[]): BatchVerifyResult {
     return Number(result);
   };
 
-  const verified = rounds.map(r => {
-    const left  = cpuModPow(r.g, r.s, r.p);
-    const right = Number(BigInt(r.t) * BigInt(cpuModPow(r.y, r.c, r.p)) % BigInt(r.p));
+  const verified = rounds.map((r) => {
+    const left = cpuModPow(r.g, r.s, r.p);
+    const right = Number((BigInt(r.t) * BigInt(cpuModPow(r.y, r.c, r.p))) % BigInt(r.p));
     return left === right;
   });
 

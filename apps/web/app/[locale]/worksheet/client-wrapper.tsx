@@ -1,19 +1,13 @@
 'use client';
 
-import { useEffect, useRef, useCallback, useActionState } from 'react';
-import dynamic from 'next/dynamic';
 import { Loader2 } from 'lucide-react';
-import { useWorksheetStore } from '@/lib/stores/worksheet-store';
-import type { WorksheetCell } from '@/lib/stores/worksheet-store';
-import {
-  saveWorksheet,
-  loadWorksheet,
-} from '@/app/actions/worksheet';
-import type {
-  SaveWorksheetResult,
-  LoadWorksheetResult,
-} from '@/app/actions/worksheet';
+import dynamic from 'next/dynamic';
+import { useActionState, useCallback, useEffect, useRef } from 'react';
 import type { ActionResult } from '@/app/actions/problems';
+import type { LoadWorksheetResult, SaveWorksheetResult } from '@/app/actions/worksheet';
+import { loadWorksheet, saveWorksheet } from '@/app/actions/worksheet';
+import type { WorksheetCell } from '@/lib/stores/worksheet-store';
+import { useWorksheetStore } from '@/lib/stores/worksheet-store';
 
 const WorksheetEditor = dynamic(
   () =>
@@ -25,15 +19,12 @@ const WorksheetEditor = dynamic(
     loading: () => (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-4 text-muted-foreground rounded-2xl border border-border/50 bg-card/50 backdrop-blur-md px-10 py-8 shadow-sm">
-          <Loader2
-            className="h-8 w-8 animate-spin"
-            aria-label="Loading worksheet editor"
-          />
+          <Loader2 className="h-8 w-8 animate-spin" aria-label="Loading worksheet editor" />
           <p className="text-sm">Loading worksheet editor...</p>
         </div>
       </div>
     ),
-  }
+  },
 );
 
 interface WorksheetClientWrapperProps {
@@ -43,7 +34,9 @@ interface WorksheetClientWrapperProps {
 const initialSaveState: ActionResult<SaveWorksheetResult> = { success: false };
 const initialLoadState: ActionResult<LoadWorksheetResult> = { success: false };
 
-export function WorksheetClientWrapper({ worksheetId: initialWorksheetId }: WorksheetClientWrapperProps) {
+export function WorksheetClientWrapper({
+  worksheetId: initialWorksheetId,
+}: WorksheetClientWrapperProps) {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [saveState, saveAction] = useActionState(saveWorksheet, initialSaveState);
   const [loadState, loadAction] = useActionState(loadWorksheet, initialLoadState);

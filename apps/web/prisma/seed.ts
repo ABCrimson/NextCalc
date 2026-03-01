@@ -11,7 +11,14 @@
  * Run with: pnpm db:seed
  */
 
-import { prisma, Difficulty, Category, AlgorithmCategory, ProgrammingLanguage, AchievementType } from '@nextcalc/database';
+import {
+  type AchievementType,
+  type AlgorithmCategory,
+  type Category,
+  type Difficulty,
+  type ProgrammingLanguage,
+  prisma,
+} from '@nextcalc/database';
 
 async function main() {
   console.log('Starting database seed...\n');
@@ -34,22 +41,46 @@ async function main() {
           slug: 'differential-calculus',
           description: 'Study of derivatives and rates of change',
           children: [
-            { name: 'Limits', slug: 'limits', definition: 'The value a function approaches as the input approaches a value' },
-            { name: 'Derivatives', slug: 'derivatives', definition: 'The rate of change of a function' },
-            { name: 'Chain Rule', slug: 'chain-rule', definition: 'Method for differentiating composite functions' }
-          ]
+            {
+              name: 'Limits',
+              slug: 'limits',
+              definition: 'The value a function approaches as the input approaches a value',
+            },
+            {
+              name: 'Derivatives',
+              slug: 'derivatives',
+              definition: 'The rate of change of a function',
+            },
+            {
+              name: 'Chain Rule',
+              slug: 'chain-rule',
+              definition: 'Method for differentiating composite functions',
+            },
+          ],
         },
         {
           name: 'Integral Calculus',
           slug: 'integral-calculus',
           description: 'Study of integrals and accumulation',
           children: [
-            { name: 'Definite Integrals', slug: 'definite-integrals', definition: 'Integration with bounds' },
-            { name: 'Indefinite Integrals', slug: 'indefinite-integrals', definition: 'Antiderivatives' },
-            { name: 'Integration by Parts', slug: 'integration-by-parts', definition: 'Integration technique based on product rule' }
-          ]
-        }
-      ]
+            {
+              name: 'Definite Integrals',
+              slug: 'definite-integrals',
+              definition: 'Integration with bounds',
+            },
+            {
+              name: 'Indefinite Integrals',
+              slug: 'indefinite-integrals',
+              definition: 'Antiderivatives',
+            },
+            {
+              name: 'Integration by Parts',
+              slug: 'integration-by-parts',
+              definition: 'Integration technique based on product rule',
+            },
+          ],
+        },
+      ],
     },
 
     // ALGEBRA
@@ -65,9 +96,17 @@ async function main() {
           description: 'Study of linear equations, matrices, and vector spaces',
           children: [
             { name: 'Matrices', slug: 'matrices', definition: 'Rectangular arrays of numbers' },
-            { name: 'Vector Spaces', slug: 'vector-spaces', definition: 'Sets of vectors with addition and scalar multiplication' },
-            { name: 'Eigenvalues', slug: 'eigenvalues', definition: 'Scalars associated with linear transformations' }
-          ]
+            {
+              name: 'Vector Spaces',
+              slug: 'vector-spaces',
+              definition: 'Sets of vectors with addition and scalar multiplication',
+            },
+            {
+              name: 'Eigenvalues',
+              slug: 'eigenvalues',
+              definition: 'Scalars associated with linear transformations',
+            },
+          ],
         },
         {
           name: 'Abstract Algebra',
@@ -76,10 +115,10 @@ async function main() {
           children: [
             { name: 'Groups', slug: 'groups', definition: 'Set with associative binary operation' },
             { name: 'Rings', slug: 'rings', definition: 'Set with addition and multiplication' },
-            { name: 'Fields', slug: 'fields', definition: 'Ring where division is possible' }
-          ]
-        }
-      ]
+            { name: 'Fields', slug: 'fields', definition: 'Ring where division is possible' },
+          ],
+        },
+      ],
     },
 
     // ALGORITHMS
@@ -95,8 +134,8 @@ async function main() {
           description: 'Algorithms for ordering data',
           children: [
             { name: 'Comparison-Based Sorting', slug: 'comparison-sorting' },
-            { name: 'Non-Comparison Sorting', slug: 'non-comparison-sorting' }
-          ]
+            { name: 'Non-Comparison Sorting', slug: 'non-comparison-sorting' },
+          ],
         },
         {
           name: 'Graph Algorithms',
@@ -104,10 +143,10 @@ async function main() {
           description: 'Algorithms for graph problems',
           children: [
             { name: 'Shortest Path', slug: 'shortest-path' },
-            { name: 'Minimum Spanning Tree', slug: 'minimum-spanning-tree' }
-          ]
-        }
-      ]
+            { name: 'Minimum Spanning Tree', slug: 'minimum-spanning-tree' },
+          ],
+        },
+      ],
     },
 
     // CRYPTOGRAPHY
@@ -117,10 +156,18 @@ async function main() {
       category: 'CRYPTOGRAPHY' as Category,
       description: 'Secure communication techniques',
       children: [
-        { name: 'Public Key Cryptography', slug: 'public-key-crypto', description: 'Asymmetric encryption' },
+        {
+          name: 'Public Key Cryptography',
+          slug: 'public-key-crypto',
+          description: 'Asymmetric encryption',
+        },
         { name: 'Hash Functions', slug: 'hash-functions', description: 'One-way functions' },
-        { name: 'Digital Signatures', slug: 'digital-signatures', description: 'Authentication schemes' }
-      ]
+        {
+          name: 'Digital Signatures',
+          slug: 'digital-signatures',
+          description: 'Authentication schemes',
+        },
+      ],
     },
 
     // GAME THEORY
@@ -131,8 +178,8 @@ async function main() {
       description: 'Mathematical models of strategic interaction',
       children: [
         { name: 'Nash Equilibrium', slug: 'nash-equilibrium' },
-        { name: 'Cooperative Games', slug: 'cooperative-games' }
-      ]
+        { name: 'Cooperative Games', slug: 'cooperative-games' },
+      ],
     },
 
     // CHAOS THEORY
@@ -143,8 +190,8 @@ async function main() {
       description: 'Study of dynamical systems sensitive to initial conditions',
       children: [
         { name: 'Attractors', slug: 'attractors' },
-        { name: 'Bifurcations', slug: 'bifurcations' }
-      ]
+        { name: 'Bifurcations', slug: 'bifurcations' },
+      ],
     },
 
     // TOPOLOGY
@@ -155,24 +202,36 @@ async function main() {
       description: 'Study of properties preserved under continuous deformations',
       children: [
         { name: 'Point-Set Topology', slug: 'point-set-topology' },
-        { name: 'Algebraic Topology', slug: 'algebraic-topology' }
-      ]
-    }
+        { name: 'Algebraic Topology', slug: 'algebraic-topology' },
+      ],
+    },
   ];
 
   const topicMap = new Map<string, string>();
 
-  async function createTopics(topics: { name: string; slug: string; category?: Category; description?: string; definition?: string; children?: { name: string; slug: string }[] }[], parentId?: string) {
+  async function createTopics(
+    topics: {
+      name: string;
+      slug: string;
+      category?: Category;
+      description?: string;
+      definition?: string;
+      children?: { name: string; slug: string }[];
+    }[],
+    parentId?: string,
+  ) {
     for (const topicData of topics) {
       const topic = await prisma.topic.create({
         data: {
           name: topicData.name,
           slug: topicData.slug,
-          category: topicData.category || (await prisma.topic.findUnique({ where: { id: parentId! } }))!.category,
+          category:
+            topicData.category ||
+            (await prisma.topic.findUnique({ where: { id: parentId! } }))!.category,
           ...(topicData.description !== undefined && { description: topicData.description }),
           ...(topicData.definition !== undefined && { definition: topicData.definition }),
-          ...(parentId !== undefined && { parentId })
-        }
+          ...(parentId !== undefined && { parentId }),
+        },
       });
       topicMap.set(topicData.slug, topic.id);
 
@@ -204,11 +263,9 @@ async function main() {
       solution: `Using the power rule:\n\n$$f'(x) = 3x^2 + 4x$$`,
       hints: [
         { content: 'Use the power rule: d/dx(x^n) = nx^(n-1)', order: 0 },
-        { content: 'The derivative of a constant is 0', order: 1 }
+        { content: 'The derivative of a constant is 0', order: 1 },
       ],
-      testCases: [
-        { input: 'x^3 + 2x^2 - 5', expected: '3x^2 + 4x', isHidden: false }
-      ]
+      testCases: [{ input: 'x^3 + 2x^2 - 5', expected: '3x^2 + 4x', isHidden: false }],
     },
     {
       title: 'Evaluate the Limit as x Approaches 0',
@@ -222,8 +279,8 @@ async function main() {
       solution: `This is a fundamental limit. Using L'Hôpital's rule or geometric interpretation:\n\n$$\\lim_{x \\to 0} \\frac{\\sin(x)}{x} = 1$$`,
       hints: [
         { content: 'This is a fundamental trigonometric limit', order: 0 },
-        { content: 'Consider using L\'Hôpital\'s rule', order: 1 }
-      ]
+        { content: "Consider using L'Hôpital's rule", order: 1 },
+      ],
     },
     {
       title: 'Chain Rule Application',
@@ -234,7 +291,7 @@ async function main() {
       estimatedTime: 20,
       points: 20,
       content: `Find the derivative of:\n\n$$f(x) = \\sin(x^2 + 1)$$`,
-      solution: `Using the chain rule:\n\n$$f'(x) = \\cos(x^2 + 1) \\cdot 2x = 2x\\cos(x^2 + 1)$$`
+      solution: `Using the chain rule:\n\n$$f'(x) = \\cos(x^2 + 1) \\cdot 2x = 2x\\cos(x^2 + 1)$$`,
     },
     {
       title: 'Definite Integral Calculation',
@@ -245,7 +302,7 @@ async function main() {
       estimatedTime: 20,
       points: 20,
       content: `Evaluate:\n\n$$\\int_0^2 x^2 \\, dx$$`,
-      solution: `Using the power rule for integration:\n\n$$\\int_0^2 x^2 \\, dx = \\left[\\frac{x^3}{3}\\right]_0^2 = \\frac{8}{3}$$`
+      solution: `Using the power rule for integration:\n\n$$\\int_0^2 x^2 \\, dx = \\left[\\frac{x^3}{3}\\right]_0^2 = \\frac{8}{3}$$`,
     },
     {
       title: 'Integration by Parts',
@@ -256,7 +313,7 @@ async function main() {
       estimatedTime: 30,
       points: 30,
       content: `Evaluate:\n\n$$\\int x e^x \\, dx$$`,
-      solution: `Using integration by parts with u = x, dv = e^x dx:\n\n$$\\int x e^x \\, dx = xe^x - e^x + C$$`
+      solution: `Using integration by parts with u = x, dv = e^x dx:\n\n$$\\int x e^x \\, dx = xe^x - e^x + C$$`,
     },
 
     // ALGEBRA PROBLEMS (10)
@@ -269,7 +326,7 @@ async function main() {
       estimatedTime: 15,
       points: 15,
       content: `Compute the product:\n\n$$\\begin{bmatrix} 1 & 2 \\\\ 3 & 4 \\end{bmatrix} \\begin{bmatrix} 5 & 6 \\\\ 7 & 8 \\end{bmatrix}$$`,
-      solution: `$$\\begin{bmatrix} 19 & 22 \\\\ 43 & 50 \\end{bmatrix}$$`
+      solution: `$$\\begin{bmatrix} 19 & 22 \\\\ 43 & 50 \\end{bmatrix}$$`,
     },
     {
       title: 'Find Eigenvalues of a Matrix',
@@ -280,7 +337,7 @@ async function main() {
       estimatedTime: 25,
       points: 25,
       content: `Find the eigenvalues of:\n\n$$A = \\begin{bmatrix} 4 & 1 \\\\ 2 & 3 \\end{bmatrix}$$`,
-      solution: `Solving det(A - λI) = 0:\n\nλ₁ = 5, λ₂ = 2`
+      solution: `Solving det(A - λI) = 0:\n\nλ₁ = 5, λ₂ = 2`,
     },
     {
       title: 'Determine if Vectors are Linearly Independent',
@@ -290,7 +347,7 @@ async function main() {
       topics: ['vector-spaces'],
       estimatedTime: 20,
       points: 20,
-      content: `Are these vectors linearly independent?\n\nv₁ = [1, 2, 3]\nv₂ = [4, 5, 6]\nv₃ = [7, 8, 9]`
+      content: `Are these vectors linearly independent?\n\nv₁ = [1, 2, 3]\nv₂ = [4, 5, 6]\nv₃ = [7, 8, 9]`,
     },
 
     // ALGORITHM PROBLEMS (10)
@@ -303,27 +360,27 @@ async function main() {
       estimatedTime: 40,
       points: 35,
       content: `Implement the QuickSort algorithm to sort an array of integers.`,
-      solution: `QuickSort uses divide-and-conquer:\n1. Choose a pivot\n2. Partition array\n3. Recursively sort subarrays`
+      solution: `QuickSort uses divide-and-conquer:\n1. Choose a pivot\n2. Partition array\n3. Recursively sort subarrays`,
     },
     {
       title: 'Find Shortest Path with Dijkstra',
       slug: 'dijkstra-shortest-path',
-      description: 'Implement Dijkstra\'s algorithm',
+      description: "Implement Dijkstra's algorithm",
       difficulty: 'ADVANCED' as Difficulty,
       topics: ['shortest-path'],
       estimatedTime: 50,
       points: 45,
-      content: `Given a weighted graph, find the shortest path from source to all vertices using Dijkstra's algorithm.`
+      content: `Given a weighted graph, find the shortest path from source to all vertices using Dijkstra's algorithm.`,
     },
     {
       title: 'Minimum Spanning Tree - Kruskal',
       slug: 'kruskal-mst',
-      description: 'Find MST using Kruskal\'s algorithm',
+      description: "Find MST using Kruskal's algorithm",
       difficulty: 'ADVANCED' as Difficulty,
       topics: ['minimum-spanning-tree'],
       estimatedTime: 45,
       points: 40,
-      content: `Implement Kruskal's algorithm to find the minimum spanning tree of a graph.`
+      content: `Implement Kruskal's algorithm to find the minimum spanning tree of a graph.`,
     },
 
     // CRYPTOGRAPHY PROBLEMS (5)
@@ -336,7 +393,7 @@ async function main() {
       estimatedTime: 40,
       points: 40,
       content: `Generate RSA keys with p=61, q=53. Calculate n, φ(n), e, and d.`,
-      solution: `n = 3233, φ(n) = 3120, e = 17, d = 2753`
+      solution: `n = 3233, φ(n) = 3120, e = 17, d = 2753`,
     },
     {
       title: 'SHA-256 Hash Properties',
@@ -346,7 +403,7 @@ async function main() {
       topics: ['hash-functions'],
       estimatedTime: 25,
       points: 25,
-      content: `Explain the properties of SHA-256 that make it cryptographically secure.`
+      content: `Explain the properties of SHA-256 that make it cryptographically secure.`,
     },
     {
       title: 'Digital Signature Verification',
@@ -356,7 +413,7 @@ async function main() {
       topics: ['digital-signatures'],
       estimatedTime: 35,
       points: 35,
-      content: `Given a message, signature, and public key, verify the digital signature.`
+      content: `Given a message, signature, and public key, verify the digital signature.`,
     },
 
     // GAME THEORY PROBLEMS (5)
@@ -368,7 +425,7 @@ async function main() {
       topics: ['nash-equilibrium'],
       estimatedTime: 30,
       points: 30,
-      content: `Find all Nash equilibria in the prisoner's dilemma game.`
+      content: `Find all Nash equilibria in the prisoner's dilemma game.`,
     },
     {
       title: 'Minimax Strategy in Zero-Sum Game',
@@ -378,7 +435,7 @@ async function main() {
       topics: ['nash-equilibrium'],
       estimatedTime: 40,
       points: 35,
-      content: `Find the optimal mixed strategy in a zero-sum game.`
+      content: `Find the optimal mixed strategy in a zero-sum game.`,
     },
 
     // CHAOS THEORY PROBLEMS (5)
@@ -390,7 +447,7 @@ async function main() {
       topics: ['bifurcations'],
       estimatedTime: 45,
       points: 40,
-      content: `For the logistic map x_{n+1} = rx_n(1-x_n), find bifurcation points.`
+      content: `For the logistic map x_{n+1} = rx_n(1-x_n), find bifurcation points.`,
     },
     {
       title: 'Lorenz Attractor Properties',
@@ -400,7 +457,7 @@ async function main() {
       topics: ['attractors'],
       estimatedTime: 60,
       points: 50,
-      content: `Analyze the properties of the Lorenz attractor and explain sensitive dependence on initial conditions.`
+      content: `Analyze the properties of the Lorenz attractor and explain sensitive dependence on initial conditions.`,
     },
 
     // TOPOLOGY PROBLEMS (5)
@@ -412,7 +469,7 @@ async function main() {
       topics: ['point-set-topology'],
       estimatedTime: 25,
       points: 25,
-      content: `Prove that open balls in a metric space are open sets.`
+      content: `Prove that open balls in a metric space are open sets.`,
     },
     {
       title: 'Continuous Functions',
@@ -422,12 +479,12 @@ async function main() {
       topics: ['point-set-topology'],
       estimatedTime: 35,
       points: 35,
-      content: `Prove that f: ℝ → ℝ is continuous if and only if the preimage of every open set is open.`
-    }
+      content: `Prove that f: ℝ → ℝ is continuous if and only if the preimage of every open set is open.`,
+    },
   ];
 
   for (const problemData of problems) {
-    const topicIds = problemData.topics.map(slug => topicMap.get(slug)!).filter(Boolean);
+    const topicIds = problemData.topics.map((slug) => topicMap.get(slug)!).filter(Boolean);
 
     // biome-ignore lint/suspicious/noExplicitAny: Prisma createData is built dynamically with conditional fields
     const createData: any = {
@@ -440,8 +497,8 @@ async function main() {
       estimatedTime: problemData.estimatedTime,
       points: problemData.points,
       topics: {
-        create: topicIds.map(topicId => ({ topicId }))
-      }
+        create: topicIds.map((topicId) => ({ topicId })),
+      },
     };
 
     if ('solutionCode' in problemData && problemData.solutionCode !== undefined) {
@@ -450,18 +507,18 @@ async function main() {
 
     if ('hints' in problemData && problemData.hints) {
       createData.hints = {
-        create: problemData.hints
+        create: problemData.hints,
       };
     }
 
     if ('testCases' in problemData && problemData.testCases) {
       createData.testCases = {
-        create: problemData.testCases.map((tc, idx) => ({ ...tc, order: idx }))
+        create: problemData.testCases.map((tc, idx) => ({ ...tc, order: idx })),
       };
     }
 
     await prisma.problem.create({
-      data: createData
+      data: createData,
     });
   }
 
@@ -497,7 +554,7 @@ async function main() {
   const left = arr.slice(1).filter(x => x < pivot);
   const right = arr.slice(1).filter(x => x >= pivot);
   return [...quicksort(left), pivot, ...quicksort(right)];
-}`
+}`,
         },
         {
           language: 'PYTHON' as ProgrammingLanguage,
@@ -507,9 +564,9 @@ async function main() {
     pivot = arr[0]
     left = [x for x in arr[1:] if x < pivot]
     right = [x for x in arr[1:] if x >= pivot]
-    return quicksort(left) + [pivot] + quicksort(right)`
-        }
-      ]
+    return quicksort(left) + [pivot] + quicksort(right)`,
+        },
+      ],
     },
     {
       name: 'MergeSort',
@@ -527,10 +584,10 @@ async function main() {
       spaceComplexity: 'O(n)',
       bestCase: 'O(n log n)',
       averageCase: 'O(n log n)',
-      worstCase: 'O(n log n)'
+      worstCase: 'O(n log n)',
     },
     {
-      name: 'Dijkstra\'s Algorithm',
+      name: "Dijkstra's Algorithm",
       slug: 'dijkstra',
       category: 'GRAPH' as AlgorithmCategory,
       description: 'Shortest path algorithm for non-negative weights',
@@ -548,7 +605,7 @@ async function main() {
       spaceComplexity: 'O(V)',
       bestCase: 'O(E log V)',
       averageCase: 'O(E log V)',
-      worstCase: 'O(E log V)'
+      worstCase: 'O(E log V)',
     },
     {
       name: 'Gradient Descent',
@@ -562,7 +619,7 @@ async function main() {
         x = x - learning_rate * gradient
     return x`,
       timeComplexity: 'O(n × iterations)',
-      spaceComplexity: 'O(n)'
+      spaceComplexity: 'O(n)',
     },
     {
       name: 'RSA Encryption',
@@ -579,8 +636,8 @@ function rsa_decrypt(ciphertext, private_key):
     message = pow(ciphertext, d, n)
     return message`,
       timeComplexity: 'O(log n)',
-      spaceComplexity: 'O(1)'
-    }
+      spaceComplexity: 'O(1)',
+    },
   ];
 
   for (const algoData of algorithms) {
@@ -591,10 +648,10 @@ function rsa_decrypt(ciphertext, private_key):
         ...rest,
         ...(implementations && {
           implementations: {
-            create: implementations
-          }
-        })
-      }
+            create: implementations,
+          },
+        }),
+      },
     });
   }
 
@@ -612,7 +669,7 @@ function rsa_decrypt(ciphertext, private_key):
       type: 'PROBLEM_SOLVING' as AchievementType,
       requirement: { problemsSolved: 1 },
       points: 10,
-      icon: '🎯'
+      icon: '🎯',
     },
     {
       name: 'Problem Solver',
@@ -620,7 +677,7 @@ function rsa_decrypt(ciphertext, private_key):
       type: 'PROBLEM_SOLVING' as AchievementType,
       requirement: { problemsSolved: 10 },
       points: 50,
-      icon: '🏆'
+      icon: '🏆',
     },
     {
       name: 'Master Solver',
@@ -628,7 +685,7 @@ function rsa_decrypt(ciphertext, private_key):
       type: 'PROBLEM_SOLVING' as AchievementType,
       requirement: { problemsSolved: 50 },
       points: 250,
-      icon: '👑'
+      icon: '👑',
     },
     {
       name: 'Week Warrior',
@@ -636,7 +693,7 @@ function rsa_decrypt(ciphertext, private_key):
       type: 'STREAK' as AchievementType,
       requirement: { streak: 7 },
       points: 100,
-      icon: '🔥'
+      icon: '🔥',
     },
     {
       name: 'Calculus Expert',
@@ -644,7 +701,7 @@ function rsa_decrypt(ciphertext, private_key):
       type: 'MASTERY' as AchievementType,
       requirement: { category: 'CALCULUS', masteryLevel: 0.9 },
       points: 200,
-      icon: '📈'
+      icon: '📈',
     },
     {
       name: 'Speed Runner',
@@ -652,7 +709,7 @@ function rsa_decrypt(ciphertext, private_key):
       type: 'SPEED' as AchievementType,
       requirement: { timeSpent: 300 },
       points: 75,
-      icon: '⚡'
+      icon: '⚡',
     },
     {
       name: 'Explorer',
@@ -660,13 +717,13 @@ function rsa_decrypt(ciphertext, private_key):
       type: 'EXPLORATION' as AchievementType,
       requirement: { categoriesExplored: 5 },
       points: 150,
-      icon: '🧭'
-    }
+      icon: '🧭',
+    },
   ];
 
   for (const achievement of achievements) {
     await prisma.achievement.create({
-      data: achievement
+      data: achievement,
     });
   }
 
@@ -680,18 +737,19 @@ function rsa_decrypt(ciphertext, private_key):
   const theorems = [
     {
       name: 'Fundamental Theorem of Calculus',
-      statement: 'If $f$ is continuous on $[a,b]$ and $F$ is an antiderivative of $f$, then $\\int_a^b f(x)dx = F(b) - F(a)$',
+      statement:
+        'If $f$ is continuous on $[a,b]$ and $F$ is an antiderivative of $f$, then $\\int_a^b f(x)dx = F(b) - F(a)$',
       proof: 'The proof relies on the mean value theorem and Riemann sums...',
       intuition: 'Integration and differentiation are inverse operations',
-      topicSlug: 'definite-integrals'
+      topicSlug: 'definite-integrals',
     },
     {
       name: 'Spectral Theorem',
       statement: 'Every symmetric matrix can be diagonalized by an orthogonal matrix',
       proof: 'Constructive proof using eigenvectors...',
       intuition: 'Symmetric matrices have nice geometric properties',
-      topicSlug: 'eigenvalues'
-    }
+      topicSlug: 'eigenvalues',
+    },
   ];
 
   for (const theoremData of theorems) {
@@ -702,8 +760,8 @@ function rsa_decrypt(ciphertext, private_key):
       await prisma.theorem.create({
         data: {
           ...rest,
-          topicId
-        }
+          topicId,
+        },
       });
     }
   }
@@ -719,7 +777,7 @@ function rsa_decrypt(ciphertext, private_key):
     algorithms: await prisma.algorithm.count(),
     implementations: await prisma.implementation.count(),
     theorems: await prisma.theorem.count(),
-    achievements: await prisma.achievement.count()
+    achievements: await prisma.achievement.count(),
   };
 
   console.log('✅ Database seeding completed!\n');
@@ -732,8 +790,7 @@ function rsa_decrypt(ciphertext, private_key):
   console.log(`- Achievements: ${stats.achievements}`);
 }
 
-main()
-  .catch((e) => {
-    console.error('Error seeding database:', e);
-    process.exit(1);
-  });
+main().catch((e) => {
+  console.error('Error seeding database:', e);
+  process.exit(1);
+});

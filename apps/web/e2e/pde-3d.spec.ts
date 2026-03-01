@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('PDE 3D Solver Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -12,14 +12,14 @@ test.describe('PDE 3D Solver Page', () => {
   });
 
   test('heading is visible', async ({ page }) => {
-    await expect(
-      page.getByRole('heading', { level: 1 }).first(),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible({ timeout: 10000 });
   });
 
   test('equation selector is present', async ({ page }) => {
     // The 3D PDE page has equation type selection (tabs or buttons)
-    const equationSelector = page.getByRole('tab').or(page.getByRole('button', { name: /heat|wave/i }));
+    const equationSelector = page
+      .getByRole('tab')
+      .or(page.getByRole('button', { name: /heat|wave/i }));
     await expect(equationSelector.first()).toBeVisible({ timeout: 10000 });
   });
 

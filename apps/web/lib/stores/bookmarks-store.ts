@@ -57,10 +57,7 @@ export const useBookmarksStore = create<BookmarksStore>()(
           if (existing.some((b) => b.id === bookmark.id)) return;
           set(
             {
-              bookmarks: [
-                ...existing,
-                { ...bookmark, createdAt: Date.now() },
-              ],
+              bookmarks: [...existing, { ...bookmark, createdAt: Date.now() }],
             },
             false,
             'addBookmark',
@@ -68,11 +65,7 @@ export const useBookmarksStore = create<BookmarksStore>()(
         },
 
         removeBookmark: (id) => {
-          set(
-            { bookmarks: get().bookmarks.filter((b) => b.id !== id) },
-            false,
-            'removeBookmark',
-          );
+          set({ bookmarks: get().bookmarks.filter((b) => b.id !== id) }, false, 'removeBookmark');
         },
 
         isBookmarked: (id) => get().bookmarks.some((b) => b.id === id),
@@ -88,10 +81,7 @@ export const useBookmarksStore = create<BookmarksStore>()(
           } else {
             set(
               {
-                bookmarks: [
-                  ...state.bookmarks,
-                  { ...bookmark, createdAt: Date.now() },
-                ],
+                bookmarks: [...state.bookmarks, { ...bookmark, createdAt: Date.now() }],
               },
               false,
               'addBookmark',
@@ -99,8 +89,7 @@ export const useBookmarksStore = create<BookmarksStore>()(
           }
         },
 
-        getBookmarksByType: (type) =>
-          get().bookmarks.filter((b) => b.type === type),
+        getBookmarksByType: (type) => get().bookmarks.filter((b) => b.type === type),
 
         clearAll: () => {
           set({ bookmarks: [] }, false, 'clearAll');
@@ -121,8 +110,7 @@ export const useBookmarksStore = create<BookmarksStore>()(
 // Selector hooks
 // ---------------------------------------------------------------------------
 
-export const useBookmarks = (): readonly Bookmark[] =>
-  useBookmarksStore((s) => s.bookmarks);
+export const useBookmarks = (): readonly Bookmark[] => useBookmarksStore((s) => s.bookmarks);
 
 export const useBookmarkActions = () => ({
   add: useBookmarksStore((s) => s.addBookmark),

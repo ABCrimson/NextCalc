@@ -1,28 +1,28 @@
 'use client';
 
-import { useState, useMemo, useCallback, useEffect, useRef, Fragment } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Download, Info, Pause, Play, RotateCcw, Send } from 'lucide-react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { Download, Info, Play, Pause, RotateCcw, Send } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 import {
-  type TransformerConfig,
+  ANIMATION_DURATIONS,
+  type AnimationSpeed,
   type AttentionHead,
   type AttentionScore,
-  type AnimationSpeed,
   createAttentionScore,
-  ANIMATION_DURATIONS,
+  type TransformerConfig,
 } from './types';
-import { cn } from '@/lib/utils';
 
 /**
  * Props for TransformerVisualizer component
@@ -74,7 +74,7 @@ const DEFAULT_CONFIG: TransformerConfig = {
 function computeAttentionScores(
   queries: ReadonlyArray<ReadonlyArray<number>>,
   keys: ReadonlyArray<ReadonlyArray<number>>,
-  dK: number
+  dK: number,
 ): ReadonlyArray<ReadonlyArray<AttentionScore>> {
   const seqLen = queries.length;
   const scores: number[][] = Array.from({ length: seqLen }, () => Array(seqLen).fill(0));
@@ -91,11 +91,11 @@ function computeAttentionScores(
   }
 
   // Apply softmax row-wise
-  const attentionScores: AttentionScore[][] = scores.map(row => {
+  const attentionScores: AttentionScore[][] = scores.map((row) => {
     const maxScore = Math.max(...row);
-    const expScores = row.map(s => Math.exp(s - maxScore));
+    const expScores = row.map((s) => Math.exp(s - maxScore));
     const sumExp = expScores.reduce((a, b) => a + b, 0);
-    return expScores.map(s => createAttentionScore(s / sumExp));
+    return expScores.map((s) => createAttentionScore(s / sumExp));
   });
 
   return attentionScores;
@@ -119,14 +119,18 @@ function seededRandom(seed: number): () => number {
  * Generate deterministic weight matrix using seeded random number generator
  * This prevents hydration mismatches between server and client
  */
-function generateRandomWeights(rows: number, cols: number, seed: number): ReadonlyArray<ReadonlyArray<number>> {
+function generateRandomWeights(
+  rows: number,
+  cols: number,
+  seed: number,
+): ReadonlyArray<ReadonlyArray<number>> {
   const random = seededRandom(seed);
   // Xavier-like initialization: scale by sqrt(2 / (rows + cols))
   // Larger weights produce meaningful dot-product variance so softmax
   // outputs show clear attention patterns instead of a uniform 1/N.
   const scale = Math.sqrt(2.0 / (rows + cols));
   return Array.from({ length: rows }, () =>
-    Array.from({ length: cols }, () => (random() - 0.5) * 2 * scale)
+    Array.from({ length: cols }, () => (random() - 0.5) * 2 * scale),
   );
 }
 
@@ -144,7 +148,11 @@ function initializeAttentionHeads(config: TransformerConfig): ReadonlyArray<Atte
     // Use different seeds for each head and weight type to ensure variety
     const queryWeights = generateRandomWeights(config.sequenceLength, dK, SEED_BASE + headId * 3);
     const keyWeights = generateRandomWeights(config.sequenceLength, dK, SEED_BASE + headId * 3 + 1);
-    const valueWeights = generateRandomWeights(config.sequenceLength, dK, SEED_BASE + headId * 3 + 2);
+    const valueWeights = generateRandomWeights(
+      config.sequenceLength,
+      dK,
+      SEED_BASE + headId * 3 + 2,
+    );
 
     const scores = computeAttentionScores(queryWeights, keyWeights, dK);
 
@@ -174,16 +182,16 @@ function intensityToOklch(intensity: number): {
   const t = intensity * intensity; // emphasise differences in high-attention range
   const hue = 270 - t * 200; // 270 (violet) → 70 (amber)
   const chroma = 0.04 + t * 0.28; // 0.04 → 0.32
-  const lightness = 0.92 - t * 0.50; // 0.92 → 0.42
+  const lightness = 0.92 - t * 0.5; // 0.92 → 0.42
 
-  const lInner = Math.max(lightness - 0.10, 0.10);
+  const lInner = Math.max(lightness - 0.1, 0.1);
   const cInner = Math.min(chroma * 1.3, 0.36);
 
   return {
     bg: `oklch(${lightness.toFixed(3)} ${chroma.toFixed(3)} ${hue.toFixed(1)})`,
     bgGrad: `linear-gradient(135deg, oklch(${lInner.toFixed(3)} ${cInner.toFixed(3)} ${hue.toFixed(1)}) 0%, oklch(${lightness.toFixed(3)} ${chroma.toFixed(3)} ${hue.toFixed(1)}) 100%)`,
     border: `oklch(${Math.min(lightness + 0.14, 0.95).toFixed(3)} ${Math.min(chroma * 1.1, 0.32).toFixed(3)} ${hue.toFixed(1)} / ${(0.3 + intensity * 0.7).toFixed(2)})`,
-    glow: `oklch(0.55 ${Math.min(chroma * 1.2, 0.30).toFixed(3)} ${hue.toFixed(1)} / ${(intensity * 0.65).toFixed(2)})`,
+    glow: `oklch(0.55 ${Math.min(chroma * 1.2, 0.3).toFixed(3)} ${hue.toFixed(1)} / ${(intensity * 0.65).toFixed(2)})`,
   };
 }
 
@@ -193,15 +201,19 @@ function intensityToOklch(intensity: number): {
  */
 function parseSentenceIntoTokens(sentence: string, maxTokens: number): string[] {
   // Split on whitespace, also split off leading/trailing punctuation
-  const raw = sentence.trim().split(/\s+/).flatMap(word => {
-    const m = word.match(/^([^\w]*)(\w+(?:'\w+)*)([^\w]*)$/);
-    if (!m) return [word];
-    const parts: string[] = [];
-    if (m[1]) parts.push(m[1]);
-    if (m[2]) parts.push(m[2]);
-    if (m[3]) parts.push(m[3]);
-    return parts;
-  }).filter(t => t.length > 0);
+  const raw = sentence
+    .trim()
+    .split(/\s+/)
+    .flatMap((word) => {
+      const m = word.match(/^([^\w]*)(\w+(?:'\w+)*)([^\w]*)$/);
+      if (!m) return [word];
+      const parts: string[] = [];
+      if (m[1]) parts.push(m[1]);
+      if (m[2]) parts.push(m[2]);
+      if (m[3]) parts.push(m[3]);
+      return parts;
+    })
+    .filter((t) => t.length > 0);
 
   const trimmed = raw.slice(0, maxTokens);
   while (trimmed.length < maxTokens) trimmed.push('[PAD]');
@@ -237,7 +249,7 @@ export function TransformerVisualizer({
   });
 
   const [attentionHeads, setAttentionHeads] = useState<ReadonlyArray<AttentionHead>>(() =>
-    initializeAttentionHeads(config)
+    initializeAttentionHeads(config),
   );
 
   const [selectedHead, setSelectedHead] = useState<number>(0);
@@ -265,12 +277,12 @@ export function TransformerVisualizer({
   // Get current attention head
   const currentHead = useMemo(
     () => attentionHeads[selectedHead] ?? attentionHeads[0],
-    [attentionHeads, selectedHead]
+    [attentionHeads, selectedHead],
   );
 
   // Handle configuration updates
   const updateConfig = useCallback((updates: Partial<TransformerConfig>) => {
-    setConfig(prev => ({
+    setConfig((prev) => ({
       ...prev,
       ...updates,
       tokens: updates.tokens ?? prev.tokens,
@@ -279,7 +291,7 @@ export function TransformerVisualizer({
 
   // Handle token updates (individual token editor)
   const updateToken = useCallback((index: number, value: string) => {
-    setTokens(prev => {
+    setTokens((prev) => {
       const newTokens = [...prev];
       newTokens[index] = value;
       return newTokens;
@@ -315,7 +327,10 @@ export function TransformerVisualizer({
     const displayW = canvas.clientWidth || 600;
     const displayH = canvas.clientHeight || 320;
 
-    if (canvas.width !== Math.round(displayW * dpr) || canvas.height !== Math.round(displayH * dpr)) {
+    if (
+      canvas.width !== Math.round(displayW * dpr) ||
+      canvas.height !== Math.round(displayH * dpr)
+    ) {
       canvas.width = Math.round(displayW * dpr);
       canvas.height = Math.round(displayH * dpr);
       canvas.style.width = `${displayW}px`;
@@ -337,8 +352,8 @@ export function TransformerVisualizer({
     const rowH = (displayH - paddingV * 2) / seqLen;
 
     // Bipartite layout: query tokens on left (x=leftX), key tokens on right (x=rightX)
-    const leftX = displayW * 0.20;
-    const rightX = displayW * 0.80;
+    const leftX = displayW * 0.2;
+    const rightX = displayW * 0.8;
 
     // Draw node labels on both sides
     ctx.font = 'bold 11px system-ui, sans-serif';
@@ -383,24 +398,33 @@ export function TransformerVisualizer({
       const y1 = paddingV + i * rowH + rowH / 2;
 
       for (let j = 0; j < seqLen; j++) {
-        const intensity = currentHead.scores[i]?.[j] as number ?? 0;
+        const intensity = (currentHead.scores[i]?.[j] as number) ?? 0;
         if (intensity < 0.08) continue;
 
         const y2 = paddingV + j * rowH + rowH / 2;
 
         // Animated phase along the arc
-        const phase = ((time * 0.6 + i * 0.4 + j * 0.25) % 1 + 1) % 1;
+        const phase = (((time * 0.6 + i * 0.4 + j * 0.25) % 1) + 1) % 1;
 
         // OKLCH hue sweep: indigo (264) → violet (290) → rose (330)
         const hue = 264 + intensity * 66;
-        const chromaVal = (0.10 + intensity * 0.20).toFixed(3);
+        const chromaVal = (0.1 + intensity * 0.2).toFixed(3);
 
         const grad = ctx.createLinearGradient(leftX, y1, rightX, y2);
         grad.addColorStop(0, `oklch(0.60 ${chromaVal} 264 / ${(intensity * 0.25).toFixed(2)})`);
-        grad.addColorStop(Math.max(0, phase - 0.15), `oklch(0.60 ${chromaVal} ${hue.toFixed(1)} / ${(intensity * 0.18).toFixed(2)})`);
-        grad.addColorStop(phase, `oklch(0.80 ${chromaVal} ${hue.toFixed(1)} / ${Math.min(intensity * 1.1, 1.0).toFixed(2)})`);
-        grad.addColorStop(Math.min(1, phase + 0.15), `oklch(0.60 ${chromaVal} ${hue.toFixed(1)} / ${(intensity * 0.18).toFixed(2)})`);
-        grad.addColorStop(1, `oklch(0.60 ${chromaVal} 330 / ${(intensity * 0.20).toFixed(2)})`);
+        grad.addColorStop(
+          Math.max(0, phase - 0.15),
+          `oklch(0.60 ${chromaVal} ${hue.toFixed(1)} / ${(intensity * 0.18).toFixed(2)})`,
+        );
+        grad.addColorStop(
+          phase,
+          `oklch(0.80 ${chromaVal} ${hue.toFixed(1)} / ${Math.min(intensity * 1.1, 1.0).toFixed(2)})`,
+        );
+        grad.addColorStop(
+          Math.min(1, phase + 0.15),
+          `oklch(0.60 ${chromaVal} ${hue.toFixed(1)} / ${(intensity * 0.18).toFixed(2)})`,
+        );
+        grad.addColorStop(1, `oklch(0.60 ${chromaVal} 330 / ${(intensity * 0.2).toFixed(2)})`);
 
         const lineW = Math.max(0.8, intensity * 3.5);
 
@@ -443,110 +467,121 @@ export function TransformerVisualizer({
   }, [renderAttentionFlows]);
 
   // Export attention pattern as image
-  const exportAttentionPattern = useCallback((format: 'png' | 'svg' = 'png') => {
-    if (!canvasRef.current || !currentHead) return;
+  const exportAttentionPattern = useCallback(
+    (format: 'png' | 'svg' = 'png') => {
+      if (!canvasRef.current || !currentHead) return;
 
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
 
-    const dpr = window.devicePixelRatio || 1;
-    const cellSize = 44;
-    const padding = 64;
-    const width = config.sequenceLength * cellSize + padding * 2;
-    const height = config.sequenceLength * cellSize + padding * 2;
+      const dpr = window.devicePixelRatio || 1;
+      const cellSize = 44;
+      const padding = 64;
+      const width = config.sequenceLength * cellSize + padding * 2;
+      const height = config.sequenceLength * cellSize + padding * 2;
 
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
 
-    ctx.scale(dpr, dpr);
+      ctx.scale(dpr, dpr);
 
-    // Draw background
-    const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
-    bgGradient.addColorStop(0, '#0a0c1e');
-    bgGradient.addColorStop(1, '#12102e');
-    ctx.fillStyle = bgGradient;
-    ctx.fillRect(0, 0, width, height);
+      // Draw background
+      const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
+      bgGradient.addColorStop(0, '#0a0c1e');
+      bgGradient.addColorStop(1, '#12102e');
+      ctx.fillStyle = bgGradient;
+      ctx.fillRect(0, 0, width, height);
 
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
 
-    // Draw labels
-    ctx.font = 'bold 11px system-ui';
-    ctx.textAlign = 'center';
+      // Draw labels
+      ctx.font = 'bold 11px system-ui';
+      ctx.textAlign = 'center';
 
-    tokens.forEach((token, i) => {
-      const display = token.length > 7 ? token.slice(0, 6) + '…' : token;
-      ctx.fillStyle = 'rgba(190,180,255,0.90)';
-      ctx.fillText(display, padding + i * cellSize + cellSize / 2, padding - 12);
-      ctx.save();
-      ctx.translate(padding - 12, padding + i * cellSize + cellSize / 2);
-      ctx.rotate(-Math.PI / 2);
-      ctx.fillText(display, 0, 0);
-      ctx.restore();
-    });
-
-    // Draw attention heatmap cells
-    currentHead.scores.forEach((row, i) => {
-      row.forEach((score, j) => {
-        const x = padding + j * cellSize;
-        const y = padding + i * cellSize;
-        const intensity = score as number;
-        const colors = intensityToOklch(intensity);
-
-        // Cell background (gradient approximated with two stops in Canvas 2d using HSL)
-        const hue = 250 + intensity * 80;
-        const sat = Math.round(40 + intensity * 55);
-        const lgt = Math.round(88 - intensity * 48);
-        const lgtInner = Math.max(lgt - 12, 20);
-
-        const cellGrad = ctx.createRadialGradient(
-          x + cellSize / 2, y + cellSize / 2, 0,
-          x + cellSize / 2, y + cellSize / 2, cellSize * 0.7
-        );
-        cellGrad.addColorStop(0, `hsl(${hue}, ${sat}%, ${lgtInner}%)`);
-        cellGrad.addColorStop(1, `hsl(${hue}, ${sat}%, ${lgt}%)`);
-
-        ctx.fillStyle = cellGrad;
-        ctx.beginPath();
-        ctx.roundRect(x + 1, y + 1, cellSize - 3, cellSize - 3, 5);
-        ctx.fill();
-
-        if (intensity > 0.45) {
-          ctx.strokeStyle = `hsla(${hue}, ${sat + 20}%, ${lgt + 15}%, ${intensity * 0.85})`;
-          ctx.lineWidth = 1.5;
-          ctx.stroke();
-        }
-
-        // Score text
-        ctx.fillStyle = intensity > 0.52 ? '#ffffff' : `hsl(${hue}, 30%, 72%)`;
-        ctx.font = `bold ${intensity > 0.5 ? 10 : 9}px system-ui`;
-        ctx.textAlign = 'center';
-        ctx.shadowBlur = intensity > 0.5 ? 4 : 0;
-        ctx.shadowColor = 'rgba(0,0,0,0.85)';
-        ctx.fillText(intensity.toFixed(2), x + cellSize / 2, y + cellSize / 2 + 4);
-        ctx.shadowBlur = 0;
-
-        // Suppress unused variable warning
-        void colors;
+      tokens.forEach((token, i) => {
+        const display = token.length > 7 ? token.slice(0, 6) + '…' : token;
+        ctx.fillStyle = 'rgba(190,180,255,0.90)';
+        ctx.fillText(display, padding + i * cellSize + cellSize / 2, padding - 12);
+        ctx.save();
+        ctx.translate(padding - 12, padding + i * cellSize + cellSize / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText(display, 0, 0);
+        ctx.restore();
       });
-    });
 
-    // Export
-    if (format === 'png') {
-      canvas.toBlob((blob) => {
-        if (!blob) return;
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.download = `attention-head-${selectedHead}.png`;
-        link.href = url;
-        link.click();
-        URL.revokeObjectURL(url);
-      }, 'image/png', 1.0);
-    }
-  }, [currentHead, config.sequenceLength, selectedHead, tokens]);
+      // Draw attention heatmap cells
+      currentHead.scores.forEach((row, i) => {
+        row.forEach((score, j) => {
+          const x = padding + j * cellSize;
+          const y = padding + i * cellSize;
+          const intensity = score as number;
+          const colors = intensityToOklch(intensity);
+
+          // Cell background (gradient approximated with two stops in Canvas 2d using HSL)
+          const hue = 250 + intensity * 80;
+          const sat = Math.round(40 + intensity * 55);
+          const lgt = Math.round(88 - intensity * 48);
+          const lgtInner = Math.max(lgt - 12, 20);
+
+          const cellGrad = ctx.createRadialGradient(
+            x + cellSize / 2,
+            y + cellSize / 2,
+            0,
+            x + cellSize / 2,
+            y + cellSize / 2,
+            cellSize * 0.7,
+          );
+          cellGrad.addColorStop(0, `hsl(${hue}, ${sat}%, ${lgtInner}%)`);
+          cellGrad.addColorStop(1, `hsl(${hue}, ${sat}%, ${lgt}%)`);
+
+          ctx.fillStyle = cellGrad;
+          ctx.beginPath();
+          ctx.roundRect(x + 1, y + 1, cellSize - 3, cellSize - 3, 5);
+          ctx.fill();
+
+          if (intensity > 0.45) {
+            ctx.strokeStyle = `hsla(${hue}, ${sat + 20}%, ${lgt + 15}%, ${intensity * 0.85})`;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+          }
+
+          // Score text
+          ctx.fillStyle = intensity > 0.52 ? '#ffffff' : `hsl(${hue}, 30%, 72%)`;
+          ctx.font = `bold ${intensity > 0.5 ? 10 : 9}px system-ui`;
+          ctx.textAlign = 'center';
+          ctx.shadowBlur = intensity > 0.5 ? 4 : 0;
+          ctx.shadowColor = 'rgba(0,0,0,0.85)';
+          ctx.fillText(intensity.toFixed(2), x + cellSize / 2, y + cellSize / 2 + 4);
+          ctx.shadowBlur = 0;
+
+          // Suppress unused variable warning
+          void colors;
+        });
+      });
+
+      // Export
+      if (format === 'png') {
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) return;
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.download = `attention-head-${selectedHead}.png`;
+            link.href = url;
+            link.click();
+            URL.revokeObjectURL(url);
+          },
+          'image/png',
+          1.0,
+        );
+      }
+    },
+    [currentHead, config.sequenceLength, selectedHead, tokens],
+  );
 
   // Animate through all heads
   const animateThroughHeads = useCallback(() => {
@@ -616,11 +651,11 @@ export function TransformerVisualizer({
               <Input
                 id="sentence-input"
                 value={sentenceInput}
-                onChange={e => {
+                onChange={(e) => {
                   setSentenceInput(e.target.value);
                   setSentenceError('');
                 }}
-                onKeyDown={e => {
+                onKeyDown={(e) => {
                   if (e.key === 'Enter') applySentence();
                 }}
                 placeholder="e.g. The quick brown fox jumps over the lazy dog"
@@ -646,11 +681,7 @@ export function TransformerVisualizer({
             </Button>
           </div>
           {/* Token preview chips */}
-          <div
-            className="flex flex-wrap gap-1.5 mt-3"
-            aria-label="Current tokens"
-            role="list"
-          >
+          <div className="flex flex-wrap gap-1.5 mt-3" aria-label="Current tokens" role="list">
             {tokens.map((token, i) => (
               <span
                 key={i}
@@ -680,11 +711,7 @@ export function TransformerVisualizer({
                     onClick={animateThroughHeads}
                     aria-label={isAnimating ? 'Pause animation' : 'Play animation'}
                   >
-                    {isAnimating ? (
-                      <Pause className="h-4 w-4" />
-                    ) : (
-                      <Play className="h-4 w-4" />
-                    )}
+                    {isAnimating ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                   </Button>
                   <Button
                     variant="outline"
@@ -722,7 +749,8 @@ export function TransformerVisualizer({
                 <div
                   className="relative rounded-xl overflow-hidden"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(10,10,28,0.72) 0%, rgba(18,14,42,0.72) 100%)',
+                    background:
+                      'linear-gradient(135deg, rgba(10,10,28,0.72) 0%, rgba(18,14,42,0.72) 100%)',
                     backdropFilter: 'blur(12px)',
                     border: '1px solid rgba(100,80,200,0.20)',
                     boxShadow: '0 8px 32px rgba(0,0,0,0.38)',
@@ -765,10 +793,12 @@ export function TransformerVisualizer({
                     className="inline-grid gap-0.5 sm:gap-1 p-3 sm:p-4 rounded-xl relative"
                     style={{
                       gridTemplateColumns: `6rem repeat(${config.sequenceLength}, minmax(3.5rem, 4.5rem))`,
-                      background: 'linear-gradient(135deg, rgba(10,8,28,0.60) 0%, rgba(18,14,42,0.60) 100%)',
+                      background:
+                        'linear-gradient(135deg, rgba(10,8,28,0.60) 0%, rgba(18,14,42,0.60) 100%)',
                       backdropFilter: 'blur(12px)',
                       border: '1px solid rgba(90,70,180,0.18)',
-                      boxShadow: '0 8px 32px rgba(0,0,0,0.32), inset 0 1px 1px rgba(255,255,255,0.06)',
+                      boxShadow:
+                        '0 8px 32px rgba(0,0,0,0.32), inset 0 1px 1px rgba(255,255,255,0.06)',
                     }}
                     role="table"
                     aria-label="Attention scores heatmap"
@@ -780,7 +810,8 @@ export function TransformerVisualizer({
                         key={`col-${i}`}
                         className="text-[0.65rem] sm:text-xs font-bold text-center px-1 py-2"
                         style={{
-                          background: 'linear-gradient(180deg, rgba(99,80,230,0.18) 0%, transparent 100%)',
+                          background:
+                            'linear-gradient(180deg, rgba(99,80,230,0.18) 0%, transparent 100%)',
                           borderRadius: '0.375rem 0.375rem 0 0',
                           minWidth: '3.5rem',
                         }}
@@ -810,7 +841,8 @@ export function TransformerVisualizer({
                         <motion.div
                           className="text-[0.65rem] sm:text-xs font-bold flex items-center justify-end pr-2"
                           style={{
-                            background: 'linear-gradient(90deg, rgba(99,80,230,0.18) 0%, transparent 100%)',
+                            background:
+                              'linear-gradient(90deg, rgba(99,80,230,0.18) 0%, transparent 100%)',
                             borderRadius: '0.375rem 0 0 0.375rem',
                             minHeight: '3rem',
                             minWidth: '6rem',
@@ -839,8 +871,7 @@ export function TransformerVisualizer({
                         {/* Score cells */}
                         {row.map((score, j) => {
                           const intensity = score as number;
-                          const isHovered =
-                            hoveredCell?.row === i && hoveredCell?.col === j;
+                          const isHovered = hoveredCell?.row === i && hoveredCell?.col === j;
                           const colors = intensityToOklch(intensity);
 
                           return (
@@ -851,25 +882,23 @@ export function TransformerVisualizer({
                                 'text-[0.62rem] sm:text-[0.68rem] font-bold',
                                 'rounded-md cursor-pointer select-none overflow-hidden',
                                 'transition-[box-shadow,border-color] duration-200 ease-out',
-                                isHovered && 'z-10'
+                                isHovered && 'z-10',
                               )}
                               style={{
                                 minWidth: '3.5rem',
                                 minHeight: '3rem',
                                 aspectRatio: 'auto',
-                                background: showHeatmap ? colors.bgGrad : 'oklch(0.20 0.02 260 / 0.30)',
-                                color: intensity > 0.52
-                                  ? '#ffffff'
-                                  : 'oklch(0.72 0.06 260)',
+                                background: showHeatmap
+                                  ? colors.bgGrad
+                                  : 'oklch(0.20 0.02 260 / 0.30)',
+                                color: intensity > 0.52 ? '#ffffff' : 'oklch(0.72 0.06 260)',
                                 boxShadow: isHovered
                                   ? `0 8px 24px ${colors.glow}, 0 0 0 2px ${colors.border}`
                                   : intensity > 0.58
-                                  ? `0 3px 10px ${colors.glow}`
-                                  : 'none',
+                                    ? `0 3px 10px ${colors.glow}`
+                                    : 'none',
                                 border: `1px solid ${colors.border}`,
-                                textShadow: intensity > 0.52
-                                  ? '0 1px 6px rgba(0,0,0,0.9)'
-                                  : 'none',
+                                textShadow: intensity > 0.52 ? '0 1px 6px rgba(0,0,0,0.9)' : 'none',
                                 willChange: 'transform',
                               }}
                               onMouseEnter={() => setHoveredCell({ row: i, col: j })}
@@ -921,7 +950,8 @@ export function TransformerVisualizer({
                   <div
                     className="flex-1 h-2.5 rounded-full"
                     style={{
-                      background: 'linear-gradient(to right, oklch(0.88 0.04 250), oklch(0.65 0.18 280), oklch(0.45 0.28 320))',
+                      background:
+                        'linear-gradient(to right, oklch(0.88 0.04 250), oklch(0.65 0.18 280), oklch(0.45 0.28 320))',
                     }}
                     aria-label="Attention intensity color scale from low to high"
                     role="img"
@@ -942,12 +972,15 @@ export function TransformerVisualizer({
                         <div className="ml-2 min-w-0 overflow-hidden">
                           <strong>Attention Flow:</strong>{' '}
                           <span className="font-mono text-xs break-all">
-                            &ldquo;{tokens[hoveredCell.row]}&rdquo; &rarr; &ldquo;{tokens[hoveredCell.col]}&rdquo;
+                            &ldquo;{tokens[hoveredCell.row]}&rdquo; &rarr; &ldquo;
+                            {tokens[hoveredCell.col]}&rdquo;
                           </span>{' '}
                           with score{' '}
                           <code className="font-mono text-xs">
                             {currentHead &&
-                              (currentHead.scores[hoveredCell.row]?.[hoveredCell.col] as number)?.toFixed(4)}
+                              (
+                                currentHead.scores[hoveredCell.row]?.[hoveredCell.col] as number
+                              )?.toFixed(4)}
                           </code>
                         </div>
                       </Alert>
@@ -969,7 +1002,9 @@ export function TransformerVisualizer({
               {/* Number of Heads */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-2">
-                  <Label htmlFor="num-heads" className="text-sm">Number of Heads</Label>
+                  <Label htmlFor="num-heads" className="text-sm">
+                    Number of Heads
+                  </Label>
                   <span className="text-sm font-mono text-muted-foreground shrink-0">
                     {config.numHeads}
                   </span>
@@ -991,7 +1026,9 @@ export function TransformerVisualizer({
               {/* Model Dimension */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-2">
-                  <Label htmlFor="d-model" className="text-sm">Model Dimension (d_model)</Label>
+                  <Label htmlFor="d-model" className="text-sm">
+                    Model Dimension (d_model)
+                  </Label>
                   <span className="text-sm font-mono text-muted-foreground shrink-0">
                     {config.dModel}
                   </span>
@@ -1013,7 +1050,9 @@ export function TransformerVisualizer({
               {/* Sequence Length */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-2">
-                  <Label htmlFor="seq-length" className="text-sm">Sequence Length</Label>
+                  <Label htmlFor="seq-length" className="text-sm">
+                    Sequence Length
+                  </Label>
                   <span className="text-sm font-mono text-muted-foreground shrink-0">
                     {config.sequenceLength}
                   </span>
@@ -1029,7 +1068,7 @@ export function TransformerVisualizer({
                     const newTokens = [...tokens];
                     if (newLength > tokens.length) {
                       newTokens.push(
-                        ...Array.from({ length: newLength - tokens.length }, () => '[PAD]')
+                        ...Array.from({ length: newLength - tokens.length }, () => '[PAD]'),
                       );
                     } else {
                       newTokens.splice(newLength);
@@ -1047,7 +1086,9 @@ export function TransformerVisualizer({
               {/* Visualization Options */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between gap-2">
-                  <Label htmlFor="show-heatmap" className="text-sm">Show Heatmap Colors</Label>
+                  <Label htmlFor="show-heatmap" className="text-sm">
+                    Show Heatmap Colors
+                  </Label>
                   <Switch
                     id="show-heatmap"
                     checked={showHeatmap}
@@ -1105,11 +1146,7 @@ export function TransformerVisualizer({
                   ))}
                 </div>
               </ScrollArea>
-              <Button
-                className="w-full mt-4"
-                onClick={applyTokens}
-                disabled={isAnimating}
-              >
+              <Button className="w-full mt-4" onClick={applyTokens} disabled={isAnimating}>
                 Apply Token Edits
               </Button>
             </CardContent>
@@ -1131,7 +1168,8 @@ export function TransformerVisualizer({
               <TabsList
                 className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto p-1 rounded-xl"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(10,8,28,0.55) 0%, rgba(18,14,42,0.55) 100%)',
+                  background:
+                    'linear-gradient(135deg, rgba(10,8,28,0.55) 0%, rgba(18,14,42,0.55) 100%)',
                   backdropFilter: 'blur(12px)',
                   border: '1px solid rgba(90,70,180,0.25)',
                   boxShadow: '0 4px 16px rgba(0,0,0,0.28), inset 0 1px 1px rgba(255,255,255,0.06)',
@@ -1217,7 +1255,9 @@ export function TransformerVisualizer({
                   <strong>Try these experiments:</strong>
                 </p>
                 <ul className="list-disc list-inside space-y-1 ml-4">
-                  <li>Type a sentence above and click &ldquo;Tokenize&rdquo; to use your own words</li>
+                  <li>
+                    Type a sentence above and click &ldquo;Tokenize&rdquo; to use your own words
+                  </li>
                   <li>Increase heads to see how attention patterns diversify</li>
                   <li>Hover over cells to see exact attention scores and flow arcs</li>
                   <li>Use animation to compare all heads quickly</li>
@@ -1226,8 +1266,9 @@ export function TransformerVisualizer({
                 <Alert className="mt-4">
                   <Info className="h-4 w-4 shrink-0" />
                   <p className="ml-2 text-xs break-words min-w-0">
-                    <strong>Keyboard shortcut:</strong> Press Enter in the sentence field to tokenize.
-                    Hover any heatmap cell to highlight that query&apos;s attention arcs in the flow diagram.
+                    <strong>Keyboard shortcut:</strong> Press Enter in the sentence field to
+                    tokenize. Hover any heatmap cell to highlight that query&apos;s attention arcs
+                    in the flow diagram.
                   </p>
                 </Alert>
               </TabsContent>

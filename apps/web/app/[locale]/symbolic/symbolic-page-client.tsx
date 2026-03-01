@@ -170,8 +170,7 @@ function AnimatedBackground() {
       <motion.div
         className="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[480px] h-[480px] rounded-full blur-3xl"
         style={{
-          background:
-            'radial-gradient(circle, oklch(0.65 0.20 355 / 0.08) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, oklch(0.65 0.20 355 / 0.08) 0%, transparent 70%)',
         }}
         animate={{
           y: [0, -20, 0],
@@ -215,10 +214,7 @@ export function SymbolicPageClient() {
           initial="hidden"
           animate="visible"
         >
-          <motion.div
-            className="flex items-center gap-4 mb-3"
-            variants={fadeUpVariants}
-          >
+          <motion.div className="flex items-center gap-4 mb-3" variants={fadeUpVariants}>
             {/* Icon badge */}
             <div
               className="p-3 rounded-2xl border shrink-0"
@@ -248,10 +244,7 @@ export function SymbolicPageClient() {
           </motion.div>
 
           {/* Feature badges */}
-          <motion.div
-            className="flex flex-wrap gap-2 mt-4"
-            variants={fadeUpVariants}
-          >
+          <motion.div className="flex flex-wrap gap-2 mt-4" variants={fadeUpVariants}>
             {[
               { label: 'Symbolic Diff', hue: 295 },
               { label: 'Integration', hue: 330 },
@@ -288,8 +281,7 @@ export function SymbolicPageClient() {
             id="features-heading"
             className="text-2xl font-semibold"
             style={{
-              background:
-                'linear-gradient(90deg, oklch(0.85 0.015 250), oklch(0.62 0.22 295))',
+              background: 'linear-gradient(90deg, oklch(0.85 0.015 250), oklch(0.62 0.22 295))',
               backgroundClip: 'text',
               WebkitBackgroundClip: 'text',
               color: 'transparent',
@@ -320,14 +312,15 @@ export function SymbolicPageClient() {
               <div
                 className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
                 style={{
-                  background:
-                    'linear-gradient(135deg, oklch(0.65 0.22 45 / 0.06), transparent)',
+                  background: 'linear-gradient(135deg, oklch(0.65 0.22 45 / 0.06), transparent)',
                 }}
               />
               <div className="relative flex items-center justify-between gap-3 min-w-0">
                 <div className="min-w-0">
                   <h3 className="text-lg font-semibold mb-1 flex flex-wrap items-center gap-2 min-w-0">
-                    <span className="text-2xl shrink-0" aria-hidden="true">~</span>
+                    <span className="text-2xl shrink-0" aria-hidden="true">
+                      ~
+                    </span>
                     <span className="shrink-0">Taylor Series Visualizer</span>
                     <span
                       className="text-xs px-2 py-1 rounded border shrink-0"
@@ -403,7 +396,9 @@ export function SymbolicPageClient() {
                       className="text-lg font-semibold flex flex-wrap items-center gap-2 min-w-0"
                       style={{ color: `oklch(0.78 0.16 ${card.hue})` }}
                     >
-                      <span className="shrink-0" aria-hidden="true">{card.symbol}</span>
+                      <span className="shrink-0" aria-hidden="true">
+                        {card.symbol}
+                      </span>
                       <span className="shrink-0">{card.title}</span>
                       <span
                         className="text-xs px-2 py-1 rounded border shrink-0"
@@ -418,10 +413,7 @@ export function SymbolicPageClient() {
                     </h3>
                   </div>
 
-                  <p
-                    className="text-sm"
-                    style={{ color: `oklch(0.72 0.06 ${card.hue})` }}
-                  >
+                  <p className="text-sm" style={{ color: `oklch(0.72 0.06 ${card.hue})` }}>
                     {card.description}
                   </p>
                 </div>
@@ -436,8 +428,7 @@ export function SymbolicPageClient() {
             id="examples-heading"
             className="text-2xl font-semibold mb-6"
             style={{
-              background:
-                'linear-gradient(90deg, oklch(0.85 0.015 250), oklch(0.62 0.22 295))',
+              background: 'linear-gradient(90deg, oklch(0.85 0.015 250), oklch(0.62 0.22 295))',
               backgroundClip: 'text',
               WebkitBackgroundClip: 'text',
               color: 'transparent',
@@ -469,19 +460,13 @@ export function SymbolicPageClient() {
               >
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="font-mono text-sm text-foreground/80 overflow-x-auto">
-                    <span
-                      className="font-semibold"
-                      style={{ color: `oklch(0.78 0.18 ${hue})` }}
-                    >
+                    <span className="font-semibold" style={{ color: `oklch(0.78 0.18 ${hue})` }}>
                       Input:
                     </span>{' '}
                     {input}
                   </div>
                   <div className="font-mono text-sm text-foreground/80 overflow-x-auto">
-                    <span
-                      className="font-semibold"
-                      style={{ color: `oklch(0.78 0.18 ${hue})` }}
-                    >
+                    <span className="font-semibold" style={{ color: `oklch(0.78 0.18 ${hue})` }}>
                       {label}:
                     </span>{' '}
                     {output}

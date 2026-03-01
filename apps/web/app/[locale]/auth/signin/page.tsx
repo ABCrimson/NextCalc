@@ -18,12 +18,12 @@
  * @see https://authjs.dev/guides/pages/signin
  */
 
-import { type ComponentType, useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { AlertCircle, Calculator, Chrome, Github, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { signIn as nextAuthSignIn } from 'next-auth/react';
-import { Calculator, Github, Chrome, AlertCircle, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { type ComponentType, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 type OAuthProvider = 'github' | 'google';
@@ -141,9 +141,7 @@ export default function SignInPage() {
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">
               {t('welcomeBack')}
             </h1>
-            <p className="text-sm text-muted-foreground">
-              {t('signInSubtitle')}
-            </p>
+            <p className="text-sm text-muted-foreground">{t('signInSubtitle')}</p>
           </div>
         </div>
 
@@ -160,10 +158,7 @@ export default function SignInPage() {
         )}
 
         {/* Provider buttons */}
-        <div
-          className="space-y-3"
-          aria-label={t('signInOptions')}
-        >
+        <div className="space-y-3" aria-label={t('signInOptions')}>
           {PROVIDERS.map(({ id, label, icon: Icon, colorClasses }) => {
             const isLoading = loadingProvider === id;
             const isDisabled = loadingProvider !== null;
@@ -185,10 +180,7 @@ export default function SignInPage() {
                 )}
               >
                 {isLoading ? (
-                  <Loader2
-                    className="h-4 w-4 animate-spin"
-                    aria-hidden="true"
-                  />
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                 ) : (
                   <Icon className="h-4 w-4" aria-hidden="true" />
                 )}
@@ -226,8 +218,7 @@ export default function SignInPage() {
 
         {/* Legal */}
         <p className="text-center text-xs text-muted-foreground/70">
-          {t('legalPrefix')}{' '}
-          <span className="text-muted-foreground">{t('termsOfService')}</span>
+          {t('legalPrefix')} <span className="text-muted-foreground">{t('termsOfService')}</span>
           {' & '}
           <span className="text-muted-foreground">{t('privacyPolicy')}</span>.
         </p>

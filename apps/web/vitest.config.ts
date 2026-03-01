@@ -1,5 +1,5 @@
-import { defineConfig } from 'vitest/config';
 import { resolve } from 'path';
+import { defineConfig } from 'vitest/config';
 
 /**
  * Vitest 4.0 Configuration
@@ -27,13 +27,7 @@ export default defineConfig({
 
     // IMPORTANT: Exclude e2e tests (Playwright) from Vitest
     // Playwright tests use different APIs and should be run separately
-    exclude: [
-      'node_modules/**',
-      'dist/**',
-      'e2e/**',
-      '**/*.e2e.{ts,tsx}',
-      '**/*.spec.{ts,tsx}',
-    ],
+    exclude: ['node_modules/**', 'dist/**', 'e2e/**', '**/*.e2e.{ts,tsx}', '**/*.spec.{ts,tsx}'],
 
     // Include patterns for unit and integration tests
     include: ['**/*.test.{ts,tsx}'],

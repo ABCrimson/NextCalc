@@ -9,8 +9,8 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
 import type { UserRole } from '@nextcalc/database';
+import { useEffect, useState } from 'react';
 
 /**
  * Session type from NextAuth

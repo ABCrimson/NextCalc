@@ -20,22 +20,22 @@
  * @module components/calculator/share-button
  */
 
-import { useState, useCallback, useId, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Popover as PopoverPrimitive } from 'radix-ui';
-import { Share2, Copy, Check, ExternalLink, Loader2 } from 'lucide-react';
 import { useMutation } from '@apollo/client/react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Check, Copy, ExternalLink, Loader2, Share2 } from 'lucide-react';
+import { Popover as PopoverPrimitive } from 'radix-ui';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import {
-  createShareUrl,
-  createPermalinkUrl,
-  copyPermalinkUrl,
-  copyShareUrl,
-  type SharePayload,
-} from '@/lib/share';
 import { SHARE_CALCULATION_MUTATION } from '@/lib/graphql/operations';
 import { useReducedMotion } from '@/lib/hooks/use-reduced-motion';
+import {
+  copyPermalinkUrl,
+  copyShareUrl,
+  createPermalinkUrl,
+  createShareUrl,
+  type SharePayload,
+} from '@/lib/share';
+import { cn } from '@/lib/utils';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -144,9 +144,7 @@ function UrlPreview({ url, isLoading }: { url: string; isLoading: boolean }) {
       {isLoading ? (
         <div className="flex items-center gap-2">
           <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" aria-hidden="true" />
-          <p className="text-xs font-mono text-muted-foreground">
-            Generating permalink...
-          </p>
+          <p className="text-xs font-mono text-muted-foreground">Generating permalink...</p>
         </div>
       ) : (
         <p
@@ -165,13 +163,7 @@ function UrlPreview({ url, isLoading }: { url: string; isLoading: boolean }) {
 // Main component
 // ---------------------------------------------------------------------------
 
-export function ShareButton({
-  expression,
-  result,
-  mode,
-  angle,
-  className,
-}: ShareButtonProps) {
+export function ShareButton({ expression, result, mode, angle, className }: ShareButtonProps) {
   const prefersReducedMotion = useReducedMotion();
 
   const [open, setOpen] = useState(false);
@@ -192,57 +184,63 @@ export function ShareButton({
   const [shareCalculation] = useMutation<ShareCalculationData>(SHARE_CALCULATION_MUTATION);
 
   // Build the payload from current props
-  const buildPayload = useCallback((): SharePayload => ({
-    expression,
-    ...(result !== undefined ? { result } : {}),
-    ...(mode !== undefined ? { mode } : {}),
-    ...(angle !== undefined ? { angle } : {}),
-  }), [expression, result, mode, angle]);
+  const buildPayload = useCallback(
+    (): SharePayload => ({
+      expression,
+      ...(result !== undefined ? { result } : {}),
+      ...(mode !== undefined ? { mode } : {}),
+      ...(angle !== undefined ? { angle } : {}),
+    }),
+    [expression, result, mode, angle],
+  );
 
   // Derived URL shown in the preview
   const [previewUrl, setPreviewUrl] = useState('');
 
   // When the popover opens, call the mutation to persist and get a short code
-  const handleOpenChange = useCallback(async (nextOpen: boolean) => {
-    setOpen(nextOpen);
-    if (nextOpen) {
-      setCopyStatus('idle');
-      setShareState('creating');
-      setShortCode(null);
+  const handleOpenChange = useCallback(
+    async (nextOpen: boolean) => {
+      setOpen(nextOpen);
+      if (nextOpen) {
+        setCopyStatus('idle');
+        setShareState('creating');
+        setShortCode(null);
 
-      // Show fallback URL while mutation is in-flight
-      const fallbackUrl = createShareUrl(buildPayload());
-      setPreviewUrl(fallbackUrl);
+        // Show fallback URL while mutation is in-flight
+        const fallbackUrl = createShareUrl(buildPayload());
+        setPreviewUrl(fallbackUrl);
 
-      try {
-        const latex = convertToLatex(expression);
-        const { data } = await shareCalculation({
-          variables: {
-            latex,
-            expression,
-            ...(result !== undefined ? { result } : {}),
-          },
-        });
+        try {
+          const latex = convertToLatex(expression);
+          const { data } = await shareCalculation({
+            variables: {
+              latex,
+              expression,
+              ...(result !== undefined ? { result } : {}),
+            },
+          });
 
-        if (data?.shareCalculation?.shortCode) {
-          const code = data.shareCalculation.shortCode;
-          const permalink = createPermalinkUrl(code);
-          setShortCode(code);
-          setPreviewUrl(permalink);
-          setShareState('ready');
-        } else {
-          // Mutation returned but no data — use fallback
+          if (data?.shareCalculation?.shortCode) {
+            const code = data.shareCalculation.shortCode;
+            const permalink = createPermalinkUrl(code);
+            setShortCode(code);
+            setPreviewUrl(permalink);
+            setShareState('ready');
+          } else {
+            // Mutation returned but no data — use fallback
+            setShareState('fallback');
+          }
+        } catch {
+          // API unreachable — use URL-param fallback
           setShareState('fallback');
         }
-      } catch {
-        // API unreachable — use URL-param fallback
-        setShareState('fallback');
+      } else {
+        setShareState('idle');
+        setShortCode(null);
       }
-    } else {
-      setShareState('idle');
-      setShortCode(null);
-    }
-  }, [buildPayload, expression, result, shareCalculation]);
+    },
+    [buildPayload, expression, result, shareCalculation],
+  );
 
   // Reset timer ref — cleared on unmount and before each new reset
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -424,7 +422,9 @@ export function ShareButton({
                       {copyStatus === 'copied' ? (
                         <motion.span
                           key="check"
-                          initial={prefersReducedMotion ? { opacity: 0 } : { scale: 0.6, opacity: 0 }}
+                          initial={
+                            prefersReducedMotion ? { opacity: 0 } : { scale: 0.6, opacity: 0 }
+                          }
                           animate={{ scale: 1, opacity: 1 }}
                           exit={{ scale: 0.6, opacity: 0 }}
                           transition={{ duration: prefersReducedMotion ? 0 : 0.15 }}

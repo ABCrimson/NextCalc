@@ -1,26 +1,18 @@
 'use client';
 
-import { useState, useMemo, useCallback, useId } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { evaluate } from '@nextcalc/math-engine';
+import { AnimatePresence, motion } from 'framer-motion';
+import { AlertCircle, Check, ChevronDown, ChevronUp, Copy, Info, ListOrdered } from 'lucide-react';
+import { useCallback, useId, useMemo, useState } from 'react';
+import type { AnalysisFunction } from '@/components/plots/PlotAnalysisPanel';
+import { PlotAnalysisPanel } from '@/components/plots/PlotAnalysisPanel';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { MathRenderer } from '@/components/ui/math-renderer';
-import { PlotAnalysisPanel } from '@/components/plots/PlotAnalysisPanel';
-import type { AnalysisFunction } from '@/components/plots/PlotAnalysisPanel';
-import { evaluate } from '@nextcalc/math-engine';
-import {
-  AlertCircle,
-  Info,
-  ListOrdered,
-  ChevronDown,
-  ChevronUp,
-  Copy,
-  Check,
-} from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 
 // ============================================================================
@@ -154,7 +146,7 @@ function CategoryBadge({ category }: { category: string }) {
         'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold border',
         style.bg,
         style.text,
-        style.border
+        style.border,
       )}
     >
       {style.label}
@@ -187,9 +179,7 @@ function StepCard({ step, index, isExpanded, onToggle, isFinal }: StepCardProps)
       transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1], delay: index * 0.04 }}
       className={cn(
         'rounded-lg border overflow-hidden',
-        isFinal
-          ? 'border-primary/40 bg-primary/5'
-          : 'border-border bg-card'
+        isFinal ? 'border-primary/40 bg-primary/5' : 'border-border bg-card',
       )}
     >
       {/* Step header — clickable toggle */}
@@ -203,18 +193,14 @@ function StepCard({ step, index, isExpanded, onToggle, isFinal }: StepCardProps)
           'w-full flex items-start gap-3 px-4 py-3 text-left',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
           'transition-colors duration-150',
-          isExpanded
-            ? 'bg-muted/40'
-            : 'hover:bg-muted/20'
+          isExpanded ? 'bg-muted/40' : 'hover:bg-muted/20',
         )}
       >
         {/* Step number bubble */}
         <span
           className={cn(
             'flex-none mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold shrink-0',
-            isFinal
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-muted text-muted-foreground'
+            isFinal ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground',
           )}
           aria-hidden="true"
         >
@@ -230,25 +216,14 @@ function StepCard({ step, index, isExpanded, onToggle, isFinal }: StepCardProps)
             <CategoryBadge category={step.category} />
           </div>
           {/* LaTeX preview — always visible */}
-          <div
-            className="mt-1.5 overflow-x-auto"
-            aria-label={`Step ${step.stepNumber} expression`}
-          >
-            <MathRenderer
-              expression={step.latex}
-              displayMode={false}
-              className="text-base"
-            />
+          <div className="mt-1.5 overflow-x-auto" aria-label={`Step ${step.stepNumber} expression`}>
+            <MathRenderer expression={step.latex} displayMode={false} className="text-base" />
           </div>
         </div>
 
         {/* Expand/collapse chevron */}
         <span className="flex-none mt-0.5 text-muted-foreground" aria-hidden="true">
-          {isExpanded ? (
-            <ChevronUp className="h-4 w-4" />
-          ) : (
-            <ChevronDown className="h-4 w-4" />
-          )}
+          {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </span>
       </button>
 
@@ -274,11 +249,7 @@ function StepCard({ step, index, isExpanded, onToggle, isFinal }: StepCardProps)
                 className="mt-3 rounded-md bg-muted/50 px-4 py-3 overflow-x-auto"
                 aria-label={`Step ${step.stepNumber} expression, display mode`}
               >
-                <MathRenderer
-                  expression={step.latex}
-                  displayMode={true}
-                  className="text-base"
-                />
+                <MathRenderer expression={step.latex} displayMode={true} className="text-base" />
               </div>
               <p className="mt-2 text-xs text-muted-foreground/70 font-mono">
                 Operation: {step.operation}
@@ -309,7 +280,7 @@ interface StepsPanelProps {
  */
 function StepsPanel({ steps, finalLatex, timeMs, copiedSteps, onCopyFinal }: StepsPanelProps) {
   const [expandedSteps, setExpandedSteps] = useState<ReadonlySet<number>>(
-    new Set(steps.length > 0 ? [steps[steps.length - 1]!.stepNumber] : [])
+    new Set(steps.length > 0 ? [steps[steps.length - 1]!.stepNumber] : []),
   );
 
   const toggleStep = useCallback((stepNumber: number) => {
@@ -350,9 +321,7 @@ function StepsPanel({ steps, finalLatex, timeMs, copiedSteps, onCopyFinal }: Ste
           <h3 className="text-sm font-semibold text-foreground">
             Solution — {steps.length} step{steps.length !== 1 ? 's' : ''}
           </h3>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Computed in {timeMs.toFixed(1)} ms
-          </p>
+          <p className="text-xs text-muted-foreground mt-0.5">Computed in {timeMs.toFixed(1)} ms</p>
         </div>
         <Button
           variant="ghost"
@@ -528,19 +497,23 @@ function astNodeToLatex(node: unknown): string {
     const op = String(n.op ?? '');
 
     switch (op) {
-      case '+': return `${left} + ${right}`;
-      case '-': return `${left} - ${right}`;
+      case '+':
+        return `${left} + ${right}`;
+      case '-':
+        return `${left} - ${right}`;
       case '*': {
         const l = needsParens(args[0]) ? `\\left(${left}\\right)` : left;
         const r = needsParens(args[1]) ? `\\left(${right}\\right)` : right;
         return `${l} \\cdot ${r}`;
       }
-      case '/': return `\\frac{${left}}{${right}}`;
+      case '/':
+        return `\\frac{${left}}{${right}}`;
       case '^': {
         const base = needsParens(args[0]) ? `\\left(${left}\\right)` : left;
         return `${base}^{${right}}`;
       }
-      default: return `${left} ${op} ${right}`;
+      default:
+        return `${left} ${op} ${right}`;
     }
   }
 
@@ -554,23 +527,39 @@ function astNodeToLatex(node: unknown): string {
     const fn = String(n.fn ?? '');
     const args = (n.args ?? []).map(astNodeToLatex);
     switch (fn) {
-      case 'sin': return `\\sin\\left(${args[0]}\\right)`;
-      case 'cos': return `\\cos\\left(${args[0]}\\right)`;
-      case 'tan': return `\\tan\\left(${args[0]}\\right)`;
-      case 'asin': return `\\arcsin\\left(${args[0]}\\right)`;
-      case 'acos': return `\\arccos\\left(${args[0]}\\right)`;
-      case 'atan': return `\\arctan\\left(${args[0]}\\right)`;
-      case 'sinh': return `\\sinh\\left(${args[0]}\\right)`;
-      case 'cosh': return `\\cosh\\left(${args[0]}\\right)`;
-      case 'tanh': return `\\tanh\\left(${args[0]}\\right)`;
-      case 'sqrt': return `\\sqrt{${args[0]}}`;
-      case 'exp': return `e^{${args[0]}}`;
+      case 'sin':
+        return `\\sin\\left(${args[0]}\\right)`;
+      case 'cos':
+        return `\\cos\\left(${args[0]}\\right)`;
+      case 'tan':
+        return `\\tan\\left(${args[0]}\\right)`;
+      case 'asin':
+        return `\\arcsin\\left(${args[0]}\\right)`;
+      case 'acos':
+        return `\\arccos\\left(${args[0]}\\right)`;
+      case 'atan':
+        return `\\arctan\\left(${args[0]}\\right)`;
+      case 'sinh':
+        return `\\sinh\\left(${args[0]}\\right)`;
+      case 'cosh':
+        return `\\cosh\\left(${args[0]}\\right)`;
+      case 'tanh':
+        return `\\tanh\\left(${args[0]}\\right)`;
+      case 'sqrt':
+        return `\\sqrt{${args[0]}}`;
+      case 'exp':
+        return `e^{${args[0]}}`;
       case 'log':
-      case 'ln': return `\\ln\\left(${args[0]}\\right)`;
-      case 'log10': return `\\log_{10}\\left(${args[0]}\\right)`;
-      case 'log2': return `\\log_{2}\\left(${args[0]}\\right)`;
-      case 'abs': return `\\left|${args[0]}\\right|`;
-      default: return `\\operatorname{${fn}}\\left(${args.join(', ')}\\right)`;
+      case 'ln':
+        return `\\ln\\left(${args[0]}\\right)`;
+      case 'log10':
+        return `\\log_{10}\\left(${args[0]}\\right)`;
+      case 'log2':
+        return `\\log_{2}\\left(${args[0]}\\right)`;
+      case 'abs':
+        return `\\left|${args[0]}\\right|`;
+      default:
+        return `\\operatorname{${fn}}\\left(${args.join(', ')}\\right)`;
     }
   }
 
@@ -633,7 +622,9 @@ export function SymbolicPanel() {
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
-  const [activeOperation, setActiveOperation] = useState<'differentiate' | 'integrate' | null>(null);
+  const [activeOperation, setActiveOperation] = useState<'differentiate' | 'integrate' | null>(
+    null,
+  );
 
   // Step-by-step state
   const [steps, setSteps] = useState<ReadonlyArray<RenderedStep>>([]);
@@ -658,8 +649,9 @@ export function SymbolicPanel() {
     resetStepState();
 
     try {
-      const { differentiate, astToString, solveWithSteps, ProblemType } =
-        await import('@nextcalc/math-engine/symbolic');
+      const { differentiate, astToString, solveWithSteps, ProblemType } = await import(
+        '@nextcalc/math-engine/symbolic'
+      );
       const { parse } = await import('@nextcalc/math-engine/parser');
 
       // Quick result (existing behaviour)
@@ -679,9 +671,7 @@ export function SymbolicPanel() {
       setStepsTimeMs(elapsed);
 
       // Build final latex from result string
-      setFinalLatex(
-        `\\frac{d}{d${variable}}\\left[${expression}\\right] = ${resultStr}`
-      );
+      setFinalLatex(`\\frac{d}{d${variable}}\\left[${expression}\\right] = ${resultStr}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to differentiate expression');
     } finally {
@@ -697,8 +687,9 @@ export function SymbolicPanel() {
     resetStepState();
 
     try {
-      const { integrate, astToString, solveWithSteps, ProblemType } =
-        await import('@nextcalc/math-engine/symbolic');
+      const { integrate, astToString, solveWithSteps, ProblemType } = await import(
+        '@nextcalc/math-engine/symbolic'
+      );
       const { parse } = await import('@nextcalc/math-engine/parser');
 
       // Quick result (existing behaviour)
@@ -718,9 +709,7 @@ export function SymbolicPanel() {
       setStepsTimeMs(elapsed);
 
       // Build final latex from result string
-      setFinalLatex(
-        `\\int ${expression} \\, d${variable} = ${resultStr}`
-      );
+      setFinalLatex(`\\int ${expression} \\, d${variable} = ${resultStr}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to integrate expression');
     } finally {
@@ -852,12 +841,8 @@ export function SymbolicPanel() {
     <Card className="p-6">
       <Tabs defaultValue="differentiate" className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-6">
-          <TabsTrigger value="differentiate">
-            Differentiate (d/d{variable})
-          </TabsTrigger>
-          <TabsTrigger value="integrate">
-            Integrate (&int;d{variable})
-          </TabsTrigger>
+          <TabsTrigger value="differentiate">Differentiate (d/d{variable})</TabsTrigger>
+          <TabsTrigger value="integrate">Integrate (&int;d{variable})</TabsTrigger>
         </TabsList>
 
         {/* ================================================================
@@ -868,8 +853,8 @@ export function SymbolicPanel() {
           <Alert>
             <Info className="h-4 w-4" />
             <AlertDescription>
-              Symbolic differentiation with chain, product, and quotient rules.
-              After computing, the analysis panel below will show intercepts and critical points.
+              Symbolic differentiation with chain, product, and quotient rules. After computing, the
+              analysis panel below will show intercepts and critical points.
             </AlertDescription>
           </Alert>
 
@@ -941,14 +926,10 @@ export function SymbolicPanel() {
                 aria-label="Calculation result"
               >
                 <div className="flex items-center justify-between gap-3 flex-wrap">
-                  <div className="text-sm text-muted-foreground font-semibold">
-                    Result:
-                  </div>
+                  <div className="text-sm text-muted-foreground font-semibold">Result:</div>
                   {stepsToggleButton}
                 </div>
-                <div className="text-xl font-mono break-all">
-                  {result}
-                </div>
+                <div className="text-xl font-mono break-all">{result}</div>
                 <div className="text-xs text-muted-foreground pt-2 border-t">
                   d/d{variable} [{expression}] = {result}
                 </div>
@@ -962,7 +943,8 @@ export function SymbolicPanel() {
           {analysisFunctions.length > 0 && (
             <div className="space-y-2">
               <p className="text-xs text-muted-foreground">
-                Analysis computed over x &isin; [&minus;6, 6]. Scroll into range and re-compute if your function lives on a different domain.
+                Analysis computed over x &isin; [&minus;6, 6]. Scroll into range and re-compute if
+                your function lives on a different domain.
               </p>
               <PlotAnalysisPanel
                 functions={analysisFunctions}
@@ -1001,13 +983,27 @@ export function SymbolicPanel() {
               Supported Functions
             </summary>
             <div className="mt-2 space-y-2 text-muted-foreground">
-              <p><strong>Trigonometric:</strong> sin(x), cos(x), tan(x), sec(x), csc(x), cot(x)</p>
-              <p><strong>Inverse Trig:</strong> asin(x), acos(x), atan(x), asec(x), acsc(x), acot(x)</p>
-              <p><strong>Hyperbolic:</strong> sinh(x), cosh(x), tanh(x)</p>
-              <p><strong>Exponential:</strong> exp(x), 2^x, 10^x</p>
-              <p><strong>Logarithmic:</strong> ln(x), log(x), log10(x)</p>
-              <p><strong>Other:</strong> sqrt(x), abs(x), x^n</p>
-              <p><strong>Operations:</strong> +, -, *, /, ^, ()</p>
+              <p>
+                <strong>Trigonometric:</strong> sin(x), cos(x), tan(x), sec(x), csc(x), cot(x)
+              </p>
+              <p>
+                <strong>Inverse Trig:</strong> asin(x), acos(x), atan(x), asec(x), acsc(x), acot(x)
+              </p>
+              <p>
+                <strong>Hyperbolic:</strong> sinh(x), cosh(x), tanh(x)
+              </p>
+              <p>
+                <strong>Exponential:</strong> exp(x), 2^x, 10^x
+              </p>
+              <p>
+                <strong>Logarithmic:</strong> ln(x), log(x), log10(x)
+              </p>
+              <p>
+                <strong>Other:</strong> sqrt(x), abs(x), x^n
+              </p>
+              <p>
+                <strong>Operations:</strong> +, -, *, /, ^, ()
+              </p>
             </div>
           </details>
         </TabsContent>
@@ -1094,14 +1090,10 @@ export function SymbolicPanel() {
                 aria-label="Integration result"
               >
                 <div className="flex items-center justify-between gap-3 flex-wrap">
-                  <div className="text-sm text-muted-foreground font-semibold">
-                    Result:
-                  </div>
+                  <div className="text-sm text-muted-foreground font-semibold">Result:</div>
                   {stepsToggleButton}
                 </div>
-                <div className="text-xl font-mono break-all">
-                  {result}
-                </div>
+                <div className="text-xl font-mono break-all">{result}</div>
                 <div className="text-xs text-muted-foreground pt-2 border-t">
                   &int; [{expression}] d{variable} = {result}
                 </div>
@@ -1140,14 +1132,27 @@ export function SymbolicPanel() {
               Supported Functions
             </summary>
             <div className="mt-2 space-y-2 text-muted-foreground">
-              <p><strong>Trigonometric:</strong> sin(x), cos(x), tan(x), sec(x), csc(x), cot(x)</p>
-              <p><strong>Inverse Trig:</strong> asin(x), acos(x), atan(x), asec(x), acsc(x), acot(x)</p>
-              <p><strong>Hyperbolic:</strong> sinh(x), cosh(x), tanh(x)</p>
-              <p><strong>Exponential:</strong> exp(x), 2^x, 10^x, a^x</p>
-              <p><strong>Logarithmic:</strong> ln(x), log(x), log10(x), log2(x)</p>
-              <p><strong>Power:</strong> x^n (n &ne; -1)</p>
+              <p>
+                <strong>Trigonometric:</strong> sin(x), cos(x), tan(x), sec(x), csc(x), cot(x)
+              </p>
+              <p>
+                <strong>Inverse Trig:</strong> asin(x), acos(x), atan(x), asec(x), acsc(x), acot(x)
+              </p>
+              <p>
+                <strong>Hyperbolic:</strong> sinh(x), cosh(x), tanh(x)
+              </p>
+              <p>
+                <strong>Exponential:</strong> exp(x), 2^x, 10^x, a^x
+              </p>
+              <p>
+                <strong>Logarithmic:</strong> ln(x), log(x), log10(x), log2(x)
+              </p>
+              <p>
+                <strong>Power:</strong> x^n (n &ne; -1)
+              </p>
               <p className="text-xs italic pt-2 border-t">
-                Note: Complex expressions may suggest numerical integration. Division and chain rule patterns have limited support.
+                Note: Complex expressions may suggest numerical integration. Division and chain rule
+                patterns have limited support.
               </p>
             </div>
           </details>

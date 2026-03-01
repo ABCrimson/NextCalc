@@ -1,18 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { dft, fft } from '@nextcalc/math-engine/fourier';
+import { Activity, Clock, Waves, Zap } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useEffect, useState } from 'react';
+import { FrequencySpectrumRenderer } from '@/components/fourier/frequency-spectrum-renderer';
+import { TimeDomainRenderer } from '@/components/fourier/time-domain-renderer';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Activity, Clock, Waves, Zap } from 'lucide-react';
-import { fft, dft } from '@nextcalc/math-engine/fourier';
-import { TimeDomainRenderer } from '@/components/fourier/time-domain-renderer';
-import { FrequencySpectrumRenderer } from '@/components/fourier/frequency-spectrum-renderer';
 
 interface FrequencyData {
   frequencies: number[];
@@ -57,16 +57,13 @@ export default function FourierAnalysisPage() {
           // Dual frequency sine wave
           samples.push(
             amplitude1 * Math.sin(2 * Math.PI * frequency1 * tSeconds) +
-            amplitude2 * Math.sin(2 * Math.PI * frequency2 * tSeconds)
+              amplitude2 * Math.sin(2 * Math.PI * frequency2 * tSeconds),
           );
           break;
         case 'square':
           // Square wave (sum of odd harmonics)
           samples.push(
-            Math.sin(t) +
-            Math.sin(3 * t) / 3 +
-            Math.sin(5 * t) / 5 +
-            Math.sin(7 * t) / 7
+            Math.sin(t) + Math.sin(3 * t) / 3 + Math.sin(5 * t) / 5 + Math.sin(7 * t) / 7,
           );
           break;
         case 'sawtooth':
@@ -77,8 +74,8 @@ export default function FourierAnalysisPage() {
           // Musical chord (C major triad: C4, E4, G4)
           samples.push(
             0.8 * Math.sin(2 * Math.PI * 261.63 * tSeconds) + // C4
-            0.6 * Math.sin(2 * Math.PI * 329.63 * tSeconds) + // E4
-            0.5 * Math.sin(2 * Math.PI * 392.00 * tSeconds)   // G4
+              0.6 * Math.sin(2 * Math.PI * 329.63 * tSeconds) + // E4
+              0.5 * Math.sin(2 * Math.PI * 392.0 * tSeconds), // G4
           );
           break;
         case 'noise':
@@ -127,7 +124,7 @@ export default function FourierAnalysisPage() {
         for (let i = 0; i < halfLength; i++) {
           const real = transform[i * 2] ?? 0;
           const imag = transform[i * 2 + 1] ?? 0;
-          magnitudes.push(Math.sqrt(real * real + imag * imag) / inputSignal.length * 2);
+          magnitudes.push((Math.sqrt(real * real + imag * imag) / inputSignal.length) * 2);
           phases.push(Math.atan2(imag, real));
           frequencies.push((i * sampleRate) / inputSignal.length);
         }
@@ -138,7 +135,9 @@ export default function FourierAnalysisPage() {
         for (let i = 0; i < halfLength; i++) {
           const bin = dftResult[i];
           if (!bin) continue;
-          magnitudes.push(Math.sqrt(bin.real * bin.real + bin.imag * bin.imag) / inputSignal.length * 2);
+          magnitudes.push(
+            (Math.sqrt(bin.real * bin.real + bin.imag * bin.imag) / inputSignal.length) * 2,
+          );
           phases.push(Math.atan2(bin.imag, bin.real));
           frequencies.push((i * sampleRate) / inputSignal.length);
         }
@@ -154,7 +153,10 @@ export default function FourierAnalysisPage() {
 
   const handleCustomSignal = (input: string) => {
     try {
-      const values = input.split(',').map(v => parseFloat(v.trim())).filter(v => !isNaN(v));
+      const values = input
+        .split(',')
+        .map((v) => parseFloat(v.trim()))
+        .filter((v) => !isNaN(v));
       if (values.length > 0) {
         setSignal(values);
         setSampleSize(values.length);
@@ -192,18 +194,22 @@ export default function FourierAnalysisPage() {
               {t('title')}
             </h1>
           </div>
-          <p className="text-lg text-foreground/80">
-            {t('subtitle')}
-          </p>
+          <p className="text-lg text-foreground/80">{t('subtitle')}</p>
           <div className="flex gap-2 mt-4 flex-wrap">
-            <Badge variant="outline" className="border-emerald-500/50 text-emerald-400 bg-emerald-500/10">
+            <Badge
+              variant="outline"
+              className="border-emerald-500/50 text-emerald-400 bg-emerald-500/10"
+            >
               <Zap className="w-3 h-3 mr-1" />
               GPU Accelerated
             </Badge>
             <Badge variant="outline" className="border-cyan-500/50 text-cyan-400 bg-cyan-500/10">
               60fps Rendering
             </Badge>
-            <Badge variant="outline" className="border-purple-500/50 text-purple-400 bg-purple-500/10">
+            <Badge
+              variant="outline"
+              className="border-purple-500/50 text-purple-400 bg-purple-500/10"
+            >
               FFT O(n log n)
             </Badge>
           </div>
@@ -233,9 +239,7 @@ export default function FourierAnalysisPage() {
                   onValueChange={([value]) => setSampleSize(value ?? 128)}
                   className="w-full"
                 />
-                <p className="text-xs text-muted-foreground/70">
-                  {t('higherValues')}
-                </p>
+                <p className="text-xs text-muted-foreground/70">{t('higherValues')}</p>
               </div>
 
               {/* Sample Rate Slider */}
@@ -259,7 +263,9 @@ export default function FourierAnalysisPage() {
 
               {/* Frequency Controls */}
               <div className="space-y-4 p-4 rounded-lg bg-muted/50 border border-border">
-                <h3 className="text-sm font-semibold text-emerald-400">{t('frequencyComponents')}</h3>
+                <h3 className="text-sm font-semibold text-emerald-400">
+                  {t('frequencyComponents')}
+                </h3>
 
                 <div className="space-y-2">
                   <Label htmlFor="freq1" className="text-foreground/80">
@@ -278,7 +284,8 @@ export default function FourierAnalysisPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="amp1" className="text-foreground/80">
-                    Amplitude 1: <span className="text-cyan-400 font-mono">{amplitude1.toFixed(2)}</span>
+                    Amplitude 1:{' '}
+                    <span className="text-cyan-400 font-mono">{amplitude1.toFixed(2)}</span>
                   </Label>
                   <Slider
                     id="amp1"
@@ -308,7 +315,8 @@ export default function FourierAnalysisPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="amp2" className="text-foreground/80">
-                    Amplitude 2: <span className="text-cyan-400 font-mono">{amplitude2.toFixed(2)}</span>
+                    Amplitude 2:{' '}
+                    <span className="text-cyan-400 font-mono">{amplitude2.toFixed(2)}</span>
                   </Label>
                   <Slider
                     id="amp2"
@@ -335,9 +343,7 @@ export default function FourierAnalysisPage() {
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
-                <p className="text-xs text-muted-foreground/70">
-                  {t('algorithmComplexity')}
-                </p>
+                <p className="text-xs text-muted-foreground/70">{t('algorithmComplexity')}</p>
                 {algorithmTiming && (
                   <div className="flex items-center gap-2 mt-1 px-3 py-2 rounded-lg bg-muted/60 border border-border">
                     <Clock className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
@@ -428,7 +434,8 @@ export default function FourierAnalysisPage() {
                   {t('timeDomainSignal')}
                 </CardTitle>
                 <CardDescription className="text-muted-foreground">
-                  {signal.length} samples @ {sampleRate} Hz • Duration: {(signal.length / sampleRate * 1000).toFixed(2)} ms
+                  {signal.length} samples @ {sampleRate} Hz • Duration:{' '}
+                  {((signal.length / sampleRate) * 1000).toFixed(2)} ms
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -453,13 +460,17 @@ export default function FourierAnalysisPage() {
                     {t('frequencySpectrum')}
                   </CardTitle>
                   <CardDescription className="text-muted-foreground">
-                    {frequencyData.frequencies.length} frequency bins • Resolution: {(sampleRate / signal.length).toFixed(2)} Hz/bin
+                    {frequencyData.frequencies.length} frequency bins • Resolution:{' '}
+                    {(sampleRate / signal.length).toFixed(2)} Hz/bin
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Tabs defaultValue="magnitude" className="w-full">
                     <TabsList className="grid w-full grid-cols-2 bg-muted/50">
-                      <TabsTrigger value="magnitude" className="data-[state=active]:bg-purple-500/20">
+                      <TabsTrigger
+                        value="magnitude"
+                        className="data-[state=active]:bg-purple-500/20"
+                      >
                         {t('magnitudeSpectrum')}
                       </TabsTrigger>
                       <TabsTrigger value="phase" className="data-[state=active]:bg-purple-500/20">
@@ -504,30 +515,26 @@ export default function FourierAnalysisPage() {
           <div className="grid gap-6 md:grid-cols-2">
             <div className="group relative p-6 rounded-lg bg-gradient-to-br from-emerald-950/40 to-emerald-900/40 border border-emerald-500/40 hover:border-emerald-400/70 transition-all duration-300">
               <h3 className="text-lg font-semibold mb-2 text-emerald-300">{t('fftTitle')}</h3>
-              <p className="text-sm text-emerald-200/80">
-                {t('fftAbout')}
-              </p>
+              <p className="text-sm text-emerald-200/80">{t('fftAbout')}</p>
             </div>
 
             <div className="group relative p-6 rounded-lg bg-gradient-to-br from-purple-950/40 to-purple-900/40 border border-purple-500/40 hover:border-purple-400/70 transition-all duration-300">
-              <h3 className="text-lg font-semibold mb-2 text-purple-300">{t('applicationsTitle')}</h3>
-              <p className="text-sm text-purple-200/80">
-                {t('applicationsAbout')}
-              </p>
+              <h3 className="text-lg font-semibold mb-2 text-purple-300">
+                {t('applicationsTitle')}
+              </h3>
+              <p className="text-sm text-purple-200/80">{t('applicationsAbout')}</p>
             </div>
 
             <div className="group relative p-6 rounded-lg bg-gradient-to-br from-cyan-950/40 to-cyan-900/40 border border-cyan-500/40 hover:border-cyan-400/70 transition-all duration-300">
-              <h3 className="text-lg font-semibold mb-2 text-cyan-300">{t('frequencyResolution')}</h3>
-              <p className="text-sm text-cyan-200/80">
-                {t('frequencyResolutionAbout')}
-              </p>
+              <h3 className="text-lg font-semibold mb-2 text-cyan-300">
+                {t('frequencyResolution')}
+              </h3>
+              <p className="text-sm text-cyan-200/80">{t('frequencyResolutionAbout')}</p>
             </div>
 
             <div className="group relative p-6 rounded-lg bg-gradient-to-br from-indigo-950/40 to-indigo-900/40 border border-indigo-500/40 hover:border-indigo-400/70 transition-all duration-300">
               <h3 className="text-lg font-semibold mb-2 text-indigo-300">{t('nyquistTheorem')}</h3>
-              <p className="text-sm text-indigo-200/80">
-                {t('nyquistTheoremAbout')}
-              </p>
+              <p className="text-sm text-indigo-200/80">{t('nyquistTheoremAbout')}</p>
             </div>
           </div>
         </section>

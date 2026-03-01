@@ -1,9 +1,9 @@
 'use client';
 
-import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
-import { MetaLearningPlayground } from '@/components/algorithms/MetaLearningPlayground';
 import { Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
+import { MetaLearningPlayground } from '@/components/algorithms/MetaLearningPlayground';
 
 export default function MetaLearningPage() {
   const t = useTranslations('algorithms.metaLearning');

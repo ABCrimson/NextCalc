@@ -29,7 +29,7 @@
  * @module app/solver/ode/GpuDirectionField
  */
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 // ============================================================================
 // GPUSHADERSTAGE NUMERIC CONSTANTS (SSR-safe)
@@ -43,7 +43,12 @@ const GPU_STAGE_COMPUTE = 0x4;
 // ============================================================================
 
 /** Supported ODE equation types for the direction field shader. */
-export type FieldEquationType = 'custom' | 'lotka-volterra' | 'van-der-pol' | 'stable-spiral' | 'pendulum';
+export type FieldEquationType =
+  | 'custom'
+  | 'lotka-volterra'
+  | 'van-der-pol'
+  | 'stable-spiral'
+  | 'pendulum';
 
 export interface GpuDirectionFieldProps {
   /** Canvas width/height in logical pixels (field is square). */
@@ -369,30 +374,39 @@ interface FieldGpuResources {
 
 function isWebGPUAvailable(): boolean {
   return (
-    typeof navigator !== 'undefined' &&
-    typeof (navigator as { gpu?: unknown }).gpu !== 'undefined'
+    typeof navigator !== 'undefined' && typeof (navigator as { gpu?: unknown }).gpu !== 'undefined'
   );
 }
 
 /** Equation type → integer selector passed to WGSL shader. */
 function eqTypeToInt(eq: FieldEquationType): number {
   switch (eq) {
-    case 'lotka-volterra': return 1;
-    case 'van-der-pol':    return 2;
-    case 'stable-spiral':  return 3;
-    case 'pendulum':       return 4;
-    default:               return 0;
+    case 'lotka-volterra':
+      return 1;
+    case 'van-der-pol':
+      return 2;
+    case 'stable-spiral':
+      return 3;
+    case 'pendulum':
+      return 4;
+    default:
+      return 0;
   }
 }
 
 /** Default shader parameters for each equation type. */
 function eqParams(eq: FieldEquationType): [number, number] {
   switch (eq) {
-    case 'lotka-volterra': return [1.5, 1.0];  // a=1.5, b=1.0
-    case 'van-der-pol':    return [1.0, 0.0];  // mu=1.0
-    case 'stable-spiral':  return [0.1, 0.0];  // alpha=0.1
-    case 'pendulum':       return [0.1, 0.0];  // gamma=0.1
-    default:               return [0.0, 0.0];
+    case 'lotka-volterra':
+      return [1.5, 1.0]; // a=1.5, b=1.0
+    case 'van-der-pol':
+      return [1.0, 0.0]; // mu=1.0
+    case 'stable-spiral':
+      return [0.1, 0.0]; // alpha=0.1
+    case 'pendulum':
+      return [0.1, 0.0]; // gamma=0.1
+    default:
+      return [0.0, 0.0];
   }
 }
 
@@ -405,17 +419,26 @@ function eqParams(eq: FieldEquationType): [number, number] {
 function writeComputeUniforms(
   device: GPUDevice,
   buf: GPUBuffer,
-  xMin: number, xMax: number,
-  yMin: number, yMax: number,
-  gridN: number, eqType: number,
-  param0: number, param1: number,
+  xMin: number,
+  xMax: number,
+  yMin: number,
+  yMax: number,
+  gridN: number,
+  eqType: number,
+  param0: number,
+  param1: number,
 ): void {
   const data = new ArrayBuffer(32);
   const f = new Float32Array(data);
   const u = new Uint32Array(data);
-  f[0] = xMin; f[1] = xMax; f[2] = yMin; f[3] = yMax;
-  u[4] = gridN; u[5] = eqType;
-  f[6] = param0; f[7] = param1;
+  f[0] = xMin;
+  f[1] = xMax;
+  f[2] = yMin;
+  f[3] = yMax;
+  u[4] = gridN;
+  u[5] = eqType;
+  f[6] = param0;
+  f[7] = param1;
   device.queue.writeBuffer(buf, 0, data);
 }
 
@@ -428,13 +451,21 @@ function writeComputeUniforms(
 function writeRenderUniforms(
   device: GPUDevice,
   buf: GPUBuffer,
-  canvasW: number, canvasH: number,
-  opacity: number, maxMag: number,
+  canvasW: number,
+  canvasH: number,
+  opacity: number,
+  maxMag: number,
   cellSize: number,
 ): void {
   const data = new Float32Array(8);
-  data[0] = canvasW; data[1] = canvasH; data[2] = opacity; data[3] = maxMag;
-  data[4] = cellSize; data[5] = 0; data[6] = 0; data[7] = 0;
+  data[0] = canvasW;
+  data[1] = canvasH;
+  data[2] = opacity;
+  data[3] = maxMag;
+  data[4] = cellSize;
+  data[5] = 0;
+  data[6] = 0;
+  data[7] = 0;
   device.queue.writeBuffer(buf, 0, data.buffer);
 }
 
@@ -522,21 +553,23 @@ async function initFieldGPU(
       fragment: {
         module: renderShaderModule,
         entryPoint: 'fs_main',
-        targets: [{
-          format,
-          blend: {
-            color: {
-              srcFactor: 'src-alpha',
-              dstFactor: 'one-minus-src-alpha',
-              operation: 'add',
-            },
-            alpha: {
-              srcFactor: 'one',
-              dstFactor: 'one-minus-src-alpha',
-              operation: 'add',
+        targets: [
+          {
+            format,
+            blend: {
+              color: {
+                srcFactor: 'src-alpha',
+                dstFactor: 'one-minus-src-alpha',
+                operation: 'add',
+              },
+              alpha: {
+                srcFactor: 'one',
+                dstFactor: 'one-minus-src-alpha',
+                operation: 'add',
+              },
             },
           },
-        }],
+        ],
       },
       primitive: { topology: 'triangle-list' },
     });
@@ -610,9 +643,12 @@ async function initFieldGPU(
  */
 export function GpuDirectionField({
   size,
-  xMin, xMax,
-  yMin, yMax,
-  f, g,
+  xMin,
+  xMax,
+  yMin,
+  yMax,
+  f,
+  g,
   equationType,
   gridN = 64,
   opacity = 0.4,
@@ -672,18 +708,33 @@ export function GpuDirectionField({
     if (!gpuActiveRef.current || !gpuRef.current) return;
 
     const r = gpuRef.current;
-    const { device, context, computePipeline, renderPipeline,
-            computeUniBuffer, renderUniBuffer, arrowBuffer: _arrowBuffer,
-            computeBindGroup, renderBindGroup } = r;
+    const {
+      device,
+      context,
+      computePipeline,
+      renderPipeline,
+      computeUniBuffer,
+      renderUniBuffer,
+      arrowBuffer: _arrowBuffer,
+      computeBindGroup,
+      renderBindGroup,
+    } = r;
 
     const eqInt = eqTypeToInt(equationType);
     const [param0, param1] = eqParams(equationType);
 
     // Write compute uniforms
     writeComputeUniforms(
-      device, computeUniBuffer,
-      xMin, xMax, yMin, yMax,
-      gridN, eqInt, param0, param1,
+      device,
+      computeUniBuffer,
+      xMin,
+      xMax,
+      yMin,
+      yMax,
+      gridN,
+      eqInt,
+      param0,
+      param1,
     );
 
     // Estimate max magnitude for normalization (domain-size dependent heuristic)
@@ -695,11 +746,7 @@ export function GpuDirectionField({
     const cellSize = Math.max(domainW, domainH) / gridN;
 
     // Write render uniforms
-    writeRenderUniforms(
-      device, renderUniBuffer,
-      size, size,
-      opacity, maxMag, cellSize,
-    );
+    writeRenderUniforms(device, renderUniBuffer, size, size, opacity, maxMag, cellSize);
 
     // Dispatch compute: workgroups of 8×8, ceil(gridN/8) per axis
     const wg = Math.ceil(gridN / 8);
@@ -714,12 +761,14 @@ export function GpuDirectionField({
     // Render pass: instanced arrows
     const textureView = context.getCurrentTexture().createView();
     const renderPass = encoder.beginRenderPass({
-      colorAttachments: [{
-        view: textureView,
-        loadOp: 'clear',
-        storeOp: 'store',
-        clearValue: { r: 0.0, g: 0.0, b: 0.0, a: 0.0 },
-      }],
+      colorAttachments: [
+        {
+          view: textureView,
+          loadOp: 'clear',
+          storeOp: 'store',
+          clearValue: { r: 0.0, g: 0.0, b: 0.0, a: 0.0 },
+        },
+      ],
     });
 
     renderPass.setPipeline(renderPipeline);
@@ -730,8 +779,15 @@ export function GpuDirectionField({
 
     device.queue.submit([encoder.finish()]);
   }, [
-    visible, xMin, xMax, yMin, yMax,
-    equationType, gridN, opacity, size,
+    visible,
+    xMin,
+    xMax,
+    yMin,
+    yMax,
+    equationType,
+    gridN,
+    opacity,
+    size,
     // We re-run whenever gpuActiveRef changes conceptually (tracked via gpuAvailable)
     gpuAvailable,
   ]);
@@ -758,8 +814,8 @@ export function GpuDirectionField({
 
     for (let col = 0; col < ARROWS; col++) {
       for (let row = 0; row < ARROWS; row++) {
-        const x = xMin + (col + 0.5) / ARROWS * (xMax - xMin);
-        const y = yMin + (row + 0.5) / ARROWS * (yMax - yMin);
+        const x = xMin + ((col + 0.5) / ARROWS) * (xMax - xMin);
+        const y = yMin + ((row + 0.5) / ARROWS) * (yMax - yMin);
 
         let dx: number;
         let dy: number;
@@ -808,7 +864,7 @@ export function GpuDirectionField({
 
         // Head
         const angle = Math.atan2(startY - endY, endX - startX);
-        const headLen = len * 0.30;
+        const headLen = len * 0.3;
         const headAngle = 0.45;
         ctx.beginPath();
         ctx.moveTo(endX, endY);

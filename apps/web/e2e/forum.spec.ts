@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Forum Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -7,15 +7,11 @@ test.describe('Forum Page', () => {
   });
 
   test('page loads with Community heading', async ({ page }) => {
-    await expect(
-      page.getByRole('heading', { name: /community/i }),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /community/i })).toBeVisible({ timeout: 10000 });
   });
 
   test('search input is present', async ({ page }) => {
-    await expect(
-      page.getByPlaceholder(/search discussions/i),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByPlaceholder(/search discussions/i)).toBeVisible({ timeout: 10000 });
   });
 
   test('sort tabs (Hot/New/Top) are present and clickable', async ({ page }) => {
@@ -32,9 +28,7 @@ test.describe('Forum Page', () => {
   });
 
   test('New Post button is visible', async ({ page }) => {
-    await expect(
-      page.getByRole('button', { name: /new post/i }),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('button', { name: /new post/i })).toBeVisible({ timeout: 10000 });
   });
 
   test('post cards are displayed (mock data fallback)', async ({ page }) => {

@@ -15,27 +15,31 @@
  * @module app/plot/page
  */
 
-import { useState, useMemo, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
-import { motion } from 'framer-motion';
-import {
-  Plot2D,
-  PlotContainer,
-  FunctionInput,
-  SurfaceEditor3D,
-  PlotExportToolbar,
-  PlotAnalysisPanel,
-  PolarAnalysisPanel,
-  type FunctionDefinition,
-  type AnalysisFunction,
-  type PolarAnalysisFunction,
-} from '@/components/plots';
-import type { Plot2DCartesianConfig, Plot2DPolarConfig, Plot2DParametricConfig } from '@nextcalc/plot-engine';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
 import { evaluate } from '@nextcalc/math-engine';
-import { Zap, Activity, Layers, Maximize2 } from 'lucide-react';
+import type {
+  Plot2DCartesianConfig,
+  Plot2DParametricConfig,
+  Plot2DPolarConfig,
+} from '@nextcalc/plot-engine';
+import { motion } from 'framer-motion';
+import { Activity, Layers, Maximize2, Zap } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { useCallback, useMemo, useState } from 'react';
 import { VariableSliders } from '@/components/plot/variable-sliders';
+import {
+  type AnalysisFunction,
+  type FunctionDefinition,
+  FunctionInput,
+  Plot2D,
+  PlotAnalysisPanel,
+  PlotContainer,
+  PlotExportToolbar,
+  type PolarAnalysisFunction,
+  PolarAnalysisPanel,
+  SurfaceEditor3D,
+} from '@/components/plots';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 // ---------------------------------------------------------------------------
 // Preset data  (Fix 5: 10 per category)
@@ -78,15 +82,11 @@ const CARTESIAN_PRESETS: CartesianPreset[] = [
   },
   {
     label: 'x²',
-    functions: [
-      { id: 'cart-x2', expression: 'x^2', label: 'x²', color: '#059669', isValid: true },
-    ],
+    functions: [{ id: 'cart-x2', expression: 'x^2', label: 'x²', color: '#059669', isValid: true }],
   },
   {
     label: 'x³',
-    functions: [
-      { id: 'cart-x3', expression: 'x^3', label: 'x³', color: '#7c3aed', isValid: true },
-    ],
+    functions: [{ id: 'cart-x3', expression: 'x^3', label: 'x³', color: '#7c3aed', isValid: true }],
   },
   {
     label: 'sqrt(x)',
@@ -103,13 +103,25 @@ const CARTESIAN_PRESETS: CartesianPreset[] = [
   {
     label: 'Gaussian',
     functions: [
-      { id: 'cart-gauss', expression: 'exp(-x^2)', label: 'e^(−x²)', color: '#f59e0b', isValid: true },
+      {
+        id: 'cart-gauss',
+        expression: 'exp(-x^2)',
+        label: 'e^(−x²)',
+        color: '#f59e0b',
+        isValid: true,
+      },
     ],
   },
   {
     label: 'sinc',
     functions: [
-      { id: 'cart-sinc', expression: 'sin(x)/x', label: 'sin(x)/x', color: '#8b5cf6', isValid: true },
+      {
+        id: 'cart-sinc',
+        expression: 'sin(x)/x',
+        label: 'sin(x)/x',
+        color: '#8b5cf6',
+        isValid: true,
+      },
     ],
   },
   {
@@ -124,13 +136,25 @@ const POLAR_PRESETS: PolarPreset[] = [
   {
     label: 'Rose 3',
     functions: [
-      { id: 'pol-rose3', expression: 'cos(3*theta)', label: 'r=cos(3θ)', color: '#8b5cf6', isValid: true },
+      {
+        id: 'pol-rose3',
+        expression: 'cos(3*theta)',
+        label: 'r=cos(3θ)',
+        color: '#8b5cf6',
+        isValid: true,
+      },
     ],
   },
   {
     label: 'Cardioid',
     functions: [
-      { id: 'pol-cardioid', expression: '1 + cos(theta)', label: 'r=1+cos(θ)', color: '#2563eb', isValid: true },
+      {
+        id: 'pol-cardioid',
+        expression: '1 + cos(theta)',
+        label: 'r=1+cos(θ)',
+        color: '#2563eb',
+        isValid: true,
+      },
     ],
   },
   {
@@ -142,31 +166,61 @@ const POLAR_PRESETS: PolarPreset[] = [
   {
     label: 'Rose 4',
     functions: [
-      { id: 'pol-rose4', expression: 'sin(2*theta)', label: 'r=sin(2θ)', color: '#f59e0b', isValid: true },
+      {
+        id: 'pol-rose4',
+        expression: 'sin(2*theta)',
+        label: 'r=sin(2θ)',
+        color: '#f59e0b',
+        isValid: true,
+      },
     ],
   },
   {
     label: '2cos(θ)',
     functions: [
-      { id: 'pol-circle', expression: '2*cos(theta)', label: 'r=2cos(θ)', color: '#dc2626', isValid: true },
+      {
+        id: 'pol-circle',
+        expression: '2*cos(theta)',
+        label: 'r=2cos(θ)',
+        color: '#dc2626',
+        isValid: true,
+      },
     ],
   },
   {
     label: 'Limaçon',
     functions: [
-      { id: 'pol-limacon', expression: '1 + 2*sin(theta)', label: 'r=1+2sin(θ)', color: '#ec4899', isValid: true },
+      {
+        id: 'pol-limacon',
+        expression: '1 + 2*sin(theta)',
+        label: 'r=1+2sin(θ)',
+        color: '#ec4899',
+        isValid: true,
+      },
     ],
   },
   {
     label: 'Half-rose',
     functions: [
-      { id: 'pol-halfrose', expression: 'cos(theta/2)', label: 'r=cos(θ/2)', color: '#ea580c', isValid: true },
+      {
+        id: 'pol-halfrose',
+        expression: 'cos(theta/2)',
+        label: 'r=cos(θ/2)',
+        color: '#ea580c',
+        isValid: true,
+      },
     ],
   },
   {
     label: 'sin²(θ)',
     functions: [
-      { id: 'pol-sin2', expression: 'sin(theta)^2', label: 'r=sin²(θ)', color: '#0891b2', isValid: true },
+      {
+        id: 'pol-sin2',
+        expression: 'sin(theta)^2',
+        label: 'r=sin²(θ)',
+        color: '#0891b2',
+        isValid: true,
+      },
     ],
   },
   {
@@ -178,7 +232,13 @@ const POLAR_PRESETS: PolarPreset[] = [
   {
     label: 'Rose 2+3',
     functions: [
-      { id: 'pol-rose23', expression: '2 + sin(3*theta)', label: 'r=2+sin(3θ)', color: '#10b981', isValid: true },
+      {
+        id: 'pol-rose23',
+        expression: '2 + sin(3*theta)',
+        label: 'r=2+sin(3θ)',
+        color: '#10b981',
+        isValid: true,
+      },
     ],
   },
 ];
@@ -186,53 +246,147 @@ const POLAR_PRESETS: PolarPreset[] = [
 const PARAMETRIC_PRESETS: ParametricPreset[] = [
   {
     label: 'Circle',
-    xFunctions: [{ id: 'par-cir-x', expression: 'sin(t)', label: 'x(t)', color: '#2563eb', isValid: true }],
-    yFunctions: [{ id: 'par-cir-y', expression: 'cos(t)', label: 'y(t)', color: '#2563eb', isValid: true }],
+    xFunctions: [
+      { id: 'par-cir-x', expression: 'sin(t)', label: 'x(t)', color: '#2563eb', isValid: true },
+    ],
+    yFunctions: [
+      { id: 'par-cir-y', expression: 'cos(t)', label: 'y(t)', color: '#2563eb', isValid: true },
+    ],
   },
   {
     label: 'Lissajous',
-    xFunctions: [{ id: 'par-lis-x', expression: '2*cos(t)', label: 'x(t)', color: '#8b5cf6', isValid: true }],
-    yFunctions: [{ id: 'par-lis-y', expression: 'sin(2*t)', label: 'y(t)', color: '#8b5cf6', isValid: true }],
+    xFunctions: [
+      { id: 'par-lis-x', expression: '2*cos(t)', label: 'x(t)', color: '#8b5cf6', isValid: true },
+    ],
+    yFunctions: [
+      { id: 'par-lis-y', expression: 'sin(2*t)', label: 'y(t)', color: '#8b5cf6', isValid: true },
+    ],
   },
   {
     label: 'Spiral',
-    xFunctions: [{ id: 'par-spi-x', expression: 't*cos(t)', label: 'x(t)', color: '#059669', isValid: true }],
-    yFunctions: [{ id: 'par-spi-y', expression: 't*sin(t)', label: 'y(t)', color: '#059669', isValid: true }],
+    xFunctions: [
+      { id: 'par-spi-x', expression: 't*cos(t)', label: 'x(t)', color: '#059669', isValid: true },
+    ],
+    yFunctions: [
+      { id: 'par-spi-y', expression: 't*sin(t)', label: 'y(t)', color: '#059669', isValid: true },
+    ],
   },
   {
     label: 'Cardioid',
-    xFunctions: [{ id: 'par-crd-x', expression: 'cos(t)*(1-cos(t))', label: 'x(t)', color: '#dc2626', isValid: true }],
-    yFunctions: [{ id: 'par-crd-y', expression: 'sin(t)*(1-cos(t))', label: 'y(t)', color: '#dc2626', isValid: true }],
+    xFunctions: [
+      {
+        id: 'par-crd-x',
+        expression: 'cos(t)*(1-cos(t))',
+        label: 'x(t)',
+        color: '#dc2626',
+        isValid: true,
+      },
+    ],
+    yFunctions: [
+      {
+        id: 'par-crd-y',
+        expression: 'sin(t)*(1-cos(t))',
+        label: 'y(t)',
+        color: '#dc2626',
+        isValid: true,
+      },
+    ],
   },
   {
     label: 'Astroid',
-    xFunctions: [{ id: 'par-ast-x', expression: 'cos(t)^3', label: 'x(t)', color: '#ea580c', isValid: true }],
-    yFunctions: [{ id: 'par-ast-y', expression: 'sin(t)^3', label: 'y(t)', color: '#ea580c', isValid: true }],
+    xFunctions: [
+      { id: 'par-ast-x', expression: 'cos(t)^3', label: 'x(t)', color: '#ea580c', isValid: true },
+    ],
+    yFunctions: [
+      { id: 'par-ast-y', expression: 'sin(t)^3', label: 'y(t)', color: '#ea580c', isValid: true },
+    ],
   },
   {
     label: 'Cycloid',
-    xFunctions: [{ id: 'par-cyc-x', expression: 't - sin(t)', label: 'x(t)', color: '#f59e0b', isValid: true }],
-    yFunctions: [{ id: 'par-cyc-y', expression: '1 - cos(t)', label: 'y(t)', color: '#f59e0b', isValid: true }],
+    xFunctions: [
+      { id: 'par-cyc-x', expression: 't - sin(t)', label: 'x(t)', color: '#f59e0b', isValid: true },
+    ],
+    yFunctions: [
+      { id: 'par-cyc-y', expression: '1 - cos(t)', label: 'y(t)', color: '#f59e0b', isValid: true },
+    ],
   },
   {
     label: 'Epitrochoid',
-    xFunctions: [{ id: 'par-epi-x', expression: '3*cos(t) - cos(3*t)', label: 'x(t)', color: '#ec4899', isValid: true }],
-    yFunctions: [{ id: 'par-epi-y', expression: '3*sin(t) - sin(3*t)', label: 'y(t)', color: '#ec4899', isValid: true }],
+    xFunctions: [
+      {
+        id: 'par-epi-x',
+        expression: '3*cos(t) - cos(3*t)',
+        label: 'x(t)',
+        color: '#ec4899',
+        isValid: true,
+      },
+    ],
+    yFunctions: [
+      {
+        id: 'par-epi-y',
+        expression: '3*sin(t) - sin(3*t)',
+        label: 'y(t)',
+        color: '#ec4899',
+        isValid: true,
+      },
+    ],
   },
   {
     label: 'Hypotrochoid',
-    xFunctions: [{ id: 'par-hyp-x', expression: '2*cos(t) + cos(2*t)', label: 'x(t)', color: '#0891b2', isValid: true }],
-    yFunctions: [{ id: 'par-hyp-y', expression: '2*sin(t) - sin(2*t)', label: 'y(t)', color: '#0891b2', isValid: true }],
+    xFunctions: [
+      {
+        id: 'par-hyp-x',
+        expression: '2*cos(t) + cos(2*t)',
+        label: 'x(t)',
+        color: '#0891b2',
+        isValid: true,
+      },
+    ],
+    yFunctions: [
+      {
+        id: 'par-hyp-y',
+        expression: '2*sin(t) - sin(2*t)',
+        label: 'y(t)',
+        color: '#0891b2',
+        isValid: true,
+      },
+    ],
   },
   {
     label: 'Rose',
-    xFunctions: [{ id: 'par-ros-x', expression: 'cos(3*t)*cos(t)', label: 'x(t)', color: '#7c3aed', isValid: true }],
-    yFunctions: [{ id: 'par-ros-y', expression: 'cos(3*t)*sin(t)', label: 'y(t)', color: '#7c3aed', isValid: true }],
+    xFunctions: [
+      {
+        id: 'par-ros-x',
+        expression: 'cos(3*t)*cos(t)',
+        label: 'x(t)',
+        color: '#7c3aed',
+        isValid: true,
+      },
+    ],
+    yFunctions: [
+      {
+        id: 'par-ros-y',
+        expression: 'cos(3*t)*sin(t)',
+        label: 'y(t)',
+        color: '#7c3aed',
+        isValid: true,
+      },
+    ],
   },
   {
     label: 'Figure-8',
-    xFunctions: [{ id: 'par-fig-x', expression: 'sin(t)', label: 'x(t)', color: '#10b981', isValid: true }],
-    yFunctions: [{ id: 'par-fig-y', expression: 'sin(t)*cos(t)', label: 'y(t)', color: '#10b981', isValid: true }],
+    xFunctions: [
+      { id: 'par-fig-x', expression: 'sin(t)', label: 'x(t)', color: '#10b981', isValid: true },
+    ],
+    yFunctions: [
+      {
+        id: 'par-fig-y',
+        expression: 'sin(t)*cos(t)',
+        label: 'y(t)',
+        color: '#10b981',
+        isValid: true,
+      },
+    ],
   },
 ];
 
@@ -313,9 +467,15 @@ export default function PlotsExamplesPage() {
   });
 
   // Stable callbacks so Plot2D's initialization effect sees a consistent reference
-  const handleCartesianCanvasReady = useCallback((c: HTMLCanvasElement) => { setCartesianCanvas(c); }, []);
-  const handlePolarCanvasReady = useCallback((c: HTMLCanvasElement) => { setPolarCanvas(c); }, []);
-  const handleParametricCanvasReady = useCallback((c: HTMLCanvasElement) => { setParametricCanvas(c); }, []);
+  const handleCartesianCanvasReady = useCallback((c: HTMLCanvasElement) => {
+    setCartesianCanvas(c);
+  }, []);
+  const handlePolarCanvasReady = useCallback((c: HTMLCanvasElement) => {
+    setPolarCanvas(c);
+  }, []);
+  const handleParametricCanvasReady = useCallback((c: HTMLCanvasElement) => {
+    setParametricCanvas(c);
+  }, []);
 
   // Custom function state
   const [customFunctions, setCustomFunctions] = useState<FunctionDefinition[]>([
@@ -324,15 +484,33 @@ export default function PlotsExamplesPage() {
   ]);
 
   const [polarFunctions, setPolarFunctions] = useState<FunctionDefinition[]>([
-    { id: 'polar-1', expression: '2 + sin(5*theta)', label: 'Rose curve', color: '#8b5cf6', isValid: true },
+    {
+      id: 'polar-1',
+      expression: '2 + sin(5*theta)',
+      label: 'Rose curve',
+      color: '#8b5cf6',
+      isValid: true,
+    },
   ]);
 
   const [parametricFunctionsX, setParametricFunctionsX] = useState<FunctionDefinition[]>([
-    { id: 'param-x-1', expression: 'cos(t) * (2 + cos(5 * t))', label: 'x(t)', color: '#059669', isValid: true },
+    {
+      id: 'param-x-1',
+      expression: 'cos(t) * (2 + cos(5 * t))',
+      label: 'x(t)',
+      color: '#059669',
+      isValid: true,
+    },
   ]);
 
   const [parametricFunctionsY, setParametricFunctionsY] = useState<FunctionDefinition[]>([
-    { id: 'param-y-1', expression: 'sin(t) * (2 + cos(5 * t))', label: 'y(t)', color: '#059669', isValid: true },
+    {
+      id: 'param-y-1',
+      expression: 'sin(t) * (2 + cos(5 * t))',
+      label: 'y(t)',
+      color: '#059669',
+      isValid: true,
+    },
   ]);
 
   // Slider parameter values for each tab — keyed by parameter name, value is number
@@ -365,8 +543,8 @@ export default function PlotsExamplesPage() {
   // Convert custom functions to plot config functions
   const customPlotFunctions = useMemo(() => {
     return customFunctions
-      .filter(fn => fn.isValid && fn.expression.trim())
-      .map(fn => ({
+      .filter((fn) => fn.isValid && fn.expression.trim())
+      .map((fn) => ({
         fn: (x: number) => {
           const result = evaluate(fn.expression, { variables: { x, ...cartesianSliderValues } });
           return result.success ? Number(result.value) : NaN;
@@ -378,8 +556,8 @@ export default function PlotsExamplesPage() {
 
   const customPolarPlotFunctions = useMemo(() => {
     return polarFunctions
-      .filter(fn => fn.isValid && fn.expression.trim())
-      .map(fn => ({
+      .filter((fn) => fn.isValid && fn.expression.trim())
+      .map((fn) => ({
         fn: (theta: number) => {
           const result = evaluate(fn.expression, { variables: { theta, ...polarSliderValues } });
           return result.success ? Number(result.value) : NaN;
@@ -395,33 +573,37 @@ export default function PlotsExamplesPage() {
     const yFn = parametricFunctionsY[0];
 
     if (!xFn || !yFn || !xFn.isValid || !yFn.isValid) {
-      return [{
-        x: (t: number) => Math.cos(t) * (2 + Math.cos(5 * t)),
-        y: (t: number) => Math.sin(t) * (2 + Math.cos(5 * t)),
-        label: 'Parametric curve',
-        style: { line: { width: 2, color: '#059669' } },
-      }];
+      return [
+        {
+          x: (t: number) => Math.cos(t) * (2 + Math.cos(5 * t)),
+          y: (t: number) => Math.sin(t) * (2 + Math.cos(5 * t)),
+          label: 'Parametric curve',
+          style: { line: { width: 2, color: '#059669' } },
+        },
+      ];
     }
 
-    return [{
-      x: (t: number) => {
-        const result = evaluate(xFn.expression, { variables: { t, ...parametricSliderValues } });
-        return result.success ? Number(result.value) : NaN;
+    return [
+      {
+        x: (t: number) => {
+          const result = evaluate(xFn.expression, { variables: { t, ...parametricSliderValues } });
+          return result.success ? Number(result.value) : NaN;
+        },
+        y: (t: number) => {
+          const result = evaluate(yFn.expression, { variables: { t, ...parametricSliderValues } });
+          return result.success ? Number(result.value) : NaN;
+        },
+        label: xFn.label || 'Parametric curve',
+        style: { line: { width: 2, color: xFn.color } },
       },
-      y: (t: number) => {
-        const result = evaluate(yFn.expression, { variables: { t, ...parametricSliderValues } });
-        return result.success ? Number(result.value) : NaN;
-      },
-      label: xFn.label || 'Parametric curve',
-      style: { line: { width: 2, color: xFn.color } },
-    }];
+    ];
   }, [parametricFunctionsX, parametricFunctionsY, parametricSliderValues]);
 
   // Fix 4: Analysis panel functions — memoised AnalysisFunction arrays
   const cartesianAnalysisFunctions = useMemo<AnalysisFunction[]>(() => {
     return customFunctions
-      .filter(fn => fn.isValid && fn.expression.trim())
-      .map(fn => ({
+      .filter((fn) => fn.isValid && fn.expression.trim())
+      .map((fn) => ({
         fn: (x: number) => {
           const result = evaluate(fn.expression, { variables: { x, ...cartesianSliderValues } });
           return result.success ? Number(result.value) : NaN;
@@ -434,8 +616,8 @@ export default function PlotsExamplesPage() {
   // Polar analysis functions — memoised PolarAnalysisFunction arrays
   const polarAnalysisFunctions = useMemo<PolarAnalysisFunction[]>(() => {
     return polarFunctions
-      .filter(fn => fn.isValid && fn.expression.trim())
-      .map(fn => ({
+      .filter((fn) => fn.isValid && fn.expression.trim())
+      .map((fn) => ({
         fn: (theta: number) => {
           const result = evaluate(fn.expression, { variables: { theta, ...polarSliderValues } });
           return result.success ? Number(result.value) : NaN;
@@ -512,25 +694,15 @@ export default function PlotsExamplesPage() {
   // ---------------------------------------------------------------------------
 
   /** Preset chip group with category label + wrap */
-  function PresetGroup({
-    label,
-    children,
-  }: {
-    label: string;
-    children: React.ReactNode;
-  }) {
+  function PresetGroup({ label, children }: { label: string; children: React.ReactNode }) {
     return (
       <div className="mb-4">
-        <p
-          className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2 flex items-center gap-1.5"
-        >
+        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2 flex items-center gap-1.5">
           <span className="h-px flex-1 bg-border/50" />
           {label}
           <span className="h-px flex-1 bg-border/50" />
         </p>
-        <div className="flex flex-wrap gap-1.5">
-          {children}
-        </div>
+        <div className="flex flex-wrap gap-1.5">{children}</div>
       </div>
     );
   }
@@ -553,7 +725,8 @@ export default function PlotsExamplesPage() {
         <div
           className="absolute inset-0 opacity-10"
           style={{
-            backgroundImage: 'linear-gradient(to right, rgba(148, 163, 184, 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(148, 163, 184, 0.1) 1px, transparent 1px)',
+            backgroundImage:
+              'linear-gradient(to right, rgba(148, 163, 184, 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(148, 163, 184, 0.1) 1px, transparent 1px)',
             backgroundSize: '40px 40px',
           }}
         />
@@ -578,20 +751,27 @@ export default function PlotsExamplesPage() {
                     {t('pageTitle')}
                   </h1>
                 </div>
-                <p className="text-muted-foreground text-sm md:text-base ml-14">
-                  {t('subtitle')}
-                </p>
+                <p className="text-muted-foreground text-sm md:text-base ml-14">{t('subtitle')}</p>
               </div>
               <div className="flex flex-wrap gap-2 ml-14 md:ml-0">
-                <Badge variant="outline" className="border-cyan-500/30 text-cyan-300 bg-cyan-500/10">
+                <Badge
+                  variant="outline"
+                  className="border-cyan-500/30 text-cyan-300 bg-cyan-500/10"
+                >
                   <Zap className="h-3 w-3 mr-1" />
                   {t('badge.fps')}
                 </Badge>
-                <Badge variant="outline" className="border-purple-500/30 text-purple-300 bg-purple-500/10">
+                <Badge
+                  variant="outline"
+                  className="border-purple-500/30 text-purple-300 bg-purple-500/10"
+                >
                   <Activity className="h-3 w-3 mr-1" />
                   {t('badge.interactive')}
                 </Badge>
-                <Badge variant="outline" className="border-blue-500/30 text-blue-300 bg-blue-500/10">
+                <Badge
+                  variant="outline"
+                  className="border-blue-500/30 text-blue-300 bg-blue-500/10"
+                >
                   <Maximize2 className="h-3 w-3 mr-1" />
                   {t('badge.responsive')}
                 </Badge>
@@ -672,7 +852,10 @@ export default function PlotsExamplesPage() {
                     <div className="relative">
                       <FunctionInput
                         functions={customFunctions}
-                        onChange={(fns) => { setCustomFunctions(fns); setActiveCartesian(null); }}
+                        onChange={(fns) => {
+                          setCustomFunctions(fns);
+                          setActiveCartesian(null);
+                        }}
                         plotType="2d-cartesian"
                         maxFunctions={8}
                       />
@@ -681,7 +864,7 @@ export default function PlotsExamplesPage() {
 
                   {/* Variable sliders — shown only when free parameters are detected */}
                   <VariableSliders
-                    expressions={customFunctions.map(fn => fn.expression)}
+                    expressions={customFunctions.map((fn) => fn.expression)}
                     onChange={setCartesianSliderValues}
                   />
                 </div>
@@ -690,7 +873,11 @@ export default function PlotsExamplesPage() {
               {/* Plot + analysis */}
               <div className="lg:col-span-2 space-y-4">
                 <div className="flex items-center justify-end mb-2">
-                  <PlotExportToolbar canvas={cartesianCanvas} plotConfig={cartesianConfig} label="cartesian" />
+                  <PlotExportToolbar
+                    canvas={cartesianCanvas}
+                    plotConfig={cartesianConfig}
+                    label="cartesian"
+                  />
                 </div>
                 <PlotContainer
                   title="2D Cartesian Plot"
@@ -774,7 +961,10 @@ const config = {
                     <div className="relative">
                       <FunctionInput
                         functions={polarFunctions}
-                        onChange={(fns) => { setPolarFunctions(fns); setActivePolar(null); }}
+                        onChange={(fns) => {
+                          setPolarFunctions(fns);
+                          setActivePolar(null);
+                        }}
                         plotType="2d-polar"
                         maxFunctions={8}
                       />
@@ -783,7 +973,7 @@ const config = {
 
                   {/* Variable sliders — shown only when free parameters are detected */}
                   <VariableSliders
-                    expressions={polarFunctions.map(fn => fn.expression)}
+                    expressions={polarFunctions.map((fn) => fn.expression)}
                     onChange={setPolarSliderValues}
                   />
                 </div>
@@ -809,10 +999,7 @@ const config = {
 
                 {/* Polar analysis panel */}
                 {polarAnalysisFunctions.length > 0 && (
-                  <PolarAnalysisPanel
-                    functions={polarAnalysisFunctions}
-                    samples={1000}
-                  />
+                  <PolarAnalysisPanel functions={polarAnalysisFunctions} samples={1000} />
                 )}
               </div>
             </motion.div>
@@ -873,7 +1060,10 @@ const config = {
                       </h3>
                       <FunctionInput
                         functions={parametricFunctionsX}
-                        onChange={(fns) => { setParametricFunctionsX(fns); setActiveParametric(null); }}
+                        onChange={(fns) => {
+                          setParametricFunctionsX(fns);
+                          setActiveParametric(null);
+                        }}
                         plotType="2d-cartesian"
                         maxFunctions={1}
                       />
@@ -890,7 +1080,10 @@ const config = {
                       </h3>
                       <FunctionInput
                         functions={parametricFunctionsY}
-                        onChange={(fns) => { setParametricFunctionsY(fns); setActiveParametric(null); }}
+                        onChange={(fns) => {
+                          setParametricFunctionsY(fns);
+                          setActiveParametric(null);
+                        }}
                         plotType="2d-cartesian"
                         maxFunctions={1}
                       />
@@ -900,8 +1093,8 @@ const config = {
                   {/* Variable sliders — shown only when free parameters are detected */}
                   <VariableSliders
                     expressions={[
-                      ...parametricFunctionsX.map(fn => fn.expression),
-                      ...parametricFunctionsY.map(fn => fn.expression),
+                      ...parametricFunctionsX.map((fn) => fn.expression),
+                      ...parametricFunctionsY.map((fn) => fn.expression),
                     ]}
                     onChange={setParametricSliderValues}
                   />
@@ -911,7 +1104,11 @@ const config = {
               {/* Plot + analysis */}
               <div className="lg:col-span-2 space-y-4">
                 <div className="flex items-center justify-end mb-2">
-                  <PlotExportToolbar canvas={parametricCanvas} plotConfig={parametricConfig} label="parametric" />
+                  <PlotExportToolbar
+                    canvas={parametricCanvas}
+                    plotConfig={parametricConfig}
+                    label="parametric"
+                  />
                 </div>
                 <PlotContainer
                   title="2D Parametric Curve"
@@ -928,38 +1125,43 @@ const config = {
                 </PlotContainer>
 
                 {/* Analysis panel for x(t) and y(t) component functions */}
-                {(parametricFunctionsX[0]?.isValid || parametricFunctionsY[0]?.isValid) && (() => {
-                  const xFn = parametricFunctionsX[0];
-                  const yFn = parametricFunctionsY[0];
-                  const analysisFns: AnalysisFunction[] = [];
-                  if (xFn?.isValid && xFn.expression.trim()) {
-                    analysisFns.push({
-                      fn: (t: number) => {
-                        const r = evaluate(xFn.expression, { variables: { t, ...parametricSliderValues } });
-                        return r.success ? Number(r.value) : NaN;
-                      },
-                      label: `x(t): ${xFn.label || xFn.expression}`,
-                      color: xFn.color,
-                    });
-                  }
-                  if (yFn?.isValid && yFn.expression.trim()) {
-                    analysisFns.push({
-                      fn: (t: number) => {
-                        const r = evaluate(yFn.expression, { variables: { t, ...parametricSliderValues } });
-                        return r.success ? Number(r.value) : NaN;
-                      },
-                      label: `y(t): ${yFn.label || yFn.expression}`,
-                      color: yFn.color,
-                    });
-                  }
-                  return analysisFns.length > 0 ? (
-                    <PlotAnalysisPanel
-                      functions={analysisFns}
-                      viewport={{ xMin: 0, xMax: 2 * Math.PI, yMin: -4, yMax: 4 }}
-                      samples={400}
-                    />
-                  ) : null;
-                })()}
+                {(parametricFunctionsX[0]?.isValid || parametricFunctionsY[0]?.isValid) &&
+                  (() => {
+                    const xFn = parametricFunctionsX[0];
+                    const yFn = parametricFunctionsY[0];
+                    const analysisFns: AnalysisFunction[] = [];
+                    if (xFn?.isValid && xFn.expression.trim()) {
+                      analysisFns.push({
+                        fn: (t: number) => {
+                          const r = evaluate(xFn.expression, {
+                            variables: { t, ...parametricSliderValues },
+                          });
+                          return r.success ? Number(r.value) : NaN;
+                        },
+                        label: `x(t): ${xFn.label || xFn.expression}`,
+                        color: xFn.color,
+                      });
+                    }
+                    if (yFn?.isValid && yFn.expression.trim()) {
+                      analysisFns.push({
+                        fn: (t: number) => {
+                          const r = evaluate(yFn.expression, {
+                            variables: { t, ...parametricSliderValues },
+                          });
+                          return r.success ? Number(r.value) : NaN;
+                        },
+                        label: `y(t): ${yFn.label || yFn.expression}`,
+                        color: yFn.color,
+                      });
+                    }
+                    return analysisFns.length > 0 ? (
+                      <PlotAnalysisPanel
+                        functions={analysisFns}
+                        viewport={{ xMin: 0, xMax: 2 * Math.PI, yMin: -4, yMax: 4 }}
+                        samples={400}
+                      />
+                    ) : null;
+                  })()}
               </div>
             </motion.div>
 
@@ -987,7 +1189,9 @@ const config = {
             <div className="relative group p-4 rounded-lg bg-gradient-to-br from-background/80 to-card/80 border border-border shadow-[0_0_15px_rgba(148,163,184,0.15)] hover:shadow-[0_0_25px_rgba(148,163,184,0.25)] transition-all duration-300">
               <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-muted/5 to-muted/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <p className="text-sm text-foreground/80 relative">
-                <strong className="text-foreground">Features:</strong> 10 preset shapes (Sphere, Sinc, Ripple, Saddle, Egg Carton, Monkey Saddle, Peaks, Gaussian, Torus, Helix) + Custom equation editor.
+                <strong className="text-foreground">Features:</strong> 10 preset shapes (Sphere,
+                Sinc, Ripple, Saddle, Egg Carton, Monkey Saddle, Peaks, Gaussian, Torus, Helix) +
+                Custom equation editor.
               </p>
             </div>
 
@@ -1027,7 +1231,12 @@ const config = {
                 <h3 className="font-semibold text-blue-300">Performance</h3>
               </div>
               <ul className="text-sm text-blue-200/80 space-y-2">
-                {['60fps for 10k+ points (2D)', 'Sub-50ms initialization', 'Low memory footprint', 'GPU-accelerated rendering'].map(t => (
+                {[
+                  '60fps for 10k+ points (2D)',
+                  'Sub-50ms initialization',
+                  'Low memory footprint',
+                  'GPU-accelerated rendering',
+                ].map((t) => (
                   <li key={t} className="flex items-center gap-2">
                     <span className="w-1 h-1 rounded-full bg-blue-400" />
                     {t}
@@ -1051,7 +1260,12 @@ const config = {
                 <h3 className="font-semibold text-emerald-300">Features</h3>
               </div>
               <ul className="text-sm text-emerald-200/80 space-y-2">
-                {['Adaptive sampling', 'Interactive controls', 'Export to PNG/SVG/CSV', 'Touch support'].map(t => (
+                {[
+                  'Adaptive sampling',
+                  'Interactive controls',
+                  'Export to PNG/SVG/CSV',
+                  'Touch support',
+                ].map((t) => (
                   <li key={t} className="flex items-center gap-2">
                     <span className="w-1 h-1 rounded-full bg-emerald-400" />
                     {t}
@@ -1075,7 +1289,12 @@ const config = {
                 <h3 className="font-semibold text-purple-300">Coordinates</h3>
               </div>
               <ul className="text-sm text-purple-200/80 space-y-2">
-                {['Cartesian (x, y)', 'Polar (r, θ)', 'Parametric (x(t), y(t))', '3D Surface (x, y, z)'].map(t => (
+                {[
+                  'Cartesian (x, y)',
+                  'Polar (r, θ)',
+                  'Parametric (x(t), y(t))',
+                  '3D Surface (x, y, z)',
+                ].map((t) => (
                   <li key={t} className="flex items-center gap-2">
                     <span className="w-1 h-1 rounded-full bg-purple-400" />
                     {t}

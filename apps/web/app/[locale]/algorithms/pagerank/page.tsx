@@ -1,9 +1,9 @@
 'use client';
 
-import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
-import { PageRankExplorer } from '@/components/algorithms/PageRankExplorer';
 import { Network } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
+import { PageRankExplorer } from '@/components/algorithms/PageRankExplorer';
 
 export default function PageRankPage() {
   const t = useTranslations('algorithms.pagerank');

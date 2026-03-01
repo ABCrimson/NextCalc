@@ -1,6 +1,6 @@
-import { type ReactNode } from 'react';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
+import type { ReactNode } from 'react';
 
 export const metadata: Metadata = {
   title: {
@@ -47,11 +47,7 @@ export const metadata: Metadata = {
  *
  * @param children - Child route components
  */
-export default async function AlgorithmsLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default async function AlgorithmsLayout({ children }: { children: ReactNode }) {
   const t = await getTranslations('algorithms');
 
   return (
@@ -65,7 +61,10 @@ export default async function AlgorithmsLayout({
       </a>
 
       {/* Main content area */}
-      <main id="main-content" className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
+      <main
+        id="main-content"
+        className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10"
+      >
         {children}
       </main>
     </div>

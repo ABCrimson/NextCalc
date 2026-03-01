@@ -7,10 +7,10 @@
  * @module components/plots/PlotContainer
  */
 
+import { AnimatePresence, motion } from 'framer-motion';
+import { AlertTriangle, Loader2, RefreshCw, TrendingUp } from 'lucide-react';
+import type { ErrorInfo, ReactNode } from 'react';
 import { Component, Suspense } from 'react';
-import type { ReactNode, ErrorInfo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { AlertTriangle, RefreshCw, Loader2, TrendingUp } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
 
@@ -115,7 +115,9 @@ function PlotSkeleton() {
             <div className="text-center">
               <Loader2 className="h-12 w-12 text-cyan-400 animate-spin mx-auto mb-3" />
               <p className="text-sm font-medium text-foreground/80">Rendering visualization...</p>
-              <p className="text-xs text-muted-foreground/70 mt-1">Preparing GPU-accelerated plot</p>
+              <p className="text-xs text-muted-foreground/70 mt-1">
+                Preparing GPU-accelerated plot
+              </p>
             </div>
           </div>
         </motion.div>
@@ -205,7 +207,10 @@ class PlotErrorBoundary extends Component<
   { children: ReactNode; fallback?: (error: Error, reset: () => void) => ReactNode },
   { hasError: boolean; error: Error | null }
 > {
-  constructor(props: { children: ReactNode; fallback?: (error: Error, reset: () => void) => ReactNode }) {
+  constructor(props: {
+    children: ReactNode;
+    fallback?: (error: Error, reset: () => void) => ReactNode;
+  }) {
     super(props);
     this.state = { hasError: false, error: null };
   }
@@ -229,7 +234,9 @@ class PlotErrorBoundary extends Component<
       }
       return (
         <PlotError
-          error={this.state.error.message || 'An unexpected error occurred while rendering the plot'}
+          error={
+            this.state.error.message || 'An unexpected error occurred while rendering the plot'
+          }
           onRetry={this.resetError}
         />
       );
@@ -294,15 +301,33 @@ export function PlotContainer({
       <div className="relative min-h-[400px]">
         <AnimatePresence mode="wait">
           {error ? (
-            <motion.div key="error" variants={containerVariants} initial="hidden" animate="visible" exit="exit">
+            <motion.div
+              key="error"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
               <PlotError error={error} />
             </motion.div>
           ) : isLoading ? (
-            <motion.div key="loading" variants={containerVariants} initial="hidden" animate="visible" exit="exit">
+            <motion.div
+              key="loading"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
               <PlotSkeleton />
             </motion.div>
           ) : (
-            <motion.div key="content" variants={containerVariants} initial="hidden" animate="visible" exit="exit">
+            <motion.div
+              key="content"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
               <PlotErrorBoundary>
                 <Suspense fallback={<PlotSkeleton />}>
                   <div

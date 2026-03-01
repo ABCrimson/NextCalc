@@ -1,9 +1,9 @@
 'use client';
 
-import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
-import { QuantumSimulator } from '@/components/algorithms/QuantumSimulator';
 import { Atom } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
+import { QuantumSimulator } from '@/components/algorithms/QuantumSimulator';
 
 export default function QuantumPage() {
   const t = useTranslations('algorithms');
@@ -26,8 +26,8 @@ export default function QuantumPage() {
       description={t('quantumDescription')}
       applications={[
         'Quantum Cryptography (QKD)',
-        'Quantum Search (Grover\'s Algorithm)',
-        'Integer Factorization (Shor\'s Algorithm)',
+        "Quantum Search (Grover's Algorithm)",
+        "Integer Factorization (Shor's Algorithm)",
         'Quantum Simulation',
         'Quantum Machine Learning',
         'Optimization Problems (QAOA)',

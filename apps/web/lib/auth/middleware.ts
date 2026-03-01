@@ -4,11 +4,11 @@
  * Provides middleware functions to protect API routes and GraphQL resolvers.
  */
 
-import { auth } from '../../auth';
 import type { UserRole } from '@nextcalc/database';
-import { can, type Permission } from './rbac';
 import type { NextRequest } from 'next/server';
 import type { Session } from 'next-auth';
+import { auth } from '../../auth';
+import { can, type Permission } from './rbac';
 
 /**
  * Route context type for Next.js 16
@@ -63,7 +63,7 @@ export async function verifyRole(requiredRole: UserRole) {
 
   if (userLevel < requiredLevel) {
     throw new Error(
-      `Forbidden - ${requiredRole} role required, but user has ${session.user.role} role`
+      `Forbidden - ${requiredRole} role required, but user has ${session.user.role} role`,
     );
   }
 
@@ -105,11 +105,7 @@ export async function verifyPermission(permission: Permission) {
  * ```
  */
 export function withAuth(
-  handler: (
-    req: NextRequest,
-    session: Session,
-    context: RouteContext
-  ) => Promise<Response>
+  handler: (req: NextRequest, session: Session, context: RouteContext) => Promise<Response>,
 ) {
   return async (req: NextRequest, context: RouteContext): Promise<Response> => {
     try {
@@ -139,11 +135,7 @@ export function withAuth(
  */
 export function withRole(
   requiredRole: UserRole,
-  handler: (
-    req: NextRequest,
-    session: Session,
-    context: RouteContext
-  ) => Promise<Response>
+  handler: (req: NextRequest, session: Session, context: RouteContext) => Promise<Response>,
 ) {
   return async (req: NextRequest, context: RouteContext): Promise<Response> => {
     try {
@@ -178,11 +170,7 @@ export function withRole(
  */
 export function withPermission(
   permission: Permission,
-  handler: (
-    req: NextRequest,
-    session: Session,
-    context: RouteContext
-  ) => Promise<Response>
+  handler: (req: NextRequest, session: Session, context: RouteContext) => Promise<Response>,
 ) {
   return async (req: NextRequest, context: RouteContext): Promise<Response> => {
     try {

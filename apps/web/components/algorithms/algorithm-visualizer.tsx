@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, RotateCcw, SkipBack, SkipForward } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Pause, Play, RotateCcw, SkipBack, SkipForward } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { CodeBlock } from '@/components/ui/code-block';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CodeBlock } from '@/components/ui/code-block';
 import { cn } from '@/lib/utils';
 
 /**
@@ -239,8 +239,12 @@ export function AlgorithmVisualizer({
                     <VisualizationRenderer
                       type={currentStepData.visualization.type}
                       elements={currentStepData.visualization.elements}
-                      {...(currentStepData.visualization.highlighted !== undefined && { highlighted: currentStepData.visualization.highlighted })}
-                      {...(currentStepData.visualization.compared !== undefined && { compared: currentStepData.visualization.compared })}
+                      {...(currentStepData.visualization.highlighted !== undefined && {
+                        highlighted: currentStepData.visualization.highlighted,
+                      })}
+                      {...(currentStepData.visualization.compared !== undefined && {
+                        compared: currentStepData.visualization.compared,
+                      })}
                     />
                   )}
                 </motion.div>
@@ -361,7 +365,9 @@ export function AlgorithmVisualizer({
                   code={algorithm.code}
                   language={algorithm.language}
                   showLineNumbers
-                  {...(currentStepData?.highlightLines !== undefined && { highlightLines: currentStepData.highlightLines })}
+                  {...(currentStepData?.highlightLines !== undefined && {
+                    highlightLines: currentStepData.highlightLines,
+                  })}
                   maxHeight="600px"
                 />
               </TabsContent>
@@ -413,19 +419,23 @@ function VisualizationRenderer({
 }) {
   if (type === 'array') {
     return (
-      <div className="flex gap-3 flex-wrap justify-center p-6 relative" role="img" aria-label="Array visualization">
+      <div
+        className="flex gap-3 flex-wrap justify-center p-6 relative"
+        role="img"
+        aria-label="Array visualization"
+      >
         {/* SVG Filters for advanced effects */}
         <svg className="absolute w-0 h-0" aria-hidden="true">
           <defs>
             <filter id="glow">
-              <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+              <feGaussianBlur stdDeviation="4" result="coloredBlur" />
               <feMerge>
-                <feMergeNode in="coloredBlur"/>
-                <feMergeNode in="SourceGraphic"/>
+                <feMergeNode in="coloredBlur" />
+                <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
             <filter id="shadow">
-              <feDropShadow dx="0" dy="4" stdDeviation="6" floodOpacity="0.3"/>
+              <feDropShadow dx="0" dy="4" stdDeviation="6" floodOpacity="0.3" />
             </filter>
           </defs>
         </svg>
@@ -458,19 +468,19 @@ function VisualizationRenderer({
                 background: isHighlighted
                   ? 'linear-gradient(135deg, rgb(99, 102, 241) 0%, rgb(139, 92, 246) 100%)'
                   : isCompared
-                  ? 'linear-gradient(135deg, rgb(251, 191, 36) 0%, rgb(245, 158, 11) 100%)'
-                  : 'linear-gradient(135deg, rgb(30, 41, 59) 0%, rgb(51, 65, 85) 100%)',
+                    ? 'linear-gradient(135deg, rgb(251, 191, 36) 0%, rgb(245, 158, 11) 100%)'
+                    : 'linear-gradient(135deg, rgb(30, 41, 59) 0%, rgb(51, 65, 85) 100%)',
                 color: isHighlighted || isCompared ? '#ffffff' : '#94a3b8',
                 border: isHighlighted
                   ? '2px solid rgba(165, 180, 252, 0.8)'
                   : isCompared
-                  ? '2px solid rgba(252, 211, 77, 0.8)'
-                  : '1px solid rgba(100, 116, 139, 0.3)',
+                    ? '2px solid rgba(252, 211, 77, 0.8)'
+                    : '1px solid rgba(100, 116, 139, 0.3)',
                 boxShadow: isHighlighted
                   ? '0 8px 32px rgba(99, 102, 241, 0.5), 0 0 16px rgba(99, 102, 241, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.2)'
                   : isCompared
-                  ? '0 8px 32px rgba(251, 191, 36, 0.4), 0 0 16px rgba(251, 191, 36, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.2)'
-                  : '0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.1)',
+                    ? '0 8px 32px rgba(251, 191, 36, 0.4), 0 0 16px rgba(251, 191, 36, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.2)'
+                    : '0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.1)',
                 transform: 'perspective(1000px)',
                 transformStyle: 'preserve-3d',
                 willChange: 'transform',
@@ -525,10 +535,10 @@ function VisualizationRenderer({
         <svg className="absolute w-0 h-0" aria-hidden="true">
           <defs>
             <filter id="matrix-glow">
-              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+              <feGaussianBlur stdDeviation="3" result="coloredBlur" />
               <feMerge>
-                <feMergeNode in="coloredBlur"/>
-                <feMergeNode in="SourceGraphic"/>
+                <feMergeNode in="coloredBlur" />
+                <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
           </defs>
@@ -585,8 +595,8 @@ function VisualizationRenderer({
     let idx = 0;
     let level = 0;
     while (idx < flatElements.length) {
-      const count = Math.pow(2, level);
-      const row: typeof levels[0] = [];
+      const count = 2 ** level;
+      const row: (typeof levels)[0] = [];
       for (let i = 0; i < count && idx < flatElements.length; i++, idx++) {
         const totalWidth = 600;
         const spacing = totalWidth / (count + 1);
@@ -645,8 +655,16 @@ function VisualizationRenderer({
                     cx={node.x}
                     cy={node.y}
                     r={24}
-                    fill={isHL ? 'rgb(99, 102, 241)' : isCmp ? 'rgb(251, 191, 36)' : 'rgb(30, 41, 59)'}
-                    stroke={isHL ? 'rgba(165, 180, 252, 0.8)' : isCmp ? 'rgba(252, 211, 77, 0.8)' : 'rgba(100, 116, 139, 0.4)'}
+                    fill={
+                      isHL ? 'rgb(99, 102, 241)' : isCmp ? 'rgb(251, 191, 36)' : 'rgb(30, 41, 59)'
+                    }
+                    stroke={
+                      isHL
+                        ? 'rgba(165, 180, 252, 0.8)'
+                        : isCmp
+                          ? 'rgba(252, 211, 77, 0.8)'
+                          : 'rgba(100, 116, 139, 0.4)'
+                    }
                     strokeWidth={2}
                   />
                   <text
@@ -733,14 +751,25 @@ function VisualizationRenderer({
               key={`gnode-${node.index}`}
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: node.index * 0.08, duration: 0.3, type: 'spring', stiffness: 200 }}
+              transition={{
+                delay: node.index * 0.08,
+                duration: 0.3,
+                type: 'spring',
+                stiffness: 200,
+              }}
             >
               <circle
                 cx={node.x}
                 cy={node.y}
                 r={26}
                 fill={isHL ? 'rgb(99, 102, 241)' : isCmp ? 'rgb(251, 191, 36)' : 'rgb(30, 41, 59)'}
-                stroke={isHL ? 'rgba(165, 180, 252, 0.8)' : isCmp ? 'rgba(252, 211, 77, 0.8)' : 'rgba(100, 116, 139, 0.4)'}
+                stroke={
+                  isHL
+                    ? 'rgba(165, 180, 252, 0.8)'
+                    : isCmp
+                      ? 'rgba(252, 211, 77, 0.8)'
+                      : 'rgba(100, 116, 139, 0.4)'
+                }
                 strokeWidth={2}
               />
               <text

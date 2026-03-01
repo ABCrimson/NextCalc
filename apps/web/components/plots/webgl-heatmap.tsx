@@ -18,8 +18,8 @@
  * @module components/plots/webgl-heatmap
  */
 
-import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { Info } from 'lucide-react';
+import { type MouseEvent, useEffect, useRef, useState } from 'react';
 
 interface WebGLHeatmapProps {
   /** 2D array of values (row-major order) */
@@ -171,7 +171,9 @@ export function WebGLHeatmap({
   const frameCountRef = useRef<number>(0);
 
   const [fps, setFps] = useState<number>(0);
-  const [hoveredValue, setHoveredValue] = useState<{ x: number; y: number; value: number } | null>(null);
+  const [hoveredValue, setHoveredValue] = useState<{ x: number; y: number; value: number } | null>(
+    null,
+  );
 
   const uniformsRef = useRef<{
     minValue: WebGLUniformLocation | null;
@@ -259,10 +261,22 @@ export function WebGLHeatmap({
 
       // Set up full-screen quad geometry
       const positions = new Float32Array([
-        -1,  1,  0, 1,  // Top-left
-        -1, -1,  0, 0,  // Bottom-left
-         1,  1,  1, 1,  // Top-right
-         1, -1,  1, 0,  // Bottom-right
+        -1,
+        1,
+        0,
+        1, // Top-left
+        -1,
+        -1,
+        0,
+        0, // Bottom-left
+        1,
+        1,
+        1,
+        1, // Top-right
+        1,
+        -1,
+        1,
+        0, // Bottom-right
       ]);
 
       const vao = gl.createVertexArray();
@@ -379,18 +393,7 @@ export function WebGLHeatmap({
     }
 
     gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texImage2D(
-      gl.TEXTURE_2D,
-      0,
-      gl.R32F,
-      cols,
-      rows,
-      0,
-      gl.RED,
-      gl.FLOAT,
-      textureData
-    );
-
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.R32F, cols, rows, 0, gl.RED, gl.FLOAT, textureData);
   }, [data]);
 
   /**
@@ -463,8 +466,8 @@ export function WebGLHeatmap({
     if (!canvas || !data || data.length === 0) return;
 
     const rect = canvas.getBoundingClientRect();
-    const x = Math.floor((e.clientX - rect.left) / rect.width * (data[0]?.length ?? 0));
-    const y = Math.floor((e.clientY - rect.top) / rect.height * data.length);
+    const x = Math.floor(((e.clientX - rect.left) / rect.width) * (data[0]?.length ?? 0));
+    const y = Math.floor(((e.clientY - rect.top) / rect.height) * data.length);
 
     if (y >= 0 && y < data.length && x >= 0 && x < (data[0]?.length ?? 0)) {
       const value = data[y]?.[x] ?? 0;
@@ -509,9 +512,16 @@ export function WebGLHeatmap({
             <span className="text-blue-400">Grid Position</span>
           </div>
           <div className="space-y-0.5">
-            <div><span className="text-muted-foreground">X:</span> {hoveredValue.x}</div>
-            <div><span className="text-muted-foreground">Y:</span> {hoveredValue.y}</div>
-            <div><span className="text-muted-foreground">Value:</span> <span className="text-yellow-400">{hoveredValue.value.toFixed(4)}</span></div>
+            <div>
+              <span className="text-muted-foreground">X:</span> {hoveredValue.x}
+            </div>
+            <div>
+              <span className="text-muted-foreground">Y:</span> {hoveredValue.y}
+            </div>
+            <div>
+              <span className="text-muted-foreground">Value:</span>{' '}
+              <span className="text-yellow-400">{hoveredValue.value.toFixed(4)}</span>
+            </div>
           </div>
         </div>
       )}

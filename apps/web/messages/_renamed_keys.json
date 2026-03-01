@@ -1,0 +1,719 @@
+[
+  {
+    "from": "nav.calculator.description",
+    "to": "nav.calculatorDescription"
+  },
+  {
+    "from": "nav.plot.description",
+    "to": "nav.plotDescription"
+  },
+  {
+    "from": "nav.symbolic.description",
+    "to": "nav.symbolicDescription"
+  },
+  {
+    "from": "nav.matrix.description",
+    "to": "nav.matrixDescription"
+  },
+  {
+    "from": "nav.solver.description",
+    "to": "nav.solverDescription"
+  },
+  {
+    "from": "nav.units.description",
+    "to": "nav.unitsDescription"
+  },
+  {
+    "from": "nav.stats.description",
+    "to": "nav.statsDescription"
+  },
+  {
+    "from": "nav.complex.description",
+    "to": "nav.complexDescription"
+  },
+  {
+    "from": "nav.worksheet.description",
+    "to": "nav.worksheetDescription"
+  },
+  {
+    "from": "nav.forum.description",
+    "to": "nav.forumDescription"
+  },
+  {
+    "from": "nav.algorithms.description",
+    "to": "nav.algorithmsDescription"
+  },
+  {
+    "from": "nav.algorithms.all",
+    "to": "nav.algorithmsAll"
+  },
+  {
+    "from": "nav.algorithms.browse",
+    "to": "nav.algorithmsBrowse"
+  },
+  {
+    "from": "nav.fourier.description",
+    "to": "nav.fourierDescription"
+  },
+  {
+    "from": "nav.gameTheory.description",
+    "to": "nav.gameTheoryDescription"
+  },
+  {
+    "from": "nav.chaos.description",
+    "to": "nav.chaosDescription"
+  },
+  {
+    "from": "nav.pde.description",
+    "to": "nav.pdeDescription"
+  },
+  {
+    "from": "nav.pde3d.description",
+    "to": "nav.pde3dDescription"
+  },
+  {
+    "from": "nav.ode.description",
+    "to": "nav.odeDescription"
+  },
+  {
+    "from": "nav.graphs.description",
+    "to": "nav.graphsDescription"
+  },
+  {
+    "from": "nav.ml.description",
+    "to": "nav.mlDescription"
+  },
+  {
+    "from": "nav.formulas.description",
+    "to": "nav.formulasDescription"
+  },
+  {
+    "from": "nav.settings.description",
+    "to": "nav.settingsDescription"
+  },
+  {
+    "from": "calc.keyboard.srInstructions",
+    "to": "calc.keyboardSrInstructions"
+  },
+  {
+    "from": "calc.export.label",
+    "to": "calc.exportLabel"
+  },
+  {
+    "from": "calc.export.heading",
+    "to": "calc.exportHeading"
+  },
+  {
+    "from": "calc.export.pdf",
+    "to": "calc.exportPdf"
+  },
+  {
+    "from": "calc.export.png",
+    "to": "calc.exportPng"
+  },
+  {
+    "from": "calc.export.svg",
+    "to": "calc.exportSvg"
+  },
+  {
+    "from": "calc.export.error",
+    "to": "calc.exportError"
+  },
+  {
+    "from": "home.feature.plotFunctions.subtitle",
+    "to": "home.feature.plotFunctionsSubtitle"
+  },
+  {
+    "from": "home.feature.symbolicMath.subtitle",
+    "to": "home.feature.symbolicMathSubtitle"
+  },
+  {
+    "from": "home.feature.matrixOps.subtitle",
+    "to": "home.feature.matrixOpsSubtitle"
+  },
+  {
+    "from": "home.feature.equationSolver.subtitle",
+    "to": "home.feature.equationSolverSubtitle"
+  },
+  {
+    "from": "home.feature.unitConverter.subtitle",
+    "to": "home.feature.unitConverterSubtitle"
+  },
+  {
+    "from": "home.feature.algorithms.subtitle",
+    "to": "home.feature.algorithmsSubtitle"
+  },
+  {
+    "from": "home.feature.complexNumbers.subtitle",
+    "to": "home.feature.complexNumbersSubtitle"
+  },
+  {
+    "from": "profile.topicMastery.empty",
+    "to": "profile.topicMasteryEmpty"
+  },
+  {
+    "from": "profile.topicMastery.solved",
+    "to": "profile.topicMasterySolved"
+  },
+  {
+    "from": "profile.accuracyTrend.empty",
+    "to": "profile.accuracyTrendEmpty"
+  },
+  {
+    "from": "profile.streakHistory.empty",
+    "to": "profile.streakHistoryEmpty"
+  },
+  {
+    "from": "profile.streakHistory.dayStreak",
+    "to": "profile.streakHistoryDayStreak"
+  },
+  {
+    "from": "profile.practiceHistory.empty",
+    "to": "profile.practiceHistoryEmpty"
+  },
+  {
+    "from": "profile.practiceHistory.emptyHint",
+    "to": "profile.practiceHistoryEmptyHint"
+  },
+  {
+    "from": "profile.practiceHistory.topic",
+    "to": "profile.practiceHistoryTopic"
+  },
+  {
+    "from": "profile.practiceHistory.score",
+    "to": "profile.practiceHistoryScore"
+  },
+  {
+    "from": "profile.practiceHistory.accuracy",
+    "to": "profile.practiceHistoryAccuracy"
+  },
+  {
+    "from": "profile.practiceHistory.time",
+    "to": "profile.practiceHistoryTime"
+  },
+  {
+    "from": "profile.practiceHistory.date",
+    "to": "profile.practiceHistoryDate"
+  },
+  {
+    "from": "settings.profile.description",
+    "to": "settings.profileDescription"
+  },
+  {
+    "from": "settings.profile.username",
+    "to": "settings.profileUsername"
+  },
+  {
+    "from": "settings.profile.usernamePlaceholder",
+    "to": "settings.profileUsernamePlaceholder"
+  },
+  {
+    "from": "settings.profile.usernameHint",
+    "to": "settings.profileUsernameHint"
+  },
+  {
+    "from": "settings.profile.displayName",
+    "to": "settings.profileDisplayName"
+  },
+  {
+    "from": "settings.profile.displayNamePlaceholder",
+    "to": "settings.profileDisplayNamePlaceholder"
+  },
+  {
+    "from": "settings.profile.displayNameHint",
+    "to": "settings.profileDisplayNameHint"
+  },
+  {
+    "from": "settings.appearance.description",
+    "to": "settings.appearanceDescription"
+  },
+  {
+    "from": "settings.appearance.colorTheme",
+    "to": "settings.appearanceColorTheme"
+  },
+  {
+    "from": "settings.appearance.themeSelection",
+    "to": "settings.appearanceThemeSelection"
+  },
+  {
+    "from": "settings.appearance.light",
+    "to": "settings.appearanceLight"
+  },
+  {
+    "from": "settings.appearance.dark",
+    "to": "settings.appearanceDark"
+  },
+  {
+    "from": "settings.appearance.system",
+    "to": "settings.appearanceSystem"
+  },
+  {
+    "from": "settings.calcDefaults.description",
+    "to": "settings.calcDefaultsDescription"
+  },
+  {
+    "from": "settings.calcDefaults.angleMode",
+    "to": "settings.calcDefaultsAngleMode"
+  },
+  {
+    "from": "settings.calcDefaults.angleModeHint",
+    "to": "settings.calcDefaultsAngleModeHint"
+  },
+  {
+    "from": "settings.calcDefaults.degrees",
+    "to": "settings.calcDefaultsDegrees"
+  },
+  {
+    "from": "settings.calcDefaults.radians",
+    "to": "settings.calcDefaultsRadians"
+  },
+  {
+    "from": "settings.calcDefaults.computeMode",
+    "to": "settings.calcDefaultsComputeMode"
+  },
+  {
+    "from": "settings.calcDefaults.computeModeHint",
+    "to": "settings.calcDefaultsComputeModeHint"
+  },
+  {
+    "from": "settings.calcDefaults.exact",
+    "to": "settings.calcDefaultsExact"
+  },
+  {
+    "from": "settings.calcDefaults.approximate",
+    "to": "settings.calcDefaultsApproximate"
+  },
+  {
+    "from": "settings.calcDefaults.thousandsSeparator",
+    "to": "settings.calcDefaultsThousandsSeparator"
+  },
+  {
+    "from": "settings.calcDefaults.thousandsSeparatorHint",
+    "to": "settings.calcDefaultsThousandsSeparatorHint"
+  },
+  {
+    "from": "settings.data.description",
+    "to": "settings.dataDescription"
+  },
+  {
+    "from": "settings.data.entryCount",
+    "to": "settings.dataEntryCount"
+  },
+  {
+    "from": "settings.data.exportHistory",
+    "to": "settings.dataExportHistory"
+  },
+  {
+    "from": "settings.data.clearHistory",
+    "to": "settings.dataClearHistory"
+  },
+  {
+    "from": "settings.data.confirmClear",
+    "to": "settings.dataConfirmClear"
+  },
+  {
+    "from": "settings.data.noHistory",
+    "to": "settings.dataNoHistory"
+  },
+  {
+    "from": "settings.shortcuts.description",
+    "to": "settings.shortcutsDescription"
+  },
+  {
+    "from": "settings.shortcuts.globalNote",
+    "to": "settings.shortcutsGlobalNote"
+  },
+  {
+    "from": "settings.shortcuts.commandPalette",
+    "to": "settings.shortcutsCommandPalette"
+  },
+  {
+    "from": "settings.shortcuts.showHelp",
+    "to": "settings.shortcutsShowHelp"
+  },
+  {
+    "from": "settings.shortcuts.clearInput",
+    "to": "settings.shortcutsClearInput"
+  },
+  {
+    "from": "settings.shortcuts.evaluate",
+    "to": "settings.shortcutsEvaluate"
+  },
+  {
+    "from": "settings.shortcuts.deleteLast",
+    "to": "settings.shortcutsDeleteLast"
+  },
+  {
+    "from": "settings.shortcuts.undo",
+    "to": "settings.shortcutsUndo"
+  },
+  {
+    "from": "settings.shortcuts.toggleHistory",
+    "to": "settings.shortcutsToggleHistory"
+  },
+  {
+    "from": "settings.shortcuts.switchCalc",
+    "to": "settings.shortcutsSwitchCalc"
+  },
+  {
+    "from": "settings.shortcuts.switchSolver",
+    "to": "settings.shortcutsSwitchSolver"
+  },
+  {
+    "from": "settings.shortcuts.switchStats",
+    "to": "settings.shortcutsSwitchStats"
+  },
+  {
+    "from": "algorithms.quantum.title",
+    "to": "algorithms.quantumTitle"
+  },
+  {
+    "from": "algorithms.quantum.description",
+    "to": "algorithms.quantumDescription"
+  },
+  {
+    "from": "algorithms.quantum.breadcrumbCategory",
+    "to": "algorithms.quantumBreadcrumbCategory"
+  },
+  {
+    "from": "algorithms.quantum.breadcrumbCurrent",
+    "to": "algorithms.quantumBreadcrumbCurrent"
+  },
+  {
+    "from": "units.category.length.description",
+    "to": "units.category.lengthDescription"
+  },
+  {
+    "from": "units.category.mass.description",
+    "to": "units.category.massDescription"
+  },
+  {
+    "from": "units.category.temperature.description",
+    "to": "units.category.temperatureDescription"
+  },
+  {
+    "from": "units.category.volume.description",
+    "to": "units.category.volumeDescription"
+  },
+  {
+    "from": "units.category.area.description",
+    "to": "units.category.areaDescription"
+  },
+  {
+    "from": "units.category.speed.description",
+    "to": "units.category.speedDescription"
+  },
+  {
+    "from": "units.category.time.description",
+    "to": "units.category.timeDescription"
+  },
+  {
+    "from": "units.category.data.description",
+    "to": "units.category.dataDescription"
+  },
+  {
+    "from": "units.category.pressure.description",
+    "to": "units.category.pressureDescription"
+  },
+  {
+    "from": "units.category.energy.description",
+    "to": "units.category.energyDescription"
+  },
+  {
+    "from": "units.category.force.description",
+    "to": "units.category.forceDescription"
+  },
+  {
+    "from": "units.category.angle.description",
+    "to": "units.category.angleDescription"
+  },
+  {
+    "from": "profile.recentActivity.empty",
+    "to": "profile.recentActivityEmpty"
+  },
+  {
+    "from": "profile.recentActivity.emptyHint",
+    "to": "profile.recentActivityEmptyHint"
+  },
+  {
+    "from": "profile.recentActivity.calculation",
+    "to": "profile.recentActivityCalculation"
+  },
+  {
+    "from": "profile.recentActivity.worksheet",
+    "to": "profile.recentActivityWorksheet"
+  },
+  {
+    "from": "profile.recentActivity.viewAll",
+    "to": "profile.recentActivityViewAll"
+  },
+  {
+    "from": "settings.profileDescription",
+    "to": "settings.username"
+  },
+  {
+    "from": "settings.username",
+    "to": "settings.usernameHint"
+  },
+  {
+    "from": "settings.usernameHint",
+    "to": "settings.displayName"
+  },
+  {
+    "from": "settings.displayName",
+    "to": "settings.displayNameHint"
+  },
+  {
+    "from": "settings.displayNameHint",
+    "to": "settings.colorTheme"
+  },
+  {
+    "from": "settings.appearanceDescription",
+    "to": "settings.calculatorDefaults"
+  },
+  {
+    "from": "settings.colorTheme",
+    "to": "settings.calculatorDefaultsDescription"
+  },
+  {
+    "from": "settings.calculatorDefaults",
+    "to": "settings.exportHistory"
+  },
+  {
+    "from": "settings.calculatorDefaultsDescription",
+    "to": "settings.clearHistory"
+  },
+  {
+    "from": "settings.dataDescription",
+    "to": "settings.confirmClear"
+  },
+  {
+    "from": "settings.exportHistory",
+    "to": "settings.noHistory"
+  },
+  {
+    "from": "settings.clearHistory",
+    "to": "settings.keyboardShortcuts"
+  },
+  {
+    "from": "settings.confirmClear",
+    "to": "settings.keyboardShortcutsDescription"
+  },
+  {
+    "from": "settings.noHistory",
+    "to": "settings.settingsSaved"
+  },
+  {
+    "from": "settings.keyboardShortcuts",
+    "to": "settings.failedToSave"
+  },
+  {
+    "from": "settings.keyboardShortcutsDescription",
+    "to": "settings.autoSaveHint"
+  },
+  {
+    "from": "settings.settingsSaved",
+    "to": "settings.saveSettings"
+  },
+  {
+    "from": "settings.failedToSave",
+    "to": "numberTheory.title"
+  },
+  {
+    "from": "settings.autoSaveHint",
+    "to": "numberTheory.description"
+  },
+  {
+    "from": "settings.saveSettings",
+    "to": "numberTheory.webgpuActive"
+  },
+  {
+    "from": "numberTheory.title",
+    "to": "worksheet.editorLabel"
+  },
+  {
+    "from": "numberTheory.description",
+    "to": "offline.title"
+  },
+  {
+    "from": "numberTheory.webgpuActive",
+    "to": "offline.description"
+  },
+  {
+    "from": "worksheet.editorLabel",
+    "to": "offline.cachedPages"
+  },
+  {
+    "from": "offline.title",
+    "to": "pwa.install"
+  },
+  {
+    "from": "offline.description",
+    "to": "pwa.installPrompt"
+  },
+  {
+    "from": "offline.cachedPages",
+    "to": "accessibility.mainNavigation"
+  },
+  {
+    "from": "pwa.install",
+    "to": "accessibility.calculatorDisplay"
+  },
+  {
+    "from": "pwa.installPrompt",
+    "to": "accessibility.calculatorKeyboard"
+  },
+  {
+    "from": "accessibility.mainNavigation",
+    "to": "accessibility.skipToContent"
+  },
+  {
+    "from": "accessibility.calculatorDisplay",
+    "to": "templates.skipToContent"
+  },
+  {
+    "from": "accessibility.calculatorKeyboard",
+    "to": "templates.badge"
+  },
+  {
+    "from": "accessibility.skipToContent",
+    "to": "templates.heroTitle"
+  },
+  {
+    "from": "templates.skipToContent",
+    "to": "templates.heroDescription"
+  },
+  {
+    "from": "templates.badge",
+    "to": "templates.filterLabel"
+  },
+  {
+    "from": "templates.heroTitle",
+    "to": "templates.clearFilters"
+  },
+  {
+    "from": "templates.heroDescription",
+    "to": "templates.noResults"
+  },
+  {
+    "from": "templates.filterLabel",
+    "to": "templates.howToTitle"
+  },
+  {
+    "from": "templates.clearFilters",
+    "to": "templates.howToDescription"
+  },
+  {
+    "from": "templates.noResults",
+    "to": "nav.templates"
+  },
+  {
+    "from": "templates.howToTitle",
+    "to": "nav.templatesDescription"
+  },
+  {
+    "from": "templates.howToDescription",
+    "to": "worksheets.title"
+  },
+  {
+    "from": "nav.templates",
+    "to": "worksheets.subtitle"
+  },
+  {
+    "from": "nav.templates.description",
+    "to": "worksheets.newWorksheet"
+  },
+  {
+    "from": "worksheets.title",
+    "to": "worksheets.searchPlaceholder"
+  },
+  {
+    "from": "worksheets.subtitle",
+    "to": "worksheets.sortDirection"
+  },
+  {
+    "from": "worksheets.newWorksheet",
+    "to": "worksheets.sortUpdated"
+  },
+  {
+    "from": "worksheets.searchPlaceholder",
+    "to": "worksheets.sortCreated"
+  },
+  {
+    "from": "worksheets.sortDirection",
+    "to": "worksheets.sortTitle"
+  },
+  {
+    "from": "worksheets.sortUpdated",
+    "to": "worksheets.gridView"
+  },
+  {
+    "from": "worksheets.sortCreated",
+    "to": "worksheets.listView"
+  },
+  {
+    "from": "worksheets.sortTitle",
+    "to": "worksheets.emptyTitle"
+  },
+  {
+    "from": "worksheets.gridView",
+    "to": "worksheets.emptyDescription"
+  },
+  {
+    "from": "worksheets.listView",
+    "to": "worksheets.createFirst"
+  },
+  {
+    "from": "worksheets.emptyTitle",
+    "to": "worksheets.noResults"
+  },
+  {
+    "from": "worksheets.emptyDescription",
+    "to": "worksheets.deleteConfirm"
+  },
+  {
+    "from": "worksheets.createFirst",
+    "to": "worksheets.delete"
+  },
+  {
+    "from": "worksheets.noResults",
+    "to": "worksheets.cellCount"
+  },
+  {
+    "from": "worksheets.deleteConfirm",
+    "to": "worksheets.views"
+  },
+  {
+    "from": "worksheets.delete",
+    "to": "worksheets.justNow"
+  },
+  {
+    "from": "worksheets.cellCount",
+    "to": "worksheets.minutesAgo"
+  },
+  {
+    "from": "worksheets.views",
+    "to": "worksheets.hoursAgo"
+  },
+  {
+    "from": "worksheets.justNow",
+    "to": "worksheets.daysAgo"
+  },
+  {
+    "from": "worksheets.minutesAgo",
+    "to": "nav.worksheets"
+  },
+  {
+    "from": "worksheets.hoursAgo",
+    "to": "nav.worksheetsDescription"
+  },
+  {
+    "from": "worksheets.daysAgo"
+  },
+  {
+    "from": "nav.worksheets"
+  },
+  {
+    "from": "nav.worksheets.description"
+  }
+]

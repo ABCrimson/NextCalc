@@ -3,20 +3,20 @@
 import { useQuery } from '@apollo/client/react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { ProfileOverview } from '@/components/profile/profile-overview';
+import { useTranslations } from 'next-intl';
 import { AchievementGrid } from '@/components/profile/achievement-grid';
 import { AnalyticsCharts } from '@/components/profile/analytics-charts';
 import { PracticeHistoryTable } from '@/components/profile/practice-history-table';
+import { ProfileOverview } from '@/components/profile/profile-overview';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { signIn, useSession } from '@/lib/auth/hooks';
 import {
-  USER_PROFILE_QUERY,
+  DASHBOARD_RECENT_ACTIVITY_QUERY,
   USER_ACTIVITY_QUERY,
   USER_ANALYTICS_QUERY,
-  DASHBOARD_RECENT_ACTIVITY_QUERY,
+  USER_PROFILE_QUERY,
 } from '@/lib/graphql/operations';
-import { useSession, signIn } from '@/lib/auth/hooks';
-import { useTranslations } from 'next-intl';
 
 // ---------------------------------------------------------------------------
 // Types matching the GraphQL schema operations
@@ -198,7 +198,9 @@ function ErrorState({ message, onRetry }: ErrorStateProps) {
       role="alert"
       className="flex flex-col items-center justify-center rounded-xl border border-destructive/30 bg-destructive/5 py-16 text-center"
     >
-      <span className="mb-3 text-4xl" aria-hidden="true">⚠️</span>
+      <span className="mb-3 text-4xl" aria-hidden="true">
+        ⚠️
+      </span>
       <p className="text-base font-semibold text-foreground">{tError('title')}</p>
       <p className="mt-1 max-w-sm text-sm text-muted-foreground">{message}</p>
       <button
@@ -249,8 +251,7 @@ function SignInPrompt() {
             onClick={() => signIn('/profile')}
             className="inline-flex items-center rounded-lg px-5 py-2.5 text-sm font-semibold text-white transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             style={{
-              background:
-                'linear-gradient(135deg, oklch(0.55 0.27 264), oklch(0.60 0.25 300))',
+              background: 'linear-gradient(135deg, oklch(0.55 0.27 264), oklch(0.60 0.25 300))',
             }}
           >
             {tAuth('signIn')}
@@ -396,12 +397,7 @@ function ProfileDashboard({ userId }: ProfileDashboardProps) {
   const recentWorksheets = recentData?.worksheets?.nodes ?? [];
 
   return (
-    <motion.div
-      variants={fadeInVariants}
-      initial="hidden"
-      animate="visible"
-      className="space-y-6"
-    >
+    <motion.div variants={fadeInVariants} initial="hidden" animate="visible" className="space-y-6">
       {/* Partial-data warning banners */}
       {(activityError ?? analyticsError ?? recentError) && (
         <div
@@ -415,11 +411,7 @@ function ProfileDashboard({ userId }: ProfileDashboardProps) {
       <Tabs defaultValue="overview">
         <TabsList className="w-full sm:w-auto" aria-label="Profile sections">
           {TABS.map((tab) => (
-            <TabsTrigger
-              key={tab.id}
-              value={tab.id}
-              aria-label={tProfile(tab.ariaLabelKey)}
-            >
+            <TabsTrigger key={tab.id} value={tab.id} aria-label={tProfile(tab.ariaLabelKey)}>
               {tProfile(tab.labelKey)}
             </TabsTrigger>
           ))}
@@ -483,8 +475,7 @@ export function ProfileClient() {
         <h1
           className="text-3xl font-bold sm:text-4xl"
           style={{
-            background:
-              'linear-gradient(135deg, oklch(0.75 0.18 264), oklch(0.72 0.20 300))',
+            background: 'linear-gradient(135deg, oklch(0.75 0.18 264), oklch(0.72 0.20 300))',
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             color: 'transparent',
@@ -492,23 +483,15 @@ export function ProfileClient() {
         >
           {t('myProfile')}
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t('myProfileSubtitle')}
-        </p>
+        <p className="mt-1 text-sm text-muted-foreground">{t('myProfileSubtitle')}</p>
       </motion.header>
 
       {/* Main content area */}
-      {status === 'loading' && (
-        <ProfileSkeleton />
-      )}
+      {status === 'loading' && <ProfileSkeleton />}
 
-      {status === 'unauthenticated' && (
-        <SignInPrompt />
-      )}
+      {status === 'unauthenticated' && <SignInPrompt />}
 
-      {status === 'authenticated' && session && (
-        <ProfileDashboard userId={session.user.id} />
-      )}
+      {status === 'authenticated' && session && <ProfileDashboard userId={session.user.id} />}
     </div>
   );
 }

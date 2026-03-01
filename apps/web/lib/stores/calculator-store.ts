@@ -9,11 +9,11 @@
  * @see https://immerjs.github.io/immer/
  */
 
+import type { CalculatorAction, CalculatorState, HistoryEntry } from '@nextcalc/types';
+import type { WritableDraft } from 'immer';
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import type { WritableDraft } from 'immer';
-import type { CalculatorState, CalculatorAction, HistoryEntry } from '@nextcalc/types';
 import { getComputeManager } from '@/lib/workers/compute-manager';
 
 // ---------------------------------------------------------------------------
@@ -82,10 +82,7 @@ const initialState: CalculatorState = {
  * Using explicit property assignment satisfies exactOptionalPropertyTypes
  * because we never pass `undefined` to a required field.
  */
-function applyToImmerDraft(
-  draft: WritableDraft<CalculatorStore>,
-  next: CalculatorState,
-): void {
+function applyToImmerDraft(draft: WritableDraft<CalculatorStore>, next: CalculatorState): void {
   draft.state.current = next.current;
   draft.state.result = next.result;
   // Spread the readonly tuple into a mutable array for Immer
@@ -233,14 +230,11 @@ export const useCalculatorStore = create<CalculatorStore>()(
           const currentState = get().state;
 
           // Calculate next state (handles async operations properly)
-          const nextState = await calculateNextState(
-            currentState,
-            action,
-            (intermediateState) =>
-              set((draft) => {
-                // Immer 11 allows direct mutation with improved type inference
-                applyToImmerDraft(draft, intermediateState);
-              }),
+          const nextState = await calculateNextState(currentState, action, (intermediateState) =>
+            set((draft) => {
+              // Immer 11 allows direct mutation with improved type inference
+              applyToImmerDraft(draft, intermediateState);
+            }),
           );
 
           // Update to final state using Immer
@@ -266,8 +260,7 @@ export const useCalculatorStore = create<CalculatorStore>()(
 );
 
 // Performance-optimized selector hooks (prevents unnecessary re-renders)
-export const useCalculatorState = (): CalculatorState =>
-  useCalculatorStore((store) => store.state);
+export const useCalculatorState = (): CalculatorState => useCalculatorStore((store) => store.state);
 export const useCalculatorDispatch = () => useCalculatorStore((store) => store.dispatch);
 export const useCalculatorExpression = () => useCalculatorStore((store) => store.state.current);
 export const useCalculatorResult = () => useCalculatorStore((store) => store.state.result);

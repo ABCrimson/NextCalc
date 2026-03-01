@@ -1,8 +1,8 @@
 'use client';
 
-import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight, type LucideIcon } from 'lucide-react';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 
@@ -173,7 +173,7 @@ export function AlgorithmCard({
         `bg-gradient-to-br ${styles.gradient}`,
         styles.border,
         styles.shadow,
-        disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+        disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
       )}
       whileHover={disabled ? {} : { y: -4 }}
       whileTap={disabled ? {} : { scale: 0.98 }}
@@ -186,7 +186,7 @@ export function AlgorithmCard({
         className={cn(
           'absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300',
           `bg-gradient-to-br ${styles.gradient}`,
-          !disabled && 'group-hover:opacity-100'
+          !disabled && 'group-hover:opacity-100',
         )}
       />
 
@@ -194,10 +194,7 @@ export function AlgorithmCard({
       <div className="relative flex flex-col h-full">
         {/* Header with icon and badges */}
         <div className="flex items-start justify-between mb-4">
-          <div
-            className={cn('p-3 rounded-lg', styles.iconBg)}
-            aria-hidden="true"
-          >
+          <div className={cn('p-3 rounded-lg', styles.iconBg)} aria-hidden="true">
             <Icon className={cn('h-6 w-6', styles.text)} />
           </div>
 
@@ -206,7 +203,7 @@ export function AlgorithmCard({
             <span
               className={cn(
                 'px-2 py-1 text-xs font-medium rounded-md border whitespace-nowrap',
-                difficultyColors[difficulty]
+                difficultyColors[difficulty],
               )}
               aria-label={`${t('page.difficulty')}: ${t(`difficulty.${difficultyKeyMap[difficulty]}`)}`}
             >
@@ -227,12 +224,8 @@ export function AlgorithmCard({
 
         {/* Title and description */}
         <div className="flex-1">
-          <h3 className={cn('text-xl font-semibold mb-2', styles.text)}>
-            {title}
-          </h3>
-          <p className="text-sm text-foreground/80 leading-relaxed">
-            {description}
-          </p>
+          <h3 className={cn('text-xl font-semibold mb-2', styles.text)}>{title}</h3>
+          <p className="text-sm text-foreground/80 leading-relaxed">{description}</p>
         </div>
 
         {/* Explore link */}
@@ -240,7 +233,7 @@ export function AlgorithmCard({
           className={cn(
             'flex items-center gap-2 mt-4 text-sm font-medium',
             styles.text,
-            'group-hover:translate-x-2 transition-transform duration-300'
+            'group-hover:translate-x-2 transition-transform duration-300',
           )}
         >
           <span>{t('card.explore')}</span>
@@ -250,9 +243,7 @@ export function AlgorithmCard({
         {/* Disabled overlay */}
         {disabled && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/50 rounded-xl">
-            <span className="text-sm font-medium text-foreground/80">
-              {t('card.comingSoon')}
-            </span>
+            <span className="text-sm font-medium text-foreground/80">{t('card.comingSoon')}</span>
           </div>
         )}
       </div>

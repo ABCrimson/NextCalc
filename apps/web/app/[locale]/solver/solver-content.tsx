@@ -60,10 +60,9 @@ const featureCards: FeatureCard[] = [
   {
     formula: 'ax² + bx + c = 0',
     title: 'Quadratic Equations',
-    description:
-      'Uses the quadratic formula. Handles real and complex solutions automatically.',
+    description: 'Uses the quadratic formula. Handles real and complex solutions automatically.',
     accentHue: 300,
-    accentChroma: 0.20,
+    accentChroma: 0.2,
   },
   {
     formula: 'f(x) = 0',
@@ -77,9 +76,9 @@ const featureCards: FeatureCard[] = [
     formula: 'ℂ — Complex Solutions',
     title: 'Complex Solutions',
     description:
-      "Automatically handles complex numbers when real solutions don\u2019t exist. Displays in a+bi form.",
+      'Automatically handles complex numbers when real solutions don\u2019t exist. Displays in a+bi form.',
     accentHue: 30,
-    accentChroma: 0.20,
+    accentChroma: 0.2,
   },
 ];
 
@@ -194,7 +193,10 @@ function FeatureCard({ card }: { card: FeatureCard }) {
         <div className="flex items-center gap-2 mb-3">
           <div
             className="w-2 h-2 rounded-full shrink-0"
-            style={{ background: baseColor, boxShadow: `0 0 8px ${baseColor.replace(')', ' / 0.8)')}` }}
+            style={{
+              background: baseColor,
+              boxShadow: `0 0 8px ${baseColor.replace(')', ' / 0.8)')}`,
+            }}
             aria-hidden="true"
           />
           <div className="overflow-x-auto">
@@ -268,8 +270,7 @@ export function SolverPageContent() {
         <motion.div
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-3xl"
           style={{
-            background:
-              'radial-gradient(circle, oklch(0.60 0.14 300 / 0.07) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, oklch(0.60 0.14 300 / 0.07) 0%, transparent 70%)',
           }}
           animate={{ scale: [1, 1.1, 1], opacity: [0.7, 1, 0.7] }}
           transition={{ duration: 32, repeat: Infinity, ease: 'easeInOut', delay: 8 }}
@@ -306,7 +307,6 @@ export function SolverPageContent() {
       {/* Page content                                                         */}
       {/* ------------------------------------------------------------------ */}
       <div className="container mx-auto max-w-4xl py-12 px-4 relative">
-
         {/* Header */}
         <motion.header
           className="mb-10"
@@ -522,8 +522,7 @@ export function SolverPageContent() {
             <div className="relative space-y-3">
               {tips.map(({ title, body }) => (
                 <p key={title} className="text-sm" style={{ color: 'oklch(0.75 0.05 155)' }}>
-                  <strong style={{ color: 'oklch(0.82 0.15 155)' }}>{title}:</strong>{' '}
-                  {body}
+                  <strong style={{ color: 'oklch(0.82 0.15 155)' }}>{title}:</strong> {body}
                 </p>
               ))}
             </div>

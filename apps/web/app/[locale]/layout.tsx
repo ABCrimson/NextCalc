@@ -1,9 +1,9 @@
-import { type ReactNode } from 'react';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
-import { routing } from '@/i18n/routing';
+import type { ReactNode } from 'react';
 import { Navigation } from '@/components/layout/navigation';
 import { ApolloWrapper } from '@/components/providers/apollo-provider';
+import { routing } from '@/i18n/routing';
 
 /**
  * Generate static params for all supported locales.

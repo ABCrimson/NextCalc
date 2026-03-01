@@ -10,11 +10,11 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowLeft, PenLine } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { PostForm } from '@/components/forum/post-form';
-import { ForumBackground } from '@/components/forum/forum-background';
-import { useRequireAuth } from '@/lib/auth/hooks';
 import { useTranslations } from 'next-intl';
+import { ForumBackground } from '@/components/forum/forum-background';
+import { PostForm } from '@/components/forum/post-form';
+import { Button } from '@/components/ui/button';
+import { useRequireAuth } from '@/lib/auth/hooks';
 
 export function NewPostClient() {
   const t = useTranslations('forum');
@@ -44,7 +44,6 @@ export function NewPostClient() {
 
       <div className="relative z-10 py-12 px-4">
         <div className="container mx-auto max-w-2xl">
-
           {/* Back button */}
           <motion.div
             className="mb-6"
@@ -83,9 +82,7 @@ export function NewPostClient() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-foreground">{t('newDiscussion')}</h1>
-                <p className="text-sm text-muted-foreground">
-                  {t('newDiscussionSubtitle')}
-                </p>
+                <p className="text-sm text-muted-foreground">{t('newDiscussionSubtitle')}</p>
               </div>
             </div>
           </motion.div>

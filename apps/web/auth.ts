@@ -6,11 +6,11 @@
  * @see https://authjs.dev/getting-started/session-management
  */
 
-import NextAuth from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
-import { authConfig } from './auth.config';
-import { prisma } from '@/lib/prisma';
 import type { UserRole } from '@nextcalc/database';
+import NextAuth from 'next-auth';
+import { prisma } from '@/lib/prisma';
+import { authConfig } from './auth.config';
 
 export const {
   handlers: { GET, POST },

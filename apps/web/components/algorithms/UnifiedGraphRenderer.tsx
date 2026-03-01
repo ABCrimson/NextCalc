@@ -14,9 +14,17 @@
  * canvas sits on top regardless.
  */
 
-import { useRef, useEffect, useState, useCallback, useMemo, type MouseEvent, type WheelEvent } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ZoomIn, ZoomOut, Maximize2, Hand } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Hand, Maximize2, ZoomIn, ZoomOut } from 'lucide-react';
+import {
+  type MouseEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type WheelEvent,
+} from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -59,17 +67,24 @@ const RENDERER_MAX_PARTICLES = 500;
 
 function rendererGetEdgeColor(state: GraphEdge['state']): string {
   switch (state) {
-    case 'current': return 'rgba(251, 191, 36, 0.85)';
-    case 'path':    return 'rgba(74, 222, 128, 0.85)';
-    case 'visited': return 'rgba(167, 139, 250, 0.85)';
-    default:        return 'rgba(148, 163, 184, 0.4)';
+    case 'current':
+      return 'rgba(251, 191, 36, 0.85)';
+    case 'path':
+      return 'rgba(74, 222, 128, 0.85)';
+    case 'visited':
+      return 'rgba(167, 139, 250, 0.85)';
+    default:
+      return 'rgba(148, 163, 184, 0.4)';
   }
 }
 
 function rendererBezierPoint(
-  x1: number, y1: number,
-  cx: number, cy: number,
-  x2: number, y2: number,
+  x1: number,
+  y1: number,
+  cx: number,
+  cy: number,
+  x2: number,
+  y2: number,
   t: number,
 ): { x: number; y: number } {
   const mt = 1 - t;
@@ -83,8 +98,10 @@ function rendererBezierPoint(
  *  simple straight edges the renderer draws. Since the renderer uses straight
  *  lines (not bezier), cx/cy are just the midpoint with zero offset. */
 function rendererEdgeControl(
-  sx: number, sy: number,
-  tx: number, ty: number,
+  sx: number,
+  sy: number,
+  tx: number,
+  ty: number,
 ): { cx: number; cy: number } {
   return { cx: (sx + tx) / 2, cy: (sy + ty) / 2 };
 }
@@ -156,18 +173,42 @@ export interface UnifiedGraphRendererProps {
 
 const COLORS = {
   node: {
-    unvisited: { fill: 'rgba(147, 197, 253, 0.9)', stroke: 'rgba(96, 165, 250, 1)', glow: 'rgba(96, 165, 250, 0.4)' },
-    current:   { fill: 'rgba(251, 191, 36, 0.95)',  stroke: 'rgba(245, 158, 11, 1)', glow: 'rgba(245, 158, 11, 0.6)' },
-    visited:   { fill: 'rgba(196, 181, 253, 0.9)',  stroke: 'rgba(167, 139, 250, 1)', glow: 'rgba(167, 139, 250, 0.3)' },
-    path:      { fill: 'rgba(134, 239, 172, 0.95)', stroke: 'rgba(74, 222, 128, 1)',  glow: 'rgba(74, 222, 128, 0.5)' },
-    start:     { fill: 'rgba(252, 165, 165, 0.95)', stroke: 'rgba(248, 113, 113, 1)', glow: 'rgba(248, 113, 113, 0.5)' },
-    end:       { fill: 'rgba(134, 239, 172, 0.95)', stroke: 'rgba(34, 197, 94, 1)',   glow: 'rgba(34, 197, 94, 0.6)' },
+    unvisited: {
+      fill: 'rgba(147, 197, 253, 0.9)',
+      stroke: 'rgba(96, 165, 250, 1)',
+      glow: 'rgba(96, 165, 250, 0.4)',
+    },
+    current: {
+      fill: 'rgba(251, 191, 36, 0.95)',
+      stroke: 'rgba(245, 158, 11, 1)',
+      glow: 'rgba(245, 158, 11, 0.6)',
+    },
+    visited: {
+      fill: 'rgba(196, 181, 253, 0.9)',
+      stroke: 'rgba(167, 139, 250, 1)',
+      glow: 'rgba(167, 139, 250, 0.3)',
+    },
+    path: {
+      fill: 'rgba(134, 239, 172, 0.95)',
+      stroke: 'rgba(74, 222, 128, 1)',
+      glow: 'rgba(74, 222, 128, 0.5)',
+    },
+    start: {
+      fill: 'rgba(252, 165, 165, 0.95)',
+      stroke: 'rgba(248, 113, 113, 1)',
+      glow: 'rgba(248, 113, 113, 0.5)',
+    },
+    end: {
+      fill: 'rgba(134, 239, 172, 0.95)',
+      stroke: 'rgba(34, 197, 94, 1)',
+      glow: 'rgba(34, 197, 94, 0.6)',
+    },
   },
   edge: {
     unvisited: 'rgba(148, 163, 184, 0.5)',
-    current:   'rgba(251, 191, 36, 0.9)',
-    visited:   'rgba(167, 139, 250, 0.7)',
-    path:      'rgba(74, 222, 128, 0.9)',
+    current: 'rgba(251, 191, 36, 0.9)',
+    visited: 'rgba(167, 139, 250, 0.7)',
+    path: 'rgba(74, 222, 128, 0.9)',
   },
   label: {
     text: '#1e293b',
@@ -180,8 +221,7 @@ const COLORS = {
 // WebGPU detection
 // ============================================================================
 
-const supportsWebGPU =
-  typeof navigator !== 'undefined' && 'gpu' in navigator;
+const supportsWebGPU = typeof navigator !== 'undefined' && 'gpu' in navigator;
 
 // ============================================================================
 // WGSL shaders
@@ -430,17 +470,17 @@ interface GPUResources {
   context: GPUCanvasContext;
   computePipeline: GPUComputePipeline;
   nodePipeline: GPURenderPipeline;
-  nodeBuffer: GPUBuffer;      // Node structs (position, vel, fixed)
-  edgeBuffer: GPUBuffer;      // Edge structs (src, dst)
-  nodeMetaBuffer: GPUBuffer;  // Per-node colour + radius
+  nodeBuffer: GPUBuffer; // Node structs (position, vel, fixed)
+  edgeBuffer: GPUBuffer; // Edge structs (src, dst)
+  nodeMetaBuffer: GPUBuffer; // Per-node colour + radius
   cameraBuffer: GPUBuffer;
   computeParamBuffer: GPUBuffer;
   maxNodes: number;
   maxEdges: number;
   // Particle compute resources (optional — created after physics pipeline)
   particleComputePipeline?: GPUComputePipeline;
-  particleBuffer?: GPUBuffer;        // Storage buffer: array<Particle>
-  particleParamBuffer?: GPUBuffer;   // Uniform buffer: ParticleParams
+  particleBuffer?: GPUBuffer; // Storage buffer: array<Particle>
+  particleParamBuffer?: GPUBuffer; // Uniform buffer: ParticleParams
   particleStagingBuffer?: GPUBuffer; // MAP_READ buffer for readback
 }
 
@@ -448,11 +488,7 @@ interface GPUResources {
 // Physics Simulation (CPU fallback)
 // ============================================================================
 
-function applyForces(
-  nodes: GraphNode[],
-  edges: GraphEdge[],
-  config: Required<GraphConfig>
-): void {
+function applyForces(nodes: GraphNode[], edges: GraphEdge[], config: Required<GraphConfig>): void {
   const { forceStrength, width, height } = config;
   const alpha = 0.3;
 
@@ -570,7 +606,7 @@ export function UnifiedGraphRenderer({
       enablePhysics: config.enablePhysics ?? true,
       forceStrength: config.forceStrength ?? 1,
     }),
-    [config, dimensions]
+    [config, dimensions],
   );
 
   const initializedNodes = useMemo(() => {
@@ -632,11 +668,11 @@ export function UnifiedGraphRenderer({
         ctx.moveTo(arrowX, arrowY);
         ctx.lineTo(
           arrowX - arrowLength * Math.cos(angle) + arrowWidth * Math.sin(angle),
-          arrowY - arrowLength * Math.sin(angle) - arrowWidth * Math.cos(angle)
+          arrowY - arrowLength * Math.sin(angle) - arrowWidth * Math.cos(angle),
         );
         ctx.lineTo(
           arrowX - arrowLength * Math.cos(angle) - arrowWidth * Math.sin(angle),
-          arrowY - arrowLength * Math.sin(angle) + arrowWidth * Math.cos(angle)
+          arrowY - arrowLength * Math.sin(angle) + arrowWidth * Math.cos(angle),
         );
         ctx.closePath();
         ctx.fill();
@@ -652,8 +688,18 @@ export function UnifiedGraphRenderer({
         const text = edge.weight.toFixed(1);
         const metrics = ctx.measureText(text);
         const padding = 4;
-        ctx.fillRect(midX - metrics.width / 2 - padding, midY - 10, metrics.width + padding * 2, 20);
-        ctx.strokeRect(midX - metrics.width / 2 - padding, midY - 10, metrics.width + padding * 2, 20);
+        ctx.fillRect(
+          midX - metrics.width / 2 - padding,
+          midY - 10,
+          metrics.width + padding * 2,
+          20,
+        );
+        ctx.strokeRect(
+          midX - metrics.width / 2 - padding,
+          midY - 10,
+          metrics.width + padding * 2,
+          20,
+        );
         ctx.fillStyle = COLORS.label.text;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -765,8 +811,11 @@ export function UnifiedGraphRenderer({
 
     // Camera buffer
     const camF32 = new Float32Array(8);
-    camF32[0] = pan.x; camF32[1] = pan.y; camF32[2] = zoom;
-    camF32[3] = width; camF32[4] = height;
+    camF32[0] = pan.x;
+    camF32[1] = pan.y;
+    camF32[2] = zoom;
+    camF32[3] = width;
+    camF32[4] = height;
     gpu.device.queue.writeBuffer(gpu.cameraBuffer, 0, camF32);
 
     // Compute params
@@ -811,12 +860,14 @@ export function UnifiedGraphRenderer({
 
     const texture = gpu.context.getCurrentTexture();
     const renderPass = encoder.beginRenderPass({
-      colorAttachments: [{
-        view: texture.createView(),
-        clearValue: { r: 0, g: 0, b: 0, a: 0 },
-        loadOp: 'clear',
-        storeOp: 'store',
-      }],
+      colorAttachments: [
+        {
+          view: texture.createView(),
+          clearValue: { r: 0, g: 0, b: 0, a: 0 },
+          loadOp: 'clear',
+          storeOp: 'store',
+        },
+      ],
     });
     renderPass.setPipeline(gpu.nodePipeline);
     renderPass.setBindGroup(0, renderBG);
@@ -830,19 +881,36 @@ export function UnifiedGraphRenderer({
   // WebGPU initialisation
   // -------------------------------------------------------------------------
   useEffect(() => {
-    if (!supportsWebGPU) { setRenderMode('canvas2d'); return; }
+    if (!supportsWebGPU) {
+      setRenderMode('canvas2d');
+      return;
+    }
     let cancelled = false;
 
     (async () => {
       try {
         const adapter = await navigator.gpu.requestAdapter();
-        if (!adapter || cancelled) { setRenderMode('canvas2d'); return; }
+        if (!adapter || cancelled) {
+          setRenderMode('canvas2d');
+          return;
+        }
         const device = await adapter.requestDevice();
-        if (cancelled) { device.destroy(); return; }
+        if (cancelled) {
+          device.destroy();
+          return;
+        }
         const canvas = canvasRef.current;
-        if (!canvas) { device.destroy(); setRenderMode('canvas2d'); return; }
+        if (!canvas) {
+          device.destroy();
+          setRenderMode('canvas2d');
+          return;
+        }
         const context = canvas.getContext('webgpu') as GPUCanvasContext | null;
-        if (!context) { device.destroy(); setRenderMode('canvas2d'); return; }
+        if (!context) {
+          device.destroy();
+          setRenderMode('canvas2d');
+          return;
+        }
 
         const format = navigator.gpu.getPreferredCanvasFormat();
         context.configure({ device, format, alphaMode: 'premultiplied' });
@@ -860,8 +928,17 @@ export function UnifiedGraphRenderer({
           layout: 'auto',
           vertex: { module: renderModule, entryPoint: 'vs_main' },
           fragment: {
-            module: renderModule, entryPoint: 'fs_main',
-            targets: [{ format, blend: { color: { srcFactor: 'src-alpha', dstFactor: 'one-minus-src-alpha' }, alpha: { srcFactor: 'one', dstFactor: 'zero' } } }],
+            module: renderModule,
+            entryPoint: 'fs_main',
+            targets: [
+              {
+                format,
+                blend: {
+                  color: { srcFactor: 'src-alpha', dstFactor: 'one-minus-src-alpha' },
+                  alpha: { srcFactor: 'one', dstFactor: 'zero' },
+                },
+              },
+            ],
           },
           primitive: { topology: 'triangle-list' },
         });
@@ -869,11 +946,26 @@ export function UnifiedGraphRenderer({
         const maxNodes = Math.max(nodes.length, 256);
         const maxEdges = Math.max(edges.length, 1024);
 
-        const nodeBuffer = device.createBuffer({ size: maxNodes * 32, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST });
-        const edgeBuffer = device.createBuffer({ size: maxEdges * 16, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST });
-        const nodeMetaBuffer = device.createBuffer({ size: maxNodes * 16, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST });
-        const cameraBuffer = device.createBuffer({ size: 32, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
-        const computeParamBuffer = device.createBuffer({ size: 32, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
+        const nodeBuffer = device.createBuffer({
+          size: maxNodes * 32,
+          usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+        });
+        const edgeBuffer = device.createBuffer({
+          size: maxEdges * 16,
+          usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+        });
+        const nodeMetaBuffer = device.createBuffer({
+          size: maxNodes * 16,
+          usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+        });
+        const cameraBuffer = device.createBuffer({
+          size: 32,
+          usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        });
+        const computeParamBuffer = device.createBuffer({
+          size: 32,
+          usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        });
 
         // Particle compute pipeline and buffers
         // 8 f32/u32 per particle struct = 32 bytes per particle
@@ -897,10 +989,21 @@ export function UnifiedGraphRenderer({
         });
 
         gpuRef.current = {
-          device, context, computePipeline, nodePipeline,
-          nodeBuffer, edgeBuffer, nodeMetaBuffer, cameraBuffer, computeParamBuffer,
-          maxNodes, maxEdges,
-          particleComputePipeline, particleBuffer, particleParamBuffer, particleStagingBuffer,
+          device,
+          context,
+          computePipeline,
+          nodePipeline,
+          nodeBuffer,
+          edgeBuffer,
+          nodeMetaBuffer,
+          cameraBuffer,
+          computeParamBuffer,
+          maxNodes,
+          maxEdges,
+          particleComputePipeline,
+          particleBuffer,
+          particleParamBuffer,
+          particleStagingBuffer,
         };
 
         void device.lost.then((info) => {
@@ -941,243 +1044,248 @@ export function UnifiedGraphRenderer({
   // -------------------------------------------------------------------------
   // Particle system: sync state from edge/node states each frame
   // -------------------------------------------------------------------------
-  const updateParticles = useCallback((deltaTime: number, useGpu: boolean) => {
-    if (!showParticles) {
-      particleStateRef.current.particles = [];
-      particleStateRef.current.ripples = [];
-      prevEdgeStatesRef.current.clear();
-      prevNodeStatesRef.current.clear();
-      return;
-    }
+  const updateParticles = useCallback(
+    (deltaTime: number, useGpu: boolean) => {
+      if (!showParticles) {
+        particleStateRef.current.particles = [];
+        particleStateRef.current.ripples = [];
+        prevEdgeStatesRef.current.clear();
+        prevNodeStatesRef.current.clear();
+        return;
+      }
 
-    const state = particleStateRef.current;
+      const state = particleStateRef.current;
 
-    // Detect newly activated edges → spawn particles
-    const activeEdgeIndices = new Set<number>();
-    for (let i = 0; i < edges.length; i++) {
-      const edge = edges[i]!;
-      const edgeState = edge.state ?? 'unvisited';
-      const prevState = prevEdgeStatesRef.current.get(edge.id);
+      // Detect newly activated edges → spawn particles
+      const activeEdgeIndices = new Set<number>();
+      for (let i = 0; i < edges.length; i++) {
+        const edge = edges[i]!;
+        const edgeState = edge.state ?? 'unvisited';
+        const prevState = prevEdgeStatesRef.current.get(edge.id);
 
-      if (edgeState === 'current' || edgeState === 'path') {
-        activeEdgeIndices.add(i);
-        // Newly activated edge — ensure we have particles on it
-        const existing = state.particles.filter((p) => p.edgeIndex === i);
-        const targetCount = Math.min(4, Math.max(1, Math.floor(RENDERER_MAX_PARTICLES / Math.max(1, edges.length))));
-        const needed = targetCount - existing.length;
-        const particleColor = rendererGetEdgeColor(edgeState);
-        const isDirected = edge.directed ?? false;
-        const speed = 0.0005 + Math.random() * 0.0003;
+        if (edgeState === 'current' || edgeState === 'path') {
+          activeEdgeIndices.add(i);
+          // Newly activated edge — ensure we have particles on it
+          const existing = state.particles.filter((p) => p.edgeIndex === i);
+          const targetCount = Math.min(
+            4,
+            Math.max(1, Math.floor(RENDERER_MAX_PARTICLES / Math.max(1, edges.length))),
+          );
+          const needed = targetCount - existing.length;
+          const particleColor = rendererGetEdgeColor(edgeState);
+          const isDirected = edge.directed ?? false;
+          const speed = 0.0005 + Math.random() * 0.0003;
 
-        for (let k = 0; k < needed && state.particles.length < RENDERER_MAX_PARTICLES; k++) {
-          const tOff = (existing.length + k) / Math.max(1, targetCount);
-          state.particles.push({
-            edgeIndex: i,
-            t: tOff,
-            speed,
-            opacity: 0.6 + Math.random() * 0.2,
-            radius: 2 + Math.random() * 1.2,
-            color: particleColor,
-            direction: isDirected ? 1 : (Math.random() > 0.5 ? 1 : -1),
-            trail: [],
+          for (let k = 0; k < needed && state.particles.length < RENDERER_MAX_PARTICLES; k++) {
+            const tOff = (existing.length + k) / Math.max(1, targetCount);
+            state.particles.push({
+              edgeIndex: i,
+              t: tOff,
+              speed,
+              opacity: 0.6 + Math.random() * 0.2,
+              radius: 2 + Math.random() * 1.2,
+              color: particleColor,
+              direction: isDirected ? 1 : Math.random() > 0.5 ? 1 : -1,
+              trail: [],
+            });
+            particleGenRef.current++;
+          }
+
+          // Detect transition to active: newly became current/path
+          if (prevState !== edgeState && (prevState === 'unvisited' || prevState === undefined)) {
+            // Update color of existing particles on this edge
+            for (const p of state.particles) {
+              if (p.edgeIndex === i) p.color = particleColor;
+            }
+          }
+        }
+
+        prevEdgeStatesRef.current.set(edge.id, edgeState);
+      }
+
+      // Remove particles on edges that are no longer active
+      const prevLen = state.particles.length;
+      state.particles = state.particles.filter((p) => activeEdgeIndices.has(p.edgeIndex));
+      if (state.particles.length !== prevLen) {
+        particleGenRef.current++;
+      }
+
+      // Detect newly activated nodes → spawn ripples
+      for (const node of initializedNodes) {
+        const nodeState = node.state ?? 'unvisited';
+        const prevState = prevNodeStatesRef.current.get(node.id);
+        if (nodeState !== 'unvisited' && nodeState !== prevState) {
+          const nodeColor = COLORS.node[nodeState].stroke;
+          const existingRipple = state.ripples.findIndex((r) => r.nodeId === node.id);
+          if (existingRipple !== -1) state.ripples.splice(existingRipple, 1);
+          state.ripples.push({
+            nodeId: node.id,
+            x: node.x ?? 0,
+            y: node.y ?? 0,
+            radius: fullConfig.nodeRadius,
+            maxRadius: fullConfig.nodeRadius * 3.5,
+            opacity: 0.75,
+            color: nodeColor,
           });
-          particleGenRef.current++;
         }
-
-        // Detect transition to active: newly became current/path
-        if (prevState !== edgeState && (prevState === 'unvisited' || prevState === undefined)) {
-          // Update color of existing particles on this edge
-          for (const p of state.particles) {
-            if (p.edgeIndex === i) p.color = particleColor;
-          }
-        }
+        prevNodeStatesRef.current.set(node.id, nodeState);
       }
 
-      prevEdgeStatesRef.current.set(edge.id, edgeState);
-    }
+      // Advance ripple animations
+      const dt = Math.min(deltaTime, 50);
+      state.ripples = state.ripples.filter((r) => {
+        r.radius += dt * 0.06;
+        r.opacity -= dt * 0.00085;
+        return r.opacity > 0 && r.radius < r.maxRadius;
+      });
 
-    // Remove particles on edges that are no longer active
-    const prevLen = state.particles.length;
-    state.particles = state.particles.filter((p) => activeEdgeIndices.has(p.edgeIndex));
-    if (state.particles.length !== prevLen) {
-      particleGenRef.current++;
-    }
+      // Advance particle positions — CPU fallback path.
+      // When useGpu is true, the GPU compute shader handles position advancement
+      // via gpuAdvanceParticles; we only do trail tracking here.
+      const nodeMap = new Map(initializedNodes.map((n) => [n.id, n]));
+      for (const particle of state.particles) {
+        const edge = edges[particle.edgeIndex];
+        if (!edge) continue;
+        const from = nodeMap.get(edge.source);
+        const to = nodeMap.get(edge.target);
+        if (!from || !to) continue;
 
-    // Detect newly activated nodes → spawn ripples
-    for (const node of initializedNodes) {
-      const nodeState = node.state ?? 'unvisited';
-      const prevState = prevNodeStatesRef.current.get(node.id);
-      if (
-        nodeState !== 'unvisited' &&
-        nodeState !== prevState
-      ) {
-        const nodeColor = COLORS.node[nodeState].stroke;
-        const existingRipple = state.ripples.findIndex((r) => r.nodeId === node.id);
-        if (existingRipple !== -1) state.ripples.splice(existingRipple, 1);
-        state.ripples.push({
-          nodeId: node.id,
-          x: node.x ?? 0,
-          y: node.y ?? 0,
-          radius: fullConfig.nodeRadius,
-          maxRadius: fullConfig.nodeRadius * 3.5,
-          opacity: 0.75,
-          color: nodeColor,
-        });
-      }
-      prevNodeStatesRef.current.set(node.id, nodeState);
-    }
+        if (!useGpu) {
+          // CPU position advancement (skipped when GPU handles it)
+          particle.t += particle.speed * dt * particle.direction;
 
-    // Advance ripple animations
-    const dt = Math.min(deltaTime, 50);
-    state.ripples = state.ripples.filter((r) => {
-      r.radius += dt * 0.06;
-      r.opacity -= dt * 0.00085;
-      return r.opacity > 0 && r.radius < r.maxRadius;
-    });
-
-    // Advance particle positions — CPU fallback path.
-    // When useGpu is true, the GPU compute shader handles position advancement
-    // via gpuAdvanceParticles; we only do trail tracking here.
-    const nodeMap = new Map(initializedNodes.map((n) => [n.id, n]));
-    for (const particle of state.particles) {
-      const edge = edges[particle.edgeIndex];
-      if (!edge) continue;
-      const from = nodeMap.get(edge.source);
-      const to = nodeMap.get(edge.target);
-      if (!from || !to) continue;
-
-      if (!useGpu) {
-        // CPU position advancement (skipped when GPU handles it)
-        particle.t += particle.speed * dt * particle.direction;
-
-        if (particle.direction === 1 && particle.t >= 1) {
-          if (edge.directed) {
+          if (particle.direction === 1 && particle.t >= 1) {
+            if (edge.directed) {
+              particle.t = 0;
+            } else {
+              particle.t = 1;
+              particle.direction = -1;
+            }
+          } else if (particle.direction === -1 && particle.t <= 0) {
             particle.t = 0;
-          } else {
-            particle.t = 1;
-            particle.direction = -1;
+            particle.direction = 1;
           }
-        } else if (particle.direction === -1 && particle.t <= 0) {
-          particle.t = 0;
-          particle.direction = 1;
+        }
+
+        // Trail tracking always runs on CPU regardless of GPU mode
+        particle.trail.push(particle.t);
+        if (particle.trail.length > RENDERER_TRAIL_LENGTH) {
+          particle.trail.shift();
         }
       }
 
-      // Trail tracking always runs on CPU regardless of GPU mode
-      particle.trail.push(particle.t);
-      if (particle.trail.length > RENDERER_TRAIL_LENGTH) {
-        particle.trail.shift();
-      }
-    }
-
-    lastParticleTimeRef.current += deltaTime;
-  }, [showParticles, edges, initializedNodes, fullConfig.nodeRadius]);
+      lastParticleTimeRef.current += deltaTime;
+    },
+    [showParticles, edges, initializedNodes, fullConfig.nodeRadius],
+  );
 
   // -------------------------------------------------------------------------
   // GPU particle advancement: dispatches PARTICLE_COMPUTE shader and reads
   // back updated t/direction values into CPU particle state.
   // -------------------------------------------------------------------------
-  const gpuAdvanceParticles = useCallback((deltaTime: number) => {
-    const gpu = gpuRef.current;
-    if (
-      !gpu ||
-      !gpu.particleComputePipeline ||
-      !gpu.particleBuffer ||
-      !gpu.particleParamBuffer ||
-      !gpu.particleStagingBuffer
-    ) {
-      return;
-    }
-
-    const pState = particleStateRef.current;
-    const count = pState.particles.length;
-    if (count === 0) return;
-
-    // Skip entire dispatch+copy+readback if a previous mapAsync is still pending.
-    // Writing to the staging buffer while it's mapped/pending-map is a WebGPU
-    // spec violation. We'll catch the next frame instead.
-    if (particleMappingRef.current) return;
-
-    // Pack CPU particle state into the GPU buffer format:
-    // struct Particle { edgeIdx:u32, t:f32, speed:f32, direction:f32,
-    //                   opacity:f32, radius:f32, isDirected:u32, _pad:u32 }
-    const f32 = new Float32Array(count * 8);
-    const u32 = new Uint32Array(f32.buffer);
-    for (let i = 0; i < count; i++) {
-      const p = pState.particles[i]!;
-      const edge = edges[p.edgeIndex];
-      u32[i * 8]     = p.edgeIndex;
-      f32[i * 8 + 1] = p.t;
-      f32[i * 8 + 2] = p.speed;
-      f32[i * 8 + 3] = p.direction;
-      f32[i * 8 + 4] = p.opacity;
-      f32[i * 8 + 5] = p.radius;
-      u32[i * 8 + 6] = (edge?.directed ?? false) ? 1 : 0;
-      u32[i * 8 + 7] = 0; // pad
-    }
-    gpu.device.queue.writeBuffer(gpu.particleBuffer, 0, f32);
-
-    // Write particle params uniform: { particleCount:u32, dt:f32, _pad0:u32, _pad1:u32 }
-    const paramData = new ArrayBuffer(16);
-    const pu32 = new Uint32Array(paramData);
-    const pf32 = new Float32Array(paramData);
-    pu32[0] = count;
-    pf32[1] = Math.min(deltaTime, 50); // dt capped same as CPU path
-    pu32[2] = 0;
-    pu32[3] = 0;
-    gpu.device.queue.writeBuffer(gpu.particleParamBuffer, 0, paramData);
-
-    // Dispatch compute shader
-    const encoder = gpu.device.createCommandEncoder();
-    const pass = encoder.beginComputePass();
-    pass.setPipeline(gpu.particleComputePipeline);
-    const bg = gpu.device.createBindGroup({
-      layout: gpu.particleComputePipeline.getBindGroupLayout(0),
-      entries: [
-        { binding: 0, resource: { buffer: gpu.particleParamBuffer } },
-        { binding: 1, resource: { buffer: gpu.particleBuffer } },
-      ],
-    });
-    pass.setBindGroup(0, bg);
-    pass.dispatchWorkgroups(Math.ceil(count / 64));
-    pass.end();
-
-    // Copy results to staging buffer for readback
-    encoder.copyBufferToBuffer(
-      gpu.particleBuffer, 0,
-      gpu.particleStagingBuffer, 0,
-      count * 32,
-    );
-    gpu.device.queue.submit([encoder.finish()]);
-
-    // Async readback — flag set before mapAsync, cleared on resolve/reject
-    particleMappingRef.current = true;
-    const capturedCount = count;
-    const capturedGen = particleGenRef.current;
-    const stagingBuf = gpu.particleStagingBuffer;
-    // GPUMapMode.READ = 1 — use numeric literal for SSR safety
-    stagingBuf.mapAsync(1).then(() => {
-      const mapped = stagingBuf.getMappedRange();
-      const result = new Float32Array(mapped.slice(0) as ArrayBuffer);
-      stagingBuf.unmap();
-      particleMappingRef.current = false;
-
-      // Only apply readback if the particle array hasn't been mutated
-      // (spawning/despawning) since we dispatched — indices would be stale
-      if (particleGenRef.current !== capturedGen) return;
-
-      const particles = particleStateRef.current.particles;
-      const readCount = Math.min(particles.length, capturedCount);
-      for (let i = 0; i < readCount; i++) {
-        const particle = particles[i]!;
-        particle.t = result[i * 8 + 1]!;
-        const dir = result[i * 8 + 3]!;
-        particle.direction = dir > 0 ? 1 : -1;
+  const gpuAdvanceParticles = useCallback(
+    (deltaTime: number) => {
+      const gpu = gpuRef.current;
+      if (
+        !gpu ||
+        !gpu.particleComputePipeline ||
+        !gpu.particleBuffer ||
+        !gpu.particleParamBuffer ||
+        !gpu.particleStagingBuffer
+      ) {
+        return;
       }
-    }).catch(() => {
-      particleMappingRef.current = false;
-    });
-  }, [edges]);
+
+      const pState = particleStateRef.current;
+      const count = pState.particles.length;
+      if (count === 0) return;
+
+      // Skip entire dispatch+copy+readback if a previous mapAsync is still pending.
+      // Writing to the staging buffer while it's mapped/pending-map is a WebGPU
+      // spec violation. We'll catch the next frame instead.
+      if (particleMappingRef.current) return;
+
+      // Pack CPU particle state into the GPU buffer format:
+      // struct Particle { edgeIdx:u32, t:f32, speed:f32, direction:f32,
+      //                   opacity:f32, radius:f32, isDirected:u32, _pad:u32 }
+      const f32 = new Float32Array(count * 8);
+      const u32 = new Uint32Array(f32.buffer);
+      for (let i = 0; i < count; i++) {
+        const p = pState.particles[i]!;
+        const edge = edges[p.edgeIndex];
+        u32[i * 8] = p.edgeIndex;
+        f32[i * 8 + 1] = p.t;
+        f32[i * 8 + 2] = p.speed;
+        f32[i * 8 + 3] = p.direction;
+        f32[i * 8 + 4] = p.opacity;
+        f32[i * 8 + 5] = p.radius;
+        u32[i * 8 + 6] = (edge?.directed ?? false) ? 1 : 0;
+        u32[i * 8 + 7] = 0; // pad
+      }
+      gpu.device.queue.writeBuffer(gpu.particleBuffer, 0, f32);
+
+      // Write particle params uniform: { particleCount:u32, dt:f32, _pad0:u32, _pad1:u32 }
+      const paramData = new ArrayBuffer(16);
+      const pu32 = new Uint32Array(paramData);
+      const pf32 = new Float32Array(paramData);
+      pu32[0] = count;
+      pf32[1] = Math.min(deltaTime, 50); // dt capped same as CPU path
+      pu32[2] = 0;
+      pu32[3] = 0;
+      gpu.device.queue.writeBuffer(gpu.particleParamBuffer, 0, paramData);
+
+      // Dispatch compute shader
+      const encoder = gpu.device.createCommandEncoder();
+      const pass = encoder.beginComputePass();
+      pass.setPipeline(gpu.particleComputePipeline);
+      const bg = gpu.device.createBindGroup({
+        layout: gpu.particleComputePipeline.getBindGroupLayout(0),
+        entries: [
+          { binding: 0, resource: { buffer: gpu.particleParamBuffer } },
+          { binding: 1, resource: { buffer: gpu.particleBuffer } },
+        ],
+      });
+      pass.setBindGroup(0, bg);
+      pass.dispatchWorkgroups(Math.ceil(count / 64));
+      pass.end();
+
+      // Copy results to staging buffer for readback
+      encoder.copyBufferToBuffer(gpu.particleBuffer, 0, gpu.particleStagingBuffer, 0, count * 32);
+      gpu.device.queue.submit([encoder.finish()]);
+
+      // Async readback — flag set before mapAsync, cleared on resolve/reject
+      particleMappingRef.current = true;
+      const capturedCount = count;
+      const capturedGen = particleGenRef.current;
+      const stagingBuf = gpu.particleStagingBuffer;
+      // GPUMapMode.READ = 1 — use numeric literal for SSR safety
+      stagingBuf
+        .mapAsync(1)
+        .then(() => {
+          const mapped = stagingBuf.getMappedRange();
+          const result = new Float32Array(mapped.slice(0) as ArrayBuffer);
+          stagingBuf.unmap();
+          particleMappingRef.current = false;
+
+          // Only apply readback if the particle array hasn't been mutated
+          // (spawning/despawning) since we dispatched — indices would be stale
+          if (particleGenRef.current !== capturedGen) return;
+
+          const particles = particleStateRef.current.particles;
+          const readCount = Math.min(particles.length, capturedCount);
+          for (let i = 0; i < readCount; i++) {
+            const particle = particles[i]!;
+            particle.t = result[i * 8 + 1]!;
+            const dir = result[i * 8 + 3]!;
+            particle.direction = dir > 0 ? 1 : -1;
+          }
+        })
+        .catch(() => {
+          particleMappingRef.current = false;
+        });
+    },
+    [edges],
+  );
 
   // -------------------------------------------------------------------------
   // Particle rendering on the overlay canvas
@@ -1289,7 +1397,8 @@ export function UnifiedGraphRenderer({
       // When WebGPU is active with a particle compute pipeline, the position
       // advancement (t, direction) is offloaded to the GPU compute shader.
       // CPU still handles spawning, despawning, ripples, and trail tracking.
-      const gpuParticleActive = webgpuActiveRef.current && !!gpuRef.current?.particleComputePipeline;
+      const gpuParticleActive =
+        webgpuActiveRef.current && !!gpuRef.current?.particleComputePipeline;
       updateParticles(deltaTime, gpuParticleActive);
       if (gpuParticleActive) {
         gpuAdvanceParticles(deltaTime);
@@ -1303,7 +1412,17 @@ export function UnifiedGraphRenderer({
     return () => {
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
     };
-  }, [render2D, renderWebGPU, fullConfig, initializedNodes, edges, draggedNode, updateParticles, gpuAdvanceParticles, renderParticles]);
+  }, [
+    render2D,
+    renderWebGPU,
+    fullConfig,
+    initializedNodes,
+    edges,
+    draggedNode,
+    updateParticles,
+    gpuAdvanceParticles,
+    renderParticles,
+  ]);
 
   // -------------------------------------------------------------------------
   // Resize observer
@@ -1354,7 +1473,7 @@ export function UnifiedGraphRenderer({
         y: (e.clientY - rect.top - pan.y) / zoom,
       };
     },
-    [zoom, pan]
+    [zoom, pan],
   );
 
   const findNodeAtPosition = useCallback(
@@ -1366,7 +1485,7 @@ export function UnifiedGraphRenderer({
       }
       return null;
     },
-    [initializedNodes, fullConfig.nodeRadius]
+    [initializedNodes, fullConfig.nodeRadius],
   );
 
   const handleMouseDown = useCallback(
@@ -1383,7 +1502,7 @@ export function UnifiedGraphRenderer({
         setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
       }
     },
-    [getMousePos, findNodeAtPosition, pan, onInteraction]
+    [getMousePos, findNodeAtPosition, pan, onInteraction],
   );
 
   const handleMouseMove = useCallback(
@@ -1391,7 +1510,10 @@ export function UnifiedGraphRenderer({
       const pos = getMousePos(e);
       if (draggedNode) {
         const node = initializedNodes.find((n) => n.id === draggedNode);
-        if (node) { node.fx = pos.x; node.fy = pos.y; }
+        if (node) {
+          node.fx = pos.x;
+          node.fy = pos.y;
+        }
         onInteraction?.({ type: 'node-drag', nodeId: draggedNode, position: pos });
       } else if (isDragging) {
         setPan({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y });
@@ -1400,7 +1522,15 @@ export function UnifiedGraphRenderer({
         setHoveredNode(node?.id ?? null);
       }
     },
-    [getMousePos, draggedNode, isDragging, dragStart, initializedNodes, findNodeAtPosition, onInteraction]
+    [
+      getMousePos,
+      draggedNode,
+      isDragging,
+      dragStart,
+      initializedNodes,
+      findNodeAtPosition,
+      onInteraction,
+    ],
   );
 
   const handleMouseUp = useCallback(
@@ -1408,7 +1538,10 @@ export function UnifiedGraphRenderer({
       const pos = getMousePos(e);
       if (draggedNode) {
         const node = initializedNodes.find((n) => n.id === draggedNode);
-        if (node) { delete node.fx; delete node.fy; }
+        if (node) {
+          delete node.fx;
+          delete node.fy;
+        }
         onInteraction?.({ type: 'node-drag-end', nodeId: draggedNode, position: pos });
         setDraggedNode(null);
       } else if (!isDragging) {
@@ -1422,7 +1555,15 @@ export function UnifiedGraphRenderer({
       }
       setIsDragging(false);
     },
-    [getMousePos, draggedNode, isDragging, initializedNodes, findNodeAtPosition, onNodeClick, onInteraction]
+    [
+      getMousePos,
+      draggedNode,
+      isDragging,
+      initializedNodes,
+      findNodeAtPosition,
+      onNodeClick,
+      onInteraction,
+    ],
   );
 
   const handleWheel = useCallback((e: WheelEvent<HTMLCanvasElement>) => {
@@ -1433,7 +1574,10 @@ export function UnifiedGraphRenderer({
 
   const handleZoomIn = useCallback(() => setZoom((prev) => Math.min(3, prev * 1.2)), []);
   const handleZoomOut = useCallback(() => setZoom((prev) => Math.max(0.1, prev / 1.2)), []);
-  const handleResetView = useCallback(() => { setZoom(1); setPan({ x: 0, y: 0 }); }, []);
+  const handleResetView = useCallback(() => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  }, []);
 
   return (
     <div ref={containerRef} className={cn('relative w-full h-full', className)}>
@@ -1477,13 +1621,34 @@ export function UnifiedGraphRenderer({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <Button variant="ghost" size="icon" onClick={handleZoomIn} className="hover:bg-accent transition-smooth" title="Zoom in" aria-label="Zoom in">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleZoomIn}
+          className="hover:bg-accent transition-smooth"
+          title="Zoom in"
+          aria-label="Zoom in"
+        >
           <ZoomIn className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" onClick={handleZoomOut} className="hover:bg-accent transition-smooth" title="Zoom out" aria-label="Zoom out">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleZoomOut}
+          className="hover:bg-accent transition-smooth"
+          title="Zoom out"
+          aria-label="Zoom out"
+        >
           <ZoomOut className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" onClick={handleResetView} className="hover:bg-accent transition-smooth" title="Reset view" aria-label="Reset view">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleResetView}
+          className="hover:bg-accent transition-smooth"
+          title="Reset view"
+          aria-label="Reset view"
+        >
           <Maximize2 className="h-4 w-4" />
         </Button>
       </motion.div>

@@ -3,7 +3,7 @@
  * Prevents blocking the main UI thread during heavy calculations
  */
 
-import { parse, evaluate, simplify, type EvaluationContext } from '@nextcalc/math-engine';
+import { type EvaluationContext, evaluate, parse, simplify } from '@nextcalc/math-engine';
 
 // Message types for worker communication
 export interface ComputeRequest {

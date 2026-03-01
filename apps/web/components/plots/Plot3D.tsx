@@ -6,8 +6,8 @@
  * @module components/plots/Plot3D
  */
 
+import type { IRenderer, PlotConfig } from '@nextcalc/plot-engine';
 import { useEffect, useRef, useState, useTransition } from 'react';
-import type { PlotConfig, IRenderer } from '@nextcalc/plot-engine';
 
 /** Minimal interface for OrbitControls used in this component */
 interface OrbitControlsLike {
@@ -51,10 +51,7 @@ export interface RendererWithExtras extends IRenderer {
       resolution?: import('@nextcalc/plot-engine').CubemapResolution;
     },
   ): void;
-  setSsaoEnabled(
-    enabled: boolean,
-    config?: { radius?: number; intensity?: number },
-  ): void;
+  setSsaoEnabled(enabled: boolean, config?: { radius?: number; intensity?: number }): void;
   readonly envMapEnabled: boolean;
   readonly ssaoEnabled: boolean;
 }
@@ -89,7 +86,9 @@ export function Plot3D({
     const initRenderer = async () => {
       try {
         // Lazy-load Three.js renderer
-        const { WebGL3DRenderer } = await import('@nextcalc/plot-engine').then((m) => m.loadWebGL3DRenderer());
+        const { WebGL3DRenderer } = await import('@nextcalc/plot-engine').then((m) =>
+          m.loadWebGL3DRenderer(),
+        );
 
         const renderer = new WebGL3DRenderer(canvas);
         await renderer.initialize();
@@ -232,7 +231,9 @@ export function Plot3D({
         height={canvasSize.height}
         className="absolute inset-0 w-full h-full border border-border rounded-lg shadow-[0_0_20px_rgba(168,85,247,0.15)]"
         style={{ width: '100%', height: '100%' }}
-        aria-label={config.type === '3d-surface' && config.title ? config.title : '3D mathematical plot'}
+        aria-label={
+          config.type === '3d-surface' && config.title ? config.title : '3D mathematical plot'
+        }
         role="img"
       />
 

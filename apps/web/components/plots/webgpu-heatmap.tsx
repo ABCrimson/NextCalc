@@ -23,23 +23,17 @@
  * @module components/plots/webgpu-heatmap
  */
 
-import {
-  useEffect,
-  useRef,
-  useState,
-  useCallback,
-  type MouseEvent,
-} from 'react';
 import { Info } from 'lucide-react';
-import { WebGLHeatmap } from './webgl-heatmap';
+import { type MouseEvent, useCallback, useEffect, useRef, useState } from 'react';
 import {
-  WGSL_HEAT_COMPUTE,
-  WGSL_WAVE_COMPUTE,
-  WGSL_LAPLACE_COMPUTE,
-  WGSL_GRADIENT_COMPUTE,
-  WGSL_PARTICLE_COMPUTE,
   PDE_UNIFORM_SIZE,
+  WGSL_GRADIENT_COMPUTE,
+  WGSL_HEAT_COMPUTE,
+  WGSL_LAPLACE_COMPUTE,
+  WGSL_PARTICLE_COMPUTE,
+  WGSL_WAVE_COMPUTE,
 } from './pde-compute-shaders';
+import { WebGLHeatmap } from './webgl-heatmap';
 
 // ---------------------------------------------------------------------------
 // GPUShaderStage numeric constants (SSR-safe, no browser globals at module level)
@@ -250,23 +244,23 @@ function float32ToFloat16Array(src: Float32Array): Uint16Array {
     view.setFloat32(0, v, false);
     const bits = view.getUint32(0, false);
     const sign = (bits >>> 31) & 0x1;
-    const exp  = (bits >>> 23) & 0xff;
+    const exp = (bits >>> 23) & 0xff;
     const mant = bits & 0x7fffff;
     let hExp: number;
     let hMant: number;
     if (exp === 0xff) {
-      hExp  = 0x1f;
+      hExp = 0x1f;
       hMant = mant !== 0 ? 0x200 : 0;
     } else if (exp === 0) {
-      hExp  = 0;
+      hExp = 0;
       hMant = 0;
     } else {
       hExp = exp - 127 + 15;
       if (hExp >= 0x1f) {
-        hExp  = 0x1f;
+        hExp = 0x1f;
         hMant = 0;
       } else if (hExp <= 0) {
-        hExp  = 0;
+        hExp = 0;
         hMant = 0;
       } else {
         hMant = mant >> 13;
@@ -308,8 +302,7 @@ function createDataTexture(
 
 function isWebGPUAvailable(): boolean {
   return (
-    typeof navigator !== 'undefined' &&
-    typeof (navigator as { gpu?: unknown }).gpu !== 'undefined'
+    typeof navigator !== 'undefined' && typeof (navigator as { gpu?: unknown }).gpu !== 'undefined'
   );
 }
 
@@ -347,14 +340,14 @@ function writePdeUniforms(
 ): void {
   const arr = new ArrayBuffer(PDE_UNIFORM_SIZE);
   const view = new DataView(arr);
-  view.setUint32( 0, gridW,      true);
-  view.setUint32( 4, gridH,      true);
-  view.setFloat32( 8, dt,         true);
-  view.setFloat32(12, dx,         true);
-  view.setFloat32(16, alphaOrC2,  true);
-  view.setUint32(20, 0,           true);
-  view.setUint32(24, 0,           true);
-  view.setUint32(28, 0,           true);
+  view.setUint32(0, gridW, true);
+  view.setUint32(4, gridH, true);
+  view.setFloat32(8, dt, true);
+  view.setFloat32(12, dx, true);
+  view.setFloat32(16, alphaOrC2, true);
+  view.setUint32(20, 0, true);
+  view.setUint32(24, 0, true);
+  view.setUint32(28, 0, true);
   device.queue.writeBuffer(buf, 0, arr);
 }
 
@@ -372,7 +365,7 @@ function buildComputeResources(
   maskFlat: Uint32Array | null,
 ): ComputeResources {
   const cellCount = gridW * gridH;
-  const bufSize   = cellCount * 4; // Float32, 4 bytes each
+  const bufSize = cellCount * 4; // Float32, 4 bytes each
 
   // ---- Ping-pong scalar field buffers ----
   const storageUsage = GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST;
@@ -442,14 +435,14 @@ function buildComputeResources(
 
   // ---- Compile compute pipelines ----
   const pdeCode =
-    equationType === 'heat'    ? WGSL_HEAT_COMPUTE    :
-    equationType === 'wave'    ? WGSL_WAVE_COMPUTE    :
-                                 WGSL_LAPLACE_COMPUTE;
+    equationType === 'heat'
+      ? WGSL_HEAT_COMPUTE
+      : equationType === 'wave'
+        ? WGSL_WAVE_COMPUTE
+        : WGSL_LAPLACE_COMPUTE;
 
   const pdeEntryPoint =
-    equationType === 'heat'    ? 'cs_heat'    :
-    equationType === 'wave'    ? 'cs_wave'    :
-                                 'cs_laplace';
+    equationType === 'heat' ? 'cs_heat' : equationType === 'wave' ? 'cs_wave' : 'cs_laplace';
 
   const pdePipeline = device.createComputePipeline({
     layout: 'auto',
@@ -478,10 +471,24 @@ function buildComputeResources(
   // ---- Build bind groups ----
   // PDE bind groups (heat / laplace: 3 bindings; wave: 4 bindings)
   const pdeBindGroupA = buildPdeBindGroup(
-    device, pdePipeline, equationType, pdeUniformBuf, bufA, bufB, bufPrev, maskBuf,
+    device,
+    pdePipeline,
+    equationType,
+    pdeUniformBuf,
+    bufA,
+    bufB,
+    bufPrev,
+    maskBuf,
   );
   const pdeBindGroupB = buildPdeBindGroup(
-    device, pdePipeline, equationType, pdeUniformBuf, bufB, bufA, bufPrev, maskBuf,
+    device,
+    pdePipeline,
+    equationType,
+    pdeUniformBuf,
+    bufB,
+    bufA,
+    bufPrev,
+    maskBuf,
   );
 
   // Gradient bind groups
@@ -514,16 +521,25 @@ function buildComputeResources(
   });
 
   return {
-    bufA, bufB, bufPrev,
-    gradBuf, particleBuf,
-    pdeUniformBuf, particleUniformBuf,
+    bufA,
+    bufB,
+    bufPrev,
+    gradBuf,
+    particleBuf,
+    pdeUniformBuf,
+    particleUniformBuf,
     maskBuf,
-    pdePipeline, gradientPipeline, particlePipeline,
-    pdeBindGroupA, pdeBindGroupB,
-    gradBindGroupA, gradBindGroupB,
+    pdePipeline,
+    gradientPipeline,
+    particlePipeline,
+    pdeBindGroupA,
+    pdeBindGroupB,
+    gradBindGroupA,
+    gradBindGroupB,
     particleBindGroup,
     pingPong: 0,
-    gridW, gridH,
+    gridW,
+    gridH,
     particleCount,
   };
 }
@@ -611,18 +627,18 @@ export function WebGPUHeatmap({
     setGpuAvailable(isWebGPUAvailable());
   }, []);
 
-  const canvasRef        = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const overlayCanvasRef = useRef<HTMLCanvasElement>(null); // 2D particle overlay
-  const renderRef        = useRef<RenderResources | null>(null);
-  const computeRef       = useRef<ComputeResources | null>(null);
-  const rafRef           = useRef<number>(0);
-  const isInitRef        = useRef(false);
-  const initCompleteRef  = useRef(false);
-  const retryCountRef    = useRef(0);
-  const dataDimsRef      = useRef<{ rows: number; cols: number }>({ rows: 0, cols: 0 });
-  const frameCountRef    = useRef(0);
-  const fpsEpochRef      = useRef(0);
-  const [fps, setFps]    = useState(0);
+  const renderRef = useRef<RenderResources | null>(null);
+  const computeRef = useRef<ComputeResources | null>(null);
+  const rafRef = useRef<number>(0);
+  const isInitRef = useRef(false);
+  const initCompleteRef = useRef(false);
+  const retryCountRef = useRef(0);
+  const dataDimsRef = useRef<{ rows: number; cols: number }>({ rows: 0, cols: 0 });
+  const frameCountRef = useRef(0);
+  const fpsEpochRef = useRef(0);
+  const [fps, setFps] = useState(0);
   const [dataVersion, setDataVersion] = useState(0);
 
   // For GPU-solver readback we need a staging buffer
@@ -630,7 +646,9 @@ export function WebGPUHeatmap({
 
   // Hovering value inspector
   const [hoveredValue, setHoveredValue] = useState<{
-    x: number; y: number; value: number;
+    x: number;
+    y: number;
+    value: number;
   } | null>(null);
 
   // -------------------------------------------------------------------------
@@ -658,10 +676,14 @@ export function WebGPUHeatmap({
         const device = await adapter.requestDevice({
           ...(supportsFloat32Filterable ? { requiredFeatures: ['float32-filterable'] } : {}),
         });
-        if (destroyed) { device.destroy(); return; }
+        if (destroyed) {
+          device.destroy();
+          return;
+        }
 
         const textureFormat: 'r32float' | 'r16float' = supportsFloat32Filterable
-          ? 'r32float' : 'r16float';
+          ? 'r32float'
+          : 'r16float';
 
         device.lost.then((info) => {
           if (destroyed) return;
@@ -728,16 +750,22 @@ export function WebGPUHeatmap({
         });
 
         renderRef.current = {
-          device, context, pipeline,
-          uniformBuffer, sampler, textureFormat,
-          dataTexture: null, bindGroup: null, bindGroupLayout,
+          device,
+          context,
+          pipeline,
+          uniformBuffer,
+          sampler,
+          textureFormat,
+          dataTexture: null,
+          bindGroup: null,
+          bindGroupLayout,
         };
         isInitRef.current = true;
         initCompleteRef.current = true;
         retryCountRef.current = 0;
 
         // Trigger data upload now that init is complete
-        setDataVersion(v => v + 1);
+        setDataVersion((v) => v + 1);
 
         if (onReady) onReady();
       } catch (err) {
@@ -780,9 +808,15 @@ export function WebGPUHeatmap({
   // -------------------------------------------------------------------------
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (canvas) { canvas.width = width; canvas.height = height; }
+    if (canvas) {
+      canvas.width = width;
+      canvas.height = height;
+    }
     const overlay = overlayCanvasRef.current;
-    if (overlay) { overlay.width = width; overlay.height = height; }
+    if (overlay) {
+      overlay.width = width;
+      overlay.height = height;
+    }
   }, [width, height]);
 
   // -------------------------------------------------------------------------
@@ -796,7 +830,7 @@ export function WebGPUHeatmap({
       // Init is still in progress — retry after a short delay (max 50 retries = 5s)
       retryCountRef.current++;
       if (retryCountRef.current < 50) {
-        const timer = setTimeout(() => setDataVersion(v => v + 1), 100);
+        const timer = setTimeout(() => setDataVersion((v) => v + 1), 100);
         return () => clearTimeout(timer);
       }
       return;
@@ -820,16 +854,21 @@ export function WebGPUHeatmap({
       }
     }
 
-    const dimsChanged =
-      dataDimsRef.current.rows !== rows || dataDimsRef.current.cols !== cols;
+    const dimsChanged = dataDimsRef.current.rows !== rows || dataDimsRef.current.cols !== cols;
 
     if (dimsChanged) {
       r.dataTexture?.destroy();
       const { texture, bindGroup } = createDataTexture(
-        device, bindGroupLayout, uniformBuffer, sampler, cols, rows, textureFormat,
+        device,
+        bindGroupLayout,
+        uniformBuffer,
+        sampler,
+        cols,
+        rows,
+        textureFormat,
       );
-      r.dataTexture  = texture;
-      r.bindGroup    = bindGroup;
+      r.dataTexture = texture;
+      r.bindGroup = bindGroup;
       dataDimsRef.current = { rows, cols };
     }
 
@@ -871,11 +910,17 @@ export function WebGPUHeatmap({
     if (r.dataTexture) {
       const { rows, cols } = dataDimsRef.current;
       const { texture, bindGroup } = createDataTexture(
-        device, bindGroupLayout, uniformBuffer, newSampler, cols, rows, textureFormat,
+        device,
+        bindGroupLayout,
+        uniformBuffer,
+        newSampler,
+        cols,
+        rows,
+        textureFormat,
       );
       r.dataTexture.destroy();
       r.dataTexture = texture;
-      r.bindGroup   = bindGroup;
+      r.bindGroup = bindGroup;
     }
   }, [smoothing]);
 
@@ -890,7 +935,7 @@ export function WebGPUHeatmap({
       // Init is still in progress — retry after a short delay (max 50 retries = 5s)
       retryCountRef.current++;
       if (retryCountRef.current < 50) {
-        const timer = setTimeout(() => setDataVersion(v => v + 1), 100);
+        const timer = setTimeout(() => setDataVersion((v) => v + 1), 100);
         return () => clearTimeout(timer);
       }
       return;
@@ -930,7 +975,13 @@ export function WebGPUHeatmap({
 
     const PARTICLE_COUNT = 2048;
     const compute = buildComputeResources(
-      device, equationType, initialFlat, cols, rows, PARTICLE_COUNT, maskFlat,
+      device,
+      equationType,
+      initialFlat,
+      cols,
+      rows,
+      PARTICLE_COUNT,
+      maskFlat,
     );
     computeRef.current = compute;
 
@@ -943,10 +994,16 @@ export function WebGPUHeatmap({
     // Create heatmap texture from initial data and build render bind group
     r.dataTexture?.destroy();
     const { texture, bindGroup } = createDataTexture(
-      device, bindGroupLayout, uniformBuffer, sampler, cols, rows, textureFormat,
+      device,
+      bindGroupLayout,
+      uniformBuffer,
+      sampler,
+      cols,
+      rows,
+      textureFormat,
     );
     r.dataTexture = texture;
-    r.bindGroup   = bindGroup;
+    r.bindGroup = bindGroup;
     dataDimsRef.current = { rows, cols };
 
     // Upload initial data to texture
@@ -991,7 +1048,6 @@ export function WebGPUHeatmap({
       size: rows * cols * 4,
       usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST,
     });
-
   }, [gpuSolverEnabled, equationType, gpuAvailable, dataVersion, data, solverAlpha]);
 
   // -------------------------------------------------------------------------
@@ -1041,10 +1097,7 @@ export function WebGPUHeatmap({
           const computePass = encoder.beginComputePass();
           computePass.setPipeline(c.pdePipeline);
           computePass.setBindGroup(0, bindGroupPde);
-          computePass.dispatchWorkgroups(
-            Math.ceil(gridW / 16),
-            Math.ceil(gridH / 16),
-          );
+          computePass.dispatchWorkgroups(Math.ceil(gridW / 16), Math.ceil(gridH / 16));
           computePass.end();
 
           // Swap ping-pong
@@ -1059,10 +1112,7 @@ export function WebGPUHeatmap({
           const gradPass = encoder.beginComputePass();
           gradPass.setPipeline(c.gradientPipeline);
           gradPass.setBindGroup(0, gradBindGroup);
-          gradPass.dispatchWorkgroups(
-            Math.ceil(gridW / 16),
-            Math.ceil(gridH / 16),
-          );
+          gradPass.dispatchWorkgroups(Math.ceil(gridW / 16), Math.ceil(gridH / 16));
           gradPass.end();
 
           // Particle advection pass
@@ -1110,14 +1160,16 @@ export function WebGPUHeatmap({
         device.queue.writeBuffer(uniformBuffer, 0, uniformData.buffer);
 
         const encoder2 = device.createCommandEncoder();
-        const view     = context.getCurrentTexture().createView();
+        const view = context.getCurrentTexture().createView();
         const pass = encoder2.beginRenderPass({
-          colorAttachments: [{
-            view,
-            clearValue: { r: 0.05, g: 0.05, b: 0.1, a: 1.0 },
-            loadOp: 'clear',
-            storeOp: 'store',
-          }],
+          colorAttachments: [
+            {
+              view,
+              clearValue: { r: 0.05, g: 0.05, b: 0.1, a: 1.0 },
+              loadOp: 'clear',
+              storeOp: 'store',
+            },
+          ],
         });
         pass.setPipeline(pipeline);
         pass.setBindGroup(0, bindGroup);
@@ -1135,7 +1187,18 @@ export function WebGPUHeatmap({
       running = false;
       cancelAnimationFrame(rafRef.current);
     };
-  }, [minValue, maxValue, colorMode, gpuAvailable, gpuSolverEnabled, equationType, showParticles, width, height, onFps]);
+  }, [
+    minValue,
+    maxValue,
+    colorMode,
+    gpuAvailable,
+    gpuSolverEnabled,
+    equationType,
+    showParticles,
+    width,
+    height,
+    onFps,
+  ]);
 
   // -------------------------------------------------------------------------
   // Async particle readback + 2D overlay draw
@@ -1175,8 +1238,8 @@ export function WebGPUHeatmap({
 
     ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
     for (let i = 0; i < c.particleCount; i++) {
-      const px  = positions[i * 4 + 0] ?? 0;
-      const py  = positions[i * 4 + 1] ?? 0;
+      const px = positions[i * 4 + 0] ?? 0;
+      const py = positions[i * 4 + 1] ?? 0;
       const age = positions[i * 4 + 2] ?? 0;
       if (px < 0 || px > 1 || py < 0 || py > 1) continue;
 
@@ -1200,8 +1263,8 @@ export function WebGPUHeatmap({
       const rect = canvas.getBoundingClientRect();
       const cols = data[0]?.length ?? 0;
       const rows = data.length;
-      const x = Math.floor(((e.clientX - rect.left) / rect.width)  * cols);
-      const y = Math.floor(((e.clientY - rect.top)  / rect.height) * rows);
+      const x = Math.floor(((e.clientX - rect.left) / rect.width) * cols);
+      const y = Math.floor(((e.clientY - rect.top) / rect.height) * rows);
       if (y >= 0 && y < rows && x >= 0 && x < cols) {
         setHoveredValue({ x, y, value: data[y]?.[x] ?? 0 });
       }
@@ -1295,8 +1358,12 @@ export function WebGPUHeatmap({
             <span className="text-blue-400">Grid Position</span>
           </div>
           <div className="space-y-0.5">
-            <div><span className="text-muted-foreground">X:</span> {hoveredValue.x}</div>
-            <div><span className="text-muted-foreground">Y:</span> {hoveredValue.y}</div>
+            <div>
+              <span className="text-muted-foreground">X:</span> {hoveredValue.x}
+            </div>
+            <div>
+              <span className="text-muted-foreground">Y:</span> {hoveredValue.y}
+            </div>
             <div>
               <span className="text-muted-foreground">Value:</span>{' '}
               <span className="text-yellow-400">{hoveredValue.value.toFixed(4)}</span>

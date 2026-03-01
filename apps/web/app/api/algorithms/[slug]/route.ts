@@ -4,15 +4,12 @@
  * GET /api/algorithms/[slug] - Get algorithm details
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { AlgorithmRepository } from '@/lib/cms/algorithm-repository';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(
-  _request: NextRequest,
-  context: { params: Promise<{ slug: string }> }
-) {
+export async function GET(_request: NextRequest, context: { params: Promise<{ slug: string }> }) {
   const { params } = context;
   try {
     const { slug } = await params;
@@ -23,9 +20,9 @@ export async function GET(
       return NextResponse.json(
         {
           success: false,
-          error: 'Algorithm not found'
+          error: 'Algorithm not found',
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -33,24 +30,24 @@ export async function GET(
     const recommended = await AlgorithmRepository.getRecommendedAlgorithms(
       algorithm.category,
       algorithm.id,
-      5
+      5,
     );
 
     return NextResponse.json({
       success: true,
       data: {
         ...algorithm,
-        recommended
-      }
+        recommended,
+      },
     });
   } catch (error) {
     console.error('Error fetching algorithm:', error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Internal server error'
+        error: 'Internal server error',
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

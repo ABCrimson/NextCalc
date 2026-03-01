@@ -1,21 +1,21 @@
 'use client';
 
-import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Search,
-  X,
-  Copy,
-  Check,
-  BookOpen,
-  FunctionSquare,
-  Triangle,
-  Infinity,
   BarChart3,
-  Zap,
+  BookOpen,
+  Check,
   Circle,
+  Copy,
+  FunctionSquare,
   Grid3x3,
+  Infinity,
+  Search,
+  Triangle,
+  X,
+  Zap,
 } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { MathRenderer } from '@/components/ui/math-renderer';
 import { cn } from '@/lib/utils';
 
@@ -83,8 +83,7 @@ const FORMULAS: FormulaEntry[] = [
   {
     id: 'geometric-series',
     name: 'Geometric Series Sum',
-    description:
-      'Sum of a finite geometric series with first term a, common ratio r, and n terms.',
+    description: 'Sum of a finite geometric series with first term a, common ratio r, and n terms.',
     latex: 'S_n = a \\cdot \\dfrac{1 - r^n}{1 - r}, \\quad r \\neq 1',
     expression: 'S_n = a(1 - r^n) / (1 - r)',
     category: 'algebra',
@@ -123,8 +122,7 @@ const FORMULAS: FormulaEntry[] = [
   {
     id: 'exponent-product',
     name: 'Exponent Product Rule',
-    description:
-      'When multiplying powers with the same base, add the exponents.',
+    description: 'When multiplying powers with the same base, add the exponents.',
     latex: 'a^m \\cdot a^n = a^{m+n}',
     expression: 'a^m · a^n = a^(m+n)',
     category: 'algebra',
@@ -133,8 +131,7 @@ const FORMULAS: FormulaEntry[] = [
   {
     id: 'perfect-square-trinomial',
     name: 'Perfect Square Trinomial',
-    description:
-      'The square of a binomial always produces a perfect square trinomial.',
+    description: 'The square of a binomial always produces a perfect square trinomial.',
     latex: '(a \\pm b)^2 = a^2 \\pm 2ab + b^2',
     expression: '(a ± b)² = a² ± 2ab + b²',
     category: 'algebra',
@@ -143,8 +140,7 @@ const FORMULAS: FormulaEntry[] = [
   {
     id: 'sum-of-cubes',
     name: 'Sum / Difference of Cubes',
-    description:
-      'Factorisation identities for the sum or difference of two perfect cubes.',
+    description: 'Factorisation identities for the sum or difference of two perfect cubes.',
     latex: 'a^3 \\pm b^3 = (a \\pm b)(a^2 \\mp ab + b^2)',
     expression: 'a³ ± b³ = (a ± b)(a² ∓ ab + b²)',
     category: 'algebra',
@@ -153,8 +149,7 @@ const FORMULAS: FormulaEntry[] = [
   {
     id: 'infinite-geometric-series',
     name: 'Infinite Geometric Series',
-    description:
-      'Sum of an infinite geometric series converges when |r| < 1.',
+    description: 'Sum of an infinite geometric series converges when |r| < 1.',
     latex: 'S = \\dfrac{a}{1 - r}, \\quad |r| < 1',
     expression: 'S = a / (1 - r), |r| < 1',
     category: 'algebra',
@@ -165,8 +160,7 @@ const FORMULAS: FormulaEntry[] = [
   {
     id: 'pythagorean-identity',
     name: 'Pythagorean Identity',
-    description:
-      'Fundamental identity relating the squares of sine and cosine for any angle.',
+    description: 'Fundamental identity relating the squares of sine and cosine for any angle.',
     latex: '\\sin^2\\theta + \\cos^2\\theta = 1',
     expression: 'sin²θ + cos²θ = 1',
     category: 'trigonometry',
@@ -175,8 +169,7 @@ const FORMULAS: FormulaEntry[] = [
   {
     id: 'double-angle-sin',
     name: 'Double Angle — sine',
-    description:
-      'Expresses sin(2θ) in terms of sin θ and cos θ using the angle addition formula.',
+    description: 'Expresses sin(2θ) in terms of sin θ and cos θ using the angle addition formula.',
     latex: '\\sin 2\\theta = 2\\sin\\theta\\cos\\theta',
     expression: 'sin(2θ) = 2 sin(θ) cos(θ)',
     category: 'trigonometry',
@@ -215,8 +208,7 @@ const FORMULAS: FormulaEntry[] = [
   {
     id: 'angle-addition-sin',
     name: 'Sine Angle Addition',
-    description:
-      'Expands sin(α ± β) into products of sines and cosines of the individual angles.',
+    description: 'Expands sin(α ± β) into products of sines and cosines of the individual angles.',
     latex: '\\sin(\\alpha \\pm \\beta) = \\sin\\alpha\\cos\\beta \\pm \\cos\\alpha\\sin\\beta',
     expression: 'sin(α ± β) = sin(α)cos(β) ± cos(α)sin(β)',
     category: 'trigonometry',
@@ -225,8 +217,7 @@ const FORMULAS: FormulaEntry[] = [
   {
     id: 'product-to-sum',
     name: 'Product-to-Sum Identity',
-    description:
-      'Converts a product of two trig functions into a sum, useful for integration.',
+    description: 'Converts a product of two trig functions into a sum, useful for integration.',
     latex: '\\sin A \\cos B = \\tfrac{1}{2}[\\sin(A+B)+\\sin(A-B)]',
     expression: 'sin(A)cos(B) = [sin(A+B) + sin(A-B)] / 2',
     category: 'trigonometry',
@@ -247,7 +238,8 @@ const FORMULAS: FormulaEntry[] = [
     name: 'Half-Angle Formulas',
     description:
       'Express sin and cos of half an angle in terms of the full angle; sign depends on quadrant.',
-    latex: '\\sin\\tfrac{\\theta}{2} = \\pm\\sqrt{\\tfrac{1-\\cos\\theta}{2}}, \\quad \\cos\\tfrac{\\theta}{2} = \\pm\\sqrt{\\tfrac{1+\\cos\\theta}{2}}',
+    latex:
+      '\\sin\\tfrac{\\theta}{2} = \\pm\\sqrt{\\tfrac{1-\\cos\\theta}{2}}, \\quad \\cos\\tfrac{\\theta}{2} = \\pm\\sqrt{\\tfrac{1+\\cos\\theta}{2}}',
     expression: 'sin(θ/2) = ±√((1-cos θ)/2)',
     category: 'trigonometry',
     tags: ['half angle', 'identity'],
@@ -267,8 +259,7 @@ const FORMULAS: FormulaEntry[] = [
   {
     id: 'power-rule',
     name: 'Power Rule',
-    description:
-      'Differentiates any power function xⁿ by reducing the exponent by one.',
+    description: 'Differentiates any power function xⁿ by reducing the exponent by one.',
     latex: '\\dfrac{d}{dx}\\,x^n = n x^{n-1}',
     expression: 'd/dx [x^n] = n·x^(n-1)',
     category: 'calculus',
@@ -279,18 +270,17 @@ const FORMULAS: FormulaEntry[] = [
     name: 'Chain Rule',
     description:
       'Differentiates composite functions by multiplying the outer and inner derivatives.',
-    latex: '\\dfrac{d}{dx}[f(g(x))] = f\'(g(x))\\,g\'(x)',
-    expression: 'd/dx [f(g(x))] = f\'(g(x)) · g\'(x)',
+    latex: "\\dfrac{d}{dx}[f(g(x))] = f'(g(x))\\,g'(x)",
+    expression: "d/dx [f(g(x))] = f'(g(x)) · g'(x)",
     category: 'calculus',
     tags: ['differentiation', 'composite'],
   },
   {
     id: 'product-rule',
     name: 'Product Rule',
-    description:
-      'Differentiates the product of two functions without multiplying them out first.',
-    latex: '\\dfrac{d}{dx}[u\\,v] = u\'v + u\\,v\'',
-    expression: 'd/dx [u·v] = u\'·v + u·v\'',
+    description: 'Differentiates the product of two functions without multiplying them out first.',
+    latex: "\\dfrac{d}{dx}[u\\,v] = u'v + u\\,v'",
+    expression: "d/dx [u·v] = u'·v + u·v'",
     category: 'calculus',
     tags: ['differentiation', 'product'],
   },
@@ -317,15 +307,14 @@ const FORMULAS: FormulaEntry[] = [
   {
     id: 'taylor-series',
     name: 'Taylor Series',
-    description:
-      'Approximates a smooth function as an infinite polynomial centred at x = a.',
+    description: 'Approximates a smooth function as an infinite polynomial centred at x = a.',
     latex: 'f(x) = \\sum_{n=0}^{\\infty} \\dfrac{f^{(n)}(a)}{n!}(x-a)^n',
     expression: 'f(x) = Σ f^(n)(a)/n! · (x-a)^n',
     category: 'calculus',
     tags: ['series', 'approximation', 'Taylor', 'Maclaurin'],
   },
   {
-    id: "lhopital-rule",
+    id: 'lhopital-rule',
     name: "L'Hôpital's Rule",
     description:
       'Evaluates indeterminate limits of the form 0/0 or ∞/∞ by differentiating numerator and denominator.',
@@ -347,10 +336,9 @@ const FORMULAS: FormulaEntry[] = [
   {
     id: 'u-substitution',
     name: 'U-Substitution',
-    description:
-      'Change of variable technique that reverses the chain rule for integration.',
-    latex: '\\int f(g(x))\\,g\'(x)\\,dx = \\int f(u)\\,du,\\quad u = g(x)',
-    expression: '∫ f(g(x)) g\'(x) dx = ∫ f(u) du',
+    description: 'Change of variable technique that reverses the chain rule for integration.',
+    latex: "\\int f(g(x))\\,g'(x)\\,dx = \\int f(u)\\,du,\\quad u = g(x)",
+    expression: "∫ f(g(x)) g'(x) dx = ∫ f(u) du",
     category: 'calculus',
     tags: ['integration', 'substitution'],
   },
@@ -359,7 +347,8 @@ const FORMULAS: FormulaEntry[] = [
     name: 'Epsilon-Delta Limit Definition',
     description:
       'Formal definition of a limit: for every ε > 0 there exists δ > 0 controlling the input neighbourhood.',
-    latex: '\\lim_{x \\to a} f(x) = L \\iff \\forall\\varepsilon>0\\,\\exists\\delta>0:\\,0<|x-a|<\\delta\\Rightarrow|f(x)-L|<\\varepsilon',
+    latex:
+      '\\lim_{x \\to a} f(x) = L \\iff \\forall\\varepsilon>0\\,\\exists\\delta>0:\\,0<|x-a|<\\delta\\Rightarrow|f(x)-L|<\\varepsilon',
     expression: 'lim f(x) = L iff for all ε>0 ∃δ>0: 0<|x-a|<δ → |f(x)-L|<ε',
     category: 'calculus',
     tags: ['limits', 'epsilon-delta', 'formal definition'],
@@ -379,8 +368,7 @@ const FORMULAS: FormulaEntry[] = [
   {
     id: 'matrix-inverse-2x2',
     name: '2×2 Matrix Inverse',
-    description:
-      'Gives the inverse of an invertible 2×2 matrix A. Exists only when det(A) ≠ 0.',
+    description: 'Gives the inverse of an invertible 2×2 matrix A. Exists only when det(A) ≠ 0.',
     latex: 'A^{-1} = \\dfrac{1}{ad-bc}\\begin{pmatrix}d&-b\\\\-c&a\\end{pmatrix}',
     expression: 'A^(-1) = 1/(ad-bc) · [[d,-b],[-c,a]]',
     category: 'linear-algebra',
@@ -411,7 +399,8 @@ const FORMULAS: FormulaEntry[] = [
     name: 'Dot Product',
     description:
       'Scalar product of two vectors; equals |a||b|cos θ where θ is the angle between them.',
-    latex: '\\mathbf{a}\\cdot\\mathbf{b} = \\sum_{i} a_i b_i = |\\mathbf{a}||\\mathbf{b}|\\cos\\theta',
+    latex:
+      '\\mathbf{a}\\cdot\\mathbf{b} = \\sum_{i} a_i b_i = |\\mathbf{a}||\\mathbf{b}|\\cos\\theta',
     expression: 'a·b = Σ aᵢbᵢ = |a||b| cos(θ)',
     category: 'linear-algebra',
     tags: ['dot product', 'vectors'],
@@ -429,9 +418,9 @@ const FORMULAS: FormulaEntry[] = [
   {
     id: 'gram-schmidt',
     name: 'Gram-Schmidt Projection',
-    description:
-      'Projects vector u onto the span of v, used iteratively to orthogonalise a basis.',
-    latex: '\\text{proj}_{\\mathbf{v}}\\mathbf{u} = \\dfrac{\\mathbf{u}\\cdot\\mathbf{v}}{\\mathbf{v}\\cdot\\mathbf{v}}\\mathbf{v}',
+    description: 'Projects vector u onto the span of v, used iteratively to orthogonalise a basis.',
+    latex:
+      '\\text{proj}_{\\mathbf{v}}\\mathbf{u} = \\dfrac{\\mathbf{u}\\cdot\\mathbf{v}}{\\mathbf{v}\\cdot\\mathbf{v}}\\mathbf{v}',
     expression: 'proj_v(u) = (u·v / v·v) · v',
     category: 'linear-algebra',
     tags: ['projection', 'orthogonalisation', 'Gram-Schmidt'],
@@ -459,8 +448,7 @@ const FORMULAS: FormulaEntry[] = [
   {
     id: 'rank-nullity',
     name: 'Rank-Nullity Theorem',
-    description:
-      'The rank plus the nullity of a matrix always equal the number of its columns.',
+    description: 'The rank plus the nullity of a matrix always equal the number of its columns.',
     latex: '\\text{rank}(A) + \\text{nullity}(A) = n',
     expression: 'rank(A) + nullity(A) = n',
     category: 'linear-algebra',
@@ -491,8 +479,7 @@ const FORMULAS: FormulaEntry[] = [
   {
     id: 'standard-deviation',
     name: 'Standard Deviation',
-    description:
-      'The square root of variance; expressed in the same units as the data.',
+    description: 'The square root of variance; expressed in the same units as the data.',
     latex: 's = \\sqrt{\\dfrac{1}{n-1}\\sum_{i=1}^{n}(x_i - \\bar{x})^2}',
     expression: 's = √(Σ(xᵢ - x̄)² / (n-1))',
     category: 'statistics',
@@ -503,7 +490,8 @@ const FORMULAS: FormulaEntry[] = [
     name: 'Normal Distribution PDF',
     description:
       'Probability density function of the Gaussian (bell curve) with mean μ and standard deviation σ.',
-    latex: 'f(x) = \\dfrac{1}{\\sigma\\sqrt{2\\pi}}\\exp\\!\\left(-\\dfrac{(x-\\mu)^2}{2\\sigma^2}\\right)',
+    latex:
+      'f(x) = \\dfrac{1}{\\sigma\\sqrt{2\\pi}}\\exp\\!\\left(-\\dfrac{(x-\\mu)^2}{2\\sigma^2}\\right)',
     expression: 'f(x) = 1/(σ√(2π)) · exp(-(x-μ)² / (2σ²))',
     category: 'statistics',
     tags: ['normal distribution', 'Gaussian', 'PDF'],
@@ -516,14 +504,15 @@ const FORMULAS: FormulaEntry[] = [
     latex: 'P(H|E) = \\dfrac{P(E|H)\\,P(H)}{P(E)}',
     expression: 'P(H|E) = P(E|H) P(H) / P(E)',
     category: 'statistics',
-    tags: ["Bayes", "conditional probability", "posterior"],
+    tags: ['Bayes', 'conditional probability', 'posterior'],
   },
   {
     id: 'correlation-coefficient',
     name: 'Pearson Correlation Coefficient',
     description:
       'Measures linear association between two variables; ranges from −1 (perfect negative) to +1 (perfect positive).',
-    latex: 'r = \\dfrac{\\sum(x_i-\\bar{x})(y_i-\\bar{y})}{\\sqrt{\\sum(x_i-\\bar{x})^2\\sum(y_i-\\bar{y})^2}}',
+    latex:
+      'r = \\dfrac{\\sum(x_i-\\bar{x})(y_i-\\bar{y})}{\\sqrt{\\sum(x_i-\\bar{x})^2\\sum(y_i-\\bar{y})^2}}',
     expression: 'r = Σ(xᵢ-x̄)(yᵢ-ȳ) / √(Σ(xᵢ-x̄)² Σ(yᵢ-ȳ)²)',
     category: 'statistics',
     tags: ['correlation', 'Pearson', 'regression'],
@@ -543,7 +532,8 @@ const FORMULAS: FormulaEntry[] = [
     name: 'Central Limit Theorem',
     description:
       'The sampling distribution of the mean approaches normality as n → ∞, regardless of the population distribution.',
-    latex: '\\bar{X} \\xrightarrow{d} N\\!\\left(\\mu,\\,\\dfrac{\\sigma^2}{n}\\right) \\text{ as } n\\to\\infty',
+    latex:
+      '\\bar{X} \\xrightarrow{d} N\\!\\left(\\mu,\\,\\dfrac{\\sigma^2}{n}\\right) \\text{ as } n\\to\\infty',
     expression: 'X̄ → N(μ, σ²/n) as n → ∞',
     category: 'statistics',
     tags: ['CLT', 'sampling distribution'],
@@ -551,8 +541,7 @@ const FORMULAS: FormulaEntry[] = [
   {
     id: 'confidence-interval',
     name: 'Confidence Interval (Mean)',
-    description:
-      'A 95% CI for the population mean uses the sample mean ± 1.96 standard errors.',
+    description: 'A 95% CI for the population mean uses the sample mean ± 1.96 standard errors.',
     latex: '\\bar{x} \\pm z_{\\alpha/2}\\dfrac{s}{\\sqrt{n}}',
     expression: 'CI = x̄ ± z_(α/2) · s/√n',
     category: 'statistics',
@@ -603,8 +592,7 @@ const FORMULAS: FormulaEntry[] = [
   {
     id: 'schrodinger-equation',
     name: 'Time-Dependent Schrödinger Equation',
-    description:
-      'Governs the evolution of the quantum state ψ of a particle under Hamiltonian H.',
+    description: 'Governs the evolution of the quantum state ψ of a particle under Hamiltonian H.',
     latex: 'i\\hbar\\dfrac{\\partial\\psi}{\\partial t} = \\hat{H}\\psi',
     expression: 'iℏ ∂ψ/∂t = H·ψ',
     category: 'physics',
@@ -633,8 +621,7 @@ const FORMULAS: FormulaEntry[] = [
   {
     id: 'maxwell-faraday',
     name: "Faraday's Law (Maxwell)",
-    description:
-      'A changing magnetic flux induces an electromotive force (EMF) in a closed loop.',
+    description: 'A changing magnetic flux induces an electromotive force (EMF) in a closed loop.',
     latex: '\\mathcal{E} = -\\dfrac{d\\Phi_B}{dt}',
     expression: 'EMF = -dΦ_B/dt',
     category: 'physics',
@@ -643,8 +630,7 @@ const FORMULAS: FormulaEntry[] = [
   {
     id: 'ideal-gas-law',
     name: 'Ideal Gas Law',
-    description:
-      'Relates pressure, volume, amount (moles), and temperature of an ideal gas.',
+    description: 'Relates pressure, volume, amount (moles), and temperature of an ideal gas.',
     latex: 'PV = nRT',
     expression: 'P·V = n·R·T',
     category: 'physics',
@@ -685,8 +671,7 @@ const FORMULAS: FormulaEntry[] = [
   {
     id: 'circle-area',
     name: 'Area of a Circle',
-    description:
-      'Area enclosed by a circle of radius r; proportional to the square of the radius.',
+    description: 'Area enclosed by a circle of radius r; proportional to the square of the radius.',
     latex: 'A = \\pi r^2',
     expression: 'A = π · r²',
     category: 'geometry',
@@ -695,8 +680,7 @@ const FORMULAS: FormulaEntry[] = [
   {
     id: 'circle-circumference',
     name: 'Circumference of a Circle',
-    description:
-      'Perimeter of a circle; linear in the radius (or diameter).',
+    description: 'Perimeter of a circle; linear in the radius (or diameter).',
     latex: 'C = 2\\pi r = \\pi d',
     expression: 'C = 2π·r = π·d',
     category: 'geometry',
@@ -715,8 +699,7 @@ const FORMULAS: FormulaEntry[] = [
   {
     id: 'sphere-surface',
     name: 'Surface Area of a Sphere',
-    description:
-      'Total surface area of a sphere; four times the area of a great circle.',
+    description: 'Total surface area of a sphere; four times the area of a great circle.',
     latex: 'S = 4\\pi r^2',
     expression: 'S = 4π·r²',
     category: 'geometry',
@@ -726,17 +709,16 @@ const FORMULAS: FormulaEntry[] = [
     id: 'heron-formula',
     name: "Heron's Formula",
     description:
-      "Area of a triangle from its three side lengths alone, using the semi-perimeter s = (a+b+c)/2.",
+      'Area of a triangle from its three side lengths alone, using the semi-perimeter s = (a+b+c)/2.',
     latex: 'A = \\sqrt{s(s-a)(s-b)(s-c)},\\quad s=\\tfrac{a+b+c}{2}',
     expression: 'A = √(s(s-a)(s-b)(s-c)), s = (a+b+c)/2',
     category: 'geometry',
-    tags: ['triangle', 'area', "Heron"],
+    tags: ['triangle', 'area', 'Heron'],
   },
   {
     id: 'cylinder-volume',
     name: 'Volume of a Cylinder',
-    description:
-      'Volume of a right circular cylinder with base radius r and height h.',
+    description: 'Volume of a right circular cylinder with base radius r and height h.',
     latex: 'V = \\pi r^2 h',
     expression: 'V = π r² h',
     category: 'geometry',
@@ -745,8 +727,7 @@ const FORMULAS: FormulaEntry[] = [
   {
     id: 'cone-volume',
     name: 'Volume of a Cone',
-    description:
-      'Volume of a right circular cone: one-third the volume of its enclosing cylinder.',
+    description: 'Volume of a right circular cone: one-third the volume of its enclosing cylinder.',
     latex: 'V = \\dfrac{1}{3}\\pi r^2 h',
     expression: 'V = (1/3) π r² h',
     category: 'geometry',
@@ -920,7 +901,7 @@ function FormulaCard({ formula, index }: FormulaCardProps) {
         `bg-gradient-to-br ${meta.gradient}`,
         meta.border,
         meta.glow,
-        'shadow-[0_2px_8px_rgba(0,0,0,0.25)]'
+        'shadow-[0_2px_8px_rgba(0,0,0,0.25)]',
       )}
       onClick={handleCopy}
       role="button"
@@ -938,7 +919,7 @@ function FormulaCard({ formula, index }: FormulaCardProps) {
         <span
           className={cn(
             'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border',
-            meta.chip
+            meta.chip,
           )}
           aria-hidden="true"
         >
@@ -954,7 +935,7 @@ function FormulaCard({ formula, index }: FormulaCardProps) {
             'shrink-0 flex items-center justify-center w-7 h-7 rounded-lg transition-colors duration-200',
             copied
               ? 'bg-emerald-500/20 text-emerald-400'
-              : 'bg-muted/20 text-muted-foreground group-hover:text-foreground group-hover:bg-muted/40'
+              : 'bg-muted/20 text-muted-foreground group-hover:text-foreground group-hover:bg-muted/40',
           )}
         >
           {copied ? (
@@ -966,9 +947,7 @@ function FormulaCard({ formula, index }: FormulaCardProps) {
       </div>
 
       {/* Formula name */}
-      <h3 className={cn('text-sm font-semibold leading-tight', meta.text)}>
-        {formula.name}
-      </h3>
+      <h3 className={cn('text-sm font-semibold leading-tight', meta.text)}>{formula.name}</h3>
 
       {/* KaTeX rendered formula */}
       <div
@@ -1046,7 +1025,7 @@ export default function FormulasPage() {
 
   const toggleCategory = useCallback((cat: FormulaCategory) => {
     setActiveCategories((prev) =>
-      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat],
     );
   }, []);
 
@@ -1096,7 +1075,10 @@ export default function FormulasPage() {
       {/* ------------------------------------------------------------------ */}
       <section className="relative overflow-hidden py-14 px-4">
         {/* Decorative background blobs */}
-        <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden" aria-hidden="true">
+        <div
+          className="absolute inset-0 -z-10 pointer-events-none overflow-hidden"
+          aria-hidden="true"
+        >
           <div className="absolute top-12 left-8 w-80 h-80 bg-blue-500/5 rounded-full blur-3xl animate-pulse" />
           <div
             className="absolute bottom-8 right-12 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl animate-pulse"
@@ -1125,11 +1107,15 @@ export default function FormulasPage() {
             </h1>
 
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-8">
-              {FORMULAS.length}+ essential formulas across 7 disciplines — rendered in LaTeX, searchable, and one-click copyable.
+              {FORMULAS.length}+ essential formulas across 7 disciplines — rendered in LaTeX,
+              searchable, and one-click copyable.
             </p>
 
             {/* Category highlight pills */}
-            <div className="flex flex-wrap items-center justify-center gap-3 text-sm" aria-hidden="true">
+            <div
+              className="flex flex-wrap items-center justify-center gap-3 text-sm"
+              aria-hidden="true"
+            >
               {ALL_CATEGORIES.map((cat) => {
                 const meta = CATEGORY_META[cat];
                 const Icon = meta.icon;
@@ -1138,7 +1124,7 @@ export default function FormulasPage() {
                     key={cat}
                     className={cn(
                       'flex items-center gap-1.5 px-3 py-1.5 rounded-full border',
-                      meta.chip
+                      meta.chip,
                     )}
                   >
                     <Icon className="h-3.5 w-3.5" aria-hidden="true" />
@@ -1156,7 +1142,6 @@ export default function FormulasPage() {
       {/* ------------------------------------------------------------------ */}
       <section className="max-w-7xl mx-auto px-4 pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-
           {/* Sidebar filters */}
           <aside className="lg:col-span-1" aria-label="Formula filters">
             <div className="sticky top-24 flex flex-col gap-4 p-5 rounded-xl border border-border bg-card/50 backdrop-blur-sm">
@@ -1195,7 +1180,7 @@ export default function FormulasPage() {
                       'w-full pl-9 pr-9 py-2 rounded-lg border border-border bg-background text-sm text-foreground',
                       'placeholder:text-muted-foreground',
                       'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-                      'transition-colors'
+                      'transition-colors',
                     )}
                     aria-label="Search formulas by name, description, or tag"
                   />
@@ -1234,7 +1219,7 @@ export default function FormulasPage() {
                           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
                           isActive
                             ? cn(meta.chip, 'border-transparent shadow-sm')
-                            : 'bg-background border-border text-foreground hover:border-border/80 hover:bg-muted/30'
+                            : 'bg-background border-border text-foreground hover:border-border/80 hover:bg-muted/30',
                         )}
                       >
                         <span className="flex items-center gap-2">
@@ -1244,7 +1229,7 @@ export default function FormulasPage() {
                         <span
                           className={cn(
                             'text-xs px-1.5 py-0.5 rounded-full',
-                            isActive ? 'bg-white/10' : 'bg-muted/50 text-muted-foreground'
+                            isActive ? 'bg-white/10' : 'bg-muted/50 text-muted-foreground',
                           )}
                         >
                           {count}
@@ -1260,13 +1245,12 @@ export default function FormulasPage() {
                 <div className="pt-3 border-t border-border">
                   <p className="text-xs text-muted-foreground">
                     Showing{' '}
-                    <span className="font-semibold text-foreground">
-                      {filteredFormulas.length}
-                    </span>{' '}
+                    <span className="font-semibold text-foreground">{filteredFormulas.length}</span>{' '}
                     of {FORMULAS.length} formulas
                     {activeCategories.length > 0 && (
                       <span>
-                        {' '}in{' '}
+                        {' '}
+                        in{' '}
                         <span className="font-semibold text-foreground">
                           {activeCategories.length}
                         </span>{' '}
@@ -1298,24 +1282,20 @@ export default function FormulasPage() {
                     : `${filteredFormulas.length} formulas`}
                   {searchQuery && (
                     <span>
-                      {' '}matching &ldquo;
+                      {' '}
+                      matching &ldquo;
                       <span className="font-medium text-foreground">{searchQuery}</span>
                       &rdquo;
                     </span>
                   )}
                 </p>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Click any card to copy the expression
-              </p>
+              <p className="text-xs text-muted-foreground">Click any card to copy the expression</p>
             </div>
 
             {/* Formula grid */}
             {filteredFormulas.length > 0 ? (
-              <motion.div
-                layout
-                className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4"
-              >
+              <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                 <AnimatePresence mode="popLayout">
                   {filteredFormulas.map((formula, index) => (
                     <FormulaCard key={formula.id} formula={formula} index={index} />
@@ -1368,9 +1348,11 @@ export default function FormulasPage() {
             <div>
               <h3 className="text-lg font-semibold mb-1">Using This Library</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Click any formula card to copy its plain-text expression to the clipboard — ready to paste into the calculator, worksheet, or your own notes.
-                Use the search box to find formulas by name, description, or keyword (e.g. &ldquo;quadratic&rdquo;, &ldquo;Bayes&rdquo;, or &ldquo;determinant&rdquo;).
-                Category chips let you narrow down to a specific branch of mathematics or physics.
+                Click any formula card to copy its plain-text expression to the clipboard — ready to
+                paste into the calculator, worksheet, or your own notes. Use the search box to find
+                formulas by name, description, or keyword (e.g. &ldquo;quadratic&rdquo;,
+                &ldquo;Bayes&rdquo;, or &ldquo;determinant&rdquo;). Category chips let you narrow
+                down to a specific branch of mathematics or physics.
               </p>
             </div>
           </div>

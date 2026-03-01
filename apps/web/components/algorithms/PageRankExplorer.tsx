@@ -1,43 +1,43 @@
 'use client';
 
-import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Slider } from '@/components/ui/slider';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
 import {
-  Play,
-  Pause,
-  RotateCcw,
-  Plus,
-  Trash2,
-  Info,
-  Network,
-  TrendingUp,
   ChevronRight,
+  Info,
   Maximize2,
+  Network,
+  Pause,
+  Play,
+  Plus,
+  RotateCcw,
+  Trash2,
+  TrendingUp,
 } from 'lucide-react';
-import {
-  type Graph,
-  type GraphNode,
-  type GraphEdge,
-  type NodeId,
-  type PageRankScore,
-  type AnimationSpeed,
-  createNodeId,
-  createEdgeId,
-  createPageRankScore,
-  ANIMATION_DURATIONS,
-} from './types';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { Slider } from '@/components/ui/slider';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 // Note: Using local computePageRank implementation that's tightly coupled with
 // the component's Graph/NodeId types. The math-engine's pageRank function
 // expects a sparse adjacency matrix format which would require type conversion.
-import { PageRankGraphRenderer, type GraphInteraction } from './PageRankGraphRenderer';
+import { type GraphInteraction, PageRankGraphRenderer } from './PageRankGraphRenderer';
+import {
+  ANIMATION_DURATIONS,
+  type AnimationSpeed,
+  createEdgeId,
+  createNodeId,
+  createPageRankScore,
+  type Graph,
+  type GraphEdge,
+  type GraphNode,
+  type NodeId,
+  type PageRankScore,
+} from './types';
 
 /**
  * Props for PageRankExplorer component
@@ -72,10 +72,7 @@ export interface PageRankExplorerProps {
 /**
  * Compute PageRank for a graph
  */
-function computePageRank(
-  graph: Graph,
-  iterations: number = 20
-): Map<NodeId, PageRankScore> {
+function computePageRank(graph: Graph, iterations: number = 20): Map<NodeId, PageRankScore> {
   const { nodes, edges, dampingFactor } = graph;
   const n = nodes.length;
 
@@ -87,7 +84,7 @@ function computePageRank(
   const ranks = new Map<NodeId, number>();
   const newRanks = new Map<NodeId, number>();
 
-  nodes.forEach(node => {
+  nodes.forEach((node) => {
     ranks.set(node.id, 1 / n);
     newRanks.set(node.id, 0);
   });
@@ -96,7 +93,7 @@ function computePageRank(
   const outgoing = new Map<NodeId, Array<{ target: NodeId; weight: number }>>();
   const outgoingSum = new Map<NodeId, number>();
 
-  edges.forEach(edge => {
+  edges.forEach((edge) => {
     if (!outgoing.has(edge.source)) {
       outgoing.set(edge.source, []);
     }
@@ -109,10 +106,10 @@ function computePageRank(
   // PageRank iteration
   for (let iter = 0; iter < iterations; iter++) {
     // Reset new ranks
-    nodes.forEach(node => newRanks.set(node.id, (1 - dampingFactor) / n));
+    nodes.forEach((node) => newRanks.set(node.id, (1 - dampingFactor) / n));
 
     // Distribute rank
-    nodes.forEach(node => {
+    nodes.forEach((node) => {
       const nodeRank = ranks.get(node.id) ?? 0;
       const outLinks = outgoing.get(node.id) ?? [];
       const totalWeight = outgoingSum.get(node.id) ?? 1;
@@ -125,7 +122,7 @@ function computePageRank(
     });
 
     // Swap ranks
-    nodes.forEach(node => {
+    nodes.forEach((node) => {
       ranks.set(node.id, newRanks.get(node.id) ?? 0);
     });
   }
@@ -146,7 +143,10 @@ function computePageRank(
 /**
  * Generate a large random graph for stress testing
  */
-function generateLargeGraph(numNodes: number, edgeProbability: number = 0.1): {
+function generateLargeGraph(
+  numNodes: number,
+  edgeProbability: number = 0.1,
+): {
   nodeLabels: string[];
   edgeList: Array<[number, number, number]>;
 } {
@@ -183,10 +183,13 @@ function generateLargeGraph(numNodes: number, edgeProbability: number = 0.1): {
 /**
  * Preset graph templates
  */
-const PRESET_GRAPHS: Record<string, Omit<Graph, 'nodes' | 'edges'> & {
-  nodeLabels: string[];
-  edgeList: Array<[number, number, number]>;
-}> = {
+const PRESET_GRAPHS: Record<
+  string,
+  Omit<Graph, 'nodes' | 'edges'> & {
+    nodeLabels: string[];
+    edgeList: Array<[number, number, number]>;
+  }
+> = {
   linear: {
     dampingFactor: 0.85,
     nodeLabels: ['A', 'B', 'C', 'D'],
@@ -326,7 +329,9 @@ export function PageRankExplorer({
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
   const [currentIteration, setCurrentIteration] = useState<number>(0);
   const [iterations, setIterations] = useState<number>(20);
-  const [convergenceHistory, setConvergenceHistory] = useState<Array<{iteration: number; change: number}>>([]);
+  const [convergenceHistory, setConvergenceHistory] = useState<
+    Array<{ iteration: number; change: number }>
+  >([]);
   const [useWebGLRenderer, setUseWebGLRenderer] = useState<boolean>(true);
   const [rendererDimensions, setRendererDimensions] = useState<{ width: number; height: number }>({
     width: 800,
@@ -361,7 +366,7 @@ export function PageRankExplorer({
 
     const rankHistory = new Map<NodeId, number[]>();
     const currentRanks = new Map<NodeId, number>();
-    graph.nodes.forEach(node => {
+    graph.nodes.forEach((node) => {
       currentRanks.set(node.id, 1 / n);
       rankHistory.set(node.id, []);
     });
@@ -370,7 +375,7 @@ export function PageRankExplorer({
     const outgoing = new Map<NodeId, Array<{ target: NodeId; weight: number }>>();
     const outgoingSum = new Map<NodeId, number>();
 
-    graph.edges.forEach(edge => {
+    graph.edges.forEach((edge) => {
       if (!outgoing.has(edge.source)) {
         outgoing.set(edge.source, []);
       }
@@ -380,7 +385,7 @@ export function PageRankExplorer({
       outgoingSum.set(edge.source, currentSum + edge.weight);
     });
 
-    const convergence: Array<{iteration: number; change: number}> = [];
+    const convergence: Array<{ iteration: number; change: number }> = [];
     let iter = 0;
 
     // Clear any existing animation interval before starting a new one
@@ -398,9 +403,9 @@ export function PageRankExplorer({
 
       // Compute one iteration
       const newRanks = new Map<NodeId, number>();
-      graph.nodes.forEach(node => newRanks.set(node.id, (1 - graph.dampingFactor) / n));
+      graph.nodes.forEach((node) => newRanks.set(node.id, (1 - graph.dampingFactor) / n));
 
-      graph.nodes.forEach(node => {
+      graph.nodes.forEach((node) => {
         const nodeRank = currentRanks.get(node.id) ?? 0;
         const outLinks = outgoing.get(node.id) ?? [];
         const totalWeight = outgoingSum.get(node.id) ?? 1;
@@ -414,7 +419,7 @@ export function PageRankExplorer({
 
       // Calculate change
       let maxChange = 0;
-      graph.nodes.forEach(node => {
+      graph.nodes.forEach((node) => {
         const oldRank = currentRanks.get(node.id) ?? 0;
         const newRank = newRanks.get(node.id) ?? 0;
         maxChange = Math.max(maxChange, Math.abs(newRank - oldRank));
@@ -438,7 +443,6 @@ export function PageRankExplorer({
     }, ANIMATION_DURATIONS[animationSpeed]);
 
     animationIntervalRef.current = animationInterval;
-
   }, [graph, iterations, animationSpeed]);
 
   // Stop animation
@@ -459,33 +463,28 @@ export function PageRankExplorer({
   }, [graph, computeRanks]);
 
   // Handle renderer interactions
-  const handleGraphInteraction = useCallback(
-    (interaction: GraphInteraction) => {
-      if (interaction.type === 'click' && interaction.nodeId) {
-        setSelectedNode(interaction.nodeId);
-      }
-    },
-    []
-  );
+  const handleGraphInteraction = useCallback((interaction: GraphInteraction) => {
+    if (interaction.type === 'click' && interaction.nodeId) {
+      setSelectedNode(interaction.nodeId);
+    }
+  }, []);
 
   // Handle node position updates from renderer
   const handleNodePositionUpdate = useCallback(
     (nodeId: NodeId, position: { x: number; y: number }) => {
-      setGraph(prev => ({
+      setGraph((prev) => ({
         ...prev,
-        nodes: prev.nodes.map(node =>
-          node.id === nodeId ? { ...node, position } : node
-        ),
+        nodes: prev.nodes.map((node) => (node.id === nodeId ? { ...node, position } : node)),
       }));
     },
-    []
+    [],
   );
 
   // Update renderer dimensions on container resize
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const resizeObserver = new ResizeObserver(entries => {
+    const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const { width, height } = entry.contentRect;
         setRendererDimensions({ width: Math.max(400, width), height: Math.max(300, height) });
@@ -526,23 +525,26 @@ export function PageRankExplorer({
       },
     };
 
-    setGraph(prev => ({
+    setGraph((prev) => ({
       ...prev,
       nodes: [...prev.nodes, newNode],
     }));
   }, [graph.nodes.length]);
 
   // Remove node
-  const removeNode = useCallback((nodeId: NodeId) => {
-    setGraph(prev => ({
-      ...prev,
-      nodes: prev.nodes.filter(n => n.id !== nodeId),
-      edges: prev.edges.filter(e => e.source !== nodeId && e.target !== nodeId),
-    }));
-    if (selectedNode === nodeId) {
-      setSelectedNode(null);
-    }
-  }, [selectedNode]);
+  const removeNode = useCallback(
+    (nodeId: NodeId) => {
+      setGraph((prev) => ({
+        ...prev,
+        nodes: prev.nodes.filter((n) => n.id !== nodeId),
+        edges: prev.edges.filter((e) => e.source !== nodeId && e.target !== nodeId),
+      }));
+      if (selectedNode === nodeId) {
+        setSelectedNode(null);
+      }
+    },
+    [selectedNode],
+  );
 
   // Add edge
   const addEdge = useCallback((source: NodeId, target: NodeId, weight: number = 1) => {
@@ -556,7 +558,7 @@ export function PageRankExplorer({
       weight,
     };
 
-    setGraph(prev => ({
+    setGraph((prev) => ({
       ...prev,
       edges: [...prev.edges, newEdge],
     }));
@@ -571,46 +573,49 @@ export function PageRankExplorer({
   // }, []);
 
   // Load preset graph
-  const loadPreset = useCallback((presetName: string) => {
-    const preset = PRESET_GRAPHS[presetName];
-    if (!preset) return;
+  const loadPreset = useCallback(
+    (presetName: string) => {
+      const preset = PRESET_GRAPHS[presetName];
+      if (!preset) return;
 
-    // Prefer measured container dimensions, fall back to renderer dimensions
-    const containerWidth = containerRef.current?.clientWidth || rendererDimensions.width;
-    const containerHeight = containerRef.current?.clientHeight || rendererDimensions.height;
+      // Prefer measured container dimensions, fall back to renderer dimensions
+      const containerWidth = containerRef.current?.clientWidth || rendererDimensions.width;
+      const containerHeight = containerRef.current?.clientHeight || rendererDimensions.height;
 
-    // Create nodes in circle layout
-    const numNodes = preset.nodeLabels.length;
-    const centerX = containerWidth / 2;
-    const centerY = containerHeight / 2;
-    const radius = Math.min(containerWidth, containerHeight) / 3;
+      // Create nodes in circle layout
+      const numNodes = preset.nodeLabels.length;
+      const centerX = containerWidth / 2;
+      const centerY = containerHeight / 2;
+      const radius = Math.min(containerWidth, containerHeight) / 3;
 
-    const nodes: GraphNode[] = preset.nodeLabels.map((label, i) => {
-      const angle = (2 * Math.PI * i) / numNodes;
-      return {
-        id: createNodeId(`node-${i}`),
-        label,
-        rank: createPageRankScore(1 / numNodes),
-        position: {
-          x: centerX + radius * Math.cos(angle),
-          y: centerY + radius * Math.sin(angle),
-        },
-      };
-    });
+      const nodes: GraphNode[] = preset.nodeLabels.map((label, i) => {
+        const angle = (2 * Math.PI * i) / numNodes;
+        return {
+          id: createNodeId(`node-${i}`),
+          label,
+          rank: createPageRankScore(1 / numNodes),
+          position: {
+            x: centerX + radius * Math.cos(angle),
+            y: centerY + radius * Math.sin(angle),
+          },
+        };
+      });
 
-    const edges: GraphEdge[] = preset.edgeList.map(([source, target, weight], i) => ({
-      id: createEdgeId(`edge-${i}`),
-      source: nodes[source]!.id,
-      target: nodes[target]!.id,
-      weight,
-    }));
+      const edges: GraphEdge[] = preset.edgeList.map(([source, target, weight], i) => ({
+        id: createEdgeId(`edge-${i}`),
+        source: nodes[source]!.id,
+        target: nodes[target]!.id,
+        weight,
+      }));
 
-    setGraph({
-      nodes,
-      edges,
-      dampingFactor: preset.dampingFactor,
-    });
-  }, [rendererDimensions.width, rendererDimensions.height]);
+      setGraph({
+        nodes,
+        edges,
+        dampingFactor: preset.dampingFactor,
+      });
+    },
+    [rendererDimensions.width, rendererDimensions.height],
+  );
 
   // Reset graph
   const reset = useCallback(() => {
@@ -633,8 +638,8 @@ export function PageRankExplorer({
 
   // Get node by ID
   const getNode = useCallback(
-    (nodeId: NodeId) => graph.nodes.find(n => n.id === nodeId),
-    [graph.nodes]
+    (nodeId: NodeId) => graph.nodes.find((n) => n.id === nodeId),
+    [graph.nodes],
   );
 
   // Calculate statistics
@@ -643,7 +648,7 @@ export function PageRankExplorer({
       return { maxRank: 0, minRank: 0, avgRank: 0, totalNodes: 0, totalEdges: 0 };
     }
 
-    const rankValues = Array.from(ranks.values()).map(r => r as number);
+    const rankValues = Array.from(ranks.values()).map((r) => r as number);
     return {
       maxRank: Math.max(...rankValues),
       minRank: Math.min(...rankValues),
@@ -717,9 +722,11 @@ export function PageRankExplorer({
                 ref={containerRef}
                 className="relative w-full h-[600px] rounded-xl overflow-hidden"
                 style={{
-                  background: 'linear-gradient(135deg, oklch(0.13 0.02 264) 0%, oklch(0.10 0.015 250) 100%)',
+                  background:
+                    'linear-gradient(135deg, oklch(0.13 0.02 264) 0%, oklch(0.10 0.015 250) 100%)',
                   border: '1px solid oklch(0.28 0.04 264 / 0.6)',
-                  boxShadow: '0 0 0 1px oklch(0.55 0.27 264 / 0.08), 0 8px 32px oklch(0.10 0.02 264 / 0.5)',
+                  boxShadow:
+                    '0 0 0 1px oklch(0.55 0.27 264 / 0.08), 0 8px 32px oklch(0.10 0.02 264 / 0.5)',
                 }}
               >
                 {graph.nodes.length === 0 ? (
@@ -756,10 +763,10 @@ export function PageRankExplorer({
                   /* SVG fallback renderer with improved aesthetics */
                   <svg className="w-full h-full" style={{ overflow: 'visible' }}>
                     <defs>
-                      {graph.nodes.map(node => {
+                      {graph.nodes.map((node) => {
                         const rank = (ranks.get(node.id) as number) ?? 0;
                         const nr = rank / (statistics.maxRank || 1);
-                        const hue = Math.round((230 + nr * 90));
+                        const hue = Math.round(230 + nr * 90);
                         const sat = Math.round(50 + nr * 35);
                         const lit = Math.round(35 + nr * 25);
                         return (
@@ -770,13 +777,19 @@ export function PageRankExplorer({
                             cy="30%"
                             r="65%"
                           >
-                            <stop offset="0%" stopColor={`hsl(${hue},${Math.min(sat+15,100)}%,${Math.min(lit+22,85)}%)`} />
+                            <stop
+                              offset="0%"
+                              stopColor={`hsl(${hue},${Math.min(sat + 15, 100)}%,${Math.min(lit + 22, 85)}%)`}
+                            />
                             <stop offset="55%" stopColor={`hsl(${hue},${sat}%,${lit}%)`} />
-                            <stop offset="100%" stopColor={`hsl(${hue},${sat}%,${Math.max(lit-14,10)}%)`} />
+                            <stop
+                              offset="100%"
+                              stopColor={`hsl(${hue},${sat}%,${Math.max(lit - 14, 10)}%)`}
+                            />
                           </radialGradient>
                         );
                       })}
-                      {graph.edges.map(edge => (
+                      {graph.edges.map((edge) => (
                         <marker
                           key={`arrow-${edge.id}`}
                           id={`arrow-${edge.id}`}
@@ -787,16 +800,13 @@ export function PageRankExplorer({
                           orient="auto"
                           markerUnits="strokeWidth"
                         >
-                          <path
-                            d="M0,1 L0,7 L7,4 Z"
-                            fill="oklch(0.65 0.22 264 / 0.75)"
-                          />
+                          <path d="M0,1 L0,7 L7,4 Z" fill="oklch(0.65 0.22 264 / 0.75)" />
                         </marker>
                       ))}
                     </defs>
 
                     {/* Edges */}
-                    {graph.edges.map(edge => {
+                    {graph.edges.map((edge) => {
                       const source = getNode(edge.source);
                       const target = getNode(edge.target);
                       if (!source || !target) return null;
@@ -831,7 +841,7 @@ export function PageRankExplorer({
                     })}
 
                     {/* Nodes */}
-                    {graph.nodes.map(node => {
+                    {graph.nodes.map((node) => {
                       const rank = (ranks.get(node.id) as number) ?? 0;
                       const nr = rank / (statistics.maxRank || 1);
                       const radius = 20 + nr * 30;
@@ -874,7 +884,10 @@ export function PageRankExplorer({
                             fontSize={Math.max(10, Math.min(14, radius * 0.5))}
                             fontWeight="700"
                             fill="#ffffff"
-                            style={{ pointerEvents: 'none', textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}
+                            style={{
+                              pointerEvents: 'none',
+                              textShadow: '0 1px 3px rgba(0,0,0,0.8)',
+                            }}
                           >
                             {node.label}
                           </text>
@@ -898,13 +911,11 @@ export function PageRankExplorer({
               {/* Selected Node Actions */}
               {selectedNode && (
                 <div className="mt-4 flex gap-2">
-                  <Badge variant="secondary">
-                    Selected: {getNode(selectedNode)?.label}
-                  </Badge>
-                  {graph.nodes.map(node => {
+                  <Badge variant="secondary">Selected: {getNode(selectedNode)?.label}</Badge>
+                  {graph.nodes.map((node) => {
                     if (node.id === selectedNode) return null;
                     const edgeExists = graph.edges.some(
-                      e => e.source === selectedNode && e.target === node.id
+                      (e) => e.source === selectedNode && e.target === node.id,
                     );
 
                     return (
@@ -934,9 +945,8 @@ export function PageRankExplorer({
                 {sortedNodes.map((node, index) => {
                   const rank = (ranks.get(node.id) as number) ?? 0;
                   const maxRank = statistics.maxRank;
-                  const barWidth = maxRank > 0 && Number.isFinite(rank / maxRank)
-                    ? (rank / maxRank) * 100
-                    : 0;
+                  const barWidth =
+                    maxRank > 0 && Number.isFinite(rank / maxRank) ? (rank / maxRank) * 100 : 0;
 
                   return (
                     <motion.div
@@ -979,9 +989,7 @@ export function PageRankExplorer({
               </div>
 
               {graph.nodes.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
-                  No nodes to display
-                </div>
+                <div className="text-center py-8 text-muted-foreground">No nodes to display</div>
               )}
             </CardContent>
           </Card>
@@ -1016,7 +1024,7 @@ export function PageRankExplorer({
                   step={0.05}
                   value={[graph.dampingFactor]}
                   onValueChange={([value]: number[]) =>
-                    setGraph(prev => ({ ...prev, dampingFactor: value ?? 0.85 }))
+                    setGraph((prev) => ({ ...prev, dampingFactor: value ?? 0.85 }))
                   }
                   disabled={isAnimating}
                 />
@@ -1027,9 +1035,7 @@ export function PageRankExplorer({
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="iterations">Iterations</Label>
-                  <span className="text-sm font-mono text-muted-foreground">
-                    {iterations}
-                  </span>
+                  <span className="text-sm font-mono text-muted-foreground">{iterations}</span>
                 </div>
                 <Slider
                   id="iterations"
@@ -1049,7 +1055,7 @@ export function PageRankExplorer({
                 <div className="flex gap-2">
                   <Button
                     className="flex-1"
-                    variant={isAnimating ? "destructive" : "default"}
+                    variant={isAnimating ? 'destructive' : 'default'}
                     onClick={isAnimating ? stopAnimation : animateRanks}
                     disabled={graph.nodes.length === 0}
                   >
@@ -1091,7 +1097,7 @@ export function PageRankExplorer({
                     <CardContent>
                       <div className="h-32 flex items-end gap-1">
                         {convergenceHistory.map((point, i) => {
-                          const maxChange = Math.max(...convergenceHistory.map(p => p.change));
+                          const maxChange = Math.max(...convergenceHistory.map((p) => p.change));
                           const height = maxChange > 0 ? (point.change / maxChange) * 100 : 0;
                           return (
                             <motion.div
@@ -1106,7 +1112,9 @@ export function PageRankExplorer({
                         })}
                       </div>
                       <div className="mt-2 text-xs text-muted-foreground text-center">
-                        Max change: {convergenceHistory[convergenceHistory.length - 1]?.change.toFixed(6) ?? '0'}
+                        Max change:{' '}
+                        {convergenceHistory[convergenceHistory.length - 1]?.change.toFixed(6) ??
+                          '0'}
                       </div>
                     </CardContent>
                   </Card>
@@ -1128,13 +1136,14 @@ export function PageRankExplorer({
               <CardTitle className="text-sm">Preset Graphs</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              {Object.keys(PRESET_GRAPHS).map(key => {
+              {Object.keys(PRESET_GRAPHS).map((key) => {
                 const isLarge = key.startsWith('large');
-                const displayName = key === 'large50'
-                  ? 'Large (50 nodes)'
-                  : key === 'large100'
-                  ? 'Large (100 nodes)'
-                  : key.charAt(0).toUpperCase() + key.slice(1);
+                const displayName =
+                  key === 'large50'
+                    ? 'Large (50 nodes)'
+                    : key === 'large100'
+                      ? 'Large (100 nodes)'
+                      : key.charAt(0).toUpperCase() + key.slice(1);
 
                 return (
                   <Button
@@ -1164,21 +1173,15 @@ export function PageRankExplorer({
             <CardContent className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Max Rank:</span>
-                <span className="font-mono font-semibold">
-                  {statistics.maxRank.toFixed(4)}
-                </span>
+                <span className="font-mono font-semibold">{statistics.maxRank.toFixed(4)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Min Rank:</span>
-                <span className="font-mono font-semibold">
-                  {statistics.minRank.toFixed(4)}
-                </span>
+                <span className="font-mono font-semibold">{statistics.minRank.toFixed(4)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Avg Rank:</span>
-                <span className="font-mono font-semibold">
-                  {statistics.avgRank.toFixed(4)}
-                </span>
+                <span className="font-mono font-semibold">{statistics.avgRank.toFixed(4)}</span>
               </div>
               <Separator />
               <div className="flex justify-between">
@@ -1221,9 +1224,13 @@ export function PageRankExplorer({
                   measures the importance of nodes based on the link structure of the graph.
                 </p>
                 <ul className="list-disc list-inside space-y-1 ml-4 break-words">
-                  <li className="break-words">A node is important if it's linked to by important nodes</li>
+                  <li className="break-words">
+                    A node is important if it's linked to by important nodes
+                  </li>
                   <li className="break-words">Links from high-rank nodes carry more weight</li>
-                  <li className="break-words">The algorithm simulates a random surfer clicking links</li>
+                  <li className="break-words">
+                    The algorithm simulates a random surfer clicking links
+                  </li>
                   <li className="break-words">Node size represents PageRank score</li>
                 </ul>
               </TabsContent>
@@ -1266,11 +1273,19 @@ export function PageRankExplorer({
                   <strong>Try these experiments:</strong>
                 </p>
                 <ul className="list-disc list-inside space-y-1 ml-4 break-words">
-                  <li className="break-words">Load the Star graph to see how a hub becomes highly ranked</li>
+                  <li className="break-words">
+                    Load the Star graph to see how a hub becomes highly ranked
+                  </li>
                   <li className="break-words">Create a cycle and observe equal distribution</li>
-                  <li className="break-words">Add a node that links to everyone but receives no links</li>
-                  <li className="break-words">Adjust damping factor to see its effect on rankings</li>
-                  <li className="break-words">Build a simple web structure with bidirectional links</li>
+                  <li className="break-words">
+                    Add a node that links to everyone but receives no links
+                  </li>
+                  <li className="break-words">
+                    Adjust damping factor to see its effect on rankings
+                  </li>
+                  <li className="break-words">
+                    Build a simple web structure with bidirectional links
+                  </li>
                 </ul>
               </TabsContent>
             </Tabs>

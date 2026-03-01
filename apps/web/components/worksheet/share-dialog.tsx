@@ -17,40 +17,40 @@
  *   - Focus ring: focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring
  */
 
-import { useState, useCallback, useId } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Share2,
-  Copy,
   Check,
-  Wifi,
-  Users,
-  X,
-  Radio,
+  Copy,
   Globe,
+  Radio,
+  Share2,
   UserCircle2,
+  Users,
+  Wifi,
+  X,
   ZapOff,
 } from 'lucide-react';
+import { useCallback, useId, useState } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+import { useWorksheetCollab } from '@/lib/hooks/use-worksheet-collab';
 import {
-  useCollabSession,
-  useLocalPeer,
-  useCollabStatus,
-  useRemotePeers,
-  useCollabActions,
   type CollabStatus,
+  useCollabActions,
+  useCollabSession,
+  useCollabStatus,
+  useLocalPeer,
+  useRemotePeers,
 } from '@/lib/stores/collab-store';
 import { useWorksheetStore } from '@/lib/stores/worksheet-store';
-import { useWorksheetCollab } from '@/lib/hooks/use-worksheet-collab';
+import { cn } from '@/lib/utils';
 
 // ---------------------------------------------------------------------------
 // Sub-components
@@ -82,7 +82,7 @@ function StatusPill({ status }: StatusPillProps) {
           'inline-block h-2 w-2 rounded-full',
           dot,
           status === 'live' && 'animate-pulse',
-          status === 'connecting' && 'animate-ping'
+          status === 'connecting' && 'animate-ping',
         )}
         aria-hidden="true"
       />
@@ -138,7 +138,7 @@ function CopyButton({ value, label }: CopyButtonProps) {
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         copied
           ? 'bg-emerald-500/15 text-emerald-400'
-          : 'bg-muted/40 hover:bg-muted/70 text-muted-foreground hover:text-foreground'
+          : 'bg-muted/40 hover:bg-muted/70 text-muted-foreground hover:text-foreground',
       )}
       aria-label={copied ? 'Copied!' : label}
     >
@@ -253,7 +253,7 @@ function ShareDialogContent({ onClose }: ShareDialogContentProps) {
         setLocalName(value.trim());
       }
     },
-    [setLocalName]
+    [setLocalName],
   );
 
   const handleStartCollab = useCallback(() => {
@@ -269,13 +269,15 @@ function ShareDialogContent({ onClose }: ShareDialogContentProps) {
     onClose();
   }, [stopCollab, sessionId, endSession, onClose]);
 
-  const shareUrl = session?.shareUrl ?? (() => {
-    if (typeof window === 'undefined') return '';
-    const url = new URL(window.location.href);
-    url.pathname = '/worksheet';
-    url.searchParams.set('collab', sessionId);
-    return url.toString();
-  })();
+  const shareUrl =
+    session?.shareUrl ??
+    (() => {
+      if (typeof window === 'undefined') return '';
+      const url = new URL(window.location.href);
+      url.pathname = '/worksheet';
+      url.searchParams.set('collab', sessionId);
+      return url.toString();
+    })();
 
   const isActive = status === 'live' || status === 'connecting';
 
@@ -350,9 +352,8 @@ function ShareDialogContent({ onClose }: ShareDialogContentProps) {
             <CopyButton value={shareUrl} label="Copy share link to clipboard" />
           </div>
           <p className="text-xs text-muted-foreground/70">
-            Anyone with this link can join the same collaboration session on
-            their device (requires WebSocket server) or in another tab on this
-            device (works offline via BroadcastChannel).
+            Anyone with this link can join the same collaboration session on their device (requires
+            WebSocket server) or in another tab on this device (works offline via BroadcastChannel).
           </p>
         </section>
       )}
@@ -451,10 +452,7 @@ export interface ShareDialogProps {
 export function ShareDialog({ open, onOpenChange }: ShareDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className="max-w-md"
-        aria-label="Share and collaborate on this worksheet"
-      >
+      <DialogContent className="max-w-md" aria-label="Share and collaborate on this worksheet">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Share2 className="h-4 w-4 text-primary" aria-hidden="true" />

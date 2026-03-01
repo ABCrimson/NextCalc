@@ -1,12 +1,12 @@
 'use client';
 
-import { ProblemBrowser } from '@/components/problems/problem-browser';
-import { useActionState, useMemo } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import type { Problem } from '@/types/problems';
-import { toggleFavorite } from '@/app/actions/problems';
-import type { ActionResult, ToggleFavoriteResult } from '@/app/actions/problems';
 import { useTranslations } from 'next-intl';
+import { useActionState, useMemo } from 'react';
+import type { ActionResult, ToggleFavoriteResult } from '@/app/actions/problems';
+import { toggleFavorite } from '@/app/actions/problems';
+import { ProblemBrowser } from '@/components/problems/problem-browser';
+import type { Problem } from '@/types/problems';
 
 /**
  * Mock problem data - In production, fetch from API
@@ -120,10 +120,10 @@ const QUICK_STATS = [
  */
 export default function ProblemsPage() {
   const t = useTranslations('problems');
-  const [_favoriteState, toggleFavoriteAction] = useActionState<ActionResult<ToggleFavoriteResult>, FormData>(
-    toggleFavorite,
-    { success: false },
-  );
+  const [_favoriteState, toggleFavoriteAction] = useActionState<
+    ActionResult<ToggleFavoriteResult>,
+    FormData
+  >(toggleFavorite, { success: false });
 
   const problems = useMemo(() => mockProblems, []);
   const prefersReducedMotion = useReducedMotion();
@@ -163,10 +163,7 @@ export default function ProblemsPage() {
       {/* ----------------------------------------------------------------
           Animated background layer — fixed, pointer-events-none
       ---------------------------------------------------------------- */}
-      <div
-        className="fixed inset-0 -z-10 overflow-hidden pointer-events-none"
-        aria-hidden="true"
-      >
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none" aria-hidden="true">
         {/* Base dark-to-transparent gradient so orbs sit on the page bg */}
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background" />
 
@@ -251,7 +248,6 @@ export default function ProblemsPage() {
           Page content
       ---------------------------------------------------------------- */}
       <div className="container mx-auto py-10 px-4 relative">
-
         {/* Hero section — glass morphism card with entrance animation */}
         <motion.div
           initial={heroInitial}
@@ -295,10 +291,7 @@ export default function ProblemsPage() {
             </p>
 
             {/* Quick stats badges */}
-            <div
-              className="flex flex-wrap gap-2"
-              aria-label="Library statistics"
-            >
+            <div className="flex flex-wrap gap-2" aria-label="Library statistics">
               {QUICK_STATS.map(({ label, color }) => (
                 <span
                   key={label}
@@ -323,7 +316,11 @@ export default function ProblemsPage() {
           transition={
             prefersReducedMotion
               ? { duration: 0.2 }
-              : { duration: 0.6, delay: 0.15, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }
+              : {
+                  duration: 0.6,
+                  delay: 0.15,
+                  ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
+                }
           }
         >
           <div

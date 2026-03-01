@@ -20,9 +20,7 @@ export default async function TaylorSeriesPage() {
             </span>
             <h1 className="text-4xl font-bold">{t('taylorTitle')}</h1>
           </div>
-          <p className="text-lg text-muted-foreground max-w-2xl">
-            {t('taylorSubtitle')}
-          </p>
+          <p className="text-lg text-muted-foreground max-w-2xl">{t('taylorSubtitle')}</p>
         </header>
 
         <TaylorSeriesVisualizer />
@@ -35,11 +33,10 @@ export default async function TaylorSeriesPage() {
             className="p-6 rounded-xl border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]
               bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md"
           >
-            <p className="text-sm text-muted-foreground mb-4">
-              {t('taylorFormulaDesc')}
-            </p>
+            <p className="text-sm text-muted-foreground mb-4">{t('taylorFormulaDesc')}</p>
             <div className="font-mono text-sm bg-muted/30 rounded-lg p-4 overflow-x-auto border border-border/40">
-              f(x) = f(a) + f&apos;(a)(x-a) + f&apos;&apos;(a)/2! &middot; (x-a)&sup2; + f&apos;&apos;&apos;(a)/3! &middot; (x-a)&sup3; + &hellip;
+              f(x) = f(a) + f&apos;(a)(x-a) + f&apos;&apos;(a)/2! &middot; (x-a)&sup2; +
+              f&apos;&apos;&apos;(a)/3! &middot; (x-a)&sup3; + &hellip;
             </div>
             <p className="text-sm text-muted-foreground mt-4">
               When a = 0 this is called a <strong>Maclaurin series</strong>. The approximation

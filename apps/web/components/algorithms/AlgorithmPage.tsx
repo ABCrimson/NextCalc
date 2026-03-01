@@ -1,13 +1,13 @@
 'use client';
 
-import { type ReactNode } from 'react';
 import { motion } from 'framer-motion';
-import { Share2, type LucideIcon } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { AlgorithmBreadcrumb, type BreadcrumbItem } from './AlgorithmBreadcrumb';
-import { AlgorithmMetadata } from './AlgorithmMetadata';
-import type { AlgorithmCategory, DifficultyLevel } from './AlgorithmCard';
+import { type LucideIcon, Share2 } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import type { ReactNode } from 'react';
+import { AlgorithmBreadcrumb, type BreadcrumbItem } from './AlgorithmBreadcrumb';
+import type { AlgorithmCategory, DifficultyLevel } from './AlgorithmCard';
+import { AlgorithmMetadata } from './AlgorithmMetadata';
 
 export interface Reference {
   title: string;
@@ -167,7 +167,9 @@ export function AlgorithmPage({
             {/* Related algorithms */}
             {relatedAlgorithms && relatedAlgorithms.length > 0 && (
               <div className="p-4 sm:p-6 rounded-lg border border-border bg-card/50 backdrop-blur-sm">
-                <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">{t('relatedAlgorithms')}</h3>
+                <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">
+                  {t('relatedAlgorithms')}
+                </h3>
                 <ul className="space-y-2">
                   {relatedAlgorithms.map((algo) => (
                     <li key={algo.href}>
@@ -195,9 +197,7 @@ export function AlgorithmPage({
             className="p-4 sm:p-6 rounded-xl border border-border bg-card/50 backdrop-blur-sm overflow-hidden"
           >
             <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">{t('tryItYourself')}</h2>
-            <div className="min-w-0 overflow-x-auto">
-              {children}
-            </div>
+            <div className="min-w-0 overflow-x-auto">{children}</div>
           </motion.section>
 
           {/* Applications */}
@@ -208,7 +208,9 @@ export function AlgorithmPage({
             transition={{ duration: 0.5 }}
             className="p-4 sm:p-6 rounded-lg border border-border bg-card/50 backdrop-blur-sm"
           >
-            <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">{t('realWorldApplications')}</h2>
+            <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">
+              {t('realWorldApplications')}
+            </h2>
             <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
               {applications.map((app, index) => (
                 <li
@@ -243,15 +245,8 @@ export function AlgorithmPage({
                     >
                       {ref.title}
                     </a>
-                    {ref.authors && (
-                      <span className="text-muted-foreground">
-                        {' '}
-                        — {ref.authors}
-                      </span>
-                    )}
-                    {ref.year && (
-                      <span className="text-muted-foreground"> ({ref.year})</span>
-                    )}
+                    {ref.authors && <span className="text-muted-foreground"> — {ref.authors}</span>}
+                    {ref.year && <span className="text-muted-foreground"> ({ref.year})</span>}
                   </li>
                 ))}
               </ul>

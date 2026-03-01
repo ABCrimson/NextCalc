@@ -7,15 +7,15 @@
  * an "Open in Calculator" button that loads the expression into the calculator.
  */
 
-import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Calculator, Copy, Check, Share2, User } from 'lucide-react';
-import { Link } from '@/i18n/navigation';
+import { Calculator, Check, Copy, Share2, User } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { LaTeXRenderer } from '@/components/math/latex-renderer';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { LaTeXRenderer } from '@/components/math/latex-renderer';
-import { cn } from '@/lib/utils';
+import { Link } from '@/i18n/navigation';
 import { createPermalinkUrl } from '@/lib/share';
+import { cn } from '@/lib/utils';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -113,13 +113,9 @@ export function SharedCalculationView({ shared }: SharedCalculationViewProps) {
             <Share2 className="h-4 w-4 text-primary" aria-hidden="true" />
             <span className="text-sm font-medium text-primary">Shared Calculation</span>
           </div>
-          {shared.title && (
-            <h1 className="text-3xl font-bold text-foreground">{shared.title}</h1>
-          )}
+          {shared.title && <h1 className="text-3xl font-bold text-foreground">{shared.title}</h1>}
           {shared.description && (
-            <p className="text-muted-foreground mt-2 max-w-lg mx-auto">
-              {shared.description}
-            </p>
+            <p className="text-muted-foreground mt-2 max-w-lg mx-auto">{shared.description}</p>
           )}
         </motion.div>
 
@@ -137,11 +133,7 @@ export function SharedCalculationView({ shared }: SharedCalculationViewProps) {
                 role="math"
                 aria-label={`Math expression: ${shared.expression}`}
               >
-                <LaTeXRenderer
-                  expression={shared.latex}
-                  displayMode={true}
-                  className="text-2xl"
-                />
+                <LaTeXRenderer expression={shared.latex} displayMode={true} className="text-2xl" />
               </div>
             </div>
 

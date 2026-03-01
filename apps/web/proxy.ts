@@ -18,10 +18,10 @@
  * @see https://authjs.dev/getting-started/session-management/protecting
  */
 
-import NextAuth from 'next-auth';
 import { nosecone } from '@nosecone/next';
-import type { Options } from 'nosecone';
+import NextAuth from 'next-auth';
 import createIntlMiddleware from 'next-intl/middleware';
+import type { Options } from 'nosecone';
 import { routing } from '@/i18n/routing';
 import { authConfig } from './auth.config';
 
@@ -41,19 +41,13 @@ const noseconeConfig: Options = {
         cspNonce,
         // @nosecone/next adds 'unsafe-eval' in development automatically;
         // we replicate that here for hot reloading support
-        ...(process.env.NODE_ENV === 'development'
-          ? (["'unsafe-eval'"] as const)
-          : []),
+        ...(process.env.NODE_ENV === 'development' ? (["'unsafe-eval'"] as const) : []),
       ],
-      workerSrc: ["'self'", "blob:"],
+      workerSrc: ["'self'", 'blob:'],
       styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "blob:"],
+      imgSrc: ["'self'", 'data:', 'blob:'],
       fontSrc: ["'self'"],
-      connectSrc: [
-        "'self'",
-        "https://exports.nextcalc.pro",
-        "https://*.upstash.io",
-      ],
+      connectSrc: ["'self'", 'https://exports.nextcalc.pro', 'https://*.upstash.io'],
       frameAncestors: ["'none'"],
       baseUri: ["'self'"],
       formAction: ["'self'"],
@@ -68,7 +62,7 @@ const noseconeConfig: Options = {
   },
   xContentTypeOptions: true,
   referrerPolicy: {
-    policy: ["strict-origin-when-cross-origin"],
+    policy: ['strict-origin-when-cross-origin'],
   },
 };
 
@@ -100,9 +94,7 @@ export default auth((req) => {
   const pathnameWithoutLocale = pathname.replace(localePattern, '/');
 
   // ---- Step 4: Auth checks ----
-  const isProtectedRoute = protectedRoutes.some((route) =>
-    pathnameWithoutLocale.startsWith(route)
-  );
+  const isProtectedRoute = protectedRoutes.some((route) => pathnameWithoutLocale.startsWith(route));
 
   if (isProtectedRoute && !isLoggedIn) {
     const signInUrl = new URL('/auth/signin', req.url);

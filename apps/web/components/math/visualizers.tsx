@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, SkipForward, RotateCcw, Zap, Code, Activity } from 'lucide-react';
+import type { SolutionStep } from '@nextcalc/math-engine/problems';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Activity, Code, Pause, Play, RotateCcw, SkipForward, Zap } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import type { SolutionStep } from '@nextcalc/math-engine/problems';
 
 /**
  * Step Visualizer Component
@@ -205,7 +205,7 @@ export function StepVisualizer({
                   index === currentStep
                     ? 'bg-primary/10 border-l-4 border-l-primary'
                     : 'hover:bg-accent',
-                  index < currentStep && 'opacity-60'
+                  index < currentStep && 'opacity-60',
                 )}
               >
                 <div className="flex items-center gap-3">
@@ -317,7 +317,8 @@ export function AlgorithmVisualizer({
                   key={index}
                   className={cn(
                     'px-2 py-1 -mx-2 transition-colors',
-                    currentStepData.line === index + 1 && 'bg-primary/20 border-l-4 border-l-primary'
+                    currentStepData.line === index + 1 &&
+                      'bg-primary/20 border-l-4 border-l-primary',
                   )}
                 >
                   <span className="text-muted-foreground mr-4">{index + 1}</span>
@@ -344,7 +345,9 @@ export function AlgorithmVisualizer({
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => onStepChange?.(Math.min(currentStep + 1, algorithm.steps.length - 1))}
+                  onClick={() =>
+                    onStepChange?.(Math.min(currentStep + 1, algorithm.steps.length - 1))
+                  }
                   disabled={currentStep >= algorithm.steps.length - 1}
                   aria-label="Next step"
                 >
@@ -421,7 +424,7 @@ export function AlgorithmVisualizer({
                       'p-3 rounded-lg border',
                       currentStepData.highlight?.includes(name)
                         ? 'bg-primary/10 border-primary'
-                        : 'bg-muted/50'
+                        : 'bg-muted/50',
                     )}
                   >
                     <div className="flex items-center justify-between">
@@ -462,6 +465,10 @@ export function AlgorithmVisualizer({
   );
 }
 
+export type {
+  FunctionPreset,
+  TaylorComputationResult,
+  TaylorTerm,
+} from './taylor-series-visualizer';
 // Re-export Taylor series visualizer so consumers can import from this module
 export { TaylorSeriesVisualizer } from './taylor-series-visualizer';
-export type { TaylorTerm, TaylorComputationResult, FunctionPreset } from './taylor-series-visualizer';

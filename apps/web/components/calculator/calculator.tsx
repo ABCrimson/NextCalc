@@ -1,22 +1,22 @@
 'use client';
 
-import { useTransition, useOptimistic, useEffect, useRef } from 'react';
+import type { CalculatorAction } from '@nextcalc/types';
+import { BarChart3, Sigma } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { useEffect, useOptimistic, useRef, useTransition } from 'react';
+import { Button } from '@/components/ui/button';
+import { parseShareParams } from '@/lib/share';
 import {
-  useCalculatorState,
-  useCalculatorDispatch,
   useCalculatorAngleMode,
+  useCalculatorDispatch,
   useCalculatorMemory,
+  useCalculatorState,
 } from '@/lib/stores/calculator-store';
 import { Display } from './display';
-import { Keyboard } from './keyboard';
 import { History } from './history';
+import { Keyboard } from './keyboard';
 import { ShortcutsModal } from './shortcuts-modal';
-import { Button } from '@/components/ui/button';
-import { BarChart3, Sigma } from 'lucide-react';
-import type { CalculatorAction } from '@nextcalc/types';
-import { parseShareParams } from '@/lib/share';
 
 export function Calculator() {
   // React 19.3.0: useTransition for non-blocking state updates
@@ -31,7 +31,7 @@ export function Calculator() {
   // React 19.3.0: useOptimistic for instant feedback before async calculation completes
   const [optimisticResult, setOptimisticResult] = useOptimistic(
     state.result,
-    (_currentResult, newResult: string | number | null) => newResult
+    (_currentResult, newResult: string | number | null) => newResult,
   );
 
   // -------------------------------------------------------------------------
@@ -100,15 +100,18 @@ export function Calculator() {
         }
       });
     }
-  // Run only on mount — searchParams identity is stable in the App Router
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Run only on mount — searchParams identity is stable in the App Router
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleInput = (action: CalculatorAction) => {
     // Wrap all state updates in startTransition (React 19.3.0 best practice)
     startTransition(() => {
       // Show immediate optimistic feedback for evaluation
-      if (action.type === 'EVALUATE' || (action.type === 'KEY_PRESS' && action.payload === 'Enter')) {
+      if (
+        action.type === 'EVALUATE' ||
+        (action.type === 'KEY_PRESS' && action.payload === 'Enter')
+      ) {
         setOptimisticResult('Calculating...');
       }
 
@@ -125,12 +128,7 @@ export function Calculator() {
         mode={state.mode}
         angle={state.angleMode}
       />
-      <Keyboard
-        onInput={handleInput}
-        disabled={isPending}
-        angleMode={angleMode}
-        memory={memory}
-      />
+      <Keyboard onInput={handleInput} disabled={isPending} angleMode={angleMode} memory={memory} />
 
       {/* Quick Actions */}
       <div className="flex gap-3 justify-center">

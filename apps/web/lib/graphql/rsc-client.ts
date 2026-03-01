@@ -12,38 +12,35 @@
 
 import { HttpLink } from '@apollo/client';
 import {
-	registerApolloClient,
-	ApolloClient,
-	InMemoryCache,
+  ApolloClient,
+  InMemoryCache,
+  registerApolloClient,
 } from '@apollo/client-integration-nextjs';
 import { headers } from 'next/headers';
 
 function getAbsoluteUrl() {
-	// In server context, we need an absolute URL
-	const baseUrl =
-		process.env['NEXT_PUBLIC_APP_URL'] || 'http://localhost:3000';
-	return `${baseUrl}/api/graphql`;
+  // In server context, we need an absolute URL
+  const baseUrl = process.env['NEXT_PUBLIC_APP_URL'] || 'http://localhost:3000';
+  return `${baseUrl}/api/graphql`;
 }
 
-export const { getClient, query, PreloadQuery } = registerApolloClient(
-	async () => {
-		// Forward cookies from the incoming request to the GraphQL endpoint
-		// so that NextAuth session cookies are available for authentication
-		const requestHeaders = await headers();
-		const cookie = requestHeaders.get('cookie') || '';
+export const { getClient, query, PreloadQuery } = registerApolloClient(async () => {
+  // Forward cookies from the incoming request to the GraphQL endpoint
+  // so that NextAuth session cookies are available for authentication
+  const requestHeaders = await headers();
+  const cookie = requestHeaders.get('cookie') || '';
 
-		const httpLink = new HttpLink({
-			uri: getAbsoluteUrl(),
-			headers: {
-				cookie,
-				'x-apollo-client': 'rsc',
-			},
-			fetchOptions: { cache: 'no-store' },
-		});
+  const httpLink = new HttpLink({
+    uri: getAbsoluteUrl(),
+    headers: {
+      cookie,
+      'x-apollo-client': 'rsc',
+    },
+    fetchOptions: { cache: 'no-store' },
+  });
 
-		return new ApolloClient({
-			cache: new InMemoryCache(),
-			link: httpLink,
-		});
-	},
-);
+  return new ApolloClient({
+    cache: new InMemoryCache(),
+    link: httpLink,
+  });
+});

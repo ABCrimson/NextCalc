@@ -12,41 +12,38 @@
  * @module components/plots/PlotExportToolbar
  */
 
-import { useState, useCallback } from 'react';
-import { Download, Image, FileText, FileCode, ChevronDown, Loader2 } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
-  DropdownMenuItem,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
 import {
   downloadAsPNG,
   downloadAsSVG,
-  exportToCSV2D,
   type ExportPNGOptions,
   type ExportSVGOptions,
-  type Point2D,
+  exportToCSV2D,
   type Plot2DCartesianConfig,
-  type Plot2DPolarConfig,
   type Plot2DParametricConfig,
+  type Plot2DPolarConfig,
+  type Point2D,
 } from '@nextcalc/plot-engine';
+import { ChevronDown, Download, FileCode, FileText, Image, Loader2 } from 'lucide-react';
+import { useCallback, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
 /** The subset of PlotConfig variants that this toolbar knows how to export. */
-type SupportedPlotConfig =
-  | Plot2DCartesianConfig
-  | Plot2DPolarConfig
-  | Plot2DParametricConfig;
+type SupportedPlotConfig = Plot2DCartesianConfig | Plot2DPolarConfig | Plot2DParametricConfig;
 
 /** PNG scale factor (device-pixel-ratio multiplier for the export canvas). */
 type PNGScale = 1 | 2 | 4;
@@ -165,23 +162,17 @@ function sampleParametricFunction(
 function derivePointSeries(config: SupportedPlotConfig): Point2D[][] {
   if (config.type === '2d-cartesian') {
     const { viewport, functions } = config;
-    return functions.map(({ fn }) =>
-      sampleFunction(fn, viewport.xMin, viewport.xMax),
-    );
+    return functions.map(({ fn }) => sampleFunction(fn, viewport.xMin, viewport.xMax));
   }
 
   if (config.type === '2d-polar') {
     const { thetaRange, functions } = config;
-    return functions.map(({ fn }) =>
-      samplePolarFunction(fn, thetaRange.min, thetaRange.max),
-    );
+    return functions.map(({ fn }) => samplePolarFunction(fn, thetaRange.min, thetaRange.max));
   }
 
   // 2d-parametric
   const { tRange, functions } = config;
-  return functions.map(({ x, y }) =>
-    sampleParametricFunction(x, y, tRange.min, tRange.max),
-  );
+  return functions.map(({ x, y }) => sampleParametricFunction(x, y, tRange.min, tRange.max));
 }
 
 /**
@@ -341,9 +332,7 @@ export function PlotExportToolbar({
         const maxRows = Math.max(...series.map((s) => s.length));
 
         // Build header
-        const headers = series
-          .map((_, i) => `x${i},y${i}`)
-          .join(',');
+        const headers = series.map((_, i) => `x${i},y${i}`).join(',');
 
         const rows: string[] = [headers];
         for (let row = 0; row < maxRows; row++) {
@@ -448,21 +437,27 @@ export function PlotExportToolbar({
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onSelect={() => { void handleExportPNG(1); }}
+                onSelect={() => {
+                  void handleExportPNG(1);
+                }}
                 className="gap-2 cursor-pointer"
               >
                 <span className="text-xs font-mono text-muted-foreground w-6">1x</span>
                 Standard
               </DropdownMenuItem>
               <DropdownMenuItem
-                onSelect={() => { void handleExportPNG(2); }}
+                onSelect={() => {
+                  void handleExportPNG(2);
+                }}
                 className="gap-2 cursor-pointer"
               >
                 <span className="text-xs font-mono text-muted-foreground w-6">2x</span>
                 Retina
               </DropdownMenuItem>
               <DropdownMenuItem
-                onSelect={() => { void handleExportPNG(4); }}
+                onSelect={() => {
+                  void handleExportPNG(4);
+                }}
                 className="gap-2 cursor-pointer"
               >
                 <span className="text-xs font-mono text-muted-foreground w-6">4x</span>
@@ -472,19 +467,13 @@ export function PlotExportToolbar({
           </DropdownMenuSub>
 
           {/* SVG export */}
-          <DropdownMenuItem
-            onSelect={handleExportSVG}
-            className="gap-2 cursor-pointer"
-          >
+          <DropdownMenuItem onSelect={handleExportSVG} className="gap-2 cursor-pointer">
             <FileCode className="h-4 w-4 text-purple-400" aria-hidden="true" />
             SVG vector
           </DropdownMenuItem>
 
           {/* CSV export */}
-          <DropdownMenuItem
-            onSelect={handleExportCSV}
-            className="gap-2 cursor-pointer"
-          >
+          <DropdownMenuItem onSelect={handleExportCSV} className="gap-2 cursor-pointer">
             <FileText className="h-4 w-4 text-emerald-400" aria-hidden="true" />
             CSV data points
           </DropdownMenuItem>

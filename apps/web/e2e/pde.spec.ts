@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('PDE Solver Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -7,9 +7,9 @@ test.describe('PDE Solver Page', () => {
   });
 
   test('page loads with heading visible', async ({ page }) => {
-    await expect(
-      page.getByRole('heading', { name: /PDE Solver/i }).first(),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /PDE Solver/i }).first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('WebGPU accelerated badge is displayed', async ({ page }) => {

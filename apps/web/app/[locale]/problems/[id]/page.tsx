@@ -1,13 +1,13 @@
-import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import { ProblemSolverClient } from './problem-solver-client';
 import { getProblemById, getRelatedProblems } from '@nextcalc/math-engine/problems';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowLeft, Share2 } from 'lucide-react';
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Share2 } from 'lucide-react';
-import Link from 'next/link';
-import { getTranslations } from 'next-intl/server';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ProblemSolverClient } from './problem-solver-client';
 
 /**
  * Generate metadata for individual problem page
@@ -38,11 +38,7 @@ export async function generateMetadata({
  *
  * Server component that displays a single problem with the interactive solver.
  */
-export default async function ProblemPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function ProblemPage({ params }: { params: Promise<{ id: string }> }) {
   const t = await getTranslations('problems');
   const { id } = await params;
   const problem = await getProblemById(id);
@@ -66,10 +62,7 @@ export default async function ProblemPage({
       </div>
 
       {/* Main content */}
-      <ProblemSolverClient
-        problem={problem}
-        relatedProblemIds={relatedProblems.map((p) => p.id)}
-      />
+      <ProblemSolverClient problem={problem} relatedProblemIds={relatedProblems.map((p) => p.id)} />
 
       {/* Related Problems Section */}
       {relatedProblems.length > 0 && (
@@ -77,9 +70,7 @@ export default async function ProblemPage({
           <Card>
             <CardHeader>
               <CardTitle>{t('relatedProblems')}</CardTitle>
-              <CardDescription>
-                {t('relatedProblemsHint')}
-              </CardDescription>
+              <CardDescription>{t('relatedProblemsHint')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -89,9 +80,7 @@ export default async function ProblemPage({
                     href={`/problems/${relatedProblem.id}`}
                     className="p-4 border rounded-lg hover:shadow-md transition-shadow"
                   >
-                    <h3 className="font-semibold mb-2 line-clamp-2">
-                      {relatedProblem.title}
-                    </h3>
+                    <h3 className="font-semibold mb-2 line-clamp-2">{relatedProblem.title}</h3>
                     <div className="flex flex-wrap gap-2 mb-2">
                       <Badge variant="outline" className="text-xs">
                         {relatedProblem.topic}

@@ -1,5 +1,5 @@
-import type { HTMLAttributes, Ref } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
+import type { HTMLAttributes, Ref } from 'react';
 import { cn } from '@/lib/utils';
 
 const alertVariants = cva(
@@ -15,23 +15,16 @@ const alertVariants = cva(
     defaultVariants: {
       variant: 'default',
     },
-  }
+  },
 );
 
-interface AlertProps
-  extends HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof alertVariants> {
+interface AlertProps extends HTMLAttributes<HTMLDivElement>, VariantProps<typeof alertVariants> {
   ref?: Ref<HTMLDivElement>;
 }
 
 function Alert({ className, variant, ref, ...props }: AlertProps) {
   return (
-    <div
-      ref={ref}
-      role="alert"
-      className={cn(alertVariants({ variant }), className)}
-      {...props}
-    />
+    <div ref={ref} role="alert" className={cn(alertVariants({ variant }), className)} {...props} />
   );
 }
 
@@ -54,13 +47,7 @@ interface AlertDescriptionProps extends HTMLAttributes<HTMLParagraphElement> {
 }
 
 function AlertDescription({ className, ref, ...props }: AlertDescriptionProps) {
-  return (
-    <div
-      ref={ref}
-      className={cn('text-sm [&_p]:leading-relaxed', className)}
-      {...props}
-    />
-  );
+  return <div ref={ref} className={cn('text-sm [&_p]:leading-relaxed', className)} {...props} />;
 }
 
 export { Alert, AlertTitle, AlertDescription };

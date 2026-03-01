@@ -169,20 +169,36 @@ const CATEGORY_CARDS: CategoryCard[] = [
 ];
 
 const EXAMPLE_CONVERSIONS = [
-  { accent: 'text-blue-400',    category: 'Length',      text: '1 kilometer = 0.621 371 miles = 3 280.84 feet' },
-  { accent: 'text-blue-400',    category: 'Length',      text: '1 inch = 2.54 cm (exact)' },
-  { accent: 'text-emerald-400', category: 'Mass',        text: '1 kilogram = 2.204 62 pounds' },
-  { accent: 'text-emerald-400', category: 'Mass',        text: '1 stone = 14 pounds = 6.350 29 kg' },
-  { accent: 'text-rose-400',    category: 'Temperature', text: '0 °C = 32 °F = 273.15 K' },
-  { accent: 'text-cyan-400',    category: 'Volume',      text: '1 US gallon = 3.785 41 liters' },
-  { accent: 'text-amber-400',   category: 'Area',        text: '1 hectare = 10 000 m² = 2.471 acres' },
-  { accent: 'text-orange-400',  category: 'Speed',       text: '1 knot = 1.852 km/h = 1 nautical mile/h' },
-  { accent: 'text-purple-400',  category: 'Time',        text: '1 year ≈ 365.2425 days = 31 556 952 seconds' },
-  { accent: 'text-indigo-400',  category: 'Data',        text: '1 GiB = 1 073 741 824 bytes ≠ 1 GB (1 000 000 000 bytes)' },
-  { accent: 'text-sky-400',     category: 'Pressure',    text: '1 atm = 101 325 Pa = 14.696 psi = 760 mmHg' },
-  { accent: 'text-yellow-400',  category: 'Energy',      text: '1 kcal = 4 184 J (food "Calorie")' },
-  { accent: 'text-red-400',     category: 'Force',       text: '1 lbf = 4.448 22 N' },
-  { accent: 'text-teal-400',    category: 'Angle',       text: '1 radian = 180/π ≈ 57.296°' },
+  {
+    accent: 'text-blue-400',
+    category: 'Length',
+    text: '1 kilometer = 0.621 371 miles = 3 280.84 feet',
+  },
+  { accent: 'text-blue-400', category: 'Length', text: '1 inch = 2.54 cm (exact)' },
+  { accent: 'text-emerald-400', category: 'Mass', text: '1 kilogram = 2.204 62 pounds' },
+  { accent: 'text-emerald-400', category: 'Mass', text: '1 stone = 14 pounds = 6.350 29 kg' },
+  { accent: 'text-rose-400', category: 'Temperature', text: '0 °C = 32 °F = 273.15 K' },
+  { accent: 'text-cyan-400', category: 'Volume', text: '1 US gallon = 3.785 41 liters' },
+  { accent: 'text-amber-400', category: 'Area', text: '1 hectare = 10 000 m² = 2.471 acres' },
+  { accent: 'text-orange-400', category: 'Speed', text: '1 knot = 1.852 km/h = 1 nautical mile/h' },
+  {
+    accent: 'text-purple-400',
+    category: 'Time',
+    text: '1 year ≈ 365.2425 days = 31 556 952 seconds',
+  },
+  {
+    accent: 'text-indigo-400',
+    category: 'Data',
+    text: '1 GiB = 1 073 741 824 bytes ≠ 1 GB (1 000 000 000 bytes)',
+  },
+  {
+    accent: 'text-sky-400',
+    category: 'Pressure',
+    text: '1 atm = 101 325 Pa = 14.696 psi = 760 mmHg',
+  },
+  { accent: 'text-yellow-400', category: 'Energy', text: '1 kcal = 4 184 J (food "Calorie")' },
+  { accent: 'text-red-400', category: 'Force', text: '1 lbf = 4.448 22 N' },
+  { accent: 'text-teal-400', category: 'Angle', text: '1 radian = 180/π ≈ 57.296°' },
 ];
 
 export default async function UnitsPage() {
@@ -218,9 +234,7 @@ export default async function UnitsPage() {
               <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
                 {t('pageTitle')}
               </h1>
-              <p className="text-base text-muted-foreground mt-1">
-                {t('pageSubtitle')}
-              </p>
+              <p className="text-base text-muted-foreground mt-1">{t('pageSubtitle')}</p>
             </div>
           </div>
 
@@ -327,8 +341,7 @@ export default async function UnitsPage() {
             <div
               className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"
               style={{
-                background:
-                  'linear-gradient(135deg, oklch(0.65 0.22 264 / 0.06), transparent)',
+                background: 'linear-gradient(135deg, oklch(0.65 0.22 264 / 0.06), transparent)',
               }}
             />
             {/* Corner accent */}
@@ -341,14 +354,14 @@ export default async function UnitsPage() {
             />
             <ul className="relative space-y-2">
               {[
-                [t('feature.liveConversion'),    t('feature.liveConversionDesc')],
-                [t('feature.categories'),      t('feature.categoriesDesc')],
+                [t('feature.liveConversion'), t('feature.liveConversionDesc')],
+                [t('feature.categories'), t('feature.categoriesDesc')],
                 [t('feature.formula'), t('feature.formulaDesc')],
-                [t('feature.searchable'),   t('feature.searchableDesc')],
-                [t('feature.history'),     t('feature.historyDesc')],
-                [t('feature.swap'),        t('feature.swapDesc')],
-                [t('feature.highPrecision'),     t('feature.highPrecisionDesc')],
-                [t('feature.accessible'),         t('feature.accessibleDesc')],
+                [t('feature.searchable'), t('feature.searchableDesc')],
+                [t('feature.history'), t('feature.historyDesc')],
+                [t('feature.swap'), t('feature.swapDesc')],
+                [t('feature.highPrecision'), t('feature.highPrecisionDesc')],
+                [t('feature.accessible'), t('feature.accessibleDesc')],
               ].map(([title, detail]) => (
                 <li key={title} className="text-sm" style={{ color: 'oklch(0.75 0.08 264)' }}>
                   <strong style={{ color: 'oklch(0.78 0.18 264)' }}>{title}: </strong>

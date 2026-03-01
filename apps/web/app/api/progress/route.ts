@@ -4,9 +4,9 @@
  * GET /api/progress - Get user progress and statistics
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
+import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,9 +18,9 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Authentication required'
+          error: 'Authentication required',
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -35,15 +35,15 @@ export async function GET(_request: NextRequest) {
                 id: true,
                 name: true,
                 slug: true,
-                category: true
-              }
-            }
-          }
+                category: true,
+              },
+            },
+          },
         },
         achievements: {
           include: {
-            achievement: true
-          }
+            achievement: true,
+          },
         },
         favorites: {
           where: { resourceType: 'PROBLEM' },
@@ -53,19 +53,19 @@ export async function GET(_request: NextRequest) {
                 id: true,
                 title: true,
                 slug: true,
-                difficulty: true
-              }
-            }
-          }
-        }
-      }
+                difficulty: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     // Create progress record if it doesn't exist
     if (!userProgress) {
       userProgress = await prisma.userProgress.create({
         data: {
-          userId: session.user.id
+          userId: session.user.id,
         },
         include: {
           topicProgress: {
@@ -75,15 +75,15 @@ export async function GET(_request: NextRequest) {
                   id: true,
                   name: true,
                   slug: true,
-                  category: true
-                }
-              }
-            }
+                  category: true,
+                },
+              },
+            },
           },
           achievements: {
             include: {
-              achievement: true
-            }
+              achievement: true,
+            },
           },
           favorites: {
             where: { resourceType: 'PROBLEM' },
@@ -93,12 +93,12 @@ export async function GET(_request: NextRequest) {
                   id: true,
                   title: true,
                   slug: true,
-                  difficulty: true
-                }
-              }
-            }
-          }
-        }
+                  difficulty: true,
+                },
+              },
+            },
+          },
+        },
       });
     }
 
@@ -113,10 +113,10 @@ export async function GET(_request: NextRequest) {
             id: true,
             title: true,
             slug: true,
-            difficulty: true
-          }
-        }
-      }
+            difficulty: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json({
@@ -129,31 +129,31 @@ export async function GET(_request: NextRequest) {
           longestStreak: userProgress.longestStreak,
           level: userProgress.level,
           experience: userProgress.experience,
-          lastActive: userProgress.lastActive
+          lastActive: userProgress.lastActive,
         },
         topicProgress: userProgress.topicProgress.map((tp) => ({
           topic: tp.topic,
           masteryLevel: tp.masteryLevel,
           problemsSolved: tp.problemsSolved,
           timeSpent: tp.timeSpent,
-          lastPracticed: tp.lastPracticed
+          lastPracticed: tp.lastPracticed,
         })),
         achievements: userProgress.achievements.map((ua) => ({
           ...ua.achievement,
-          earnedAt: ua.earnedAt
+          earnedAt: ua.earnedAt,
         })),
         favorites: userProgress.favorites.map((f) => f.problem),
-        recentAttempts
-      }
+        recentAttempts,
+      },
     });
   } catch (error) {
     console.error('Error fetching progress:', error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Internal server error'
+        error: 'Internal server error',
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

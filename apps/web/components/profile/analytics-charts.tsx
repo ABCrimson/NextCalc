@@ -39,20 +39,14 @@ function getMasteryColor(mastery: number): string {
 function TopicMasteryChart({ data }: { data: TopicMastery[] }) {
   if (data.length === 0) {
     return (
-      <p className="py-8 text-center text-sm text-muted-foreground">
-        No topic data available yet.
-      </p>
+      <p className="py-8 text-center text-sm text-muted-foreground">No topic data available yet.</p>
     );
   }
 
   const sorted = [...data].sort((a, b) => b.mastery - a.mastery);
 
   return (
-    <div
-      className="space-y-3"
-      role="list"
-      aria-label="Topic mastery levels"
-    >
+    <div className="space-y-3" role="list" aria-label="Topic mastery levels">
       {sorted.map((item) => (
         <div key={item.topic} role="listitem" className="group">
           <div className="mb-1 flex items-center justify-between text-sm">
@@ -105,7 +99,9 @@ function AccuracyTrendChart({ data }: { data: TrendPoint[] }) {
       accuracy: d.accuracy,
     }));
 
-    const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+    const linePath = pts
+      .map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`)
+      .join(' ');
 
     const bottom = PADDING.top + plotH;
     const firstPt = pts[0]!;
@@ -246,7 +242,7 @@ function StreakHistoryChart({ data }: { data: StreakPoint[] }) {
 
     const plotW = CHART_WIDTH - STREAK_PADDING.left - STREAK_PADDING.right;
     const plotH = STREAK_HEIGHT - STREAK_PADDING.top - STREAK_PADDING.bottom;
-    const barW = Math.max(2, (plotW / visible.length) - 1);
+    const barW = Math.max(2, plotW / visible.length - 1);
     const bottom = STREAK_PADDING.top + plotH;
 
     const b = visible.map((d, i) => {
@@ -275,9 +271,7 @@ function StreakHistoryChart({ data }: { data: StreakPoint[] }) {
 
   if (data.length === 0) {
     return (
-      <p className="py-8 text-center text-sm text-muted-foreground">
-        No streak data available.
-      </p>
+      <p className="py-8 text-center text-sm text-muted-foreground">No streak data available.</p>
     );
   }
 
@@ -337,7 +331,11 @@ function StreakHistoryChart({ data }: { data: StreakPoint[] }) {
 // Main export
 // ---------------------------------------------------------------------------
 
-export function AnalyticsCharts({ topicMastery, accuracyTrend, streakHistory }: AnalyticsChartsProps) {
+export function AnalyticsCharts({
+  topicMastery,
+  accuracyTrend,
+  streakHistory,
+}: AnalyticsChartsProps) {
   return (
     <div className="space-y-6">
       <Card>

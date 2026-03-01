@@ -7,8 +7,8 @@
  * @module components/plots/PolarAxisLabels
  */
 
-import { useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { useMemo } from 'react';
 
 export interface PolarAxisLabelsProps {
   rRange: {
@@ -17,9 +17,9 @@ export interface PolarAxisLabelsProps {
   };
   width: number;
   height: number;
-  showDegrees?: boolean;  // Show degrees instead of radians
-  radialSteps?: number;   // Number of radial circles
-  angularSteps?: number;  // Number of angular divisions
+  showDegrees?: boolean; // Show degrees instead of radians
+  radialSteps?: number; // Number of radial circles
+  angularSteps?: number; // Number of angular divisions
 }
 
 /**
@@ -33,7 +33,7 @@ function calculateAdaptiveAngularSteps(radius: number): number {
 
   // Round to common divisions: 4, 8, 12, 16, 24
   const commonSteps = [4, 8, 12, 16, 24, 32];
-  return commonSteps.find(step => step <= maxLabels) || 8;
+  return commonSteps.find((step) => step <= maxLabels) || 8;
 }
 
 // Animation variants for smooth appearance
@@ -109,7 +109,7 @@ export function PolarAxisLabels({
   // Adaptive angular steps based on viewport size
   const angularSteps = useMemo(
     () => providedAngularSteps || calculateAdaptiveAngularSteps(maxRadius),
-    [providedAngularSteps, maxRadius]
+    [providedAngularSteps, maxRadius],
   );
 
   // Calculate radial tick marks (circles)
@@ -317,7 +317,8 @@ export function PolarAxisLabels({
         }}
         aria-label={`Radial range from ${rRange.min.toFixed(1)} to ${rRange.max.toFixed(1)}`}
       >
-        <span className="text-cyan-400">r</span> ∈ [{rRange.min.toFixed(1)}, {rRange.max.toFixed(1)}]
+        <span className="text-cyan-400">r</span> ∈ [{rRange.min.toFixed(1)}, {rRange.max.toFixed(1)}
+        ]
       </motion.div>
     </div>
   );

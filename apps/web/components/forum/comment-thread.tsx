@@ -7,31 +7,21 @@
  * Supports upvoting and collapsing long threads.
  */
 
-import { useState, useCallback } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useMutation } from '@apollo/client/react';
-import {
-  MessageSquare,
-  Reply,
-  ChevronDown,
-  ChevronUp,
-  Trash2,
-  Loader2,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { UpvoteButton } from '@/components/forum/upvote-button';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { ChevronDown, ChevronUp, Loader2, MessageSquare, Reply, Trash2 } from 'lucide-react';
+import { useCallback, useState } from 'react';
 import {
   type CommentNode,
   type CommentReply,
-  timeAgo,
   getInitials,
+  timeAgo,
 } from '@/components/forum/forum-shared';
-import {
-  CREATE_COMMENT_MUTATION,
-  DELETE_COMMENT_MUTATION,
-} from '@/lib/graphql/forum-operations';
+import { UpvoteButton } from '@/components/forum/upvote-button';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import { useSession } from '@/lib/auth/hooks';
+import { CREATE_COMMENT_MUTATION, DELETE_COMMENT_MUTATION } from '@/lib/graphql/forum-operations';
 import { cn } from '@/lib/utils';
 
 // ============================================================================
@@ -100,10 +90,7 @@ function SingleComment({
             animate: { opacity: 1, y: 0 },
             transition: { duration: 0.25 },
           })}
-      className={cn(
-        'relative',
-        isReply && 'ml-8 pl-4 border-l-2 border-border/50',
-      )}
+      className={cn('relative', isReply && 'ml-8 pl-4 border-l-2 border-border/50')}
     >
       <div className="flex gap-3 py-3">
         {/* Avatar */}
@@ -115,9 +102,7 @@ function SingleComment({
               className="h-full w-full rounded-full object-cover"
             />
           ) : (
-            <span className="text-muted-foreground">
-              {getInitials(comment.user.name)}
-            </span>
+            <span className="text-muted-foreground">{getInitials(comment.user.name)}</span>
           )}
         </div>
 
@@ -127,9 +112,7 @@ function SingleComment({
             <span className="text-xs font-semibold text-foreground">
               {comment.user.name ?? 'Anonymous'}
             </span>
-            <span className="text-[10px] text-muted-foreground">
-              {timeAgo(comment.createdAt)}
-            </span>
+            <span className="text-[10px] text-muted-foreground">{timeAgo(comment.createdAt)}</span>
           </div>
 
           <p className="text-sm text-foreground/90 whitespace-pre-wrap break-words">
@@ -182,7 +165,7 @@ function SingleComment({
               >
                 <Textarea
                   value={replyContent}
-                  onChange={e => setReplyContent(e.target.value)}
+                  onChange={(e) => setReplyContent(e.target.value)}
                   placeholder="Write a reply..."
                   className="bg-card/50 backdrop-blur-md border-border text-sm min-h-[60px]"
                   rows={2}
@@ -236,20 +219,22 @@ export function CommentThread({ comments, postId, onCommentAdded }: CommentThrea
   const currentUserId = session?.user?.id ?? null;
 
   // Separate top-level from replies (top-level has no parent)
-  const topLevel = comments.filter(c => c.parent === null);
+  const topLevel = comments.filter((c) => c.parent === null);
 
   if (topLevel.length === 0) {
     return (
       <div className="text-center py-8">
         <MessageSquare className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
-        <p className="text-sm text-muted-foreground">No comments yet. Be the first to share your thoughts!</p>
+        <p className="text-sm text-muted-foreground">
+          No comments yet. Be the first to share your thoughts!
+        </p>
       </div>
     );
   }
 
   return (
     <div className="space-y-1 divide-y divide-border/30">
-      {topLevel.map(comment => (
+      {topLevel.map((comment) => (
         <CommentWithReplies
           key={comment.id}
           comment={comment}
@@ -294,7 +279,7 @@ function CommentWithReplies({
         onCommentAdded={onCommentAdded}
       />
 
-      {visibleReplies.map(reply => (
+      {visibleReplies.map((reply) => (
         <SingleComment
           key={reply.id}
           comment={reply}

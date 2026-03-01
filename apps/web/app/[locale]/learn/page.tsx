@@ -1,5 +1,5 @@
-import type { Metadata } from 'next';
 import { getAllTopics, getDefinitionCountByTopic } from '@nextcalc/math-engine/knowledge';
+import type { Metadata } from 'next';
 import { LearnContent } from './learn-content';
 
 /**

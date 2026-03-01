@@ -7,12 +7,12 @@
  * @module cms/problem-manager
  */
 
-import { prisma } from '../prisma';
-import type { Difficulty, Problem, Prisma } from '@nextcalc/database';
-import { z } from 'zod';
+import type { Difficulty, Prisma, Problem } from '@nextcalc/database';
 import fs from 'fs/promises';
-import path from 'path';
 import matter from 'gray-matter';
+import path from 'path';
+import { z } from 'zod';
+import { prisma } from '../prisma';
 
 // ============================================================================
 // Validation Schemas (Zod)
@@ -29,17 +29,25 @@ export const ProblemCreateSchema = z.object({
   estimatedTime: z.number().int().min(1).max(300).default(15),
   points: z.number().int().min(1).max(1000).default(10),
   topics: z.array(z.string()).min(1), // Topic IDs
-  hints: z.array(z.object({
-    content: z.string(),
-    order: z.number().int().default(0),
-    pointCost: z.number().int().default(5)
-  })).optional(),
-  testCases: z.array(z.object({
-    input: z.string(),
-    expected: z.string(),
-    isHidden: z.boolean().default(false),
-    order: z.number().int().default(0)
-  })).optional()
+  hints: z
+    .array(
+      z.object({
+        content: z.string(),
+        order: z.number().int().default(0),
+        pointCost: z.number().int().default(5),
+      }),
+    )
+    .optional(),
+  testCases: z
+    .array(
+      z.object({
+        input: z.string(),
+        expected: z.string(),
+        isHidden: z.boolean().default(false),
+        order: z.number().int().default(0),
+      }),
+    )
+    .optional(),
 });
 
 export const ProblemUpdateSchema = ProblemCreateSchema.partial();
@@ -53,7 +61,7 @@ export const ProblemFilterSchema = z.object({
   limit: z.number().int().min(1).max(100).default(20),
   offset: z.number().int().min(0).default(0),
   sortBy: z.enum(['popularity', 'difficulty', 'createdAt', 'points']).default('createdAt'),
-  sortOrder: z.enum(['asc', 'desc']).default('desc')
+  sortOrder: z.enum(['asc', 'desc']).default('desc'),
 });
 
 export type ProblemCreateInput = z.infer<typeof ProblemCreateSchema>;
@@ -85,9 +93,9 @@ export class ProblemManager {
 
         // Create relationships
         topics: {
-          create: validated.topics.map(topicId => ({
-            topicId
-          }))
+          create: validated.topics.map((topicId) => ({
+            topicId,
+          })),
         },
 
         ...(validated.hints && {
@@ -95,9 +103,9 @@ export class ProblemManager {
             create: validated.hints.map((hint, idx) => ({
               content: hint.content,
               order: hint.order ?? idx,
-              pointCost: hint.pointCost
-            }))
-          }
+              pointCost: hint.pointCost,
+            })),
+          },
         }),
 
         ...(validated.testCases && {
@@ -106,16 +114,16 @@ export class ProblemManager {
               input: tc.input,
               expected: tc.expected,
               isHidden: tc.isHidden,
-              order: tc.order ?? idx
-            }))
-          }
-        })
+              order: tc.order ?? idx,
+            })),
+          },
+        }),
       },
       include: {
         topics: { include: { topic: true } },
         hints: { orderBy: { order: 'asc' } },
-        testCases: { orderBy: { order: 'asc' } }
-      }
+        testCases: { orderBy: { order: 'asc' } },
+      },
     });
 
     return problem;
@@ -136,14 +144,14 @@ export class ProblemManager {
       ...(validated.solution && { solution: validated.solution }),
       ...(validated.solutionCode !== undefined && { solutionCode: validated.solutionCode }),
       ...(validated.estimatedTime && { estimatedTime: validated.estimatedTime }),
-      ...(validated.points && { points: validated.points })
+      ...(validated.points && { points: validated.points }),
     };
 
     // Update topic relationships if provided
     if (validated.topics) {
       updateData.topics = {
         deleteMany: {},
-        create: validated.topics.map(topicId => ({ topicId }))
+        create: validated.topics.map((topicId) => ({ topicId })),
       };
     }
 
@@ -153,8 +161,8 @@ export class ProblemManager {
       include: {
         topics: { include: { topic: true } },
         hints: { orderBy: { order: 'asc' } },
-        testCases: { orderBy: { order: 'asc' } }
-      }
+        testCases: { orderBy: { order: 'asc' } },
+      },
     });
   }
 
@@ -164,7 +172,7 @@ export class ProblemManager {
   static async deleteProblem(id: string): Promise<void> {
     await prisma.problem.update({
       where: { id },
-      data: { deletedAt: new Date() }
+      data: { deletedAt: new Date() },
     });
   }
 
@@ -173,7 +181,7 @@ export class ProblemManager {
    */
   static async hardDeleteProblem(id: string): Promise<void> {
     await prisma.problem.delete({
-      where: { id }
+      where: { id },
     });
   }
 
@@ -186,28 +194,32 @@ export class ProblemManager {
     const where: Prisma.ProblemWhereInput = {
       deletedAt: null,
       ...(validated.difficulty && { difficulty: validated.difficulty as Difficulty }),
-      ...(validated.topicIds && validated.topicIds.length > 0 && {
-        topics: {
-          some: {
-            topicId: { in: validated.topicIds }
-          }
-        }
-      }),
+      ...(validated.topicIds &&
+        validated.topicIds.length > 0 && {
+          topics: {
+            some: {
+              topicId: { in: validated.topicIds },
+            },
+          },
+        }),
       ...(validated.minPoints && { points: { gte: validated.minPoints } }),
       ...(validated.maxPoints && { points: { lte: validated.maxPoints } }),
       ...(validated.search && {
         OR: [
           { title: { contains: validated.search, mode: 'insensitive' } },
-          { description: { contains: validated.search, mode: 'insensitive' } }
-        ]
-      })
+          { description: { contains: validated.search, mode: 'insensitive' } },
+        ],
+      }),
     };
 
     const orderBy: Prisma.ProblemOrderByWithRelationInput =
-      validated.sortBy === 'popularity' ? { popularity: validated.sortOrder } :
-      validated.sortBy === 'difficulty' ? { difficulty: validated.sortOrder } :
-      validated.sortBy === 'points' ? { points: validated.sortOrder } :
-      { createdAt: validated.sortOrder };
+      validated.sortBy === 'popularity'
+        ? { popularity: validated.sortOrder }
+        : validated.sortBy === 'difficulty'
+          ? { difficulty: validated.sortOrder }
+          : validated.sortBy === 'points'
+            ? { points: validated.sortOrder }
+            : { createdAt: validated.sortOrder };
 
     const [problems, total] = await Promise.all([
       prisma.problem.findMany({
@@ -216,22 +228,22 @@ export class ProblemManager {
           topics: {
             include: {
               topic: {
-                select: { id: true, name: true, slug: true, category: true }
-              }
-            }
+                select: { id: true, name: true, slug: true, category: true },
+              },
+            },
           },
           _count: {
             select: {
               attempts: true,
-              favorites: true
-            }
-          }
+              favorites: true,
+            },
+          },
         },
         orderBy,
         take: validated.limit,
-        skip: validated.offset
+        skip: validated.offset,
       }),
-      prisma.problem.count({ where })
+      prisma.problem.count({ where }),
     ]);
 
     return {
@@ -239,7 +251,7 @@ export class ProblemManager {
       total,
       hasMore: validated.offset + validated.limit < total,
       page: Math.floor(validated.offset / validated.limit) + 1,
-      totalPages: Math.ceil(total / validated.limit)
+      totalPages: Math.ceil(total / validated.limit),
     };
   }
 
@@ -252,26 +264,26 @@ export class ProblemManager {
       include: {
         topics: {
           include: {
-            topic: true
-          }
+            topic: true,
+          },
         },
         hints: {
-          orderBy: { order: 'asc' }
+          orderBy: { order: 'asc' },
         },
         testCases: {
           where: includeHidden ? {} : { isHidden: false },
-          orderBy: { order: 'asc' }
+          orderBy: { order: 'asc' },
         },
         examples: {
-          orderBy: { order: 'asc' }
+          orderBy: { order: 'asc' },
         },
         _count: {
           select: {
             attempts: true,
-            favorites: true
-          }
-        }
-      }
+            favorites: true,
+          },
+        },
+      },
     });
 
     if (!problem || problem.deletedAt) {
@@ -281,7 +293,7 @@ export class ProblemManager {
     // Increment popularity counter
     await prisma.problem.update({
       where: { id: problem.id },
-      data: { popularity: { increment: 1 } }
+      data: { popularity: { increment: 1 } },
     });
 
     return problem;
@@ -296,20 +308,20 @@ export class ProblemManager {
       include: {
         topics: {
           include: {
-            topic: true
-          }
+            topic: true,
+          },
         },
         hints: {
-          orderBy: { order: 'asc' }
+          orderBy: { order: 'asc' },
         },
         testCases: {
           where: includeHidden ? {} : { isHidden: false },
-          orderBy: { order: 'asc' }
+          orderBy: { order: 'asc' },
         },
         examples: {
-          orderBy: { order: 'asc' }
-        }
-      }
+          orderBy: { order: 'asc' },
+        },
+      },
     });
 
     if (!problem || problem.deletedAt) {
@@ -350,7 +362,7 @@ export class ProblemManager {
    */
   static async importProblemsFromMarkdown(directory: string): Promise<Problem[]> {
     const files = await fs.readdir(directory);
-    const markdownFiles = files.filter(f => f.endsWith('.md'));
+    const markdownFiles = files.filter((f) => f.endsWith('.md'));
 
     const problems: Problem[] = [];
 
@@ -361,12 +373,15 @@ export class ProblemManager {
         const { data: frontmatter, content } = matter(fileContent);
 
         // Parse markdown sections
-        const sections = this.parseMarkdownSections(content);
+        const sections = ProblemManager.parseMarkdownSections(content);
 
         const problemData: ProblemCreateInput = {
           title: frontmatter['title'] as string,
           slug: (frontmatter['slug'] as string | undefined) || file.replace('.md', ''),
-          description: (frontmatter['description'] as string | undefined) || sections.problem?.substring(0, 200) || '',
+          description:
+            (frontmatter['description'] as string | undefined) ||
+            sections.problem?.substring(0, 200) ||
+            '',
           difficulty: frontmatter['difficulty'] as Difficulty,
           topics: (frontmatter['topics'] as string[]) || [],
           content: sections.problem || content,
@@ -377,14 +392,13 @@ export class ProblemManager {
           hints: sections.hints?.map((hint, idx) => ({
             content: hint,
             order: idx,
-            pointCost: 5
+            pointCost: 5,
           })),
-          testCases: sections.testCases
+          testCases: sections.testCases,
         };
 
-        const problem = await this.createProblem(problemData);
+        const problem = await ProblemManager.createProblem(problemData);
         problems.push(problem);
-
       } catch (error) {
         console.error(`Failed to import ${file}:`, error);
       }
@@ -418,8 +432,8 @@ export class ProblemManager {
     if (hintsMatch?.[1]) {
       sections.hints = hintsMatch[1]
         .split('\n')
-        .filter(line => line.trim().startsWith('-'))
-        .map(line => line.replace(/^-\s*/, '').trim());
+        .filter((line) => line.trim().startsWith('-'))
+        .map((line) => line.replace(/^-\s*/, '').trim());
     }
 
     const testCasesMatch = markdown.match(/##\s*Test Cases\s*\n```json\s*\n([\s\S]*?)```/i);
@@ -440,12 +454,12 @@ export class ProblemManager {
   static async calculateSuccessRate(problemId: string): Promise<number> {
     const attempts = await prisma.attempt.findMany({
       where: { problemId },
-      select: { correct: true }
+      select: { correct: true },
     });
 
     if (attempts.length === 0) return 0;
 
-    const successful = attempts.filter(a => a.correct).length;
+    const successful = attempts.filter((a) => a.correct).length;
     return (successful / attempts.length) * 100;
   }
 
@@ -455,14 +469,14 @@ export class ProblemManager {
   static async updateAllSuccessRates(): Promise<void> {
     const problems = await prisma.problem.findMany({
       where: { deletedAt: null },
-      select: { id: true }
+      select: { id: true },
     });
 
     for (const problem of problems) {
-      const successRate = await this.calculateSuccessRate(problem.id);
+      const successRate = await ProblemManager.calculateSuccessRate(problem.id);
       await prisma.problem.update({
         where: { id: problem.id },
-        data: { successRate }
+        data: { successRate },
       });
     }
   }

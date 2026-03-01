@@ -93,12 +93,7 @@ export function ProgressRing({
       aria-label={`Progress: ${Math.round(clampedValue)}%`}
       tabIndex={0}
     >
-      <svg
-        width={size}
-        height={size}
-        className="transform -rotate-90"
-        aria-hidden="true"
-      >
+      <svg width={size} height={size} className="transform -rotate-90" aria-hidden="true">
         {/* Background circle */}
         <circle
           cx={size / 2}
@@ -134,10 +129,7 @@ export function ProgressRing({
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: animationDuration * 0.5, duration: 0.3 }}
         >
-          <span
-            className="text-sm font-semibold text-foreground"
-            aria-hidden="true"
-          >
+          <span className="text-sm font-semibold text-foreground" aria-hidden="true">
             {displayValue}
           </span>
         </motion.div>
@@ -177,10 +169,7 @@ export function ProgressRingStack({
       {rings.map((ring, index) => {
         const ringSize = size - index * (strokeWidth + 4);
         return (
-          <div
-            key={index}
-            className="absolute inset-0 flex items-center justify-center"
-          >
+          <div key={index} className="absolute inset-0 flex items-center justify-center">
             <ProgressRing
               value={ring.value}
               size={ringSize}

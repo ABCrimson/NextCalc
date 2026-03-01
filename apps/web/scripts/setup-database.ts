@@ -61,7 +61,9 @@ async function setupDatabase() {
     console.log('5. Create/update apps/web/.env.local:');
     console.log('');
     console.log('   DATABASE_URL="postgresql://user:password@host/database?sslmode=require"');
-    console.log('   DIRECT_DATABASE_URL="postgresql://user:password@host/database?sslmode=require"');
+    console.log(
+      '   DIRECT_DATABASE_URL="postgresql://user:password@host/database?sslmode=require"',
+    );
     console.log('');
     console.log('Note: DIRECT_DATABASE_URL should be the same as DATABASE_URL for Neon');
     console.log('      (Neon handles pooling automatically)');
@@ -78,7 +80,7 @@ async function setupDatabase() {
   if (continueTest.toLowerCase() !== 'n') {
     const success = executeCommand(
       'pnpm tsx scripts/test-database-connection.ts',
-      'Testing database connection'
+      'Testing database connection',
     );
 
     if (!success) {

@@ -1,16 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { NormalFormGame } from '@nextcalc/math-engine/game-theory/game-theory';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Brain, ChevronRight, Target, TrendingUp, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Brain, Users, Target, TrendingUp, ChevronRight } from 'lucide-react';
-import { NormalFormGame } from '@nextcalc/math-engine/game-theory/game-theory';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -64,8 +64,14 @@ const PRESETS_2x2: Preset[] = [
     label: "Prisoner's Dilemma",
     description: 'Each player tempted to defect despite mutual cooperation being optimal',
     matrix: [
-      [[3, 3], [0, 5]],
-      [[5, 0], [1, 1]],
+      [
+        [3, 3],
+        [0, 5],
+      ],
+      [
+        [5, 0],
+        [1, 1],
+      ],
     ],
     size: 2,
   },
@@ -74,8 +80,14 @@ const PRESETS_2x2: Preset[] = [
     label: 'Battle of the Sexes',
     description: 'Two players prefer to coordinate but disagree on which equilibrium',
     matrix: [
-      [[2, 1], [0, 0]],
-      [[0, 0], [1, 2]],
+      [
+        [2, 1],
+        [0, 0],
+      ],
+      [
+        [0, 0],
+        [1, 2],
+      ],
     ],
     size: 2,
   },
@@ -84,8 +96,14 @@ const PRESETS_2x2: Preset[] = [
     label: 'Chicken Game',
     description: 'Anti-coordination game where yielding is rational to avoid mutual disaster',
     matrix: [
-      [[0, 0], [3, 1]],
-      [[1, 3], [2, 2]],
+      [
+        [0, 0],
+        [3, 1],
+      ],
+      [
+        [1, 3],
+        [2, 2],
+      ],
     ],
     size: 2,
   },
@@ -94,8 +112,14 @@ const PRESETS_2x2: Preset[] = [
     label: 'Stag Hunt',
     description: 'Coordination game with a payoff-dominant and a risk-dominant equilibrium',
     matrix: [
-      [[4, 4], [0, 3]],
-      [[3, 0], [3, 3]],
+      [
+        [4, 4],
+        [0, 3],
+      ],
+      [
+        [3, 0],
+        [3, 3],
+      ],
     ],
     size: 2,
   },
@@ -104,8 +128,14 @@ const PRESETS_2x2: Preset[] = [
     label: 'Matching Pennies',
     description: 'Pure zero-sum game with no pure strategy Nash equilibrium',
     matrix: [
-      [[1, -1], [-1, 1]],
-      [[-1, 1], [1, -1]],
+      [
+        [1, -1],
+        [-1, 1],
+      ],
+      [
+        [-1, 1],
+        [1, -1],
+      ],
     ],
     size: 2,
   },
@@ -114,8 +144,14 @@ const PRESETS_2x2: Preset[] = [
     label: 'Hawk-Dove',
     description: 'Evolutionary game modeling aggressive vs. passive conflict strategies',
     matrix: [
-      [[-1, -1], [4, 0]],
-      [[0, 4], [2, 2]],
+      [
+        [-1, -1],
+        [4, 0],
+      ],
+      [
+        [0, 4],
+        [2, 2],
+      ],
     ],
     size: 2,
   },
@@ -124,8 +160,14 @@ const PRESETS_2x2: Preset[] = [
     label: 'Pure Coordination',
     description: 'Players benefit only when they choose the same strategy',
     matrix: [
-      [[2, 2], [0, 0]],
-      [[0, 0], [2, 2]],
+      [
+        [2, 2],
+        [0, 0],
+      ],
+      [
+        [0, 0],
+        [2, 2],
+      ],
     ],
     size: 2,
   },
@@ -134,8 +176,14 @@ const PRESETS_2x2: Preset[] = [
     label: 'Deadlock',
     description: 'Mutual defection is the dominant equilibrium for both players',
     matrix: [
-      [[1, 1], [3, 0]],
-      [[0, 3], [2, 2]],
+      [
+        [1, 1],
+        [3, 0],
+      ],
+      [
+        [0, 3],
+        [2, 2],
+      ],
     ],
     size: 2,
   },
@@ -144,8 +192,14 @@ const PRESETS_2x2: Preset[] = [
     label: 'Hero Game',
     description: 'One player must volunteer to sacrifice while the other free-rides',
     matrix: [
-      [[3, 3], [1, 4]],
-      [[4, 1], [0, 0]],
+      [
+        [3, 3],
+        [1, 4],
+      ],
+      [
+        [4, 1],
+        [0, 0],
+      ],
     ],
     size: 2,
   },
@@ -154,8 +208,14 @@ const PRESETS_2x2: Preset[] = [
     label: 'Assurance Game',
     description: 'Cooperation is payoff-dominant but only rational if the other cooperates',
     matrix: [
-      [[4, 4], [1, 2]],
-      [[2, 1], [3, 3]],
+      [
+        [4, 4],
+        [1, 2],
+      ],
+      [
+        [2, 1],
+        [3, 3],
+      ],
     ],
     size: 2,
   },
@@ -167,9 +227,21 @@ const PRESETS_3x3: Preset[] = [
     label: 'Rock-Paper-Scissors',
     description: 'Classic zero-sum cyclic game with no pure strategy equilibrium',
     matrix: [
-      [[0, 0], [-1, 1], [1, -1]],
-      [[1, -1], [0, 0], [-1, 1]],
-      [[-1, 1], [1, -1], [0, 0]],
+      [
+        [0, 0],
+        [-1, 1],
+        [1, -1],
+      ],
+      [
+        [1, -1],
+        [0, 0],
+        [-1, 1],
+      ],
+      [
+        [-1, 1],
+        [1, -1],
+        [0, 0],
+      ],
     ],
     size: 3,
   },
@@ -178,9 +250,21 @@ const PRESETS_3x3: Preset[] = [
     label: 'Extended Matching Pennies',
     description: 'Three-strategy zero-sum game generalising matching pennies',
     matrix: [
-      [[0, 0], [1, -1], [-1, 1]],
-      [[-1, 1], [0, 0], [1, -1]],
-      [[1, -1], [-1, 1], [0, 0]],
+      [
+        [0, 0],
+        [1, -1],
+        [-1, 1],
+      ],
+      [
+        [-1, 1],
+        [0, 0],
+        [1, -1],
+      ],
+      [
+        [1, -1],
+        [-1, 1],
+        [0, 0],
+      ],
     ],
     size: 3,
   },
@@ -189,9 +273,21 @@ const PRESETS_3x3: Preset[] = [
     label: 'Three-Strategy Coordination',
     description: 'Players choose among three technologies; alignment maximises payoffs',
     matrix: [
-      [[4, 4], [0, 0], [0, 0]],
-      [[0, 0], [3, 3], [0, 0]],
-      [[0, 0], [0, 0], [2, 2]],
+      [
+        [4, 4],
+        [0, 0],
+        [0, 0],
+      ],
+      [
+        [0, 0],
+        [3, 3],
+        [0, 0],
+      ],
+      [
+        [0, 0],
+        [0, 0],
+        [2, 2],
+      ],
     ],
     size: 3,
   },
@@ -200,9 +296,21 @@ const PRESETS_3x3: Preset[] = [
     label: 'Voting Game',
     description: 'Three candidates; voters balance sincerity against strategic voting',
     matrix: [
-      [[3, 3], [1, 2], [0, 1]],
-      [[2, 1], [3, 3], [1, 2]],
-      [[1, 0], [2, 1], [3, 3]],
+      [
+        [3, 3],
+        [1, 2],
+        [0, 1],
+      ],
+      [
+        [2, 1],
+        [3, 3],
+        [1, 2],
+      ],
+      [
+        [1, 0],
+        [2, 1],
+        [3, 3],
+      ],
     ],
     size: 3,
   },
@@ -211,9 +319,21 @@ const PRESETS_3x3: Preset[] = [
     label: 'Market Entry',
     description: 'Firms decide whether to enter a market at high, medium, or low scale',
     matrix: [
-      [[-2, -2], [2, 1], [3, 0]],
-      [[1, 2], [1, 1], [2, 0]],
-      [[0, 3], [0, 2], [2, 2]],
+      [
+        [-2, -2],
+        [2, 1],
+        [3, 0],
+      ],
+      [
+        [1, 2],
+        [1, 1],
+        [2, 0],
+      ],
+      [
+        [0, 3],
+        [0, 2],
+        [2, 2],
+      ],
     ],
     size: 3,
   },
@@ -222,9 +342,21 @@ const PRESETS_3x3: Preset[] = [
     label: 'Traffic Light',
     description: 'Drivers choose speed; coordination at intersections avoids collisions',
     matrix: [
-      [[2, 2], [0, 3], [0, 1]],
-      [[3, 0], [-1, -1], [1, 0]],
-      [[1, 0], [0, 1], [1, 1]],
+      [
+        [2, 2],
+        [0, 3],
+        [0, 1],
+      ],
+      [
+        [3, 0],
+        [-1, -1],
+        [1, 0],
+      ],
+      [
+        [1, 0],
+        [0, 1],
+        [1, 1],
+      ],
     ],
     size: 3,
   },
@@ -233,9 +365,21 @@ const PRESETS_3x3: Preset[] = [
     label: 'Resource Allocation',
     description: 'Players allocate effort across three projects with spillover effects',
     matrix: [
-      [[3, 2], [1, 3], [0, 1]],
-      [[2, 1], [3, 3], [1, 2]],
-      [[1, 0], [2, 1], [2, 2]],
+      [
+        [3, 2],
+        [1, 3],
+        [0, 1],
+      ],
+      [
+        [2, 1],
+        [3, 3],
+        [1, 2],
+      ],
+      [
+        [1, 0],
+        [2, 1],
+        [2, 2],
+      ],
     ],
     size: 3,
   },
@@ -244,9 +388,21 @@ const PRESETS_3x3: Preset[] = [
     label: 'First-Price Auction',
     description: 'Bidders choose low, medium, or high bids; winner pays their bid',
     matrix: [
-      [[2, 0], [0, 3], [0, 2]],
-      [[3, 0], [1, 1], [0, 2]],
-      [[2, 0], [2, 0], [0, 0]],
+      [
+        [2, 0],
+        [0, 3],
+        [0, 2],
+      ],
+      [
+        [3, 0],
+        [1, 1],
+        [0, 2],
+      ],
+      [
+        [2, 0],
+        [2, 0],
+        [0, 0],
+      ],
     ],
     size: 3,
   },
@@ -255,9 +411,21 @@ const PRESETS_3x3: Preset[] = [
     label: 'Signaling Game',
     description: 'Informed sender signals type; receiver chooses to trust or ignore',
     matrix: [
-      [[3, 3], [1, 1], [0, 2]],
-      [[2, 1], [2, 2], [1, 1]],
-      [[1, 0], [1, 1], [3, 3]],
+      [
+        [3, 3],
+        [1, 1],
+        [0, 2],
+      ],
+      [
+        [2, 1],
+        [2, 2],
+        [1, 1],
+      ],
+      [
+        [1, 0],
+        [1, 1],
+        [3, 3],
+      ],
     ],
     size: 3,
   },
@@ -266,9 +434,21 @@ const PRESETS_3x3: Preset[] = [
     label: 'Election Game',
     description: 'Three parties choose policy positions; voters reward centrist convergence',
     matrix: [
-      [[2, 1], [1, 2], [0, 1]],
-      [[2, 0], [2, 2], [2, 0]],
-      [[1, 0], [2, 1], [1, 2]],
+      [
+        [2, 1],
+        [1, 2],
+        [0, 1],
+      ],
+      [
+        [2, 0],
+        [2, 2],
+        [2, 0],
+      ],
+      [
+        [1, 0],
+        [2, 1],
+        [1, 2],
+      ],
     ],
     size: 3,
   },
@@ -374,7 +554,9 @@ function MatrixCell({ row, col, payoffs, isNashEquilibrium, onUpdate }: MatrixCe
         />
       </div>
       <div className="flex gap-1 items-center mt-1">
-        <span className="text-[10px] font-medium text-[oklch(0.63_0.20_300)]/80 w-4 shrink-0">P2</span>
+        <span className="text-[10px] font-medium text-[oklch(0.63_0.20_300)]/80 w-4 shrink-0">
+          P2
+        </span>
         <Input
           type="number"
           value={payoffs[1]}
@@ -393,8 +575,14 @@ export default function GameTheoryPage() {
   const t = useTranslations('gameTheory');
   const [gridSize, setGridSize] = useState<2 | 3>(2);
   const [payoffMatrix, setPayoffMatrix] = useState<number[][][]>([
-    [[3, 3], [0, 5]],
-    [[5, 0], [1, 1]],
+    [
+      [3, 3],
+      [0, 5],
+    ],
+    [
+      [5, 0],
+      [1, 1],
+    ],
   ]);
   const [result, setResult] = useState<GameResult | null>(null);
   const [activePreset, setActivePreset] = useState<PresetKey>('prisoners-dilemma');
@@ -403,13 +591,13 @@ export default function GameTheoryPage() {
 
   const analyzeGame = () => {
     try {
-      const player1Payoffs = payoffMatrix.map(row => row.map(cell => cell[0] ?? 0));
-      const player2Payoffs = payoffMatrix.map(row => row.map(cell => cell[1] ?? 0));
+      const player1Payoffs = payoffMatrix.map((row) => row.map((cell) => cell[0] ?? 0));
+      const player2Payoffs = payoffMatrix.map((row) => row.map((cell) => cell[1] ?? 0));
 
       const game = new NormalFormGame(player1Payoffs, player2Payoffs);
       const nashEq = game.findPureNashEquilibria();
 
-      const transformedNashEq = nashEq.map(eq => ({
+      const transformedNashEq = nashEq.map((eq) => ({
         player1: typeof eq.strategies[0] === 'number' ? eq.strategies[0] : 0,
         player2: typeof eq.strategies[1] === 'number' ? eq.strategies[1] : 0,
       }));
@@ -431,7 +619,7 @@ export default function GameTheoryPage() {
   };
 
   const updatePayoff = (row: number, col: number, player: 0 | 1, value: string) => {
-    const newMatrix = payoffMatrix.map(r => r.map(c => [...c] as [number, number]));
+    const newMatrix = payoffMatrix.map((r) => r.map((c) => [...c] as [number, number]));
     const numValue = parseFloat(value) || 0;
     const cell = newMatrix[row]?.[col];
     if (cell) {
@@ -449,7 +637,7 @@ export default function GameTheoryPage() {
       setPayoffMatrix(defaultPreset.matrix);
     } else {
       const newMatrix: number[][][] = Array.from({ length: newSize }, () =>
-        Array.from({ length: newSize }, () => [0, 0])
+        Array.from({ length: newSize }, () => [0, 0]),
       );
       setPayoffMatrix(newMatrix);
     }
@@ -458,7 +646,7 @@ export default function GameTheoryPage() {
 
   const isNashEquilibrium = (row: number, col: number): boolean => {
     if (!result) return false;
-    return result.nashEquilibria.some(eq => eq.player1 === row && eq.player2 === col);
+    return result.nashEquilibria.some((eq) => eq.player1 === row && eq.player2 === col);
   };
 
   const rowLabels2x2 = ['Cooperate', 'Defect'];
@@ -470,7 +658,7 @@ export default function GameTheoryPage() {
 
   // Find active preset object for dynamic label display
   const activePresetObj =
-    (gridSize === 2 ? PRESETS_2x2 : PRESETS_3x3).find(p => p.key === activePreset) ?? null;
+    (gridSize === 2 ? PRESETS_2x2 : PRESETS_3x3).find((p) => p.key === activePreset) ?? null;
   const useCustomRowLabels =
     activePreset === 'rock-paper-scissors'
       ? ['Rock', 'Paper', 'Scissors']
@@ -512,9 +700,7 @@ export default function GameTheoryPage() {
               <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-[oklch(0.65_0.22_200)] to-[oklch(0.63_0.20_300)] bg-clip-text text-transparent leading-tight">
                 {t('title')}
               </h1>
-              <p className="text-base text-muted-foreground mt-0.5">
-                {t('subtitle')}
-              </p>
+              <p className="text-base text-muted-foreground mt-0.5">{t('subtitle')}</p>
             </div>
           </div>
           <div className="flex gap-2 flex-wrap">
@@ -544,7 +730,6 @@ export default function GameTheoryPage() {
 
         {/* ── Main Grid ──────────────────────────────────────────────────── */}
         <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
-
           {/* ── Control Panel ─────────────────────────────────────────────── */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -567,8 +752,12 @@ export default function GameTheoryPage() {
                     onValueChange={(v) => changeGridSize(Number(v) as 2 | 3)}
                   >
                     <TabsList className="grid w-full grid-cols-2 bg-muted/50 border border-border">
-                      <TabsTrigger value="2" className="text-sm">{t('twoByTwo')}</TabsTrigger>
-                      <TabsTrigger value="3" className="text-sm">{t('threeByThree')}</TabsTrigger>
+                      <TabsTrigger value="2" className="text-sm">
+                        {t('twoByTwo')}
+                      </TabsTrigger>
+                      <TabsTrigger value="3" className="text-sm">
+                        {t('threeByThree')}
+                      </TabsTrigger>
                     </TabsList>
                   </Tabs>
                 </div>
@@ -627,11 +816,10 @@ export default function GameTheoryPage() {
                       {t('payoffMatrix')}
                     </CardTitle>
                     <CardDescription className="mt-1">
-                      Each cell shows{' '}
-                      <span className="text-primary font-medium">Player 1</span>
+                      Each cell shows <span className="text-primary font-medium">Player 1</span>
                       {' / '}
-                      <span className="text-[oklch(0.63_0.20_300)] font-medium">Player 2</span>
-                      {' '}payoffs
+                      <span className="text-[oklch(0.63_0.20_300)] font-medium">Player 2</span>{' '}
+                      payoffs
                       {result && result.nashEquilibria.length > 0 && (
                         <span className="ml-2 text-primary">
                           — highlighted cells are Nash equilibria
@@ -653,27 +841,32 @@ export default function GameTheoryPage() {
                 {/* Legend */}
                 <div className="flex items-center gap-4 mb-4 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-primary/70 inline-block" aria-hidden="true" />
+                    <span
+                      className="w-2.5 h-2.5 rounded-full bg-primary/70 inline-block"
+                      aria-hidden="true"
+                    />
                     {t('playerRows')}
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[oklch(0.63_0.20_300)]/70 inline-block" aria-hidden="true" />
+                    <span
+                      className="w-2.5 h-2.5 rounded-full bg-[oklch(0.63_0.20_300)]/70 inline-block"
+                      aria-hidden="true"
+                    />
                     {t('playerCols')}
                   </span>
                   {result && result.nashEquilibria.length > 0 && (
                     <span className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-full bg-primary inline-block ring-2 ring-background" aria-hidden="true" />
+                      <span
+                        className="w-2.5 h-2.5 rounded-full bg-primary inline-block ring-2 ring-background"
+                        aria-hidden="true"
+                      />
                       Nash equilibrium
                     </span>
                   )}
                 </div>
 
                 {/* Matrix grid */}
-                <div
-                  className="overflow-auto"
-                  role="table"
-                  aria-label="Payoff matrix"
-                >
+                <div className="overflow-auto" role="table" aria-label="Payoff matrix">
                   <div
                     className="grid gap-2 min-w-0"
                     style={{
@@ -756,9 +949,7 @@ export default function GameTheoryPage() {
                     <div className="w-2 h-2 rounded-full bg-primary shrink-0" aria-hidden="true" />
                     {t('nashEquilibria')}
                   </CardTitle>
-                  <CardDescription>
-                    {t('nashDesc')}
-                  </CardDescription>
+                  <CardDescription>{t('nashDesc')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {result.nashEquilibria.length > 0 ? (
@@ -771,8 +962,10 @@ export default function GameTheoryPage() {
                       {result.nashEquilibria.map((eq, index) => {
                         const p1Payoff = payoffMatrix[eq.player1]?.[eq.player2]?.[0] ?? 0;
                         const p2Payoff = payoffMatrix[eq.player1]?.[eq.player2]?.[1] ?? 0;
-                        const rowLabel = useCustomRowLabels[eq.player1] ?? `Strategy ${eq.player1 + 1}`;
-                        const colLabel = useCustomColLabels[eq.player2] ?? `Strategy ${eq.player2 + 1}`;
+                        const rowLabel =
+                          useCustomRowLabels[eq.player1] ?? `Strategy ${eq.player1 + 1}`;
+                        const colLabel =
+                          useCustomColLabels[eq.player2] ?? `Strategy ${eq.player2 + 1}`;
                         return (
                           <motion.div
                             key={index}
@@ -795,17 +988,20 @@ export default function GameTheoryPage() {
                                 <div className="text-[10px] font-semibold uppercase tracking-wider text-primary/70 mb-1">
                                   Player 1
                                 </div>
-                                <div className="text-sm font-medium text-foreground">{rowLabel}</div>
+                                <div className="text-sm font-medium text-foreground">
+                                  {rowLabel}
+                                </div>
                                 <div className="text-xs text-muted-foreground mt-0.5">
-                                  Payoff:{' '}
-                                  <span className="font-mono text-primary">{p1Payoff}</span>
+                                  Payoff: <span className="font-mono text-primary">{p1Payoff}</span>
                                 </div>
                               </div>
                               <div className="p-2.5 rounded-lg bg-background/50 border border-border/60">
                                 <div className="text-[10px] font-semibold uppercase tracking-wider text-[oklch(0.63_0.20_300)]/70 mb-1">
                                   Player 2
                                 </div>
-                                <div className="text-sm font-medium text-foreground">{colLabel}</div>
+                                <div className="text-sm font-medium text-foreground">
+                                  {colLabel}
+                                </div>
                                 <div className="text-xs text-muted-foreground mt-0.5">
                                   Payoff:{' '}
                                   <span className="font-mono text-[oklch(0.63_0.20_300)]">
@@ -828,9 +1024,7 @@ export default function GameTheoryPage() {
                         <Target className="w-5 h-5 text-muted-foreground" aria-hidden="true" />
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-foreground">
-                          {t('noPureNash')}
-                        </div>
+                        <div className="text-sm font-medium text-foreground">{t('noPureNash')}</div>
                         <div className="text-xs text-muted-foreground mt-1 max-w-xs">
                           {t('mixedStrategyHint')}
                         </div>
@@ -844,12 +1038,13 @@ export default function GameTheoryPage() {
               <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-lg">
-                    <div className="w-2 h-2 rounded-full bg-destructive shrink-0" aria-hidden="true" />
+                    <div
+                      className="w-2 h-2 rounded-full bg-destructive shrink-0"
+                      aria-hidden="true"
+                    />
                     {t('dominatedStrategies')}
                   </CardTitle>
-                  <CardDescription>
-                    {t('dominatedDesc')}
-                  </CardDescription>
+                  <CardDescription>{t('dominatedDesc')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -872,7 +1067,9 @@ export default function GameTheoryPage() {
                         key={label}
                         className="p-3.5 rounded-xl bg-background/40 border border-border/60"
                       >
-                        <div className={`text-xs font-semibold uppercase tracking-wider mb-2.5 ${colorClass}`}>
+                        <div
+                          className={`text-xs font-semibold uppercase tracking-wider mb-2.5 ${colorClass}`}
+                        >
                           {label}
                         </div>
                         {strategies.length > 0 ? (
@@ -890,9 +1087,7 @@ export default function GameTheoryPage() {
                             ))}
                           </div>
                         ) : (
-                          <div className="text-sm text-muted-foreground">
-                            {t('noDominated')}
-                          </div>
+                          <div className="text-sm text-muted-foreground">{t('noDominated')}</div>
                         )}
                       </div>
                     ))}
@@ -936,7 +1131,7 @@ export default function GameTheoryPage() {
               },
               {
                 title: "Prisoner's Dilemma",
-                body: "The archetypal example of how individual rationality produces collectively suboptimal outcomes. Both players have a dominant strategy to defect, yet mutual defection (1,1) is worse than mutual cooperation (3,3) — the defining tension of social dilemmas.",
+                body: 'The archetypal example of how individual rationality produces collectively suboptimal outcomes. Both players have a dominant strategy to defect, yet mutual defection (1,1) is worse than mutual cooperation (3,3) — the defining tension of social dilemmas.',
                 accentFrom: 'from-[oklch(0.63_0.20_300)]/15',
                 accentTo: 'to-[oklch(0.63_0.20_300)]/5',
                 borderColor: 'border-[oklch(0.63_0.20_300)]/25',

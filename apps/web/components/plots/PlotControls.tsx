@@ -7,25 +7,30 @@
  * @module components/plots/PlotControls
  */
 
-import { useCallback, useState, useEffect, type RefObject } from 'react';
-import { ZoomIn, ZoomOut, Maximize2, Download, FileImage, FileText, FileSpreadsheet, Loader2, Keyboard } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { downloadAsCSV2D, downloadAsPNG, downloadAsSVG, type Point2D } from '@nextcalc/plot-engine';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+  Download,
+  FileImage,
+  FileSpreadsheet,
+  FileText,
+  Keyboard,
+  Loader2,
+  Maximize2,
+  ZoomIn,
+  ZoomOut,
+} from 'lucide-react';
+import { type RefObject, useCallback, useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '../ui/tooltip';
 import { Progress } from '../ui/progress';
-import { downloadAsPNG, downloadAsSVG, downloadAsCSV2D, type Point2D } from '@nextcalc/plot-engine';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 // Branded type for export format to ensure type safety
 type ExportFormat = 'png' | 'svg' | 'csv';
@@ -105,7 +110,7 @@ export function PlotControls({
       }
       // ? key: Show keyboard hints
       else if (e.key === '?') {
-        setShowKeyboardHints(prev => !prev);
+        setShowKeyboardHints((prev) => !prev);
       }
     };
 
@@ -122,10 +127,13 @@ export function PlotControls({
 
       // Simulate progress for better UX (real export is fast)
       const progressInterval = setInterval(() => {
-        setExportState(prev => ({
-          ...prev,
-          progress: Math.min(prev.progress + 10, 90)
-        } as ExportState));
+        setExportState(
+          (prev) =>
+            ({
+              ...prev,
+              progress: Math.min(prev.progress + 10, 90),
+            }) as ExportState,
+        );
       }, 50);
 
       await downloadAsPNG(canvas, 'plot', {
@@ -137,7 +145,7 @@ export function PlotControls({
       });
 
       clearInterval(progressInterval);
-      setExportState(prev => ({ ...prev, progress: 100 } as ExportState));
+      setExportState((prev) => ({ ...prev, progress: 100 }) as ExportState);
 
       // Reset after showing 100%
       setTimeout(() => {
@@ -161,10 +169,13 @@ export function PlotControls({
       setExportState({ isExporting: true, format: 'svg', progress: 0 } as ExportState);
 
       const progressInterval = setInterval(() => {
-        setExportState(prev => ({
-          ...prev,
-          progress: Math.min(prev.progress + 10, 90)
-        } as ExportState));
+        setExportState(
+          (prev) =>
+            ({
+              ...prev,
+              progress: Math.min(prev.progress + 10, 90),
+            }) as ExportState,
+        );
       }, 50);
 
       await downloadAsSVG([plotData], viewport, 'plot', {
@@ -174,7 +185,7 @@ export function PlotControls({
       });
 
       clearInterval(progressInterval);
-      setExportState(prev => ({ ...prev, progress: 100 } as ExportState));
+      setExportState((prev) => ({ ...prev, progress: 100 }) as ExportState);
 
       setTimeout(() => {
         setExportState({ isExporting: false, format: null, progress: 0 } as ExportState);
@@ -196,10 +207,13 @@ export function PlotControls({
       setExportState({ isExporting: true, format: 'csv', progress: 0 } as ExportState);
 
       const progressInterval = setInterval(() => {
-        setExportState(prev => ({
-          ...prev,
-          progress: Math.min(prev.progress + 10, 90)
-        } as ExportState));
+        setExportState(
+          (prev) =>
+            ({
+              ...prev,
+              progress: Math.min(prev.progress + 10, 90),
+            }) as ExportState,
+        );
       }, 50);
 
       await downloadAsCSV2D(plotData, 'plot-data', {
@@ -209,7 +223,7 @@ export function PlotControls({
       });
 
       clearInterval(progressInterval);
-      setExportState(prev => ({ ...prev, progress: 100 } as ExportState));
+      setExportState((prev) => ({ ...prev, progress: 100 }) as ExportState);
 
       setTimeout(() => {
         setExportState({ isExporting: false, format: null, progress: 0 } as ExportState);
@@ -477,7 +491,7 @@ export function PlotControls({
                 whileTap="tap"
               >
                 <Button
-                  onClick={() => setShowKeyboardHints(prev => !prev)}
+                  onClick={() => setShowKeyboardHints((prev) => !prev)}
                   variant="ghost"
                   size="sm"
                   aria-label="Toggle keyboard shortcuts (Press ?)"
@@ -496,7 +510,9 @@ export function PlotControls({
               className="bg-card/95 border-border text-foreground backdrop-blur-sm"
             >
               <p className="font-semibold">Keyboard Shortcuts</p>
-              <p className="text-xs text-muted-foreground mt-1">Press <kbd className="px-1.5 py-0.5 bg-muted rounded">?</kbd> to toggle</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Press <kbd className="px-1.5 py-0.5 bg-muted rounded">?</kbd> to toggle
+              </p>
             </TooltipContent>
           </Tooltip>
         </div>

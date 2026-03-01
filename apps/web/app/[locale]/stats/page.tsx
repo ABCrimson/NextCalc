@@ -1,11 +1,10 @@
+import { BarChart3 } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { StatsPanel } from '@/components/calculator/stats-panel';
-import { BarChart3 } from 'lucide-react';
 
 export const metadata = {
   title: 'Statistical Analysis - NextCalc Pro',
-  description:
-    'Comprehensive descriptive statistics and regression analysis for data insights',
+  description: 'Comprehensive descriptive statistics and regression analysis for data insights',
 };
 
 /**
@@ -37,14 +36,10 @@ export default async function StatsPage() {
         aria-hidden="true"
       />
       {/* Noise texture for depth */}
-      <div
-        className="fixed inset-0 -z-10 noise pointer-events-none"
-        aria-hidden="true"
-      />
+      <div className="fixed inset-0 -z-10 noise pointer-events-none" aria-hidden="true" />
 
       <div className="container mx-auto py-10 px-4">
         <div className="max-w-4xl mx-auto space-y-8">
-
           {/* Page Hero */}
           <header className="text-center space-y-3">
             {/* Icon badge */}
@@ -58,10 +53,7 @@ export default async function StatsPage() {
                 }}
                 aria-hidden="true"
               >
-                <BarChart3
-                  className="h-8 w-8"
-                  style={{ color: 'oklch(0.65 0.22 264)' }}
-                />
+                <BarChart3 className="h-8 w-8" style={{ color: 'oklch(0.65 0.22 264)' }} />
               </div>
             </div>
 
@@ -132,9 +124,7 @@ export default async function StatsPage() {
               className="h-px bg-gradient-to-r from-transparent via-primary/25 to-transparent mb-5"
               aria-hidden="true"
             />
-            <p className="text-center text-xs text-muted-foreground">
-              {t('footerNote')}
-            </p>
+            <p className="text-center text-xs text-muted-foreground">{t('footerNote')}</p>
           </footer>
         </div>
       </div>

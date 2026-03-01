@@ -1,5 +1,5 @@
-import { type ComponentPropsWithoutRef, type ElementRef, type Ref } from 'react';
 import { Switch as SwitchPrimitives } from 'radix-ui';
+import type { ComponentPropsWithoutRef, ElementRef, Ref } from 'react';
 import { cn } from '@/lib/utils';
 
 interface SwitchProps extends ComponentPropsWithoutRef<typeof SwitchPrimitives.Root> {
@@ -11,14 +11,14 @@ function Switch({ className, ref, ...props }: SwitchProps) {
     <SwitchPrimitives.Root
       className={cn(
         'peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input',
-        className
+        className,
       )}
       {...props}
       ref={ref}
     >
       <SwitchPrimitives.Thumb
         className={cn(
-          'pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0'
+          'pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0',
         )}
       />
     </SwitchPrimitives.Root>

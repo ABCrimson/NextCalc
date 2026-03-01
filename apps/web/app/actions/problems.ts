@@ -12,8 +12,8 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import {
   AnswerSubmissionSchema,
-  HintRequestSchema,
   FavoriteToggleSchema,
+  HintRequestSchema,
 } from '@/lib/validations/learning';
 
 // ---------------------------------------------------------------------------
@@ -84,9 +84,7 @@ export async function submitAnswer(
     const isCorrect =
       problem.testCases.length > 0
         ? problem.testCases.some(
-            (tc) =>
-              tc.expected.trim().toLowerCase() ===
-              data.answer.trim().toLowerCase(),
+            (tc) => tc.expected.trim().toLowerCase() === data.answer.trim().toLowerCase(),
           )
         : true;
 
@@ -95,13 +93,9 @@ export async function submitAnswer(
 
     // Calculate points (deduct hint penalty)
     const hintPenalty = data.hintsUsed * 5;
-    const pointsEarned = isCorrect
-      ? Math.max(0, problem.points - hintPenalty)
-      : 0;
+    const pointsEarned = isCorrect ? Math.max(0, problem.points - hintPenalty) : 0;
 
-    const feedback = isCorrect
-      ? 'Correct! Well done.'
-      : 'Incorrect. Try again or use a hint.';
+    const feedback = isCorrect ? 'Correct! Well done.' : 'Incorrect. Try again or use a hint.';
 
     // Create attempt record
     const attempt = await prisma.attempt.create({

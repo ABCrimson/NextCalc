@@ -4,9 +4,9 @@
  * Helper functions for authentication and authorization.
  */
 
+import type { UserRole } from '@nextcalc/database';
 import { auth } from '../../auth';
 import { prisma } from '../prisma';
-import type { UserRole } from '@nextcalc/database';
 
 /**
  * Get the current authenticated user session
@@ -92,7 +92,7 @@ export async function requireRole(requiredRole: UserRole) {
 
   if (!authorized) {
     throw new Error(
-      `Forbidden - ${requiredRole} role required, but user has ${session.user.role} role`
+      `Forbidden - ${requiredRole} role required, but user has ${session.user.role} role`,
     );
   }
 

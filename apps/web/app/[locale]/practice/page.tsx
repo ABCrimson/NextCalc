@@ -1,25 +1,39 @@
 'use client';
 
-import { useState, useCallback, useActionState, useRef, useEffect } from 'react';
-import type { CSSProperties } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
-import { PracticeMode, type PracticeMetrics } from '@/components/math/practice-mode';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Target, Timer, Zap, TrendingUp, Play, Settings } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import type { MathTopic } from '@nextcalc/math-engine/knowledge';
 import {
+  type DifficultyLevel,
   getAllProblems,
   getProblemsByTopic,
-  DifficultyLevel,
   type Problem,
 } from '@nextcalc/math-engine/problems';
-import type { MathTopic } from '@nextcalc/math-engine/knowledge';
-import { savePracticeAttempt, completePracticeSession, startPracticeSession } from '@/app/actions/practice';
-import type { PracticeAttemptResult, PracticeSessionResult, StartSessionResult } from '@/app/actions/practice';
+import { motion, useReducedMotion } from 'framer-motion';
+import { Play, Settings, Target, Timer, TrendingUp, Zap } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import type { CSSProperties } from 'react';
+import { useActionState, useCallback, useEffect, useRef, useState } from 'react';
+import type {
+  PracticeAttemptResult,
+  PracticeSessionResult,
+  StartSessionResult,
+} from '@/app/actions/practice';
+import {
+  completePracticeSession,
+  savePracticeAttempt,
+  startPracticeSession,
+} from '@/app/actions/practice';
 import type { ActionResult } from '@/app/actions/problems';
+import { type PracticeMetrics, PracticeMode } from '@/components/math/practice-mode';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 /**
  * Practice configuration state
@@ -99,7 +113,7 @@ const STAT_CARDS: StatCardData[] = [
     subLabelKey: 'days',
     Icon: Zap,
     hue: 300,
-    chroma: 0.20,
+    chroma: 0.2,
   },
   {
     labelKey: 'improvement',
@@ -107,7 +121,7 @@ const STAT_CARDS: StatCardData[] = [
     subLabelKey: 'thisWeek',
     Icon: TrendingUp,
     hue: 145,
-    chroma: 0.20,
+    chroma: 0.2,
   },
 ];
 
@@ -115,16 +129,12 @@ const STAT_CARDS: StatCardData[] = [
 
 function AnimatedBackground({ prefersReduced }: { prefersReduced: boolean }) {
   return (
-    <div
-      className="fixed inset-0 -z-10 overflow-hidden pointer-events-none"
-      aria-hidden="true"
-    >
+    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none" aria-hidden="true">
       {/* Orb 1 — orange, top-left quadrant */}
       <motion.div
         className="absolute w-[500px] h-[500px] rounded-full blur-3xl"
         style={{
-          background:
-            'radial-gradient(circle, oklch(0.72 0.22 55 / 0.18) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, oklch(0.72 0.22 55 / 0.18) 0%, transparent 70%)',
           top: '-10%',
           left: '-5%',
         }}
@@ -147,8 +157,7 @@ function AnimatedBackground({ prefersReduced }: { prefersReduced: boolean }) {
       <motion.div
         className="absolute w-[600px] h-[600px] rounded-full blur-3xl"
         style={{
-          background:
-            'radial-gradient(circle, oklch(0.70 0.20 25 / 0.14) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, oklch(0.70 0.20 25 / 0.14) 0%, transparent 70%)',
           bottom: '-15%',
           right: '-10%',
         }}
@@ -172,8 +181,7 @@ function AnimatedBackground({ prefersReduced }: { prefersReduced: boolean }) {
       <motion.div
         className="absolute w-[380px] h-[380px] rounded-full blur-3xl"
         style={{
-          background:
-            'radial-gradient(circle, oklch(0.68 0.18 0 / 0.12) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, oklch(0.68 0.18 0 / 0.12) 0%, transparent 70%)',
           top: '35%',
           left: '45%',
         }}
@@ -229,10 +237,7 @@ function StatCard({ data }: { data: StatCardData }) {
   const hoverGlow = `0 0 28px oklch(0.72 ${chroma} ${hue} / 0.20)`;
 
   return (
-    <motion.div
-      variants={cardVariants}
-      whileHover={{ y: -3, transition: { duration: 0.2 } }}
-    >
+    <motion.div variants={cardVariants} whileHover={{ y: -3, transition: { duration: 0.2 } }}>
       <Card
         className="backdrop-blur-md bg-card/50 border-border hover:border-border/80 transition-all duration-300"
         style={
@@ -258,10 +263,7 @@ function StatCard({ data }: { data: StatCardData }) {
               }}
               aria-hidden="true"
             >
-              <Icon
-                className="h-4 w-4"
-                style={{ color: iconColor }}
-              />
+              <Icon className="h-4 w-4" style={{ color: iconColor }} />
             </span>
             {label}
           </CardTitle>
@@ -301,18 +303,18 @@ export default function PracticePage() {
     adaptiveDifficulty: false,
   });
 
-  const [_attemptState, saveAttemptAction] = useActionState<ActionResult<PracticeAttemptResult>, FormData>(
-    savePracticeAttempt,
-    { success: false },
-  );
-  const [sessionResult, completeSessionAction] = useActionState<ActionResult<PracticeSessionResult>, FormData>(
-    completePracticeSession,
-    { success: false },
-  );
-  const [startState, startSessionAction] = useActionState<ActionResult<StartSessionResult>, FormData>(
-    startPracticeSession,
-    { success: false },
-  );
+  const [_attemptState, saveAttemptAction] = useActionState<
+    ActionResult<PracticeAttemptResult>,
+    FormData
+  >(savePracticeAttempt, { success: false });
+  const [sessionResult, completeSessionAction] = useActionState<
+    ActionResult<PracticeSessionResult>,
+    FormData
+  >(completePracticeSession, { success: false });
+  const [startState, startSessionAction] = useActionState<
+    ActionResult<StartSessionResult>,
+    FormData
+  >(startPracticeSession, { success: false });
   void sessionResult; // Available for displaying completion feedback
   const sessionIdRef = useRef<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -332,9 +334,7 @@ export default function PracticePage() {
     }
 
     if (config.difficulty !== 'all') {
-      pool = pool.filter(
-        (p) => p.difficulty === (config.difficulty as DifficultyLevel),
-      );
+      pool = pool.filter((p) => p.difficulty === (config.difficulty as DifficultyLevel));
     }
 
     // Shuffle and cap at the requested question count.
@@ -415,14 +415,8 @@ export default function PracticePage() {
   if (!isConfiguring) {
     if (problems.length === 0) {
       return (
-        <div
-          className="container mx-auto py-8 px-4 text-center"
-          role="status"
-          aria-live="polite"
-        >
-          <p className="text-lg text-muted-foreground mb-4">
-            {t('noProblemsFound')}
-          </p>
+        <div className="container mx-auto py-8 px-4 text-center" role="status" aria-live="polite">
+          <p className="text-lg text-muted-foreground mb-4">{t('noProblemsFound')}</p>
           <Button
             onClick={() => setIsConfiguring(true)}
             variant="outline"
@@ -469,7 +463,8 @@ export default function PracticePage() {
               })}
         >
           {/* Badge pill */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 border"
+          <div
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 border"
             style={{
               background: 'oklch(0.72 0.22 55 / 0.10)',
               borderColor: 'oklch(0.72 0.22 55 / 0.25)',
@@ -480,10 +475,7 @@ export default function PracticePage() {
               style={{ color: 'oklch(0.72 0.22 55)' }}
               aria-hidden="true"
             />
-            <span
-              className="text-sm font-medium"
-              style={{ color: 'oklch(0.72 0.22 55)' }}
-            >
+            <span className="text-sm font-medium" style={{ color: 'oklch(0.72 0.22 55)' }}>
               {t('skillTraining')}
             </span>
           </div>
@@ -498,7 +490,8 @@ export default function PracticePage() {
           <div
             className="h-1 w-24 mx-auto rounded-full mb-6"
             style={{
-              background: 'linear-gradient(90deg, oklch(0.72 0.22 55), oklch(0.70 0.20 25), oklch(0.68 0.18 0))',
+              background:
+                'linear-gradient(90deg, oklch(0.72 0.22 55), oklch(0.70 0.20 25), oklch(0.68 0.18 0))',
             }}
             aria-hidden="true"
           />
@@ -548,14 +541,16 @@ export default function PracticePage() {
             <Card
               className="backdrop-blur-md bg-card/50 border-border"
               style={{
-                boxShadow: '0 0 0 1px oklch(0.72 0.22 55 / 0.08) inset, 0 8px 32px oklch(0.72 0.22 55 / 0.08)',
+                boxShadow:
+                  '0 0 0 1px oklch(0.72 0.22 55 / 0.08) inset, 0 8px 32px oklch(0.72 0.22 55 / 0.08)',
               }}
             >
               {/* Gradient top border accent */}
               <div
                 className="h-[2px] w-full rounded-t-xl"
                 style={{
-                  background: 'linear-gradient(90deg, oklch(0.72 0.22 55 / 0.6), oklch(0.70 0.20 25 / 0.6), oklch(0.68 0.18 0 / 0.4), transparent)',
+                  background:
+                    'linear-gradient(90deg, oklch(0.72 0.22 55 / 0.6), oklch(0.70 0.20 25 / 0.6), oklch(0.68 0.18 0 / 0.4), transparent)',
                 }}
                 aria-hidden="true"
               />
@@ -570,16 +565,11 @@ export default function PracticePage() {
                     }}
                     aria-hidden="true"
                   >
-                    <Settings
-                      className="h-5 w-5"
-                      style={{ color: 'oklch(0.72 0.22 55)' }}
-                    />
+                    <Settings className="h-5 w-5" style={{ color: 'oklch(0.72 0.22 55)' }} />
                   </span>
                   {t('configurePracticeSession')}
                 </CardTitle>
-                <CardDescription>
-                  {t('configureDescription')}
-                </CardDescription>
+                <CardDescription>{t('configureDescription')}</CardDescription>
               </CardHeader>
 
               <CardContent className="space-y-6">
@@ -771,7 +761,9 @@ export default function PracticePage() {
                           style={{ color: 'oklch(0.65 0.22 264)' }}
                           aria-hidden="true"
                         />
-                        <span className="text-sm text-foreground">{t('adaptiveDifficultyEnabled')}</span>
+                        <span className="text-sm text-foreground">
+                          {t('adaptiveDifficultyEnabled')}
+                        </span>
                       </motion.div>
                     )}
                   </CardContent>
@@ -792,7 +784,8 @@ export default function PracticePage() {
                     size="lg"
                     className="w-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                     style={{
-                      background: 'linear-gradient(135deg, oklch(0.60 0.22 55), oklch(0.58 0.20 25))',
+                      background:
+                        'linear-gradient(135deg, oklch(0.60 0.22 55), oklch(0.58 0.20 25))',
                       boxShadow: '0 4px 20px oklch(0.60 0.22 55 / 0.30)',
                     }}
                   >

@@ -1,9 +1,9 @@
 'use client';
 
-import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
-import { ZKPDemo } from '@/components/algorithms/ZKPDemo';
 import { Shield } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
+import { ZKPDemo } from '@/components/algorithms/ZKPDemo';
 
 /**
  * Crypto/Zero-Knowledge Proofs Page

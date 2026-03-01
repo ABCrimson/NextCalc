@@ -22,16 +22,24 @@
  * - TypeScript 6.0 strict + exactOptionalPropertyTypes
  */
 
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, RotateCcw, SkipForward, SkipBack, ChevronRight, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Slider } from '@/components/ui/slider';
-import { MathRenderer } from '@/components/ui/math-renderer';
-import { cn } from '@/lib/utils';
-import { PlotAnalysisPanel } from '@/components/plots/PlotAnalysisPanel';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+  ChevronRight,
+  Pause,
+  Play,
+  RotateCcw,
+  SkipBack,
+  SkipForward,
+  Sparkles,
+} from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { AnalysisFunction } from '@/components/plots/PlotAnalysisPanel';
+import { PlotAnalysisPanel } from '@/components/plots/PlotAnalysisPanel';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { MathRenderer } from '@/components/ui/math-renderer';
+import { Slider } from '@/components/ui/slider';
+import { cn } from '@/lib/utils';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -266,14 +274,14 @@ function evaluateTaylorPartialSum(
   terms: ReadonlyArray<TaylorTerm>,
   termCount: number,
   x: number,
-  center: number
+  center: number,
 ): number {
   let sum = 0;
   const limit = Math.min(termCount, terms.length);
   for (let i = 0; i < limit; i++) {
     const t = terms[i];
     if (!t) continue;
-    sum += t.coefficient * Math.pow(x - center, t.power);
+    sum += t.coefficient * (x - center) ** t.power;
   }
   return sum;
 }
@@ -289,7 +297,7 @@ function evaluateTaylorPartialSum(
 function computePresetCoefficients(
   presetId: string,
   center: number,
-  numTerms: number
+  numTerms: number,
 ): ReadonlyArray<TaylorTerm> {
   const terms: TaylorTerm[] = [];
 
@@ -303,7 +311,12 @@ function computePresetCoefficients(
         const power = 2 * n + 1;
         const sign = n % 2 === 0 ? 1 : -1;
         const coeff = sign / factorial(power);
-        terms.push({ index: n, coefficient: coeff, power, termLatex: buildTermLatex(coeff, power, 'x', 0) });
+        terms.push({
+          index: n,
+          coefficient: coeff,
+          power,
+          termLatex: buildTermLatex(coeff, power, 'x', 0),
+        });
       }
       break;
     }
@@ -312,14 +325,24 @@ function computePresetCoefficients(
         const power = 2 * n;
         const sign = n % 2 === 0 ? 1 : -1;
         const coeff = sign / factorial(power);
-        terms.push({ index: n, coefficient: coeff, power, termLatex: buildTermLatex(coeff, power, 'x', 0) });
+        terms.push({
+          index: n,
+          coefficient: coeff,
+          power,
+          termLatex: buildTermLatex(coeff, power, 'x', 0),
+        });
       }
       break;
     }
     case 'exp': {
       for (let n = 0; n < numTerms; n++) {
         const coeff = 1 / factorial(n);
-        terms.push({ index: n, coefficient: coeff, power: n, termLatex: buildTermLatex(coeff, n, 'x', 0) });
+        terms.push({
+          index: n,
+          coefficient: coeff,
+          power: n,
+          termLatex: buildTermLatex(coeff, n, 'x', 0),
+        });
       }
       break;
     }
@@ -328,7 +351,12 @@ function computePresetCoefficients(
         const k = n + 1;
         const sign = n % 2 === 0 ? 1 : -1;
         const coeff = sign / k;
-        terms.push({ index: n, coefficient: coeff, power: k, termLatex: buildTermLatex(coeff, k, 'x', 0) });
+        terms.push({
+          index: n,
+          coefficient: coeff,
+          power: k,
+          termLatex: buildTermLatex(coeff, k, 'x', 0),
+        });
       }
       break;
     }
@@ -338,7 +366,12 @@ function computePresetCoefficients(
         const power = 2 * n + 1;
         const sign = n % 2 === 0 ? 1 : -1;
         const coeff = sign / power;
-        terms.push({ index: n, coefficient: coeff, power, termLatex: buildTermLatex(coeff, power, 'x', 0) });
+        terms.push({
+          index: n,
+          coefficient: coeff,
+          power,
+          termLatex: buildTermLatex(coeff, power, 'x', 0),
+        });
       }
       break;
     }
@@ -353,7 +386,12 @@ function computePresetCoefficients(
       for (let n = 0; n < numTerms; n++) {
         const power = 2 * n + 1;
         const coeff = 1 / factorial(power);
-        terms.push({ index: n, coefficient: coeff, power, termLatex: buildTermLatex(coeff, power, 'x', 0) });
+        terms.push({
+          index: n,
+          coefficient: coeff,
+          power,
+          termLatex: buildTermLatex(coeff, power, 'x', 0),
+        });
       }
       break;
     }
@@ -361,7 +399,12 @@ function computePresetCoefficients(
       for (let n = 0; n < numTerms; n++) {
         const power = 2 * n;
         const coeff = 1 / factorial(power);
-        terms.push({ index: n, coefficient: coeff, power, termLatex: buildTermLatex(coeff, power, 'x', 0) });
+        terms.push({
+          index: n,
+          coefficient: coeff,
+          power,
+          termLatex: buildTermLatex(coeff, power, 'x', 0),
+        });
       }
       break;
     }
@@ -372,13 +415,18 @@ function computePresetCoefficients(
         if (n === 0) return 1;
         let result = 1;
         for (let k = 0; k < n; k++) {
-          result *= (0.5 - k);
+          result *= 0.5 - k;
         }
         return result / factorial(n);
       };
       for (let n = 0; n < numTerms; n++) {
         const coeff = binomialHalf(n);
-        terms.push({ index: n, coefficient: coeff, power: n, termLatex: buildTermLatex(coeff, n, 'x', 0) });
+        terms.push({
+          index: n,
+          coefficient: coeff,
+          power: n,
+          termLatex: buildTermLatex(coeff, n, 'x', 0),
+        });
       }
       break;
     }
@@ -394,7 +442,12 @@ function computePresetCoefficients(
         const entry = tanCoeffs[n];
         if (!entry) continue;
         const [coeff, power] = entry;
-        terms.push({ index: n, coefficient: coeff, power, termLatex: buildTermLatex(coeff, power, 'x', 0) });
+        terms.push({
+          index: n,
+          coefficient: coeff,
+          power,
+          termLatex: buildTermLatex(coeff, power, 'x', 0),
+        });
       }
       break;
     }
@@ -409,7 +462,12 @@ function computePresetCoefficients(
         const entry = binomCoeffs[n];
         if (!entry) continue;
         const [coeff, power] = entry;
-        terms.push({ index: n, coefficient: coeff, power, termLatex: buildTermLatex(coeff, power, 'x', 0) });
+        terms.push({
+          index: n,
+          coefficient: coeff,
+          power,
+          termLatex: buildTermLatex(coeff, power, 'x', 0),
+        });
       }
       break;
     }
@@ -462,7 +520,9 @@ function buildTermLatex(coeff: number, power: number, variable: string, center: 
 function toFraction(value: number): readonly [number, number] | null {
   if (Number.isInteger(value)) return [value, 1] as const;
 
-  const candidates = [1, 2, 3, 4, 6, 8, 15, 16, 24, 120, 315, 720, 2835, 5040, 40320, 362880, 3628800];
+  const candidates = [
+    1, 2, 3, 4, 6, 8, 15, 16, 24, 120, 315, 720, 2835, 5040, 40320, 362880, 3628800,
+  ];
   for (const den of candidates) {
     const num = Math.round(value * den);
     if (Math.abs(num / den - value) < 1e-10) {
@@ -524,7 +584,7 @@ function worldToSvg(
   x: number,
   y: number,
   bounds: PlotBounds,
-  dims: PlotDimensions
+  dims: PlotDimensions,
 ): readonly [number, number] {
   const { xMin, xMax, yMin, yMax } = bounds;
   const plotW = dims.width - dims.paddingLeft - dims.paddingRight;
@@ -538,7 +598,7 @@ function buildPolylinePath(
   fn: (x: number) => number,
   bounds: PlotBounds,
   dims: PlotDimensions,
-  clampY = true
+  clampY = true,
 ): string {
   const { xMin, xMax } = bounds;
   const step = (xMax - xMin) / PLOT_POINTS;
@@ -574,7 +634,7 @@ function buildPolylinePath(
 function computeTicks(min: number, max: number, targetCount = 8): number[] {
   const span = max - min;
   const rawStep = span / targetCount;
-  const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)));
+  const magnitude = 10 ** Math.floor(Math.log10(rawStep));
   const normalized = rawStep / magnitude;
   let niceFactor = 1;
   if (normalized >= 5) niceFactor = 5;
@@ -632,11 +692,17 @@ function TaylorPlot({
       const x = xMin + i * step;
       if (trueExprEval) {
         const y = trueExprEval(x);
-        if (isFinite(y)) { yLo = Math.min(yLo, y); yHi = Math.max(yHi, y); }
+        if (isFinite(y)) {
+          yLo = Math.min(yLo, y);
+          yHi = Math.max(yHi, y);
+        }
       }
       if (terms.length > 0) {
         const y = evaluateTaylorPartialSum(terms, visibleTerms, x, center);
-        if (isFinite(y)) { yLo = Math.min(yLo, y); yHi = Math.max(yHi, y); }
+        if (isFinite(y)) {
+          yLo = Math.min(yLo, y);
+          yHi = Math.max(yHi, y);
+        }
       }
     }
     const span = Math.max(1, yHi - yLo);
@@ -655,7 +721,10 @@ function TaylorPlot({
   const [axisX0, axisY0] = worldToSvg(xMin, 0, bounds, dims);
   const [axisX1] = worldToSvg(xMax, 0, bounds, dims);
   // Clamp y-axis origin to plot area
-  const clampedAxisY = Math.max(dims.paddingTop, Math.min(dims.height - dims.paddingBottom, axisY0));
+  const clampedAxisY = Math.max(
+    dims.paddingTop,
+    Math.min(dims.height - dims.paddingBottom, axisY0),
+  );
   const [axisXc] = worldToSvg(0, 0, bounds, dims);
   const clampedAxisX = Math.max(dims.paddingLeft, Math.min(dims.width - dims.paddingRight, axisXc));
   const [, yAxisTop] = worldToSvg(0, yBounds.yMax, bounds, dims);
@@ -671,17 +740,26 @@ function TaylorPlot({
       const color = APPROXIMATION_COLORS[(tc - 1) % APPROXIMATION_COLORS.length] ?? '#f97316';
       orderPaths.push({
         termCount: tc,
-        path: buildPolylinePath((x) => evaluateTaylorPartialSum(terms, tc, x, center), bounds, dims),
+        path: buildPolylinePath(
+          (x) => evaluateTaylorPartialSum(terms, tc, x, center),
+          bounds,
+          dims,
+        ),
         color,
       });
     }
   }
 
   // Current approximation path (for single-order mode)
-  const currentApproxColor = APPROXIMATION_COLORS[(visibleTerms - 1) % APPROXIMATION_COLORS.length] ?? '#f97316';
+  const currentApproxColor =
+    APPROXIMATION_COLORS[(visibleTerms - 1) % APPROXIMATION_COLORS.length] ?? '#f97316';
   const approxPath =
     !showAllOrders && terms.length > 0
-      ? buildPolylinePath((x) => evaluateTaylorPartialSum(terms, visibleTerms, x, center), bounds, dims)
+      ? buildPolylinePath(
+          (x) => evaluateTaylorPartialSum(terms, visibleTerms, x, center),
+          bounds,
+          dims,
+        )
       : '';
 
   // Center point marker
@@ -700,7 +778,8 @@ function TaylorPlot({
       });
       if (visibleTerms > 1) {
         legendItems.push({
-          color: APPROXIMATION_COLORS[(visibleTerms - 1) % APPROXIMATION_COLORS.length] ?? '#f97316',
+          color:
+            APPROXIMATION_COLORS[(visibleTerms - 1) % APPROXIMATION_COLORS.length] ?? '#f97316',
           label: `T${visibleTerms}(x)`,
           dashed: true,
         });
@@ -807,27 +886,30 @@ function TaylorPlot({
           />
 
           {/* Ghost order paths (show-all-orders mode) */}
-          {showAllOrders && orderPaths.map(({ termCount, path, color }, idx) => {
-            const isLatest = termCount === visibleTerms;
-            const opacity = isLatest ? 0.95 : 0.28 + (idx / Math.max(orderPaths.length - 1, 1)) * 0.35;
-            return path ? (
-              <motion.path
-                key={`order-${termCount}`}
-                d={path}
-                fill="none"
-                stroke={color}
-                strokeWidth={isLatest ? 2.5 : 1.2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeDasharray={isLatest ? undefined : '4 3'}
-                opacity={opacity}
-                initial={{ opacity: 0 }}
-                animate={{ opacity }}
-                transition={{ duration: 0.4, ease: 'easeOut' }}
-                filter={isLatest ? 'url(#glow)' : undefined}
-              />
-            ) : null;
-          })}
+          {showAllOrders &&
+            orderPaths.map(({ termCount, path, color }, idx) => {
+              const isLatest = termCount === visibleTerms;
+              const opacity = isLatest
+                ? 0.95
+                : 0.28 + (idx / Math.max(orderPaths.length - 1, 1)) * 0.35;
+              return path ? (
+                <motion.path
+                  key={`order-${termCount}`}
+                  d={path}
+                  fill="none"
+                  stroke={color}
+                  strokeWidth={isLatest ? 2.5 : 1.2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeDasharray={isLatest ? undefined : '4 3'}
+                  opacity={opacity}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                  filter={isLatest ? 'url(#glow)' : undefined}
+                />
+              ) : null;
+            })}
 
           {/* Single approximation path (step-by-step mode) */}
           <AnimatePresence mode="sync">
@@ -868,64 +950,76 @@ function TaylorPlot({
           {isFinite(cy) && cy > dims.paddingTop && cy < dims.height - dims.paddingBottom && (
             <g>
               <circle cx={cx} cy={cy} r="8" fill={preset.color} opacity="0.15" />
-              <circle cx={cx} cy={cy} r="4.5" fill={preset.color} stroke="oklch(0.95 0 0)" strokeWidth="1.5" opacity="0.95" />
+              <circle
+                cx={cx}
+                cy={cy}
+                r="4.5"
+                fill={preset.color}
+                stroke="oklch(0.95 0 0)"
+                strokeWidth="1.5"
+                opacity="0.95"
+              />
             </g>
           )}
         </g>
 
         {/* X-axis tick labels */}
-        {xTicks.filter((t) => Math.abs(t) > 0.001).map((t) => {
-          const [sx] = worldToSvg(t, 0, bounds, dims);
-          return (
-            <g key={`xt-${t}`}>
-              <line
-                x1={sx}
-                y1={clampedAxisY - 4}
-                x2={sx}
-                y2={clampedAxisY + 4}
-                stroke="oklch(0.50 0.02 250)"
-                strokeWidth="1"
-              />
-              <text
-                x={sx}
-                y={dims.height - dims.paddingBottom + 18}
-                textAnchor="middle"
-                fontSize="10"
-                fill="oklch(0.55 0.015 250)"
-                fontFamily="ui-monospace, monospace"
-              >
-                {t % 1 === 0 ? t : t.toFixed(1)}
-              </text>
-            </g>
-          );
-        })}
+        {xTicks
+          .filter((t) => Math.abs(t) > 0.001)
+          .map((t) => {
+            const [sx] = worldToSvg(t, 0, bounds, dims);
+            return (
+              <g key={`xt-${t}`}>
+                <line
+                  x1={sx}
+                  y1={clampedAxisY - 4}
+                  x2={sx}
+                  y2={clampedAxisY + 4}
+                  stroke="oklch(0.50 0.02 250)"
+                  strokeWidth="1"
+                />
+                <text
+                  x={sx}
+                  y={dims.height - dims.paddingBottom + 18}
+                  textAnchor="middle"
+                  fontSize="10"
+                  fill="oklch(0.55 0.015 250)"
+                  fontFamily="ui-monospace, monospace"
+                >
+                  {t % 1 === 0 ? t : t.toFixed(1)}
+                </text>
+              </g>
+            );
+          })}
 
         {/* Y-axis tick labels */}
-        {yTicks.filter((t) => Math.abs(t) > 0.001).map((t) => {
-          const [, sy] = worldToSvg(0, t, bounds, dims);
-          return (
-            <g key={`yt-${t}`}>
-              <line
-                x1={clampedAxisX - 4}
-                y1={sy}
-                x2={clampedAxisX + 4}
-                y2={sy}
-                stroke="oklch(0.50 0.02 250)"
-                strokeWidth="1"
-              />
-              <text
-                x={dims.paddingLeft - 8}
-                y={sy + 4}
-                textAnchor="end"
-                fontSize="10"
-                fill="oklch(0.55 0.015 250)"
-                fontFamily="ui-monospace, monospace"
-              >
-                {t % 1 === 0 ? t : t.toFixed(1)}
-              </text>
-            </g>
-          );
-        })}
+        {yTicks
+          .filter((t) => Math.abs(t) > 0.001)
+          .map((t) => {
+            const [, sy] = worldToSvg(0, t, bounds, dims);
+            return (
+              <g key={`yt-${t}`}>
+                <line
+                  x1={clampedAxisX - 4}
+                  y1={sy}
+                  x2={clampedAxisX + 4}
+                  y2={sy}
+                  stroke="oklch(0.50 0.02 250)"
+                  strokeWidth="1"
+                />
+                <text
+                  x={dims.paddingLeft - 8}
+                  y={sy + 4}
+                  textAnchor="end"
+                  fontSize="10"
+                  fill="oklch(0.55 0.015 250)"
+                  fontFamily="ui-monospace, monospace"
+                >
+                  {t % 1 === 0 ? t : t.toFixed(1)}
+                </text>
+              </g>
+            );
+          })}
 
         {/* Axis labels */}
         <text
@@ -979,7 +1073,13 @@ function TaylorPlot({
                 ) : (
                   <line x1="8" y1={yOff} x2="30" y2={yOff} stroke={item.color} strokeWidth="2.5" />
                 )}
-                <text x="36" y={yOff + 4} fontSize="10.5" fill={item.color} fontFamily="ui-monospace, monospace">
+                <text
+                  x="36"
+                  y={yOff + 4}
+                  fontSize="10.5"
+                  fill={item.color}
+                  fontFamily="ui-monospace, monospace"
+                >
                   {item.label}
                 </text>
               </g>
@@ -1026,7 +1126,7 @@ function PresetChip({ preset, isSelected, onClick }: PresetChipProps) {
         'font-mono select-none',
         isSelected
           ? 'text-foreground shadow-sm'
-          : 'text-muted-foreground hover:text-foreground border border-border/60 bg-background/40 hover:bg-accent/50'
+          : 'text-muted-foreground hover:text-foreground border border-border/60 bg-background/40 hover:bg-accent/50',
       )}
       style={selectedStyle}
     >
@@ -1087,16 +1187,28 @@ function ErrorPanel({ terms, visibleTerms, center, trueExprEval, xRange }: Error
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.x} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+            <tr
+              key={row.x}
+              className="border-b border-border/50 hover:bg-muted/30 transition-colors"
+            >
               <td className="p-2 text-foreground">{row.x.toFixed(3)}</td>
               <td className="p-2 text-right text-foreground">{row.true.toFixed(6)}</td>
-              <td className="p-2 text-right" style={{ color: APPROXIMATION_COLORS[(visibleTerms - 1) % APPROXIMATION_COLORS.length] }}>
+              <td
+                className="p-2 text-right"
+                style={{
+                  color: APPROXIMATION_COLORS[(visibleTerms - 1) % APPROXIMATION_COLORS.length],
+                }}
+              >
                 {row.approx.toFixed(6)}
               </td>
               <td
                 className={cn(
                   'p-2 text-right',
-                  row.error < 1e-4 ? 'text-green-400' : row.error < 1e-2 ? 'text-yellow-400' : 'text-red-400'
+                  row.error < 1e-4
+                    ? 'text-green-400'
+                    : row.error < 1e-2
+                      ? 'text-yellow-400'
+                      : 'text-red-400',
                 )}
               >
                 {row.error < 1e-10 ? '< 1e-10' : row.error.toExponential(3)}
@@ -1141,7 +1253,7 @@ function TermList({ terms, visibleTerms, variable }: TermListProps) {
               transition={{ duration: 0.3 }}
               className={cn(
                 'flex items-start gap-3 p-3 rounded-lg border transition-all',
-                isNewest ? 'border-border/60' : 'bg-muted/20 border-border/30'
+                isNewest ? 'border-border/60' : 'bg-muted/20 border-border/30',
               )}
               style={termStyle}
             >
@@ -1154,7 +1266,8 @@ function TermList({ terms, visibleTerms, variable }: TermListProps) {
               </Badge>
               <div className="flex-1 min-w-0">
                 <div className="text-xs text-muted-foreground mb-1">
-                  f^({term.power})({variable === 'x' ? '0' : 'a'}) / {term.power}! = {term.coefficient.toPrecision(5)}
+                  f^({term.power})({variable === 'x' ? '0' : 'a'}) / {term.power}! ={' '}
+                  {term.coefficient.toPrecision(5)}
                 </div>
                 <MathRenderer
                   expression={term.termLatex.replace(/^[+]/, '')}
@@ -1185,7 +1298,7 @@ function GlassCard({ children, className }: GlassCardProps) {
       className={cn(
         'rounded-xl border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]',
         'bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md',
-        className
+        className,
       )}
     >
       {children}
@@ -1204,7 +1317,10 @@ export function TaylorSeriesVisualizer() {
   const [visibleTerms, setVisibleTerms] = useState<number>(1);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [showAllOrders, setShowAllOrders] = useState<boolean>(false);
-  const [xRangeInput, setXRangeInput] = useState<readonly [number, number]>([-4 * Math.PI, 4 * Math.PI]);
+  const [xRangeInput, setXRangeInput] = useState<readonly [number, number]>([
+    -4 * Math.PI,
+    4 * Math.PI,
+  ]);
 
   const [computedTerms, setComputedTerms] = useState<ReadonlyArray<TaylorTerm>>([]);
   const [radiusOfConvergence, setRadiusOfConvergence] = useState<number>(Infinity);
@@ -1214,7 +1330,8 @@ export function TaylorSeriesVisualizer() {
 
   const animationRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const selectedPreset = FUNCTION_PRESETS.find((p) => p.id === selectedPresetId) ?? FUNCTION_PRESETS[0]!;
+  const selectedPreset =
+    FUNCTION_PRESETS.find((p) => p.id === selectedPresetId) ?? FUNCTION_PRESETS[0]!;
 
   // ---------------------------------------------------------------------------
   // Build the true-function evaluator from mathjs
@@ -1247,7 +1364,8 @@ export function TaylorSeriesVisualizer() {
     setComputeError(null);
 
     try {
-      const preset = FUNCTION_PRESETS.find((p) => p.id === selectedPresetId) ?? FUNCTION_PRESETS[0]!;
+      const preset =
+        FUNCTION_PRESETS.find((p) => p.id === selectedPresetId) ?? FUNCTION_PRESETS[0]!;
       await buildTrueEval(preset.trueExpr);
 
       const precomputed = computePresetCoefficients(selectedPresetId, center, numTerms);
@@ -1280,12 +1398,14 @@ export function TaylorSeriesVisualizer() {
 
         const funcName = preset.id;
         const known = getKnownSeries(funcName, 'x', { center, terms: numTerms });
-        const seriesResult = known ?? taylorSeries(ast, 'x', {
-          center,
-          terms: numTerms,
-          includeRemainder: false,
-          simplifyTerms: true,
-        });
+        const seriesResult =
+          known ??
+          taylorSeries(ast, 'x', {
+            center,
+            terms: numTerms,
+            includeRemainder: false,
+            simplifyTerms: true,
+          });
 
         const { evaluate } = await import('@nextcalc/math-engine/parser');
         const engineTerms: TaylorTerm[] = seriesResult.terms.map((astTerm, idx) => {
@@ -1426,19 +1546,22 @@ export function TaylorSeriesVisualizer() {
   // Viewport for the analysis panel: match the plot's x-range with a symmetric
   // y-range that covers most common function outputs without exploding.
   const [xRangeMin, xRangeMax] = xRangeInput;
-  const analysisViewport = useMemo(() => ({
-    xMin: xRangeMin,
-    xMax: xRangeMax,
-    yMin: -25,
-    yMax: 25,
-  }), [xRangeMin, xRangeMax]);
+  const analysisViewport = useMemo(
+    () => ({
+      xMin: xRangeMin,
+      xMax: xRangeMax,
+      yMin: -25,
+      yMax: 25,
+    }),
+    [xRangeMin, xRangeMax],
+  );
 
   const rocDisplay =
     radiusOfConvergence === Infinity
       ? '\\infty'
       : radiusOfConvergence === Math.PI / 2
-      ? '\\frac{\\pi}{2}'
-      : String(radiusOfConvergence);
+        ? '\\frac{\\pi}{2}'
+        : String(radiusOfConvergence);
 
   const currentApproxColor =
     APPROXIMATION_COLORS[(visibleTerms - 1) % APPROXIMATION_COLORS.length] ?? '#f97316';
@@ -1476,9 +1599,8 @@ export function TaylorSeriesVisualizer() {
             transition={{ duration: 0.2 }}
             className="mt-3 text-xs text-muted-foreground font-mono"
           >
-            <span style={{ color: selectedPreset.color }}>{selectedPreset.displayLabel}</span>
-            {' '}&mdash;{' '}
-            {selectedPreset.seriesText}
+            <span style={{ color: selectedPreset.color }}>{selectedPreset.displayLabel}</span>{' '}
+            &mdash; {selectedPreset.seriesText}
             <span className="ml-2 text-muted-foreground/60">({selectedPreset.convergence})</span>
           </motion.p>
         </AnimatePresence>
@@ -1557,7 +1679,11 @@ export function TaylorSeriesVisualizer() {
             <div>
               <div className="text-xs text-muted-foreground mb-1">Radius of convergence</div>
               <div className="flex items-center gap-2">
-                <MathRenderer expression={`R = ${rocDisplay}`} displayMode={false} className="text-sm" />
+                <MathRenderer
+                  expression={`R = ${rocDisplay}`}
+                  displayMode={false}
+                  className="text-sm"
+                />
               </div>
             </div>
             <div>
@@ -1571,7 +1697,9 @@ export function TaylorSeriesVisualizer() {
               </Badge>
             </div>
             {computeError && (
-              <div className="text-xs text-destructive bg-destructive/10 rounded p-2">{computeError}</div>
+              <div className="text-xs text-destructive bg-destructive/10 rounded p-2">
+                {computeError}
+              </div>
             )}
             {isComputing && <div className="text-xs text-muted-foreground">Computing...</div>}
           </div>
@@ -1589,7 +1717,7 @@ export function TaylorSeriesVisualizer() {
                 'w-full text-left px-3 py-2.5 rounded-lg text-sm border transition-all duration-200',
                 !showAllOrders
                   ? 'border-primary/40 bg-primary/10 text-primary'
-                  : 'border-border/60 bg-background/30 text-muted-foreground hover:text-foreground hover:bg-accent/40'
+                  : 'border-border/60 bg-background/30 text-muted-foreground hover:text-foreground hover:bg-accent/40',
               )}
             >
               <div className="font-medium">Step-by-step</div>
@@ -1603,11 +1731,13 @@ export function TaylorSeriesVisualizer() {
                 'w-full text-left px-3 py-2.5 rounded-lg text-sm border transition-all duration-200',
                 showAllOrders
                   ? 'border-primary/40 bg-primary/10 text-primary'
-                  : 'border-border/60 bg-background/30 text-muted-foreground hover:text-foreground hover:bg-accent/40'
+                  : 'border-border/60 bg-background/30 text-muted-foreground hover:text-foreground hover:bg-accent/40',
               )}
             >
               <div className="font-medium">All orders overlay</div>
-              <div className="text-xs text-muted-foreground mt-0.5">Gradient blue → pink per order</div>
+              <div className="text-xs text-muted-foreground mt-0.5">
+                Gradient blue → pink per order
+              </div>
             </button>
           </div>
         </GlassCard>
@@ -1620,10 +1750,10 @@ export function TaylorSeriesVisualizer() {
             <div>
               <h2 className="text-lg font-semibold">Approximation Plot</h2>
               <p className="text-sm text-muted-foreground mt-0.5">
-                <span style={{ color: selectedPreset.color }}>{selectedPreset.label}</span>
-                {' '}vs{' '}
+                <span style={{ color: selectedPreset.color }}>{selectedPreset.label}</span> vs{' '}
                 <span style={{ color: currentApproxColor }}>T_{visibleTerms}(x)</span>
-                {' — '}{visibleTerms} term{visibleTerms !== 1 ? 's' : ''}
+                {' — '}
+                {visibleTerms} term{visibleTerms !== 1 ? 's' : ''}
               </p>
             </div>
 
@@ -1729,7 +1859,9 @@ export function TaylorSeriesVisualizer() {
           <h3 className="text-sm font-medium mb-1">
             Terms Added ({visibleTerms} of {maxVisible})
           </h3>
-          <p className="text-xs text-muted-foreground mb-4">Each term = f^(n)(a)/n! &middot; (x-a)^n</p>
+          <p className="text-xs text-muted-foreground mb-4">
+            Each term = f^(n)(a)/n! &middot; (x-a)^n
+          </p>
           <TermList terms={computedTerms} visibleTerms={visibleTerms} variable="x" />
         </GlassCard>
 

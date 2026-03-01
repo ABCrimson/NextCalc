@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
+import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { captureError } from '@/lib/monitoring/error-tracking';
@@ -77,9 +77,7 @@ export default function Error({
             {/* Error Details (Development only) */}
             {process.env.NODE_ENV === 'development' && (
               <Card className="p-4 bg-background/50 border-border text-left">
-                <p className="text-sm font-mono text-red-400 break-all mb-2">
-                  {error.message}
-                </p>
+                <p className="text-sm font-mono text-red-400 break-all mb-2">{error.message}</p>
                 {error.stack && (
                   <details className="mt-2">
                     <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground/80">

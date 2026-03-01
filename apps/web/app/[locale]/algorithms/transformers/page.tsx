@@ -1,9 +1,9 @@
 'use client';
 
-import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
-import { TransformerVisualizer } from '@/components/algorithms/TransformerVisualizer';
 import { Brain } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
+import { TransformerVisualizer } from '@/components/algorithms/TransformerVisualizer';
 
 /**
  * Transformers Algorithm Page

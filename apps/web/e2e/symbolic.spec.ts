@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Symbolic Mathematics Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -7,9 +7,9 @@ test.describe('Symbolic Mathematics Page', () => {
   });
 
   test('page loads with heading visible', async ({ page }) => {
-    await expect(
-      page.getByRole('heading', { name: /symbolic/i }).first(),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /symbolic/i }).first()).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('expression input field exists', async ({ page }) => {
@@ -24,15 +24,23 @@ test.describe('Symbolic Mathematics Page', () => {
   });
 
   test('differentiate or integrate buttons are present', async ({ page }) => {
-    const diffButton = page.getByRole('button', { name: /differentiat/i })
+    const diffButton = page
+      .getByRole('button', { name: /differentiat/i })
       .or(page.getByRole('button', { name: /derive/i }))
       .or(page.locator('button:has-text("d/dx")'));
-    const intButton = page.getByRole('button', { name: /integrat/i })
+    const intButton = page
+      .getByRole('button', { name: /integrat/i })
       .or(page.locator('button:has-text("\\u222B")'));
 
     // At least one symbolic operation button should be visible
-    const hasDiff = await diffButton.first().isVisible().catch(() => false);
-    const hasInt = await intButton.first().isVisible().catch(() => false);
+    const hasDiff = await diffButton
+      .first()
+      .isVisible()
+      .catch(() => false);
+    const hasInt = await intButton
+      .first()
+      .isVisible()
+      .catch(() => false);
     expect(hasDiff || hasInt).toBeTruthy();
   });
 });

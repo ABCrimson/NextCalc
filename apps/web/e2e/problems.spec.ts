@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Problems Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -7,9 +7,7 @@ test.describe('Problems Page', () => {
   });
 
   test('page loads with heading visible', async ({ page }) => {
-    await expect(
-      page.getByRole('heading', { level: 1 }).first(),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible({ timeout: 10000 });
   });
 
   test('problem list is displayed', async ({ page }) => {
@@ -25,7 +23,9 @@ test.describe('Problems Page', () => {
 
   test('filtering or search functionality exists', async ({ page }) => {
     // ProblemBrowser should have filter controls
-    const filterControls = page.locator('input[type="text"], input[type="search"], select, [role="combobox"]');
+    const filterControls = page.locator(
+      'input[type="text"], input[type="search"], select, [role="combobox"]',
+    );
     await expect(filterControls.first()).toBeVisible({ timeout: 10000 });
   });
 

@@ -3,13 +3,13 @@
  * Ensures WCAG 2.2 Level AAA compliance
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
 import { axe } from 'jest-axe';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Calculator } from '@/components/calculator/calculator';
 import { Display } from '@/components/calculator/display';
-import { Keyboard } from '@/components/calculator/keyboard';
 import { History } from '@/components/calculator/history';
+import { Keyboard } from '@/components/calculator/keyboard';
 import { resetCalculatorStore } from '@/lib/stores/calculator-store';
 
 // Mock compute manager
@@ -32,9 +32,7 @@ describe('Accessibility Tests (WCAG 2.2 Level AAA)', () => {
   });
 
   it('Display component has no accessibility violations', async () => {
-    const { container } = render(
-      <Display expression="2+2" result={4} isPending={false} />
-    );
+    const { container } = render(<Display expression="2+2" result={4} isPending={false} />);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -76,7 +74,7 @@ describe('Accessibility Tests (WCAG 2.2 Level AAA)', () => {
 
   it('Display with LaTeX mode has proper ARIA labels', async () => {
     const { container, getByLabelText } = render(
-      <Display expression="sin(x)" result={null} isPending={false} />
+      <Display expression="sin(x)" result={null} isPending={false} />,
     );
 
     // Should have proper ARIA labels
@@ -107,7 +105,7 @@ describe('Accessibility Tests (WCAG 2.2 Level AAA)', () => {
 
     // Find the sr-only live region with aria-atomic
     const srOnlyLiveRegion = liveRegions.find(
-      (el) => el.classList.contains('sr-only') && el.getAttribute('aria-atomic') === 'true'
+      (el) => el.classList.contains('sr-only') && el.getAttribute('aria-atomic') === 'true',
     );
     expect(srOnlyLiveRegion).toBeInTheDocument();
     expect(srOnlyLiveRegion).toHaveAttribute('aria-live', 'polite');
@@ -187,7 +185,7 @@ describe('Accessibility Tests (WCAG 2.2 Level AAA)', () => {
 
   it('Results have proper busy states during calculation', () => {
     const { getByLabelText } = render(
-      <Display expression="2+2" result="Calculating..." isPending={true} />
+      <Display expression="2+2" result="Calculating..." isPending={true} />,
     );
 
     const resultElement = getByLabelText(/result:/i);

@@ -18,7 +18,9 @@
       "@nextcalc/ui": ["../../packages/ui/src"]
     },
     "noEmit": true,
-    "noPropertyAccessFromIndexSignature": false
+    "exactOptionalPropertyTypes": false,
+    "noPropertyAccessFromIndexSignature": false,
+    "noUnusedLocals": false
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules", "**/*.stories.tsx"]

@@ -7,35 +7,28 @@
  * Uses Apollo Client for data fetching.
  */
 
-import { use } from 'react';
+import { useQuery } from '@apollo/client/react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { AlertCircle, ArrowLeft, Clock, Eye, MessageSquare, ThumbsUp } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { motion, useReducedMotion } from 'framer-motion';
-import { useQuery } from '@apollo/client/react';
-import {
-  ArrowLeft,
-  ThumbsUp,
-  Eye,
-  Clock,
-  AlertCircle,
-  MessageSquare,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { UserProfileCard } from '@/components/forum/user-profile-card';
-import { TagPill } from '@/components/forum/post-card';
-import { ForumBackground } from '@/components/forum/forum-background';
-import { USER_PROFILE_QUERY } from '@/lib/graphql/forum-operations';
 import { useTranslations } from 'next-intl';
+import { use } from 'react';
+import { ForumBackground } from '@/components/forum/forum-background';
 import {
-  type UserProfileData,
-  getPostHue,
-  timeAgo,
+  buildMockUserProfile,
   formatNumber,
   getMockUser,
-  buildMockUserProfile,
+  getPostHue,
+  timeAgo,
+  type UserProfileData,
 } from '@/components/forum/forum-shared';
+import { TagPill } from '@/components/forum/post-card';
+import { UserProfileCard } from '@/components/forum/user-profile-card';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { USER_PROFILE_QUERY } from '@/lib/graphql/forum-operations';
 
 // ============================================================================
 // LOADING SKELETON
@@ -98,7 +91,6 @@ export function UserProfileClient({ params }: UserProfileClientProps) {
 
       <div className="relative z-10 py-12 px-4">
         <div className="container mx-auto max-w-3xl">
-
           {/* Back button */}
           <motion.div
             className="mb-6"
@@ -203,7 +195,7 @@ export function UserProfileClient({ params }: UserProfileClientProps) {
 
                             <div className="flex items-center gap-3 ml-2">
                               <div className="flex flex-wrap gap-1.5">
-                                {post.tags.map(tag => (
+                                {post.tags.map((tag) => (
                                   <TagPill key={tag} name={tag} />
                                 ))}
                               </div>
@@ -233,9 +225,7 @@ export function UserProfileClient({ params }: UserProfileClientProps) {
                 <TabsContent value="activity" className="mt-4">
                   <div className="rounded-2xl border border-border p-6 backdrop-blur-md bg-card/50 text-center">
                     <Clock className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
-                    <p className="text-sm text-muted-foreground">
-                      {t('activityComingSoon')}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{t('activityComingSoon')}</p>
                     <p className="text-xs text-muted-foreground/60 mt-1">
                       {t('activityComingSoonHint')}
                     </p>

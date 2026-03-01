@@ -1,16 +1,31 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect, useId } from 'react';
+import { kruskal, prim } from '@nextcalc/math-engine/graph-theory';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import {
+  BookOpen,
+  Info,
+  MousePointer2,
+  Network,
+  Plus,
+  Route,
+  Sparkles,
+  Trash2,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Network, Route, Trash2, Plus, MousePointer2, Info, Sparkles, BookOpen } from 'lucide-react';
-import { kruskal, prim } from '@nextcalc/math-engine/graph-theory';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 // ============================================================================
 // EDGE FLOW PARTICLE SYSTEM
@@ -61,24 +76,37 @@ const TRAIL_LENGTH = 6;
 /** Derive the highlight colour for a given algorithm */
 function getAlgorithmColor(algoId: AlgorithmId): string {
   switch (algoId) {
-    case 'bfs':         return 'rgba(96, 165, 250, 0.85)';   // blue
-    case 'dfs':         return 'rgba(167, 139, 250, 0.85)';  // violet
-    case 'dijkstra':    return 'rgba(52, 211, 153, 0.85)';   // emerald
-    case 'astar':       return 'rgba(251, 191, 36, 0.85)';   // amber
-    case 'bellman-ford':return 'rgba(248, 113, 113, 0.85)';  // red
-    case 'floyd':       return 'rgba(99, 102, 241, 0.85)';   // indigo
-    case 'kruskal':     return 'rgba(52, 211, 153, 0.85)';   // emerald
-    case 'prim':        return 'rgba(34, 197, 94, 0.85)';    // green
-    case 'topo-sort':   return 'rgba(192, 132, 252, 0.85)';  // purple
-    case 'tarjan-scc':  return 'rgba(251, 146, 60, 0.85)';   // orange
+    case 'bfs':
+      return 'rgba(96, 165, 250, 0.85)'; // blue
+    case 'dfs':
+      return 'rgba(167, 139, 250, 0.85)'; // violet
+    case 'dijkstra':
+      return 'rgba(52, 211, 153, 0.85)'; // emerald
+    case 'astar':
+      return 'rgba(251, 191, 36, 0.85)'; // amber
+    case 'bellman-ford':
+      return 'rgba(248, 113, 113, 0.85)'; // red
+    case 'floyd':
+      return 'rgba(99, 102, 241, 0.85)'; // indigo
+    case 'kruskal':
+      return 'rgba(52, 211, 153, 0.85)'; // emerald
+    case 'prim':
+      return 'rgba(34, 197, 94, 0.85)'; // green
+    case 'topo-sort':
+      return 'rgba(192, 132, 252, 0.85)'; // purple
+    case 'tarjan-scc':
+      return 'rgba(251, 146, 60, 0.85)'; // orange
   }
 }
 
 /** Quadratic bezier point at parameter t */
 function bezierPoint(
-  x1: number, y1: number,
-  cx: number, cy: number,
-  x2: number, y2: number,
+  x1: number,
+  y1: number,
+  cx: number,
+  cy: number,
+  x2: number,
+  y2: number,
   t: number,
 ): { x: number; y: number } {
   const mt = 1 - t;
@@ -89,10 +117,7 @@ function bezierPoint(
 }
 
 /** Compute bezier control point matching getEdgePath curvature=0.15 */
-function getEdgeControlPoint(
-  fromNode: GraphNode,
-  toNode: GraphNode,
-): { cx: number; cy: number } {
+function getEdgeControlPoint(fromNode: GraphNode, toNode: GraphNode): { cx: number; cy: number } {
   const dx = toNode.x - fromNode.x;
   const dy = toNode.y - fromNode.y;
   const len = Math.sqrt(dx * dx + dy * dy) || 1;
@@ -158,32 +183,26 @@ function buildParticles(
     if (!result) return false;
     if (result.type === 'traversal' && result.order) {
       // Mark edges whose both endpoints are in the traversal order
-      return (
-        result.order.includes(edge.from) &&
-        result.order.includes(edge.to)
-      );
+      return result.order.includes(edge.from) && result.order.includes(edge.to);
     }
-    if ((result.type === 'shortest-path') && result.path) {
+    if (result.type === 'shortest-path' && result.path) {
       for (let i = 0; i < result.path.length - 1; i++) {
         if (
           (result.path[i] === edge.from && result.path[i + 1] === edge.to) ||
-          (result.path[i] === edge.to   && result.path[i + 1] === edge.from)
-        ) return true;
+          (result.path[i] === edge.to && result.path[i + 1] === edge.from)
+        )
+          return true;
       }
       return false;
     }
     if (result.type === 'mst' && result.edges) {
       return result.edges.some(
         (e) =>
-          (e.from === edge.from && e.to === edge.to) ||
-          (e.from === edge.to   && e.to === edge.from),
+          (e.from === edge.from && e.to === edge.to) || (e.from === edge.to && e.to === edge.from),
       );
     }
     if (result.type === 'topological' && result.order) {
-      return (
-        result.order.includes(edge.from) &&
-        result.order.includes(edge.to)
-      );
+      return result.order.includes(edge.from) && result.order.includes(edge.to);
     }
     if (result.type === 'scc') {
       // All edges participate
@@ -239,7 +258,7 @@ function buildParticles(
         opacity: 0.65 + Math.random() * 0.2,
         radius: 2 + Math.random() * 1,
         color,
-        direction: isDirected ? 1 : (Math.random() > 0.5 ? 1 : -1),
+        direction: isDirected ? 1 : Math.random() > 0.5 ? 1 : -1,
         trail: [],
       });
     }
@@ -339,10 +358,10 @@ const ALGORITHMS: AlgorithmMeta[] = [
   },
   {
     id: 'dijkstra',
-    label: "Dijkstra — Shortest Path",
+    label: 'Dijkstra — Shortest Path',
     complexity: 'O((V+E) log V)',
     description:
-      "Greedy algorithm finding shortest paths from a source in weighted graphs with non-negative edge weights. Foundation of GPS routing.",
+      'Greedy algorithm finding shortest paths from a source in weighted graphs with non-negative edge weights. Foundation of GPS routing.',
     needsStart: true,
     needsEnd: true,
     needsWeights: true,
@@ -383,7 +402,7 @@ const ALGORITHMS: AlgorithmMeta[] = [
   },
   {
     id: 'kruskal',
-    label: "Kruskal — MST",
+    label: 'Kruskal — MST',
     complexity: 'O(E log E)',
     description:
       "Greedy MST algorithm sorting edges by weight and adding them if they don't create a cycle. Uses union-find data structure.",
@@ -394,10 +413,10 @@ const ALGORITHMS: AlgorithmMeta[] = [
   },
   {
     id: 'prim',
-    label: "Prim — MST",
+    label: 'Prim — MST',
     complexity: 'O(E log V)',
     description:
-      "Builds the MST by greedily adding the cheapest edge connecting the current tree to a new vertex. Efficient on dense graphs.",
+      'Builds the MST by greedily adding the cheapest edge connecting the current tree to a new vertex. Efficient on dense graphs.',
     needsStart: true,
     needsEnd: false,
     needsWeights: true,
@@ -419,7 +438,7 @@ const ALGORITHMS: AlgorithmMeta[] = [
     label: "Tarjan's SCC",
     complexity: 'O(V + E)',
     description:
-      "Finds all strongly connected components in a directed graph using a single DFS pass with a stack. Linear time complexity.",
+      'Finds all strongly connected components in a directed graph using a single DFS pass with a stack. Linear time complexity.',
     needsStart: false,
     needsEnd: false,
     needsWeights: false,
@@ -431,10 +450,7 @@ const ALGORITHMS: AlgorithmMeta[] = [
 // GRAPH ALGORITHMS IMPLEMENTATIONS
 // ============================================================================
 
-function bfs(
-  adj: Map<string, Array<{ node: string; weight: number }>>,
-  start: string,
-): string[] {
+function bfs(adj: Map<string, Array<{ node: string; weight: number }>>, start: string): string[] {
   const visited = new Set<string>();
   const order: string[] = [];
   const queue: string[] = [start];
@@ -454,10 +470,7 @@ function bfs(
   return order;
 }
 
-function dfs(
-  adj: Map<string, Array<{ node: string; weight: number }>>,
-  start: string,
-): string[] {
+function dfs(adj: Map<string, Array<{ node: string; weight: number }>>, start: string): string[] {
   const visited = new Set<string>();
   const order: string[] = [];
 
@@ -739,10 +752,7 @@ function topologicalSort(
   };
 }
 
-function tarjanSCC(
-  directedAdj: Map<string, string[]>,
-  nodeIds: string[],
-): string[][] {
+function tarjanSCC(directedAdj: Map<string, string[]>, nodeIds: string[]): string[][] {
   const index = new Map<string, number>();
   const lowlink = new Map<string, number>();
   const onStack = new Map<string, boolean>();
@@ -832,8 +842,7 @@ function isEdgeHighlighted(edge: GraphEdge, result: GraphResult | null): boolean
   if (result.type === 'mst' && result.edges) {
     return result.edges.some(
       (e) =>
-        (e.from === edge.from && e.to === edge.to) ||
-        (e.from === edge.to && e.to === edge.from),
+        (e.from === edge.from && e.to === edge.to) || (e.from === edge.to && e.to === edge.from),
     );
   }
   return false;
@@ -914,7 +923,8 @@ function getProofContent(
         return {
           title: `${algoId === 'bellman-ford' ? 'Bellman-Ford' : algoId === 'astar' ? 'A*' : 'Dijkstra'} Relaxation Trace`,
           steps: ['No path exists between the selected nodes.'],
-          explanation: 'The algorithm explored all reachable nodes and could not find a connection to the target.',
+          explanation:
+            'The algorithm explored all reachable nodes and could not find a connection to the target.',
         };
       }
       const steps: string[] = [];
@@ -930,7 +940,8 @@ function getProofContent(
         );
       }
       steps.push(`Final shortest path: ${path.join(' \u2192 ')} with total distance ${dist}.`);
-      const algoName = algoId === 'bellman-ford' ? 'Bellman-Ford' : algoId === 'astar' ? 'A*' : 'Dijkstra';
+      const algoName =
+        algoId === 'bellman-ford' ? 'Bellman-Ford' : algoId === 'astar' ? 'A*' : 'Dijkstra';
       return {
         title: `${algoName} Relaxation Trace`,
         steps,
@@ -939,7 +950,7 @@ function getProofContent(
             ? 'Bellman-Ford relaxes every edge V−1 times. If no negative-weight cycle exists, each node is finalized with its shortest distance.'
             : algoId === 'astar'
               ? 'A* combines actual path cost g(n) with a heuristic estimate h(n). With an admissible heuristic, the first path found to the goal is optimal.'
-              : "By the greedy property of Dijkstra\u2019s algorithm, each node is finalized with its shortest distance when extracted from the priority queue.",
+              : 'By the greedy property of Dijkstra\u2019s algorithm, each node is finalized with its shortest distance when extracted from the priority queue.',
       };
     }
 
@@ -974,9 +985,7 @@ function getProofContent(
             currentLevel = nextLevel;
           }
         }
-        const steps = levels.map(
-          (level, i) => `Level ${i}: {${level.join(', ')}}.`,
-        );
+        const steps = levels.map((level, i) => `Level ${i}: {${level.join(', ')}}.`);
         return {
           title: 'BFS Level-by-Level Traversal',
           steps,
@@ -1017,12 +1026,8 @@ function getProofContent(
       const mstEdges = result.edges ?? [];
       // Sort all graph edges by weight for Kruskal explanation
       const sorted = [...graphEdges].sort((a, b) => a.weight - b.weight);
-      const mstSet = new Set(
-        mstEdges.map((e) => `${e.from}-${e.to}`),
-      );
-      const mstSetReverse = new Set(
-        mstEdges.map((e) => `${e.to}-${e.from}`),
-      );
+      const mstSet = new Set(mstEdges.map((e) => `${e.from}-${e.to}`));
+      const mstSetReverse = new Set(mstEdges.map((e) => `${e.to}-${e.from}`));
       const steps: string[] = [];
       steps.push(
         `Edges sorted by weight: ${sorted.map((e) => `(${e.from}\u2014${e.to}, ${e.weight})`).join(', ')}.`,
@@ -1030,7 +1035,12 @@ function getProofContent(
       for (const e of sorted) {
         const key = `${e.from}-${e.to}`;
         const keyRev = `${e.to}-${e.from}`;
-        if (mstSet.has(key) || mstSetReverse.has(key) || mstSet.has(keyRev) || mstSetReverse.has(keyRev)) {
+        if (
+          mstSet.has(key) ||
+          mstSetReverse.has(key) ||
+          mstSet.has(keyRev) ||
+          mstSetReverse.has(keyRev)
+        ) {
           steps.push(`Edge (${e.from}\u2014${e.to}, ${e.weight}): adds to MST (no cycle formed).`);
         } else {
           steps.push(`Edge (${e.from}\u2014${e.to}, ${e.weight}): SKIP (would create a cycle).`);
@@ -1043,8 +1053,8 @@ function getProofContent(
         title: isKruskal ? "Kruskal's Edge Selection Trace" : "Prim's Growth Trace",
         steps,
         explanation: isKruskal
-          ? "Kruskal\u2019s algorithm uses a Union-Find data structure to efficiently detect cycles. Each edge is considered in weight order; if its endpoints are in different components, it is added to the MST."
-          : "Prim\u2019s algorithm grows the MST from a starting vertex, always adding the cheapest edge that connects the current tree to a new vertex.",
+          ? 'Kruskal\u2019s algorithm uses a Union-Find data structure to efficiently detect cycles. Each edge is considered in weight order; if its endpoints are in different components, it is added to the MST.'
+          : 'Prim\u2019s algorithm grows the MST from a starting vertex, always adding the cheapest edge that connects the current tree to a new vertex.',
       };
     }
 
@@ -1060,7 +1070,9 @@ function getProofContent(
           const vIdx = order.indexOf(e.to);
           if (uIdx !== -1 && vIdx !== -1) {
             if (uIdx < vIdx) {
-              steps.push(`Edge ${e.from}\u2192${e.to}: ${e.from} at position ${uIdx} < ${e.to} at position ${vIdx}. \u2713`);
+              steps.push(
+                `Edge ${e.from}\u2192${e.to}: ${e.from} at position ${uIdx} < ${e.to} at position ${vIdx}. \u2713`,
+              );
             } else {
               violations.push(`${e.from}\u2192${e.to}`);
             }
@@ -1108,7 +1120,9 @@ function getProofContent(
           `Considering ${node} as intermediate vertex: for each pair (i,j), d[i][j] = min(d[i][j], d[i][${node}] + d[${node}][j]).`,
         );
       }
-      steps.push('After all V iterations, d[i][j] contains the shortest path from i to j (or \u221E if unreachable).');
+      steps.push(
+        'After all V iterations, d[i][j] contains the shortest path from i to j (or \u221E if unreachable).',
+      );
       return {
         title: 'Floyd-Warshall Distance Matrix Evolution',
         steps,
@@ -1547,7 +1561,10 @@ export default function GraphAlgorithmsPage() {
         for (const id of result.path) activeNodes.add(id);
       }
       if (result.type === 'mst' && result.edges) {
-        for (const e of result.edges) { activeNodes.add(e.from); activeNodes.add(e.to); }
+        for (const e of result.edges) {
+          activeNodes.add(e.from);
+          activeNodes.add(e.to);
+        }
       }
       if (result.type === 'scc') {
         for (const n of nodes) activeNodes.add(n.id);
@@ -1688,7 +1705,8 @@ export default function GraphAlgorithmsPage() {
           const trailT = particle.trail[i]!;
           const trailPt = bezierPoint(from.x, from.y, cx, cy, to.x, to.y, trailT);
           const trailOpacity = particle.opacity * (i / TRAIL_LENGTH) * 0.4;
-          const trailRadius = particle.radius * (0.4 + 0.6 * (i / TRAIL_LENGTH)) * Math.min(scaleX, scaleY);
+          const trailRadius =
+            particle.radius * (0.4 + 0.6 * (i / TRAIL_LENGTH)) * Math.min(scaleX, scaleY);
           ctx.beginPath();
           ctx.arc(
             trailPt.x * scaleX,
@@ -1728,7 +1746,7 @@ export default function GraphAlgorithmsPage() {
       observer.disconnect();
     };
     // nodes/edges are read via nodesRef/edgesRef which are updated on every render
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showParticles]);
 
   // -------------------------------------------------------------------------
@@ -1749,7 +1767,10 @@ export default function GraphAlgorithmsPage() {
   // -------------------------------------------------------------------------
   // Adjacency lists
   // -------------------------------------------------------------------------
-  const buildAdjacencyList = useCallback((): Map<string, Array<{ node: string; weight: number }>> => {
+  const buildAdjacencyList = useCallback((): Map<
+    string,
+    Array<{ node: string; weight: number }>
+  > => {
     const adj = new Map<string, Array<{ node: string; weight: number }>>();
     for (const node of nodes) adj.set(node.id, []);
     for (const edge of edges) {
@@ -1779,7 +1800,11 @@ export default function GraphAlgorithmsPage() {
   const handleSvgClick = useCallback(
     (e: React.MouseEvent<SVGSVGElement>) => {
       if (!addingNode) return;
-      if ((e.target as SVGElement).closest('[data-node]') || (e.target as SVGElement).closest('[data-edge]')) return;
+      if (
+        (e.target as SVGElement).closest('[data-node]') ||
+        (e.target as SVGElement).closest('[data-edge]')
+      )
+        return;
 
       const coords = getSvgCoords(e.clientX, e.clientY);
       const x = clamp(snapToGrid(coords.x), NODE_RADIUS + 5, SVG_WIDTH - NODE_RADIUS - 5);
@@ -1792,7 +1817,7 @@ export default function GraphAlgorithmsPage() {
       });
       if (tooClose) return;
 
-      const newId = String.fromCharCode(65 + nodes.length % 26);
+      const newId = String.fromCharCode(65 + (nodes.length % 26));
       setNodes((prev) => [...prev, { id: newId, x, y }]);
       setAddingNode(false);
     },
@@ -1834,8 +1859,16 @@ export default function GraphAlgorithmsPage() {
       }
 
       if (draggingNodeId) {
-        const x = clamp(snapToGrid(coords.x - dragOffset.x), NODE_RADIUS + 5, SVG_WIDTH - NODE_RADIUS - 5);
-        const y = clamp(snapToGrid(coords.y - dragOffset.y), NODE_RADIUS + 5, SVG_HEIGHT - NODE_RADIUS - 5);
+        const x = clamp(
+          snapToGrid(coords.x - dragOffset.x),
+          NODE_RADIUS + 5,
+          SVG_WIDTH - NODE_RADIUS - 5,
+        );
+        const y = clamp(
+          snapToGrid(coords.y - dragOffset.y),
+          NODE_RADIUS + 5,
+          SVG_HEIGHT - NODE_RADIUS - 5,
+        );
         setNodes((prev) => prev.map((n) => (n.id === draggingNodeId ? { ...n, x, y } : n)));
       }
     },
@@ -1883,21 +1916,18 @@ export default function GraphAlgorithmsPage() {
   // -------------------------------------------------------------------------
   // Context menu
   // -------------------------------------------------------------------------
-  const handleNodeContextMenu = useCallback(
-    (e: React.MouseEvent<SVGGElement>, nodeId: string) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const rect = containerRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      setContextMenu({
-        kind: 'node',
-        id: nodeId,
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      });
-    },
-    [],
-  );
+  const handleNodeContextMenu = useCallback((e: React.MouseEvent<SVGGElement>, nodeId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setContextMenu({
+      kind: 'node',
+      id: nodeId,
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  }, []);
 
   const handleEdgeContextMenu = useCallback(
     (e: React.MouseEvent<SVGPathElement>, index: number) => {
@@ -1939,9 +1969,7 @@ export default function GraphAlgorithmsPage() {
   const addEdgeFromForm = useCallback(() => {
     if (!edgeFrom || !edgeTo || edgeFrom === edgeTo || newEdgeWeight <= 0) return;
     const exists = edges.some(
-      (e) =>
-        (e.from === edgeFrom && e.to === edgeTo) ||
-        (e.from === edgeTo && e.to === edgeFrom),
+      (e) => (e.from === edgeFrom && e.to === edgeTo) || (e.from === edgeTo && e.to === edgeFrom),
     );
     if (!exists) {
       setEdges((prev) => [
@@ -2090,32 +2118,55 @@ export default function GraphAlgorithmsPage() {
       <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         <motion.div
           className="absolute -top-32 -left-32 w-[600px] h-[600px] rounded-full opacity-20"
-          style={{ background: 'radial-gradient(circle at 40% 40%, oklch(0.75 0.18 160), oklch(0.55 0.14 180), transparent 70%)' }}
-          {...(!prefersReducedMotion ? {
-            animate: { x: [0, 40, 0], y: [0, 60, 0], scale: [1, 1.08, 1] },
-            transition: { duration: 20, repeat: Infinity, ease: 'easeInOut' },
-          } : {})}
+          style={{
+            background:
+              'radial-gradient(circle at 40% 40%, oklch(0.75 0.18 160), oklch(0.55 0.14 180), transparent 70%)',
+          }}
+          {...(!prefersReducedMotion
+            ? {
+                animate: { x: [0, 40, 0], y: [0, 60, 0], scale: [1, 1.08, 1] },
+                transition: { duration: 20, repeat: Infinity, ease: 'easeInOut' },
+              }
+            : {})}
         />
         <motion.div
           className="absolute top-1/2 -right-40 w-[500px] h-[500px] rounded-full opacity-15"
-          style={{ background: 'radial-gradient(circle at 60% 50%, oklch(0.72 0.16 195), oklch(0.52 0.18 220), transparent 70%)' }}
-          {...(!prefersReducedMotion ? {
-            animate: { x: [0, -50, 0], y: [0, -40, 0], scale: [1, 1.1, 1] },
-            transition: { duration: 25, repeat: Infinity, ease: 'easeInOut', delay: 3 },
-          } : {})}
+          style={{
+            background:
+              'radial-gradient(circle at 60% 50%, oklch(0.72 0.16 195), oklch(0.52 0.18 220), transparent 70%)',
+          }}
+          {...(!prefersReducedMotion
+            ? {
+                animate: { x: [0, -50, 0], y: [0, -40, 0], scale: [1, 1.1, 1] },
+                transition: { duration: 25, repeat: Infinity, ease: 'easeInOut', delay: 3 },
+              }
+            : {})}
         />
         <motion.div
           className="absolute -bottom-40 left-1/3 w-[550px] h-[550px] rounded-full opacity-15"
-          style={{ background: 'radial-gradient(circle at 50% 60%, oklch(0.68 0.20 240), oklch(0.50 0.15 260), transparent 70%)' }}
-          {...(!prefersReducedMotion ? {
-            animate: { x: [0, 30, 0], y: [0, -50, 0], scale: [1, 1.06, 1] },
-            transition: { duration: 22, repeat: Infinity, ease: 'easeInOut', delay: 6 },
-          } : {})}
+          style={{
+            background:
+              'radial-gradient(circle at 50% 60%, oklch(0.68 0.20 240), oklch(0.50 0.15 260), transparent 70%)',
+          }}
+          {...(!prefersReducedMotion
+            ? {
+                animate: { x: [0, 30, 0], y: [0, -50, 0], scale: [1, 1.06, 1] },
+                transition: { duration: 22, repeat: Infinity, ease: 'easeInOut', delay: 6 },
+              }
+            : {})}
         />
         {/* SVG noise texture overlay */}
-        <svg className="absolute inset-0 w-full h-full opacity-[0.03]" xmlns="http://www.w3.org/2000/svg">
+        <svg
+          className="absolute inset-0 w-full h-full opacity-[0.03]"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <filter id="graphs-noise">
-            <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.65"
+              numOctaves="3"
+              stitchTiles="stitch"
+            />
             <feColorMatrix type="saturate" values="0" />
           </filter>
           <rect width="100%" height="100%" filter="url(#graphs-noise)" />
@@ -2133,15 +2184,25 @@ export default function GraphAlgorithmsPage() {
             <div className="p-2 rounded-xl bg-primary/10 border border-primary/20 shrink-0">
               <Network className="w-8 h-8 text-primary" />
             </div>
-            <h1 className="text-4xl font-bold tracking-tight min-w-0 break-words bg-gradient-to-r from-emerald-400 via-teal-400 to-blue-400 bg-clip-text text-transparent">{t('title')}</h1>
+            <h1 className="text-4xl font-bold tracking-tight min-w-0 break-words bg-gradient-to-r from-emerald-400 via-teal-400 to-blue-400 bg-clip-text text-transparent">
+              {t('title')}
+            </h1>
           </div>
-          <p className="text-lg text-muted-foreground ml-1">
-            {t('subtitle')}
-          </p>
+          <p className="text-lg text-muted-foreground ml-1">{t('subtitle')}</p>
           <div className="flex gap-2 mt-4 flex-wrap">
             {ALGORITHMS.map((a) => (
-              <Badge key={a.id} variant={algorithm === a.id ? 'default' : 'outline'} className="text-xs">
-                {a.id === algorithm ? a.label.split(' — ')[0] : a.id === 'topo-sort' ? 'Topo Sort' : a.id === 'tarjan-scc' ? "Tarjan SCC" : a.label.split(' — ')[0]}
+              <Badge
+                key={a.id}
+                variant={algorithm === a.id ? 'default' : 'outline'}
+                className="text-xs"
+              >
+                {a.id === algorithm
+                  ? a.label.split(' — ')[0]
+                  : a.id === 'topo-sort'
+                    ? 'Topo Sort'
+                    : a.id === 'tarjan-scc'
+                      ? 'Tarjan SCC'
+                      : a.label.split(' — ')[0]}
               </Badge>
             ))}
           </div>
@@ -2184,7 +2245,9 @@ export default function GraphAlgorithmsPage() {
                   </Select>
                   {/* Algorithm info */}
                   <div className="rounded-md bg-muted/40 border border-border/50 px-3 py-2 text-xs text-muted-foreground">
-                    <span className="font-mono text-primary/80 mr-2">{currentAlgoMeta.complexity}</span>
+                    <span className="font-mono text-primary/80 mr-2">
+                      {currentAlgoMeta.complexity}
+                    </span>
                     {currentAlgoMeta.description}
                   </div>
                 </div>
@@ -2201,7 +2264,9 @@ export default function GraphAlgorithmsPage() {
                           </SelectTrigger>
                           <SelectContent>
                             {nodes.map((n) => (
-                              <SelectItem key={n.id} value={n.id}>{n.id}</SelectItem>
+                              <SelectItem key={n.id} value={n.id}>
+                                {n.id}
+                              </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
@@ -2216,7 +2281,9 @@ export default function GraphAlgorithmsPage() {
                           </SelectTrigger>
                           <SelectContent>
                             {nodes.map((n) => (
-                              <SelectItem key={n.id} value={n.id}>{n.id}</SelectItem>
+                              <SelectItem key={n.id} value={n.id}>
+                                {n.id}
+                              </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
@@ -2268,7 +2335,9 @@ export default function GraphAlgorithmsPage() {
                         </SelectTrigger>
                         <SelectContent>
                           {nodes.map((n) => (
-                            <SelectItem key={n.id} value={n.id}>{n.id}</SelectItem>
+                            <SelectItem key={n.id} value={n.id}>
+                              {n.id}
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -2278,7 +2347,9 @@ export default function GraphAlgorithmsPage() {
                         </SelectTrigger>
                         <SelectContent>
                           {nodes.map((n) => (
-                            <SelectItem key={n.id} value={n.id}>{n.id}</SelectItem>
+                            <SelectItem key={n.id} value={n.id}>
+                              {n.id}
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -2292,7 +2363,12 @@ export default function GraphAlgorithmsPage() {
                         aria-label="Edge weight"
                       />
                     </div>
-                    <Button variant="outline" size="sm" onClick={addEdgeFromForm} className="w-full h-8">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={addEdgeFromForm}
+                      className="w-full h-8"
+                    >
                       <Plus className="w-3.5 h-3.5 mr-1.5" />
                       Add Edge
                     </Button>
@@ -2372,8 +2448,12 @@ export default function GraphAlgorithmsPage() {
                       size="sm"
                       onClick={() => setShowParticles((v) => !v)}
                       aria-pressed={showParticles}
-                      title={showParticles ? 'Disable edge flow particles' : 'Enable edge flow particles'}
-                      aria-label={showParticles ? 'Disable edge flow particles' : 'Enable edge flow particles'}
+                      title={
+                        showParticles ? 'Disable edge flow particles' : 'Enable edge flow particles'
+                      }
+                      aria-label={
+                        showParticles ? 'Disable edge flow particles' : 'Enable edge flow particles'
+                      }
                     >
                       <Sparkles className="w-3.5 h-3.5 mr-1.5" />
                       Particles
@@ -2435,8 +2515,21 @@ export default function GraphAlgorithmsPage() {
                     role="img"
                   >
                     <defs>
-                      <pattern id={`${gradientId}-grid`} x="0" y="0" width={GRID_SIZE} height={GRID_SIZE} patternUnits="userSpaceOnUse">
-                        <circle cx="0.5" cy="0.5" r="0.5" fill="var(--color-border)" opacity="0.5" />
+                      <pattern
+                        id={`${gradientId}-grid`}
+                        x="0"
+                        y="0"
+                        width={GRID_SIZE}
+                        height={GRID_SIZE}
+                        patternUnits="userSpaceOnUse"
+                      >
+                        <circle
+                          cx="0.5"
+                          cy="0.5"
+                          r="0.5"
+                          fill="var(--color-border)"
+                          opacity="0.5"
+                        />
                       </pattern>
 
                       <radialGradient id={`${gradientId}-unvisited`} cx="40%" cy="35%" r="65%">
@@ -2444,8 +2537,14 @@ export default function GraphAlgorithmsPage() {
                         <stop offset="100%" stopColor="var(--color-muted)" />
                       </radialGradient>
                       <radialGradient id={`${gradientId}-visiting`} cx="40%" cy="35%" r="65%">
-                        <stop offset="0%" stopColor="color-mix(in oklch, var(--color-primary) 40%, transparent)" />
-                        <stop offset="100%" stopColor="color-mix(in oklch, var(--color-primary) 15%, transparent)" />
+                        <stop
+                          offset="0%"
+                          stopColor="color-mix(in oklch, var(--color-primary) 40%, transparent)"
+                        />
+                        <stop
+                          offset="100%"
+                          stopColor="color-mix(in oklch, var(--color-primary) 15%, transparent)"
+                        />
                       </radialGradient>
                       <radialGradient id={`${gradientId}-visited`} cx="40%" cy="35%" r="65%">
                         <stop offset="0%" stopColor="oklch(0.65 0.18 155 / 0.5)" />
@@ -2458,7 +2557,13 @@ export default function GraphAlgorithmsPage() {
                       </linearGradient>
 
                       <filter id={filterBlurId} x="-30%" y="-30%" width="160%" height="160%">
-                        <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="var(--color-primary)" floodOpacity="0.25" />
+                        <feDropShadow
+                          dx="0"
+                          dy="2"
+                          stdDeviation="3"
+                          floodColor="var(--color-primary)"
+                          floodOpacity="0.25"
+                        />
                       </filter>
 
                       <marker
@@ -2530,16 +2635,29 @@ export default function GraphAlgorithmsPage() {
                           <path
                             d={dPath}
                             fill="none"
-                            stroke={highlighted ? `url(#${pathGradientId})` : hovered ? 'var(--color-primary)' : 'var(--color-border)'}
+                            stroke={
+                              highlighted
+                                ? `url(#${pathGradientId})`
+                                : hovered
+                                  ? 'var(--color-primary)'
+                                  : 'var(--color-border)'
+                            }
                             strokeWidth={highlighted ? 3 : hovered ? 2.5 : 1.8}
                             strokeLinecap="round"
-                            markerEnd={isDirected
-                              ? (highlighted ? `url(#${gradientId}-arrow-highlight)` : `url(#${gradientId}-arrow)`)
-                              : undefined
+                            markerEnd={
+                              isDirected
+                                ? highlighted
+                                  ? `url(#${gradientId}-arrow-highlight)`
+                                  : `url(#${gradientId}-arrow)`
+                                : undefined
                             }
                             style={{
-                              transition: prefersReducedMotion ? 'none' : 'stroke 0.25s ease, stroke-width 0.2s ease',
-                              filter: highlighted ? `drop-shadow(0 0 4px oklch(0.65 0.18 155 / 0.5))` : 'none',
+                              transition: prefersReducedMotion
+                                ? 'none'
+                                : 'stroke 0.25s ease, stroke-width 0.2s ease',
+                              filter: highlighted
+                                ? `drop-shadow(0 0 4px oklch(0.65 0.18 155 / 0.5))`
+                                : 'none',
                             }}
                           />
                           <rect
@@ -2550,13 +2668,17 @@ export default function GraphAlgorithmsPage() {
                             rx="4"
                             fill="var(--color-card)"
                             fillOpacity="0.85"
-                            stroke={highlighted ? 'oklch(0.65 0.18 155 / 0.5)' : 'var(--color-border)'}
+                            stroke={
+                              highlighted ? 'oklch(0.65 0.18 155 / 0.5)' : 'var(--color-border)'
+                            }
                             strokeWidth="1"
                           />
                           <text
                             x={midX}
                             y={midY + 1}
-                            fill={highlighted ? 'oklch(0.65 0.18 155)' : 'var(--color-muted-foreground)'}
+                            fill={
+                              highlighted ? 'oklch(0.65 0.18 155)' : 'var(--color-muted-foreground)'
+                            }
                             fontSize="10"
                             fontWeight={highlighted ? '700' : '500'}
                             textAnchor="middle"
@@ -2571,23 +2693,25 @@ export default function GraphAlgorithmsPage() {
                     })}
 
                     {/* ---- EDGE DRAG PREVIEW ---- */}
-                    {edgeDragFrom && edgeDragPos && (() => {
-                      const fromNode = nodes.find((n) => n.id === edgeDragFrom);
-                      if (!fromNode) return null;
-                      return (
-                        <line
-                          x1={fromNode.x}
-                          y1={fromNode.y}
-                          x2={edgeDragPos.x}
-                          y2={edgeDragPos.y}
-                          stroke="var(--color-primary)"
-                          strokeWidth="2"
-                          strokeDasharray="6 4"
-                          markerEnd={`url(#${gradientId}-arrow-drag)`}
-                          opacity="0.7"
-                        />
-                      );
-                    })()}
+                    {edgeDragFrom &&
+                      edgeDragPos &&
+                      (() => {
+                        const fromNode = nodes.find((n) => n.id === edgeDragFrom);
+                        if (!fromNode) return null;
+                        return (
+                          <line
+                            x1={fromNode.x}
+                            y1={fromNode.y}
+                            x2={edgeDragPos.x}
+                            y2={edgeDragPos.y}
+                            stroke="var(--color-primary)"
+                            strokeWidth="2"
+                            strokeDasharray="6 4"
+                            markerEnd={`url(#${gradientId}-arrow-drag)`}
+                            opacity="0.7"
+                          />
+                        );
+                      })()}
 
                     {/* ---- NODES ---- */}
                     {nodes.map((node, _nodeIdx) => {
@@ -2621,8 +2745,9 @@ export default function GraphAlgorithmsPage() {
                             ? `url(#${gradientId}-visiting)`
                             : `url(#${gradientId}-unvisited)`;
 
-                      const strokeColor = sccColor
-                        ?? (state === 'visited'
+                      const strokeColor =
+                        sccColor ??
+                        (state === 'visited'
                           ? 'oklch(0.65 0.18 155)'
                           : state === 'visiting'
                             ? 'var(--color-primary)'
@@ -2637,9 +2762,20 @@ export default function GraphAlgorithmsPage() {
                           key={node.id}
                           data-node
                           style={{
-                            cursor: addingNode ? 'not-allowed' : edgeDragFrom ? 'crosshair' : isDragged ? 'grabbing' : 'grab',
+                            cursor: addingNode
+                              ? 'not-allowed'
+                              : edgeDragFrom
+                                ? 'crosshair'
+                                : isDragged
+                                  ? 'grabbing'
+                                  : 'grab',
                             transform: `translate(${node.x}px, ${node.y}px)`,
-                            transition: isDragged || draggingNodeId ? 'none' : prefersReducedMotion ? 'none' : 'transform 0.08s ease-out',
+                            transition:
+                              isDragged || draggingNodeId
+                                ? 'none'
+                                : prefersReducedMotion
+                                  ? 'none'
+                                  : 'transform 0.08s ease-out',
                           }}
                           onPointerDown={(e) => handleNodePointerDown(e, node.id)}
                           onContextMenu={(e) => handleNodeContextMenu(e, node.id)}
@@ -2699,7 +2835,15 @@ export default function GraphAlgorithmsPage() {
                             r={NODE_RADIUS}
                             fill={sccColor ? `${sccColor.replace(')', ' / 0.35)')}` : fillGradient}
                             stroke={strokeColor}
-                            strokeWidth={state !== 'unvisited' || isHovered || isDragged || isEdgeDragTarget || sccColor ? 2.5 : 1.5}
+                            strokeWidth={
+                              state !== 'unvisited' ||
+                              isHovered ||
+                              isDragged ||
+                              isEdgeDragTarget ||
+                              sccColor
+                                ? 2.5
+                                : 1.5
+                            }
                             style={{
                               filter: sccColor
                                 ? `drop-shadow(0 0 6px ${sccColor.replace(')', ' / 0.5)')})`
@@ -2708,7 +2852,9 @@ export default function GraphAlgorithmsPage() {
                                   : isDragged
                                     ? `url(#${filterBlurId})`
                                     : 'none',
-                              transition: prefersReducedMotion ? 'none' : 'stroke 0.2s ease, filter 0.3s ease',
+                              transition: prefersReducedMotion
+                                ? 'none'
+                                : 'stroke 0.2s ease, filter 0.3s ease',
                             }}
                           />
                           <text
@@ -2825,24 +2971,30 @@ export default function GraphAlgorithmsPage() {
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-xs text-muted-foreground w-24">Path:</span>
                           <div className="flex items-center gap-1 flex-wrap">
-                            {result.path && result.path.length > 0 ? result.path.map((nodeId, i) => (
-                              <span key={i} className="flex items-center gap-1">
-                                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-500 font-mono font-bold text-sm">
-                                  {nodeId}
+                            {result.path && result.path.length > 0 ? (
+                              result.path.map((nodeId, i) => (
+                                <span key={i} className="flex items-center gap-1">
+                                  <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-500 font-mono font-bold text-sm">
+                                    {nodeId}
+                                  </span>
+                                  {i < (result.path?.length ?? 0) - 1 && (
+                                    <span className="text-emerald-500/50 text-xs">→</span>
+                                  )}
                                 </span>
-                                {i < (result.path?.length ?? 0) - 1 && (
-                                  <span className="text-emerald-500/50 text-xs">→</span>
-                                )}
-                              </span>
-                            )) : (
+                              ))
+                            ) : (
                               <span className="text-destructive text-xs">No path found</span>
                             )}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground w-24">Total distance:</span>
+                          <span className="text-xs text-muted-foreground w-24">
+                            Total distance:
+                          </span>
                           <span className="font-mono font-bold text-emerald-500">
-                            {result.distance === Infinity ? '∞ (unreachable)' : result.distance?.toFixed(2)}
+                            {result.distance === Infinity
+                              ? '∞ (unreachable)'
+                              : result.distance?.toFixed(2)}
                           </span>
                         </div>
                       </div>
@@ -2874,7 +3026,9 @@ export default function GraphAlgorithmsPage() {
 
                   {result.type === 'topological' && result.order && (
                     <div className="p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-purple-500/5 border border-purple-500/25">
-                      <p className="text-sm font-semibold text-purple-500 mb-3">Topological Order</p>
+                      <p className="text-sm font-semibold text-purple-500 mb-3">
+                        Topological Order
+                      </p>
                       <div className="flex items-center gap-1 flex-wrap">
                         {result.order.map((nodeId, i) => (
                           <span key={i} className="flex items-center gap-1">
@@ -2911,7 +3065,9 @@ export default function GraphAlgorithmsPage() {
                           const colorClass = colors[i % colors.length] ?? colors[0]!;
                           return (
                             <div key={i} className="flex items-center gap-2 flex-wrap">
-                              <span className="text-xs text-muted-foreground w-16">SCC {i + 1}:</span>
+                              <span className="text-xs text-muted-foreground w-16">
+                                SCC {i + 1}:
+                              </span>
                               {component.map((nodeId) => (
                                 <span
                                   key={nodeId}
@@ -2929,12 +3085,18 @@ export default function GraphAlgorithmsPage() {
 
                   {result.type === 'mst' && (
                     <div className="p-4 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/25">
-                      <p className="text-sm font-semibold text-primary mb-3">Minimum Spanning Tree</p>
+                      <p className="text-sm font-semibold text-primary mb-3">
+                        Minimum Spanning Tree
+                      </p>
                       <div className="space-y-1.5">
                         {result.edges?.map((edge, i) => (
                           <div key={i} className="flex items-center gap-2 text-sm font-mono">
-                            <span className="text-foreground/70">{edge.from} — {edge.to}</span>
-                            <span className="ml-auto text-primary font-semibold">{edge.weight}</span>
+                            <span className="text-foreground/70">
+                              {edge.from} — {edge.to}
+                            </span>
+                            <span className="ml-auto text-primary font-semibold">
+                              {edge.weight}
+                            </span>
                           </div>
                         ))}
                         <div className="mt-3 pt-2.5 border-t border-primary/20 flex items-center gap-2">
@@ -2957,7 +3119,10 @@ export default function GraphAlgorithmsPage() {
                           <tr>
                             <th className="border border-border p-2 bg-muted/30 text-xs font-medium text-muted-foreground" />
                             {nodes.map((node) => (
-                              <th key={node.id} className="border border-border p-2 bg-muted/30 text-xs font-medium text-primary">
+                              <th
+                                key={node.id}
+                                className="border border-border p-2 bg-muted/30 text-xs font-medium text-primary"
+                              >
                                 {node.id}
                               </th>
                             ))}
@@ -2978,7 +3143,11 @@ export default function GraphAlgorithmsPage() {
                                     key={toNode.id}
                                     className={[
                                       'border border-border p-2 text-center font-mono text-xs',
-                                      isZero ? 'text-muted-foreground' : isInf ? 'text-destructive/50' : 'text-foreground',
+                                      isZero
+                                        ? 'text-muted-foreground'
+                                        : isInf
+                                          ? 'text-destructive/50'
+                                          : 'text-foreground',
                                     ].join(' ')}
                                   >
                                     {isInf ? '∞' : value}
@@ -3014,9 +3183,7 @@ export default function GraphAlgorithmsPage() {
                     <BookOpen className="w-5 h-5 text-primary" />
                     Detailed Proof
                   </CardTitle>
-                  <CardDescription>
-                    Why the algorithm produced this result
-                  </CardDescription>
+                  <CardDescription>Why the algorithm produced this result</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {(() => {
@@ -3026,7 +3193,10 @@ export default function GraphAlgorithmsPage() {
                         <p className="text-sm font-semibold text-primary">{proof.title}</p>
                         <div className="space-y-1.5 rounded-lg bg-muted/20 border border-border/40 p-4">
                           {proof.steps.map((step, i) => (
-                            <p key={i} className="text-sm text-muted-foreground font-mono leading-relaxed">
+                            <p
+                              key={i}
+                              className="text-sm text-muted-foreground font-mono leading-relaxed"
+                            >
                               <span className="text-primary/60 mr-2 select-none">{i + 1}.</span>
                               {step}
                             </p>
@@ -3034,7 +3204,9 @@ export default function GraphAlgorithmsPage() {
                         </div>
                         <div className="rounded-lg bg-primary/5 border border-primary/20 p-3">
                           <p className="text-sm text-muted-foreground leading-relaxed">
-                            <span className="font-semibold text-primary/80">Why this is correct: </span>
+                            <span className="font-semibold text-primary/80">
+                              Why this is correct:{' '}
+                            </span>
                             {proof.explanation}
                           </p>
                         </div>
@@ -3063,7 +3235,7 @@ export default function GraphAlgorithmsPage() {
                 accent: 'blue',
               },
               {
-                title: "Shortest Paths",
+                title: 'Shortest Paths',
                 desc: "Dijkstra's and A* find shortest paths greedily. A* uses a heuristic to focus search. Bellman-Ford handles negative weights. Floyd-Warshall computes all-pairs paths in O(V³).",
                 accent: 'emerald',
               },
@@ -3074,7 +3246,7 @@ export default function GraphAlgorithmsPage() {
               },
               {
                 title: 'Topological Sort',
-                desc: 'Orders vertices of a DAG so directed edges go from earlier to later positions. Based on Kahn\'s algorithm (BFS on in-degrees). Used for build systems, task scheduling, and dependency resolution.',
+                desc: "Orders vertices of a DAG so directed edges go from earlier to later positions. Based on Kahn's algorithm (BFS on in-degrees). Used for build systems, task scheduling, and dependency resolution.",
                 accent: 'rose',
               },
               {

@@ -23,10 +23,7 @@ export default async function WorksheetPage({
   const { id: worksheetId } = await searchParams;
 
   return (
-    <main
-      className="min-h-screen relative"
-      aria-label={t('editorLabel')}
-    >
+    <main className="min-h-screen relative" aria-label={t('editorLabel')}>
       {/* Enhanced multi-stop radial gradient background */}
       <div
         className="fixed inset-0 -z-10 pointer-events-none"

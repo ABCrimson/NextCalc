@@ -1,9 +1,9 @@
 'use client';
 
-import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
-import { DijkstraVisualizer } from '@/components/algorithms/DijkstraVisualizer';
 import { Navigation } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
+import { DijkstraVisualizer } from '@/components/algorithms/DijkstraVisualizer';
 
 /**
  * Dijkstra's Algorithm Page

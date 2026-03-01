@@ -13,9 +13,9 @@
  * @module components/plots/AnnotationToolbar
  */
 
+import { AnimatePresence, motion } from 'framer-motion';
+import { MousePointerClick, MoveRight, Tag, Trash2 } from 'lucide-react';
 import { useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Tag, MoveRight, Trash2, MousePointerClick } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -24,8 +24,8 @@ import { Tag, MoveRight, Trash2, MousePointerClick } from 'lucide-react';
 export type AnnotationMode =
   | 'idle'
   | 'placing-label'
-  | 'placing-arrow-tail'   // waiting for the first click (tail)
-  | 'placing-arrow-head';  // waiting for the second click (head)
+  | 'placing-arrow-tail' // waiting for the first click (tail)
+  | 'placing-arrow-head'; // waiting for the second click (head)
 
 export interface AnnotationToolbarProps {
   mode: AnnotationMode;
@@ -41,7 +41,12 @@ export interface AnnotationToolbarProps {
 
 const hintVariants = {
   hidden: { opacity: 0, y: -6, height: 0 },
-  visible: { opacity: 1, y: 0, height: 'auto', transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] as const } },
+  visible: {
+    opacity: 1,
+    y: 0,
+    height: 'auto',
+    transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] as const },
+  },
   exit: { opacity: 0, y: -4, height: 0, transition: { duration: 0.15 } },
 };
 
@@ -146,11 +151,7 @@ export function AnnotationToolbar({
   const isPlacing = mode !== 'idle';
 
   return (
-    <div
-      className="flex flex-col gap-1.5"
-      role="toolbar"
-      aria-label="Annotation tools"
-    >
+    <div className="flex flex-col gap-1.5" role="toolbar" aria-label="Annotation tools">
       {/* Button row */}
       <div className="flex items-center flex-wrap gap-1.5">
         {/* Add Label */}
@@ -159,9 +160,7 @@ export function AnnotationToolbar({
           title="Add a text label (click to place)"
           icon={<Tag className="w-3.5 h-3.5" />}
           isActive={mode === 'placing-label'}
-          onClick={() =>
-            onModeChange(mode === 'placing-label' ? 'idle' : 'placing-label')
-          }
+          onClick={() => onModeChange(mode === 'placing-label' ? 'idle' : 'placing-label')}
         />
 
         {/* Add Arrow */}
@@ -175,14 +174,9 @@ export function AnnotationToolbar({
           }
           title="Add an arrow annotation (click start, then end)"
           icon={<MoveRight className="w-3.5 h-3.5" />}
-          isActive={
-            mode === 'placing-arrow-tail' || mode === 'placing-arrow-head'
-          }
+          isActive={mode === 'placing-arrow-tail' || mode === 'placing-arrow-head'}
           onClick={() => {
-            if (
-              mode === 'placing-arrow-tail' ||
-              mode === 'placing-arrow-head'
-            ) {
+            if (mode === 'placing-arrow-tail' || mode === 'placing-arrow-head') {
               onModeChange('idle');
             } else {
               onModeChange('placing-arrow-tail');
@@ -231,9 +225,7 @@ export function AnnotationToolbar({
           >
             <MousePointerClick className="w-3.5 h-3.5 shrink-0 animate-pulse" />
             <span>{hint}</span>
-            <span className="ml-auto text-[10px] text-cyan-400/60 shrink-0">
-              Esc to cancel
-            </span>
+            <span className="ml-auto text-[10px] text-cyan-400/60 shrink-0">Esc to cancel</span>
           </motion.div>
         )}
       </AnimatePresence>

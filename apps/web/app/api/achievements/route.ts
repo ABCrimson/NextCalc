@@ -4,9 +4,9 @@
  * GET /api/achievements - Get all achievements and user progress
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
+import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,8 +17,8 @@ export async function GET(_request: NextRequest) {
     // Get all achievements
     const achievements = await prisma.achievement.findMany({
       orderBy: {
-        points: 'asc'
-      }
+        points: 'asc',
+      },
     });
 
     // If authenticated, include user's earned achievements
@@ -29,10 +29,10 @@ export async function GET(_request: NextRequest) {
         include: {
           achievements: {
             select: {
-              achievementId: true
-            }
-          }
-        }
+              achievementId: true,
+            },
+          },
+        },
       });
 
       if (userProgress) {
@@ -45,18 +45,18 @@ export async function GET(_request: NextRequest) {
       data: {
         achievements: achievements.map((achievement) => ({
           ...achievement,
-          earned: userAchievements.includes(achievement.id)
-        }))
-      }
+          earned: userAchievements.includes(achievement.id),
+        })),
+      },
     });
   } catch (error) {
     console.error('Error fetching achievements:', error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Internal server error'
+        error: 'Internal server error',
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

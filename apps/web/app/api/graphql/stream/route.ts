@@ -9,9 +9,9 @@
  * @see https://github.com/enisdenjo/graphql-sse
  */
 
-import { createHandler } from 'graphql-sse/lib/use/fetch';
-import { schema, createDataLoaders, rateLimit, RateLimitError } from '@nextcalc/api/server';
 import type { GraphQLContext } from '@nextcalc/api/server';
+import { createDataLoaders, RateLimitError, rateLimit, schema } from '@nextcalc/api/server';
+import { createHandler } from 'graphql-sse/lib/use/fetch';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 
@@ -63,10 +63,7 @@ const handler = createHandler({
  */
 async function enforceRateLimit(req: Request): Promise<Response | null> {
   const session = await auth();
-  const ip =
-    req.headers.get('x-forwarded-for') ||
-    req.headers.get('x-real-ip') ||
-    'anonymous';
+  const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'anonymous';
   const identifier = session?.user?.id || ip;
   const limit = session?.user?.id ? 200 : 50;
   const window = 60;
@@ -75,9 +72,7 @@ async function enforceRateLimit(req: Request): Promise<Response | null> {
     const result = await rateLimit(identifier, limit, window);
 
     if (!result.allowed) {
-      const retryAfter = Math.ceil(
-        (result.resetAt.getTime() - Date.now()) / 1000,
-      );
+      const retryAfter = Math.ceil((result.resetAt.getTime() - Date.now()) / 1000);
       return new Response(
         JSON.stringify({
           errors: [

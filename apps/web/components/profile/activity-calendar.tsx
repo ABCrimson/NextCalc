@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 interface ActivityCalendarProps {
   data: Array<{ date: string; count: number }>;
@@ -21,7 +21,20 @@ const CELL_STRIDE = CELL_SIZE + CELL_GAP;
 const LEFT_OFFSET = 32;
 const TOP_OFFSET = 24;
 
-const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const MONTH_LABELS = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
 const DAY_LABELS = ['', 'Mon', '', 'Wed', '', 'Fri', ''];
 
 function getActivityColor(count: number, max: number): string {
@@ -128,7 +141,7 @@ export function ActivityCalendar({ data }: ActivityCalendarProps) {
             >
               {label}
             </text>
-          ) : null
+          ) : null,
         )}
 
         {/* Contribution cells */}
@@ -156,9 +169,13 @@ export function ActivityCalendar({ data }: ActivityCalendarProps) {
                 });
               }}
               onMouseLeave={() => setTooltip(null)}
-              aria-label={cell.inRange ? `${formatDate(cell.dateStr)}: ${cell.count} contribution${cell.count !== 1 ? 's' : ''}` : undefined}
+              aria-label={
+                cell.inRange
+                  ? `${formatDate(cell.dateStr)}: ${cell.count} contribution${cell.count !== 1 ? 's' : ''}`
+                  : undefined
+              }
             />
-          ))
+          )),
         )}
       </svg>
 
@@ -183,7 +200,13 @@ export function ActivityCalendar({ data }: ActivityCalendarProps) {
       {/* Legend */}
       <div className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
         <span>Less</span>
-        {['oklch(0.25 0.01 264)', 'oklch(0.35 0.08 264)', 'oklch(0.45 0.15 264)', 'oklch(0.55 0.20 264)', 'oklch(0.65 0.25 264)'].map((color, i) => (
+        {[
+          'oklch(0.25 0.01 264)',
+          'oklch(0.35 0.08 264)',
+          'oklch(0.45 0.15 264)',
+          'oklch(0.55 0.20 264)',
+          'oklch(0.65 0.25 264)',
+        ].map((color, i) => (
           <span
             key={i}
             className="inline-block h-3 w-3 rounded-sm"

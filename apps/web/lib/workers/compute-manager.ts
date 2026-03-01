@@ -3,8 +3,8 @@
  * Handles worker lifecycle, message routing, and error recovery
  */
 
-import type { ComputeRequest, ComputeResponse } from './compute.worker';
 import type { EvaluationContext } from '@nextcalc/math-engine';
+import type { ComputeRequest, ComputeResponse } from './compute.worker';
 
 type PendingRequest = {
   // biome-ignore lint/suspicious/noExplicitAny: generic resolve callback from Promise constructor
@@ -33,10 +33,7 @@ export class ComputeManager {
   private initWorker(): void {
     try {
       // In Next.js, we need to use URL constructor for worker
-      this.worker = new Worker(
-        new URL('./compute.worker.ts', import.meta.url),
-        { type: 'module' }
-      );
+      this.worker = new Worker(new URL('./compute.worker.ts', import.meta.url), { type: 'module' });
 
       this.worker.onmessage = this.handleMessage.bind(this);
       this.worker.onerror = this.handleError.bind(this);
@@ -105,7 +102,7 @@ export class ComputeManager {
     type: ComputeRequest['type'],
     expression: string,
     context?: EvaluationContext,
-    timeoutMs = 10000
+    timeoutMs = 10000,
   ): Promise<T> {
     // Wait for worker to be ready
     await this.readyPromise;
@@ -138,7 +135,10 @@ export class ComputeManager {
   /**
    * Evaluate an expression in the worker
    */
-  async evaluate(expression: string, context?: EvaluationContext): Promise<number | bigint | string> {
+  async evaluate(
+    expression: string,
+    context?: EvaluationContext,
+  ): Promise<number | bigint | string> {
     return this.sendRequest('evaluate', expression, context);
   }
 

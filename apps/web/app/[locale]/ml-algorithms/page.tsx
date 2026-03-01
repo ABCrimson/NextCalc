@@ -1,15 +1,16 @@
 'use client';
 
-import { useState } from 'react';
-import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Brain, Eye, Zap } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Brain, Zap, Eye } from 'lucide-react';
+
 // Mock ML algorithms since they're not exported yet
 // import { simclrLoss, alibiAttention } from '@nextcalc/math-engine/algorithms';
 
@@ -69,7 +70,7 @@ export default function MLAlgorithmsPage() {
       }
       // Normalize
       const norm = Math.sqrt(embedding.reduce((sum, val) => sum + val * val, 0));
-      embeddings.push(embedding.map(val => val / norm));
+      embeddings.push(embedding.map((val) => val / norm));
     }
     return embeddings;
   };
@@ -114,7 +115,10 @@ export default function MLAlgorithmsPage() {
   };
 
   // Generate random query/key/value matrices
-  const generateQKV = (seqLen: number, dim: number): { Q: number[][]; K: number[][]; V: number[][] } => {
+  const generateQKV = (
+    seqLen: number,
+    dim: number,
+  ): { Q: number[][]; K: number[][]; V: number[][] } => {
     const Q: number[][] = [];
     const K: number[][] = [];
     const V: number[][] = [];
@@ -156,11 +160,11 @@ export default function MLAlgorithmsPage() {
           }
           // Add distance bias (AliBI)
           const bias = -Math.abs(i - j) * 0.5;
-          scores[i]![j] = Math.exp((score / Math.sqrt(dim)) + bias);
+          scores[i]![j] = Math.exp(score / Math.sqrt(dim) + bias);
         }
         // Normalize
         const sum = scores[i]?.reduce((a, b) => a + b, 0) ?? 1;
-        scores[i] = scores[i]?.map(s => s / sum) ?? [];
+        scores[i] = scores[i]?.map((s) => s / sum) ?? [];
       }
 
       // Compute output (simplified)
@@ -233,8 +237,7 @@ export default function MLAlgorithmsPage() {
         <motion.div
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-3xl"
           style={{
-            background:
-              'radial-gradient(circle, oklch(0.65 0.18 355 / 0.08) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, oklch(0.65 0.18 355 / 0.08) 0%, transparent 70%)',
           }}
           animate={{ scale: [1, 1.15, 1], opacity: [0.6, 1, 0.6] }}
           transition={{ duration: 28, repeat: Infinity, ease: 'easeInOut', delay: 6 }}
@@ -258,7 +261,8 @@ export default function MLAlgorithmsPage() {
             <div
               className="p-3 rounded-2xl border shrink-0"
               style={{
-                background: 'linear-gradient(135deg, oklch(0.65 0.22 264 / 0.18), oklch(0.63 0.20 310 / 0.18))',
+                background:
+                  'linear-gradient(135deg, oklch(0.65 0.22 264 / 0.18), oklch(0.63 0.20 310 / 0.18))',
                 borderColor: 'oklch(0.65 0.20 290 / 0.35)',
               }}
             >
@@ -268,14 +272,9 @@ export default function MLAlgorithmsPage() {
               {t('title')}
             </h1>
           </div>
-          <p className="text-lg text-muted-foreground">
-            {t('subtitle')}
-          </p>
+          <p className="text-lg text-muted-foreground">{t('subtitle')}</p>
           <div className="flex flex-wrap gap-2 mt-4">
-            <Badge
-              variant="outline"
-              className="border-blue-500/50 text-blue-400 bg-blue-500/10"
-            >
+            <Badge variant="outline" className="border-blue-500/50 text-blue-400 bg-blue-500/10">
               <Zap className="w-3 h-3 mr-1" />
               {t('simclr')}
             </Badge>
@@ -285,10 +284,7 @@ export default function MLAlgorithmsPage() {
             >
               {t('alibiAttention')}
             </Badge>
-            <Badge
-              variant="outline"
-              className="border-pink-500/50 text-pink-400 bg-pink-500/10"
-            >
+            <Badge variant="outline" className="border-pink-500/50 text-pink-400 bg-pink-500/10">
               {t('selfSupervised')}
             </Badge>
           </div>
@@ -319,9 +315,7 @@ export default function MLAlgorithmsPage() {
               <Card className="backdrop-blur-md bg-card/50 border-border">
                 <CardHeader>
                   <CardTitle className="text-blue-400">{t('simclrParameters')}</CardTitle>
-                  <CardDescription>
-                    {t('simclrParametersDesc')}
-                  </CardDescription>
+                  <CardDescription>{t('simclrParametersDesc')}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Temperature */}
@@ -346,8 +340,7 @@ export default function MLAlgorithmsPage() {
                   {/* Batch Size */}
                   <div className="space-y-2">
                     <Label htmlFor="batch-size">
-                      {t('batchSize')}:{' '}
-                      <span className="text-blue-400 font-mono">{batchSize}</span>
+                      {t('batchSize')}: <span className="text-blue-400 font-mono">{batchSize}</span>
                     </Label>
                     <Slider
                       id="batch-size"
@@ -404,9 +397,7 @@ export default function MLAlgorithmsPage() {
               <Card className="backdrop-blur-md bg-card/50 border-border">
                 <CardHeader>
                   <CardTitle className="text-purple-400">Similarity Matrix</CardTitle>
-                  <CardDescription>
-                    Cosine similarity between augmented views
-                  </CardDescription>
+                  <CardDescription>Cosine similarity between augmented views</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {contrastiveResult ? (
@@ -423,12 +414,14 @@ export default function MLAlgorithmsPage() {
                               // Map similarity from [-1, 1] to [0, 1]
                               const intensity = (sim + 1) / 2;
                               // OKLCH colormap: deep purple (0) -> teal (0.5) -> bright green (1.0)
-                              const bgColor = i === j
-                                ? 'oklch(0.65 0.2 155)' // Bright green for positive pairs
-                                : similarityColor(intensity);
-                              const fgColor = i === j
-                                ? 'oklch(0.15 0 0)' // Dark text on green
-                                : textColorForValue(intensity);
+                              const bgColor =
+                                i === j
+                                  ? 'oklch(0.65 0.2 155)' // Bright green for positive pairs
+                                  : similarityColor(intensity);
+                              const fgColor =
+                                i === j
+                                  ? 'oklch(0.15 0 0)' // Dark text on green
+                                  : textColorForValue(intensity);
 
                               return (
                                 <div
@@ -444,7 +437,7 @@ export default function MLAlgorithmsPage() {
                                   {sim.toFixed(2)}
                                 </div>
                               );
-                            })
+                            }),
                           )}
                         </div>
                       </div>
@@ -476,14 +469,15 @@ export default function MLAlgorithmsPage() {
               </CardHeader>
               <CardContent className="space-y-3 text-sm text-muted-foreground">
                 <p>
-                  <strong className="text-foreground">SimCLR</strong> (Simple Framework for Contrastive Learning of Visual Representations)
-                  is a self-supervised learning method that learns representations by maximizing agreement between
-                  differently augmented views of the same image.
+                  <strong className="text-foreground">SimCLR</strong> (Simple Framework for
+                  Contrastive Learning of Visual Representations) is a self-supervised learning
+                  method that learns representations by maximizing agreement between differently
+                  augmented views of the same image.
                 </p>
                 <p>
-                  The contrastive loss pulls positive pairs (augmented views of the same image) together
-                  in the embedding space while pushing negative pairs (different images) apart. The temperature
-                  parameter controls the concentration of the distribution.
+                  The contrastive loss pulls positive pairs (augmented views of the same image)
+                  together in the embedding space while pushing negative pairs (different images)
+                  apart. The temperature parameter controls the concentration of the distribution.
                 </p>
                 <div className="overflow-x-auto">
                   <p className="font-mono text-xs bg-background/50 p-2 rounded whitespace-nowrap border border-border/50">
@@ -501,9 +495,7 @@ export default function MLAlgorithmsPage() {
               <Card className="backdrop-blur-md bg-card/50 border-border">
                 <CardHeader>
                   <CardTitle className="text-purple-400">{t('alibiParameters')}</CardTitle>
-                  <CardDescription>
-                    {t('alibiParametersDesc')}
-                  </CardDescription>
+                  <CardDescription>{t('alibiParametersDesc')}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Sequence Length */}
@@ -528,8 +520,7 @@ export default function MLAlgorithmsPage() {
                   {/* Number of Heads */}
                   <div className="space-y-2">
                     <Label htmlFor="num-heads">
-                      {t('numHeads')}:{' '}
-                      <span className="text-purple-400 font-mono">{numHeads}</span>
+                      {t('numHeads')}: <span className="text-purple-400 font-mono">{numHeads}</span>
                     </Label>
                     <Slider
                       id="num-heads"
@@ -555,7 +546,9 @@ export default function MLAlgorithmsPage() {
                   {attentionResult && (
                     <div className="space-y-3">
                       <div className="p-4 bg-gradient-to-br from-purple-950/40 to-pink-900/40 border border-purple-500/40 rounded-lg backdrop-blur-sm">
-                        <div className="font-semibold text-purple-300 mb-2">Attention Statistics</div>
+                        <div className="font-semibold text-purple-300 mb-2">
+                          Attention Statistics
+                        </div>
                         <div className="space-y-1 text-sm">
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">Max Score:</span>
@@ -580,9 +573,7 @@ export default function MLAlgorithmsPage() {
               <Card className="backdrop-blur-md bg-card/50 border-border">
                 <CardHeader>
                   <CardTitle className="text-pink-400">Attention Heatmap</CardTitle>
-                  <CardDescription>
-                    Causal attention scores (head 0)
-                  </CardDescription>
+                  <CardDescription>Causal attention scores (head 0)</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {attentionResult ? (
@@ -624,7 +615,7 @@ export default function MLAlgorithmsPage() {
                                   {score.toFixed(2)}
                                 </div>
                               );
-                            })
+                            }),
                           )}
                         </div>
                       </div>
@@ -650,15 +641,16 @@ export default function MLAlgorithmsPage() {
               </CardHeader>
               <CardContent className="space-y-3 text-sm text-muted-foreground">
                 <p>
-                  <strong className="text-foreground">AliBI</strong> (Attention with Linear Biases) is a simple,
-                  efficient alternative to positional embeddings in Transformers. Instead of adding positional
-                  encodings to word embeddings, AliBI adds a static, non-learned bias to attention scores.
+                  <strong className="text-foreground">AliBI</strong> (Attention with Linear Biases)
+                  is a simple, efficient alternative to positional embeddings in Transformers.
+                  Instead of adding positional encodings to word embeddings, AliBI adds a static,
+                  non-learned bias to attention scores.
                 </p>
                 <p>
-                  The bias is proportional to the distance between query and key positions, penalizing
-                  attention to distant tokens. This encourages the model to focus on nearby context and
-                  remarkably enables length extrapolation - the model can process sequences longer than
-                  those seen during training.
+                  The bias is proportional to the distance between query and key positions,
+                  penalizing attention to distant tokens. This encourages the model to focus on
+                  nearby context and remarkably enables length extrapolation - the model can process
+                  sequences longer than those seen during training.
                 </p>
                 <div className="overflow-x-auto">
                   <p className="font-mono text-xs bg-background/50 p-2 rounded whitespace-nowrap border border-border/50">
@@ -666,8 +658,8 @@ export default function MLAlgorithmsPage() {
                   </p>
                 </div>
                 <p>
-                  where m is a head-specific slope. Each attention head gets a different slope, allowing
-                  different heads to focus on different distance ranges.
+                  where m is a head-specific slope. Each attention head gets a different slope,
+                  allowing different heads to focus on different distance ranges.
                 </p>
               </CardContent>
             </Card>
@@ -687,33 +679,46 @@ export default function MLAlgorithmsPage() {
             <div
               className="group relative p-6 rounded-xl overflow-hidden border backdrop-blur-md transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5"
               style={{
-                background: 'linear-gradient(135deg, oklch(0.18 0.03 264 / 0.5), oklch(0.16 0.025 264 / 0.4))',
+                background:
+                  'linear-gradient(135deg, oklch(0.18 0.03 264 / 0.5), oklch(0.16 0.025 264 / 0.4))',
                 borderColor: 'oklch(0.65 0.22 264 / 0.4)',
                 boxShadow: '0 0 20px oklch(0.55 0.27 264 / 0.12)',
               }}
             >
               <div
                 className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"
-                style={{ background: 'linear-gradient(135deg, oklch(0.65 0.22 264 / 0.06), transparent)' }}
+                style={{
+                  background: 'linear-gradient(135deg, oklch(0.65 0.22 264 / 0.06), transparent)',
+                }}
               />
               <div
                 className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20"
-                style={{ background: 'radial-gradient(circle at top right, oklch(0.65 0.22 264 / 0.4), transparent)' }}
+                style={{
+                  background:
+                    'radial-gradient(circle at top right, oklch(0.65 0.22 264 / 0.4), transparent)',
+                }}
               />
               <div className="relative">
                 <div className="flex items-center gap-2 mb-3">
                   <div
                     className="w-2 h-2 rounded-full"
-                    style={{ background: 'oklch(0.65 0.22 264)', boxShadow: '0 0 8px oklch(0.65 0.22 264 / 0.8)' }}
+                    style={{
+                      background: 'oklch(0.65 0.22 264)',
+                      boxShadow: '0 0 8px oklch(0.65 0.22 264 / 0.8)',
+                    }}
                   />
-                  <h3 className="text-lg font-semibold min-w-0 break-words" style={{ color: 'oklch(0.78 0.18 264)' }}>
+                  <h3
+                    className="text-lg font-semibold min-w-0 break-words"
+                    style={{ color: 'oklch(0.78 0.18 264)' }}
+                  >
                     Contrastive Learning
                   </h3>
                 </div>
                 <p className="text-sm" style={{ color: 'oklch(0.75 0.08 264)' }}>
-                  Self-supervised learning paradigm that learns representations by contrasting positive
-                  and negative examples. Powers models like CLIP, SimCLR, and MoCo. Achieves impressive
-                  results without labeled data by learning invariances through data augmentation.
+                  Self-supervised learning paradigm that learns representations by contrasting
+                  positive and negative examples. Powers models like CLIP, SimCLR, and MoCo.
+                  Achieves impressive results without labeled data by learning invariances through
+                  data augmentation.
                 </p>
               </div>
             </div>
@@ -721,33 +726,45 @@ export default function MLAlgorithmsPage() {
             <div
               className="group relative p-6 rounded-xl overflow-hidden border backdrop-blur-md transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5"
               style={{
-                background: 'linear-gradient(135deg, oklch(0.18 0.03 300 / 0.5), oklch(0.16 0.025 300 / 0.4))',
+                background:
+                  'linear-gradient(135deg, oklch(0.18 0.03 300 / 0.5), oklch(0.16 0.025 300 / 0.4))',
                 borderColor: 'oklch(0.63 0.20 300 / 0.4)',
                 boxShadow: '0 0 20px oklch(0.58 0.22 300 / 0.12)',
               }}
             >
               <div
                 className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"
-                style={{ background: 'linear-gradient(135deg, oklch(0.63 0.20 300 / 0.06), transparent)' }}
+                style={{
+                  background: 'linear-gradient(135deg, oklch(0.63 0.20 300 / 0.06), transparent)',
+                }}
               />
               <div
                 className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20"
-                style={{ background: 'radial-gradient(circle at top right, oklch(0.63 0.20 300 / 0.4), transparent)' }}
+                style={{
+                  background:
+                    'radial-gradient(circle at top right, oklch(0.63 0.20 300 / 0.4), transparent)',
+                }}
               />
               <div className="relative">
                 <div className="flex items-center gap-2 mb-3">
                   <div
                     className="w-2 h-2 rounded-full"
-                    style={{ background: 'oklch(0.63 0.20 300)', boxShadow: '0 0 8px oklch(0.63 0.20 300 / 0.8)' }}
+                    style={{
+                      background: 'oklch(0.63 0.20 300)',
+                      boxShadow: '0 0 8px oklch(0.63 0.20 300 / 0.8)',
+                    }}
                   />
-                  <h3 className="text-lg font-semibold min-w-0 break-words" style={{ color: 'oklch(0.78 0.16 300)' }}>
+                  <h3
+                    className="text-lg font-semibold min-w-0 break-words"
+                    style={{ color: 'oklch(0.78 0.16 300)' }}
+                  >
                     Efficient Transformers
                   </h3>
                 </div>
                 <p className="text-sm" style={{ color: 'oklch(0.75 0.08 300)' }}>
-                  AliBI is one of many innovations making Transformers more efficient. Others include
-                  Flash Attention (memory optimization), Linformer (linear attention), and Reformer
-                  (locality-sensitive hashing). These enable processing longer sequences.
+                  AliBI is one of many innovations making Transformers more efficient. Others
+                  include Flash Attention (memory optimization), Linformer (linear attention), and
+                  Reformer (locality-sensitive hashing). These enable processing longer sequences.
                 </p>
               </div>
             </div>
@@ -755,26 +772,38 @@ export default function MLAlgorithmsPage() {
             <div
               className="group relative p-6 rounded-xl overflow-hidden border backdrop-blur-md transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5"
               style={{
-                background: 'linear-gradient(135deg, oklch(0.18 0.03 155 / 0.5), oklch(0.16 0.025 155 / 0.4))',
+                background:
+                  'linear-gradient(135deg, oklch(0.18 0.03 155 / 0.5), oklch(0.16 0.025 155 / 0.4))',
                 borderColor: 'oklch(0.65 0.18 155 / 0.4)',
                 boxShadow: '0 0 20px oklch(0.65 0.18 155 / 0.12)',
               }}
             >
               <div
                 className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"
-                style={{ background: 'linear-gradient(135deg, oklch(0.65 0.18 155 / 0.06), transparent)' }}
+                style={{
+                  background: 'linear-gradient(135deg, oklch(0.65 0.18 155 / 0.06), transparent)',
+                }}
               />
               <div
                 className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20"
-                style={{ background: 'radial-gradient(circle at top right, oklch(0.65 0.18 155 / 0.4), transparent)' }}
+                style={{
+                  background:
+                    'radial-gradient(circle at top right, oklch(0.65 0.18 155 / 0.4), transparent)',
+                }}
               />
               <div className="relative">
                 <div className="flex items-center gap-2 mb-3">
                   <div
                     className="w-2 h-2 rounded-full"
-                    style={{ background: 'oklch(0.65 0.18 155)', boxShadow: '0 0 8px oklch(0.65 0.18 155 / 0.8)' }}
+                    style={{
+                      background: 'oklch(0.65 0.18 155)',
+                      boxShadow: '0 0 8px oklch(0.65 0.18 155 / 0.8)',
+                    }}
                   />
-                  <h3 className="text-lg font-semibold min-w-0 break-words" style={{ color: 'oklch(0.78 0.15 155)' }}>
+                  <h3
+                    className="text-lg font-semibold min-w-0 break-words"
+                    style={{ color: 'oklch(0.78 0.15 155)' }}
+                  >
                     Applications
                   </h3>
                 </div>
@@ -789,26 +818,38 @@ export default function MLAlgorithmsPage() {
             <div
               className="group relative p-6 rounded-xl overflow-hidden border backdrop-blur-md transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5"
               style={{
-                background: 'linear-gradient(135deg, oklch(0.18 0.03 25 / 0.5), oklch(0.16 0.025 25 / 0.4))',
+                background:
+                  'linear-gradient(135deg, oklch(0.18 0.03 25 / 0.5), oklch(0.16 0.025 25 / 0.4))',
                 borderColor: 'oklch(0.65 0.20 355 / 0.4)',
                 boxShadow: '0 0 20px oklch(0.65 0.20 355 / 0.12)',
               }}
             >
               <div
                 className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"
-                style={{ background: 'linear-gradient(135deg, oklch(0.65 0.20 355 / 0.06), transparent)' }}
+                style={{
+                  background: 'linear-gradient(135deg, oklch(0.65 0.20 355 / 0.06), transparent)',
+                }}
               />
               <div
                 className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20"
-                style={{ background: 'radial-gradient(circle at top right, oklch(0.65 0.20 355 / 0.4), transparent)' }}
+                style={{
+                  background:
+                    'radial-gradient(circle at top right, oklch(0.65 0.20 355 / 0.4), transparent)',
+                }}
               />
               <div className="relative">
                 <div className="flex items-center gap-2 mb-3">
                   <div
                     className="w-2 h-2 rounded-full"
-                    style={{ background: 'oklch(0.65 0.20 355)', boxShadow: '0 0 8px oklch(0.65 0.20 355 / 0.8)' }}
+                    style={{
+                      background: 'oklch(0.65 0.20 355)',
+                      boxShadow: '0 0 8px oklch(0.65 0.20 355 / 0.8)',
+                    }}
                   />
-                  <h3 className="text-lg font-semibold min-w-0 break-words" style={{ color: 'oklch(0.78 0.16 355)' }}>
+                  <h3
+                    className="text-lg font-semibold min-w-0 break-words"
+                    style={{ color: 'oklch(0.78 0.16 355)' }}
+                  >
                     Why It Matters
                   </h3>
                 </div>

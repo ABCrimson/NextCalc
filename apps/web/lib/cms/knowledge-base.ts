@@ -7,9 +7,9 @@
  * @module cms/knowledge-base
  */
 
-import { prisma } from '../prisma';
-import type { Category, Topic, Theorem, Prisma } from '@nextcalc/database';
+import type { Category, Prisma, Theorem, Topic } from '@nextcalc/database';
 import { z } from 'zod';
+import { prisma } from '../prisma';
 
 // ============================================================================
 // Validation Schemas (Zod)
@@ -19,13 +19,24 @@ export const TopicCreateSchema = z.object({
   name: z.string().min(2).max(255),
   slug: z.string().regex(/^[a-z0-9-]+$/),
   category: z.enum([
-    'CALCULUS', 'ALGEBRA', 'TOPOLOGY', 'ANALYSIS', 'GEOMETRY',
-    'NUMBER_THEORY', 'ALGORITHMS', 'GAME_THEORY', 'CHAOS_THEORY',
-    'CRYPTOGRAPHY', 'QUANTUM', 'OPTIMIZATION', 'PROBABILITY', 'STATISTICS'
+    'CALCULUS',
+    'ALGEBRA',
+    'TOPOLOGY',
+    'ANALYSIS',
+    'GEOMETRY',
+    'NUMBER_THEORY',
+    'ALGORITHMS',
+    'GAME_THEORY',
+    'CHAOS_THEORY',
+    'CRYPTOGRAPHY',
+    'QUANTUM',
+    'OPTIMIZATION',
+    'PROBABILITY',
+    'STATISTICS',
   ]),
   description: z.string().optional(),
   definition: z.string().optional(), // LaTeX/Markdown
-  parentId: z.string().optional()
+  parentId: z.string().optional(),
 });
 
 export const TheoremCreateSchema = z.object({
@@ -35,7 +46,7 @@ export const TheoremCreateSchema = z.object({
   intuition: z.string().optional(),
   applications: z.string().optional(),
   topicId: z.string(),
-  prerequisiteIds: z.array(z.string()).optional()
+  prerequisiteIds: z.array(z.string()).optional(),
 });
 
 export const ResourceCreateSchema = z.object({
@@ -43,7 +54,7 @@ export const ResourceCreateSchema = z.object({
   description: z.string().optional(),
   url: z.string().url(),
   type: z.enum(['VIDEO', 'ARTICLE', 'BOOK', 'PAPER', 'INTERACTIVE', 'COURSE']),
-  topicId: z.string()
+  topicId: z.string(),
 });
 
 export const ExampleCreateSchema = z.object({
@@ -53,7 +64,7 @@ export const ExampleCreateSchema = z.object({
   explanation: z.string(),
   topicId: z.string().optional(),
   problemId: z.string().optional(),
-  order: z.number().int().default(0)
+  order: z.number().int().default(0),
 });
 
 export type TopicCreateInput = z.infer<typeof TopicCreateSchema>;
@@ -104,7 +115,7 @@ export class KnowledgeBaseManager {
     // Verify parent exists if provided
     if (validated.parentId) {
       const parent = await prisma.topic.findUnique({
-        where: { id: validated.parentId }
+        where: { id: validated.parentId },
       });
       if (!parent) {
         throw new Error('Parent topic not found');
@@ -118,7 +129,7 @@ export class KnowledgeBaseManager {
         category: validated.category as Category,
         ...(validated.description !== undefined && { description: validated.description }),
         ...(validated.definition !== undefined && { definition: validated.definition }),
-        ...(validated.parentId !== undefined && { parentId: validated.parentId })
+        ...(validated.parentId !== undefined && { parentId: validated.parentId }),
       },
       include: {
         parent: true,
@@ -127,10 +138,10 @@ export class KnowledgeBaseManager {
           select: {
             problems: true,
             theorems: true,
-            examples: true
-          }
-        }
-      }
+            examples: true,
+          },
+        },
+      },
     });
   }
 
@@ -146,12 +157,12 @@ export class KnowledgeBaseManager {
         ...(data.category && { category: data.category as Category }),
         ...(data.description !== undefined && { description: data.description }),
         ...(data.definition !== undefined && { definition: data.definition }),
-        ...(data.parentId !== undefined && { parentId: data.parentId })
+        ...(data.parentId !== undefined && { parentId: data.parentId }),
       },
       include: {
         parent: true,
-        children: true
-      }
+        children: true,
+      },
     });
   }
 
@@ -167,10 +178,10 @@ export class KnowledgeBaseManager {
           select: {
             problems: true,
             theorems: true,
-            children: true
-          }
-        }
-      }
+            children: true,
+          },
+        },
+      },
     });
 
     if (!topic) {
@@ -182,7 +193,7 @@ export class KnowledgeBaseManager {
     }
 
     await prisma.topic.delete({
-      where: { id }
+      where: { id },
     });
   }
 
@@ -192,7 +203,7 @@ export class KnowledgeBaseManager {
   static async getTopicTree(category?: Category): Promise<TopicNode[]> {
     const where: Prisma.TopicWhereInput = {
       parentId: null,
-      ...(category && { category })
+      ...(category && { category }),
     };
 
     const rootTopics = await prisma.topic.findMany({
@@ -202,15 +213,17 @@ export class KnowledgeBaseManager {
           select: {
             problems: true,
             theorems: true,
-            examples: true
-          }
-        }
+            examples: true,
+          },
+        },
       },
-      orderBy: { name: 'asc' }
+      orderBy: { name: 'asc' },
     });
 
     // Recursively build tree
-    const buildTree = async (topics: (Topic & { _count: { problems: number; theorems: number; examples: number } })[]): Promise<TopicNode[]> => {
+    const buildTree = async (
+      topics: (Topic & { _count: { problems: number; theorems: number; examples: number } })[],
+    ): Promise<TopicNode[]> => {
       return await Promise.all(
         topics.map(async (topic) => {
           const children = await prisma.topic.findMany({
@@ -220,11 +233,11 @@ export class KnowledgeBaseManager {
                 select: {
                   problems: true,
                   theorems: true,
-                  examples: true
-                }
-              }
+                  examples: true,
+                },
+              },
             },
-            orderBy: { name: 'asc' }
+            orderBy: { name: 'asc' },
           });
 
           return {
@@ -235,9 +248,9 @@ export class KnowledgeBaseManager {
             description: topic.description,
             parentId: topic.parentId,
             _count: topic._count,
-            children: await buildTree(children)
+            children: await buildTree(children),
           };
-        })
+        }),
       );
     };
 
@@ -253,29 +266,29 @@ export class KnowledgeBaseManager {
       include: {
         parent: true,
         children: {
-          orderBy: { name: 'asc' }
+          orderBy: { name: 'asc' },
         },
         theorems: {
           orderBy: { createdAt: 'desc' },
-          take: 10
+          take: 10,
         },
         examples: {
           orderBy: { order: 'asc' },
-          take: 10
+          take: 10,
         },
         resources: {
           orderBy: { createdAt: 'desc' },
-          take: 10
+          take: 10,
         },
         _count: {
           select: {
             problems: true,
             theorems: true,
             examples: true,
-            resources: true
-          }
-        }
-      }
+            resources: true,
+          },
+        },
+      },
     });
   }
 
@@ -290,8 +303,8 @@ export class KnowledgeBaseManager {
         children: true,
         theorems: true,
         examples: true,
-        resources: true
-      }
+        resources: true,
+      },
     });
   }
 
@@ -306,11 +319,11 @@ export class KnowledgeBaseManager {
         _count: {
           select: {
             problems: true,
-            theorems: true
-          }
-        }
+            theorems: true,
+          },
+        },
       },
-      orderBy: { name: 'asc' }
+      orderBy: { name: 'asc' },
     });
   }
 
@@ -322,7 +335,7 @@ export class KnowledgeBaseManager {
 
     // Verify topic exists
     const topic = await prisma.topic.findUnique({
-      where: { id: validated.topicId }
+      where: { id: validated.topicId },
     });
     if (!topic) {
       throw new Error('Topic not found');
@@ -338,15 +351,15 @@ export class KnowledgeBaseManager {
         topicId: validated.topicId,
         ...(validated.prerequisiteIds && {
           prerequisites: {
-            connect: validated.prerequisiteIds.map(id => ({ id }))
-          }
-        })
+            connect: validated.prerequisiteIds.map((id) => ({ id })),
+          },
+        }),
       },
       include: {
         topic: true,
         prerequisites: true,
-        dependents: true
-      }
+        dependents: true,
+      },
     });
   }
 
@@ -361,12 +374,12 @@ export class KnowledgeBaseManager {
         ...(data.statement && { statement: data.statement }),
         ...(data.proof && { proof: data.proof }),
         ...(data.intuition !== undefined && { intuition: data.intuition }),
-        ...(data.applications !== undefined && { applications: data.applications })
+        ...(data.applications !== undefined && { applications: data.applications }),
       },
       include: {
         topic: true,
-        prerequisites: true
-      }
+        prerequisites: true,
+      },
     });
   }
 
@@ -375,7 +388,7 @@ export class KnowledgeBaseManager {
    */
   static async deleteTheorem(id: string): Promise<void> {
     await prisma.theorem.delete({
-      where: { id }
+      where: { id },
     });
   }
 
@@ -385,7 +398,7 @@ export class KnowledgeBaseManager {
   static async addDefinition(topicId: string, definition: string): Promise<Topic> {
     return await prisma.topic.update({
       where: { id: topicId },
-      data: { definition }
+      data: { definition },
     });
   }
 
@@ -401,11 +414,11 @@ export class KnowledgeBaseManager {
         ...(validated.description !== undefined && { description: validated.description }),
         url: validated.url,
         type: validated.type,
-        topicId: validated.topicId
+        topicId: validated.topicId,
       },
       include: {
-        topic: true
-      }
+        topic: true,
+      },
     });
   }
 
@@ -427,12 +440,12 @@ export class KnowledgeBaseManager {
         explanation: validated.explanation,
         order: validated.order,
         ...(validated.topicId !== undefined && { topicId: validated.topicId }),
-        ...(validated.problemId !== undefined && { problemId: validated.problemId })
+        ...(validated.problemId !== undefined && { problemId: validated.problemId }),
       },
       include: {
         topic: true,
-        problem: true
-      }
+        problem: true,
+      },
     });
   }
 
@@ -453,8 +466,8 @@ export class KnowledgeBaseManager {
           OR: [
             { name: { contains: searchTerm, mode: 'insensitive' } },
             { description: { contains: searchTerm, mode: 'insensitive' } },
-            { definition: { contains: searchTerm, mode: 'insensitive' } }
-          ]
+            { definition: { contains: searchTerm, mode: 'insensitive' } },
+          ],
         },
         take: limit,
         select: {
@@ -462,8 +475,8 @@ export class KnowledgeBaseManager {
           name: true,
           slug: true,
           description: true,
-          category: true
-        }
+          category: true,
+        },
       }),
 
       // Search theorems
@@ -472,8 +485,8 @@ export class KnowledgeBaseManager {
           OR: [
             { name: { contains: searchTerm, mode: 'insensitive' } },
             { statement: { contains: searchTerm, mode: 'insensitive' } },
-            { intuition: { contains: searchTerm, mode: 'insensitive' } }
-          ]
+            { intuition: { contains: searchTerm, mode: 'insensitive' } },
+          ],
         },
         take: limit,
         select: {
@@ -481,9 +494,9 @@ export class KnowledgeBaseManager {
           name: true,
           statement: true,
           topic: {
-            select: { category: true }
-          }
-        }
+            select: { category: true },
+          },
+        },
       }),
 
       // Search problems
@@ -492,42 +505,42 @@ export class KnowledgeBaseManager {
           deletedAt: null,
           OR: [
             { title: { contains: searchTerm, mode: 'insensitive' } },
-            { description: { contains: searchTerm, mode: 'insensitive' } }
-          ]
+            { description: { contains: searchTerm, mode: 'insensitive' } },
+          ],
         },
         take: limit,
         select: {
           id: true,
           title: true,
           slug: true,
-          description: true
-        }
-      })
+          description: true,
+        },
+      }),
     ]);
 
     const results: SearchResult[] = [
-      ...topics.map(t => ({
+      ...topics.map((t) => ({
         type: 'topic' as const,
         id: t.id,
         title: t.name,
         description: t.description || '',
         category: t.category,
-        slug: t.slug
+        slug: t.slug,
       })),
-      ...theorems.map(t => ({
+      ...theorems.map((t) => ({
         type: 'theorem' as const,
         id: t.id,
         title: t.name,
         description: t.statement.substring(0, 200),
-        category: t.topic.category
+        category: t.topic.category,
       })),
-      ...problems.map(p => ({
+      ...problems.map((p) => ({
         type: 'problem' as const,
         id: p.id,
         title: p.title,
         description: p.description.substring(0, 200),
-        slug: p.slug
-      }))
+        slug: p.slug,
+      })),
     ];
 
     return results.slice(0, limit);
@@ -541,10 +554,11 @@ export class KnowledgeBaseManager {
     let currentId: string | null = topicId;
 
     while (currentId) {
-      const foundTopic: Awaited<ReturnType<typeof prisma.topic.findUnique>> = await prisma.topic.findUnique({
-        where: { id: currentId },
-        include: { parent: true }
-      });
+      const foundTopic: Awaited<ReturnType<typeof prisma.topic.findUnique>> =
+        await prisma.topic.findUnique({
+          where: { id: currentId },
+          include: { parent: true },
+        });
 
       if (!foundTopic) break;
 
@@ -565,10 +579,10 @@ export class KnowledgeBaseManager {
         prerequisites: {
           include: {
             topic: true,
-            prerequisites: true
-          }
-        }
-      }
+            prerequisites: true,
+          },
+        },
+      },
     });
 
     if (!theorem) {
@@ -601,35 +615,35 @@ export class KnowledgeBaseManager {
       include: {
         topicProgress: {
           include: {
-            topic: true
+            topic: true,
           },
           orderBy: {
-            masteryLevel: 'desc'
-          }
-        }
-      }
+            masteryLevel: 'desc',
+          },
+        },
+      },
     });
 
     if (!userProgress || userProgress.topicProgress.length === 0) {
       // New user - recommend beginner topics
       return await prisma.topic.findMany({
         where: {
-          parentId: null
+          parentId: null,
         },
         take: limit,
         include: {
           _count: {
-            select: { problems: true }
-          }
-        }
+            select: { problems: true },
+          },
+        },
       });
     }
 
     // Recommend topics in same category or adjacent categories
     const masteredCategories = new Set(
       userProgress.topicProgress
-        .filter(tp => tp.masteryLevel > 0.7)
-        .map(tp => tp.topic.category)
+        .filter((tp) => tp.masteryLevel > 0.7)
+        .map((tp) => tp.topic.category),
     );
 
     return await prisma.topic.findMany({
@@ -637,16 +651,16 @@ export class KnowledgeBaseManager {
         category: { in: Array.from(masteredCategories) },
         NOT: {
           id: {
-            in: userProgress.topicProgress.map(tp => tp.topicId)
-          }
-        }
+            in: userProgress.topicProgress.map((tp) => tp.topicId),
+          },
+        },
       },
       take: limit,
       include: {
         _count: {
-          select: { problems: true }
-        }
-      }
+          select: { problems: true },
+        },
+      },
     });
   }
 }

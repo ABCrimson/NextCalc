@@ -17,34 +17,21 @@
  * ```
  */
 
-import { useState, useCallback, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Info, Pause, Play, RotateCcw, SkipForward, Zap } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Slider } from '@/components/ui/slider';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
+import { Slider } from '@/components/ui/slider';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  Play,
-  Pause,
-  RotateCcw,
-  SkipForward,
-  Zap,
-  Info,
-} from 'lucide-react';
-import {
-  UnifiedGraphRenderer,
-  type GraphNode,
   type GraphEdge,
+  type GraphNode,
   type NodeId,
+  UnifiedGraphRenderer,
 } from './UnifiedGraphRenderer';
 
 // ============================================================================
@@ -157,7 +144,7 @@ function* dijkstraGenerator(
   nodes: GraphNode[],
   edges: GraphEdge[],
   startId: NodeId,
-  endId: NodeId
+  endId: NodeId,
 ): Generator<DijkstraState> {
   // Initialize
   const visited = new Set<NodeId>();
@@ -422,7 +409,7 @@ export function DijkstraVisualizer() {
         }
       }
     },
-    [algorithmState, startNode, endNode, preset, handleReset]
+    [algorithmState, startNode, endNode, preset, handleReset],
   );
 
   const totalDistance = algorithmState?.distances.get(endNode);

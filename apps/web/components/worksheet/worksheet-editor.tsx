@@ -19,33 +19,33 @@
  *     under the key "worksheet-storage" after every mutation.
  */
 
-import { useState, useRef, useCallback, useId, type ReactNode, type ChangeEvent } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Plus,
-  Code2,
   AlignLeft,
-  TrendingUp,
-  Download,
-  Upload,
-  RotateCcw,
   BookOpen,
-  Save,
-  Variable,
   ChevronDown,
   ChevronRight,
+  Code2,
+  Download,
+  Plus,
+  RotateCcw,
+  Save,
+  TrendingUp,
+  Upload,
+  Variable,
 } from 'lucide-react';
+import { type ChangeEvent, type ReactNode, useCallback, useId, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
 import {
+  type CellKind,
+  type MathCell,
+  useWorksheetActions,
   useWorksheetCells,
   useWorksheetTitle,
-  useWorksheetActions,
-  type CellKind,
   type WorksheetCell,
-  type MathCell,
 } from '@/lib/stores/worksheet-store';
+import { cn } from '@/lib/utils';
 import { WorksheetCell as CellComponent } from './cell';
 import { CollabBar } from './collab-bar';
 
@@ -58,8 +58,7 @@ interface ToolbarProps {
 
 function Toolbar({ titleInputId }: ToolbarProps) {
   const title = useWorksheetTitle();
-  const { setTitle, resetWorksheet, exportAsJSON, importFromJSON } =
-    useWorksheetActions();
+  const { setTitle, resetWorksheet, exportAsJSON, importFromJSON } = useWorksheetActions();
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -89,13 +88,13 @@ function Toolbar({ titleInputId }: ToolbarProps) {
       // Reset so re-importing the same file works
       e.target.value = '';
     },
-    [importFromJSON]
+    [importFromJSON],
   );
 
   const handleReset = useCallback(() => {
     if (
       window.confirm(
-        'Reset worksheet? This will permanently delete all cells and cannot be undone.'
+        'Reset worksheet? This will permanently delete all cells and cannot be undone.',
       )
     ) {
       resetWorksheet();
@@ -136,10 +135,7 @@ function Toolbar({ titleInputId }: ToolbarProps) {
       </div>
 
       {/* Action buttons */}
-      <nav
-        className="flex items-center gap-2 flex-wrap"
-        aria-label="Worksheet actions"
-      >
+      <nav className="flex items-center gap-2 flex-wrap" aria-label="Worksheet actions">
         {/* Auto-save indicator */}
         <span className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground/70 mr-2">
           <Save className="h-3 w-3" aria-hidden="true" />
@@ -320,9 +316,7 @@ function VariablesSidebar({ cells }: { cells: readonly WorksheetCell[] }) {
             >
               <div className="flex items-center gap-2">
                 <code className="font-mono font-semibold text-blue-300">{b.name}</code>
-                <span className="text-xs text-muted-foreground/60">
-                  from cell [{b.cellIndex}]
-                </span>
+                <span className="text-xs text-muted-foreground/60">from cell [{b.cellIndex}]</span>
               </div>
               <code className="font-mono text-emerald-400 text-xs">{b.value}</code>
             </li>
@@ -344,21 +338,27 @@ function EmptyState({ onAdd }: { onAdd: (kind: CellKind) => void }) {
       className="flex flex-col items-center justify-center py-16 text-center"
     >
       <BookOpen className="h-12 w-12 text-muted-foreground/30 mb-4" aria-hidden="true" />
-      <h2 className="text-lg font-semibold mb-1 text-muted-foreground">
-        Your worksheet is empty
-      </h2>
+      <h2 className="text-lg font-semibold mb-1 text-muted-foreground">Your worksheet is empty</h2>
       <p className="text-sm text-muted-foreground/70 mb-6 max-w-xs">
-        Add cells to start computing. Math cells evaluate expressions and share
-        variables with subsequent cells.
+        Add cells to start computing. Math cells evaluate expressions and share variables with
+        subsequent cells.
       </p>
       <div className="flex flex-wrap gap-3 justify-center">
-        {(
-          [
-            { kind: 'math' as CellKind, icon: Code2, label: 'Math cell', color: 'text-blue-400' },
-            { kind: 'text' as CellKind, icon: AlignLeft, label: 'Text cell', color: 'text-emerald-400' },
-            { kind: 'plot' as CellKind, icon: TrendingUp, label: 'Plot cell', color: 'text-purple-400' },
-          ]
-        ).map(({ kind, icon: Icon, label, color }) => (
+        {[
+          { kind: 'math' as CellKind, icon: Code2, label: 'Math cell', color: 'text-blue-400' },
+          {
+            kind: 'text' as CellKind,
+            icon: AlignLeft,
+            label: 'Text cell',
+            color: 'text-emerald-400',
+          },
+          {
+            kind: 'plot' as CellKind,
+            icon: TrendingUp,
+            label: 'Plot cell',
+            color: 'text-purple-400',
+          },
+        ].map(({ kind, icon: Icon, label, color }) => (
           <Button
             key={kind}
             variant="outline"
@@ -384,10 +384,7 @@ export function WorksheetEditor() {
   const titleInputId = useId();
 
   // Stable callback to avoid closure capture issues with cell IDs
-  const handleGetVariables = useCallback(
-    (id: string) => getVariablesUpTo(id),
-    [getVariablesUpTo]
-  );
+  const handleGetVariables = useCallback((id: string) => getVariablesUpTo(id), [getVariablesUpTo]);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -413,10 +410,7 @@ export function WorksheetEditor() {
                     getVariablesUpTo={handleGetVariables}
                   />
                   {/* Add-cell strip after each cell */}
-                  <AddCellStrip
-                    afterId={cell.id}
-                    label={`Add cell after cell ${index + 1}`}
-                  />
+                  <AddCellStrip afterId={cell.id} label={`Add cell after cell ${index + 1}`} />
                 </div>
               ))}
             </AnimatePresence>
@@ -472,32 +466,33 @@ function AddCellFAB() {
       aria-label="Add cell"
     >
       <AnimatePresence>
-        {open && items.map(({ kind, icon, label, color }, i) => (
-          <motion.div
-            key={kind}
-            initial={{ opacity: 0, scale: 0.8, y: 8 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 8 }}
-            transition={{ delay: i * 0.04, type: 'spring', stiffness: 400, damping: 28 }}
-          >
-            <button
-              type="button"
-              className={cn(
-                'flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium text-white shadow-lg transition-all duration-200',
-                color,
-                'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-              )}
-              onClick={() => {
-                addCell(kind);
-                setOpen(false);
-              }}
-              aria-label={label}
+        {open &&
+          items.map(({ kind, icon, label, color }, i) => (
+            <motion.div
+              key={kind}
+              initial={{ opacity: 0, scale: 0.8, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 8 }}
+              transition={{ delay: i * 0.04, type: 'spring', stiffness: 400, damping: 28 }}
             >
-              {icon}
-              {label}
-            </button>
-          </motion.div>
-        ))}
+              <button
+                type="button"
+                className={cn(
+                  'flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium text-white shadow-lg transition-all duration-200',
+                  color,
+                  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+                )}
+                onClick={() => {
+                  addCell(kind);
+                  setOpen(false);
+                }}
+                aria-label={label}
+              >
+                {icon}
+                {label}
+              </button>
+            </motion.div>
+          ))}
       </AnimatePresence>
 
       <button

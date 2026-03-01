@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Unit Converter Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -7,9 +7,9 @@ test.describe('Unit Converter Page', () => {
   });
 
   test('page loads with heading visible', async ({ page }) => {
-    await expect(
-      page.getByRole('heading', { name: /unit converter/i }),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /unit converter/i })).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('feature badges are displayed', async ({ page }) => {
@@ -24,15 +24,15 @@ test.describe('Unit Converter Page', () => {
   });
 
   test('supported categories section is visible', async ({ page }) => {
-    await expect(
-      page.getByRole('heading', { name: /supported categories/i }),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /supported categories/i })).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('example conversions section is visible', async ({ page }) => {
-    await expect(
-      page.getByRole('heading', { name: /example conversions/i }),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /example conversions/i })).toBeVisible({
+      timeout: 10000,
+    });
     await expect(page.getByText(/1 kilometer/i)).toBeVisible();
   });
 

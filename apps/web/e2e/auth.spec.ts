@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Sign-In Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -12,7 +12,9 @@ test.describe('Sign-In Page', () => {
 
   test('sign-in heading or branding is visible', async ({ page }) => {
     // The sign-in page should show a heading, logo, or sign-in prompt
-    const heading = page.getByRole('heading').first()
+    const heading = page
+      .getByRole('heading')
+      .first()
       .or(page.getByText(/sign in|log in|welcome/i).first());
     await expect(heading).toBeVisible({ timeout: 10000 });
   });

@@ -12,18 +12,21 @@ import { z } from 'zod';
 
 export const ProblemListQuerySchema = z.object({
   difficulty: z.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'MASTER']).optional(),
-  topicIds: z.string().optional().transform(val => val ? val.split(',') : undefined),
+  topicIds: z
+    .string()
+    .optional()
+    .transform((val) => (val ? val.split(',') : undefined)),
   search: z.string().optional(),
   limit: z.coerce.number().int().min(1).max(100).default(20),
   offset: z.coerce.number().int().min(0).default(0),
   sortBy: z.enum(['popularity', 'difficulty', 'createdAt', 'points']).default('createdAt'),
-  sortOrder: z.enum(['asc', 'desc']).default('desc')
+  sortOrder: z.enum(['asc', 'desc']).default('desc'),
 });
 
 export const ProblemSubmissionSchema = z.object({
   submission: z.string().min(1),
   timeSpent: z.number().int().min(0),
-  hintsUsed: z.number().int().min(0).default(0)
+  hintsUsed: z.number().int().min(0).default(0),
 });
 
 // ============================================================================
@@ -36,11 +39,11 @@ export const AttemptCreateSchema = z.object({
   timeSpent: z.number().int().min(0),
   hintsUsed: z.number().int().min(0).default(0),
   submission: z.string(),
-  feedback: z.string().optional()
+  feedback: z.string().optional(),
 });
 
 export const FavoriteCreateSchema = z.object({
-  problemId: z.string()
+  problemId: z.string(),
 });
 
 // ============================================================================
@@ -114,16 +117,29 @@ export const PracticeSessionCompleteSchema = z.object({
 // ============================================================================
 
 export const TopicQuerySchema = z.object({
-  category: z.enum([
-    'CALCULUS', 'ALGEBRA', 'TOPOLOGY', 'ANALYSIS', 'GEOMETRY',
-    'NUMBER_THEORY', 'ALGORITHMS', 'GAME_THEORY', 'CHAOS_THEORY',
-    'CRYPTOGRAPHY', 'QUANTUM', 'OPTIMIZATION', 'PROBABILITY', 'STATISTICS'
-  ]).optional()
+  category: z
+    .enum([
+      'CALCULUS',
+      'ALGEBRA',
+      'TOPOLOGY',
+      'ANALYSIS',
+      'GEOMETRY',
+      'NUMBER_THEORY',
+      'ALGORITHMS',
+      'GAME_THEORY',
+      'CHAOS_THEORY',
+      'CRYPTOGRAPHY',
+      'QUANTUM',
+      'OPTIMIZATION',
+      'PROBABILITY',
+      'STATISTICS',
+    ])
+    .optional(),
 });
 
 export const SearchQuerySchema = z.object({
   q: z.string().min(2),
-  limit: z.coerce.number().int().min(1).max(50).default(20)
+  limit: z.coerce.number().int().min(1).max(50).default(20),
 });
 
 // ============================================================================

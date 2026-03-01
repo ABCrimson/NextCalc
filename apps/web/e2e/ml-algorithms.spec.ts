@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('ML Algorithms Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -7,9 +7,7 @@ test.describe('ML Algorithms Page', () => {
   });
 
   test('page loads with heading visible', async ({ page }) => {
-    await expect(
-      page.getByRole('heading', { level: 1 }).first(),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible({ timeout: 10000 });
   });
 
   test('algorithm tabs or sections are present', async ({ page }) => {

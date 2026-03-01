@@ -8,7 +8,7 @@
  * without blocking the UI thread.
  */
 
-import { useRef, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import type { MathWorkerResponse } from '@/lib/workers/math-worker';
 
@@ -26,14 +26,11 @@ export function useMathWorker() {
   useEffect(() => {
     if (typeof Worker === 'undefined') return;
 
-    const worker = new Worker(
-      new URL('@/lib/workers/math-worker.ts', import.meta.url),
-      { type: 'module' },
-    );
+    const worker = new Worker(new URL('@/lib/workers/math-worker.ts', import.meta.url), {
+      type: 'module',
+    });
 
-    worker.onmessage = (
-      event: MessageEvent<MathWorkerResponse | { type: 'ready' }>,
-    ) => {
+    worker.onmessage = (event: MessageEvent<MathWorkerResponse | { type: 'ready' }>) => {
       const data = event.data;
 
       // Handle worker ready signal
@@ -83,26 +80,23 @@ export function useMathWorker() {
    * @param precision - Optional MPFR precision in bits (e.g. 256, 512)
    * @returns The result as a full-precision string
    */
-  const evaluate = useCallback(
-    (expression: string, precision?: number): Promise<string> => {
-      return new Promise((resolve, reject) => {
-        if (!workerRef.current) {
-          reject(new Error('Worker not available'));
-          return;
-        }
+  const evaluate = useCallback((expression: string, precision?: number): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      if (!workerRef.current) {
+        reject(new Error('Worker not available'));
+        return;
+      }
 
-        const id = String(++idCounterRef.current);
-        pendingRef.current.set(id, { resolve, reject });
-        workerRef.current.postMessage({
-          id,
-          type: 'evaluate',
-          expression,
-          ...(precision ? { precision } : {}),
-        });
+      const id = String(++idCounterRef.current);
+      pendingRef.current.set(id, { resolve, reject });
+      workerRef.current.postMessage({
+        id,
+        type: 'evaluate',
+        expression,
+        ...(precision ? { precision } : {}),
       });
-    },
-    [],
-  );
+    });
+  }, []);
 
   /**
    * Set default precision for subsequent evaluations.

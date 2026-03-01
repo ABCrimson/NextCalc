@@ -22,30 +22,14 @@
  * - ARIA labels, live regions, keyboard navigation.
  */
 
+import { AnimatePresence, motion } from 'framer-motion';
+import { BarChart2, Cpu, Info, Lock, Play, RotateCcw, ShieldCheck, X, Zap } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  useState,
-  useCallback,
-  useRef,
-  useEffect,
-  useMemo,
-} from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Zap,
-  Cpu,
-  ShieldCheck,
-  X,
-  RotateCcw,
-  Play,
-  BarChart2,
-  Lock,
-  Info,
-} from 'lucide-react';
-import {
-  gpuBatchVerify,
-  cpuBatchVerify,
-  type SchnorrRound,
   type BatchVerifyResult,
+  cpuBatchVerify,
+  gpuBatchVerify,
+  type SchnorrRound,
 } from './webgpu-zkp';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -54,10 +38,10 @@ type CellState = 'idle' | 'verifying' | 'verified' | 'failed';
 
 interface CommitmentCell {
   index: number;
-  t: number;   // commitment
-  c: number;   // challenge
-  s: number;   // response
-  y: number;   // public key
+  t: number; // commitment
+  c: number; // challenge
+  s: number; // response
+  y: number; // public key
   state: CellState;
   isValid: boolean;
 }
@@ -195,7 +179,7 @@ export function ZKPComputeVisualizer({
   // Auto-build on mount
   useEffect(() => {
     buildRounds();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Run verification ───────────────────────────────────────────────────────
@@ -204,7 +188,7 @@ export function ZKPComputeVisualizer({
     if (rounds.length === 0 || phase === 'gpu' || phase === 'cpu') return;
 
     // Reset cell states to "verifying"
-    setCells(prev => prev.map(c => ({ ...c, state: 'verifying', isValid: false })));
+    setCells((prev) => prev.map((c) => ({ ...c, state: 'verifying', isValid: false })));
 
     // ── GPU pass ────────────────────────────────────────────────────────────
     setPhase('gpu');
@@ -225,12 +209,12 @@ export function ZKPComputeVisualizer({
       const animateWave = () => {
         const start = waveIndex * WAVE_SIZE;
         const end = Math.min(start + WAVE_SIZE, rounds.length);
-        setCells(prev =>
+        setCells((prev) =>
           prev.map((cell, i) => {
             if (i < start || i >= end) return cell;
             const ok = gpuRes.verified[i] ?? false;
             return { ...cell, state: ok ? 'verified' : 'failed', isValid: ok };
-          })
+          }),
         );
         waveIndex++;
         if (start < rounds.length) {
@@ -240,23 +224,23 @@ export function ZKPComputeVisualizer({
       animateWave();
     } else {
       // GPU unavailable — mark all cells as pending CPU
-      setCells(prev => prev.map(c => ({ ...c, state: 'verifying' })));
+      setCells((prev) => prev.map((c) => ({ ...c, state: 'verifying' })));
     }
 
     // ── CPU pass (for comparison timing) ────────────────────────────────────
     setPhase('cpu');
     // Small delay so the GPU animation has time to start
-    await new Promise(resolve => setTimeout(resolve, 200));
+    await new Promise((resolve) => setTimeout(resolve, 200));
     const cpuRes = cpuBatchVerify(rounds);
     setCpuResult(cpuRes);
 
     if (!gpuRes) {
       // No GPU — apply CPU results to cells
-      setCells(prev =>
+      setCells((prev) =>
         prev.map((cell, i) => {
           const ok = cpuRes.verified[i] ?? false;
           return { ...cell, state: ok ? 'verified' : 'failed', isValid: ok };
-        })
+        }),
       );
     }
 
@@ -271,13 +255,12 @@ export function ZKPComputeVisualizer({
 
   // ── Derived stats ──────────────────────────────────────────────────────────
   const stats = useMemo(() => {
-    const total    = cells.length;
-    const verified = cells.filter(c => c.state === 'verified').length;
-    const failed   = cells.filter(c => c.state === 'failed').length;
-    const pending  = total - verified - failed;
-    const speedup  = (gpuResult && cpuResult && gpuResult.gpuMs > 0)
-      ? cpuResult.gpuMs / gpuResult.gpuMs
-      : null;
+    const total = cells.length;
+    const verified = cells.filter((c) => c.state === 'verified').length;
+    const failed = cells.filter((c) => c.state === 'failed').length;
+    const pending = total - verified - failed;
+    const speedup =
+      gpuResult && cpuResult && gpuResult.gpuMs > 0 ? cpuResult.gpuMs / gpuResult.gpuMs : null;
     return { total, verified, failed, pending, speedup };
   }, [cells, gpuResult, cpuResult]);
 
@@ -289,35 +272,52 @@ export function ZKPComputeVisualizer({
   // ── Cell colour ────────────────────────────────────────────────────────────
   const cellColor = (state: CellState): string => {
     switch (state) {
-      case 'verified': return 'bg-emerald-500/20 border-emerald-500/60 shadow-[0_0_10px_rgba(52,211,153,0.35)]';
-      case 'failed':   return 'bg-red-500/20 border-red-500/60 shadow-[0_0_10px_rgba(239,68,68,0.35)]';
-      case 'verifying': return 'bg-indigo-500/10 border-indigo-400/40';
-      default:         return 'bg-muted/30 border-border';
+      case 'verified':
+        return 'bg-emerald-500/20 border-emerald-500/60 shadow-[0_0_10px_rgba(52,211,153,0.35)]';
+      case 'failed':
+        return 'bg-red-500/20 border-red-500/60 shadow-[0_0_10px_rgba(239,68,68,0.35)]';
+      case 'verifying':
+        return 'bg-indigo-500/10 border-indigo-400/40';
+      default:
+        return 'bg-muted/30 border-border';
     }
   };
 
   const cellTextColor = (state: CellState): string => {
     switch (state) {
-      case 'verified': return 'text-emerald-300';
-      case 'failed':   return 'text-red-400';
-      case 'verifying': return 'text-indigo-300';
-      default:         return 'text-muted-foreground';
+      case 'verified':
+        return 'text-emerald-300';
+      case 'failed':
+        return 'text-red-400';
+      case 'verifying':
+        return 'text-indigo-300';
+      default:
+        return 'text-muted-foreground';
     }
   };
 
   // ── Keyboard: arrow navigation over grid ──────────────────────────────────
   const cols = 8;
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (selectedCell === null) return;
-    const total = cells.length;
-    let next = selectedCell;
-    if (e.key === 'ArrowRight') next = Math.min(total - 1, selectedCell + 1);
-    if (e.key === 'ArrowLeft')  next = Math.max(0, selectedCell - 1);
-    if (e.key === 'ArrowDown')  next = Math.min(total - 1, selectedCell + cols);
-    if (e.key === 'ArrowUp')    next = Math.max(0, selectedCell - cols);
-    if (e.key === 'Escape')     { setSelectedCell(null); return; }
-    if (next !== selectedCell) { e.preventDefault(); setSelectedCell(next); }
-  }, [selectedCell, cells.length, cols]);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (selectedCell === null) return;
+      const total = cells.length;
+      let next = selectedCell;
+      if (e.key === 'ArrowRight') next = Math.min(total - 1, selectedCell + 1);
+      if (e.key === 'ArrowLeft') next = Math.max(0, selectedCell - 1);
+      if (e.key === 'ArrowDown') next = Math.min(total - 1, selectedCell + cols);
+      if (e.key === 'ArrowUp') next = Math.max(0, selectedCell - cols);
+      if (e.key === 'Escape') {
+        setSelectedCell(null);
+        return;
+      }
+      if (next !== selectedCell) {
+        e.preventDefault();
+        setSelectedCell(next);
+      }
+    },
+    [selectedCell, cells.length, cols],
+  );
 
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
@@ -333,9 +333,7 @@ export function ZKPComputeVisualizer({
               <Zap className="w-5 h-5 text-indigo-400" aria-hidden="true" />
             </div>
             <div>
-              <h3 className="font-bold text-lg text-foreground">
-                GPU Batch ZKP Verification
-              </h3>
+              <h3 className="font-bold text-lg text-foreground">GPU Batch ZKP Verification</h3>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {roundCount} Schnorr rounds parallelised via WebGPU compute
               </p>
@@ -347,9 +345,10 @@ export function ZKPComputeVisualizer({
             {webGPUSupported !== null && (
               <span
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border
-                  ${webGPUSupported
-                    ? 'bg-emerald-500/15 border-emerald-500/35 text-emerald-300'
-                    : 'bg-amber-500/15 border-amber-500/35 text-amber-300'
+                  ${
+                    webGPUSupported
+                      ? 'bg-emerald-500/15 border-emerald-500/35 text-emerald-300'
+                      : 'bg-amber-500/15 border-amber-500/35 text-amber-300'
                   }`}
                 role="status"
                 aria-label={`WebGPU ${webGPUSupported ? 'available' : 'unavailable — CPU fallback'}`}
@@ -385,7 +384,11 @@ export function ZKPComputeVisualizer({
               aria-label="Run batch verification"
             >
               <Play className="w-3.5 h-3.5" aria-hidden="true" />
-              {phase === 'gpu' ? 'GPU running...' : phase === 'cpu' ? 'CPU running...' : 'Run Verification'}
+              {phase === 'gpu'
+                ? 'GPU running...'
+                : phase === 'cpu'
+                  ? 'CPU running...'
+                  : 'Run Verification'}
             </button>
           </div>
         </div>
@@ -401,7 +404,9 @@ export function ZKPComputeVisualizer({
           aria-rowcount={Math.ceil(roundCount / cols)}
           aria-colcount={cols}
           tabIndex={cells.length > 0 && selectedCell === null ? 0 : -1}
-          onFocus={() => { if (selectedCell === null && cells.length > 0) setSelectedCell(0); }}
+          onFocus={() => {
+            if (selectedCell === null && cells.length > 0) setSelectedCell(0);
+          }}
           onKeyDown={handleKeyDown}
         >
           <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
@@ -427,11 +432,12 @@ export function ZKPComputeVisualizer({
                 }}
                 transition={{
                   opacity: { duration: 0.2, delay: cell.index * 0.004 },
-                  scale: cell.state === 'verifying'
-                    ? { duration: 0.8, repeat: Infinity, ease: 'easeInOut' }
-                    : { duration: 0.18 },
+                  scale:
+                    cell.state === 'verifying'
+                      ? { duration: 0.8, repeat: Infinity, ease: 'easeInOut' }
+                      : { duration: 0.18 },
                 }}
-                onClick={() => setSelectedCell(prev => prev === cell.index ? null : cell.index)}
+                onClick={() => setSelectedCell((prev) => (prev === cell.index ? null : cell.index))}
                 className={`relative aspect-square rounded-md border text-[9px] font-mono
                   flex flex-col items-center justify-center gap-0.5 cursor-pointer
                   transition-shadow duration-200 focus-visible:outline-2
@@ -482,7 +488,11 @@ export function ZKPComputeVisualizer({
         {/* Right column: stats + cell detail */}
         <div className="space-y-4">
           {/* Progress stats */}
-          <div className={`rounded-2xl p-4 ${GLASS_CARD}`} aria-live="polite" aria-label="Verification progress">
+          <div
+            className={`rounded-2xl p-4 ${GLASS_CARD}`}
+            aria-live="polite"
+            aria-label="Verification progress"
+          >
             <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
               <BarChart2 className="w-4 h-4 text-indigo-400" aria-hidden="true" />
               Progress
@@ -490,10 +500,10 @@ export function ZKPComputeVisualizer({
             <dl className="space-y-2">
               {(
                 [
-                  { label: 'Total',    value: stats.total,    color: 'text-foreground' },
+                  { label: 'Total', value: stats.total, color: 'text-foreground' },
                   { label: 'Verified', value: stats.verified, color: 'text-emerald-400' },
-                  { label: 'Failed',   value: stats.failed,   color: 'text-red-400' },
-                  { label: 'Pending',  value: stats.pending,  color: 'text-indigo-300' },
+                  { label: 'Failed', value: stats.failed, color: 'text-red-400' },
+                  { label: 'Pending', value: stats.pending, color: 'text-indigo-300' },
                 ] as const
               ).map(({ label, value, color }) => (
                 <div key={label} className="flex items-center justify-between">
@@ -593,11 +603,12 @@ export function ZKPComputeVisualizer({
                     Round {cell.index + 1}
                     <span
                       className={`ml-auto text-[11px] font-semibold px-2 py-0.5 rounded-full border
-                        ${cell.state === 'verified'
-                          ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
-                          : cell.state === 'failed'
-                          ? 'bg-red-500/15 border-red-500/40 text-red-300'
-                          : 'bg-indigo-500/15 border-indigo-500/40 text-indigo-300'
+                        ${
+                          cell.state === 'verified'
+                            ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
+                            : cell.state === 'failed'
+                              ? 'bg-red-500/15 border-red-500/40 text-red-300'
+                              : 'bg-indigo-500/15 border-indigo-500/40 text-indigo-300'
                         }`}
                     >
                       {cell.state}
@@ -608,8 +619,8 @@ export function ZKPComputeVisualizer({
                     {(
                       [
                         { label: 't (commitment)', value: round.t },
-                        { label: 'c (challenge)',  value: round.c },
-                        { label: 's (response)',   value: round.s },
+                        { label: 'c (challenge)', value: round.c },
+                        { label: 's (response)', value: round.s },
                         { label: 'y (public key)', value: round.y },
                       ] as const
                     ).map(({ label, value }) => (
@@ -629,9 +640,11 @@ export function ZKPComputeVisualizer({
                       Check: g^s ≡ t·y^c (mod p)
                     </p>
                     {cell.state !== 'idle' && cell.state !== 'verifying' && (
-                      <p className={`text-[11px] font-semibold mt-1 ${
-                        cell.state === 'verified' ? 'text-emerald-300' : 'text-red-400'
-                      }`}>
+                      <p
+                        className={`text-[11px] font-semibold mt-1 ${
+                          cell.state === 'verified' ? 'text-emerald-300' : 'text-red-400'
+                        }`}
+                      >
                         {cell.state === 'verified'
                           ? 'Equation holds — proof accepted'
                           : 'Equation failed — proof rejected'}
@@ -654,11 +667,11 @@ export function ZKPComputeVisualizer({
         <Info className="w-4 h-4 text-indigo-400 mt-0.5 shrink-0" aria-hidden="true" />
         <p className="text-xs text-muted-foreground leading-relaxed">
           <span className="text-foreground font-semibold">How the GPU kernel works: </span>
-          Each workgroup invocation computes g^s mod p and t·y^c mod p independently using
-          a square-and-multiply algorithm in WGSL, with a 16-bit-split 32-bit mulmod to avoid
-          integer overflow. All {roundCount} rounds run simultaneously on the GPU — the CPU
-          must evaluate them sequentially. This demo uses a 32-bit prime for visual clarity;
-          production systems require 2048+ bit arithmetic (e.g. Barretenberg / Halo2).
+          Each workgroup invocation computes g^s mod p and t·y^c mod p independently using a
+          square-and-multiply algorithm in WGSL, with a 16-bit-split 32-bit mulmod to avoid integer
+          overflow. All {roundCount} rounds run simultaneously on the GPU — the CPU must evaluate
+          them sequentially. This demo uses a 32-bit prime for visual clarity; production systems
+          require 2048+ bit arithmetic (e.g. Barretenberg / Halo2).
         </p>
       </div>
     </section>

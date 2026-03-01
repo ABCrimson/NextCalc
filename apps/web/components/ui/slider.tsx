@@ -1,5 +1,5 @@
-import { type ComponentPropsWithoutRef, type ElementRef, type Ref } from 'react';
 import { Slider as SliderPrimitive } from 'radix-ui';
+import type { ComponentPropsWithoutRef, ElementRef, Ref } from 'react';
 import { cn } from '@/lib/utils';
 
 interface SliderProps extends ComponentPropsWithoutRef<typeof SliderPrimitive.Root> {
@@ -10,10 +10,7 @@ function Slider({ className, ref, ...props }: SliderProps) {
   return (
     <SliderPrimitive.Root
       ref={ref}
-      className={cn(
-        'relative flex w-full touch-none select-none items-center',
-        className
-      )}
+      className={cn('relative flex w-full touch-none select-none items-center', className)}
       {...props}
     >
       <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-secondary">

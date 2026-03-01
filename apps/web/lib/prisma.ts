@@ -5,4 +5,4 @@
  * This file exists for backwards compatibility with existing imports.
  */
 
-export { prisma, checkDatabaseConnection, disconnectDatabase } from '@nextcalc/database';
+export { checkDatabaseConnection, disconnectDatabase, prisma } from '@nextcalc/database';

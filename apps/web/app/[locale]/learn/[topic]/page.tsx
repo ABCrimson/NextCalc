@@ -1,32 +1,32 @@
-import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import { auth } from '@/auth';
-import { prisma } from '@/lib/prisma';
-import { BookmarkExplorerClient } from './bookmark-explorer-client';
 import { getDefinitionsByTopic, MathTopic } from '@nextcalc/math-engine/knowledge';
 import { getProblemsByTopic } from '@nextcalc/math-engine/problems';
+import { ArrowLeft, BookOpen, Code, Puzzle } from 'lucide-react';
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
+import { auth } from '@/auth';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, BookOpen, Code, Puzzle } from 'lucide-react';
-import { getTranslations } from 'next-intl/server';
+import { prisma } from '@/lib/prisma';
+import { BookmarkExplorerClient } from './bookmark-explorer-client';
 
 /**
  * Topic slug to MathTopic mapping
  */
 const TOPIC_SLUG_MAP: Record<string, MathTopic> = {
-  'calculus': MathTopic.Calculus,
-  'algebra': MathTopic.Algebra,
+  calculus: MathTopic.Calculus,
+  algebra: MathTopic.Algebra,
   'linear-algebra': MathTopic.LinearAlgebra,
   'number-theory': MathTopic.NumberTheory,
-  'topology': MathTopic.Topology,
-  'analysis': MathTopic.Analysis,
-  'geometry': MathTopic.Geometry,
+  topology: MathTopic.Topology,
+  analysis: MathTopic.Analysis,
+  geometry: MathTopic.Geometry,
   'differential-equations': MathTopic.DifferentialEquations,
   'abstract-algebra': MathTopic.AbstractAlgebra,
-  'probability': MathTopic.Probability,
-  'statistics': MathTopic.Statistics,
+  probability: MathTopic.Probability,
+  statistics: MathTopic.Statistics,
 };
 
 /**
@@ -58,11 +58,7 @@ export async function generateMetadata({
  *
  * Server component that displays definitions and resources for a specific topic.
  */
-export default async function TopicPage({
-  params,
-}: {
-  params: Promise<{ topic: string }>;
-}) {
+export default async function TopicPage({ params }: { params: Promise<{ topic: string }> }) {
   const t = await getTranslations('learn');
   const { topic: topicSlug } = await params;
   const topic = TOPIC_SLUG_MAP[topicSlug];
@@ -91,7 +87,9 @@ export default async function TopicPage({
         },
         select: { definitionId: true },
       });
-      bookmarkedIds = bookmarks.map((b) => b.definitionId).filter((id): id is string => id !== null);
+      bookmarkedIds = bookmarks
+        .map((b) => b.definitionId)
+        .filter((id): id is string => id !== null);
     }
   }
 
@@ -101,7 +99,7 @@ export default async function TopicPage({
       acc[def.difficulty] = (acc[def.difficulty] || 0) + 1;
       return acc;
     },
-    {} as Record<number, number>
+    {} as Record<number, number>,
   );
 
   return (
@@ -123,9 +121,7 @@ export default async function TopicPage({
             {topic}
           </span>
         </h1>
-        <p className="text-lg text-muted-foreground">
-          {t('knowledgeBase', { topic })}
-        </p>
+        <p className="text-lg text-muted-foreground">{t('knowledgeBase', { topic })}</p>
       </div>
 
       {/* Stats Overview */}
@@ -143,7 +139,11 @@ export default async function TopicPage({
               {Object.entries(difficultyDistribution).map(([level, count]) => (
                 <div key={level} className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">
-                    {['Beginner', 'Intermediate', 'Advanced', 'Expert', 'Research'][Number(level) - 1]}
+                    {
+                      ['Beginner', 'Intermediate', 'Advanced', 'Expert', 'Research'][
+                        Number(level) - 1
+                      ]
+                    }
                   </span>
                   <Badge variant="outline" className="text-xs">
                     {count}
@@ -163,9 +163,7 @@ export default async function TopicPage({
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{problems.length}</div>
-            <p className="text-sm text-muted-foreground mt-2">
-              {t('readyToSolve')}
-            </p>
+            <p className="text-sm text-muted-foreground mt-2">{t('readyToSolve')}</p>
             <Button asChild variant="outline" size="sm" className="mt-3 w-full">
               <Link href={`/problems?topic=${encodeURIComponent(topic)}`}>
                 {t('browseProblems')}
@@ -185,9 +183,7 @@ export default async function TopicPage({
             <div className="text-3xl font-bold">
               {topic === MathTopic.Calculus ? '8' : topic === MathTopic.LinearAlgebra ? '12' : '6'}
             </div>
-            <p className="text-sm text-muted-foreground mt-2">
-              {t('withVisualizations')}
-            </p>
+            <p className="text-sm text-muted-foreground mt-2">{t('withVisualizations')}</p>
             <Button asChild variant="outline" size="sm" className="mt-3 w-full">
               <Link href={`/algorithms?topic=${encodeURIComponent(topic)}`}>
                 {t('exploreAlgorithms')}
@@ -201,15 +197,10 @@ export default async function TopicPage({
       <Card className="mb-8">
         <CardHeader>
           <CardTitle>{t('definitionsAndConcepts')}</CardTitle>
-          <CardDescription>
-            {t('definitionsAndConceptsHint')}
-          </CardDescription>
+          <CardDescription>{t('definitionsAndConceptsHint')}</CardDescription>
         </CardHeader>
         <CardContent>
-          <BookmarkExplorerClient
-            definitions={definitions}
-            bookmarkedIds={bookmarkedIds}
-          />
+          <BookmarkExplorerClient definitions={definitions} bookmarkedIds={bookmarkedIds} />
         </CardContent>
       </Card>
 
@@ -217,9 +208,7 @@ export default async function TopicPage({
       <Card>
         <CardHeader>
           <CardTitle>{t('learningResources')}</CardTitle>
-          <CardDescription>
-            {t('learningResourcesHint')}
-          </CardDescription>
+          <CardDescription>{t('learningResourcesHint')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -228,9 +217,7 @@ export default async function TopicPage({
               className="p-4 border rounded-lg hover:shadow-md transition-shadow"
             >
               <h3 className="font-semibold mb-2">{t('beginnerProblems')}</h3>
-              <p className="text-sm text-muted-foreground">
-                {t('beginnerProblemsHint')}
-              </p>
+              <p className="text-sm text-muted-foreground">{t('beginnerProblemsHint')}</p>
             </Link>
 
             <Link
@@ -238,9 +225,7 @@ export default async function TopicPage({
               className="p-4 border rounded-lg hover:shadow-md transition-shadow"
             >
               <h3 className="font-semibold mb-2">{t('practiceMode')}</h3>
-              <p className="text-sm text-muted-foreground">
-                {t('practiceModeHint')}
-              </p>
+              <p className="text-sm text-muted-foreground">{t('practiceModeHint')}</p>
             </Link>
 
             <Link
@@ -248,16 +233,12 @@ export default async function TopicPage({
               className="p-4 border rounded-lg hover:shadow-md transition-shadow"
             >
               <h3 className="font-semibold mb-2">{t('algorithmVisualizations')}</h3>
-              <p className="text-sm text-muted-foreground">
-                {t('algorithmVisualizationsHint')}
-              </p>
+              <p className="text-sm text-muted-foreground">{t('algorithmVisualizationsHint')}</p>
             </Link>
 
             <div className="p-4 border rounded-lg bg-muted/50">
               <h3 className="font-semibold mb-2">{t('videoLectures')}</h3>
-              <p className="text-sm text-muted-foreground">
-                {t('videoLecturesHint')}
-              </p>
+              <p className="text-sm text-muted-foreground">{t('videoLecturesHint')}</p>
             </div>
           </div>
         </CardContent>

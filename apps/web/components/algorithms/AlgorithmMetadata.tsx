@@ -1,6 +1,6 @@
 'use client';
 
-import { Clock, Layers, Calendar, Tag } from 'lucide-react';
+import { Calendar, Clock, Layers, Tag } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import type { AlgorithmCategory, DifficultyLevel } from './AlgorithmCard';
@@ -86,7 +86,7 @@ export function AlgorithmMetadata({
     <div
       className={cn(
         'p-4 sm:p-6 rounded-lg border border-border bg-card/50 backdrop-blur-sm',
-        className
+        className,
       )}
     >
       <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">{t('page.algorithmInfo')}</h3>
@@ -98,7 +98,9 @@ export function AlgorithmMetadata({
             <Layers className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" aria-hidden="true" />
             <span>{t('page.category')}</span>
           </dt>
-          <dd className="font-medium text-sm sm:text-base pl-5 sm:pl-0 min-w-0 break-words">{t(`category.${categoryKeyMap[category]}`)}</dd>
+          <dd className="font-medium text-sm sm:text-base pl-5 sm:pl-0 min-w-0 break-words">
+            {t(`category.${categoryKeyMap[category]}`)}
+          </dd>
         </div>
 
         {/* Difficulty */}
@@ -111,7 +113,7 @@ export function AlgorithmMetadata({
             <span
               className={cn(
                 'inline-block px-3 py-1 text-sm font-medium rounded-md border',
-                difficultyColors[difficulty]
+                difficultyColors[difficulty],
               )}
             >
               {t(`difficulty.${difficultyKeyMap[difficulty]}`)}

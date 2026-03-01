@@ -21,15 +21,16 @@
  * @module EigenPanel
  */
 
-import React, { useState, useTransition, useRef, useCallback, useId } from 'react';
-import { type Variants, motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion, type Variants } from 'framer-motion';
+import { AlertCircle, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
+import type React from 'react';
+import { useCallback, useId, useRef, useState, useTransition } from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
 import { MathRenderer } from '@/components/ui/math-renderer';
-import { AlertCircle, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // ---------------------------------------------------------------------------
@@ -62,9 +63,7 @@ function vecNormalise(v: number[]): number[] {
 /** Matrix × column-vector (raw arrays, n×n and n). */
 function matvec(A: number[][], v: number[]): number[] {
   const n = A.length;
-  return Array.from({ length: n }, (_, i) =>
-    A[i]!.reduce((s, aij, j) => s + aij * v[j]!, 0)
-  );
+  return Array.from({ length: n }, (_, i) => A[i]!.reduce((s, aij, j) => s + aij * v[j]!, 0));
 }
 
 /** Matrix × Matrix (raw arrays). */
@@ -74,8 +73,8 @@ function matmul(A: number[][], B: number[][]): number[][] {
   const p = B.length;
   return Array.from({ length: m }, (_, i) =>
     Array.from({ length: n }, (_, j) =>
-      Array.from({ length: p }, (_, k) => A[i]![k]! * B[k]![j]!).reduce((s, x) => s + x, 0)
-    )
+      Array.from({ length: p }, (_, k) => A[i]![k]! * B[k]![j]!).reduce((s, x) => s + x, 0),
+    ),
   );
 }
 
@@ -83,15 +82,13 @@ function matmul(A: number[][], B: number[][]): number[][] {
 function transpose(A: number[][]): number[][] {
   const m = A.length;
   const n = A[0]!.length;
-  return Array.from({ length: n }, (_, i) =>
-    Array.from({ length: m }, (_, j) => A[j]![i]!)
-  );
+  return Array.from({ length: n }, (_, i) => Array.from({ length: m }, (_, j) => A[j]![i]!));
 }
 
 /** Identity matrix n×n as raw array. */
 function eye(n: number): number[][] {
   return Array.from({ length: n }, (_, i) =>
-    Array.from({ length: n }, (_, j) => (i === j ? 1 : 0))
+    Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)),
   );
 }
 
@@ -131,8 +128,8 @@ function matinv(A: number[][]): number[][] {
 // ---------------------------------------------------------------------------
 function qrHouseholder(M: number[][]): { Q: number[][]; R: number[][] } {
   const n = M.length;
-  let R = M.map((r) => [...r]);
-  let Q = eye(n);
+  const R = M.map((r) => [...r]);
+  const Q = eye(n);
 
   for (let k = 0; k < n - 1; k++) {
     // Extract sub-column
@@ -243,7 +240,7 @@ function computeEigen(input: number[][]): EigenResult {
     // A - λI
     const shift = 1e-7; // tiny perturbation to avoid exact singularity
     const Ashift: number[][] = input.map((row, i) =>
-      row.map((val, j) => val - (i === j ? lambda - shift : 0))
+      row.map((val, j) => val - (i === j ? lambda - shift : 0)),
     );
 
     // 5 inverse-iteration steps (solve via Gauss elimination each time)
@@ -283,7 +280,7 @@ function computeEigen(input: number[][]): EigenResult {
 
     // Build D
     const Dmat = Array.from({ length: n }, (_, i) =>
-      Array.from({ length: n }, (_, j) => (i === j ? eigenvalues[i]! : 0))
+      Array.from({ length: n }, (_, j) => (i === j ? eigenvalues[i]! : 0)),
     );
 
     // Verify: P D P⁻¹ ≈ A
@@ -425,7 +422,7 @@ function EigenVectorVisualisation2D({
         y2={cy + t * (scale / 2)}
         stroke="var(--color-border)"
         strokeWidth={0.5}
-      />
+      />,
     );
     gridLines.push(
       <line
@@ -436,7 +433,7 @@ function EigenVectorVisualisation2D({
         y2={H}
         stroke="var(--color-border)"
         strokeWidth={0.5}
-      />
+      />,
     );
   }
 
@@ -457,9 +454,33 @@ function EigenVectorVisualisation2D({
 
     return (
       <g key={idx}>
-        <line x1={cx} y1={cy} x2={x2} y2={y2} stroke={color} strokeWidth={2.5} markerEnd={`url(#arrowhead-${idx})`} />
-        <line x1={cx} y1={cy} x2={tx2} y2={ty2} stroke={color} strokeWidth={1.5} strokeDasharray="5 3" opacity={0.6} />
-        <text x={x2 + 6} y={y2 - 6} fontSize={11} fill={color} fontFamily="monospace" aria-hidden="true">
+        <line
+          x1={cx}
+          y1={cy}
+          x2={x2}
+          y2={y2}
+          stroke={color}
+          strokeWidth={2.5}
+          markerEnd={`url(#arrowhead-${idx})`}
+        />
+        <line
+          x1={cx}
+          y1={cy}
+          x2={tx2}
+          y2={ty2}
+          stroke={color}
+          strokeWidth={1.5}
+          strokeDasharray="5 3"
+          opacity={0.6}
+        />
+        <text
+          x={x2 + 6}
+          y={y2 - 6}
+          fontSize={11}
+          fill={color}
+          fontFamily="monospace"
+          aria-hidden="true"
+        >
           v{idx + 1}
         </text>
       </g>
@@ -498,13 +519,28 @@ function EigenVectorVisualisation2D({
           ))}
         </defs>
         {gridLines}
-        <line x1={0} y1={cy} x2={W} y2={cy} stroke="var(--color-muted-foreground)" strokeWidth={1} />
-        <line x1={cx} y1={0} x2={cx} y2={H} stroke="var(--color-muted-foreground)" strokeWidth={1} />
+        <line
+          x1={0}
+          y1={cy}
+          x2={W}
+          y2={cy}
+          stroke="var(--color-muted-foreground)"
+          strokeWidth={1}
+        />
+        <line
+          x1={cx}
+          y1={0}
+          x2={cx}
+          y2={H}
+          stroke="var(--color-muted-foreground)"
+          strokeWidth={1}
+        />
         {arrows}
         <circle cx={cx} cy={cy} r={3} fill="var(--color-foreground)" />
       </svg>
       <figcaption className="text-xs text-muted-foreground text-center max-w-[280px] break-words">
-        Rendering: SVG (2D canvas). Solid arrows = eigenvector direction. Dashed = transformed vector (scaled by eigenvalue).
+        Rendering: SVG (2D canvas). Solid arrows = eigenvector direction. Dashed = transformed
+        vector (scaled by eigenvalue).
       </figcaption>
     </figure>
   );
@@ -540,22 +576,32 @@ function EigenVectorVisualisation3D({
 
   // Draw the three isometric axes
   const axisColors = [
-    'oklch(0.65 0.18 25)',   // X — reddish
-    'oklch(0.65 0.20 155)',  // Y — greenish
-    'oklch(0.55 0.27 264)',  // Z — blueish
+    'oklch(0.65 0.18 25)', // X — reddish
+    'oklch(0.65 0.20 155)', // Y — greenish
+    'oklch(0.55 0.27 264)', // Z — blueish
   ] as const;
   const axisLabels = ['x', 'y', 'z'] as const;
 
-  const axesElems = ([
-    [1, 0, 0],
-    [0, 1, 0],
-    [0, 0, 1],
-  ] as const).map(([ax, ay, az], i) => {
+  const axesElems = (
+    [
+      [1, 0, 0],
+      [0, 1, 0],
+      [0, 0, 1],
+    ] as const
+  ).map(([ax, ay, az], i) => {
     const [ex, ey] = project(ax, ay, az);
     const color = axisColors[i]!;
     return (
       <g key={`axis-${i}`} opacity={0.45}>
-        <line x1={cx} y1={cy} x2={ex} y2={ey} stroke={color} strokeWidth={1} strokeDasharray="4 2" />
+        <line
+          x1={cx}
+          y1={cy}
+          x2={ex}
+          y2={ey}
+          stroke={color}
+          strokeWidth={1}
+          strokeDasharray="4 2"
+        />
         <text x={ex + 4} y={ey} fontSize={9} fill={color} fontFamily="monospace" aria-hidden="true">
           {axisLabels[i]}
         </text>
@@ -563,11 +609,7 @@ function EigenVectorVisualisation3D({
     );
   });
 
-  const evColors = [
-    'oklch(0.72 0.22 264)',
-    'oklch(0.72 0.20 155)',
-    'oklch(0.72 0.20 40)',
-  ] as const;
+  const evColors = ['oklch(0.72 0.22 264)', 'oklch(0.72 0.20 155)', 'oklch(0.72 0.20 40)'] as const;
 
   const arrows = eigenvectors.slice(0, 3).map((ev, idx) => {
     const vx = ev[0] ?? 0;
@@ -581,10 +623,34 @@ function EigenVectorVisualisation3D({
     return (
       <g key={idx}>
         {/* Eigenvector */}
-        <line x1={cx} y1={cy} x2={ex} y2={ey} stroke={color} strokeWidth={2.5} markerEnd={`url(#arrowhead3d-${idx})`} />
+        <line
+          x1={cx}
+          y1={cy}
+          x2={ex}
+          y2={ey}
+          stroke={color}
+          strokeWidth={2.5}
+          markerEnd={`url(#arrowhead3d-${idx})`}
+        />
         {/* Transformed (λv) */}
-        <line x1={cx} y1={cy} x2={tx} y2={ty} stroke={color} strokeWidth={1.5} strokeDasharray="5 3" opacity={0.55} />
-        <text x={ex + 5} y={ey - 4} fontSize={10} fill={color} fontFamily="monospace" aria-hidden="true">
+        <line
+          x1={cx}
+          y1={cy}
+          x2={tx}
+          y2={ty}
+          stroke={color}
+          strokeWidth={1.5}
+          strokeDasharray="5 3"
+          opacity={0.55}
+        />
+        <text
+          x={ex + 5}
+          y={ey - 4}
+          fontSize={10}
+          fill={color}
+          fontFamily="monospace"
+          aria-hidden="true"
+        >
           v{idx + 1}
         </text>
       </g>
@@ -627,7 +693,8 @@ function EigenVectorVisualisation3D({
         {arrows}
       </svg>
       <figcaption className="text-xs text-muted-foreground text-center max-w-[320px] break-words">
-        Rendering: SVG (isometric 3D projection). Solid arrows = eigenvectors. Dashed = λv scaled transformation.
+        Rendering: SVG (isometric 3D projection). Solid arrows = eigenvectors. Dashed = λv scaled
+        transformation.
       </figcaption>
     </figure>
   );
@@ -662,10 +729,26 @@ function EigenVectorVisualisation4D({
   const gridLines: React.ReactElement[] = [];
   for (let t = -3; t <= 3; t++) {
     gridLines.push(
-      <line key={`h${t}`} x1={0} y1={cy + t * (scale / 2)} x2={W} y2={cy + t * (scale / 2)} stroke="var(--color-border)" strokeWidth={0.5} />
+      <line
+        key={`h${t}`}
+        x1={0}
+        y1={cy + t * (scale / 2)}
+        x2={W}
+        y2={cy + t * (scale / 2)}
+        stroke="var(--color-border)"
+        strokeWidth={0.5}
+      />,
     );
     gridLines.push(
-      <line key={`v${t}`} x1={cx + t * (scale / 2)} y1={0} x2={cx + t * (scale / 2)} y2={H} stroke="var(--color-border)" strokeWidth={0.5} />
+      <line
+        key={`v${t}`}
+        x1={cx + t * (scale / 2)}
+        y1={0}
+        x2={cx + t * (scale / 2)}
+        y2={H}
+        stroke="var(--color-border)"
+        strokeWidth={0.5}
+      />,
     );
   }
 
@@ -682,9 +765,33 @@ function EigenVectorVisualisation4D({
 
     return (
       <g key={idx}>
-        <line x1={cx} y1={cy} x2={ex} y2={ey} stroke={color} strokeWidth={2} markerEnd={`url(#arrowhead4d-${idx})`} />
-        <line x1={cx} y1={cy} x2={tx} y2={ty} stroke={color} strokeWidth={1.2} strokeDasharray="4 2" opacity={0.5} />
-        <text x={ex + 4} y={ey - 4} fontSize={10} fill={color} fontFamily="monospace" aria-hidden="true">
+        <line
+          x1={cx}
+          y1={cy}
+          x2={ex}
+          y2={ey}
+          stroke={color}
+          strokeWidth={2}
+          markerEnd={`url(#arrowhead4d-${idx})`}
+        />
+        <line
+          x1={cx}
+          y1={cy}
+          x2={tx}
+          y2={ty}
+          stroke={color}
+          strokeWidth={1.2}
+          strokeDasharray="4 2"
+          opacity={0.5}
+        />
+        <text
+          x={ex + 4}
+          y={ey - 4}
+          fontSize={10}
+          fill={color}
+          fontFamily="monospace"
+          aria-hidden="true"
+        >
           v{idx + 1}
         </text>
       </g>
@@ -727,8 +834,22 @@ function EigenVectorVisualisation4D({
             ))}
           </defs>
           {gridLines}
-          <line x1={0} y1={cy} x2={W} y2={cy} stroke="var(--color-muted-foreground)" strokeWidth={1} />
-          <line x1={cx} y1={0} x2={cx} y2={H} stroke="var(--color-muted-foreground)" strokeWidth={1} />
+          <line
+            x1={0}
+            y1={cy}
+            x2={W}
+            y2={cy}
+            stroke="var(--color-muted-foreground)"
+            strokeWidth={1}
+          />
+          <line
+            x1={cx}
+            y1={0}
+            x2={cx}
+            y2={H}
+            stroke="var(--color-muted-foreground)"
+            strokeWidth={1}
+          />
           {arrows}
           <circle cx={cx} cy={cy} r={3} fill="var(--color-foreground)" />
         </svg>
@@ -812,8 +933,17 @@ export function EigenPanel() {
 
   // Build a fresh identity-like demo matrix for a given size
   const makeDefaultMatrix = (n: MatrixSize): number[][] => {
-    if (n === 2) return [[4, 1], [2, 3]];
-    if (n === 3) return [[2, 1, 0], [1, 3, 1], [0, 1, 2]];
+    if (n === 2)
+      return [
+        [4, 1],
+        [2, 3],
+      ];
+    if (n === 3)
+      return [
+        [2, 1, 0],
+        [1, 3, 1],
+        [0, 1, 2],
+      ];
     return [
       [4, 1, 0, 0],
       [1, 3, 1, 0],
@@ -829,16 +959,13 @@ export function EigenPanel() {
     setError(null);
   };
 
-  const handleCellChange = useCallback(
-    (row: number, col: number, raw: string) => {
-      const value = raw === '' || raw === '-' ? 0 : (parseFloat(raw) || 0);
-      setMatrix((prev) =>
-        prev.map((r, ri) => r.map((c, ci) => (ri === row && ci === col ? value : c)))
-      );
-      setError(null);
-    },
-    []
-  );
+  const handleCellChange = useCallback((row: number, col: number, raw: string) => {
+    const value = raw === '' || raw === '-' ? 0 : parseFloat(raw) || 0;
+    setMatrix((prev) =>
+      prev.map((r, ri) => r.map((c, ci) => (ri === row && ci === col ? value : c))),
+    );
+    setError(null);
+  }, []);
 
   const handlePreset = (preset: 'identity' | 'symmetric' | 'random') => {
     const n = size;
@@ -846,21 +973,21 @@ export function EigenPanel() {
     switch (preset) {
       case 'identity':
         m = Array.from({ length: n }, (_, i) =>
-          Array.from({ length: n }, (_, j) => (i === j ? 1 : 0))
+          Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)),
         );
         break;
       case 'symmetric': {
         const base = Array.from({ length: n }, () =>
-          Array.from({ length: n }, () => Math.round(Math.random() * 6) - 3)
+          Array.from({ length: n }, () => Math.round(Math.random() * 6) - 3),
         );
         m = Array.from({ length: n }, (_, i) =>
-          Array.from({ length: n }, (_, j) => (j >= i ? base[i]![j]! : base[j]![i]!))
+          Array.from({ length: n }, (_, j) => (j >= i ? base[i]![j]! : base[j]![i]!)),
         );
         break;
       }
       case 'random':
         m = Array.from({ length: n }, () =>
-          Array.from({ length: n }, () => Math.round(Math.random() * 10) - 5)
+          Array.from({ length: n }, () => Math.round(Math.random() * 10) - 5),
         );
         break;
     }
@@ -944,7 +1071,7 @@ export function EigenPanel() {
       const target = document.getElementById(`${gridId}-${nextRow}-${nextCol}`);
       (target as HTMLInputElement | null)?.focus();
     },
-    [gridId, size]
+    [gridId, size],
   );
 
   // ---------------------------------------------------------------------------
@@ -955,29 +1082,26 @@ export function EigenPanel() {
     <Card className="border-violet-500/30 shadow-[0_0_20px_oklch(0.55_0.27_264/0.12)]">
       <CardHeader>
         <div className="flex items-center gap-3">
-          <span className="text-2xl" aria-hidden="true">λ</span>
+          <span className="text-2xl" aria-hidden="true">
+            λ
+          </span>
           <div>
             <CardTitle>Eigenvalues &amp; Eigenvectors</CardTitle>
             <CardDescription>
-              Full eigendecomposition via QR iteration. Displays characteristic polynomial,
-              all eigenvalue/eigenvector pairs, and diagonalisation P D P⁻¹.
+              Full eigendecomposition via QR iteration. Displays characteristic polynomial, all
+              eigenvalue/eigenvector pairs, and diagonalisation P D P⁻¹.
             </CardDescription>
           </div>
         </div>
       </CardHeader>
 
       <CardContent className="space-y-6">
-
         {/* ---- Size selector ------------------------------------------- */}
         <div className="flex items-center gap-3 flex-wrap">
           <span className="text-sm font-medium text-foreground" id="size-label">
             Matrix size:
           </span>
-          <div
-            role="radiogroup"
-            aria-labelledby="size-label"
-            className="flex gap-2"
-          >
+          <div role="radiogroup" aria-labelledby="size-label" className="flex gap-2">
             {([2, 3, 4] as const).map((n) => (
               <Button
                 key={n}
@@ -988,7 +1112,7 @@ export function EigenPanel() {
                 onClick={() => handleSizeChange(n)}
                 className={cn(
                   'w-14 font-mono',
-                  size === n && 'shadow-[0_0_8px_oklch(0.55_0.27_264/0.5)]'
+                  size === n && 'shadow-[0_0_8px_oklch(0.55_0.27_264/0.5)]',
                 )}
               >
                 {n}×{n}
@@ -1057,13 +1181,13 @@ export function EigenPanel() {
                       onKeyDown={(e) => handleGridKeyDown(e, ri, ci)}
                       className={cn(
                         'w-16 text-center font-mono text-sm p-1.5 h-9',
-                        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring'
+                        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
                       )}
                       aria-label={`Row ${ri + 1}, column ${ci + 1}`}
                       role="gridcell"
                     />
                   </div>
-                ))
+                )),
               )}
             </div>
           </div>
@@ -1079,7 +1203,7 @@ export function EigenPanel() {
             'hover:from-violet-500 hover:to-indigo-500',
             'text-white shadow-[0_0_12px_oklch(0.55_0.27_264/0.4)]',
             'hover:shadow-[0_0_20px_oklch(0.55_0.27_264/0.6)]',
-            isPending && 'animate-pulse'
+            isPending && 'animate-pulse',
           )}
           aria-busy={isPending}
           aria-live="polite"
@@ -1134,7 +1258,7 @@ export function EigenPanel() {
                   className={cn(
                     'flex items-center gap-2 text-sm font-semibold text-foreground',
                     'hover:text-primary transition-colors',
-                    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded-sm'
+                    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded-sm',
                   )}
                   aria-expanded={showCharPoly}
                 >
@@ -1168,7 +1292,10 @@ export function EigenPanel() {
               {/* Eigenvalues */}
               <motion.section variants={fadeSlide} className="space-y-3">
                 <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-violet-600 text-white text-xs" aria-hidden="true">
+                  <span
+                    className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-violet-600 text-white text-xs"
+                    aria-hidden="true"
+                  >
                     λ
                   </span>
                   Eigenvalues
@@ -1185,7 +1312,7 @@ export function EigenPanel() {
                       className={cn(
                         'p-3 rounded-lg border flex items-center gap-3',
                         'bg-gradient-to-r from-violet-950/30 to-indigo-950/30',
-                        'border-violet-500/40'
+                        'border-violet-500/40',
                       )}
                     >
                       <Badge variant="outline" className="font-mono text-xs border-violet-500/50">
@@ -1203,7 +1330,10 @@ export function EigenPanel() {
               {/* Eigenvectors */}
               <motion.section variants={fadeSlide} className="space-y-3">
                 <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-emerald-600 text-white text-xs" aria-hidden="true">
+                  <span
+                    className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-emerald-600 text-white text-xs"
+                    aria-hidden="true"
+                  >
                     v
                   </span>
                   Eigenvectors
@@ -1219,7 +1349,7 @@ export function EigenPanel() {
                       className={cn(
                         'p-4 rounded-lg border min-w-0',
                         'bg-gradient-to-br from-emerald-950/20 to-teal-950/20',
-                        'border-emerald-500/30'
+                        'border-emerald-500/30',
                       )}
                     >
                       {/* Header row: eigenvector label for this eigenvalue */}
@@ -1302,7 +1432,7 @@ export function EigenPanel() {
                     result.isDiagonalisable
                       ? 'text-amber-300 hover:text-amber-200'
                       : 'text-muted-foreground cursor-default',
-                    'transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded-sm'
+                    'transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded-sm',
                   )}
                   aria-expanded={showDiag}
                   disabled={!result.isDiagonalisable}
@@ -1339,13 +1469,15 @@ export function EigenPanel() {
                       className="space-y-4 p-4 rounded-lg bg-amber-950/20 border border-amber-500/30"
                     >
                       <p className="text-xs text-muted-foreground">
-                        A = P D P<sup>-1</sup> where P contains eigenvectors as columns,
-                        D is the diagonal eigenvalue matrix.
+                        A = P D P<sup>-1</sup> where P contains eigenvectors as columns, D is the
+                        diagonal eigenvalue matrix.
                       </p>
 
                       {/* P matrix */}
                       <div className="space-y-1">
-                        <span className="text-xs font-semibold text-amber-300">P (eigenvectors):</span>
+                        <span className="text-xs font-semibold text-amber-300">
+                          P (eigenvectors):
+                        </span>
                         <div className="overflow-x-auto">
                           <MathRenderer
                             expression={`P = ${matrixLatex(result.P)}`}
@@ -1357,7 +1489,9 @@ export function EigenPanel() {
 
                       {/* D matrix */}
                       <div className="space-y-1">
-                        <span className="text-xs font-semibold text-amber-300">D (diagonal eigenvalues):</span>
+                        <span className="text-xs font-semibold text-amber-300">
+                          D (diagonal eigenvalues):
+                        </span>
                         <div className="overflow-x-auto">
                           <MathRenderer
                             expression={`D = ${matrixLatex(result.D)}`}
@@ -1393,20 +1527,20 @@ export function EigenPanel() {
                             <div key={label} className="min-w-0">
                               <span className="font-semibold text-muted-foreground">{label}:</span>
                               <div className="mt-1 overflow-x-auto">
-                              <div
-                                className="inline-grid gap-1"
-                                style={{
-                                  gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))`,
-                                }}
-                                role="grid"
-                                aria-label={`${label} matrix`}
-                              >
-                                {data.map((row, ri) =>
-                                  row.map((val, ci) => (
-                                    <ResultCell key={`${ri}-${ci}`} value={val} />
-                                  ))
-                                )}
-                              </div>
+                                <div
+                                  className="inline-grid gap-1"
+                                  style={{
+                                    gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))`,
+                                  }}
+                                  role="grid"
+                                  aria-label={`${label} matrix`}
+                                >
+                                  {data.map((row, ri) =>
+                                    row.map((val, ci) => (
+                                      <ResultCell key={`${ri}-${ci}`} value={val} />
+                                    )),
+                                  )}
+                                </div>
                               </div>
                             </div>
                           ))}
@@ -1423,8 +1557,8 @@ export function EigenPanel() {
                 className="text-xs text-muted-foreground border-t border-border pt-3"
               >
                 <strong>Algorithm:</strong> QR iteration with Wilkinson shift for eigenvalues,
-                followed by inverse iteration to refine eigenvectors.
-                Suitable for dense matrices up to 4×4. Results are rounded to 6 decimal places.
+                followed by inverse iteration to refine eigenvectors. Suitable for dense matrices up
+                to 4×4. Results are rounded to 6 decimal places.
               </motion.div>
             </motion.div>
           )}
@@ -1440,17 +1574,40 @@ export function EigenPanel() {
               <div className="space-y-2">
                 <h5 className="font-semibold text-foreground text-sm">Keyboard Navigation</h5>
                 <ul className="space-y-1 list-none">
-                  <li><kbd className="px-1.5 py-0.5 rounded bg-muted border border-border font-mono text-xs">Tab</kbd> — move to next cell or control</li>
-                  <li><kbd className="px-1.5 py-0.5 rounded bg-muted border border-border font-mono text-xs">↑ ↓ ← →</kbd> — navigate matrix grid</li>
-                  <li><kbd className="px-1.5 py-0.5 rounded bg-muted border border-border font-mono text-xs">Enter</kbd> — activate buttons</li>
+                  <li>
+                    <kbd className="px-1.5 py-0.5 rounded bg-muted border border-border font-mono text-xs">
+                      Tab
+                    </kbd>{' '}
+                    — move to next cell or control
+                  </li>
+                  <li>
+                    <kbd className="px-1.5 py-0.5 rounded bg-muted border border-border font-mono text-xs">
+                      ↑ ↓ ← →
+                    </kbd>{' '}
+                    — navigate matrix grid
+                  </li>
+                  <li>
+                    <kbd className="px-1.5 py-0.5 rounded bg-muted border border-border font-mono text-xs">
+                      Enter
+                    </kbd>{' '}
+                    — activate buttons
+                  </li>
                 </ul>
               </div>
               <div className="space-y-2">
                 <h5 className="font-semibold text-foreground text-sm">Mathematical Concepts</h5>
-                <p><strong>Eigenvalue λ:</strong> scalar where Av = λv for non-zero vector v.</p>
-                <p><strong>Eigenvector v:</strong> direction preserved (only scaled) by A.</p>
-                <p><strong>Char. poly p(λ):</strong> det(λI − A). Roots are eigenvalues.</p>
-                <p><strong>Diagonalisation:</strong> A = PDP⁻¹ when P has full column rank.</p>
+                <p>
+                  <strong>Eigenvalue λ:</strong> scalar where Av = λv for non-zero vector v.
+                </p>
+                <p>
+                  <strong>Eigenvector v:</strong> direction preserved (only scaled) by A.
+                </p>
+                <p>
+                  <strong>Char. poly p(λ):</strong> det(λI − A). Roots are eigenvalues.
+                </p>
+                <p>
+                  <strong>Diagonalisation:</strong> A = PDP⁻¹ when P has full column rank.
+                </p>
               </div>
             </div>
           </div>

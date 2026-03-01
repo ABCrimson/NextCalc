@@ -7,46 +7,46 @@
  * Uses Apollo Client for data fetching and mutations.
  */
 
-import { use, useState, useCallback } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useMutation, useQuery } from '@apollo/client/react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { useQuery, useMutation } from '@apollo/client/react';
 import {
+  AlertCircle,
   ArrowLeft,
-  Eye,
   Clock,
-  Pin,
+  Eye,
+  Loader2,
   Lock,
   MessageSquare,
+  Pin,
   Send,
-  Loader2,
-  AlertCircle,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
-import { Skeleton } from '@/components/ui/skeleton';
-import { UpvoteButton } from '@/components/forum/upvote-button';
-import { TagPill } from '@/components/forum/post-card';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { use, useCallback, useState } from 'react';
 import { CommentThread } from '@/components/forum/comment-thread';
 import { ForumBackground } from '@/components/forum/forum-background';
-import { FORUM_POST_QUERY, CREATE_COMMENT_MUTATION } from '@/lib/graphql/forum-operations';
-import { useSession } from '@/lib/auth/hooks';
 import {
+  buildMockPostDetail,
   type ForumPostDetail,
-  getPostHue,
-  timeAgo,
   formatDate,
   formatNumber,
   getInitials,
-  getTierFromRole,
   getMockPostById,
-  buildMockPostDetail,
+  getPostHue,
   getStoredUpvotes,
+  getTierFromRole,
   setStoredUpvote,
+  timeAgo,
 } from '@/components/forum/forum-shared';
-import { useTranslations } from 'next-intl';
+import { TagPill } from '@/components/forum/post-card';
+import { UpvoteButton } from '@/components/forum/upvote-button';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Textarea } from '@/components/ui/textarea';
+import { useSession } from '@/lib/auth/hooks';
+import { CREATE_COMMENT_MUTATION, FORUM_POST_QUERY } from '@/lib/graphql/forum-operations';
 import { cn } from '@/lib/utils';
 
 // ============================================================================
@@ -105,10 +105,13 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
   const router = useRouter();
   const { status: authStatus } = useSession();
 
-  const { data, loading, error, refetch } = useQuery<{ forumPost: ForumPostDetail | null }>(FORUM_POST_QUERY, {
-    variables: { id },
-    fetchPolicy: 'cache-and-network',
-  });
+  const { data, loading, error, refetch } = useQuery<{ forumPost: ForumPostDetail | null }>(
+    FORUM_POST_QUERY,
+    {
+      variables: { id },
+      fetchPolicy: 'cache-and-network',
+    },
+  );
 
   // Fall back to mock data when GraphQL is unavailable
   const post: ForumPostDetail | null = (() => {
@@ -171,7 +174,6 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
 
       <div className="relative z-10 py-12 px-4">
         <div className="container mx-auto max-w-3xl">
-
           {/* Back button */}
           <motion.div
             className="mb-6"
@@ -240,13 +242,19 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
                   <div className="space-y-2 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       {post.isPinned && (
-                        <Badge variant="outline" className="gap-1 text-[10px] py-0 h-5 bg-amber-500/10 border-amber-500/30 text-amber-400">
+                        <Badge
+                          variant="outline"
+                          className="gap-1 text-[10px] py-0 h-5 bg-amber-500/10 border-amber-500/30 text-amber-400"
+                        >
                           <Pin className="h-2.5 w-2.5" />
                           {t('pinned')}
                         </Badge>
                       )}
                       {post.isClosed && (
-                        <Badge variant="outline" className="gap-1 text-[10px] py-0 h-5 bg-red-500/10 border-red-500/30 text-red-400">
+                        <Badge
+                          variant="outline"
+                          className="gap-1 text-[10px] py-0 h-5 bg-red-500/10 border-red-500/30 text-red-400"
+                        >
                           <Lock className="h-2.5 w-2.5" />
                           {t('closed')}
                         </Badge>
@@ -263,17 +271,19 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
                       targetType="POST"
                       initialCount={post.upvoteCount}
                       initialUpvoted={post.hasUpvoted}
-                      {...(isMockMode ? {
-                        mock: true,
-                        onMockToggle: () => setStoredUpvote(post.id, !post.hasUpvoted),
-                      } : {})}
+                      {...(isMockMode
+                        ? {
+                            mock: true,
+                            onMockToggle: () => setStoredUpvote(post.id, !post.hasUpvoted),
+                          }
+                        : {})}
                     />
                   </div>
                 </div>
 
                 {/* Tags */}
                 <div className="flex flex-wrap gap-1.5">
-                  {post.tags.map(tag => (
+                  {post.tags.map((tag) => (
                     <TagPill key={tag} name={tag} />
                   ))}
                 </div>
@@ -331,9 +341,7 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
                         {(() => {
                           const tier = getTierFromRole(post.user.role);
                           const TIcon = tier.icon;
-                          return TIcon ? (
-                            <TIcon className={cn('h-3.5 w-3.5', tier.color)} />
-                          ) : null;
+                          return TIcon ? <TIcon className={cn('h-3.5 w-3.5', tier.color)} /> : null;
                         })()}
                       </div>
                       <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
@@ -366,9 +374,7 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
                   <div className="text-center py-8">
                     <MessageSquare className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
                     <p className="text-sm text-muted-foreground">{t('noCommentsYet')}</p>
-                    <p className="text-xs text-muted-foreground/60 mt-1">
-                      {t('beFirstComment')}
-                    </p>
+                    <p className="text-xs text-muted-foreground/60 mt-1">{t('beFirstComment')}</p>
                   </div>
                 )}
 
@@ -380,7 +386,7 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
                       <>
                         <Textarea
                           value={commentContent}
-                          onChange={e => setCommentContent(e.target.value)}
+                          onChange={(e) => setCommentContent(e.target.value)}
                           placeholder={t('commentPlaceholder')}
                           className="bg-card/50 backdrop-blur-md border-border min-h-[80px]"
                           rows={3}
@@ -410,8 +416,8 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
                             className="text-indigo-400 hover:text-indigo-300 underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                           >
                             {tAuth('signIn')}
-                          </button>
-                          {' '}{t('signInToDiscuss')}
+                          </button>{' '}
+                          {t('signInToDiscuss')}
                         </p>
                       </div>
                     )}

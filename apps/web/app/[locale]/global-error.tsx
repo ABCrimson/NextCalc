@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { useEffect } from 'react';
 import { captureError } from '@/lib/monitoring/error-tracking';
 
 interface GlobalErrorProps {
@@ -212,8 +212,8 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
                 }}
               >
                 <p style={{ fontSize: '0.875rem', color: '#93c5fd' }}>
-                  <strong>Development Mode:</strong> This global error boundary caught an error
-                  in the root layout. Check the browser console and stack trace above for details.
+                  <strong>Development Mode:</strong> This global error boundary caught an error in
+                  the root layout. Check the browser console and stack trace above for details.
                 </p>
               </div>
             )}

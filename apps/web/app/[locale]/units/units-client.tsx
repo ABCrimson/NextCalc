@@ -1,7 +1,7 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 interface CategoryCard {
   icon: string;
@@ -97,8 +97,7 @@ export function UnitsBackground() {
       <motion.div
         className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-3xl"
         style={{
-          background:
-            'radial-gradient(circle, oklch(0.62 0.16 264 / 0.07) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, oklch(0.62 0.16 264 / 0.07) 0%, transparent 70%)',
         }}
         animate={{
           y: [0, -10, 0],

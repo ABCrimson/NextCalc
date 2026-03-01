@@ -3,9 +3,9 @@
  * Tests complete user flows from input to history
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Calculator } from '@/components/calculator/calculator';
 import { resetCalculatorStore } from '@/lib/stores/calculator-store';
 
@@ -84,7 +84,7 @@ describe('Calculator Integration Tests', () => {
         const resultElement = screen.getByLabelText(/result:/i);
         expect(resultElement).toHaveTextContent('8');
       },
-      { timeout: 3000 }
+      { timeout: 3000 },
     );
 
     // Step 4: Verify history is created (use getAllByText since expression appears in both display and history)
@@ -109,7 +109,7 @@ describe('Calculator Integration Tests', () => {
       () => {
         expect(screen.getByLabelText(/result:/i)).toHaveTextContent('4');
       },
-      { timeout: 3000 }
+      { timeout: 3000 },
     );
 
     // Clear for next calculation
@@ -123,7 +123,7 @@ describe('Calculator Integration Tests', () => {
       () => {
         expect(screen.getByLabelText(/result:/i)).toHaveTextContent('50');
       },
-      { timeout: 3000 }
+      { timeout: 3000 },
     );
 
     // Verify both calculations are in history (use getAllByText since expression appears in both display and history)
@@ -148,7 +148,7 @@ describe('Calculator Integration Tests', () => {
       () => {
         expect(screen.getByLabelText(/result:/i)).toHaveTextContent('10');
       },
-      { timeout: 3000 }
+      { timeout: 3000 },
     );
 
     // Clear calculator
@@ -185,7 +185,7 @@ describe('Calculator Integration Tests', () => {
         () => {
           expect(screen.getByLabelText(/result:/i)).toHaveTextContent(calc.result);
         },
-        { timeout: 3000 }
+        { timeout: 3000 },
       );
 
       await user.click(screen.getByRole('gridcell', { name: /button clear/i }));
@@ -217,7 +217,7 @@ describe('Calculator Integration Tests', () => {
         // Result should be present (either error message, NaN, or a calculated result)
         expect(resultElement.textContent).toBeTruthy();
       },
-      { timeout: 3000 }
+      { timeout: 3000 },
     );
   });
 
@@ -237,7 +237,7 @@ describe('Calculator Integration Tests', () => {
         // Should show a numeric result
         expect(resultElement.textContent).toMatch(/\d+/);
       },
-      { timeout: 3000 }
+      { timeout: 3000 },
     );
 
     // Unmount component
@@ -286,7 +286,7 @@ describe('Calculator Integration Tests', () => {
       () => {
         expect(screen.getByLabelText(/result:/i)).toHaveTextContent('10');
       },
-      { timeout: 3000 }
+      { timeout: 3000 },
     );
 
     // Clear with Escape

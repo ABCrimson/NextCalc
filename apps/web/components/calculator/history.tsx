@@ -1,11 +1,11 @@
 'use client';
 
-import { useDeferredValue, memo, useRef, useMemo } from 'react';
-import { useVirtualizer } from '@tanstack/react-virtual';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Card } from '@/components/ui/card';
 import type { HistoryEntry } from '@nextcalc/types';
-import { useThousandsSeparator, formatResultWithSeparators } from '@/lib/stores/settings-store';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { AnimatePresence, motion } from 'framer-motion';
+import { memo, useDeferredValue, useMemo, useRef } from 'react';
+import { Card } from '@/components/ui/card';
+import { formatResultWithSeparators, useThousandsSeparator } from '@/lib/stores/settings-store';
 
 interface HistoryProps {
   entries: readonly HistoryEntry[];
@@ -44,7 +44,10 @@ const HistoryItem = memo(function HistoryItem({
       aria-label={`Load calculation: ${entry.expression} equals ${formattedResult}`}
     >
       <div className="flex items-center gap-2 mb-1">
-        <span className="text-xs text-muted-foreground/60 font-medium tracking-wide uppercase" suppressHydrationWarning>
+        <span
+          className="text-xs text-muted-foreground/60 font-medium tracking-wide uppercase"
+          suppressHydrationWarning
+        >
           {new Date(entry.timestamp).toLocaleTimeString()}
         </span>
       </div>
@@ -67,11 +70,14 @@ export function History({ entries, onSelect }: HistoryProps) {
   const parentRef = useRef<HTMLDivElement>(null);
 
   // Memoize animation config to prevent recreation on every render
-  const containerVariants = useMemo(() => ({
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.5, delay: 0.4, ease: [0.4, 0, 0.2, 1] as const }
-  }), []);
+  const containerVariants = useMemo(
+    () => ({
+      initial: { opacity: 0, y: 20 },
+      animate: { opacity: 1, y: 0 },
+      transition: { duration: 0.5, delay: 0.4, ease: [0.4, 0, 0.2, 1] as const },
+    }),
+    [],
+  );
 
   // TanStack Virtual: Virtualize the list for optimal performance with 100+ items
   const virtualizer = useVirtualizer({

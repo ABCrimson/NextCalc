@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Complex Number Calculator Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -7,9 +7,9 @@ test.describe('Complex Number Calculator Page', () => {
   });
 
   test('page loads with heading visible', async ({ page }) => {
-    await expect(
-      page.getByRole('heading', { name: /complex number/i }),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /complex number/i })).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('feature badges are displayed', async ({ page }) => {
@@ -25,9 +25,9 @@ test.describe('Complex Number Calculator Page', () => {
   });
 
   test('supported operations section is visible', async ({ page }) => {
-    await expect(
-      page.getByRole('heading', { name: /supported operations/i }),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /supported operations/i })).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('binary operations section lists add/sub/mul/div', async ({ page }) => {
@@ -36,8 +36,8 @@ test.describe('Complex Number Calculator Page', () => {
   });
 
   test('example calculations section is visible', async ({ page }) => {
-    await expect(
-      page.getByRole('heading', { name: /example calculations/i }),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /example calculations/i })).toBeVisible({
+      timeout: 10000,
+    });
   });
 });

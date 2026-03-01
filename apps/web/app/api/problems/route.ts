@@ -4,10 +4,10 @@
  * GET /api/problems - List problems with filtering and pagination
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { ProblemManager } from '@/lib/cms/problem-manager';
 import { ProblemListQuerySchema } from '@/lib/validations/learning';
-import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
       limit: searchParams.get('limit'),
       offset: searchParams.get('offset'),
       sortBy: searchParams.get('sortBy'),
-      sortOrder: searchParams.get('sortOrder')
+      sortOrder: searchParams.get('sortOrder'),
     };
 
     const filters = ProblemListQuerySchema.parse(queryParams);
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: result
+      data: result,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -41,9 +41,9 @@ export async function GET(request: NextRequest) {
         {
           success: false,
           error: 'Invalid query parameters',
-          details: error.issues
+          details: error.issues,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -51,9 +51,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: 'Internal server error'
+        error: 'Internal server error',
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -11,12 +11,12 @@
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import type { ActionResult } from './problems';
 import {
-  SaveWorksheetSchema,
-  LoadWorksheetSchema,
   DeleteWorksheetSchema,
+  LoadWorksheetSchema,
+  SaveWorksheetSchema,
 } from '@/lib/validations/learning';
+import type { ActionResult } from './problems';
 
 // ---------------------------------------------------------------------------
 // saveWorksheet
@@ -93,7 +93,12 @@ export async function saveWorksheet(
       };
     } catch (e) {
       // Prisma P2025: record not found (version mismatch, deleted, or wrong owner)
-      if (typeof e === 'object' && e !== null && 'code' in e && (e as { code: string }).code === 'P2025') {
+      if (
+        typeof e === 'object' &&
+        e !== null &&
+        'code' in e &&
+        (e as { code: string }).code === 'P2025'
+      ) {
         const current = await prisma.worksheet.findUnique({
           where: { id: data.worksheetId },
           select: { version: true },
@@ -164,8 +169,7 @@ export async function loadWorksheet(
     if (worksheet.visibility === 'PRIVATE') {
       if (!userId || worksheet.userId !== userId) {
         // Check shares
-        const hasShare =
-          userId && worksheet.shares.some((s) => s.sharedWith === userId);
+        const hasShare = userId && worksheet.shares.some((s) => s.sharedWith === userId);
         if (!hasShare) {
           return { success: false, error: 'Worksheet not found' };
         }

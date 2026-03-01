@@ -10,12 +10,9 @@
 
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import {
-  PracticeAttemptSchema,
-  PracticeSessionCompleteSchema,
-} from '@/lib/validations/learning';
-import { getOrCreateUserProgress } from './problems';
+import { PracticeAttemptSchema, PracticeSessionCompleteSchema } from '@/lib/validations/learning';
 import type { ActionResult } from './problems';
+import { getOrCreateUserProgress } from './problems';
 
 // ---------------------------------------------------------------------------
 // savePracticeAttempt
@@ -244,9 +241,13 @@ export async function startPracticeSession(
       data: {
         userProgressId: userProgress.id,
         ...(raw['topic'] && raw['topic'] !== 'all' ? { topic: raw['topic'] as string } : {}),
-        ...(raw['difficulty'] && raw['difficulty'] !== 'all' ? { difficulty: raw['difficulty'] as string } : {}),
+        ...(raw['difficulty'] && raw['difficulty'] !== 'all'
+          ? { difficulty: raw['difficulty'] as string }
+          : {}),
         questionCount: Number(raw['questionCount']) || 5,
-        ...(raw['timeLimit'] && Number(raw['timeLimit']) > 0 ? { timeLimit: Number(raw['timeLimit']) } : {}),
+        ...(raw['timeLimit'] && Number(raw['timeLimit']) > 0
+          ? { timeLimit: Number(raw['timeLimit']) }
+          : {}),
         adaptive: raw['adaptive'] === 'true',
       },
     });

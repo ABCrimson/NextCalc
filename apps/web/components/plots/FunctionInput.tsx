@@ -6,12 +6,12 @@
  * @module components/plots/FunctionInput
  */
 
-import { useState, useCallback, useEffect } from 'react';
-import { Plus, X, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { evaluate, extractVariables, isValidExpression } from '@nextcalc/math-engine';
+import { AlertCircle, CheckCircle2, Plus, X } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import { isValidExpression, extractVariables, evaluate } from '@nextcalc/math-engine';
 
 export interface FunctionDefinition {
   id: string;
@@ -58,79 +58,95 @@ export function FunctionInput({
     setLocalFunctions(functions);
   }, [functions]);
 
-  const validateFunction = useCallback((expression: string): { isValid: boolean; error?: string } => {
-    if (!expression.trim()) {
-      return { isValid: false, error: 'Expression cannot be empty' };
-    }
-
-    try {
-      // Check syntax
-      if (!isValidExpression(expression)) {
-        return { isValid: false, error: 'Invalid syntax' };
+  const validateFunction = useCallback(
+    (expression: string): { isValid: boolean; error?: string } => {
+      if (!expression.trim()) {
+        return { isValid: false, error: 'Expression cannot be empty' };
       }
 
-      // Extract variables
-      const variables = extractVariables(expression);
-
-      // For 2D Cartesian, expect 'x' variable
-      if (plotType === '2d-cartesian') {
-        if (!variables.has('x') && variables.size > 0) {
-          return { isValid: false, error: 'Expected variable "x"' };
+      try {
+        // Check syntax
+        if (!isValidExpression(expression)) {
+          return { isValid: false, error: 'Invalid syntax' };
         }
-      }
 
-      // For 2D Polar, expect 'theta' or 'θ' variable
-      if (plotType === '2d-polar') {
-        const hasTheta = variables.has('theta') || variables.has('θ');
-        if (!hasTheta && variables.size > 0) {
-          return { isValid: false, error: 'Expected variable "theta" or "θ"' };
+        // Extract variables
+        const variables = extractVariables(expression);
+
+        // For 2D Cartesian, expect 'x' variable
+        if (plotType === '2d-cartesian') {
+          if (!variables.has('x') && variables.size > 0) {
+            return { isValid: false, error: 'Expected variable "x"' };
+          }
         }
+
+        // For 2D Polar, expect 'theta' or 'θ' variable
+        if (plotType === '2d-polar') {
+          const hasTheta = variables.has('theta') || variables.has('θ');
+          if (!hasTheta && variables.size > 0) {
+            return { isValid: false, error: 'Expected variable "theta" or "θ"' };
+          }
+        }
+
+        // Test evaluation with a sample value
+        const testVariable = plotType === '2d-polar' ? 'theta' : 'x';
+        const result = evaluate(expression, { variables: { [testVariable]: 1 } });
+
+        if (!result.success) {
+          return { isValid: false, error: 'Evaluation error' };
+        }
+
+        return { isValid: true };
+      } catch (error) {
+        return {
+          isValid: false,
+          error: error instanceof Error ? error.message : 'Validation failed',
+        };
       }
+    },
+    [plotType],
+  );
 
-      // Test evaluation with a sample value
-      const testVariable = plotType === '2d-polar' ? 'theta' : 'x';
-      const result = evaluate(expression, { variables: { [testVariable]: 1 } });
+  const handleExpressionChange = useCallback(
+    (id: string, expression: string) => {
+      const validation = validateFunction(expression);
 
-      if (!result.success) {
-        return { isValid: false, error: 'Evaluation error' };
-      }
+      const updated = localFunctions.map((fn) =>
+        fn.id === id
+          ? {
+              ...fn,
+              expression,
+              isValid: validation.isValid,
+              ...(validation.error !== undefined ? { error: validation.error } : {}),
+            }
+          : fn,
+      );
 
-      return { isValid: true };
-    } catch (error) {
-      return { isValid: false, error: error instanceof Error ? error.message : 'Validation failed' };
-    }
-  }, [plotType]);
+      setLocalFunctions(updated);
+      onChange(updated);
+    },
+    [localFunctions, onChange, validateFunction],
+  );
 
-  const handleExpressionChange = useCallback((id: string, expression: string) => {
-    const validation = validateFunction(expression);
+  const handleLabelChange = useCallback(
+    (id: string, label: string) => {
+      const updated = localFunctions.map((fn) => (fn.id === id ? { ...fn, label } : fn));
 
-    const updated = localFunctions.map(fn =>
-      fn.id === id
-        ? { ...fn, expression, isValid: validation.isValid, ...(validation.error !== undefined ? { error: validation.error } : {}) }
-        : fn
-    );
+      setLocalFunctions(updated);
+      onChange(updated);
+    },
+    [localFunctions, onChange],
+  );
 
-    setLocalFunctions(updated);
-    onChange(updated);
-  }, [localFunctions, onChange, validateFunction]);
+  const handleColorChange = useCallback(
+    (id: string, color: string) => {
+      const updated = localFunctions.map((fn) => (fn.id === id ? { ...fn, color } : fn));
 
-  const handleLabelChange = useCallback((id: string, label: string) => {
-    const updated = localFunctions.map(fn =>
-      fn.id === id ? { ...fn, label } : fn
-    );
-
-    setLocalFunctions(updated);
-    onChange(updated);
-  }, [localFunctions, onChange]);
-
-  const handleColorChange = useCallback((id: string, color: string) => {
-    const updated = localFunctions.map(fn =>
-      fn.id === id ? { ...fn, color } : fn
-    );
-
-    setLocalFunctions(updated);
-    onChange(updated);
-  }, [localFunctions, onChange]);
+      setLocalFunctions(updated);
+      onChange(updated);
+    },
+    [localFunctions, onChange],
+  );
 
   const handleAdd = useCallback(() => {
     if (localFunctions.length >= maxFunctions) return;
@@ -152,11 +168,14 @@ export function FunctionInput({
     onChange(updated);
   }, [localFunctions, maxFunctions, onChange]);
 
-  const handleRemove = useCallback((id: string) => {
-    const updated = localFunctions.filter(fn => fn.id !== id);
-    setLocalFunctions(updated);
-    onChange(updated);
-  }, [localFunctions, onChange]);
+  const handleRemove = useCallback(
+    (id: string) => {
+      const updated = localFunctions.filter((fn) => fn.id !== id);
+      setLocalFunctions(updated);
+      onChange(updated);
+    },
+    [localFunctions, onChange],
+  );
 
   const getPlaceholder = () => {
     switch (plotType) {
@@ -268,7 +287,9 @@ export function FunctionInput({
       {localFunctions.length === 0 && (
         <div className="text-center py-8 border border-dashed border-border rounded-lg">
           <p className="text-sm text-muted-foreground">No functions added yet</p>
-          <p className="text-xs text-muted-foreground/70 mt-1">Click "Add Function" to get started</p>
+          <p className="text-xs text-muted-foreground/70 mt-1">
+            Click "Add Function" to get started
+          </p>
         </div>
       )}
 

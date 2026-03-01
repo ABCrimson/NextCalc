@@ -1,26 +1,26 @@
 'use client';
 
-import { useState, useEffect, useCallback, type ComponentType } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-  ChevronRight,
-  ChevronLeft,
-  Lightbulb,
   Check,
-  X,
+  ChevronLeft,
+  ChevronRight,
   Eye,
   EyeOff,
-  Send,
-  Play,
+  Lightbulb,
   Pause,
+  Play,
+  Send,
+  X,
 } from 'lucide-react';
+import { type ComponentType, useCallback, useEffect, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
 import { DisplayMath } from '@/components/ui/math-renderer';
+import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import type { Problem, ProblemSolution } from '@/types/problems';
 
@@ -94,7 +94,9 @@ export function InteractiveSolver({
   const [userNotes, setUserNotes] = useState('');
   const [revealedHints, setRevealedHints] = useState<Set<number>>(new Set());
   const [isPlaying, setIsPlaying] = useState(false);
-  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
+    null,
+  );
 
   const totalSteps = solution.steps.length;
   const progress = ((currentStep + 1) / totalSteps) * 100;
@@ -150,7 +152,7 @@ export function InteractiveSolver({
       setRevealedHints((prev) => new Set([...prev, hintIndex]));
       onHintRevealed?.(hintIndex);
     },
-    [onHintRevealed]
+    [onHintRevealed],
   );
 
   const handleSubmit = useCallback(() => {
@@ -200,7 +202,11 @@ export function InteractiveSolver({
   const currentStepData = solution.steps[currentStep];
 
   return (
-    <div className={cn('space-y-6', className)} role="region" aria-label="Interactive problem solver">
+    <div
+      className={cn('space-y-6', className)}
+      role="region"
+      aria-label="Interactive problem solver"
+    >
       {/* Problem Statement */}
       <Card>
         <CardHeader>
@@ -252,7 +258,11 @@ export function InteractiveSolver({
                   </Button>
                 </div>
               </div>
-              <Progress value={progress} className="mt-2" aria-label={`Progress: ${Math.round(progress)}%`} />
+              <Progress
+                value={progress}
+                className="mt-2"
+                aria-label={`Progress: ${Math.round(progress)}%`}
+              />
             </CardHeader>
           </Card>
 
@@ -355,9 +365,7 @@ export function InteractiveSolver({
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Submit Your Answer</CardTitle>
-                  <CardDescription>
-                    Enter your solution and check your work
-                  </CardDescription>
+                  <CardDescription>Enter your solution and check your work</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <Textarea
@@ -384,7 +392,7 @@ export function InteractiveSolver({
                           'p-4 rounded-lg flex items-center gap-2',
                           feedback.type === 'success'
                             ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                            : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                            : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
                         )}
                         role="alert"
                         aria-live="polite"
@@ -415,9 +423,7 @@ export function InteractiveSolver({
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Scratchpad</CardTitle>
-                  <CardDescription>
-                    Your notes are auto-saved
-                  </CardDescription>
+                  <CardDescription>Your notes are auto-saved</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Textarea
@@ -505,7 +511,10 @@ function HintCard({
           className="p-4 bg-yellow-50 dark:bg-yellow-900/20"
         >
           <div className="flex items-start gap-2">
-            <Lightbulb className="h-4 w-4 text-yellow-500 mt-0.5 flex-shrink-0" aria-hidden="true" />
+            <Lightbulb
+              className="h-4 w-4 text-yellow-500 mt-0.5 flex-shrink-0"
+              aria-hidden="true"
+            />
             <p className="text-sm">{hint}</p>
           </div>
         </motion.div>

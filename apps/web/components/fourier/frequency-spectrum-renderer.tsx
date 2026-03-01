@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback, useMemo, type MouseEvent } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { type MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 interface FrequencySpectrumRendererProps {
   frequencies: number[];
@@ -14,8 +14,7 @@ interface FrequencySpectrumRendererProps {
 // ---------------------------------------------------------------------------
 // WebGPU feature detection (safe for SSR)
 // ---------------------------------------------------------------------------
-const supportsWebGPU =
-  typeof navigator !== 'undefined' && 'gpu' in navigator;
+const supportsWebGPU = typeof navigator !== 'undefined' && 'gpu' in navigator;
 
 // ---------------------------------------------------------------------------
 // WGSL shaders
@@ -181,12 +180,18 @@ export function FrequencySpectrumRenderer({
   const [isPanning, setIsPanning] = useState(false);
   const [dragStart, setDragStart] = useState(0);
   const [hoveredBin, setHoveredBin] = useState<{
-    index: number; frequency: number; magnitude: number; phase?: number; screenX: number; screenY: number;
+    index: number;
+    frequency: number;
+    magnitude: number;
+    phase?: number;
+    screenX: number;
+    screenY: number;
   } | null>(null);
   const [renderMode, setRenderMode] = useState<'webgpu' | 'canvas2d' | 'detecting'>('detecting');
 
   const spectrumStats = useMemo(() => {
-    if (magnitudes.length === 0) return { maxMagnitude: 1, totalEnergy: 0, dominantFrequency: 0, dominantMagnitude: 0 };
+    if (magnitudes.length === 0)
+      return { maxMagnitude: 1, totalEnergy: 0, dominantFrequency: 0, dominantMagnitude: 0 };
     const maxMagnitude = Math.max(...magnitudes);
     const totalEnergy = magnitudes.reduce((sum, mag) => sum + mag * mag, 0);
     const dominantIndex = magnitudes.indexOf(maxMagnitude);
@@ -203,7 +208,11 @@ export function FrequencySpectrumRenderer({
     if (!canvas || !container || magnitudes.length === 0) return;
 
     const startTime = performance.now();
-    const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true, willReadFrequently: false });
+    const ctx = canvas.getContext('2d', {
+      alpha: false,
+      desynchronized: true,
+      willReadFrequently: false,
+    });
     if (!ctx) return;
 
     const rect = container.getBoundingClientRect();
@@ -228,8 +237,12 @@ export function FrequencySpectrumRenderer({
     ctx.fillRect(0, 0, w, h);
 
     const plotGradient = ctx.createRadialGradient(
-      margin.left + plotWidth / 2, margin.top + plotHeight / 2, 0,
-      margin.left + plotWidth / 2, margin.top + plotHeight / 2, Math.max(plotWidth, plotHeight) / 2
+      margin.left + plotWidth / 2,
+      margin.top + plotHeight / 2,
+      0,
+      margin.left + plotWidth / 2,
+      margin.top + plotHeight / 2,
+      Math.max(plotWidth, plotHeight) / 2,
     );
     plotGradient.addColorStop(0, 'rgba(15,23,42,0.9)');
     plotGradient.addColorStop(1, 'rgba(15,23,42,0.5)');
@@ -250,7 +263,7 @@ export function FrequencySpectrumRenderer({
       ctx.font = 'bold 11px ui-sans-serif, sans-serif';
       ctx.textAlign = 'center';
       const bassEnd = Math.min(250, sampleRate / 2);
-      const bassX = margin.left + (bassEnd / (sampleRate / 2)) * plotWidth / 2;
+      const bassX = margin.left + ((bassEnd / (sampleRate / 2)) * plotWidth) / 2;
       ctx.fillStyle = '#10b981';
       ctx.fillText('BASS', bassX / 2 + margin.left / 2, margin.top + 20);
       const midEnd = Math.min(4000, sampleRate / 2);
@@ -267,7 +280,8 @@ export function FrequencySpectrumRenderer({
     const startBin = Math.max(0, Math.min(magnitudes.length - visibleBins, Math.floor(pan)));
     const endBin = Math.min(magnitudes.length, startBin + visibleBins);
 
-    const maxFreq = sampleRate > 1 ? sampleRate / 2 : frequencies[frequencies.length - 1] ?? magnitudes.length;
+    const maxFreq =
+      sampleRate > 1 ? sampleRate / 2 : (frequencies[frequencies.length - 1] ?? magnitudes.length);
     const visibleStartFreq = (startBin / magnitudes.length) * maxFreq;
     const visibleEndFreq = (endBin / magnitudes.length) * maxFreq;
     const visibleFreqRange = visibleEndFreq - visibleStartFreq;
@@ -276,7 +290,7 @@ export function FrequencySpectrumRenderer({
     const niceTickStep = (range: number, targetTicks = 6): number => {
       if (range <= 0) return 1;
       const rough = range / targetTicks;
-      const mag = Math.pow(10, Math.floor(Math.log10(rough)));
+      const mag = 10 ** Math.floor(Math.log10(rough));
       const residual = rough / mag;
       const nice = residual <= 1.5 ? 1 : residual <= 3 ? 2 : residual <= 7 ? 5 : 10;
       return nice * mag;
@@ -366,13 +380,25 @@ export function FrequencySpectrumRenderer({
       let saturation: number;
       let lightness: number;
       if (progress < 0.25) {
-        const t = progress / 0.25; hue = 160 - t * 20; saturation = 70 + t * 10; lightness = 50 + (magnitude / spectrumStats.maxMagnitude) * 15;
+        const t = progress / 0.25;
+        hue = 160 - t * 20;
+        saturation = 70 + t * 10;
+        lightness = 50 + (magnitude / spectrumStats.maxMagnitude) * 15;
       } else if (progress < 0.5) {
-        const t = (progress - 0.25) / 0.25; hue = 140 + t * 50; saturation = 80 + t * 5; lightness = 50 + (magnitude / spectrumStats.maxMagnitude) * 15;
+        const t = (progress - 0.25) / 0.25;
+        hue = 140 + t * 50;
+        saturation = 80 + t * 5;
+        lightness = 50 + (magnitude / spectrumStats.maxMagnitude) * 15;
       } else if (progress < 0.75) {
-        const t = (progress - 0.5) / 0.25; hue = 190 + t * 50; saturation = 85 - t * 15; lightness = 50 + (magnitude / spectrumStats.maxMagnitude) * 15;
+        const t = (progress - 0.5) / 0.25;
+        hue = 190 + t * 50;
+        saturation = 85 - t * 15;
+        lightness = 50 + (magnitude / spectrumStats.maxMagnitude) * 15;
       } else {
-        const t = (progress - 0.75) / 0.25; hue = 240 + t * 40; saturation = 70 + t * 10; lightness = 50 + (magnitude / spectrumStats.maxMagnitude) * 15;
+        const t = (progress - 0.75) / 0.25;
+        hue = 240 + t * 40;
+        saturation = 70 + t * 10;
+        lightness = 50 + (magnitude / spectrumStats.maxMagnitude) * 15;
       }
       const color = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
       const barGradient = ctx.createLinearGradient(x, y + barHeight, x, y);
@@ -428,12 +454,19 @@ export function FrequencySpectrumRenderer({
     ctx.textAlign = 'center';
     ctx.shadowBlur = 8;
     ctx.shadowColor = 'rgba(99,102,241,0.8)';
-    ctx.fillText(showPhase ? 'Phase Spectrum' : 'Magnitude Spectrum', margin.left + plotWidth / 2, 25);
+    ctx.fillText(
+      showPhase ? 'Phase Spectrum' : 'Magnitude Spectrum',
+      margin.left + plotWidth / 2,
+      25,
+    );
 
     const endTime = performance.now();
     const frameTime = endTime - startTime;
     ctx.shadowBlur = 0;
-    const badgeX = w - 180, badgeY = 8, badgeW = 170, badgeH = 26;
+    const badgeX = w - 180,
+      badgeY = 8,
+      badgeW = 170,
+      badgeH = 26;
     ctx.fillStyle = 'rgba(6,182,212,0.15)';
     ctx.fillRect(badgeX, badgeY, badgeW, badgeH);
     ctx.strokeStyle = 'rgba(6,182,212,0.5)';
@@ -444,7 +477,8 @@ export function FrequencySpectrumRenderer({
     ctx.textAlign = 'center';
     ctx.fillText(
       `${magnitudes.length} bins • ${frameTime.toFixed(1)}ms • ${(1000 / frameTime).toFixed(0)} fps`,
-      badgeX + badgeW / 2, badgeY + 17
+      badgeX + badgeW / 2,
+      badgeY + 17,
     );
   }, [magnitudes, frequencies, zoom, pan, spectrumStats, sampleRate, showPhase]);
 
@@ -485,7 +519,7 @@ export function FrequencySpectrumRenderer({
     const uniformData = new ArrayBuffer(48);
     const f32View = new Float32Array(uniformData);
     const u32View = new Uint32Array(uniformData);
-    u32View[0] = 0;           // startBin (relative to slice = 0)
+    u32View[0] = 0; // startBin (relative to slice = 0)
     u32View[1] = instanceCount; // endBin
     f32View[2] = spectrumStats.maxMagnitude;
     f32View[3] = margin.left;
@@ -494,7 +528,9 @@ export function FrequencySpectrumRenderer({
     f32View[6] = plotH;
     f32View[7] = W;
     f32View[8] = H;
-    u32View[9] = 0; u32View[10] = 0; u32View[11] = 0;
+    u32View[9] = 0;
+    u32View[10] = 0;
+    u32View[11] = 0;
     gpu.device.queue.writeBuffer(gpu.uniformBuffer, 0, uniformData);
 
     const bindGroup = gpu.device.createBindGroup({
@@ -508,12 +544,14 @@ export function FrequencySpectrumRenderer({
     const texture = gpu.context.getCurrentTexture();
     const encoder = gpu.device.createCommandEncoder();
     const pass = encoder.beginRenderPass({
-      colorAttachments: [{
-        view: texture.createView(),
-        clearValue: { r: 0.039, g: 0.059, b: 0.118, a: 1 },
-        loadOp: 'clear',
-        storeOp: 'store',
-      }],
+      colorAttachments: [
+        {
+          view: texture.createView(),
+          clearValue: { r: 0.039, g: 0.059, b: 0.118, a: 1 },
+          loadOp: 'clear',
+          storeOp: 'store',
+        },
+      ],
     });
     pass.setPipeline(gpu.pipeline);
     pass.setBindGroup(0, bindGroup);
@@ -527,19 +565,36 @@ export function FrequencySpectrumRenderer({
   // WebGPU initialisation
   // -------------------------------------------------------------------------
   useEffect(() => {
-    if (!supportsWebGPU) { setRenderMode('canvas2d'); return; }
+    if (!supportsWebGPU) {
+      setRenderMode('canvas2d');
+      return;
+    }
     let cancelled = false;
 
     (async () => {
       try {
         const adapter = await navigator.gpu.requestAdapter();
-        if (!adapter || cancelled) { setRenderMode('canvas2d'); return; }
+        if (!adapter || cancelled) {
+          setRenderMode('canvas2d');
+          return;
+        }
         const device = await adapter.requestDevice();
-        if (cancelled) { device.destroy(); return; }
+        if (cancelled) {
+          device.destroy();
+          return;
+        }
         const canvas = canvasRef.current;
-        if (!canvas) { device.destroy(); setRenderMode('canvas2d'); return; }
+        if (!canvas) {
+          device.destroy();
+          setRenderMode('canvas2d');
+          return;
+        }
         const context = canvas.getContext('webgpu') as GPUCanvasContext | null;
-        if (!context) { device.destroy(); setRenderMode('canvas2d'); return; }
+        if (!context) {
+          device.destroy();
+          setRenderMode('canvas2d');
+          return;
+        }
 
         const format = navigator.gpu.getPreferredCanvasFormat();
         context.configure({ device, format, alphaMode: 'opaque' });
@@ -549,8 +604,17 @@ export function FrequencySpectrumRenderer({
           layout: 'auto',
           vertex: { module, entryPoint: 'vs_main' },
           fragment: {
-            module, entryPoint: 'fs_main',
-            targets: [{ format, blend: { color: { srcFactor: 'src-alpha', dstFactor: 'one-minus-src-alpha' }, alpha: { srcFactor: 'one', dstFactor: 'zero' } } }],
+            module,
+            entryPoint: 'fs_main',
+            targets: [
+              {
+                format,
+                blend: {
+                  color: { srcFactor: 'src-alpha', dstFactor: 'one-minus-src-alpha' },
+                  alpha: { srcFactor: 'one', dstFactor: 'zero' },
+                },
+              },
+            ],
           },
           primitive: { topology: 'triangle-list' },
         });
@@ -569,7 +633,14 @@ export function FrequencySpectrumRenderer({
           device.queue.writeBuffer(magnitudeBuffer, 0, new Float32Array(magnitudes));
         }
 
-        gpuRef.current = { device, context, pipeline, uniformBuffer, magnitudeBuffer, maxMagnitudeLen };
+        gpuRef.current = {
+          device,
+          context,
+          pipeline,
+          uniformBuffer,
+          magnitudeBuffer,
+          maxMagnitudeLen,
+        };
 
         void device.lost.then((info) => {
           if (info.reason !== 'destroyed') {
@@ -631,53 +702,73 @@ export function FrequencySpectrumRenderer({
   const handleWheel = useCallback((e: WheelEvent) => {
     e.preventDefault();
     const delta = -e.deltaY / 500;
-    setZoom(prevZoom => Math.max(1, Math.min(10, prevZoom * (1 + delta))));
+    setZoom((prevZoom) => Math.max(1, Math.min(10, prevZoom * (1 + delta))));
   }, []);
 
-  const handleMouseDown = useCallback((e: MouseEvent) => {
-    setIsPanning(true);
-    setDragStart(e.clientX - pan);
-  }, [pan]);
+  const handleMouseDown = useCallback(
+    (e: MouseEvent) => {
+      setIsPanning(true);
+      setDragStart(e.clientX - pan);
+    },
+    [pan],
+  );
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (isPanning) {
-      const newPan = e.clientX - dragStart;
-      const maxPan = magnitudes.length - magnitudes.length / zoom;
-      setPan(Math.max(0, Math.min(maxPan, newPan)));
-    }
-    const canvas = canvasRef.current;
-    if (!canvas || magnitudes.length === 0) return;
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const margin = { top: 40, right: 40, bottom: 60, left: 70 };
-    if (mouseX < margin.left || mouseX > rect.width - margin.right ||
-        mouseY < margin.top || mouseY > rect.height - margin.bottom) {
-      setHoveredBin(null);
-      return;
-    }
-    const plotWidth = rect.width - margin.left - margin.right;
-    const relativeX = (mouseX - margin.left) / plotWidth;
-    const visibleBins = Math.min(magnitudes.length, Math.floor(magnitudes.length / zoom));
-    const startBin = Math.max(0, Math.min(magnitudes.length - visibleBins, Math.floor(pan)));
-    const binIndex = Math.floor(startBin + relativeX * visibleBins);
-    if (binIndex >= 0 && binIndex < magnitudes.length) {
-      const magnitude = magnitudes[binIndex] ?? 0;
-      const frequency = frequencies[binIndex] ?? (binIndex * sampleRate / (2 * magnitudes.length));
-      const phase = phases?.[binIndex];
-      setHoveredBin({
-        index: binIndex, frequency, magnitude,
-        ...(phase !== undefined && { phase }),
-        screenX: mouseX, screenY: mouseY,
-      });
-    } else {
-      setHoveredBin(null);
-    }
-  }, [isPanning, dragStart, magnitudes, frequencies, phases, zoom, pan, sampleRate]);
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (isPanning) {
+        const newPan = e.clientX - dragStart;
+        const maxPan = magnitudes.length - magnitudes.length / zoom;
+        setPan(Math.max(0, Math.min(maxPan, newPan)));
+      }
+      const canvas = canvasRef.current;
+      if (!canvas || magnitudes.length === 0) return;
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      const margin = { top: 40, right: 40, bottom: 60, left: 70 };
+      if (
+        mouseX < margin.left ||
+        mouseX > rect.width - margin.right ||
+        mouseY < margin.top ||
+        mouseY > rect.height - margin.bottom
+      ) {
+        setHoveredBin(null);
+        return;
+      }
+      const plotWidth = rect.width - margin.left - margin.right;
+      const relativeX = (mouseX - margin.left) / plotWidth;
+      const visibleBins = Math.min(magnitudes.length, Math.floor(magnitudes.length / zoom));
+      const startBin = Math.max(0, Math.min(magnitudes.length - visibleBins, Math.floor(pan)));
+      const binIndex = Math.floor(startBin + relativeX * visibleBins);
+      if (binIndex >= 0 && binIndex < magnitudes.length) {
+        const magnitude = magnitudes[binIndex] ?? 0;
+        const frequency =
+          frequencies[binIndex] ?? (binIndex * sampleRate) / (2 * magnitudes.length);
+        const phase = phases?.[binIndex];
+        setHoveredBin({
+          index: binIndex,
+          frequency,
+          magnitude,
+          ...(phase !== undefined && { phase }),
+          screenX: mouseX,
+          screenY: mouseY,
+        });
+      } else {
+        setHoveredBin(null);
+      }
+    },
+    [isPanning, dragStart, magnitudes, frequencies, phases, zoom, pan, sampleRate],
+  );
 
   const handleMouseUp = useCallback(() => setIsPanning(false), []);
-  const handleMouseLeave = useCallback(() => { setIsPanning(false); setHoveredBin(null); }, []);
-  const resetView = useCallback(() => { setZoom(1); setPan(0); }, []);
+  const handleMouseLeave = useCallback(() => {
+    setIsPanning(false);
+    setHoveredBin(null);
+  }, []);
+  const resetView = useCallback(() => {
+    setZoom(1);
+    setPan(0);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -726,7 +817,8 @@ export function FrequencySpectrumRenderer({
             style={{
               left: hoveredBin.screenX + 15,
               top: hoveredBin.screenY - 70,
-              background: 'linear-gradient(135deg, rgba(15,23,42,0.95) 0%, rgba(30,41,59,0.95) 100%)',
+              background:
+                'linear-gradient(135deg, rgba(15,23,42,0.95) 0%, rgba(30,41,59,0.95) 100%)',
               backdropFilter: 'blur(12px)',
               border: '1px solid rgba(99,102,241,0.3)',
               boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(99,102,241,0.2)',
@@ -758,7 +850,8 @@ export function FrequencySpectrumRenderer({
             onClick={resetView}
             className="absolute top-2 left-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200"
             style={{
-              background: 'linear-gradient(135deg, rgba(6,182,212,0.2) 0%, rgba(99,102,241,0.2) 100%)',
+              background:
+                'linear-gradient(135deg, rgba(6,182,212,0.2) 0%, rgba(99,102,241,0.2) 100%)',
               backdropFilter: 'blur(8px)',
               border: '1px solid rgba(6,182,212,0.4)',
               color: '#06b6d4',
@@ -785,7 +878,8 @@ export function FrequencySpectrumRenderer({
         }}
       >
         <span className="text-emerald-300 font-semibold">
-          Peak: {spectrumStats.dominantFrequency >= 1000
+          Peak:{' '}
+          {spectrumStats.dominantFrequency >= 1000
             ? `${(spectrumStats.dominantFrequency / 1000).toFixed(2)} kHz`
             : `${spectrumStats.dominantFrequency.toFixed(1)} Hz`}
         </span>

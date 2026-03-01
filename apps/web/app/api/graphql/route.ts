@@ -7,8 +7,8 @@
  * Endpoint: /api/graphql
  */
 
-import type { NextRequest } from 'next/server';
 import { createHandler } from '@nextcalc/api';
+import type { NextRequest } from 'next/server';
 import { auth } from '@/auth';
 
 const handler = createHandler({ auth });

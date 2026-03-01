@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { expect, test } from '@playwright/test';
 
 test.describe('Calculator - Basic Operations', () => {
   test('should load calculator page successfully', async ({ page }) => {
@@ -92,7 +92,10 @@ test.describe('Calculator - Advanced Features', () => {
     await page.goto('/');
 
     // Look for tabs or toggle button
-    const latexTab = page.locator('text=LaTeX').or(page.locator('button:has-text("LaTeX")')).first();
+    const latexTab = page
+      .locator('text=LaTeX')
+      .or(page.locator('button:has-text("LaTeX")'))
+      .first();
 
     if (await latexTab.isVisible()) {
       await latexTab.click();
@@ -219,7 +222,9 @@ test.describe('Theme', () => {
     await page.goto('/');
 
     // Look for theme toggle
-    const themeToggle = page.locator('[aria-label*="theme" i], button:has-text("Dark"), button:has-text("Light")').first();
+    const themeToggle = page
+      .locator('[aria-label*="theme" i], button:has-text("Dark"), button:has-text("Light")')
+      .first();
 
     if (await themeToggle.isVisible()) {
       await themeToggle.click();

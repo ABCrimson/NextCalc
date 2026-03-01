@@ -13,18 +13,18 @@
  * @module components/plots/PolarAnalysisPanel
  */
 
-import { useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   ChevronDown,
   ChevronRight,
   Compass,
+  FlipHorizontal,
   Flower2,
   Maximize2,
   Radar,
   Shapes,
-  FlipHorizontal,
 } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 
 // --------------------------------------------------------------------------
@@ -136,8 +136,9 @@ function checkOriginSymmetry(fn: (theta: number) => number, samples: number): bo
 
   if (totalMag < 1e-10) return true;
   // Origin symmetric if f(theta+pi) = f(theta) OR f(theta+pi) = -f(theta)
-  return totalDiffSame / totalMag < SYMMETRY_TOLERANCE ||
-         totalDiffNeg / totalMag < SYMMETRY_TOLERANCE;
+  return (
+    totalDiffSame / totalMag < SYMMETRY_TOLERANCE || totalDiffNeg / totalMag < SYMMETRY_TOLERANCE
+  );
 }
 
 /**
@@ -320,7 +321,10 @@ function isSpiral(fn: (theta: number) => number, samples: number): boolean {
   for (let i = 1; i <= samples; i++) {
     const theta = i * step;
     const r = fn(theta);
-    if (!isFinite(r) || !isFinite(prevR)) { prevR = r; continue; }
+    if (!isFinite(r) || !isFinite(prevR)) {
+      prevR = r;
+      continue;
+    }
 
     if (r > prevR + 0.001) increasing++;
     else if (r < prevR - 0.001) decreasing++;
@@ -455,7 +459,9 @@ function AnalysisRow({
 }) {
   return (
     <div className="flex items-center gap-2 text-xs">
-      <span className="shrink-0" style={{ color }}>{icon}</span>
+      <span className="shrink-0" style={{ color }}>
+        {icon}
+      </span>
       <span className="text-muted-foreground">{label}</span>
       <span className="ml-auto text-foreground font-medium">{value}</span>
     </div>
@@ -556,10 +562,7 @@ export function PolarAnalysisPanel({
           >
             <div className="px-4 pb-4 space-y-4 border-t border-border/50 pt-3">
               {analyses.map((analysis) => (
-                <Card
-                  key={analysis.label}
-                  className="bg-card/50 backdrop-blur-sm border-border"
-                >
+                <Card key={analysis.label} className="bg-card/50 backdrop-blur-sm border-border">
                   <CardContent className="p-4 space-y-3">
                     {/* Function header with color swatch */}
                     <div className="flex items-center gap-2 mb-1">
@@ -626,7 +629,8 @@ export function PolarAnalysisPanel({
 
               {/* Numerical note */}
               <p className="text-[10px] text-muted-foreground/60 border-t border-border/30 pt-2">
-                Values computed numerically over [0, 2pi]. Area via trapezoidal rule: A = (1/2) integral(r^2 dtheta).
+                Values computed numerically over [0, 2pi]. Area via trapezoidal rule: A = (1/2)
+                integral(r^2 dtheta).
               </p>
             </div>
           </motion.div>

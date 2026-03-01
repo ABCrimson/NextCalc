@@ -1,4 +1,4 @@
-import { type LabelHTMLAttributes, type Ref } from 'react';
+import type { LabelHTMLAttributes, Ref } from 'react';
 import { cn } from '@/lib/utils';
 
 export interface LabelProps extends LabelHTMLAttributes<HTMLLabelElement> {
@@ -11,7 +11,7 @@ function Label({ className, ref, ...props }: LabelProps) {
       ref={ref}
       className={cn(
         'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
-        className
+        className,
       )}
       {...props}
     />

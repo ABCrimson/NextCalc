@@ -1,26 +1,26 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Settings,
-  User,
-  Palette,
+  AlertCircle,
   Calculator,
+  CheckCircle2,
   Download,
   Keyboard,
-  Moon,
-  Sun,
   Monitor,
+  Moon,
+  Palette,
+  Settings,
+  Sun,
   Trash2,
-  CheckCircle2,
-  AlertCircle,
+  User,
 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useTranslations } from 'next-intl';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -28,9 +28,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useTranslations } from 'next-intl';
+import { Switch } from '@/components/ui/switch';
+import { useSetThousandsSeparator, useThousandsSeparator } from '@/lib/stores/settings-store';
 import { cn } from '@/lib/utils';
-import { useThousandsSeparator, useSetThousandsSeparator } from '@/lib/stores/settings-store';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -132,13 +132,7 @@ function saveSettings(settings: UserSettings): void {
 // ---------------------------------------------------------------------------
 
 /** Animated section card that slides in from below. */
-function SettingsSection({
-  children,
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  delay?: number;
-}) {
+function SettingsSection({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
@@ -174,9 +168,7 @@ function ShortcutRow({ keys, description }: KeyboardShortcut) {
       <span className="flex items-center gap-1 shrink-0">
         {keys.map((k, i) => (
           <span key={k} className="flex items-center gap-1">
-            {i > 0 && (
-              <span className="text-muted-foreground/50 text-xs select-none">+</span>
-            )}
+            {i > 0 && <span className="text-muted-foreground/50 text-xs select-none">+</span>}
             <KeyBadge label={k} />
           </span>
         ))}
@@ -306,7 +298,8 @@ export default function SettingsPage() {
     try {
       const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
       const data = raw ? JSON.parse(raw) : {};
-      const history: unknown[] = (data as { state?: { history?: unknown[] } })?.state?.history ?? [];
+      const history: unknown[] =
+        (data as { state?: { history?: unknown[] } })?.state?.history ?? [];
       const blob = new Blob([JSON.stringify(history, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement('a');
@@ -361,8 +354,7 @@ export default function SettingsPage() {
         <div
           className="absolute inset-0 opacity-[0.06]"
           style={{
-            backgroundImage:
-              'radial-gradient(circle, rgba(148,163,184,0.8) 1px, transparent 1px)',
+            backgroundImage: 'radial-gradient(circle, rgba(148,163,184,0.8) 1px, transparent 1px)',
             backgroundSize: '28px 28px',
           }}
         />
@@ -384,9 +376,7 @@ export default function SettingsPage() {
               {t('title')}
             </h1>
           </div>
-          <p className="text-muted-foreground text-sm ml-[52px]">
-            {t('subtitle')}
-          </p>
+          <p className="text-muted-foreground text-sm ml-[52px]">{t('subtitle')}</p>
         </motion.div>
 
         <main className="space-y-6" aria-label="Settings sections">
@@ -524,10 +514,7 @@ export default function SettingsPage() {
                 {/* Angle mode */}
                 <div className="flex items-center justify-between gap-4">
                   <div className="space-y-0.5">
-                    <Label
-                      htmlFor="angleMode"
-                      className="text-sm font-medium text-foreground"
-                    >
+                    <Label htmlFor="angleMode" className="text-sm font-medium text-foreground">
                       Default angle mode
                     </Label>
                     <p className="text-xs text-muted-foreground">
@@ -538,11 +525,7 @@ export default function SettingsPage() {
                     value={settings.angleMode}
                     onValueChange={(v) => updateField('angleMode', v as AngleMode)}
                   >
-                    <SelectTrigger
-                      id="angleMode"
-                      className="w-36"
-                      aria-label="Default angle mode"
-                    >
+                    <SelectTrigger id="angleMode" className="w-36" aria-label="Default angle mode">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -555,10 +538,7 @@ export default function SettingsPage() {
                 {/* Compute mode */}
                 <div className="flex items-center justify-between gap-4">
                   <div className="space-y-0.5">
-                    <Label
-                      htmlFor="computeMode"
-                      className="text-sm font-medium text-foreground"
-                    >
+                    <Label htmlFor="computeMode" className="text-sm font-medium text-foreground">
                       Default compute mode
                     </Label>
                     <p className="text-xs text-muted-foreground">
@@ -586,10 +566,7 @@ export default function SettingsPage() {
                 {/* Thousands separator toggle */}
                 <div className="flex items-center justify-between gap-4">
                   <div className="space-y-0.5">
-                    <Label
-                      htmlFor="thousandsSep"
-                      className="text-sm font-medium text-foreground"
-                    >
+                    <Label htmlFor="thousandsSep" className="text-sm font-medium text-foreground">
                       {t('calcDefaultsThousandsSeparator')}
                     </Label>
                     <p className="text-xs text-muted-foreground">
@@ -664,9 +641,7 @@ export default function SettingsPage() {
                 </div>
 
                 {historyCount === 0 && (
-                  <p className="mt-3 text-xs text-muted-foreground">
-                    {t('noHistory')}
-                  </p>
+                  <p className="mt-3 text-xs text-muted-foreground">{t('noHistory')}</p>
                 )}
               </CardContent>
             </Card>
@@ -735,9 +710,7 @@ export default function SettingsPage() {
                   </motion.span>
                 )}
                 {saveStatus.type === 'idle' && (
-                  <span className="text-xs text-muted-foreground">
-                    {t('saveAutoHint')}
-                  </span>
+                  <span className="text-xs text-muted-foreground">{t('saveAutoHint')}</span>
                 )}
               </div>
 

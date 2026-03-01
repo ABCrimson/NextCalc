@@ -24,12 +24,8 @@ export default async function OfflinePage() {
         <div className="mb-6 text-6xl" role="img" aria-label="No connection">
           &#x1F4F4;
         </div>
-        <h1 className="mb-3 text-2xl font-bold tracking-tight">
-          {t('title')}
-        </h1>
-        <p className="mb-8 text-muted-foreground">
-          {t('description')}
-        </p>
+        <h1 className="mb-3 text-2xl font-bold tracking-tight">{t('title')}</h1>
+        <p className="mb-8 text-muted-foreground">{t('description')}</p>
         <nav aria-label={t('cachedPages')}>
           <ul className="space-y-2">
             {cachedPages.map((page) => (

@@ -1,8 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
 
 interface Achievement {
   id: string;
@@ -27,8 +27,28 @@ function formatEarnedDate(dateStr: string): string {
   });
 }
 
-function getTypeBadgeVariant(type: string): 'default' | 'secondary' | 'outline' | 'beginner' | 'intermediate' | 'advanced' | 'expert' | 'research' {
-  const map: Record<string, 'default' | 'secondary' | 'outline' | 'beginner' | 'intermediate' | 'advanced' | 'expert' | 'research'> = {
+function getTypeBadgeVariant(
+  type: string,
+):
+  | 'default'
+  | 'secondary'
+  | 'outline'
+  | 'beginner'
+  | 'intermediate'
+  | 'advanced'
+  | 'expert'
+  | 'research' {
+  const map: Record<
+    string,
+    | 'default'
+    | 'secondary'
+    | 'outline'
+    | 'beginner'
+    | 'intermediate'
+    | 'advanced'
+    | 'expert'
+    | 'research'
+  > = {
     beginner: 'beginner',
     intermediate: 'intermediate',
     advanced: 'advanced',
@@ -55,7 +75,10 @@ const itemVariants = {
     opacity: 1,
     scale: 1,
     y: 0,
-    transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] },
+    transition: {
+      duration: 0.3,
+      ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number],
+    },
   },
 };
 
@@ -63,7 +86,9 @@ export function AchievementGrid({ achievements }: AchievementGridProps) {
   if (achievements.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <span className="mb-3 text-5xl" aria-hidden="true">🏅</span>
+        <span className="mb-3 text-5xl" aria-hidden="true">
+          🏅
+        </span>
         <p className="text-base font-medium text-foreground">No achievements yet</p>
         <p className="mt-1 text-sm text-muted-foreground">
           Solve problems and complete challenges to earn badges.
@@ -111,17 +136,12 @@ export function AchievementGrid({ achievements }: AchievementGridProps) {
             </p>
 
             {/* Type badge */}
-            <Badge
-              variant={getTypeBadgeVariant(achievement.type)}
-              className="mb-2 capitalize"
-            >
+            <Badge variant={getTypeBadgeVariant(achievement.type)} className="mb-2 capitalize">
               {achievement.type}
             </Badge>
 
             {/* Points */}
-            <p className="text-xs font-medium text-primary">
-              +{achievement.points} pts
-            </p>
+            <p className="text-xs font-medium text-primary">+{achievement.points} pts</p>
 
             {/* Earned date */}
             <p className="mt-1 text-xs text-muted-foreground">

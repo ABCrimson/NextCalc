@@ -19,10 +19,10 @@
  * @module components/plot/variable-sliders
  */
 
-import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { SlidersHorizontal, ChevronDown, ChevronUp } from 'lucide-react';
 import { extractVariables } from '@nextcalc/math-engine';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -37,11 +37,26 @@ import { extractVariables } from '@nextcalc/math-engine';
  */
 const EXCLUDED_NAMES = new Set([
   // Axis / parameter variables
-  'x', 'y', 'z', 't', 'theta', 'u', 'v', 'r', 'n',
+  'x',
+  'y',
+  'z',
+  't',
+  'theta',
+  'u',
+  'v',
+  'r',
+  'n',
   // Mathematical constants
-  'pi', 'e', 'i', 'tau', 'inf', 'infinity', 'nan',
+  'pi',
+  'e',
+  'i',
+  'tau',
+  'inf',
+  'infinity',
+  'nan',
   // Greek forms commonly typed by users
-  'π', 'τ',
+  'π',
+  'τ',
 ]);
 
 const DEFAULT_MIN = -10;
@@ -159,10 +174,13 @@ function EditableBound({ value, label, onChange }: EditableBoundProps) {
     setEditing(false);
   }, [draft, value, onChange]);
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') commit();
-    if (e.key === 'Escape') setEditing(false);
-  }, [commit]);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') commit();
+      if (e.key === 'Escape') setEditing(false);
+    },
+    [commit],
+  );
 
   if (editing) {
     return (
@@ -266,11 +284,7 @@ function SliderRow({ name, config, onValueChange, onMinChange, onMaxChange }: Sl
       </span>
 
       {/* Min bound (click to edit) */}
-      <EditableBound
-        value={min}
-        label={`minimum for ${name}`}
-        onChange={handleMinChange}
-      />
+      <EditableBound value={min} label={`minimum for ${name}`} onChange={handleMinChange} />
 
       {/* The range slider */}
       <div className="relative flex-1 min-w-0 flex items-center">
@@ -312,11 +326,7 @@ function SliderRow({ name, config, onValueChange, onMinChange, onMaxChange }: Sl
       </div>
 
       {/* Max bound (click to edit) */}
-      <EditableBound
-        value={max}
-        label={`maximum for ${name}`}
-        onChange={handleMaxChange}
-      />
+      <EditableBound value={max} label={`maximum for ${name}`} onChange={handleMaxChange} />
 
       {/* Current value readout */}
       <span
@@ -461,10 +471,11 @@ export function VariableSliders({ expressions, onChange, className = '' }: Varia
           aria-controls="variable-sliders-body"
         >
           <div className="flex items-center gap-2">
-            <SlidersHorizontal className="h-3.5 w-3.5 text-cyan-400 flex-shrink-0" aria-hidden="true" />
-            <span className="text-xs font-semibold text-foreground">
-              Parameters
-            </span>
+            <SlidersHorizontal
+              className="h-3.5 w-3.5 text-cyan-400 flex-shrink-0"
+              aria-hidden="true"
+            />
+            <span className="text-xs font-semibold text-foreground">Parameters</span>
             <span
               className="inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-bold"
               aria-label={`${paramNames.length} parameter${paramNames.length === 1 ? '' : 's'} detected`}
@@ -473,10 +484,11 @@ export function VariableSliders({ expressions, onChange, className = '' }: Varia
             </span>
           </div>
           <span className="text-muted-foreground" aria-hidden="true">
-            {collapsed
-              ? <ChevronDown className="h-3.5 w-3.5" />
-              : <ChevronUp className="h-3.5 w-3.5" />
-            }
+            {collapsed ? (
+              <ChevronDown className="h-3.5 w-3.5" />
+            ) : (
+              <ChevronUp className="h-3.5 w-3.5" />
+            )}
           </span>
         </button>
 

@@ -44,7 +44,8 @@ const FEATURE_CARDS: FeatureCard[] = [
     symbol: 'A⁻¹',
     symbolIsMono: true,
     title: 'Matrix Inverse',
-    description: 'Find inverses using Gauss-Jordan elimination. Handles singular matrices gracefully.',
+    description:
+      'Find inverses using Gauss-Jordan elimination. Handles singular matrices gracefully.',
     color: 'rose',
     hue: 0,
     shadowRgb: '244,63,94',
@@ -74,7 +75,7 @@ const containerVariants = {
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.10,
+      staggerChildren: 0.1,
       delayChildren: 0.05,
     },
   },

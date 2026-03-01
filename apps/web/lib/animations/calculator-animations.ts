@@ -7,16 +7,13 @@
  * @module animations/calculator-animations
  */
 
-import type { Variants, Transition } from 'framer-motion';
+import type { Transition, Variants } from 'framer-motion';
 
 /**
  * Creates a reduced motion version of animation variants
  * Respects user's prefers-reduced-motion setting (WCAG 2.1 Level AA)
  */
-export function withReducedMotion(
-  variants: Variants,
-  shouldReduceMotion: boolean
-): Variants {
+export function withReducedMotion(variants: Variants, shouldReduceMotion: boolean): Variants {
   if (!shouldReduceMotion) return variants;
 
   // For reduced motion, only apply opacity changes, no transforms

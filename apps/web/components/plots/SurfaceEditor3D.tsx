@@ -14,15 +14,23 @@
  * @module components/plots/SurfaceEditor3D
  */
 
-import { useState, useCallback, useMemo, useRef } from 'react';
-import { Plot3D } from './Plot3D';
-import type { RendererWithExtras } from './Plot3D';
-import type { Plot3DSurfaceConfig, SpaceTheme, CubemapResolution } from '@nextcalc/plot-engine';
+import type { CubemapResolution, Plot3DSurfaceConfig, SpaceTheme } from '@nextcalc/plot-engine';
 import { SPACE_THEMES } from '@nextcalc/plot-engine';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Box,
+  Grid3x3,
+  Info,
+  Lightbulb,
+  Palette,
+  ScanLine,
+  Shapes,
+  Sparkles,
+  Waves,
+} from 'lucide-react';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,19 +39,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import {
-  Shapes,
-  Palette,
-  Grid3x3,
-  Info,
-  Sparkles,
-  Box,
-  Waves,
-  Lightbulb,
-  ScanLine,
-} from 'lucide-react';
+import type { RendererWithExtras } from './Plot3D';
+import { Plot3D } from './Plot3D';
 
 /**
  * Preset 3D Surface Shapes
@@ -87,7 +87,14 @@ const PRESET_SHAPES = {
     name: 'Egg Carton',
     description: 'Periodic surface with peaks and valleys',
     fn: (x: number, y: number) => Math.sin(x) + Math.cos(y),
-    viewport: { xMin: -2 * Math.PI, xMax: 2 * Math.PI, yMin: -2 * Math.PI, yMax: 2 * Math.PI, zMin: -2, zMax: 2 },
+    viewport: {
+      xMin: -2 * Math.PI,
+      xMax: 2 * Math.PI,
+      yMin: -2 * Math.PI,
+      yMax: 2 * Math.PI,
+      zMin: -2,
+      zMax: 2,
+    },
   },
   monkey: {
     name: 'Monkey Saddle',
@@ -151,7 +158,7 @@ const COLOR_MAPS = [
   'spectral',
 ] as const;
 
-type ColorMap = typeof COLOR_MAPS[number];
+type ColorMap = (typeof COLOR_MAPS)[number];
 type PresetKey = keyof typeof PRESET_SHAPES;
 
 export interface SurfaceEditor3DProps {
@@ -196,20 +203,26 @@ export function SurfaceEditor3D({
   }, [envMapEnabled, spaceTheme, cubemapRes]);
 
   // Change space theme
-  const handleThemeChange = useCallback((theme: SpaceTheme) => {
-    setSpaceTheme(theme);
-    if (envMapEnabled) {
-      rendererRef.current?.setEnvMapEnabled(true, { theme });
-    }
-  }, [envMapEnabled]);
+  const handleThemeChange = useCallback(
+    (theme: SpaceTheme) => {
+      setSpaceTheme(theme);
+      if (envMapEnabled) {
+        rendererRef.current?.setEnvMapEnabled(true, { theme });
+      }
+    },
+    [envMapEnabled],
+  );
 
   // Change cubemap resolution
-  const handleResolutionChange = useCallback((res: CubemapResolution) => {
-    setCubemapRes(res);
-    if (envMapEnabled) {
-      rendererRef.current?.setEnvMapEnabled(true, { resolution: res });
-    }
-  }, [envMapEnabled]);
+  const handleResolutionChange = useCallback(
+    (res: CubemapResolution) => {
+      setCubemapRes(res);
+      if (envMapEnabled) {
+        rendererRef.current?.setEnvMapEnabled(true, { resolution: res });
+      }
+    },
+    [envMapEnabled],
+  );
 
   // Toggle SSAO post-processing
   const handleSsaoToggle = useCallback(() => {
@@ -221,17 +234,22 @@ export function SurfaceEditor3D({
   // Build surface configuration
   const surfaceConfig = useMemo<Plot3DSurfaceConfig>(() => {
     let fn: (x: number, y: number) => number;
-    let viewport = PRESET_SHAPES[selectedPreset].viewport;
+    const viewport = PRESET_SHAPES[selectedPreset].viewport;
 
     if (useCustom) {
       try {
         // Create function from custom equation
         // This is a simplified version - in production, use a proper math parser
-        fn = new Function('x', 'y', 'Math', `
+        fn = new Function(
+          'x',
+          'y',
+          'Math',
+          `
           with (Math) {
             return ${customEquation};
           }
-        `) as (x: number, y: number) => number;
+        `,
+        ) as (x: number, y: number) => number;
 
         // Test the function
         const testVal = fn(0, 0);
@@ -289,9 +307,7 @@ export function SurfaceEditor3D({
               <Shapes className="h-5 w-5" />
               3D Surface Editor
             </CardTitle>
-            <CardDescription>
-              Create and customize 3D surfaces
-            </CardDescription>
+            <CardDescription>Create and customize 3D surfaces</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Preset Shapes */}
@@ -363,7 +379,9 @@ export function SurfaceEditor3D({
                   <Grid3x3 className="h-4 w-4" />
                   Resolution
                 </span>
-                <span className="text-sm font-mono">{resolution}×{resolution}</span>
+                <span className="text-sm font-mono">
+                  {resolution}×{resolution}
+                </span>
               </Label>
               <Slider
                 value={[resolution]}
@@ -373,25 +391,29 @@ export function SurfaceEditor3D({
                 step={10}
                 className="w-full"
               />
-              <p className="text-xs text-muted-foreground">
-                Higher = smoother, but slower
-              </p>
+              <p className="text-xs text-muted-foreground">Higher = smoother, but slower</p>
 
               {/* Performance warning for high resolutions */}
               {resolution > 300 && (
-                <Alert variant={resolution > 500 ? "destructive" : "default"} className="mt-2">
+                <Alert variant={resolution > 500 ? 'destructive' : 'default'} className="mt-2">
                   <Info className="h-4 w-4" />
                   <AlertDescription>
                     {resolution > 500 ? (
                       <>
-                        <strong>Extreme Resolution ({resolution}×{resolution}):</strong> This will generate{' '}
-                        {(resolution * resolution).toLocaleString()} vertices. Expect significant performance impact.
-                        Consider using resolution ≤ 300 for smooth interaction.
+                        <strong>
+                          Extreme Resolution ({resolution}×{resolution}):
+                        </strong>{' '}
+                        This will generate {(resolution * resolution).toLocaleString()} vertices.
+                        Expect significant performance impact. Consider using resolution ≤ 300 for
+                        smooth interaction.
                       </>
                     ) : (
                       <>
-                        <strong>High Resolution ({resolution}×{resolution}):</strong> Generating{' '}
-                        {(resolution * resolution).toLocaleString()} vertices. May impact performance on slower devices.
+                        <strong>
+                          High Resolution ({resolution}×{resolution}):
+                        </strong>{' '}
+                        Generating {(resolution * resolution).toLocaleString()} vertices. May impact
+                        performance on slower devices.
                       </>
                     )}
                   </AlertDescription>
@@ -471,14 +493,22 @@ export function SurfaceEditor3D({
                   <Label className="text-xs text-muted-foreground">Space Theme</Label>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="w-full justify-between text-xs">
-                        {SPACE_THEMES.find(t => t.id === spaceTheme)?.label ?? spaceTheme}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full justify-between text-xs"
+                      >
+                        {SPACE_THEMES.find((t) => t.id === spaceTheme)?.label ?? spaceTheme}
                         <Lightbulb className="h-3 w-3" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-full">
                       {SPACE_THEMES.map((t) => (
-                        <DropdownMenuItem key={t.id} onClick={() => handleThemeChange(t.id)} className="text-xs">
+                        <DropdownMenuItem
+                          key={t.id}
+                          onClick={() => handleThemeChange(t.id)}
+                          className="text-xs"
+                        >
                           {t.label}
                         </DropdownMenuItem>
                       ))}
@@ -503,9 +533,11 @@ export function SurfaceEditor3D({
                     ))}
                   </div>
                   <p className="text-[10px] text-muted-foreground">
-                    {cubemapRes >= 4096 ? 'Very high VRAM — may take 1-2s to generate' :
-                     cubemapRes >= 2048 ? 'High quality — moderate VRAM usage' :
-                     'Balanced quality and performance'}
+                    {cubemapRes >= 4096
+                      ? 'Very high VRAM — may take 1-2s to generate'
+                      : cubemapRes >= 2048
+                        ? 'High quality — moderate VRAM usage'
+                        : 'Balanced quality and performance'}
                   </p>
                 </div>
               </div>
@@ -551,9 +583,7 @@ export function SurfaceEditor3D({
         <Card>
           <CardHeader>
             <CardTitle>3D Visualization</CardTitle>
-            <CardDescription>
-              Drag to rotate, scroll to zoom, right-drag to pan
-            </CardDescription>
+            <CardDescription>Drag to rotate, scroll to zoom, right-drag to pan</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="relative w-full aspect-[4/3] overflow-hidden rounded-lg">

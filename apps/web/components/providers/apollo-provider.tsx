@@ -16,9 +16,5 @@ import { ApolloNextAppProvider } from '@apollo/client-integration-nextjs';
 import { makeClient } from '@/lib/graphql/client';
 
 export function ApolloWrapper({ children }: { children: React.ReactNode }) {
-	return (
-		<ApolloNextAppProvider makeClient={makeClient}>
-			{children}
-		</ApolloNextAppProvider>
-	);
+  return <ApolloNextAppProvider makeClient={makeClient}>{children}</ApolloNextAppProvider>;
 }

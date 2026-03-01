@@ -1,11 +1,11 @@
 'use client';
 
-import { useOptimistic, useActionState, useCallback } from 'react';
-import { KnowledgeExplorer } from '@/components/math/knowledge-explorer';
-import { toggleBookmark } from '@/app/actions/learn';
-import type { ToggleBookmarkResult } from '@/app/actions/learn';
-import type { ActionResult } from '@/app/actions/problems';
 import type { Definition } from '@nextcalc/math-engine/knowledge';
+import { useActionState, useCallback, useOptimistic } from 'react';
+import type { ToggleBookmarkResult } from '@/app/actions/learn';
+import { toggleBookmark } from '@/app/actions/learn';
+import type { ActionResult } from '@/app/actions/problems';
+import { KnowledgeExplorer } from '@/components/math/knowledge-explorer';
 
 interface BookmarkExplorerClientProps {
   definitions: ReadonlyArray<Definition>;
@@ -14,7 +14,10 @@ interface BookmarkExplorerClientProps {
 
 const initialState: ActionResult<ToggleBookmarkResult> = { success: false };
 
-export function BookmarkExplorerClient({ definitions, bookmarkedIds }: BookmarkExplorerClientProps) {
+export function BookmarkExplorerClient({
+  definitions,
+  bookmarkedIds,
+}: BookmarkExplorerClientProps) {
   const [optimisticIds, toggleOptimistic] = useOptimistic(
     bookmarkedIds,
     (current: ReadonlyArray<string>, definitionId: string) =>

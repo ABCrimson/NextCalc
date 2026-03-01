@@ -8,7 +8,7 @@
 
 'use client';
 
-import { useEffect, useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 
 /**
  * Keyboard shortcut definition
@@ -187,10 +187,7 @@ function matchesShortcut(event: KeyboardEvent, shortcut: string): boolean {
  * ]);
  * ```
  */
-export function useKeyboardShortcuts(
-  shortcuts: KeyboardShortcut[],
-  enabled = true
-): void {
+export function useKeyboardShortcuts(shortcuts: KeyboardShortcut[], enabled = true): void {
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (!enabled) return;
@@ -198,15 +195,13 @@ export function useKeyboardShortcuts(
       // Don't trigger shortcuts when typing in input fields
       const target = event.target as HTMLElement;
       const isInput =
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.isContentEditable;
+        target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
 
       for (const shortcut of shortcuts) {
         if (matchesShortcut(event, shortcut.key)) {
           // Allow some shortcuts even in input fields
           const allowInInput = ['Escape', 'Enter', 'Ctrl+A', 'Ctrl+C', 'Ctrl+V'];
-          if (isInput && !allowInInput.some(k => matchesShortcut(event, k))) {
+          if (isInput && !allowInInput.some((k) => matchesShortcut(event, k))) {
             continue;
           }
 
@@ -219,7 +214,7 @@ export function useKeyboardShortcuts(
         }
       }
     },
-    [shortcuts, enabled]
+    [shortcuts, enabled],
   );
 
   useEffect(() => {
@@ -267,9 +262,7 @@ export function useCalculatorShortcuts(handlers: {
 /**
  * Hook for navigation shortcuts
  */
-export function useNavigationShortcuts(router: {
-  push: (path: string) => void;
-}): void {
+export function useNavigationShortcuts(router: { push: (path: string) => void }): void {
   const gotoCalc = KEYBOARD_SHORTCUTS['GOTO_CALCULATOR'];
   const gotoPlot2D = KEYBOARD_SHORTCUTS['GOTO_PLOT_2D'];
   const gotoPlot3D = KEYBOARD_SHORTCUTS['GOTO_PLOT_3D'];
@@ -290,28 +283,36 @@ export function useNavigationShortcuts(router: {
       handler: () => router.push('/plot'),
       description: gotoPlot2D?.description ?? '',
       ...(gotoPlot2D?.category !== undefined && { category: gotoPlot2D.category }),
-      ...(gotoPlot2D?.preventDefault !== undefined && { preventDefault: gotoPlot2D.preventDefault }),
+      ...(gotoPlot2D?.preventDefault !== undefined && {
+        preventDefault: gotoPlot2D.preventDefault,
+      }),
     },
     {
       key: gotoPlot3D?.key ?? '',
       handler: () => router.push('/plot3d'),
       description: gotoPlot3D?.description ?? '',
       ...(gotoPlot3D?.category !== undefined && { category: gotoPlot3D.category }),
-      ...(gotoPlot3D?.preventDefault !== undefined && { preventDefault: gotoPlot3D.preventDefault }),
+      ...(gotoPlot3D?.preventDefault !== undefined && {
+        preventDefault: gotoPlot3D.preventDefault,
+      }),
     },
     {
       key: gotoSymbolic?.key ?? '',
       handler: () => router.push('/symbolic'),
       description: gotoSymbolic?.description ?? '',
       ...(gotoSymbolic?.category !== undefined && { category: gotoSymbolic.category }),
-      ...(gotoSymbolic?.preventDefault !== undefined && { preventDefault: gotoSymbolic.preventDefault }),
+      ...(gotoSymbolic?.preventDefault !== undefined && {
+        preventDefault: gotoSymbolic.preventDefault,
+      }),
     },
     {
       key: gotoMatrix?.key ?? '',
       handler: () => router.push('/matrix'),
       description: gotoMatrix?.description ?? '',
       ...(gotoMatrix?.category !== undefined && { category: gotoMatrix.category }),
-      ...(gotoMatrix?.preventDefault !== undefined && { preventDefault: gotoMatrix.preventDefault }),
+      ...(gotoMatrix?.preventDefault !== undefined && {
+        preventDefault: gotoMatrix.preventDefault,
+      }),
     },
     {
       key: gotoStats?.key ?? '',
@@ -328,11 +329,14 @@ export function useNavigationShortcuts(router: {
 /**
  * Get all shortcut descriptions for help menu
  */
-export function getShortcutDescriptions(): Record<string, Array<{
-  key: string;
-  description: string;
-}>> {
-  const categories: Record<string, Array<{key: string; description: string}>> = {
+export function getShortcutDescriptions(): Record<
+  string,
+  Array<{
+    key: string;
+    description: string;
+  }>
+> {
+  const categories: Record<string, Array<{ key: string; description: string }>> = {
     calculator: [],
     navigation: [],
     editing: [],

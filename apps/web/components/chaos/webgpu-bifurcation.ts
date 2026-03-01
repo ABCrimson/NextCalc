@@ -157,7 +157,7 @@ function navigatorHasGPU(nav: Navigator): nav is NavigatorWithGPU {
  * Returns `null` when WebGPU is unavailable (caller must use CPU path).
  */
 export async function computeBifurcationGPU(
-  params: BifurcationGPUParams
+  params: BifurcationGPUParams,
 ): Promise<WebGPUBifurcationResult | null> {
   // ── Feature detection ─────────────────────────────────────────────────────
   if (typeof navigator === 'undefined' || !navigatorHasGPU(navigator)) return null;
@@ -169,15 +169,7 @@ export async function computeBifurcationGPU(
 
   const t0 = performance.now();
 
-  const {
-    rMin,
-    rMax,
-    rSteps,
-    warmup,
-    plotPoints,
-    x0 = 0.5,
-    mapType = 'logistic',
-  } = params;
+  const { rMin, rMax, rSteps, warmup, plotPoints, x0 = 0.5, mapType = 'logistic' } = params;
   const totalPoints = rSteps * plotPoints;
 
   // Map type enum (must match WGSL switch cases)

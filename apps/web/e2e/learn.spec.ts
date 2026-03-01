@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Learning Hub Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -7,9 +7,7 @@ test.describe('Learning Hub Page', () => {
   });
 
   test('page loads with heading visible', async ({ page }) => {
-    await expect(
-      page.getByRole('heading', { level: 1 }).first(),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible({ timeout: 10000 });
   });
 
   test('topic cards or links are displayed', async ({ page }) => {

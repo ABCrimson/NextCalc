@@ -1,10 +1,10 @@
 'use client';
 
-import { useActionState, useState, useCallback, useRef, useEffect } from 'react';
-import { InteractiveSolver } from '@/components/math/interactive-solver';
-import { submitAnswer, requestHint } from '@/app/actions/problems';
-import type { ActionResult, SubmitAnswerResult, RequestHintResult } from '@/app/actions/problems';
 import type { Problem } from '@nextcalc/math-engine/problems';
+import { useActionState, useCallback, useEffect, useRef, useState } from 'react';
+import type { ActionResult, RequestHintResult, SubmitAnswerResult } from '@/app/actions/problems';
+import { requestHint, submitAnswer } from '@/app/actions/problems';
+import { InteractiveSolver } from '@/components/math/interactive-solver';
 
 interface ProblemSolverClientProps {
   problem: Problem;
@@ -15,7 +15,10 @@ const initialAnswerState: ActionResult<SubmitAnswerResult> = { success: false };
 const initialHintState: ActionResult<RequestHintResult> = { success: false };
 
 export function ProblemSolverClient({ problem, relatedProblemIds }: ProblemSolverClientProps) {
-  const [answerState, submitAnswerAction, answerPending] = useActionState(submitAnswer, initialAnswerState);
+  const [answerState, submitAnswerAction, answerPending] = useActionState(
+    submitAnswer,
+    initialAnswerState,
+  );
   const [hintState, requestHintAction, hintPending] = useActionState(requestHint, initialHintState);
   void answerPending; // Available for loading UI in future enhancement
   void hintPending;
@@ -74,11 +77,13 @@ export function ProblemSolverClient({ problem, relatedProblemIds }: ProblemSolve
       isCorrect={isCorrect}
       currentScore={currentScore}
       timeSpent={timeSpent}
-      {...(relatedProblemIds.length > 0 ? {
-        onNextProblem: () => {
-          window.location.href = `/problems/${relatedProblemIds[0]}`;
-        },
-      } : {})}
+      {...(relatedProblemIds.length > 0
+        ? {
+            onNextProblem: () => {
+              window.location.href = `/problems/${relatedProblemIds[0]}`;
+            },
+          }
+        : {})}
     />
   );
 }

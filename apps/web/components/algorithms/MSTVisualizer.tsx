@@ -16,37 +16,24 @@
  * ```
  */
 
-import { useState, useCallback, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Info, Pause, Play, RotateCcw, SkipForward, Zap } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Slider } from '@/components/ui/slider';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import {
-  Play,
-  Pause,
-  RotateCcw,
-  SkipForward,
-  Zap,
-  Info,
-} from 'lucide-react';
-import {
-  UnifiedGraphRenderer,
-  type GraphNode,
-  type GraphEdge,
-  type NodeId,
-  type EdgeId,
-} from './UnifiedGraphRenderer';
+import { Slider } from '@/components/ui/slider';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
+import {
+  type EdgeId,
+  type GraphEdge,
+  type GraphNode,
+  type NodeId,
+  UnifiedGraphRenderer,
+} from './UnifiedGraphRenderer';
 
 // ============================================================================
 // Types
@@ -215,10 +202,7 @@ const PRESET_GRAPHS: PresetGraph[] = [
 // Kruskal's Algorithm Implementation
 // ============================================================================
 
-function* kruskalGenerator(
-  nodes: GraphNode[],
-  edges: GraphEdge[]
-): Generator<MSTState> {
+function* kruskalGenerator(nodes: GraphNode[], edges: GraphEdge[]): Generator<MSTState> {
   const uf = new UnionFind(nodes);
   const mstEdges = new Set<EdgeId>();
   const rejectedEdges = new Set<EdgeId>();
@@ -412,7 +396,10 @@ export function MSTVisualizer() {
           </div>
 
           <div className="flex gap-2">
-            <Badge variant="outline" className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300">
+            <Badge
+              variant="outline"
+              className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+            >
               <Zap className="h-3 w-3 mr-1" />
               O(E log E)
             </Badge>
@@ -590,7 +577,7 @@ export function MSTVisualizer() {
                                 'flex items-center justify-between p-2 rounded text-sm',
                                 current && 'bg-amber-500/20 ring-2 ring-amber-500',
                                 inMST && !current && 'bg-emerald-500/10',
-                                rejected && !current && 'bg-purple-500/10 opacity-60'
+                                rejected && !current && 'bg-purple-500/10 opacity-60',
                               )}
                             >
                               <span className="font-mono">

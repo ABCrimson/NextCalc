@@ -14,9 +14,9 @@
  * @module components/plots/Annotations
  */
 
-import { useMemo, useCallback, useId } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
+import { useCallback, useId, useMemo } from 'react';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -89,13 +89,7 @@ function mathToPixelY(y: number, viewport: Viewport, height: number): number {
 
 /** Returns the SVG path string for an arrowhead at (x2,y2) pointing in the
  *  direction (dx, dy).  The arrowhead is a small filled triangle. */
-function arrowheadPath(
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number,
-  size = 10
-): string {
+function arrowheadPath(x1: number, y1: number, x2: number, y2: number, size = 10): string {
   const len = Math.hypot(x2 - x1, y2 - y1);
   if (len < 1) return '';
   const ux = (x2 - x1) / len;
@@ -213,12 +207,12 @@ export function Annotations({
   }, [annotations, viewport, width, height]);
 
   const textItems = positioned.filter(
-    (a): a is TextAnnotation & { px: number; py: number } => a.kind === 'text'
+    (a): a is TextAnnotation & { px: number; py: number } => a.kind === 'text',
   );
 
   const arrowItems = positioned.filter(
     (a): a is ArrowAnnotation & { px1: number; py1: number; px2: number; py2: number } =>
-      a.kind === 'arrow'
+      a.kind === 'arrow',
   );
 
   return (
@@ -329,7 +323,14 @@ export function Annotations({
                 />
 
                 {/* Tail dot */}
-                <circle cx={ann.px1} cy={ann.py1} r={3} fill={color} opacity={0.8} style={{ pointerEvents: 'none' }} />
+                <circle
+                  cx={ann.px1}
+                  cy={ann.py1}
+                  r={3}
+                  fill={color}
+                  opacity={0.8}
+                  style={{ pointerEvents: 'none' }}
+                />
 
                 {/* Selection ring */}
                 {isSelected && (
@@ -384,10 +385,7 @@ export function Annotations({
                     height={24}
                     style={{ pointerEvents: 'auto', overflow: 'visible' }}
                   >
-                    <DeleteButton
-                      onDelete={() => onDelete(ann.id)}
-                      label={ann.text ?? 'arrow'}
-                    />
+                    <DeleteButton onDelete={() => onDelete(ann.id)} label={ann.text ?? 'arrow'} />
                   </foreignObject>
                 )}
               </motion.g>
@@ -419,9 +417,7 @@ export function Annotations({
                 'border shadow-md',
                 'transition-all duration-150',
                 'cursor-pointer',
-                isSelected
-                  ? 'ring-2 ring-offset-1 ring-offset-background z-20'
-                  : 'z-10 hover:z-20',
+                isSelected ? 'ring-2 ring-offset-1 ring-offset-background z-20' : 'z-10 hover:z-20',
               ].join(' ')}
               style={{
                 left: `${ann.px}px`,
@@ -471,20 +467,12 @@ export function Annotations({
               <span>{ann.text}</span>
 
               {/* Coordinates hint */}
-              <span
-                className="text-[9px] opacity-60 tabular-nums"
-                aria-hidden="true"
-              >
+              <span className="text-[9px] opacity-60 tabular-nums" aria-hidden="true">
                 ({ann.x.toFixed(1)}, {ann.y.toFixed(1)})
               </span>
 
               {/* Delete button — always visible when selected, hover on others */}
-              {isSelected && (
-                <DeleteButton
-                  onDelete={() => onDelete(ann.id)}
-                  label={ann.text}
-                />
-              )}
+              {isSelected && <DeleteButton onDelete={() => onDelete(ann.id)} label={ann.text} />}
             </motion.div>
           );
         })}

@@ -14,8 +14,7 @@
 // Configuration
 // ---------------------------------------------------------------------------
 
-const EXPORT_SERVICE_URL =
-  process.env['NEXT_PUBLIC_EXPORT_SERVICE_URL'] ?? 'http://localhost:8787';
+const EXPORT_SERVICE_URL = process.env['NEXT_PUBLIC_EXPORT_SERVICE_URL'] ?? 'http://localhost:8787';
 
 // ---------------------------------------------------------------------------
 // Shared types
@@ -130,10 +129,7 @@ export class ExportError extends Error {
  * Sends a POST request to the export Worker and returns the parsed result.
  * Throws {@link ExportError} on network failures or Worker-reported errors.
  */
-async function postExport<T>(
-  path: string,
-  body: Record<string, unknown>,
-): Promise<T> {
+async function postExport<T>(path: string, body: Record<string, unknown>): Promise<T> {
   const url = `${EXPORT_SERVICE_URL}${path}`;
 
   let response: Response;
@@ -151,15 +147,10 @@ async function postExport<T>(
     );
   }
 
-  const json: { success: true; data: T } | ExportServiceError =
-    await response.json();
+  const json: { success: true; data: T } | ExportServiceError = await response.json();
 
   if (!json.success) {
-    throw new ExportError(
-      json.error.message,
-      json.error.code,
-      json.error.details,
-    );
+    throw new ExportError(json.error.message, json.error.code, json.error.details);
   }
 
   return json.data;
@@ -173,10 +164,7 @@ async function postExport<T>(
 async function downloadUrl(url: string, filename: string): Promise<void> {
   const res = await fetch(url);
   if (!res.ok) {
-    throw new ExportError(
-      'Failed to download the exported file.',
-      'DOWNLOAD_ERROR',
-    );
+    throw new ExportError('Failed to download the exported file.', 'DOWNLOAD_ERROR');
   }
 
   const blob = await res.blob();

@@ -1,5 +1,5 @@
-import { type ReactNode } from 'react';
 import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
 
 export const metadata: Metadata = {
   title: 'Formula Library | NextCalc Pro',
@@ -37,9 +37,7 @@ export default function FormulasLayout({ children }: { children: ReactNode }) {
       >
         Skip to formula library
       </a>
-      <main id="formulas-main">
-        {children}
-      </main>
+      <main id="formulas-main">{children}</main>
     </div>
   );
 }

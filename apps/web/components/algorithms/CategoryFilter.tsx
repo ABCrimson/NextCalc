@@ -2,9 +2,9 @@
 
 import { Search, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 import type { AlgorithmCategory, DifficultyLevel } from './AlgorithmCard';
 
 export interface CategoryFilterProps {
@@ -105,16 +105,11 @@ export function CategoryFilter({
   };
 
   const hasActiveFilters =
-    selectedCategories.length > 0 ||
-    selectedDifficulties.length > 0 ||
-    searchQuery.length > 0;
+    selectedCategories.length > 0 || selectedDifficulties.length > 0 || searchQuery.length > 0;
 
   return (
     <div
-      className={cn(
-        'p-6 rounded-lg border border-border bg-card/50 backdrop-blur-sm',
-        className
-      )}
+      className={cn('p-6 rounded-lg border border-border bg-card/50 backdrop-blur-sm', className)}
     >
       {/* Header with clear button */}
       <div className="flex items-center justify-between mb-6">
@@ -169,7 +164,7 @@ export function CategoryFilter({
                   'border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
                   isSelected
                     ? `${category.color} text-white border-transparent shadow-md`
-                    : 'bg-background text-foreground border-border hover:border-foreground/50'
+                    : 'bg-background text-foreground border-border hover:border-foreground/50',
                 )}
                 aria-pressed={isSelected}
                 aria-label={label}
@@ -197,7 +192,7 @@ export function CategoryFilter({
                   'border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
                   isSelected
                     ? `${difficulty.color} text-white border-transparent shadow-md`
-                    : 'bg-background text-foreground border-border hover:border-foreground/50'
+                    : 'bg-background text-foreground border-border hover:border-foreground/50',
                 )}
                 aria-pressed={isSelected}
                 aria-label={label}
@@ -216,8 +211,12 @@ export function CategoryFilter({
             {selectedCategories.length + selectedDifficulties.length > 0 && (
               <span>
                 {selectedCategories.length + selectedDifficulties.length !== 1
-                  ? t('filter.filtersActivePlural', { count: selectedCategories.length + selectedDifficulties.length })
-                  : t('filter.filtersActive', { count: selectedCategories.length + selectedDifficulties.length })}
+                  ? t('filter.filtersActivePlural', {
+                      count: selectedCategories.length + selectedDifficulties.length,
+                    })
+                  : t('filter.filtersActive', {
+                      count: selectedCategories.length + selectedDifficulties.length,
+                    })}
               </span>
             )}
             {searchQuery && (

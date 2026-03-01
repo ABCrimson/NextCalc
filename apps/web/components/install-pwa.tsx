@@ -29,8 +29,8 @@
  * ```
  */
 
-import { useEffect, useState, useCallback } from 'react';
 import { Download, X } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 
 /**
@@ -173,16 +173,10 @@ export function InstallPWA() {
         {/* Header with dismiss button */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">
-            <h2
-              id="install-pwa-title"
-              className="text-lg font-semibold mb-1"
-            >
+            <h2 id="install-pwa-title" className="text-lg font-semibold mb-1">
               Install NextCalc Pro
             </h2>
-            <p
-              id="install-pwa-description"
-              className="text-sm text-white/90"
-            >
+            <p id="install-pwa-description" className="text-sm text-white/90">
               Get quick access and work offline
             </p>
           </div>
@@ -230,11 +224,7 @@ export function InstallPWA() {
       </div>
 
       {/* Screen reader announcement for installation status */}
-      <div
-        role="status"
-        aria-live="polite"
-        className="sr-only"
-      >
+      <div role="status" aria-live="polite" className="sr-only">
         {isInstalling && 'Installing NextCalc Pro...'}
       </div>
     </div>

@@ -1,20 +1,20 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
-import * as THREE from 'three/webgpu';
-import { WebGPURenderer, RenderPipeline } from 'three/webgpu';
-import { pass } from 'three/tsl';
-import { bloom } from 'three/examples/jsm/tsl/display/BloomNode.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import {
-  WGSL_LORENZ_COMPUTE,
-  LORENZ_PARAMS_SIZE,
-  LORENZ_PARTICLE_STRIDE,
-  LORENZ_PARTICLE_BYTES,
-  LORENZ_WORKGROUP_SIZE,
-  LORENZ_DEFAULTS,
-} from './lorenz-compute-shaders';
 import { createProceduralHDRCubeMap } from '@nextcalc/plot-engine';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { bloom } from 'three/examples/jsm/tsl/display/BloomNode.js';
+import { pass } from 'three/tsl';
+import * as THREE from 'three/webgpu';
+import { RenderPipeline, WebGPURenderer } from 'three/webgpu';
+import {
+  LORENZ_DEFAULTS,
+  LORENZ_PARAMS_SIZE,
+  LORENZ_PARTICLE_BYTES,
+  LORENZ_PARTICLE_STRIDE,
+  LORENZ_WORKGROUP_SIZE,
+  WGSL_LORENZ_COMPUTE,
+} from './lorenz-compute-shaders';
 
 interface Point3D {
   x: number;
@@ -189,12 +189,7 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
     sceneRef.current = scene;
 
     // --- Camera ---
-    const camera = new THREE.PerspectiveCamera(
-      48,
-      containerWidth / containerHeight,
-      0.1,
-      1000
-    );
+    const camera = new THREE.PerspectiveCamera(48, containerWidth / containerHeight, 0.1, 1000);
     camera.position.set(65, 45, 65);
     camera.lookAt(0, 0, 25);
     cameraRef.current = camera;
@@ -278,9 +273,9 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
       scene.add(rimLight);
 
       // --- Normalize data to scene origin ---
-      const xs = data.map(p => p.x);
-      const ys = data.map(p => p.y);
-      const zs = data.map(p => p.z);
+      const xs = data.map((p) => p.x);
+      const ys = data.map((p) => p.y);
+      const zs = data.map((p) => p.z);
       const cx = (Math.min(...xs) + Math.max(...xs)) / 2;
       const cy = (Math.min(...ys) + Math.max(...ys)) / 2;
       const cz = (Math.min(...zs) + Math.max(...zs)) / 2;
@@ -300,25 +295,13 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
         // Vivid HDR palette: cyan -> violet -> rose -> amber
         if (t < 0.33) {
           const lt = t / 0.33;
-          c.setRGB(
-            0.05 + 0.55 * lt,
-            0.85 - 0.55 * lt,
-            0.95 + 0.05 * lt
-          );
+          c.setRGB(0.05 + 0.55 * lt, 0.85 - 0.55 * lt, 0.95 + 0.05 * lt);
         } else if (t < 0.66) {
           const lt = (t - 0.33) / 0.33;
-          c.setRGB(
-            0.60 + 0.35 * lt,
-            0.30 - 0.05 * lt,
-            1.00 - 0.55 * lt
-          );
+          c.setRGB(0.6 + 0.35 * lt, 0.3 - 0.05 * lt, 1.0 - 0.55 * lt);
         } else {
           const lt = (t - 0.66) / 0.34;
-          c.setRGB(
-            0.95 + 0.05 * lt,
-            0.25 + 0.55 * lt,
-            0.45 - 0.45 * lt
-          );
+          c.setRGB(0.95 + 0.05 * lt, 0.25 + 0.55 * lt, 0.45 - 0.45 * lt);
         }
 
         colors.push(c.r, c.g, c.b);
@@ -333,7 +316,7 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
         vertexColors: true,
         linewidth: 1, // WebGL limitation: always 1 on most hardware
         transparent: true,
-        opacity: 0.90,
+        opacity: 0.9,
         blending: THREE.AdditiveBlending,
         depthWrite: false,
       });
@@ -372,7 +355,7 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
       // --- Bounding cage (wireframe box around trajectory) ---
       // The typical Lorenz attractor occupies roughly ±25 in x/y and 0–50 in z.
       // We use the actual data extents padded by 10% for a tight but clear cage.
-      const padFrac = 0.10;
+      const padFrac = 0.1;
       const cageHalfX = ((Math.max(...xs) - Math.min(...xs)) / 2) * (1 + padFrac);
       const cageHalfY = ((Math.max(...ys) - Math.min(...ys)) / 2) * (1 + padFrac);
       const cageHalfZ = ((Math.max(...zs) - Math.min(...zs)) / 2) * (1 + padFrac);
@@ -382,11 +365,7 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
       //   THREE-x: [-cageHalfX, cageHalfX]
       //   THREE-y: [-cageHalfZ, cageHalfZ]   (math z → THREE y)
       //   THREE-z: [-cageHalfY, cageHalfY]   (math y → THREE z)
-      const cageGeom = new THREE.BoxGeometry(
-        cageHalfX * 2,
-        cageHalfZ * 2,
-        cageHalfY * 2,
-      );
+      const cageGeom = new THREE.BoxGeometry(cageHalfX * 2, cageHalfZ * 2, cageHalfY * 2);
       const cageWireGeom = new THREE.EdgesGeometry(cageGeom);
       const cageMat = new THREE.LineBasicMaterial({
         color: 0xffffff,
@@ -471,17 +450,17 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
             const point = data[idx];
             // Hash-based deterministic offset so particles spread slightly
             const hash = Math.sin(i * 12.9898) * 43758.5453;
-            const offset = (hash - Math.floor(hash)) - 0.5;
+            const offset = hash - Math.floor(hash) - 0.5;
             initData[base] = (point?.x ?? 0) + offset * 2;
             initData[base + 1] = (point?.y ?? 0) + offset * 2;
             initData[base + 2] = (point?.z ?? 25) + offset * 2;
           } else {
             // Fallback if no trajectory data yet
-            initData[base] = (Math.sin(i * 12.9898) * 43758.5453 % 1 - 0.5) * 40;
-            initData[base + 1] = (Math.sin(i * 78.233) * 43758.5453 % 1 - 0.5) * 40;
-            initData[base + 2] = (Math.sin(i * 45.164) * 43758.5453 % 1) * 40 + 5;
+            initData[base] = (((Math.sin(i * 12.9898) * 43758.5453) % 1) - 0.5) * 40;
+            initData[base + 1] = (((Math.sin(i * 78.233) * 43758.5453) % 1) - 0.5) * 40;
+            initData[base + 2] = ((Math.sin(i * 45.164) * 43758.5453) % 1) * 40 + 5;
           }
-          initData[base + 3] = (Math.sin(i * 37.0) * 43758.5453 % 1) * 4.0; // staggered age
+          initData[base + 3] = ((Math.sin(i * 37.0) * 43758.5453) % 1) * 4.0; // staggered age
         }
         device.queue.writeBuffer(particleBuffer, 0, initData);
 
@@ -622,8 +601,10 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
 
           // Copy particle buffer to staging for CPU readback
           commandEncoder.copyBufferToBuffer(
-            gp.particleBuffer, 0,
-            gp.stagingBuffer, 0,
+            gp.particleBuffer,
+            0,
+            gp.stagingBuffer,
+            0,
             gp.count * LORENZ_PARTICLE_BYTES,
           );
           gp.device.queue.submit([commandEncoder.finish()]);
@@ -633,45 +614,54 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
           if (!gp.mappingInFlight) {
             gp.mappingInFlight = true;
             // GPUMapMode.READ = 1 — numeric literal for SSR safety
-            gp.stagingBuffer.mapAsync(1).then(() => {
-              if (!gpuParticleRef.current) return; // destroyed while mapping
-              const mapped = new Float32Array(gp.stagingBuffer.getMappedRange());
-              const posAttr = gp.pointsGeometry.getAttribute('position') as THREE.BufferAttribute;
-              const colAttr = gp.pointsGeometry.getAttribute('color') as THREE.BufferAttribute;
-              const centroid = gp.centroid;
+            gp.stagingBuffer
+              .mapAsync(1)
+              .then(() => {
+                if (!gpuParticleRef.current) return; // destroyed while mapping
+                const mapped = new Float32Array(gp.stagingBuffer.getMappedRange());
+                const posAttr = gp.pointsGeometry.getAttribute('position') as THREE.BufferAttribute;
+                const colAttr = gp.pointsGeometry.getAttribute('color') as THREE.BufferAttribute;
+                const centroid = gp.centroid;
 
-              for (let i = 0; i < gp.count; i++) {
-                const bx = mapped[i * 4];
-                const by = mapped[i * 4 + 1];
-                const bz = mapped[i * 4 + 2];
-                const speed = mapped[i * 4 + 3];
+                for (let i = 0; i < gp.count; i++) {
+                  const bx = mapped[i * 4];
+                  const by = mapped[i * 4 + 1];
+                  const bz = mapped[i * 4 + 2];
+                  const speed = mapped[i * 4 + 3];
 
-                if (bx === undefined || by === undefined || bz === undefined || speed === undefined) continue;
+                  if (
+                    bx === undefined ||
+                    by === undefined ||
+                    bz === undefined ||
+                    speed === undefined
+                  )
+                    continue;
 
-                // Map Lorenz (x, y, z) to scene-centred Three.js coords
-                // The existing trail uses: p.x - cx, p.y - cy, p.z - cz
-                posAttr.setXYZ(i, bx - centroid.cx, by - centroid.cy, bz - centroid.cz);
+                  // Map Lorenz (x, y, z) to scene-centred Three.js coords
+                  // The existing trail uses: p.x - cx, p.y - cy, p.z - cz
+                  posAttr.setXYZ(i, bx - centroid.cx, by - centroid.cy, bz - centroid.cz);
 
-                // Color by velocity: cool blue (slow) -> hot red (fast)
-                const t = Math.min(speed / 50, 1);
-                colAttr.setXYZ(
-                  i,
-                  t,                         // R: increases with speed
-                  0.3 * (1 - t) + 0.1 * t,  // G: warm transition
-                  1 - t,                      // B: decreases with speed
-                );
-              }
+                  // Color by velocity: cool blue (slow) -> hot red (fast)
+                  const t = Math.min(speed / 50, 1);
+                  colAttr.setXYZ(
+                    i,
+                    t, // R: increases with speed
+                    0.3 * (1 - t) + 0.1 * t, // G: warm transition
+                    1 - t, // B: decreases with speed
+                  );
+                }
 
-              posAttr.needsUpdate = true;
-              colAttr.needsUpdate = true;
-              gp.stagingBuffer.unmap();
-              gp.mappingInFlight = false;
-            }).catch(() => {
-              // Mapping failed (buffer destroyed or device lost) — reset flag
-              if (gpuParticleRef.current) {
-                gpuParticleRef.current.mappingInFlight = false;
-              }
-            });
+                posAttr.needsUpdate = true;
+                colAttr.needsUpdate = true;
+                gp.stagingBuffer.unmap();
+                gp.mappingInFlight = false;
+              })
+              .catch(() => {
+                // Mapping failed (buffer destroyed or device lost) — reset flag
+                if (gpuParticleRef.current) {
+                  gpuParticleRef.current.mappingInFlight = false;
+                }
+              });
           }
         }
 
@@ -751,17 +741,10 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
   return (
     <div className="relative w-full h-full">
       {/* Renderer canvas container */}
-      <div
-        ref={containerRef}
-        className="w-full h-full"
-        style={{ touchAction: 'none' }}
-      />
+      <div ref={containerRef} className="w-full h-full" style={{ touchAction: 'none' }} />
 
       {/* Zoom controls - top left */}
-      <div
-        className="absolute top-3 left-3 flex flex-col gap-1"
-        aria-label="Zoom controls"
-      >
+      <div className="absolute top-3 left-3 flex flex-col gap-1" aria-label="Zoom controls">
         <button
           type="button"
           onClick={handleZoomIn}
@@ -846,8 +829,10 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
           </label>
         )}
         {gpuParticlesEnabled && gpuAvailable && (
-          <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg
-            bg-black/60 backdrop-blur-sm border border-white/10">
+          <div
+            className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg
+            bg-black/60 backdrop-blur-sm border border-white/10"
+          >
             <input
               type="range"
               min={10000}
@@ -866,7 +851,10 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
       </div>
 
       {/* Top-right info badges — shifted down to clear the toggles */}
-      <div className="absolute right-3 flex flex-col gap-1 items-end pointer-events-none" style={{ top: gpuAvailable ? '9rem' : '5.5rem' }}>
+      <div
+        className="absolute right-3 flex flex-col gap-1 items-end pointer-events-none"
+        style={{ top: gpuAvailable ? '9rem' : '5.5rem' }}
+      >
         <div className="text-[10px] text-white/60 font-mono bg-black/55 backdrop-blur-sm px-2 py-1 rounded border border-white/8">
           WebGPU/WebGL2 · HDR Bloom · {data.length.toLocaleString()} pts
         </div>

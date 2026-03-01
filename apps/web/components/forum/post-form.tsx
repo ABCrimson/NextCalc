@@ -7,21 +7,16 @@
  * Uses Apollo Client mutation with redirect on success.
  */
 
-import { useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import { motion, useReducedMotion } from 'framer-motion';
 import { useMutation } from '@apollo/client/react';
-import {
-  Send,
-  Loader2,
-  Hash,
-  AlertCircle,
-} from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { AlertCircle, Hash, Loader2, Send } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useCallback, useState } from 'react';
+import { getTagStyle, TAGS } from '@/components/forum/forum-shared';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { TAGS, getTagStyle } from '@/components/forum/forum-shared';
+import { Textarea } from '@/components/ui/textarea';
 import { CREATE_FORUM_POST_MUTATION, FORUM_POSTS_QUERY } from '@/lib/graphql/forum-operations';
 import { cn } from '@/lib/utils';
 
@@ -46,8 +41,14 @@ export function PostForm() {
     },
     onError(error) {
       // Friendly message when API is unavailable (demo mode)
-      if (error.message.includes('500') || error.message.includes('Failed to fetch') || error.message.includes('not successful')) {
-        setValidationError('The forum is running in demo mode — posts cannot be saved without a database connection.');
+      if (
+        error.message.includes('500') ||
+        error.message.includes('Failed to fetch') ||
+        error.message.includes('not successful')
+      ) {
+        setValidationError(
+          'The forum is running in demo mode — posts cannot be saved without a database connection.',
+        );
       } else {
         setValidationError(error.message);
       }
@@ -55,10 +56,8 @@ export function PostForm() {
   });
 
   const toggleTag = useCallback((tagName: string) => {
-    setSelectedTags(prev =>
-      prev.includes(tagName)
-        ? prev.filter(t => t !== tagName)
-        : [...prev, tagName],
+    setSelectedTags((prev) =>
+      prev.includes(tagName) ? prev.filter((t) => t !== tagName) : [...prev, tagName],
     );
   }, []);
 
@@ -116,13 +115,11 @@ export function PostForm() {
           id="post-title"
           placeholder="What's on your mind?"
           value={title}
-          onChange={e => setTitle(e.target.value)}
+          onChange={(e) => setTitle(e.target.value)}
           className="bg-card/50 backdrop-blur-md border-border"
           maxLength={200}
         />
-        <p className="text-[10px] text-muted-foreground text-right">
-          {title.length}/200
-        </p>
+        <p className="text-[10px] text-muted-foreground text-right">{title.length}/200</p>
       </div>
 
       <div className="space-y-2">
@@ -133,7 +130,7 @@ export function PostForm() {
           id="post-content"
           placeholder="Share your question, idea, or discovery. You can use markdown for formatting."
           value={content}
-          onChange={e => setContent(e.target.value)}
+          onChange={(e) => setContent(e.target.value)}
           className="bg-card/50 backdrop-blur-md border-border min-h-[160px]"
           rows={6}
         />
@@ -145,7 +142,7 @@ export function PostForm() {
           Tags
         </Label>
         <div className="flex flex-wrap gap-2">
-          {TAGS.map(tag => {
+          {TAGS.map((tag) => {
             const isSelected = selectedTags.includes(tag.name);
             return (
               <button
@@ -166,9 +163,7 @@ export function PostForm() {
           })}
         </div>
         {selectedTags.length > 0 && (
-          <p className="text-[10px] text-muted-foreground">
-            Selected: {selectedTags.join(', ')}
-          </p>
+          <p className="text-[10px] text-muted-foreground">Selected: {selectedTags.join(', ')}</p>
         )}
       </div>
 
@@ -180,10 +175,7 @@ export function PostForm() {
       )}
 
       <div className="flex justify-end gap-3 pt-2">
-        <Button
-          variant="ghost"
-          onClick={() => router.back()}
-        >
+        <Button variant="ghost" onClick={() => router.back()}>
           Cancel
         </Button>
         <Button
@@ -191,11 +183,7 @@ export function PostForm() {
           disabled={loading}
           className="gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-[0_4px_24px_oklch(0.55_0.27_264/0.3)]"
         >
-          {loading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Send className="h-4 w-4" />
-          )}
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           Publish Post
         </Button>
       </div>

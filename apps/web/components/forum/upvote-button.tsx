@@ -7,14 +7,14 @@
  * optimistic mutations. Falls back gracefully when not authenticated.
  */
 
-import { useState, useCallback } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
 import { useMutation } from '@apollo/client/react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { ThumbsUp } from 'lucide-react';
-import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
+import { useCallback, useState } from 'react';
+import { formatNumber } from '@/components/forum/forum-shared';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useSession } from '@/lib/auth/hooks';
 import { TOGGLE_UPVOTE_MUTATION } from '@/lib/graphql/forum-operations';
-import { formatNumber } from '@/components/forum/forum-shared';
 import { cn } from '@/lib/utils';
 
 interface UpvoteButtonProps {
@@ -90,7 +90,16 @@ export function UpvoteButton({
         targetType,
       },
     });
-  }, [mock, onMockToggle, isAuthenticated, localUpvoted, localCount, toggleUpvote, targetId, targetType]);
+  }, [
+    mock,
+    onMockToggle,
+    isAuthenticated,
+    localUpvoted,
+    localCount,
+    toggleUpvote,
+    targetId,
+    targetType,
+  ]);
 
   const button = (
     <motion.button
@@ -108,7 +117,9 @@ export function UpvoteButton({
         !isAuthenticated && !mock && 'cursor-default opacity-80',
       )}
       {...(prefersReduced ? {} : { whileTap: { scale: 0.85 } })}
-      aria-label={localUpvoted ? `Remove upvote (${localCount} upvotes)` : `Upvote (${localCount} upvotes)`}
+      aria-label={
+        localUpvoted ? `Remove upvote (${localCount} upvotes)` : `Upvote (${localCount} upvotes)`
+      }
       disabled={!isAuthenticated && !mock}
     >
       <motion.div
@@ -118,8 +129,7 @@ export function UpvoteButton({
               animate: localUpvoted
                 ? { scale: [1, 1.3, 1], rotate: [0, -10, 0] }
                 : { scale: 1, rotate: 0 },
-            }
-        )}
+            })}
         transition={{ duration: 0.3 }}
       >
         <ThumbsUp className={cn('h-4 w-4 transition-transform', localUpvoted && 'scale-110')} />

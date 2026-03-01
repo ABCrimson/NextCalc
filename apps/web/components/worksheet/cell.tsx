@@ -21,48 +21,48 @@
  *   - Respects prefers-reduced-motion via Framer Motion's built-in support
  */
 
+import { evaluate as evaluateExpr } from '@nextcalc/math-engine';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-  useState,
-  useRef,
+  AlertCircle,
+  AlignLeft,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Code2,
+  GripVertical,
+  Loader2,
+  Play,
+  Trash2,
+  TrendingUp,
+} from 'lucide-react';
+import dynamic from 'next/dynamic';
+import {
+  type ComponentType,
+  type KeyboardEvent,
+  memo,
+  type ReactNode,
   useCallback,
   useEffect,
   useMemo,
+  useRef,
+  useState,
   useTransition,
-  memo,
-  type ComponentType,
-  type ReactNode,
-  type KeyboardEvent,
 } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import dynamic from 'next/dynamic';
-import {
-  ChevronUp,
-  ChevronDown,
-  Trash2,
-  Play,
-  GripVertical,
-  Code2,
-  AlignLeft,
-  TrendingUp,
-  AlertCircle,
-  Loader2,
-  CheckCircle2,
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { MathRenderer } from '@/components/ui/math-renderer';
-import { cn } from '@/lib/utils';
-import {
-  useWorksheetActions,
-  type WorksheetCell as WorksheetCellType,
-  type MathCell,
-  type TextCell,
-  type PlotCell,
-  type VariableBinding,
-} from '@/lib/stores/worksheet-store';
+import { Textarea } from '@/components/ui/textarea';
 import { localActiveCellRef, useRemotePeers } from '@/lib/stores/collab-store';
-import { evaluate as evaluateExpr } from '@nextcalc/math-engine';
+import {
+  type MathCell,
+  type PlotCell,
+  type TextCell,
+  useWorksheetActions,
+  type VariableBinding,
+  type WorksheetCell as WorksheetCellType,
+} from '@/lib/stores/worksheet-store';
+import { cn } from '@/lib/utils';
 
 // ---------------------------------------------------------------------------
 // Dynamic import for Plot2D to avoid SSR issues with WebGL
@@ -77,7 +77,7 @@ const Plot2D = dynamic(
         Loading plot renderer...
       </div>
     ),
-  }
+  },
 );
 
 // ---------------------------------------------------------------------------
@@ -130,19 +130,11 @@ const kindMeta = {
 function StatusIcon({ status, errorMessage }: { status: string; errorMessage: string | null }) {
   if (status === 'pending') {
     return (
-      <Loader2
-        className="h-4 w-4 animate-spin text-muted-foreground"
-        aria-label="Evaluating"
-      />
+      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" aria-label="Evaluating" />
     );
   }
   if (status === 'success') {
-    return (
-      <CheckCircle2
-        className="h-4 w-4 text-emerald-500"
-        aria-label="Success"
-      />
-    );
+    return <CheckCircle2 className="h-4 w-4 text-emerald-500" aria-label="Success" />;
   }
   if (status === 'error') {
     return (
@@ -165,8 +157,7 @@ interface MathCellContentProps {
 }
 
 function MathCellContent({ cell, cellIndex, getVariablesUpTo }: MathCellContentProps) {
-  const { updateMathInput, setMathPending, setMathResult, setMathError } =
-    useWorksheetActions();
+  const { updateMathInput, setMathPending, setMathResult, setMathError } = useWorksheetActions();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -201,8 +192,8 @@ function MathCellContent({ cell, cellIndex, getVariablesUpTo }: MathCellContentP
           const evalResult = evaluateExpr(assignment.rhs, {
             variables: Object.fromEntries(
               Object.entries(variableScope).filter(
-                ([, v]) => typeof v === 'number' || typeof v === 'bigint'
-              ) as Array<[string, number | bigint]>
+                ([, v]) => typeof v === 'number' || typeof v === 'bigint',
+              ) as Array<[string, number | bigint]>,
             ),
           });
 
@@ -218,8 +209,8 @@ function MathCellContent({ cell, cellIndex, getVariablesUpTo }: MathCellContentP
           const evalResult = evaluateExpr(input, {
             variables: Object.fromEntries(
               Object.entries(variableScope).filter(
-                ([, v]) => typeof v === 'number' || typeof v === 'bigint'
-              ) as Array<[string, number | bigint]>
+                ([, v]) => typeof v === 'number' || typeof v === 'bigint',
+              ) as Array<[string, number | bigint]>,
             ),
           });
 
@@ -235,10 +226,7 @@ function MathCellContent({ cell, cellIndex, getVariablesUpTo }: MathCellContentP
         const latex = toLatex(input);
         setMathResult(cell.id, resultStr, latex, newBindings);
       } catch (err) {
-        setMathError(
-          cell.id,
-          err instanceof Error ? err.message : 'Evaluation failed'
-        );
+        setMathError(cell.id, err instanceof Error ? err.message : 'Evaluation failed');
       }
     });
   }, [cell.id, cell.input, getVariablesUpTo, setMathError, setMathPending, setMathResult]);
@@ -253,7 +241,7 @@ function MathCellContent({ cell, cellIndex, getVariablesUpTo }: MathCellContentP
         textareaRef.current?.blur();
       }
     },
-    [runEvaluation]
+    [runEvaluation],
   );
 
   const cellLabel = `Math cell ${cellIndex + 1}`;
@@ -474,15 +462,27 @@ function MarkdownPreview({ markdown }: { markdown: string }) {
         // Headings
         const h3Match = /^###\s+(.+)$/.exec(line);
         if (h3Match) {
-          return <h3 key={i} className="text-base font-semibold mt-3 mb-1">{h3Match[1]}</h3>;
+          return (
+            <h3 key={i} className="text-base font-semibold mt-3 mb-1">
+              {h3Match[1]}
+            </h3>
+          );
         }
         const h2Match = /^##\s+(.+)$/.exec(line);
         if (h2Match) {
-          return <h2 key={i} className="text-lg font-semibold mt-4 mb-1">{h2Match[1]}</h2>;
+          return (
+            <h2 key={i} className="text-lg font-semibold mt-4 mb-1">
+              {h2Match[1]}
+            </h2>
+          );
         }
         const h1Match = /^#\s+(.+)$/.exec(line);
         if (h1Match) {
-          return <h1 key={i} className="text-xl font-bold mt-4 mb-2">{h1Match[1]}</h1>;
+          return (
+            <h1 key={i} className="text-xl font-bold mt-4 mb-2">
+              {h1Match[1]}
+            </h1>
+          );
         }
 
         // Horizontal rule
@@ -559,10 +559,34 @@ function InlineMarkdown({ text }: { text: string }) {
     // Find which match comes first (earliest prefix length)
     const candidates: Array<{ prefix: string; content: string; suffix: string; type: string }> = [];
 
-    if (codeMatch) candidates.push({ prefix: codeMatch[1] ?? '', content: codeMatch[2] ?? '', suffix: codeMatch[3] ?? '', type: 'code' });
-    if (boldMatch) candidates.push({ prefix: boldMatch[1] ?? '', content: boldMatch[2] ?? '', suffix: boldMatch[3] ?? '', type: 'bold' });
-    if (italicMatch) candidates.push({ prefix: italicMatch[1] ?? '', content: italicMatch[2] ?? '', suffix: italicMatch[3] ?? '', type: 'italic' });
-    if (mathMatch) candidates.push({ prefix: mathMatch[1] ?? '', content: mathMatch[2] ?? '', suffix: mathMatch[3] ?? '', type: 'math' });
+    if (codeMatch)
+      candidates.push({
+        prefix: codeMatch[1] ?? '',
+        content: codeMatch[2] ?? '',
+        suffix: codeMatch[3] ?? '',
+        type: 'code',
+      });
+    if (boldMatch)
+      candidates.push({
+        prefix: boldMatch[1] ?? '',
+        content: boldMatch[2] ?? '',
+        suffix: boldMatch[3] ?? '',
+        type: 'bold',
+      });
+    if (italicMatch)
+      candidates.push({
+        prefix: italicMatch[1] ?? '',
+        content: italicMatch[2] ?? '',
+        suffix: italicMatch[3] ?? '',
+        type: 'italic',
+      });
+    if (mathMatch)
+      candidates.push({
+        prefix: mathMatch[1] ?? '',
+        content: mathMatch[2] ?? '',
+        suffix: mathMatch[3] ?? '',
+        type: 'math',
+      });
 
     if (candidates.length === 0) {
       segments.push(<span key={key++}>{remaining}</span>);
@@ -578,14 +602,25 @@ function InlineMarkdown({ text }: { text: string }) {
 
     if (best.type === 'code') {
       segments.push(
-        <code key={key++} className="bg-muted/60 px-1.5 py-0.5 rounded text-xs font-mono text-foreground">
+        <code
+          key={key++}
+          className="bg-muted/60 px-1.5 py-0.5 rounded text-xs font-mono text-foreground"
+        >
           {best.content}
-        </code>
+        </code>,
       );
     } else if (best.type === 'bold') {
-      segments.push(<strong key={key++} className="font-semibold">{best.content}</strong>);
+      segments.push(
+        <strong key={key++} className="font-semibold">
+          {best.content}
+        </strong>,
+      );
     } else if (best.type === 'italic') {
-      segments.push(<em key={key++} className="italic">{best.content}</em>);
+      segments.push(
+        <em key={key++} className="italic">
+          {best.content}
+        </em>,
+      );
     } else if (best.type === 'math') {
       segments.push(
         <MathRenderer
@@ -593,7 +628,7 @@ function InlineMarkdown({ text }: { text: string }) {
           expression={best.content}
           displayMode={false}
           ariaLabel={`Inline math: ${best.content}`}
-        />
+        />,
       );
     }
 
@@ -655,7 +690,12 @@ function PlotCellContent({ cell, cellIndex }: PlotCellContentProps) {
         min: cell.xMin,
         max: cell.xMax,
         scale: 'linear' as const,
-        grid: { enabled: true, majorStep: (cell.xMax - cell.xMin) / 10, color: '#e5e7eb', opacity: 0.4 },
+        grid: {
+          enabled: true,
+          majorStep: (cell.xMax - cell.xMin) / 10,
+          color: '#e5e7eb',
+          opacity: 0.4,
+        },
         ticks: { enabled: true, format: (v: number) => v.toFixed(1) },
       },
       yAxis: {
@@ -663,7 +703,12 @@ function PlotCellContent({ cell, cellIndex }: PlotCellContentProps) {
         min: cell.yMin,
         max: cell.yMax,
         scale: 'linear' as const,
-        grid: { enabled: true, majorStep: (cell.yMax - cell.yMin) / 10, color: '#e5e7eb', opacity: 0.4 },
+        grid: {
+          enabled: true,
+          majorStep: (cell.yMax - cell.yMin) / 10,
+          color: '#e5e7eb',
+          opacity: 0.4,
+        },
         ticks: { enabled: true, format: (v: number) => v.toFixed(1) },
       },
     };
@@ -675,7 +720,10 @@ function PlotCellContent({ cell, cellIndex }: PlotCellContentProps) {
     <div className="space-y-3">
       {/* Expression input */}
       <div>
-        <label htmlFor={`plot-expr-${cell.id}`} className="text-xs font-medium text-muted-foreground mb-1 block">
+        <label
+          htmlFor={`plot-expr-${cell.id}`}
+          className="text-xs font-medium text-muted-foreground mb-1 block"
+        >
           Functions (comma-separated)
         </label>
         <Input
@@ -702,17 +750,16 @@ function PlotCellContent({ cell, cellIndex }: PlotCellContentProps) {
         </button>
 
         {showViewport && (
-          <div
-            id={`plot-viewport-${cell.id}`}
-            className="grid grid-cols-2 gap-2 mt-2"
-          >
+          <div id={`plot-viewport-${cell.id}`} className="grid grid-cols-2 gap-2 mt-2">
             {(
               [
                 ['xMin', 'X Min', cell.xMin],
                 ['xMax', 'X Max', cell.xMax],
                 ['yMin', 'Y Min', cell.yMin],
                 ['yMax', 'Y Max', cell.yMax],
-              ] as Array<[keyof { xMin: number; xMax: number; yMin: number; yMax: number }, string, number]>
+              ] as Array<
+                [keyof { xMin: number; xMax: number; yMin: number; yMax: number }, string, number]
+              >
             ).map(([field, label, value]) => (
               <div key={field}>
                 <label
@@ -877,12 +924,8 @@ export const WorksheetCell = memo(function WorksheetCell({
             aria-hidden="true"
           />
           <Icon className={cn('h-3.5 w-3.5', meta.color)} aria-hidden="true" />
-          <span className={cn('text-xs font-medium', meta.color)}>
-            {meta.label}
-          </span>
-          <span className="text-xs text-muted-foreground/50 font-mono">
-            [{cellIndex + 1}]
-          </span>
+          <span className={cn('text-xs font-medium', meta.color)}>{meta.label}</span>
+          <span className="text-xs text-muted-foreground/50 font-mono">[{cellIndex + 1}]</span>
         </div>
 
         {/* Controls */}
@@ -942,18 +985,10 @@ export const WorksheetCell = memo(function WorksheetCell({
       {/* Cell body */}
       <div className="p-4">
         {cell.kind === 'math' && (
-          <MathCellContent
-            cell={cell}
-            cellIndex={cellIndex}
-            getVariablesUpTo={getVariablesUpTo}
-          />
+          <MathCellContent cell={cell} cellIndex={cellIndex} getVariablesUpTo={getVariablesUpTo} />
         )}
-        {cell.kind === 'text' && (
-          <TextCellContent cell={cell} cellIndex={cellIndex} />
-        )}
-        {cell.kind === 'plot' && (
-          <PlotCellContent cell={cell} cellIndex={cellIndex} />
-        )}
+        {cell.kind === 'text' && <TextCellContent cell={cell} cellIndex={cellIndex} />}
+        {cell.kind === 'plot' && <PlotCellContent cell={cell} cellIndex={cellIndex} />}
       </div>
     </motion.article>
   );

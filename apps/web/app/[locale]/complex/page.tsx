@@ -41,8 +41,7 @@ export default async function ComplexPage() {
         <div
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-3xl"
           style={{
-            background:
-              'radial-gradient(circle, oklch(0.65 0.18 155 / 0.07) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, oklch(0.65 0.18 155 / 0.07) 0%, transparent 70%)',
             animation: 'float 28s ease-in-out infinite 6s',
           }}
         />
@@ -90,9 +89,7 @@ export default async function ComplexPage() {
               >
                 {t('pageTitle')}
               </h1>
-              <p className="text-base text-muted-foreground mt-1">
-                {t('pageSubtitle')}
-              </p>
+              <p className="text-base text-muted-foreground mt-1">{t('pageSubtitle')}</p>
             </div>
           </div>
 
@@ -139,7 +136,8 @@ export default async function ComplexPage() {
 
           <div className="grid gap-5 md:grid-cols-2">
             {/* Binary operations */}
-            <div className="group relative p-6 rounded-xl overflow-hidden border transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5"
+            <div
+              className="group relative p-6 rounded-xl overflow-hidden border transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5"
               style={{
                 background:
                   'linear-gradient(135deg, oklch(0.18 0.03 264 / 0.5), oklch(0.16 0.025 264 / 0.4))',
@@ -150,39 +148,88 @@ export default async function ComplexPage() {
               <div
                 className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"
                 style={{
-                  background:
-                    'linear-gradient(135deg, oklch(0.65 0.22 264 / 0.06), transparent)',
+                  background: 'linear-gradient(135deg, oklch(0.65 0.22 264 / 0.06), transparent)',
                 }}
               />
-              <div className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20"
-                style={{ background: 'radial-gradient(circle at top right, oklch(0.65 0.22 264 / 0.4), transparent)' }}
+              <div
+                className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20"
+                style={{
+                  background:
+                    'radial-gradient(circle at top right, oklch(0.65 0.22 264 / 0.4), transparent)',
+                }}
               />
               <div className="relative">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full" style={{ background: 'oklch(0.65 0.22 264)', boxShadow: '0 0 8px oklch(0.65 0.22 264 / 0.8)' }} />
+                  <div
+                    className="w-2 h-2 rounded-full"
+                    style={{
+                      background: 'oklch(0.65 0.22 264)',
+                      boxShadow: '0 0 8px oklch(0.65 0.22 264 / 0.8)',
+                    }}
+                  />
                   <h3 className="text-lg font-semibold" style={{ color: 'oklch(0.78 0.18 264)' }}>
                     {t('binaryOps')}
                   </h3>
                 </div>
                 <ul className="text-sm space-y-1.5" style={{ color: 'oklch(0.75 0.08 264)' }}>
                   <li className="flex items-center gap-2">
-                    <span className="font-mono text-xs px-1.5 py-0.5 rounded" style={{ background: 'oklch(0.65 0.22 264 / 0.15)', color: 'oklch(0.80 0.18 264)' }}>+</span>
+                    <span
+                      className="font-mono text-xs px-1.5 py-0.5 rounded"
+                      style={{
+                        background: 'oklch(0.65 0.22 264 / 0.15)',
+                        color: 'oklch(0.80 0.18 264)',
+                      }}
+                    >
+                      +
+                    </span>
                     Addition: z&#x2081; + z&#x2082;
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="font-mono text-xs px-1.5 py-0.5 rounded" style={{ background: 'oklch(0.65 0.22 264 / 0.15)', color: 'oklch(0.80 0.18 264)' }}>&minus;</span>
+                    <span
+                      className="font-mono text-xs px-1.5 py-0.5 rounded"
+                      style={{
+                        background: 'oklch(0.65 0.22 264 / 0.15)',
+                        color: 'oklch(0.80 0.18 264)',
+                      }}
+                    >
+                      &minus;
+                    </span>
                     Subtraction: z&#x2081; &minus; z&#x2082;
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="font-mono text-xs px-1.5 py-0.5 rounded" style={{ background: 'oklch(0.65 0.22 264 / 0.15)', color: 'oklch(0.80 0.18 264)' }}>&times;</span>
+                    <span
+                      className="font-mono text-xs px-1.5 py-0.5 rounded"
+                      style={{
+                        background: 'oklch(0.65 0.22 264 / 0.15)',
+                        color: 'oklch(0.80 0.18 264)',
+                      }}
+                    >
+                      &times;
+                    </span>
                     Multiplication: z&#x2081; &times; z&#x2082;
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="font-mono text-xs px-1.5 py-0.5 rounded" style={{ background: 'oklch(0.65 0.22 264 / 0.15)', color: 'oklch(0.80 0.18 264)' }}>&divide;</span>
+                    <span
+                      className="font-mono text-xs px-1.5 py-0.5 rounded"
+                      style={{
+                        background: 'oklch(0.65 0.22 264 / 0.15)',
+                        color: 'oklch(0.80 0.18 264)',
+                      }}
+                    >
+                      &divide;
+                    </span>
                     Division: z&#x2081; &divide; z&#x2082;
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="font-mono text-xs px-1.5 py-0.5 rounded" style={{ background: 'oklch(0.65 0.22 264 / 0.15)', color: 'oklch(0.80 0.18 264)' }}>^</span>
+                    <span
+                      className="font-mono text-xs px-1.5 py-0.5 rounded"
+                      style={{
+                        background: 'oklch(0.65 0.22 264 / 0.15)',
+                        color: 'oklch(0.80 0.18 264)',
+                      }}
+                    >
+                      ^
+                    </span>
                     Power: z&#x2081; ^ z&#x2082; (general complex power)
                   </li>
                 </ul>
@@ -190,7 +237,8 @@ export default async function ComplexPage() {
             </div>
 
             {/* Unary functions */}
-            <div className="group relative p-6 rounded-xl overflow-hidden border transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5"
+            <div
+              className="group relative p-6 rounded-xl overflow-hidden border transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5"
               style={{
                 background:
                   'linear-gradient(135deg, oklch(0.18 0.03 300 / 0.5), oklch(0.16 0.025 300 / 0.4))',
@@ -201,16 +249,25 @@ export default async function ComplexPage() {
               <div
                 className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"
                 style={{
-                  background:
-                    'linear-gradient(135deg, oklch(0.63 0.20 300 / 0.06), transparent)',
+                  background: 'linear-gradient(135deg, oklch(0.63 0.20 300 / 0.06), transparent)',
                 }}
               />
-              <div className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20"
-                style={{ background: 'radial-gradient(circle at top right, oklch(0.63 0.20 300 / 0.4), transparent)' }}
+              <div
+                className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20"
+                style={{
+                  background:
+                    'radial-gradient(circle at top right, oklch(0.63 0.20 300 / 0.4), transparent)',
+                }}
               />
               <div className="relative">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full" style={{ background: 'oklch(0.63 0.20 300)', boxShadow: '0 0 8px oklch(0.63 0.20 300 / 0.8)' }} />
+                  <div
+                    className="w-2 h-2 rounded-full"
+                    style={{
+                      background: 'oklch(0.63 0.20 300)',
+                      boxShadow: '0 0 8px oklch(0.63 0.20 300 / 0.8)',
+                    }}
+                  />
                   <h3 className="text-lg font-semibold" style={{ color: 'oklch(0.78 0.16 300)' }}>
                     {t('unaryFunctions')}
                   </h3>
@@ -226,7 +283,8 @@ export default async function ComplexPage() {
             </div>
 
             {/* Number forms */}
-            <div className="group relative p-6 rounded-xl overflow-hidden border transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5"
+            <div
+              className="group relative p-6 rounded-xl overflow-hidden border transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5"
               style={{
                 background:
                   'linear-gradient(135deg, oklch(0.18 0.03 155 / 0.5), oklch(0.16 0.025 155 / 0.4))',
@@ -237,16 +295,25 @@ export default async function ComplexPage() {
               <div
                 className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"
                 style={{
-                  background:
-                    'linear-gradient(135deg, oklch(0.65 0.18 155 / 0.06), transparent)',
+                  background: 'linear-gradient(135deg, oklch(0.65 0.18 155 / 0.06), transparent)',
                 }}
               />
-              <div className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20"
-                style={{ background: 'radial-gradient(circle at top right, oklch(0.65 0.18 155 / 0.4), transparent)' }}
+              <div
+                className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20"
+                style={{
+                  background:
+                    'radial-gradient(circle at top right, oklch(0.65 0.18 155 / 0.4), transparent)',
+                }}
               />
               <div className="relative">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full" style={{ background: 'oklch(0.65 0.18 155)', boxShadow: '0 0 8px oklch(0.65 0.18 155 / 0.8)' }} />
+                  <div
+                    className="w-2 h-2 rounded-full"
+                    style={{
+                      background: 'oklch(0.65 0.18 155)',
+                      boxShadow: '0 0 8px oklch(0.65 0.18 155 / 0.8)',
+                    }}
+                  />
                   <h3 className="text-lg font-semibold" style={{ color: 'oklch(0.78 0.15 155)' }}>
                     {t('numberForms')}
                   </h3>
@@ -262,7 +329,8 @@ export default async function ComplexPage() {
             </div>
 
             {/* Argand diagram */}
-            <div className="group relative p-6 rounded-xl overflow-hidden border transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5"
+            <div
+              className="group relative p-6 rounded-xl overflow-hidden border transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5"
               style={{
                 background:
                   'linear-gradient(135deg, oklch(0.18 0.03 30 / 0.5), oklch(0.16 0.025 30 / 0.4))',
@@ -273,16 +341,25 @@ export default async function ComplexPage() {
               <div
                 className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"
                 style={{
-                  background:
-                    'linear-gradient(135deg, oklch(0.65 0.20 30 / 0.06), transparent)',
+                  background: 'linear-gradient(135deg, oklch(0.65 0.20 30 / 0.06), transparent)',
                 }}
               />
-              <div className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20"
-                style={{ background: 'radial-gradient(circle at top right, oklch(0.65 0.20 30 / 0.4), transparent)' }}
+              <div
+                className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20"
+                style={{
+                  background:
+                    'radial-gradient(circle at top right, oklch(0.65 0.20 30 / 0.4), transparent)',
+                }}
               />
               <div className="relative">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-2 h-2 rounded-full" style={{ background: 'oklch(0.65 0.20 30)', boxShadow: '0 0 8px oklch(0.65 0.20 30 / 0.8)' }} />
+                  <div
+                    className="w-2 h-2 rounded-full"
+                    style={{
+                      background: 'oklch(0.65 0.20 30)',
+                      boxShadow: '0 0 8px oklch(0.65 0.20 30 / 0.8)',
+                    }}
+                  />
                   <h3 className="text-lg font-semibold" style={{ color: 'oklch(0.78 0.16 30)' }}>
                     {t('argandDiagram')}
                   </h3>
@@ -348,8 +425,7 @@ export default async function ComplexPage() {
                 key={label}
                 className="group relative p-4 rounded-xl border transition-all duration-200 hover:scale-[1.005]"
                 style={{
-                  background:
-                    `linear-gradient(135deg, oklch(0.18 0.02 ${accent} / 0.3), oklch(0.14 0.015 250 / 0.6))`,
+                  background: `linear-gradient(135deg, oklch(0.18 0.02 ${accent} / 0.3), oklch(0.14 0.015 250 / 0.6))`,
                   borderColor: `oklch(0.65 0.18 ${accent} / 0.25)`,
                 }}
               >
@@ -414,10 +490,35 @@ export default async function ComplexPage() {
                   body: (
                     <>
                       Enter rectangular numbers as{' '}
-                      <code className="font-mono text-xs px-1.5 py-0.5 rounded" style={{ background: 'oklch(0.65 0.22 264 / 0.15)', color: 'oklch(0.82 0.18 264)' }}>3+4i</code>,{' '}
-                      <code className="font-mono text-xs px-1.5 py-0.5 rounded" style={{ background: 'oklch(0.65 0.22 264 / 0.15)', color: 'oklch(0.82 0.18 264)' }}>-2-i</code>,{' '}
-                      or{' '}
-                      <code className="font-mono text-xs px-1.5 py-0.5 rounded" style={{ background: 'oklch(0.65 0.22 264 / 0.15)', color: 'oklch(0.82 0.18 264)' }}>5i</code>
+                      <code
+                        className="font-mono text-xs px-1.5 py-0.5 rounded"
+                        style={{
+                          background: 'oklch(0.65 0.22 264 / 0.15)',
+                          color: 'oklch(0.82 0.18 264)',
+                        }}
+                      >
+                        3+4i
+                      </code>
+                      ,{' '}
+                      <code
+                        className="font-mono text-xs px-1.5 py-0.5 rounded"
+                        style={{
+                          background: 'oklch(0.65 0.22 264 / 0.15)',
+                          color: 'oklch(0.82 0.18 264)',
+                        }}
+                      >
+                        -2-i
+                      </code>
+                      , or{' '}
+                      <code
+                        className="font-mono text-xs px-1.5 py-0.5 rounded"
+                        style={{
+                          background: 'oklch(0.65 0.22 264 / 0.15)',
+                          color: 'oklch(0.82 0.18 264)',
+                        }}
+                      >
+                        5i
+                      </code>
                     </>
                   ),
                 },
@@ -439,8 +540,7 @@ export default async function ComplexPage() {
                 },
               ].map(({ title, body }) => (
                 <p key={title} className="text-sm" style={{ color: 'oklch(0.75 0.05 264)' }}>
-                  <strong style={{ color: 'oklch(0.82 0.15 264)' }}>{title}:</strong>{' '}
-                  {body}
+                  <strong style={{ color: 'oklch(0.82 0.15 264)' }}>{title}:</strong> {body}
                 </p>
               ))}
             </div>

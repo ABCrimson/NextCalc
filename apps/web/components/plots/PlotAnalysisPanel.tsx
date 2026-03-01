@@ -18,18 +18,18 @@
  * @module components/plots/PlotAnalysisPanel
  */
 
-import { useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
+  ArrowDownUp,
   ChevronDown,
   ChevronRight,
-  TrendingUp,
-  TrendingDown,
   Crosshair,
-  ArrowDownUp,
   GitCommitHorizontal,
   MoveHorizontal,
+  TrendingDown,
+  TrendingUp,
 } from 'lucide-react';
+import { useMemo, useState } from 'react';
 
 // --------------------------------------------------------------------------
 // Types
@@ -108,8 +108,13 @@ function bisect(f: (x: number) => number, a: number, b: number, maxIter = 40): n
     const fm = f(mid);
     if (!isFinite(fm)) return null;
     if (Math.abs(fm) < EPSILON || (b - a) / 2 < EPSILON) return mid;
-    if (fa * fm < 0) { b = mid; fb = fm; }
-    else { a = mid; fa = fm; }
+    if (fa * fm < 0) {
+      b = mid;
+      fb = fm;
+    } else {
+      a = mid;
+      fa = fm;
+    }
   }
   return (a + b) / 2;
 }
@@ -122,7 +127,7 @@ function findRoots(
   f: (x: number) => number,
   xMin: number,
   xMax: number,
-  samples: number
+  samples: number,
 ): number[] {
   const roots: number[] = [];
   const step = (xMax - xMin) / samples;
@@ -137,7 +142,7 @@ function findRoots(
       const root = bisect(f, prevX, x);
       if (root !== null) {
         // Deduplicate roots that are very close together
-        const isDuplicate = roots.some(r => Math.abs(r - root) < step * 0.5);
+        const isDuplicate = roots.some((r) => Math.abs(r - root) < step * 0.5);
         if (!isDuplicate) {
           roots.push(root);
         }
@@ -160,7 +165,7 @@ function findExtrema(
   f: (x: number) => number,
   xMin: number,
   xMax: number,
-  samples: number
+  samples: number,
 ): { minima: number[]; maxima: number[] } {
   const h = (xMax - xMin) / (samples * 10); // finer grid for derivative
   const minima: number[] = [];
@@ -180,8 +185,8 @@ function findExtrema(
       const root = bisect(deriv, prevX, x);
       if (root !== null) {
         const isDuplicate =
-          minima.some(r => Math.abs(r - root) < step * 0.5) ||
-          maxima.some(r => Math.abs(r - root) < step * 0.5);
+          minima.some((r) => Math.abs(r - root) < step * 0.5) ||
+          maxima.some((r) => Math.abs(r - root) < step * 0.5);
 
         if (!isDuplicate) {
           // Second derivative sign to classify
@@ -209,7 +214,7 @@ function findInflectionPoints(
   f: (x: number) => number,
   xMin: number,
   xMax: number,
-  samples: number
+  samples: number,
 ): number[] {
   const h = (xMax - xMin) / (samples * 10);
   const step = (xMax - xMin) / samples;
@@ -228,7 +233,7 @@ function findInflectionPoints(
     if (isFinite(prevD2) && isFinite(dd) && prevD2 * dd < 0) {
       const root = bisect(d2, prevX, x);
       if (root !== null) {
-        const isDuplicate = inflections.some(r => Math.abs(r - root) < step * 0.5);
+        const isDuplicate = inflections.some((r) => Math.abs(r - root) < step * 0.5);
         if (!isDuplicate) {
           // Confirm f''(x) actually changes sign (not just a touching zero)
           const leftD2 = d2(root - step * 0.1);
@@ -258,7 +263,7 @@ function findVerticalAsymptotes(
   f: (x: number) => number,
   xMin: number,
   xMax: number,
-  samples: number
+  samples: number,
 ): number[] {
   const LARGE = 1e6;
   const step = (xMax - xMin) / samples;
@@ -272,14 +277,9 @@ function findVerticalAsymptotes(
 
     // Detect: one side finite, other infinite — or magnitude blows up with sign change
     const bothFinite = isFinite(y0) && isFinite(y1);
-    const oneBlow =
-      (isFinite(y0) && !isFinite(y1)) ||
-      (!isFinite(y0) && isFinite(y1));
+    const oneBlow = (isFinite(y0) && !isFinite(y1)) || (!isFinite(y0) && isFinite(y1));
     const largeMagnitudeSignChange =
-      bothFinite &&
-      Math.abs(y0) > LARGE &&
-      Math.abs(y1) > LARGE &&
-      y0 * y1 < 0;
+      bothFinite && Math.abs(y0) > LARGE && Math.abs(y1) > LARGE && y0 * y1 < 0;
 
     if (oneBlow || largeMagnitudeSignChange) {
       // Binary search for the discontinuity location
@@ -295,7 +295,7 @@ function findVerticalAsymptotes(
         }
       }
       const xAsym = (lo + hi) / 2;
-      const isDuplicate = asymptotes.some(a => Math.abs(a - xAsym) < step);
+      const isDuplicate = asymptotes.some((a) => Math.abs(a - xAsym) < step);
       if (!isDuplicate) {
         asymptotes.push(xAsym);
       }
@@ -314,7 +314,7 @@ function findVerticalAsymptotes(
 function detectHorizontalAsymptotes(
   f: (x: number) => number,
   xMin: number,
-  xMax: number
+  xMax: number,
 ): { left: number | null; right: number | null } {
   const CHECK_POINTS = 10;
   const THRESHOLD = 0.05; // convergence tolerance — values within 5% of each other
@@ -322,7 +322,7 @@ function detectHorizontalAsymptotes(
   // Evaluate near the left edge
   const leftVals: number[] = [];
   for (let i = 1; i <= CHECK_POINTS; i++) {
-    const x = xMin + ((xMax - xMin) * 0.005 * i);
+    const x = xMin + (xMax - xMin) * 0.005 * i;
     const y = f(x);
     if (isFinite(y)) leftVals.push(y);
   }
@@ -330,7 +330,7 @@ function detectHorizontalAsymptotes(
   // Evaluate near the right edge
   const rightVals: number[] = [];
   for (let i = 1; i <= CHECK_POINTS; i++) {
-    const x = xMax - ((xMax - xMin) * 0.005 * i);
+    const x = xMax - (xMax - xMin) * 0.005 * i;
     const y = f(x);
     if (isFinite(y)) rightVals.push(y);
   }
@@ -366,7 +366,7 @@ function fmt(n: number): string {
 function useAnalysis(
   functions: AnalysisFunction[],
   viewport: PlotAnalysisPanelProps['viewport'],
-  samples: number
+  samples: number,
 ): { fnAnalyses: FunctionAnalysis[]; intersections: IntersectionPoint[] } {
   return useMemo(() => {
     const { xMin, xMax } = viewport;
@@ -376,7 +376,7 @@ function useAnalysis(
 
       // X-intercepts
       const xRoots = findRoots(fn, xMin, xMax, samples);
-      const xIntercepts: FoundPoint[] = xRoots.map(x => ({
+      const xIntercepts: FoundPoint[] = xRoots.map((x) => ({
         x,
         y: 0,
         label: `(${fmt(x)}, 0)`,
@@ -393,18 +393,18 @@ function useAnalysis(
 
       // Extrema
       const { minima, maxima } = findExtrema(fn, xMin, xMax, samples);
-      const localMinima: FoundPoint[] = minima.map(x => {
+      const localMinima: FoundPoint[] = minima.map((x) => {
         const y = fn(x);
         return { x, y, label: `(${fmt(x)}, ${fmt(y)})` };
       });
-      const localMaxima: FoundPoint[] = maxima.map(x => {
+      const localMaxima: FoundPoint[] = maxima.map((x) => {
         const y = fn(x);
         return { x, y, label: `(${fmt(x)}, ${fmt(y)})` };
       });
 
       // Inflection points
       const inflectionXs = findInflectionPoints(fn, xMin, xMax, samples);
-      const inflectionPoints: FoundPoint[] = inflectionXs.map(x => {
+      const inflectionPoints: FoundPoint[] = inflectionXs.map((x) => {
         const y = fn(x);
         return { x, y, label: `(${fmt(x)}, ${fmt(y)})` };
       });
@@ -440,11 +440,13 @@ function useAnalysis(
       const deduplicatedAsymptotes = asymptotes.filter((a, idx, arr) => {
         if (a.kind === 'horizontal-left' || a.kind === 'horizontal-right') {
           // Keep only if no earlier horizontal asymptote has the same approximate y value
-          return !arr.slice(0, idx).some(
-            b =>
-              (b.kind === 'horizontal-left' || b.kind === 'horizontal-right') &&
-              Math.abs(b.value - a.value) < 0.05
-          );
+          return !arr
+            .slice(0, idx)
+            .some(
+              (b) =>
+                (b.kind === 'horizontal-left' || b.kind === 'horizontal-right') &&
+                Math.abs(b.value - a.value) < 0.05,
+            );
         }
         return true;
       });
@@ -473,7 +475,7 @@ function useAnalysis(
           const y = fi.fn(x);
           if (!isFinite(y)) continue;
           const isDuplicate = intersections.some(
-            pt => Math.abs(pt.x - x) < (xMax - xMin) / samples
+            (pt) => Math.abs(pt.x - x) < (xMax - xMin) / samples,
           );
           if (!isDuplicate) {
             intersections.push({
@@ -525,7 +527,9 @@ function SectionRow({
 }) {
   return (
     <div className="flex items-start gap-2 text-xs">
-      <span className="mt-0.5 shrink-0" style={{ color }}>{icon}</span>
+      <span className="mt-0.5 shrink-0" style={{ color }}>
+        {icon}
+      </span>
       <div className="flex-1 min-w-0">
         <span className="font-medium text-foreground/80 mr-2">{title}:</span>
         {points.length === 0 ? (
@@ -542,16 +546,10 @@ function SectionRow({
   );
 }
 
-function AsymptoteRow({
-  asymptotes,
-  color,
-}: {
-  asymptotes: AsymptoteInfo[];
-  color: string;
-}) {
-  const verticals = asymptotes.filter(a => a.kind === 'vertical');
+function AsymptoteRow({ asymptotes, color }: { asymptotes: AsymptoteInfo[]; color: string }) {
+  const verticals = asymptotes.filter((a) => a.kind === 'vertical');
   const horizontals = asymptotes.filter(
-    a => a.kind === 'horizontal-left' || a.kind === 'horizontal-right'
+    (a) => a.kind === 'horizontal-left' || a.kind === 'horizontal-right',
   );
 
   if (asymptotes.length === 0) {
@@ -631,13 +629,13 @@ export function PlotAnalysisPanel({
 
   const hasAnyData =
     fnAnalyses.some(
-      a =>
+      (a) =>
         a.xIntercepts.length > 0 ||
         a.yIntercept ||
         a.localMinima.length > 0 ||
         a.localMaxima.length > 0 ||
         a.inflectionPoints.length > 0 ||
-        a.asymptotes.length > 0
+        a.asymptotes.length > 0,
     ) || intersections.length > 0;
 
   return (
@@ -654,7 +652,7 @@ export function PlotAnalysisPanel({
       {/* Header / toggle */}
       <button
         type="button"
-        onClick={() => setIsOpen(o => !o)}
+        onClick={() => setIsOpen((o) => !o)}
         className="
           w-full flex items-center justify-between gap-2
           px-4 py-3
@@ -669,7 +667,9 @@ export function PlotAnalysisPanel({
           <Crosshair className="h-4 w-4 text-cyan-400" />
           <span>Analysis: Intercepts &amp; Critical Points</span>
           {!hasAnyData && (
-            <span className="text-xs text-muted-foreground font-normal">(no points in viewport)</span>
+            <span className="text-xs text-muted-foreground font-normal">
+              (no points in viewport)
+            </span>
           )}
         </div>
         {isOpen ? (
@@ -691,7 +691,6 @@ export function PlotAnalysisPanel({
             className="overflow-hidden"
           >
             <div className="px-4 pb-4 space-y-4 border-t border-border/50 pt-3">
-
               {/* Per-function analysis */}
               {fnAnalyses.map((analysis) => (
                 <div
@@ -706,7 +705,10 @@ export function PlotAnalysisPanel({
                       style={{ background: analysis.color }}
                       aria-hidden="true"
                     />
-                    <span className="text-xs font-semibold font-mono" style={{ color: analysis.color }}>
+                    <span
+                      className="text-xs font-semibold font-mono"
+                      style={{ color: analysis.color }}
+                    >
                       {analysis.label}
                     </span>
                   </div>
@@ -775,14 +777,19 @@ export function PlotAnalysisPanel({
 
               {/* Pairwise intersections (only when > 1 function) */}
               {functions.length > 1 && (
-                <div className="space-y-2 border-t border-border/40 pt-3" aria-label="Intersection points">
+                <div
+                  className="space-y-2 border-t border-border/40 pt-3"
+                  aria-label="Intersection points"
+                >
                   <div className="flex items-center gap-2">
                     <Crosshair className="h-3.5 w-3.5 text-amber-400" />
                     <span className="text-xs font-semibold text-amber-300">Intersections</span>
                   </div>
 
                   {intersections.length === 0 ? (
-                    <p className="text-xs text-muted-foreground italic pl-5">No intersections in viewport</p>
+                    <p className="text-xs text-muted-foreground italic pl-5">
+                      No intersections in viewport
+                    </p>
                   ) : (
                     <div className="pl-5 flex flex-wrap gap-1.5">
                       {intersections.map((pt, i) => (
@@ -797,8 +804,14 @@ export function PlotAnalysisPanel({
                         >
                           {/* Tiny dual color dot */}
                           <span className="flex gap-0.5">
-                            <span className="w-1.5 h-1.5 rounded-full" style={{ background: pt.colors[0] }} />
-                            <span className="w-1.5 h-1.5 rounded-full" style={{ background: pt.colors[1] }} />
+                            <span
+                              className="w-1.5 h-1.5 rounded-full"
+                              style={{ background: pt.colors[0] }}
+                            />
+                            <span
+                              className="w-1.5 h-1.5 rounded-full"
+                              style={{ background: pt.colors[1] }}
+                            />
                           </span>
                           ({fmt(pt.x)}, {fmt(pt.y)})
                         </span>
@@ -810,7 +823,8 @@ export function PlotAnalysisPanel({
 
               {/* Numerical note */}
               <p className="text-[10px] text-muted-foreground/60 border-t border-border/30 pt-2">
-                Values computed numerically. Accuracy depends on function smoothness and viewport zoom level.
+                Values computed numerically. Accuracy depends on function smoothness and viewport
+                zoom level.
               </p>
             </div>
           </motion.div>

@@ -34,82 +34,70 @@
  * ```
  */
 
-// Component exports
-export { TransformerVisualizer } from './TransformerVisualizer';
-export type { TransformerVisualizerProps } from './TransformerVisualizer';
-
-export { ZKPDemo } from './ZKPDemo';
-export type { ZKPDemoProps } from './ZKPDemo';
-
-export { ZKPComputeVisualizer } from './ZKPComputeVisualizer';
-export type { ZKPComputeVisualizerProps } from './ZKPComputeVisualizer';
-
-export { QuantumSimulator } from './QuantumSimulator';
-export type { QuantumSimulatorProps } from './QuantumSimulator';
-
-export { PageRankExplorer } from './PageRankExplorer';
-export type { PageRankExplorerProps } from './PageRankExplorer';
-
-export { MetaLearningPlayground } from './MetaLearningPlayground';
-export type { MetaLearningPlaygroundProps } from './MetaLearningPlayground';
-
+export type { AlgorithmBreadcrumbProps, BreadcrumbItem } from './AlgorithmBreadcrumb';
+export { AlgorithmBreadcrumb } from './AlgorithmBreadcrumb';
+export type { AlgorithmCardProps, AlgorithmCategory, DifficultyLevel } from './AlgorithmCard';
 // UI Components
 export { AlgorithmCard } from './AlgorithmCard';
-export type { AlgorithmCardProps, DifficultyLevel, AlgorithmCategory } from './AlgorithmCard';
-
-export { AlgorithmBreadcrumb } from './AlgorithmBreadcrumb';
-export type { AlgorithmBreadcrumbProps, BreadcrumbItem } from './AlgorithmBreadcrumb';
-
-export { AlgorithmMetadata } from './AlgorithmMetadata';
 export type { AlgorithmMetadataProps } from './AlgorithmMetadata';
-
-export { CategoryFilter } from './CategoryFilter';
-export type { CategoryFilterProps } from './CategoryFilter';
-
-export { AlgorithmPage } from './AlgorithmPage';
+export { AlgorithmMetadata } from './AlgorithmMetadata';
 export type { AlgorithmPageProps, Reference, RelatedAlgorithm } from './AlgorithmPage';
-
+export { AlgorithmPage } from './AlgorithmPage';
+export type { CategoryFilterProps } from './CategoryFilter';
+export { CategoryFilter } from './CategoryFilter';
+export type { MetaLearningPlaygroundProps } from './MetaLearningPlayground';
+export { MetaLearningPlayground } from './MetaLearningPlayground';
+export type { PageRankExplorerProps } from './PageRankExplorer';
+export { PageRankExplorer } from './PageRankExplorer';
+export type { QuantumSimulatorProps } from './QuantumSimulator';
+export { QuantumSimulator } from './QuantumSimulator';
+export type { TransformerVisualizerProps } from './TransformerVisualizer';
+// Component exports
+export { TransformerVisualizer } from './TransformerVisualizer';
 // Type exports
 export type {
-  // Branded types
-  AttentionScore,
   Amplitude,
-  PageRankScore,
-  NodeId,
-  EdgeId,
-  // Status types
-  StepStatus,
   AnimationSpeed,
-  ThemeMode,
   // Transformer types
   AttentionHead,
-  TransformerConfig,
-  // ZKP types
-  ZKPState,
+  // Branded types
+  AttentionScore,
+  EdgeId,
+  // Utility types
+  EducationalStep,
+  ExportConfig,
+  Graph,
+  GraphEdge,
+  // Graph types
+  GraphNode,
+  MAMLState,
+  // MAML types
+  MAMLTask,
+  NodeId,
+  PageRankScore,
+  PerformanceMetrics,
+  QuantumCircuit,
   // Quantum types
   QuantumGate,
   QuantumState,
-  QuantumCircuit,
-  // Graph types
-  GraphNode,
-  GraphEdge,
-  Graph,
-  // MAML types
-  MAMLTask,
-  MAMLState,
-  // Utility types
-  EducationalStep,
-  PerformanceMetrics,
-  ExportConfig,
+  // Status types
+  StepStatus,
+  ThemeMode,
+  TransformerConfig,
+  // ZKP types
+  ZKPState,
 } from './types';
-
 // Helper function exports
 export {
-  createAttentionScore,
-  createAmplitude,
-  createPageRankScore,
-  createNodeId,
-  createEdgeId,
   ANIMATION_DURATIONS,
+  createAmplitude,
+  createAttentionScore,
+  createEdgeId,
+  createNodeId,
+  createPageRankScore,
   VISUALIZATION_COLORS,
 } from './types';
+export type { ZKPComputeVisualizerProps } from './ZKPComputeVisualizer';
+export { ZKPComputeVisualizer } from './ZKPComputeVisualizer';
+export type { ZKPDemoProps } from './ZKPDemo';
+export { ZKPDemo } from './ZKPDemo';

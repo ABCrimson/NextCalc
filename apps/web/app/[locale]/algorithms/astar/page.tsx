@@ -1,9 +1,9 @@
 'use client';
 
-import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
-import { AStarVisualizer } from '@/components/algorithms/AStarVisualizer';
 import { Compass } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
+import { AStarVisualizer } from '@/components/algorithms/AStarVisualizer';
 
 /**
  * A* Search Algorithm Page

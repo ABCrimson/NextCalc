@@ -8,7 +8,7 @@
  *   pnpm tsx scripts/test-database-connection.ts
  */
 
-import { prisma, checkDatabaseConnection, disconnectDatabase } from '@nextcalc/database';
+import { checkDatabaseConnection, disconnectDatabase, prisma } from '@nextcalc/database';
 
 async function testConnection() {
   console.log('Testing Neon Database Connection...\n');
@@ -24,18 +24,21 @@ async function testConnection() {
 
     // Step 2: Test raw query execution
     console.log('Step 2: Testing raw query execution...');
-    const result = await prisma.$queryRaw`SELECT version()` as { version?: string; tablename?: string }[];
+    const result = (await prisma.$queryRaw`SELECT version()`) as {
+      version?: string;
+      tablename?: string;
+    }[];
     console.log('PostgreSQL Version:', result[0]?.version?.split(' ')[1] || 'Unknown');
     console.log('');
 
     // Step 3: Check if tables exist
     console.log('Step 3: Checking database tables...');
-    const tables = await prisma.$queryRaw`
+    const tables = (await prisma.$queryRaw`
       SELECT tablename::text AS tablename
       FROM pg_tables
       WHERE schemaname = 'public'
       ORDER BY tablename
-    ` as { tablename: string }[];
+    `) as { tablename: string }[];
 
     if (tables.length === 0) {
       console.log('No tables found. Run migrations:');
@@ -59,7 +62,7 @@ async function testConnection() {
     // Step 5: Connection info
     console.log('Step 5: Connection information...');
     const databaseUrl = process.env['DATABASE_URL'] || '';
-    const urlParts = databaseUrl.match(/postgresql:\/\/([^:]+):[^@]+@([^\/]+)\/(.+)\?/);
+    const urlParts = databaseUrl.match(/postgresql:\/\/([^:]+):[^@]+@([^/]+)\/(.+)\?/);
 
     if (urlParts) {
       console.log('Database details:');
@@ -70,7 +73,6 @@ async function testConnection() {
     }
 
     console.log('All connection tests passed!\n');
-
   } catch (error) {
     console.error('\nConnection test failed!\n');
 
@@ -96,8 +98,7 @@ async function testConnection() {
   }
 }
 
-testConnection()
-  .catch((error) => {
-    console.error('Unexpected error:', error);
-    process.exit(1);
-  });
+testConnection().catch((error) => {
+  console.error('Unexpected error:', error);
+  process.exit(1);
+});

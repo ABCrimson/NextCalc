@@ -6,10 +6,10 @@
  * happy-dom 20.6.3
  */
 
-import { expect, afterEach, beforeEach, beforeAll, vi } from 'vitest';
-import { cleanup } from '@testing-library/react';
 import * as matchers from '@testing-library/jest-dom/matchers';
+import { cleanup } from '@testing-library/react';
 import { toHaveNoViolations } from 'jest-axe';
+import { afterEach, beforeAll, beforeEach, expect, vi } from 'vitest';
 
 // Extend Vitest's expect with jest-dom matchers
 expect.extend(matchers);
@@ -90,10 +90,7 @@ global.IntersectionObserver = class IntersectionObserver {
   rootMargin: string = '';
   thresholds: readonly number[] = [];
 
-  constructor(
-    _callback: IntersectionObserverCallback,
-    _options?: IntersectionObserverInit
-  ) {}
+  constructor(_callback: IntersectionObserverCallback, _options?: IntersectionObserverInit) {}
 
   disconnect() {}
   observe() {}
@@ -148,7 +145,11 @@ let documentMocksInitialized = false;
 
 // Initialize document mocks safely in beforeEach
 beforeEach(() => {
-  if (!documentMocksInitialized && typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+  if (
+    !documentMocksInitialized &&
+    typeof document !== 'undefined' &&
+    typeof document.addEventListener === 'function'
+  ) {
     // Only initialize once and only if document is available
     documentMocksInitialized = true;
   }
@@ -163,7 +164,13 @@ afterEach(() => {
 
 // Mock @tanstack/react-virtual for testing (virtualized lists don't render in tests)
 vi.mock('@tanstack/react-virtual', () => ({
-  useVirtualizer: ({ count, getScrollElement: _getScrollElement }: { count: number; getScrollElement: () => HTMLElement | null }) => ({
+  useVirtualizer: ({
+    count,
+    getScrollElement: _getScrollElement,
+  }: {
+    count: number;
+    getScrollElement: () => HTMLElement | null;
+  }) => ({
     getVirtualItems: () =>
       Array.from({ length: count }, (_, index) => ({
         index,
@@ -188,11 +195,27 @@ vi.mock('framer-motion', () => {
   // Filter out framer-motion specific props that React doesn't recognize
   const filterMotionProps = (props: Record<string, any>) => {
     const motionProps = [
-      'initial', 'animate', 'exit', 'transition', 'variants',
-      'whileHover', 'whileTap', 'whileFocus', 'whileDrag', 'whileInView',
-      'drag', 'dragConstraints', 'dragElastic', 'dragMomentum',
-      'layout', 'layoutId', 'onAnimationStart', 'onAnimationComplete',
-      'custom', 'inherit', 'style'
+      'initial',
+      'animate',
+      'exit',
+      'transition',
+      'variants',
+      'whileHover',
+      'whileTap',
+      'whileFocus',
+      'whileDrag',
+      'whileInView',
+      'drag',
+      'dragConstraints',
+      'dragElastic',
+      'dragMomentum',
+      'layout',
+      'layoutId',
+      'onAnimationStart',
+      'onAnimationComplete',
+      'custom',
+      'inherit',
+      'style',
     ];
     const filtered: Record<string, any> = {};
     for (const [key, value] of Object.entries(props)) {

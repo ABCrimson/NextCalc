@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback, useMemo, type MouseEvent } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { type MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 interface TimeDomainRendererProps {
   signal: number[];
@@ -13,8 +13,7 @@ interface TimeDomainRendererProps {
 // ---------------------------------------------------------------------------
 // WebGPU feature detection (safe for SSR)
 // ---------------------------------------------------------------------------
-const supportsWebGPU =
-  typeof navigator !== 'undefined' && 'gpu' in navigator;
+const supportsWebGPU = typeof navigator !== 'undefined' && 'gpu' in navigator;
 
 // ---------------------------------------------------------------------------
 // WGSL shaders
@@ -130,10 +129,7 @@ interface GPUResources {
  *    colour with amplitude modulation in a single draw call (line-strip).
  * 2. Canvas 2D fallback: full existing per-segment gradient implementation.
  */
-export function TimeDomainRenderer({
-  signal,
-  sampleRate = 1,
-}: TimeDomainRendererProps) {
+export function TimeDomainRenderer({ signal, sampleRate = 1 }: TimeDomainRendererProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const animationFrameRef = useRef<number | null>(null);
@@ -145,7 +141,11 @@ export function TimeDomainRenderer({
   const [isPanning, setIsPanning] = useState(false);
   const [dragStart, setDragStart] = useState(0);
   const [hoveredSample, setHoveredSample] = useState<{
-    index: number; value: number; time: number; screenX: number; screenY: number;
+    index: number;
+    value: number;
+    time: number;
+    screenX: number;
+    screenY: number;
   } | null>(null);
   const [renderMode, setRenderMode] = useState<'webgpu' | 'canvas2d' | 'detecting'>('detecting');
 
@@ -169,7 +169,9 @@ export function TimeDomainRenderer({
 
     const startTime = performance.now();
     const ctx = canvas.getContext('2d', {
-      alpha: false, desynchronized: true, willReadFrequently: false,
+      alpha: false,
+      desynchronized: true,
+      willReadFrequently: false,
     });
     if (!ctx) return;
 
@@ -195,8 +197,12 @@ export function TimeDomainRenderer({
     ctx.fillRect(0, 0, w, h);
 
     const plotGradient = ctx.createRadialGradient(
-      margin.left + plotWidth / 2, margin.top + plotHeight / 2, 0,
-      margin.left + plotWidth / 2, margin.top + plotHeight / 2, Math.max(plotWidth, plotHeight) / 2
+      margin.left + plotWidth / 2,
+      margin.top + plotHeight / 2,
+      0,
+      margin.left + plotWidth / 2,
+      margin.top + plotHeight / 2,
+      Math.max(plotWidth, plotHeight) / 2,
     );
     plotGradient.addColorStop(0, 'rgba(15, 23, 42, 0.9)');
     plotGradient.addColorStop(1, 'rgba(15, 23, 42, 0.5)');
@@ -224,7 +230,7 @@ export function TimeDomainRenderer({
     const niceTickStep = (range: number, targetTicks = 6): number => {
       if (range <= 0) return 1;
       const rough = range / targetTicks;
-      const mag = Math.pow(10, Math.floor(Math.log10(rough)));
+      const mag = 10 ** Math.floor(Math.log10(rough));
       const residual = rough / mag;
       const nice = residual <= 1.5 ? 1 : residual <= 3 ? 2 : residual <= 7 ? 5 : 10;
       return nice * mag;
@@ -335,16 +341,24 @@ export function TimeDomainRenderer({
         let lightness: number;
         if (progress < 0.25) {
           const t = progress / 0.25;
-          hue = 160 - t * 20; saturation = 70 + t * 10; lightness = 50 + amplitude * 15;
+          hue = 160 - t * 20;
+          saturation = 70 + t * 10;
+          lightness = 50 + amplitude * 15;
         } else if (progress < 0.5) {
           const t = (progress - 0.25) / 0.25;
-          hue = 140 + t * 50; saturation = 80 + t * 5; lightness = 50 + amplitude * 15;
+          hue = 140 + t * 50;
+          saturation = 80 + t * 5;
+          lightness = 50 + amplitude * 15;
         } else if (progress < 0.75) {
           const t = (progress - 0.5) / 0.25;
-          hue = 190 + t * 50; saturation = 85 - t * 15; lightness = 50 + amplitude * 15;
+          hue = 190 + t * 50;
+          saturation = 85 - t * 15;
+          lightness = 50 + amplitude * 15;
         } else {
           const t = (progress - 0.75) / 0.25;
-          hue = 240 + t * 40; saturation = 70 + t * 10; lightness = 50 + amplitude * 15;
+          hue = 240 + t * 40;
+          saturation = 70 + t * 10;
+          lightness = 50 + amplitude * 15;
         }
         const color = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
         ctx.beginPath();
@@ -361,17 +375,22 @@ export function TimeDomainRenderer({
         ctx.shadowBlur = 0;
       }
 
-      if (zoom > 2 && (endSample - startSample) < 200) {
+      if (zoom > 2 && endSample - startSample < 200) {
         for (let i = startSample; i < endSample; i++) {
           const value = signal[i] ?? 0;
           const x = xScale(i);
           const y = yScale(value);
           const progress = (i - startSample) / (endSample - startSample);
           let hue: number;
-          if (progress < 0.25) { hue = 160 - (progress / 0.25) * 20; }
-          else if (progress < 0.5) { hue = 140 + ((progress - 0.25) / 0.25) * 50; }
-          else if (progress < 0.75) { hue = 190 + ((progress - 0.5) / 0.25) * 50; }
-          else { hue = 240 + ((progress - 0.75) / 0.25) * 40; }
+          if (progress < 0.25) {
+            hue = 160 - (progress / 0.25) * 20;
+          } else if (progress < 0.5) {
+            hue = 140 + ((progress - 0.25) / 0.25) * 50;
+          } else if (progress < 0.75) {
+            hue = 190 + ((progress - 0.5) / 0.25) * 50;
+          } else {
+            hue = 240 + ((progress - 0.75) / 0.25) * 40;
+          }
           const color = `hsl(${hue}, 80%, 60%)`;
           ctx.beginPath();
           ctx.arc(x, y, 3, 0, Math.PI * 2);
@@ -422,7 +441,10 @@ export function TimeDomainRenderer({
     const endTime = performance.now();
     const frameTime = endTime - startTime;
     ctx.shadowBlur = 0;
-    const badgeX = w - 180, badgeY = 8, badgeW = 170, badgeH = 26;
+    const badgeX = w - 180,
+      badgeY = 8,
+      badgeW = 170,
+      badgeH = 26;
     ctx.fillStyle = 'rgba(6,182,212,0.15)';
     ctx.fillRect(badgeX, badgeY, badgeW, badgeH);
     ctx.strokeStyle = 'rgba(6,182,212,0.5)';
@@ -433,7 +455,8 @@ export function TimeDomainRenderer({
     ctx.textAlign = 'center';
     ctx.fillText(
       `${signal.length.toLocaleString()} samples • ${frameTime.toFixed(1)}ms • ${(1000 / frameTime).toFixed(0)} fps`,
-      badgeX + badgeW / 2, badgeY + 17
+      badgeX + badgeW / 2,
+      badgeY + 17,
     );
   }, [signal, zoom, pan, signalStats, sampleRate]);
 
@@ -472,10 +495,16 @@ export function TimeDomainRenderer({
 
     // Write uniforms
     const uniformData = new Float32Array([
-      0, pointCount - 1,
-      signalStats.min, signalStats.max,
-      margin.left, margin.top, plotW, plotH,
-      W, H,
+      0,
+      pointCount - 1,
+      signalStats.min,
+      signalStats.max,
+      margin.left,
+      margin.top,
+      plotW,
+      plotH,
+      W,
+      H,
     ]);
     const uniformU32 = new Uint32Array(uniformData.buffer);
     uniformU32[10] = pointCount;
@@ -493,12 +522,14 @@ export function TimeDomainRenderer({
     const texture = gpu.context.getCurrentTexture();
     const encoder = gpu.device.createCommandEncoder();
     const pass = encoder.beginRenderPass({
-      colorAttachments: [{
-        view: texture.createView(),
-        clearValue: { r: 0.039, g: 0.059, b: 0.118, a: 1 },
-        loadOp: 'clear',
-        storeOp: 'store',
-      }],
+      colorAttachments: [
+        {
+          view: texture.createView(),
+          clearValue: { r: 0.039, g: 0.059, b: 0.118, a: 1 },
+          loadOp: 'clear',
+          storeOp: 'store',
+        },
+      ],
     });
     pass.setPipeline(gpu.pipeline);
     pass.setBindGroup(0, bindGroup);
@@ -511,19 +542,36 @@ export function TimeDomainRenderer({
   // WebGPU initialisation
   // -------------------------------------------------------------------------
   useEffect(() => {
-    if (!supportsWebGPU) { setRenderMode('canvas2d'); return; }
+    if (!supportsWebGPU) {
+      setRenderMode('canvas2d');
+      return;
+    }
     let cancelled = false;
 
     (async () => {
       try {
         const adapter = await navigator.gpu.requestAdapter();
-        if (!adapter || cancelled) { setRenderMode('canvas2d'); return; }
+        if (!adapter || cancelled) {
+          setRenderMode('canvas2d');
+          return;
+        }
         const device = await adapter.requestDevice();
-        if (cancelled) { device.destroy(); return; }
+        if (cancelled) {
+          device.destroy();
+          return;
+        }
         const canvas = canvasRef.current;
-        if (!canvas) { device.destroy(); setRenderMode('canvas2d'); return; }
+        if (!canvas) {
+          device.destroy();
+          setRenderMode('canvas2d');
+          return;
+        }
         const context = canvas.getContext('webgpu') as GPUCanvasContext | null;
-        if (!context) { device.destroy(); setRenderMode('canvas2d'); return; }
+        if (!context) {
+          device.destroy();
+          setRenderMode('canvas2d');
+          return;
+        }
 
         const format = navigator.gpu.getPreferredCanvasFormat();
         context.configure({ device, format, alphaMode: 'opaque' });
@@ -613,47 +661,69 @@ export function TimeDomainRenderer({
   const handleWheel = useCallback((e: WheelEvent) => {
     e.preventDefault();
     const delta = -e.deltaY / 500;
-    setZoom(prevZoom => Math.max(1, Math.min(20, prevZoom * (1 + delta))));
+    setZoom((prevZoom) => Math.max(1, Math.min(20, prevZoom * (1 + delta))));
   }, []);
 
-  const handleMouseDown = useCallback((e: MouseEvent) => {
-    setIsPanning(true);
-    setDragStart(e.clientX - pan);
-  }, [pan]);
+  const handleMouseDown = useCallback(
+    (e: MouseEvent) => {
+      setIsPanning(true);
+      setDragStart(e.clientX - pan);
+    },
+    [pan],
+  );
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (isPanning) {
-      const newPan = e.clientX - dragStart;
-      const maxPan = signal.length - signal.length / zoom;
-      setPan(Math.max(0, Math.min(maxPan, newPan)));
-    }
-    const canvas = canvasRef.current;
-    if (!canvas || signal.length === 0) return;
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const margin = { top: 40, right: 40, bottom: 50, left: 60 };
-    if (mouseX < margin.left || mouseX > rect.width - margin.right ||
-        mouseY < margin.top || mouseY > rect.height - margin.bottom) {
-      setHoveredSample(null);
-      return;
-    }
-    const plotWidth = rect.width - margin.left - margin.right;
-    const relativeX = (mouseX - margin.left) / plotWidth;
-    const visibleSamples = Math.floor(signal.length / zoom);
-    const startSample = Math.max(0, Math.min(signal.length - visibleSamples, Math.floor(pan)));
-    const sampleIndex = Math.floor(startSample + relativeX * visibleSamples);
-    if (sampleIndex >= 0 && sampleIndex < signal.length) {
-      const value = signal[sampleIndex] ?? 0;
-      setHoveredSample({ index: sampleIndex, value, time: sampleIndex / sampleRate, screenX: mouseX, screenY: mouseY });
-    } else {
-      setHoveredSample(null);
-    }
-  }, [isPanning, dragStart, signal, zoom, pan, sampleRate]);
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (isPanning) {
+        const newPan = e.clientX - dragStart;
+        const maxPan = signal.length - signal.length / zoom;
+        setPan(Math.max(0, Math.min(maxPan, newPan)));
+      }
+      const canvas = canvasRef.current;
+      if (!canvas || signal.length === 0) return;
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      const margin = { top: 40, right: 40, bottom: 50, left: 60 };
+      if (
+        mouseX < margin.left ||
+        mouseX > rect.width - margin.right ||
+        mouseY < margin.top ||
+        mouseY > rect.height - margin.bottom
+      ) {
+        setHoveredSample(null);
+        return;
+      }
+      const plotWidth = rect.width - margin.left - margin.right;
+      const relativeX = (mouseX - margin.left) / plotWidth;
+      const visibleSamples = Math.floor(signal.length / zoom);
+      const startSample = Math.max(0, Math.min(signal.length - visibleSamples, Math.floor(pan)));
+      const sampleIndex = Math.floor(startSample + relativeX * visibleSamples);
+      if (sampleIndex >= 0 && sampleIndex < signal.length) {
+        const value = signal[sampleIndex] ?? 0;
+        setHoveredSample({
+          index: sampleIndex,
+          value,
+          time: sampleIndex / sampleRate,
+          screenX: mouseX,
+          screenY: mouseY,
+        });
+      } else {
+        setHoveredSample(null);
+      }
+    },
+    [isPanning, dragStart, signal, zoom, pan, sampleRate],
+  );
 
   const handleMouseUp = useCallback(() => setIsPanning(false), []);
-  const handleMouseLeave = useCallback(() => { setIsPanning(false); setHoveredSample(null); }, []);
-  const resetView = useCallback(() => { setZoom(1); setPan(0); }, []);
+  const handleMouseLeave = useCallback(() => {
+    setIsPanning(false);
+    setHoveredSample(null);
+  }, []);
+  const resetView = useCallback(() => {
+    setZoom(1);
+    setPan(0);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -702,7 +772,8 @@ export function TimeDomainRenderer({
             style={{
               left: hoveredSample.screenX + 15,
               top: hoveredSample.screenY - 60,
-              background: 'linear-gradient(135deg, rgba(15,23,42,0.95) 0%, rgba(30,41,59,0.95) 100%)',
+              background:
+                'linear-gradient(135deg, rgba(15,23,42,0.95) 0%, rgba(30,41,59,0.95) 100%)',
               backdropFilter: 'blur(12px)',
               border: '1px solid rgba(99,102,241,0.3)',
               boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(99,102,241,0.2)',
@@ -728,7 +799,8 @@ export function TimeDomainRenderer({
             onClick={resetView}
             className="absolute top-2 left-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200"
             style={{
-              background: 'linear-gradient(135deg, rgba(6,182,212,0.2) 0%, rgba(99,102,241,0.2) 100%)',
+              background:
+                'linear-gradient(135deg, rgba(6,182,212,0.2) 0%, rgba(99,102,241,0.2) 100%)',
               backdropFilter: 'blur(8px)',
               border: '1px solid rgba(6,182,212,0.4)',
               color: '#06b6d4',

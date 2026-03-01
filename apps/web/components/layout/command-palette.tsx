@@ -28,48 +28,48 @@
  * ```
  */
 
+import type { HistoryEntry } from '@nextcalc/types';
+import { AnimatePresence, motion, useReducedMotion, type Variants } from 'framer-motion';
 import {
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-  useMemo,
-  type KeyboardEvent,
-  type ChangeEvent,
-} from 'react';
-import { useRouter } from 'next/navigation';
-import { type Variants, motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import {
-  Calculator,
-  TrendingUp,
-  Variable,
-  Grid3x3,
-  Square,
-  Ruler,
-  Sparkles,
   Activity,
-  Trophy,
-  Wind,
-  Flame,
-  Network,
-  Brain,
   BarChart2,
   BookOpen,
-  PenTool,
-  FileQuestion,
-  MessageSquare,
-  Search,
-  X,
-  Trash2,
-  FlipHorizontal,
-  Clock,
-  Zap,
   Box,
+  Brain,
+  Calculator,
+  Clock,
+  FileQuestion,
+  Flame,
+  FlipHorizontal,
+  Grid3x3,
   type LucideIcon,
+  MessageSquare,
+  Network,
+  PenTool,
+  Ruler,
+  Search,
+  Sparkles,
+  Square,
+  Trash2,
+  TrendingUp,
+  Trophy,
+  Variable,
+  Wind,
+  X,
+  Zap,
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import {
+  type ChangeEvent,
+  type KeyboardEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { useCalculatorDispatch, useCalculatorHistory } from '@/lib/stores/calculator-store';
 import { cn } from '@/lib/utils';
-import { useCalculatorHistory, useCalculatorDispatch } from '@/lib/stores/calculator-store';
-import type { HistoryEntry } from '@nextcalc/types';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -217,7 +217,23 @@ const PAGE_COMMANDS = [
     label: 'ODE Solver',
     description: 'Ordinary differential equations with phase plane',
     icon: Activity,
-    keywords: ['ode', 'ordinary', 'differential', 'euler', 'runge-kutta', 'rk4', 'phase', 'plane', 'direction', 'field', 'trajectory', 'lotka', 'volterra', 'pendulum', 'harmonic'],
+    keywords: [
+      'ode',
+      'ordinary',
+      'differential',
+      'euler',
+      'runge-kutta',
+      'rk4',
+      'phase',
+      'plane',
+      'direction',
+      'field',
+      'trajectory',
+      'lotka',
+      'volterra',
+      'pendulum',
+      'harmonic',
+    ],
     href: '/solver/ode',
   },
   {
@@ -286,10 +302,7 @@ const PAGE_COMMANDS = [
  * Returns null if no match, otherwise { score, matchIndices }.
  * Lower score = better match (fewer character gaps between matches).
  */
-function fuzzyScore(
-  text: string,
-  query: string,
-): { score: number; matchIndices: number[] } | null {
+function fuzzyScore(text: string, query: string): { score: number; matchIndices: number[] } | null {
   if (query.length === 0) return { score: 0, matchIndices: [] };
 
   const textLower = text.toLowerCase();
@@ -392,10 +405,7 @@ function HighlightedLabel({
     <span>
       {parts.map((part, i) =>
         part.highlighted ? (
-          <mark
-            key={i}
-            className="bg-transparent text-primary font-semibold not-italic"
-          >
+          <mark key={i} className="bg-transparent text-primary font-semibold not-italic">
             {part.text}
           </mark>
         ) : (
@@ -809,10 +819,7 @@ export function CommandPalette({ className }: CommandPaletteProps) {
               >
                 {/* Search input */}
                 <div className="flex items-center gap-3 border-b border-border/40 px-4 py-3">
-                  <Search
-                    className="h-4 w-4 shrink-0 text-muted-foreground"
-                    aria-hidden="true"
-                  />
+                  <Search className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
                   <input
                     ref={inputRef}
                     type="text"
@@ -877,15 +884,10 @@ export function CommandPalette({ className }: CommandPaletteProps) {
                       role="status"
                       aria-live="polite"
                     >
-                      <Search
-                        className="h-8 w-8 text-muted-foreground/40"
-                        aria-hidden="true"
-                      />
+                      <Search className="h-8 w-8 text-muted-foreground/40" aria-hidden="true" />
                       <p className="text-sm text-muted-foreground">
                         No results for{' '}
-                        <span className="font-medium text-foreground">
-                          &ldquo;{query}&rdquo;
-                        </span>
+                        <span className="font-medium text-foreground">&ldquo;{query}&rdquo;</span>
                       </p>
                       <p className="text-xs text-muted-foreground/70">
                         Try a different search term.
@@ -903,10 +905,7 @@ export function CommandPalette({ className }: CommandPaletteProps) {
                         return (
                           <li key={section} role="presentation">
                             {/* Section header */}
-                            <div
-                              className="px-4 pb-1 pt-3 first:pt-1"
-                              role="presentation"
-                            >
+                            <div className="px-4 pb-1 pt-3 first:pt-1" role="presentation">
                               <span
                                 className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60"
                                 aria-hidden="true"
@@ -1027,12 +1026,7 @@ export function CommandPalette({ className }: CommandPaletteProps) {
       </AnimatePresence>
 
       {/* Screen reader live region for result count */}
-      <div
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-        className="sr-only"
-      >
+      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
         {open && query.trim().length > 0
           ? `${filteredItems.length} result${filteredItems.length !== 1 ? 's' : ''} for ${query}`
           : null}

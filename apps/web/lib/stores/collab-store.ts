@@ -56,10 +56,10 @@ export type CollabTransport = 'broadcastchannel' | 'websocket' | 'polling';
 
 /** Connection state of the collaborative session. */
 export type CollabStatus =
-  | 'idle'       // not in any session
+  | 'idle' // not in any session
   | 'connecting' // handshake in progress
-  | 'live'       // active and syncing
-  | 'error';     // transport failed
+  | 'live' // active and syncing
+  | 'error'; // transport failed
 
 /** A remote collaborator's presence snapshot. */
 export interface RemoteCollaborator {
@@ -248,8 +248,8 @@ export const useCollabStore = create<CollabStore>()(
     {
       name: 'collab-store',
       enabled: process.env.NODE_ENV === 'development',
-    }
-  )
+    },
+  ),
 );
 
 // ---------------------------------------------------------------------------
@@ -267,18 +267,18 @@ export const useCollabSession = () => useCollabStore((s) => s.session);
 export const useLocalPeer = () => useCollabStore((s) => s.localPeer);
 export const useCollabStatus = () => useCollabStore((s) => s.session?.status ?? 'idle');
 export const useRemotePeers = () =>
-  useCollabStore(useShallow((s) =>
-    s.session ? Object.values(s.session.peers) : []
-  ));
+  useCollabStore(useShallow((s) => (s.session ? Object.values(s.session.peers) : [])));
 export const useCollabActions = () =>
-  useCollabStore(useShallow((s) => ({
-    setLocalName: s.setLocalName,
-    startSession: s.startSession,
-    markLive: s.markLive,
-    markError: s.markError,
-    upsertPeer: s.upsertPeer,
-    removePeer: s.removePeer,
-    pruneStale: s.pruneStale,
-    setLocalActiveCell: s.setLocalActiveCell,
-    endSession: s.endSession,
-  })));
+  useCollabStore(
+    useShallow((s) => ({
+      setLocalName: s.setLocalName,
+      startSession: s.startSession,
+      markLive: s.markLive,
+      markError: s.markError,
+      upsertPeer: s.upsertPeer,
+      removePeer: s.removePeer,
+      pruneStale: s.pruneStale,
+      setLocalActiveCell: s.setLocalActiveCell,
+      endSession: s.endSession,
+    })),
+  );

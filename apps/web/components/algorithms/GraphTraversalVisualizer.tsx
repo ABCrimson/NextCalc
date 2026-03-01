@@ -16,36 +16,30 @@
  * ```
  */
 
-import { useState, useCallback, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Slider } from '@/components/ui/slider';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
-import {
-  Play,
-  Pause,
-  RotateCcw,
-  SkipForward,
-  Layers,
-  TrendingDown,
   GitBranch,
   Info,
+  Layers,
+  Pause,
+  Play,
+  RotateCcw,
+  SkipForward,
+  TrendingDown,
 } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { Slider } from '@/components/ui/slider';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  UnifiedGraphRenderer,
-  type GraphNode,
   type GraphEdge,
+  type GraphNode,
   type NodeId,
+  UnifiedGraphRenderer,
 } from './UnifiedGraphRenderer';
 
 // ============================================================================
@@ -151,7 +145,7 @@ const PRESET_GRAPHS: PresetGraph[] = [
 function* bfsGenerator(
   _nodes: GraphNode[],
   edges: GraphEdge[],
-  startId: NodeId
+  startId: NodeId,
 ): Generator<TraversalState> {
   const visited = new Set<NodeId>();
   const queue: NodeId[] = [startId];
@@ -207,7 +201,7 @@ function* bfsGenerator(
 function* dfsGenerator(
   _nodes: GraphNode[],
   edges: GraphEdge[],
-  startId: NodeId
+  startId: NodeId,
 ): Generator<TraversalState> {
   const visited = new Set<NodeId>();
   const stack: NodeId[] = [startId];
@@ -339,15 +333,9 @@ export function GraphTraversalVisualizer() {
     return preset.edges.map((edge) => {
       let state: GraphEdge['state'] = 'unvisited';
 
-      if (
-        algorithmState.visited.has(edge.source) &&
-        algorithmState.visited.has(edge.target)
-      ) {
+      if (algorithmState.visited.has(edge.source) && algorithmState.visited.has(edge.target)) {
         state = 'visited';
-      } else if (
-        algorithmState.current === edge.source ||
-        algorithmState.current === edge.target
-      ) {
+      } else if (algorithmState.current === edge.source || algorithmState.current === edge.target) {
         state = 'current';
       }
 
@@ -372,7 +360,7 @@ export function GraphTraversalVisualizer() {
       setStartNode(nodeId);
       handleReset();
     },
-    [handleReset]
+    [handleReset],
   );
 
   return (

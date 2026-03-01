@@ -29,20 +29,17 @@
 
 'use client';
 
-import { useEffect, useRef, useCallback } from 'react';
 import { createClient } from 'graphql-sse';
+import { useCallback, useEffect, useRef } from 'react';
 import {
-  useCollabStore,
-  useCollabActions,
+  COLLAB_COLORS,
+  type CollabColor,
   localActiveCellRef,
   type RemoteCollaborator,
-  type CollabColor,
-  COLLAB_COLORS,
+  useCollabActions,
+  useCollabStore,
 } from '@/lib/stores/collab-store';
-import {
-  useWorksheetStore,
-  type WorksheetCell,
-} from '@/lib/stores/worksheet-store';
+import { useWorksheetStore, type WorksheetCell } from '@/lib/stores/worksheet-store';
 
 // ---------------------------------------------------------------------------
 // Protocol types
@@ -99,12 +96,13 @@ const STALE_PEER_TIMEOUT_MS = 12_000;
 const PRUNE_INTERVAL_MS = 6_000;
 
 // SSE client for cross-device subscription (graphql-sse 2.6.0)
-const sseClient = typeof window !== 'undefined'
-  ? createClient({
-      url: `${window.location.origin}/api/graphql/stream`,
-      singleConnection: true,
-    })
-  : null;
+const sseClient =
+  typeof window !== 'undefined'
+    ? createClient({
+        url: `${window.location.origin}/api/graphql/stream`,
+        singleConnection: true,
+      })
+    : null;
 
 // ---------------------------------------------------------------------------
 // Colour assignment for unknown peers
@@ -119,7 +117,7 @@ function safeColor(value: unknown): CollabColor {
 
 function descriptorToPeer(
   d: CollabPeerDescriptor,
-  activeCellId: string | null = null
+  activeCellId: string | null = null,
 ): RemoteCollaborator {
   return {
     id: d.id,
@@ -237,8 +235,7 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
         }
 
         case 'heartbeat': {
-          const activeCellId =
-            typeof m['activeCellId'] === 'string' ? m['activeCellId'] : null;
+          const activeCellId = typeof m['activeCellId'] === 'string' ? m['activeCellId'] : null;
           actions.upsertPeer(descriptorToPeer(peerRaw, activeCellId));
           break;
         }
@@ -263,7 +260,7 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
                     incoming.id,
                     incoming.result,
                     incoming.latex ?? '',
-                    incoming.variables
+                    incoming.variables,
                   );
                 } else if (incoming.status === 'error' && incoming.errorMessage) {
                   localStore.setMathError(incoming.id, incoming.errorMessage);
@@ -299,7 +296,7 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
         }
       }
     },
-    [actions, dispatch]
+    [actions, dispatch],
   );
 
   // ---------------------------------------------------------------------------
@@ -324,85 +321,81 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
 
       return true;
     },
-    [receive]
+    [receive],
   );
 
   // ---------------------------------------------------------------------------
   // SSE transport (cross-device data sync via graphql-sse)
   // ---------------------------------------------------------------------------
 
-  const connectSSE = useCallback(
-    (worksheetId: string) => {
-      if (!sseClient) return;
+  const connectSSE = useCallback((worksheetId: string) => {
+    if (!sseClient) return;
 
-      // Dispose previous subscription if any
-      sseDisposeRef.current?.();
+    // Dispose previous subscription if any
+    sseDisposeRef.current?.();
 
-      const dispose = sseClient.subscribe(
-        {
-          query: `subscription WorksheetUpdated($worksheetId: ID!) {
+    const dispose = sseClient.subscribe(
+      {
+        query: `subscription WorksheetUpdated($worksheetId: ID!) {
             worksheetUpdated(worksheetId: $worksheetId) {
               id title content version updatedAt
             }
           }`,
-          variables: { worksheetId },
-        },
-        {
-          next: (result) => {
-            const updated = (result.data as Record<string, unknown> | null)?.['worksheetUpdated'] as {
-              id: string;
-              title: string;
-              content: unknown;
-              version: number;
-              updatedAt: string;
-            } | undefined;
-            if (!updated) return;
-
-            // Apply incoming worksheet data using LWW
-            const localStore = useWorksheetStore.getState();
-            const localUpdatedAt = localStore.worksheet.updatedAt;
-            const incomingUpdatedAt = new Date(updated.updatedAt).getTime();
-
-            if (incomingUpdatedAt > localUpdatedAt) {
-              // The SSE update is newer — hydrate from it
-              if (Array.isArray(updated.content)) {
-                const cells = updated.content as WorksheetCell[];
-                localStore.hydrate({
-                  worksheetId: updated.id,
-                  title: updated.title,
-                  cells,
-                  version: updated.version,
-                });
+        variables: { worksheetId },
+      },
+      {
+        next: (result) => {
+          const updated = (result.data as Record<string, unknown> | null)?.['worksheetUpdated'] as
+            | {
+                id: string;
+                title: string;
+                content: unknown;
+                version: number;
+                updatedAt: string;
               }
-            }
-          },
-          error: (err) => {
-            console.error('SSE subscription error:', err);
-          },
-          complete: () => {
-            // SSE connection closed — no automatic retry (graphql-sse handles reconnection)
-          },
-        },
-      );
+            | undefined;
+          if (!updated) return;
 
-      sseDisposeRef.current = dispose;
-    },
-    []
-  );
+          // Apply incoming worksheet data using LWW
+          const localStore = useWorksheetStore.getState();
+          const localUpdatedAt = localStore.worksheet.updatedAt;
+          const incomingUpdatedAt = new Date(updated.updatedAt).getTime();
+
+          if (incomingUpdatedAt > localUpdatedAt) {
+            // The SSE update is newer — hydrate from it
+            if (Array.isArray(updated.content)) {
+              const cells = updated.content as WorksheetCell[];
+              localStore.hydrate({
+                worksheetId: updated.id,
+                title: updated.title,
+                cells,
+                version: updated.version,
+              });
+            }
+          }
+        },
+        error: (err) => {
+          console.error('SSE subscription error:', err);
+        },
+        complete: () => {
+          // SSE connection closed — no automatic retry (graphql-sse handles reconnection)
+        },
+      },
+    );
+
+    sseDisposeRef.current = dispose;
+  }, []);
 
   // ---------------------------------------------------------------------------
   // Polling fallback (cross-device, no SSE)
   // ---------------------------------------------------------------------------
   // This is a stub placeholder that keeps the hook interface stable.
   // SSE via graphql-sse is the primary cross-device transport.
-  const openPollingFallback = useCallback(
-    (_sessionId: string) => {
-      // Polling is deferred to a future implementation.
-      // The BroadcastChannel is the primary mechanism for same-device sync,
-      // which covers the most common collaboration scenario.
-    },
-    []
-  );
+  const openPollingFallback = useCallback((_sessionId: string) => {
+    // Polling is deferred to a future implementation.
+    // The BroadcastChannel is the primary mechanism for same-device sync,
+    // which covers the most common collaboration scenario.
+  }, []);
 
   // ---------------------------------------------------------------------------
   // Heartbeat sender
@@ -419,7 +412,7 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
       };
       dispatch(msg);
     },
-    [dispatch]
+    [dispatch],
   );
 
   // ---------------------------------------------------------------------------
@@ -427,7 +420,12 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
   // ---------------------------------------------------------------------------
 
   const broadcastPatch = useCallback(
-    (changedCells: WorksheetCell[], sessionId: string, worksheetTitle: string, worksheetUpdatedAt: number) => {
+    (
+      changedCells: WorksheetCell[],
+      sessionId: string,
+      worksheetTitle: string,
+      worksheetUpdatedAt: number,
+    ) => {
       if (!sessionId) return;
       const peer = localPeerRef.current;
       const msg: CollabMessage = {
@@ -440,7 +438,7 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
       };
       dispatch(msg);
     },
-    [dispatch]
+    [dispatch],
   );
 
   // ---------------------------------------------------------------------------
@@ -480,16 +478,16 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
       // Heartbeat loop
       heartbeatTimerRef.current = setInterval(
         () => sendHeartbeat(sessionId),
-        HEARTBEAT_INTERVAL_MS
+        HEARTBEAT_INTERVAL_MS,
       );
 
       // Stale peer pruning
       pruneTimerRef.current = setInterval(
         () => actions.pruneStale(STALE_PEER_TIMEOUT_MS),
-        PRUNE_INTERVAL_MS
+        PRUNE_INTERVAL_MS,
       );
     },
-    [actions, openBroadcastChannel, connectSSE, openPollingFallback, dispatch, sendHeartbeat]
+    [actions, openBroadcastChannel, connectSSE, openPollingFallback, dispatch, sendHeartbeat],
   );
 
   const stopCollab = useCallback(
@@ -517,7 +515,7 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
       isHostRef.current = false;
       actions.endSession();
     },
-    [dispatch, actions]
+    [dispatch, actions],
   );
 
   // ---------------------------------------------------------------------------
@@ -554,15 +552,15 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
 
       heartbeatTimerRef.current = setInterval(
         () => sendHeartbeat(sessionId),
-        HEARTBEAT_INTERVAL_MS
+        HEARTBEAT_INTERVAL_MS,
       );
 
       pruneTimerRef.current = setInterval(
         () => actions.pruneStale(STALE_PEER_TIMEOUT_MS),
-        PRUNE_INTERVAL_MS
+        PRUNE_INTERVAL_MS,
       );
     },
-    [actions, openBroadcastChannel, connectSSE, dispatch, sendHeartbeat]
+    [actions, openBroadcastChannel, connectSSE, dispatch, sendHeartbeat],
   );
 
   // ---------------------------------------------------------------------------

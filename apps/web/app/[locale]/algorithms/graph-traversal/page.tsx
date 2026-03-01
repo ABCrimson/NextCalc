@@ -1,9 +1,9 @@
 'use client';
 
-import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
-import { GraphTraversalVisualizer } from '@/components/algorithms/GraphTraversalVisualizer';
 import { GitBranch } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
+import { GraphTraversalVisualizer } from '@/components/algorithms/GraphTraversalVisualizer';
 
 /**
  * Graph Traversal Page (BFS & DFS)

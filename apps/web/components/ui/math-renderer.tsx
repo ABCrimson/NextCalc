@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import katex from 'katex';
+import { useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 
 /**
@@ -111,7 +111,7 @@ export function MathRenderer({
         'math-renderer',
         displayMode && 'block my-4 overflow-x-auto',
         !displayMode && 'inline-block mx-1',
-        className
+        className,
       )}
       role="math"
       aria-label={accessibleLabel}

@@ -4,9 +4,9 @@
  * GET /api/algorithms - Get algorithms with filtering
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { AlgorithmRepository } from '@/lib/cms/algorithm-repository';
 import type { AlgorithmCategory } from '@nextcalc/database';
+import { type NextRequest, NextResponse } from 'next/server';
+import { AlgorithmRepository } from '@/lib/cms/algorithm-repository';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,16 +30,16 @@ export async function GET(_request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: result
+      data: result,
     });
   } catch (error) {
     console.error('Error fetching algorithms:', error);
     return NextResponse.json(
       {
         success: false,
-        error: 'Internal server error'
+        error: 'Internal server error',
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

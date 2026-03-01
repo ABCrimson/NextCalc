@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { StatsPanel } from './stats-panel';
 
 /**
@@ -72,7 +72,8 @@ vi.mock('@nextcalc/math-engine/stats', () => ({
     const n = x.length;
     const xMean = x.reduce((a, b) => a + b, 0) / n;
     const yMean = y.reduce((a, b) => a + b, 0) / n;
-    let num = 0, den = 0;
+    let num = 0,
+      den = 0;
     for (let i = 0; i < n; i++) {
       const xi = x[i];
       const yi = y[i];
@@ -82,7 +83,7 @@ vi.mock('@nextcalc/math-engine/stats', () => ({
     }
     const slope = num / den;
     const intercept = yMean - slope * xMean;
-    const yPred = x.map(xi => slope * (xi ?? 0) + intercept);
+    const yPred = x.map((xi) => slope * (xi ?? 0) + intercept);
     const tss = y.reduce((sum, yi) => sum + ((yi ?? 0) - yMean) ** 2, 0);
     const rss = y.reduce((sum, yi, i) => {
       const pred = yPred[i];
@@ -104,7 +105,9 @@ vi.mock('@nextcalc/math-engine/stats', () => ({
     const n = x.length;
     const xMean = x.reduce((a, b) => a + b, 0) / n;
     const yMean = y.reduce((a, b) => a + b, 0) / n;
-    let num = 0, denX = 0, denY = 0;
+    let num = 0,
+      denX = 0,
+      denY = 0;
     for (let i = 0; i < n; i++) {
       const xi = x[i];
       const yi = y[i];
@@ -135,7 +138,7 @@ describe('StatsPanel', () => {
       });
 
       expect(
-        screen.getByText('Descriptive statistics and regression analysis for your data')
+        screen.getByText('Descriptive statistics and regression analysis for your data'),
       ).toBeInTheDocument();
     });
 

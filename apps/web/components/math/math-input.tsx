@@ -1,18 +1,9 @@
 'use client';
 
-import { useState, useRef, useMemo, useCallback } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { AlertCircle, Calculator, Check, Grid3x3, Infinity, Pi, Sigma, Type } from 'lucide-react';
 import type { KeyboardEvent } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Type,
-  Grid3x3,
-  Sigma,
-  Pi,
-  Infinity,
-  Calculator,
-  Check,
-  AlertCircle,
-} from 'lucide-react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -65,7 +56,11 @@ const LATEX_TEMPLATES = [
   { label: 'Integral', latex: '\\int_{□}^{□} □ \\,dx', description: 'Insert integral' },
   { label: 'Sum', latex: '\\sum_{□}^{□} □', description: 'Insert summation' },
   { label: 'Limit', latex: '\\lim_{x \\to □} □', description: 'Insert limit' },
-  { label: 'Matrix', latex: '\\begin{bmatrix} □ & □ \\\\ □ & □ \\end{bmatrix}', description: 'Insert 2×2 matrix' },
+  {
+    label: 'Matrix',
+    latex: '\\begin{bmatrix} □ & □ \\\\ □ & □ \\end{bmatrix}',
+    description: 'Insert 2×2 matrix',
+  },
   { label: 'Derivative', latex: '\\frac{d□}{d□}', description: 'Insert derivative' },
 ] as const;
 
@@ -135,7 +130,8 @@ export function MathInput({
   ariaLabel = 'Mathematical expression input',
 }: MathInputProps) {
   const [isFocused, setIsFocused] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<keyof typeof SYMBOL_CATEGORIES>('operators');
+  const [selectedCategory, setSelectedCategory] =
+    useState<keyof typeof SYMBOL_CATEGORIES>('operators');
   const [showTemplates, setShowTemplates] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [cursorPosition, setCursorPosition] = useState(0);
@@ -152,70 +148,84 @@ export function MathInput({
   const filteredSuggestions = useMemo(() => {
     if (!value || !showSuggestions) return [];
     const lastWord = value.slice(0, cursorPosition).split(/\s+/).pop() || '';
-    return suggestions.filter((s) => s.toLowerCase().startsWith(lastWord.toLowerCase())).slice(0, 5);
+    return suggestions
+      .filter((s) => s.toLowerCase().startsWith(lastWord.toLowerCase()))
+      .slice(0, 5);
   }, [value, cursorPosition, suggestions, showSuggestions]);
 
   // Insert text at cursor position
-  const insertText = useCallback((text: string) => {
-    const textarea = inputRef.current;
-    if (!textarea) return;
+  const insertText = useCallback(
+    (text: string) => {
+      const textarea = inputRef.current;
+      if (!textarea) return;
 
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const newValue = value.slice(0, start) + text + value.slice(end);
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const newValue = value.slice(0, start) + text + value.slice(end);
 
-    onChange(newValue);
+      onChange(newValue);
 
-    // Move cursor after inserted text
-    setTimeout(() => {
-      const newPosition = start + text.length;
-      textarea.setSelectionRange(newPosition, newPosition);
-      textarea.focus();
-      setCursorPosition(newPosition);
-    }, 0);
-  }, [value, onChange]);
+      // Move cursor after inserted text
+      setTimeout(() => {
+        const newPosition = start + text.length;
+        textarea.setSelectionRange(newPosition, newPosition);
+        textarea.focus();
+        setCursorPosition(newPosition);
+      }, 0);
+    },
+    [value, onChange],
+  );
 
   // Insert symbol
-  const insertSymbol = useCallback((symbol: string) => {
-    insertText(symbol);
-  }, [insertText]);
+  const insertSymbol = useCallback(
+    (symbol: string) => {
+      insertText(symbol);
+    },
+    [insertText],
+  );
 
   // Insert LaTeX template
-  const insertTemplate = useCallback((latex: string) => {
-    // Replace □ with placeholder
-    const processedLatex = latex.replace(/□/g, '');
-    insertText(processedLatex);
-    setShowTemplates(false);
-  }, [insertText]);
+  const insertTemplate = useCallback(
+    (latex: string) => {
+      // Replace □ with placeholder
+      const processedLatex = latex.replace(/□/g, '');
+      insertText(processedLatex);
+      setShowTemplates(false);
+    },
+    [insertText],
+  );
 
   // Handle keyboard shortcuts
-  const handleKeyDown = useCallback((e: KeyboardEvent<HTMLTextAreaElement>) => {
-    // Ctrl+Space: Show suggestions
-    if (e.ctrlKey && e.key === ' ') {
-      e.preventDefault();
-      setShowSuggestions((prev) => !prev);
-    }
-
-    // Ctrl+/: Toggle palette
-    if (e.ctrlKey && e.key === '/') {
-      e.preventDefault();
-      setShowTemplates((prev) => !prev);
-    }
-
-    // Tab: Accept first suggestion
-    if (e.key === 'Tab' && filteredSuggestions.length > 0) {
-      e.preventDefault();
-      insertText(filteredSuggestions[0]!);
-      setShowSuggestions(false);
-    }
-
-    // Update cursor position
-    setTimeout(() => {
-      if (inputRef.current) {
-        setCursorPosition(inputRef.current.selectionStart);
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLTextAreaElement>) => {
+      // Ctrl+Space: Show suggestions
+      if (e.ctrlKey && e.key === ' ') {
+        e.preventDefault();
+        setShowSuggestions((prev) => !prev);
       }
-    }, 0);
-  }, [filteredSuggestions, insertText]);
+
+      // Ctrl+/: Toggle palette
+      if (e.ctrlKey && e.key === '/') {
+        e.preventDefault();
+        setShowTemplates((prev) => !prev);
+      }
+
+      // Tab: Accept first suggestion
+      if (e.key === 'Tab' && filteredSuggestions.length > 0) {
+        e.preventDefault();
+        insertText(filteredSuggestions[0]!);
+        setShowSuggestions(false);
+      }
+
+      // Update cursor position
+      setTimeout(() => {
+        if (inputRef.current) {
+          setCursorPosition(inputRef.current.selectionStart);
+        }
+      }, 0);
+    },
+    [filteredSuggestions, insertText],
+  );
 
   return (
     <div className="space-y-4">
@@ -226,7 +236,7 @@ export function MathInput({
             'rounded-lg border-2 transition-colors',
             isFocused ? 'border-primary' : 'border-input',
             !validationResult.valid && 'border-destructive',
-            disabled && 'opacity-50 cursor-not-allowed'
+            disabled && 'opacity-50 cursor-not-allowed',
           )}
         >
           <textarea
@@ -313,9 +323,7 @@ export function MathInput({
             <CardTitle className="text-sm">Preview</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="p-4 bg-muted/50 rounded font-mono text-sm overflow-x-auto">
-              {value}
-            </div>
+            <div className="p-4 bg-muted/50 rounded font-mono text-sm overflow-x-auto">{value}</div>
           </CardContent>
         </Card>
       )}
@@ -423,8 +431,8 @@ export function MathInput({
                 Toggle templates
               </div>
               <div>
-                <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs font-mono">Tab</kbd>{' '}
-                Accept suggestion
+                <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs font-mono">Tab</kbd> Accept
+                suggestion
               </div>
             </div>
           </CardContent>
