@@ -48,7 +48,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.4",
-    "@graphql-codegen/cli": "7.0.0-alpha-20260219135511-f77afdad62fc366fc5f534344fa2a7eb96e1282f",
+    "@graphql-codegen/cli": "7.0.0-alpha-20260226131033-a969ebb287a7074d9b41d6e3af3e76b24ba462fa",
     "@graphql-codegen/typescript": "6.0.0-alpha-20260219135511-f77afdad62fc366fc5f534344fa2a7eb96e1282f",
     "@graphql-codegen/typescript-resolvers": "6.0.0-alpha-20260219135511-f77afdad62fc366fc5f534344fa2a7eb96e1282f",
     "@types/node": "25.3.0",
