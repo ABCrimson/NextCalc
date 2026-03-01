@@ -2,6 +2,13 @@
 
 All notable changes to NextCalc Pro are documented in this file.
 
+## [1.1.1] - 2026-03-01
+
+### Bug Fixes
+- Fix deploy-workers workflow: `pnpm deploy` → `pnpm run deploy` (pnpm 11 conflict) (`e0cabfd`)
+
+---
+
 ## [1.1.0] - 2026-03-01
 
 ### Dependency Updates
@@ -111,6 +118,7 @@ All notable changes to NextCalc Pro are documented in this file.
 
 _This changelog is generated from the git history. Commit hashes reference the short SHA for each change._
 
+[1.1.1]: https://github.com/ABCrimson/NextCalc/releases/tag/v1.1.1
 [1.1.0]: https://github.com/ABCrimson/NextCalc/releases/tag/v1.1.0
 [1.0.0]: https://github.com/ABCrimson/NextCalc/releases/tag/v1.0.0
 [0.1.0]: https://github.com/ABCrimson/NextCalc/releases/tag/v0.1.0

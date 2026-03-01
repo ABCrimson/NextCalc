@@ -11,7 +11,7 @@ export async function GET() {
     {
       status: 'healthy',
       timestamp: new Date().toISOString(),
-      version: '1.1.0',
+      version: '1.1.1',
       services: {
         calculator: 'operational',
         mathEngine: 'operational',

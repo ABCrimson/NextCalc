@@ -1,6 +1,6 @@
 {
   "name": "nextcalc-pro",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "scripts": {
     "dev": "turbo run dev",
@@ -8,7 +8,7 @@
     "test": "turbo run test",
     "lint": "turbo run lint",
     "clean": "turbo run clean && rm -rf node_modules",
-    "deploy:workers": "pnpm --filter './apps/workers/*' deploy"
+    "deploy:workers": "pnpm --filter './apps/workers/*' run deploy"
   },
   "devDependencies": {
     "@apollo/server": "5.4.0",
