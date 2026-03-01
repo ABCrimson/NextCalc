@@ -134,7 +134,7 @@ async function main() {
     },
   });
 
-  const worksheet2 = await prisma.worksheet.create({
+  await prisma.worksheet.create({
     data: {
       title: 'Quadratic Equation Solver',
       description: 'Solve quadratic equations using the quadratic formula',
@@ -189,7 +189,7 @@ async function main() {
     },
   });
 
-  const worksheet3 = await prisma.worksheet.create({
+  await prisma.worksheet.create({
     data: {
       title: 'Projectile Motion',
       description: 'Calculate projectile trajectory and range',
@@ -233,7 +233,7 @@ async function main() {
     },
   });
 
-  const worksheet4 = await prisma.worksheet.create({
+  await prisma.worksheet.create({
     data: {
       title: 'My Private Notes',
       description: 'Personal calculations',
@@ -311,7 +311,7 @@ async function main() {
     },
   });
 
-  const comment2 = await prisma.comment.create({
+  await prisma.comment.create({
     data: {
       content: 'Thanks! That works perfectly.',
       postId: post1.id,
@@ -320,7 +320,7 @@ async function main() {
     },
   });
 
-  const comment3 = await prisma.comment.create({
+  await prisma.comment.create({
     data: {
       content: 'Matrix operations are on the roadmap for Phase 5! Stay tuned.',
       postId: post2.id,

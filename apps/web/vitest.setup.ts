@@ -38,11 +38,23 @@ function createStorageMock(): Storage {
   };
 }
 
-if (typeof globalThis.localStorage === 'undefined' || typeof globalThis.localStorage.clear !== 'function') {
-  Object.defineProperty(globalThis, 'localStorage', { value: createStorageMock(), writable: true });
+if (
+  typeof globalThis.localStorage === 'undefined' ||
+  typeof globalThis.localStorage.clear !== 'function'
+) {
+  Object.defineProperty(globalThis, 'localStorage', {
+    value: createStorageMock(),
+    writable: true,
+  });
 }
-if (typeof globalThis.sessionStorage === 'undefined' || typeof globalThis.sessionStorage.clear !== 'function') {
-  Object.defineProperty(globalThis, 'sessionStorage', { value: createStorageMock(), writable: true });
+if (
+  typeof globalThis.sessionStorage === 'undefined' ||
+  typeof globalThis.sessionStorage.clear !== 'function'
+) {
+  Object.defineProperty(globalThis, 'sessionStorage', {
+    value: createStorageMock(),
+    writable: true,
+  });
 }
 
 // Ensure happy-dom is fully initialized before tests run
