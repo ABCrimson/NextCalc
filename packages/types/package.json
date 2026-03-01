@@ -11,6 +11,6 @@
   "devDependencies": {
     "@biomejs/biome": "2.4.4",
     "@types/react": "19.2.14",
-    "typescript": "6.0.0-dev.20260223"
+    "typescript": "6.0.0-dev.20260301"
   }
 }

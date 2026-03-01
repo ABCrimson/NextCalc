@@ -21,7 +21,7 @@
     "lighthouse": "13.0.3",
     "tsx": "4.21.0",
     "turbo": "2.8.10",
-    "typescript": "6.0.0-dev.20260223",
+    "typescript": "6.0.0-dev.20260301",
     "zod": "4.4.0-canary.20260125T215152"
   },
   "packageManager": "pnpm@11.0.0-alpha.11",
