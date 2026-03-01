@@ -21,6 +21,6 @@ jobs:
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - name: Deploy ${{ matrix.worker }}
-        run: pnpm --filter @nextcalc/${{ matrix.worker }} deploy
+        run: pnpm --filter @nextcalc/${{ matrix.worker }} run deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
