@@ -32,6 +32,7 @@ import {
   SkipForward,
   Sparkles,
 } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { AnalysisFunction } from '@/components/plots/PlotAnalysisPanel';
 import { PlotAnalysisPanel } from '@/components/plots/PlotAnalysisPanel';
@@ -1288,7 +1289,7 @@ function TermList({ terms, visibleTerms, variable }: TermListProps) {
 // ---------------------------------------------------------------------------
 
 interface GlassCardProps {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }
 

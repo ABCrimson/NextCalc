@@ -24,6 +24,7 @@ import type {
 import { motion } from 'framer-motion';
 import { Activity, Layers, Maximize2, Zap } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import type { ReactNode } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import { VariableSliders } from '@/components/plot/variable-sliders';
 import {
@@ -694,7 +695,7 @@ export default function PlotsExamplesPage() {
   // ---------------------------------------------------------------------------
 
   /** Preset chip group with category label + wrap */
-  function PresetGroup({ label, children }: { label: string; children: React.ReactNode }) {
+  function PresetGroup({ label, children }: { label: string; children: ReactNode }) {
     return (
       <div className="mb-4">
         <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2 flex items-center gap-1.5">

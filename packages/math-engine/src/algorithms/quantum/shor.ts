@@ -270,10 +270,11 @@ export function demonstrateShorAlgorithm(): void {
 
     if (result.success) {
       const [f1, f2] = result.factors;
-      console.log(`\nFactors: ${f1} × ${f2} = ${f1! * f2!}`);
+      if (f1 === undefined || f2 === undefined) throw new Error('Factors missing despite success');
+      console.log(`\nFactors: ${f1} × ${f2} = ${f1 * f2}`);
 
       // Verify
-      if (f1! * f2! === n) {
+      if (f1 * f2 === n) {
         console.log('Verification: PASSED ✓');
       } else {
         console.log('Verification: FAILED ✗');

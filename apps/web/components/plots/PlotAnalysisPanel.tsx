@@ -29,6 +29,7 @@ import {
   TrendingDown,
   TrendingUp,
 } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 
 // --------------------------------------------------------------------------
@@ -519,7 +520,7 @@ function SectionRow({
   color,
   emptyText,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   title: string;
   points: FoundPoint[];
   color: string;

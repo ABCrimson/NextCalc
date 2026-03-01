@@ -15,6 +15,7 @@ import {
   X,
   Zap,
 } from 'lucide-react';
+import type { ComponentType } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { MathRenderer } from '@/components/ui/math-renderer';
 import { cn } from '@/lib/utils';
@@ -761,7 +762,7 @@ const FORMULAS: FormulaEntry[] = [
 
 interface CategoryMeta {
   label: string;
-  icon: React.ComponentType<{ className?: string; 'aria-hidden'?: boolean | 'true' | 'false' }>;
+  icon: ComponentType<{ className?: string; 'aria-hidden'?: boolean | 'true' | 'false' }>;
   gradient: string;
   border: string;
   chip: string;

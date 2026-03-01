@@ -151,13 +151,14 @@ export function exampleLimitOneSided() {
  */
 export function exampleSeriesSin() {
   const result = getKnownSeries('sin', 'x', { terms: 5 });
+  if (!result) throw new Error('Failed to get known series for sin');
 
   return {
     description: 'Maclaurin series of sin(x)',
-    terms: result!.terms,
-    polynomial: result!.polynomial,
-    radiusOfConvergence: result!.radiusOfConvergence,
-    latex: result!.latex,
+    terms: result.terms,
+    polynomial: result.polynomial,
+    radiusOfConvergence: result.radiusOfConvergence,
+    latex: result.latex,
   };
 }
 
@@ -167,12 +168,13 @@ export function exampleSeriesSin() {
  */
 export function exampleSeriesExp() {
   const result = getKnownSeries('exp', 'x', { terms: 6 });
+  if (!result) throw new Error('Failed to get known series for exp');
 
   return {
     description: 'Maclaurin series of e^x',
-    terms: result!.terms,
-    polynomial: result!.polynomial,
-    radiusOfConvergence: result!.radiusOfConvergence,
+    terms: result.terms,
+    polynomial: result.polynomial,
+    radiusOfConvergence: result.radiusOfConvergence,
   };
 }
 
@@ -463,9 +465,10 @@ export function exampleSimplifyThenLimit() {
 export function exampleFullCASWorkflow() {
   // 1. Get series expansion
   const series = getKnownSeries('sin', 'x', { terms: 3 });
+  if (!series) throw new Error('Failed to get known series for sin');
 
   // 2. Simplify the series polynomial
-  const simplified = simplifyAdvanced(series!.polynomial);
+  const simplified = simplifyAdvanced(series.polynomial);
 
   // 3. Compute limit as x→0
   const limitResult = limit(simplified, 'x', { point: 0 });
@@ -473,7 +476,7 @@ export function exampleFullCASWorkflow() {
   return {
     description: 'Full workflow: series → simplify → limit',
     originalFunction: 'sin(x)',
-    seriesTerms: series!.terms.length,
+    seriesTerms: series.terms.length,
     simplified,
     limitValue: limitResult.value, // sin(0) = 0
   };

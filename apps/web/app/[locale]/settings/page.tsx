@@ -16,6 +16,7 @@ import {
   User,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import type { ComponentType, ReactNode } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -132,7 +133,7 @@ function saveSettings(settings: UserSettings): void {
 // ---------------------------------------------------------------------------
 
 /** Animated section card that slides in from below. */
-function SettingsSection({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+function SettingsSection({ children, delay = 0 }: { children: ReactNode; delay?: number }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
@@ -187,7 +188,7 @@ function ThemeOption({
 }: {
   value: ThemeValue;
   current: ThemeValue;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: ComponentType<{ className?: string }>;
   label: string;
   onSelect: (v: ThemeValue) => void;
 }) {

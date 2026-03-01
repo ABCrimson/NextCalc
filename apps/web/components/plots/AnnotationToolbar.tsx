@@ -15,6 +15,7 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { MousePointerClick, MoveRight, Tag, Trash2 } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { useEffect } from 'react';
 
 // ---------------------------------------------------------------------------
@@ -74,7 +75,7 @@ function modeHint(mode: AnnotationMode): string | null {
 interface ToolbarButtonProps {
   label: string;
   title: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   isActive?: boolean;
   isDestructive?: boolean;
   disabled?: boolean;

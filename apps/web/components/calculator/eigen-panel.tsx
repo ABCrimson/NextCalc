@@ -23,7 +23,7 @@
 
 import { AnimatePresence, motion, type Variants } from 'framer-motion';
 import { AlertCircle, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
-import type React from 'react';
+import type { KeyboardEvent, ReactElement } from 'react';
 import { useCallback, useId, useRef, useState, useTransition } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -411,7 +411,7 @@ function EigenVectorVisualisation2D({
   const scale = 80;
 
   // Grid lines
-  const gridLines: React.ReactElement[] = [];
+  const gridLines: ReactElement[] = [];
   for (let t = -3; t <= 3; t++) {
     gridLines.push(
       <line
@@ -726,7 +726,7 @@ function EigenVectorVisualisation4D({
   ] as const;
 
   // Grid lines (light)
-  const gridLines: React.ReactElement[] = [];
+  const gridLines: ReactElement[] = [];
   for (let t = -3; t <= 3; t++) {
     gridLines.push(
       <line
@@ -1045,7 +1045,7 @@ export function EigenPanel() {
 
   // Arrow-key navigation within the grid
   const handleGridKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>, row: number, col: number) => {
+    (e: KeyboardEvent<HTMLInputElement>, row: number, col: number) => {
       const n = size;
       let nextRow = row;
       let nextCol = col;

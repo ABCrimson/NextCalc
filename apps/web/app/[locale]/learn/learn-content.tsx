@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Award, Bookmark, BookOpen, CheckCircle2, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import type { CSSProperties, ReactNode } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -259,9 +260,9 @@ function AnimatedBackground({ shouldReduceMotion }: { shouldReduceMotion: boolea
 // ─── Stats Card ───────────────────────────────────────────────────────────────
 
 interface StatCardProps {
-  icon: React.ReactNode;
+  icon: ReactNode;
   title: string;
-  value: React.ReactNode;
+  value: ReactNode;
   label: string;
 }
 
@@ -323,7 +324,7 @@ function TopicCard({ topic, definitionCount, shouldReduceMotion }: TopicCardProp
                     style={
                       shouldReduceMotion
                         ? {}
-                        : ({ '--icon-glow': config.glowColor } as React.CSSProperties)
+                        : ({ '--icon-glow': config.glowColor } as CSSProperties)
                     }
                   >
                     <span aria-hidden="true">{config.icon}</span>

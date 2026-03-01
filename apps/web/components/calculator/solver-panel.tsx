@@ -152,9 +152,9 @@ const CATEGORY_STYLES: Readonly<Record<string, StepCategoryStyle>> = {
     label: 'Expand',
   },
   Identity: {
-    bg: 'bg-slate-500/10',
-    text: 'text-slate-700 dark:text-slate-300',
-    border: 'border-slate-500/30',
+    bg: 'bg-muted',
+    text: 'text-muted-foreground',
+    border: 'border-border',
     label: 'Identity',
   },
   FinalAnswer: {

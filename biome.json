@@ -11,7 +11,8 @@
       "!**/generated",
       "!.worktrees",
       "!**/*.css",
-      "!**/public/sw.js"
+      "!**/public/sw.js",
+      "!**/next-env.d.ts"
     ]
   },
   "linter": {

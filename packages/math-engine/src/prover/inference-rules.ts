@@ -279,7 +279,11 @@ export class DisjunctionIntroduction implements InferenceRule {
       throw new Error('Disjunction Introduction not applicable');
     }
 
-    return [or(premises[0]!, this.addedFormula!)];
+    const premise = premises[0];
+    if (!premise || !this.addedFormula) {
+      throw new Error('Disjunction Introduction requires a premise and added formula');
+    }
+    return [or(premise, this.addedFormula)];
   }
 }
 
@@ -293,8 +297,9 @@ export class Resolution implements InferenceRule {
   isApplicable(premises: Formula[]): boolean {
     if (premises.length !== 2) return false;
 
-    const f1 = premises[0]!;
-    const f2 = premises[1]!;
+    const f1 = premises[0];
+    const f2 = premises[1];
+    if (!f1 || !f2) return false;
 
     // Both must be disjunctions
     if (f1.type !== 'binary' || f1.operator !== 'OR') return false;
@@ -309,8 +314,9 @@ export class Resolution implements InferenceRule {
       throw new Error('Resolution not applicable');
     }
 
-    const f1 = premises[0]!;
-    const f2 = premises[1]!;
+    const f1 = premises[0];
+    const f2 = premises[1];
+    if (!f1 || !f2) throw new Error('Resolution requires exactly 2 premises');
     if (f1.type !== 'binary' || f2.type !== 'binary') {
       throw new Error('Resolution requires disjunctions');
     }

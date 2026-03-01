@@ -3,7 +3,6 @@
     /* Language and Environment - TypeScript 6.0 */
     "target": "ESNext",
     "lib": ["ESNext"],
-    "jsx": "react",
     "moduleDetection": "force",
 
     /* Modules */

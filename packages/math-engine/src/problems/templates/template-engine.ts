@@ -249,7 +249,7 @@ export class TemplateEngine {
     }
 
     if (criteria.tags) {
-      templates = templates.filter((t) => criteria.tags!.some((tag) => t.tags?.includes(tag)));
+      templates = templates.filter((t) => criteria.tags?.some((tag) => t.tags?.includes(tag)));
     }
 
     return templates;

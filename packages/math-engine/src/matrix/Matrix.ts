@@ -20,7 +20,7 @@ export class Matrix {
     if (typeof data === 'number') {
       // Create zero matrix: new Matrix(3, 4) → 3x4 zero matrix
       this.rows = data;
-      this.cols = cols!;
+      this.cols = cols ?? data;
       this.data = Array(this.rows)
         .fill(0)
         .map(() => Array(this.cols).fill(0));

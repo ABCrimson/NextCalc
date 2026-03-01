@@ -182,7 +182,7 @@ export interface TierConfig {
 }
 
 export const TIER_CONFIG: Record<string, TierConfig> = {
-  newcomer: { label: 'Newcomer', color: 'text-zinc-400', icon: null, glow: '' },
+  newcomer: { label: 'Newcomer', color: 'text-muted-foreground', icon: null, glow: '' },
   contributor: {
     label: 'Contributor',
     color: 'text-blue-400',
@@ -205,7 +205,7 @@ export const TIER_CONFIG: Record<string, TierConfig> = {
 
 const DEFAULT_TIER: TierConfig = {
   label: 'Newcomer',
-  color: 'text-zinc-400',
+  color: 'text-muted-foreground',
   icon: null,
   glow: '',
 };

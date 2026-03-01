@@ -1,6 +1,7 @@
 'use client';
 
 import { AlertCircle, BarChart3, Check, Copy, Sparkles, TrendingUp, X } from 'lucide-react';
+import type { MouseEvent, ReactNode } from 'react';
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -243,11 +244,11 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
     return padding + ((value - min) / range) * plotWidth;
   };
 
-  const handleMouseEnter = (label: string, value: number) => (e: React.MouseEvent) => {
+  const handleMouseEnter = (label: string, value: number) => (e: MouseEvent) => {
     setHoveredStat({ label, value, x: e.clientX, y: e.clientY });
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const handleMouseMove = (e: MouseEvent) => {
     setHoveredStat((prev) => (prev ? { ...prev, x: e.clientX, y: e.clientY } : null));
   };
 
@@ -566,7 +567,7 @@ function SectionDivider({ className }: { className?: string }) {
  * Glass panel wrapper for result sections.
  */
 interface GlassPanelProps {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
   /** Accent color for the top border highlight */
   accent?: 'primary' | 'emerald' | 'violet';

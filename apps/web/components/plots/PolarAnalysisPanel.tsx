@@ -24,6 +24,7 @@ import {
   Radar,
   Shapes,
 } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -452,7 +453,7 @@ function AnalysisRow({
   value,
   color,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
   value: string;
   color: string;

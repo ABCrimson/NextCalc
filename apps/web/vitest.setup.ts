@@ -3,7 +3,7 @@
  * @testing-library/react 16.3.2
  * @testing-library/jest-dom 6.9.1
  * jest-axe 10.0.0
- * happy-dom 20.6.3
+ * happy-dom 20.7.0
  */
 
 import * as matchers from '@testing-library/jest-dom/matchers';
