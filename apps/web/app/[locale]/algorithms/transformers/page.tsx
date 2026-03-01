@@ -1,9 +1,22 @@
 'use client';
 
 import { Brain } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
-import { TransformerVisualizer } from '@/components/algorithms/TransformerVisualizer';
+
+const TransformerVisualizer = dynamic(
+  () => import('@/components/algorithms/TransformerVisualizer').then((m) => ({ default: m.TransformerVisualizer })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="animate-pulse space-y-4">
+        <div className="h-8 bg-muted rounded-lg w-48" />
+        <div className="h-80 bg-muted rounded-xl" />
+      </div>
+    ),
+  },
+);
 
 /**
  * Transformers Algorithm Page

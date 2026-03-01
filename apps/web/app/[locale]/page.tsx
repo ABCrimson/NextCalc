@@ -5,8 +5,11 @@ import { Grid3x3, Infinity, Ruler, Sparkles, Square, TrendingUp, Variable } from
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { type CSSProperties, Suspense } from 'react';
-import { InstallPWA } from '@/components/install-pwa';
 import { Link } from '@/i18n/navigation';
+
+const InstallPWA = dynamic(() => import('@/components/install-pwa').then((m) => ({ default: m.InstallPWA })), {
+  ssr: false,
+});
 
 // Dynamic import for Calculator with client-only rendering
 // This prevents Radix UI tabs from generating different IDs on server vs client
@@ -273,7 +276,6 @@ export default function Home() {
                   key={card.href}
                   variants={cardVariants}
                   className={isLarge ? 'lg:col-span-1' : ''}
-                  style={{ perspective: '800px' }}
                 >
                   <Link
                     href={card.href}
@@ -283,20 +285,8 @@ export default function Home() {
                     style={
                       {
                         '--_glow': card.glowColor,
-                        transition:
-                          'transform 0.5s cubic-bezier(0.4,0,0.2,1), box-shadow 0.5s cubic-bezier(0.4,0,0.2,1)',
                       } as CSSProperties
                     }
-                    onMouseMove={(e) => {
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      const x = (e.clientX - rect.left) / rect.width - 0.5;
-                      const y = (e.clientY - rect.top) / rect.height - 0.5;
-                      e.currentTarget.style.transform = `perspective(800px) rotateY(${x * 4}deg) rotateX(${-y * 4}deg) translateY(-4px)`;
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform =
-                        'perspective(800px) rotateY(0deg) rotateX(0deg) translateY(0px)';
-                    }}
                   >
                     {/* Animated glow border on hover */}
                     <div

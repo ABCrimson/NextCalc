@@ -99,8 +99,11 @@ export default auth((req) => {
   if (isProtectedRoute && !isLoggedIn) {
     const signInUrl = new URL('/auth/signin', req.url);
     signInUrl.searchParams.set('callbackUrl', pathname);
-    const redirectResponse = Response.redirect(signInUrl);
-    // Attach both intl and security headers to redirect response
+    // Response.redirect() returns an immutable Response — build a mutable one instead
+    const redirectResponse = new Response(null, {
+      status: 307,
+      headers: { Location: signInUrl.toString() },
+    });
     intlResponse.headers.forEach((value, key) => {
       redirectResponse.headers.set(key, value);
     });
@@ -111,7 +114,11 @@ export default auth((req) => {
   }
 
   if (isLoggedIn && pathnameWithoutLocale.startsWith('/auth/')) {
-    const redirectResponse = Response.redirect(new URL('/dashboard', req.url));
+    const dashboardUrl = new URL('/dashboard', req.url);
+    const redirectResponse = new Response(null, {
+      status: 307,
+      headers: { Location: dashboardUrl.toString() },
+    });
     intlResponse.headers.forEach((value, key) => {
       redirectResponse.headers.set(key, value);
     });

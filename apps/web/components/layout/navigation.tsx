@@ -61,14 +61,18 @@ const LOCALE_NAMES: Record<LocaleCode, string> = {
   de: 'Deutsch',
 } as const;
 
-/** Direct top-level nav links */
-const directLinks: NavLink[] = [
+/** Direct link before dropdowns */
+const preDropdownLinks: NavLink[] = [
   {
     href: '/',
     labelKey: 'nav.calculator',
     descKey: 'nav.calculatorDescription',
     icon: Calculator,
   },
+];
+
+/** Direct links after dropdowns */
+const postDropdownLinks: NavLink[] = [
   {
     href: '/worksheet',
     labelKey: 'nav.worksheet',
@@ -82,6 +86,9 @@ const directLinks: NavLink[] = [
     icon: MessageSquare,
   },
 ];
+
+/** All direct links (used for mobile menu) */
+const directLinks: NavLink[] = [...preDropdownLinks, ...postDropdownLinks];
 
 /** Tools dropdown links (mathematical tools & utilities) */
 const toolLinks: NavLink[] = [
@@ -331,7 +338,8 @@ export function Navigation() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex md:flex-1 md:items-center md:gap-1 md:text-sm md:font-medium min-w-0">
-          {directLinks.map((link) => {
+          {/* Calculator link */}
+          {preDropdownLinks.map((link) => {
             const Icon = link.icon;
             const isActive = isLinkActive(link.href);
             const label = t(link.labelKey as Parameters<typeof t>[0]);
@@ -489,6 +497,38 @@ export function Navigation() {
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Worksheet & Forum links */}
+          {postDropdownLinks.map((link) => {
+            const Icon = link.icon;
+            const isActive = isLinkActive(link.href);
+            const label = t(link.labelKey as Parameters<typeof t>[0]);
+            const description = t(link.descKey as Parameters<typeof t>[0]);
+
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  'flex shrink-0 items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all duration-200 relative group whitespace-nowrap text-[13px]',
+                  isActive
+                    ? 'text-primary-foreground bg-gradient-to-r from-primary to-primary/80 shadow-md shadow-primary/20'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
+                )}
+                aria-label={`${label} - ${description}`}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                <Icon
+                  className={cn(
+                    'h-3.5 w-3.5 transition-transform duration-200',
+                    !isActive && 'group-hover:scale-110',
+                  )}
+                  aria-hidden="true"
+                />
+                {label}
+              </Link>
+            );
+          })}
         </div>
 
         {/* Mobile Navigation */}

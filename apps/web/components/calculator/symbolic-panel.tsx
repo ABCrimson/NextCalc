@@ -5,7 +5,12 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { AlertCircle, Check, ChevronDown, ChevronUp, Copy, Info, ListOrdered } from 'lucide-react';
 import { useCallback, useId, useMemo, useState } from 'react';
 import type { AnalysisFunction } from '@/components/plots/PlotAnalysisPanel';
-import { PlotAnalysisPanel } from '@/components/plots/PlotAnalysisPanel';
+import dynamic from 'next/dynamic';
+
+const PlotAnalysisPanel = dynamic(
+  () => import('@/components/plots/PlotAnalysisPanel').then((m) => ({ default: m.PlotAnalysisPanel })),
+  { ssr: false, loading: () => <div className="h-64 animate-pulse bg-muted rounded-xl" /> },
+);
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
