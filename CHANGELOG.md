@@ -2,6 +2,18 @@
 
 All notable changes to NextCalc Pro are documented in this file.
 
+## [1.1.2] - 2026-03-02
+
+### Bug Fixes
+- Align API test mocks with security audit changes (IDOR, atomic counters, existence checks) (`4c197c0`)
+- Add `account_id` to all 3 worker `wrangler.toml` configs — fixes Cloudflare `/memberships` auth error (`d5ccb91`)
+- Set `fail-fast: false` in deploy-workers matrix so each worker deploys independently (`d5ccb91`)
+
+### Infrastructure
+- Set `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` GitHub secrets for CI worker deploys (`d5ccb91`)
+
+---
+
 ## [1.1.1] - 2026-03-01
 
 ### Bug Fixes
@@ -118,6 +130,7 @@ All notable changes to NextCalc Pro are documented in this file.
 
 _This changelog is generated from the git history. Commit hashes reference the short SHA for each change._
 
+[1.1.2]: https://github.com/ABCrimson/NextCalc/releases/tag/v1.1.2
 [1.1.1]: https://github.com/ABCrimson/NextCalc/releases/tag/v1.1.1
 [1.1.0]: https://github.com/ABCrimson/NextCalc/releases/tag/v1.1.0
 [1.0.0]: https://github.com/ABCrimson/NextCalc/releases/tag/v1.0.0

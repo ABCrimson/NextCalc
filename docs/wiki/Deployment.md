@@ -29,7 +29,7 @@ The GitHub repository is connected to Vercel. Push to `main` triggers a producti
 | Root Directory | `apps/web` |
 | Build Command | `cd ../.. && pnpm install && pnpm build --filter=@nextcalc/web` |
 | Install Command | `pnpm install` |
-| Node.js Version | 22.x |
+| Node.js Version | 24.x |
 
 ### Environment Variables
 
@@ -54,7 +54,7 @@ cd apps/workers/export-service && pnpm deploy
 cd apps/workers/rate-limiter && pnpm deploy
 ```
 
-Or via GitHub Actions: `.github/workflows/deploy-workers.yml` triggers on changes to `apps/workers/`.
+Or via GitHub Actions: `.github/workflows/deploy-workers.yml` triggers on changes to `apps/workers/`. Requires `CLOUDFLARE_API_TOKEN` GitHub secret. Each worker deploys independently (`fail-fast: false`).
 
 ### Worker URLs
 
@@ -70,7 +70,7 @@ Or via GitHub Actions: `.github/workflows/deploy-workers.yml` triggers on change
 
 `.github/workflows/ci.yml` runs on every push:
 
-1. **Lint** -- Biome 2.4.4
+1. **Lint** -- Biome 2.5.0
 2. **Typecheck** -- TypeScript 6.0
 3. **Test** -- Vitest
 4. **Build** -- Turborepo (all packages)

@@ -84,11 +84,16 @@ cd apps/workers/rate-limiter && pnpm dev     # Port 8789
 
 ## Deployment
 
+**Manual:**
 ```bash
-cd apps/workers/cas-service && pnpm deploy
-cd apps/workers/export-service && pnpm deploy
-cd apps/workers/rate-limiter && pnpm deploy
+cd apps/workers/cas-service && pnpm run deploy
+cd apps/workers/export-service && pnpm run deploy
+cd apps/workers/rate-limiter && pnpm run deploy
 ```
+
+**CI/CD:** Push to `apps/workers/**` on `main` triggers `.github/workflows/deploy-workers.yml`. Requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` GitHub secrets. Each worker deploys independently (`fail-fast: false`).
+
+> **Note:** Use `pnpm run deploy` (not `pnpm deploy`) — pnpm 11 treats `deploy` as a built-in command.
 
 ## Monitoring
 
