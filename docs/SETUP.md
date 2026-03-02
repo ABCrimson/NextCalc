@@ -185,7 +185,7 @@ Create **separate** OAuth apps for production:
 | Next.js | 16.2.0-canary.69 |
 | React | 19.3.0-canary |
 | TypeScript | 6.0.0-dev.20260301 |
-| Prisma | 7.5.0-dev.32 |
+| Prisma | 7.5.0-dev.33 |
 | Apollo Server | 5.4.0 |
 | Biome | 2.5.0 |
 | Turborepo | 2.8.13-canary.8 |

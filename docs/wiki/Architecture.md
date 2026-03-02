@@ -116,9 +116,9 @@ WebSocket subscriptions authenticate via JWT tokens passed in the connection `co
 
 The Cloudflare rate-limiter Worker uses timing-safe comparison (`crypto.subtle.timingSafeEqual`) for API key validation, preventing timing-based side-channel attacks on the shared secret.
 
-## Prisma 7 Adapter Pattern
+## Prisma 7.5 Adapter Pattern
 
-The database package uses Prisma 7's Neon serverless adapter. The adapter constructor takes a **config object**, not a Pool instance:
+The database package uses Prisma 7.5.0-dev.33's Neon serverless adapter. The adapter constructor takes a **config object**, not a Pool instance:
 
 ```typescript
 // Correct
@@ -130,6 +130,15 @@ const adapter = new PrismaNeon(pool);
 ```
 
 Prisma 7 creates its own connection pool internally via the adapter's `connect()` method.
+
+### Schema Features (7.3+)
+
+| Feature | Since | Description |
+|:--------|:------|:------------|
+| `compilerBuild = "fast"` | 7.3 | Speed-optimized query compiler (larger footprint, ideal for Node.js) |
+| `partialIndexes` preview | 7.4 | Filtered indexes with `WHERE` conditions for smaller, faster lookups |
+| Query plan caching | 7.4 | LRU cache for compiled query plans (~100% hit rate for repeated shapes) |
+| BigInt precision in JSON | 7.3 | BigInt values cast to text inside JSON aggregation with `relationJoins` |
 
 ## Styling System
 

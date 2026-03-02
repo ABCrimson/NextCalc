@@ -1,6 +1,6 @@
 # Database Schema
 
-Prisma 7 with Neon PostgreSQL serverless adapter. Schema: `packages/database/prisma/schema.prisma`.
+Prisma 7.5.0-dev.33 with Neon PostgreSQL serverless adapter. Schema: `packages/database/prisma/schema.prisma`.
 
 ---
 
@@ -136,3 +136,20 @@ Key indexes for query performance:
 | `postId` | Comment | List comments on a post |
 | `parentId` | Folder, Comment | Traverse nested hierarchies |
 | `shortCode` | SharedCalculation | Unique lookup for shared links |
+
+### Partial Indexes (Prisma 7.4+)
+
+Filtered indexes that only include non-deleted records. PostgreSQL automatically prefers these smaller indexes when queries include `WHERE deletedAt IS NULL`, dramatically reducing I/O for the vast majority of reads.
+
+| Index Name | Model | Columns | Filter |
+|:-----------|:------|:--------|:-------|
+| `worksheets_userId_visibility_active_idx` | Worksheet | userId, visibility | `deletedAt IS NULL` |
+| `worksheets_createdAt_active_idx` | Worksheet | createdAt DESC | `deletedAt IS NULL` |
+| `forum_posts_createdAt_active_idx` | ForumPost | createdAt DESC | `deletedAt IS NULL` |
+| `forum_posts_isPinned_createdAt_active_idx` | ForumPost | isPinned, createdAt DESC | `deletedAt IS NULL` |
+| `comments_postId_active_idx` | Comment | postId | `deletedAt IS NULL` |
+| `comments_parentId_active_idx` | Comment | parentId | `deletedAt IS NULL` |
+| `problems_difficulty_popularity_active_idx` | Problem | difficulty, popularity DESC | `deletedAt IS NULL` |
+| `problems_createdAt_active_idx` | Problem | createdAt DESC | `deletedAt IS NULL` |
+
+Defined in schema using Prisma 7.4's type-safe syntax: `@@index([field], map: "name", where: { deletedAt: null })`

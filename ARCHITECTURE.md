@@ -112,7 +112,7 @@ Shared Prisma 7 database package.
 
 **Tables:** users, accounts, sessions, worksheets, folders, forum_posts, comments, upvotes, audit_logs
 
-**Tech:** Prisma 7.5.0-dev.32, @neondatabase/serverless 1.0.2, @prisma/adapter-neon
+**Tech:** Prisma 7.5.0-dev.33, @neondatabase/serverless 1.0.2, @prisma/adapter-neon
 
 ### @nextcalc/api
 
