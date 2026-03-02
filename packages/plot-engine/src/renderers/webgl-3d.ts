@@ -1624,7 +1624,11 @@ export class WebGL3DRenderer implements IRenderer {
       if (this.currentWireframe) {
         this.scene.remove(this.currentWireframe);
         this.currentWireframe.geometry.dispose();
-        (this.currentWireframe.material as THREE.Material).dispose();
+        if (Array.isArray(this.currentWireframe.material)) {
+          this.currentWireframe.material.forEach((m) => m.dispose());
+        } else {
+          this.currentWireframe.material.dispose();
+        }
         this.currentWireframe = null;
       }
 
@@ -1824,7 +1828,11 @@ export class WebGL3DRenderer implements IRenderer {
       if (this.currentWireframe) {
         this.scene.remove(this.currentWireframe);
         this.currentWireframe.geometry.dispose();
-        (this.currentWireframe.material as THREE.Material).dispose();
+        if (Array.isArray(this.currentWireframe.material)) {
+          this.currentWireframe.material.forEach((m) => m.dispose());
+        } else {
+          this.currentWireframe.material.dispose();
+        }
         this.currentWireframe = null;
       }
 
@@ -2128,7 +2136,11 @@ export class WebGL3DRenderer implements IRenderer {
 
     if (this.currentWireframe) {
       this.currentWireframe.geometry.dispose();
-      (this.currentWireframe.material as THREE.Material).dispose();
+      if (Array.isArray(this.currentWireframe.material)) {
+        this.currentWireframe.material.forEach((m) => m.dispose());
+      } else {
+        this.currentWireframe.material.dispose();
+      }
       this.currentWireframe = null;
     }
 
@@ -2141,6 +2153,17 @@ export class WebGL3DRenderer implements IRenderer {
         }
       });
       this.axisLabelGroup = null;
+    }
+
+    // Dispose any sprite materials and textures added directly to the scene
+    // (catches sprites outside axisLabelGroup, e.g. future additions)
+    if (this.scene) {
+      this.scene.traverse((child) => {
+        if (child instanceof THREE.Sprite) {
+          child.material.map?.dispose();
+          child.material.dispose();
+        }
+      });
     }
 
     // Dispose procedural environment cubemap

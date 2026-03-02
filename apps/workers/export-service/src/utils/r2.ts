@@ -113,7 +113,7 @@ export async function uploadToR2(
       contentType,
       cacheControl: 'public, max-age=31536000', // 1 year
     },
-    customMetadata: metadata,
+    ...(metadata ? { customMetadata: metadata } : {}),
   });
 
   if (!object) {
@@ -184,7 +184,7 @@ export async function listR2Objects(
   limit: number = 100,
 ): Promise<R2Object[]> {
   const result = await bucket.list({
-    prefix,
+    ...(prefix ? { prefix } : {}),
     limit,
   });
 

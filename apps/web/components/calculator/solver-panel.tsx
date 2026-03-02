@@ -15,6 +15,7 @@ import {
   Sigma,
   TrendingUp,
 } from 'lucide-react';
+import type { KeyboardEvent } from 'react';
 import { useCallback, useId, useState, useTransition } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -1276,7 +1277,7 @@ export function SolverPanel() {
 
   // Handle Enter key in input
   const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
+    (e: KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter' && !isPending) {
         e.preventDefault();
         handleSolve();

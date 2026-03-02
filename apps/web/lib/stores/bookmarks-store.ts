@@ -7,6 +7,7 @@
 
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
+import { useShallow } from 'zustand/shallow';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -112,10 +113,13 @@ export const useBookmarksStore = create<BookmarksStore>()(
 
 export const useBookmarks = (): readonly Bookmark[] => useBookmarksStore((s) => s.bookmarks);
 
-export const useBookmarkActions = () => ({
-  add: useBookmarksStore((s) => s.addBookmark),
-  remove: useBookmarksStore((s) => s.removeBookmark),
-  toggle: useBookmarksStore((s) => s.toggleBookmark),
-  isBookmarked: useBookmarksStore((s) => s.isBookmarked),
-  clear: useBookmarksStore((s) => s.clearAll),
-});
+export const useBookmarkActions = () =>
+  useBookmarksStore(
+    useShallow((s) => ({
+      add: s.addBookmark,
+      remove: s.removeBookmark,
+      toggle: s.toggleBookmark,
+      isBookmarked: s.isBookmarked,
+      clear: s.clearAll,
+    })),
+  );

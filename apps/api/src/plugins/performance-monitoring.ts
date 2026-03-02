@@ -138,7 +138,44 @@ export const responseCachingPlugin = (): ApolloServerPlugin<GraphQLContext> => (
 });
 
 /**
+ * Count selections recursively to compute query complexity.
+ *
+ * Each leaf field contributes a base cost of 1. Nested selection sets
+ * multiply by a depth factor so deeply nested queries are penalised.
+ *
+ * @param selections - The SelectionSet selections array from the parsed query.
+ * @param depthFactor - Multiplier applied at each nesting level (default 10).
+ */
+function countSelections(
+  selections: readonly {
+    readonly kind: string;
+    readonly selectionSet?: {
+      readonly selections: readonly { readonly kind: string; readonly selectionSet?: unknown }[];
+    };
+  }[],
+  depthFactor: number,
+): number {
+  let total = 0;
+  for (const sel of selections) {
+    if (sel.selectionSet && Array.isArray(sel.selectionSet.selections)) {
+      // This field has nested selections — add the depth factor plus recurse
+      total +=
+        depthFactor +
+        countSelections(sel.selectionSet.selections as typeof selections, depthFactor);
+    } else {
+      // Leaf field — base cost of 1
+      total += 1;
+    }
+  }
+  return total;
+}
+
+/**
  * Query complexity guard (prevents DoS via deeply nested queries).
+ *
+ * Recursively walks the selection set so nested fields are counted.
+ * Each nesting level adds a multiplier (depthFactor) to penalise
+ * deeply nested queries that could cause expensive resolver chains.
  */
 export const queryComplexityPlugin = (
   maxComplexity = 1000,
@@ -146,8 +183,10 @@ export const queryComplexityPlugin = (
   async requestDidStart() {
     return {
       async didResolveOperation(requestContext) {
-        const selections = requestContext.operation?.selectionSet.selections.length || 0;
-        const estimatedComplexity = selections * 10;
+        const selections = requestContext.operation?.selectionSet.selections;
+        if (!selections) return;
+
+        const estimatedComplexity = countSelections(selections, 10);
 
         if (estimatedComplexity > maxComplexity) {
           throw new Error(`Query too complex: ${estimatedComplexity} (max: ${maxComplexity})`);

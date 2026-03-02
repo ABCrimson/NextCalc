@@ -20,7 +20,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 // Next.js 16.2.0: Enhanced Metadata API with comprehensive SEO + PWA
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env['NEXT_PUBLIC_APP_URL'] || 'http://localhost:3000'),
+  metadataBase: new URL(process.env['NEXT_PUBLIC_APP_URL'] || 'http://localhost:3005'),
   title: {
     template: '%s | NextCalc Pro',
     default: 'NextCalc Pro - Modern Scientific Calculator',

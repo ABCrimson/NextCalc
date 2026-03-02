@@ -8,7 +8,7 @@ import type { ApiResponse, SolveRequest } from '../utils/validators.js';
 import { createErrorResponse, createSuccessResponse } from '../utils/validators.js';
 
 // Create a mathjs instance with all functionality
-const math = create(all);
+const math = create(all!);
 
 /**
  * Result type for equation solving
@@ -47,10 +47,10 @@ function extractPolynomialCoefficients(
     // First, compute the forward difference table
     const diffs: number[][] = [points.slice()];
     for (let order = 1; order <= maxDegree; order++) {
-      const prev = diffs[order - 1];
+      const prev = diffs[order - 1]!;
       const next: number[] = [];
       for (let i = 0; i < prev.length - 1; i++) {
-        next.push(prev[i + 1] - prev[i]);
+        next.push(prev[i + 1]! - prev[i]!);
       }
       diffs.push(next);
     }
@@ -58,7 +58,7 @@ function extractPolynomialCoefficients(
     // Find the degree: the first order where all differences are ~0
     let degree = 0;
     for (let d = 0; d <= maxDegree; d++) {
-      const allZero = diffs[d].every((v) => Math.abs(v) < 1e-8);
+      const allZero = diffs[d]!.every((v) => Math.abs(v) < 1e-8);
       if (allZero) {
         degree = d - 1;
         break;
@@ -75,7 +75,7 @@ function extractPolynomialCoefficients(
     const coeffs = new Array<number>(degree + 1).fill(0);
 
     // Newton forward differences at x=0
-    const deltas = diffs.map((d) => d[0]);
+    const deltas = diffs.map((d) => d[0]!);
 
     // Convert Newton form to standard polynomial using Stirling numbers
     // coefficient of x^k = sum over j>=k of S(j,k) * delta^j / j!
@@ -87,7 +87,7 @@ function extractPolynomialCoefficients(
       let coeff = 0;
       for (let j = k; j <= degree; j++) {
         // Coefficient of x^k in C(x,j)
-        coeff += (stirling1(j, k) * deltas[j]) / factorial(j);
+        coeff += (stirling1(j, k) * deltas[j]!) / factorial(j);
       }
       coeffs[k] = parseFloat(coeff.toFixed(precision));
     }
@@ -122,7 +122,7 @@ function solvePolynomial(
   precision: number,
 ): Array<number | { re: number; im: number }> {
   // Remove trailing zeros to find actual degree
-  while (coeffs.length > 1 && Math.abs(coeffs[coeffs.length - 1]) < 1e-10) {
+  while (coeffs.length > 1 && Math.abs(coeffs[coeffs.length - 1]!) < 1e-10) {
     coeffs.pop();
   }
 
@@ -130,18 +130,20 @@ function solvePolynomial(
 
   if (degree === 0) {
     // Constant — no solutions (or infinitely many if constant is 0)
-    return Math.abs(coeffs[0]) < 1e-10 ? [0] : [];
+    return Math.abs(coeffs[0]!) < 1e-10 ? [0] : [];
   }
 
   if (degree === 1) {
     // Linear: a0 + a1*x = 0 → x = -a0/a1
-    const x = -coeffs[0] / coeffs[1];
+    const x = -coeffs[0]! / coeffs[1]!;
     return [parseFloat(x.toFixed(precision))];
   }
 
   if (degree === 2) {
     // Quadratic: a0 + a1*x + a2*x^2 = 0
-    const [c, b, a] = coeffs;
+    const c = coeffs[0]!;
+    const b = coeffs[1]!;
+    const a = coeffs[2]!;
     const discriminant = b * b - 4 * a * c;
 
     if (discriminant >= 0) {
@@ -181,7 +183,7 @@ function durandKerner(
   precision: number,
 ): Array<number | { re: number; im: number }> {
   const n = coeffs.length - 1; // degree
-  const an = coeffs[n]; // leading coefficient
+  const an = coeffs[n]!; // leading coefficient
 
   // Normalize coefficients
   const norm = coeffs.map((c) => c / an);
@@ -204,19 +206,20 @@ function durandKerner(
     let maxDelta = 0;
 
     for (let i = 0; i < n; i++) {
+      const ri = roots[i]!;
       // Evaluate polynomial at roots[i]
-      let pRe = norm[0];
+      let pRe = norm[0]!;
       let pIm = 0;
       let zRe = 1;
       let zIm = 0;
 
       for (let k = 1; k <= n; k++) {
-        const newZRe = zRe * roots[i].re - zIm * roots[i].im;
-        const newZIm = zRe * roots[i].im + zIm * roots[i].re;
+        const newZRe = zRe * ri.re - zIm * ri.im;
+        const newZIm = zRe * ri.im + zIm * ri.re;
         zRe = newZRe;
         zIm = newZIm;
-        pRe += norm[k] * zRe;
-        pIm += norm[k] * zIm;
+        pRe += norm[k]! * zRe;
+        pIm += norm[k]! * zIm;
       }
 
       // Compute product of (roots[i] - roots[j]) for j != i
@@ -224,8 +227,9 @@ function durandKerner(
       let dIm = 0;
       for (let j = 0; j < n; j++) {
         if (j === i) continue;
-        const diffRe = roots[i].re - roots[j].re;
-        const diffIm = roots[i].im - roots[j].im;
+        const rj = roots[j]!;
+        const diffRe = ri.re - rj.re;
+        const diffIm = ri.im - rj.im;
         const newDRe = dRe * diffRe - dIm * diffIm;
         const newDIm = dRe * diffIm + dIm * diffRe;
         dRe = newDRe;
@@ -238,8 +242,8 @@ function durandKerner(
       const deltaRe = (pRe * dRe + pIm * dIm) / denom;
       const deltaIm = (pIm * dRe - pRe * dIm) / denom;
 
-      roots[i].re -= deltaRe;
-      roots[i].im -= deltaIm;
+      ri.re -= deltaRe;
+      ri.im -= deltaIm;
 
       maxDelta = Math.max(maxDelta, Math.sqrt(deltaRe * deltaRe + deltaIm * deltaIm));
     }
@@ -326,7 +330,8 @@ export async function solveMathExpression(
       return createErrorResponse('Equation must have exactly one equals sign', 'INVALID_EQUATION');
     }
 
-    const [leftSide, rightSide] = parts;
+    const leftSide = parts[0]!;
+    const rightSide = parts[1]!;
 
     // Rewrite as: leftSide - rightSide = 0
     const equationToSolve = `${leftSide} - (${rightSide})`;
@@ -400,7 +405,8 @@ export function verifySolution(expression: string, variable: string, solution: n
     const parts = expression.split('=');
     if (parts.length !== 2) return false;
 
-    const [leftSide, rightSide] = parts;
+    const leftSide = parts[0]!;
+    const rightSide = parts[1]!;
 
     const leftResult = math.evaluate(leftSide, { [variable]: solution }) as number;
     const rightResult = math.evaluate(rightSide, { [variable]: solution }) as number;

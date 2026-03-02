@@ -22,6 +22,7 @@
 import { extractVariables } from '@nextcalc/math-engine';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
+import type { ChangeEvent, KeyboardEvent } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 // ---------------------------------------------------------------------------
@@ -175,7 +176,7 @@ function EditableBound({ value, label, onChange }: EditableBoundProps) {
   }, [draft, value, onChange]);
 
   const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
+    (e: KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') commit();
       if (e.key === 'Escape') setEditing(false);
     },
@@ -239,7 +240,7 @@ function SliderRow({ name, config, onValueChange, onMinChange, onMaxChange }: Sl
   const clampedValue = Math.min(max, Math.max(min, value));
 
   const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    (e: ChangeEvent<HTMLInputElement>) => {
       onValueChange(name, parseFloat(e.target.value));
     },
     [name, onValueChange],

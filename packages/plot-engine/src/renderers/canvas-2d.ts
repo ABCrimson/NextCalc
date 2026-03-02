@@ -142,27 +142,27 @@ export class Canvas2DRenderer implements IRenderer {
     ctx.globalAlpha = gridOpacity;
     ctx.lineWidth = 0.5;
 
-    // Vertical grid lines
+    // Vertical grid lines — batched into a single path for one stroke call
+    ctx.beginPath();
     const startX = Math.ceil(vp.xMin / majorStepX) * majorStepX;
     for (let x = startX; x <= vp.xMax; x += majorStepX) {
       const cx = this.worldToCanvasX(x, vp);
-      ctx.beginPath();
       ctx.moveTo(cx, 0);
       ctx.lineTo(cx, this.canvas.height);
-      ctx.stroke();
-      this.drawCalls++;
     }
+    ctx.stroke();
+    this.drawCalls++;
 
-    // Horizontal grid lines
+    // Horizontal grid lines — batched into a single path for one stroke call
+    ctx.beginPath();
     const startY = Math.ceil(vp.yMin / majorStepY) * majorStepY;
     for (let y = startY; y <= vp.yMax; y += majorStepY) {
       const cy = this.worldToCanvasY(y, vp);
-      ctx.beginPath();
       ctx.moveTo(0, cy);
       ctx.lineTo(this.canvas.width, cy);
-      ctx.stroke();
-      this.drawCalls++;
     }
+    ctx.stroke();
+    this.drawCalls++;
 
     ctx.globalAlpha = 1;
   }

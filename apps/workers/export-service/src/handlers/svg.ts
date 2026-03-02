@@ -101,7 +101,7 @@ export async function exportToSvg(
   return {
     ...uploadResult,
     format: 'svg',
-    dimensions,
+    ...(dimensions ? { dimensions } : {}),
   };
 }
 
@@ -144,7 +144,11 @@ export async function batchExportToSvg(
 
   for (const latex of expressions) {
     try {
-      const result = await exportToSvg({ latex, userId }, bucket, maxFileSize);
+      const result = await exportToSvg(
+        { latex, ...(userId ? { userId } : {}) },
+        bucket,
+        maxFileSize,
+      );
       results.push(result);
     } catch (error) {
       // Log error but continue with other exports

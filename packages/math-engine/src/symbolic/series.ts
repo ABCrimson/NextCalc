@@ -35,6 +35,9 @@ import { evaluate } from '../parser/evaluator';
 import { differentiate } from './differentiate';
 import { simplify, substitute } from './simplify';
 
+/** Module-level cache for memoized factorial results */
+const FACTORIAL_CACHE = new Map<number, number>();
+
 /**
  * Configuration for series expansion
  */
@@ -925,16 +928,19 @@ function evaluateAtPoint(expr: ExpressionNode, variable: string, point: number):
 }
 
 /**
- * Compute factorial
+ * Compute factorial with memoization.
+ *
+ * Results are cached in a module-level Map so repeated calls for the same n
+ * (which occur frequently during series expansion coefficient computation)
+ * pay only a single Map lookup after the first evaluation.
  */
 function computeFactorial(n: number): number {
-  if (n < 0) throw new Error('Factorial undefined for negative numbers');
-  if (n === 0 || n === 1) return 1;
-
+  if (n < 0) throw new Error('Factorial of negative number');
+  const cached = FACTORIAL_CACHE.get(n);
+  if (cached !== undefined) return cached;
   let result = 1;
-  for (let i = 2; i <= n; i++) {
-    result *= i;
-  }
+  for (let i = 2; i <= n; i++) result *= i;
+  FACTORIAL_CACHE.set(n, result);
   return result;
 }
 

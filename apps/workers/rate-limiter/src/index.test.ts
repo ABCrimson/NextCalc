@@ -62,7 +62,7 @@ const ADMIN_KEY = 'test-admin-key';
 
 function createTestEnv(overrides: Record<string, unknown> = {}) {
   return {
-    ALLOWED_ORIGINS: 'http://localhost:3020',
+    ALLOWED_ORIGINS: 'http://localhost:3005',
     RATE_LIMITS: createMockKV(),
     ADMIN_KEY,
     ...overrides,
@@ -168,14 +168,14 @@ describe('Unknown routes', () => {
 describe('CORS middleware', () => {
   it('echoes the allowed origin back in ACAO header', async () => {
     const res = await makeRequest('/health', {
-      headers: { Origin: 'http://localhost:3020' },
+      headers: { Origin: 'http://localhost:3005' },
     });
-    expect(res.headers.get('Access-Control-Allow-Origin')).toBe('http://localhost:3020');
+    expect(res.headers.get('Access-Control-Allow-Origin')).toBe('http://localhost:3005');
   });
 
   it('exposes rate-limit headers in ACEH', async () => {
     const res = await makeRequest('/health', {
-      headers: { Origin: 'http://localhost:3020' },
+      headers: { Origin: 'http://localhost:3005' },
     });
     const exposed = res.headers.get('Access-Control-Expose-Headers') ?? '';
     expect(exposed).toContain('X-RateLimit-Limit');

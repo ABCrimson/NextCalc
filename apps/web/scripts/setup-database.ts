@@ -146,7 +146,7 @@ async function setupDatabase() {
 
   console.log('Next steps:');
   console.log('1. Start the development server: pnpm dev');
-  console.log('2. Test authentication at http://localhost:3000');
+  console.log('2. Test authentication at http://localhost:3005');
   console.log('3. Check Prisma Studio: pnpm prisma studio');
   console.log('');
   console.log('Database tools:');

@@ -53,8 +53,8 @@ export function pageRank(
   const n = graph.length;
 
   // Initialize ranks uniformly
-  let ranks = new Array(n).fill(1 / n);
-  let newRanks = new Array(n).fill(0);
+  let ranks = new Float64Array(n).fill(1 / n);
+  let newRanks = new Float64Array(n);
 
   // Compute outdegrees
   const outdegrees = graph.map((neighbors) => neighbors.length);
@@ -101,7 +101,7 @@ export function pageRank(
   }
 
   return {
-    ranks,
+    ranks: Array.from(ranks),
     iterations: iter,
     converged,
   };
@@ -131,7 +131,7 @@ export function personalizedPageRank(
   const normalized = personalVector.map((v) => v / sum);
 
   let ranks = [...normalized];
-  let newRanks = new Array(n).fill(0);
+  let newRanks = new Array<number>(n).fill(0);
 
   const outdegrees = graph.map((neighbors) => neighbors.length);
 

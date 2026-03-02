@@ -55,14 +55,15 @@ export const forumResolvers = {
         ];
       }
 
-      const totalCount = await context.prisma.forumPost.count({ where });
-
-      const posts = await context.prisma.forumPost.findMany({
-        where,
-        take: limit,
-        skip: offset,
-        orderBy: [{ isPinned: 'desc' }, { createdAt: 'desc' }],
-      });
+      const [totalCount, posts] = await Promise.all([
+        context.prisma.forumPost.count({ where }),
+        context.prisma.forumPost.findMany({
+          where,
+          take: limit,
+          skip: offset,
+          orderBy: [{ isPinned: 'desc' }, { createdAt: 'desc' }],
+        }),
+      ]);
 
       return {
         nodes: posts,

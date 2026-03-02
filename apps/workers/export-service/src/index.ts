@@ -15,7 +15,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
-import { prettyJSON } from 'hono/pretty-json';
 import { z } from 'zod';
 
 import { exportToPdf, type PdfExportRequest, validateLatexSyntax } from './handlers/pdf.js';
@@ -46,15 +45,13 @@ const app = new Hono<{ Bindings: Bindings }>();
 // CORS configuration
 app.use('/*', async (c, next) => {
   const allowedOrigins = c.env.ALLOWED_ORIGINS?.split(',') || [
-    'http://localhost:3020',
+    'http://localhost:3005',
     'https://nextcalc.pro',
   ];
 
   const origin = c.req.header('Origin') || '';
   const corsMiddleware = cors({
-    origin: allowedOrigins.includes(origin)
-      ? origin
-      : (allowedOrigins[0] ?? 'http://localhost:3020'),
+    origin: allowedOrigins.includes(origin) ? origin : '',
     allowMethods: ['GET', 'POST', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization'],
     maxAge: 86400,
@@ -66,9 +63,6 @@ app.use('/*', async (c, next) => {
 
 // Request logging
 app.use('*', logger());
-
-// Pretty JSON responses
-app.use('*', prettyJSON());
 
 /**
  * Global error handler

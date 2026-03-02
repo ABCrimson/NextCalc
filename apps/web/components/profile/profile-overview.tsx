@@ -4,6 +4,7 @@ import { useMutation } from '@apollo/client/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import type { FormEvent } from 'react';
 import { useCallback, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -487,7 +488,7 @@ function EditProfileDialog({
     useMutation<UpdateProfileMutationData>(UPDATE_PROFILE_MUTATION);
 
   const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
+    async (e: FormEvent) => {
       e.preventDefault();
       setSaveError(null);
       setSaveSuccess(false);

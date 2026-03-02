@@ -226,9 +226,9 @@ export async function listRateLimitKeys(
   let cursor: string | undefined;
 
   do {
-    const result = await kv.list({ prefix, cursor });
+    const result = await kv.list({ prefix, ...(cursor ? { cursor } : {}) });
     keys.push(...result.keys.map((k) => k.name));
-    cursor = result.cursor;
+    cursor = result.list_complete ? undefined : result.cursor;
   } while (cursor);
 
   return keys;

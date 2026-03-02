@@ -8,7 +8,7 @@ import type { ApiResponse, IntegrateRequest } from '../utils/validators.js';
 import { createErrorResponse, createSuccessResponse } from '../utils/validators.js';
 
 // Create a mathjs instance with all functionality
-const math = create(all);
+const math = create(all!);
 
 /**
  * Result type for integration operations
@@ -141,7 +141,7 @@ export async function integrateMathExpression(
         upperBound !== undefined && {
           bounds: { lower: lowerBound, upper: upperBound },
         }),
-      numericValue,
+      ...(numericValue !== undefined ? { numericValue } : {}),
       simplified: simplify,
       ...(latexOutput && { latex: latexOutput }),
     };

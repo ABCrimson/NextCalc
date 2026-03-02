@@ -247,7 +247,7 @@ pnpm dev
 # Open http://localhost:3005
 ```
 
-> **Prerequisites**: Node.js >= 22.9.0, pnpm >= 10.x
+> **Prerequisites**: Node.js >= 20.0.0, pnpm >= 11
 
 ---
 

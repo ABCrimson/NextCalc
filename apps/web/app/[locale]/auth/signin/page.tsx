@@ -48,7 +48,7 @@ const PROVIDERS: ProviderConfig[] = [
     label: 'continueWithGoogle',
     icon: Chrome,
     colorClasses:
-      'bg-white text-[#3c4043] hover:bg-gray-50 dark:bg-foreground/5 dark:text-foreground dark:hover:bg-foreground/10 border border-[#dadce0] dark:border-border/50',
+      'bg-white text-[#3c4043] hover:bg-muted dark:bg-foreground/5 dark:text-foreground dark:hover:bg-foreground/10 border border-[#dadce0] dark:border-border/50',
   },
 ];
 

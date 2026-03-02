@@ -20,4 +20,4 @@ command = ""
 
 # CORS configuration for API access
 [vars]
-ALLOWED_ORIGINS = "http://localhost:3020,https://nextcalc.io,https://nextcalc.pro"
+ALLOWED_ORIGINS = "http://localhost:3005,https://nextcalc.io,https://nextcalc.pro"

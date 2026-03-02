@@ -176,21 +176,21 @@ export function lucasLehmer(p: number): boolean {
 export function sieveOfEratosthenes(n: number): ReadonlyArray<number> {
   if (n < 2) return [];
 
-  const isPrimeArr = new Array<boolean>(n + 1).fill(true);
-  isPrimeArr[0] = false;
-  isPrimeArr[1] = false;
+  const isPrimeArr = new Uint8Array(n + 1).fill(1);
+  isPrimeArr[0] = 0;
+  isPrimeArr[1] = 0;
 
   for (let i = 2; i * i <= n; i++) {
-    if (isPrimeArr[i]) {
+    if (isPrimeArr[i] === 1) {
       for (let j = i * i; j <= n; j += i) {
-        isPrimeArr[j] = false;
+        isPrimeArr[j] = 0;
       }
     }
   }
 
   const primes: number[] = [];
   for (let i = 2; i <= n; i++) {
-    if (isPrimeArr[i]) {
+    if (isPrimeArr[i] === 1) {
       primes.push(i);
     }
   }
@@ -219,20 +219,20 @@ export function segmentedSieve(low: number, high: number): ReadonlyArray<number>
   const basePrimes = sieveOfEratosthenes(limit);
 
   const size = high - low + 1;
-  const isPrimeArr = new Array<boolean>(size).fill(true);
+  const isPrimeArr = new Uint8Array(size).fill(1);
 
   for (const prime of basePrimes) {
     // Find first multiple of prime in [low, high]
     const start = Math.max(prime * prime, Math.ceil(low / prime) * prime);
 
     for (let j = start; j <= high; j += prime) {
-      isPrimeArr[j - low] = false;
+      isPrimeArr[j - low] = 0;
     }
   }
 
   const primes: number[] = [];
   for (let i = 0; i < size; i++) {
-    if (isPrimeArr[i] && low + i >= 2) {
+    if (isPrimeArr[i] === 1 && low + i >= 2) {
       primes.push(low + i);
     }
   }

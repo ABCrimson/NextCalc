@@ -24,6 +24,7 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { BarChart2, Cpu, Info, Lock, Play, RotateCcw, ShieldCheck, X, Zap } from 'lucide-react';
+import type { KeyboardEvent } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   type BatchVerifyResult,
@@ -299,7 +300,7 @@ export function ZKPComputeVisualizer({
   // ── Keyboard: arrow navigation over grid ──────────────────────────────────
   const cols = 8;
   const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLDivElement>) => {
+    (e: KeyboardEvent<HTMLDivElement>) => {
       if (selectedCell === null) return;
       const total = cells.length;
       let next = selectedCell;

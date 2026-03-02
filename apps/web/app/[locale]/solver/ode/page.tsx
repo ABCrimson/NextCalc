@@ -29,6 +29,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import type { MouseEvent } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -1003,7 +1004,7 @@ function DirectionFieldCanvas({
   }, [f, xMin, xMax, yMin, yMax, trajectories, toCanvasX, toCanvasY]);
 
   const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLCanvasElement>) => {
+    (e: MouseEvent<HTMLCanvasElement>) => {
       const canvas = canvasRef.current;
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
@@ -1055,7 +1056,7 @@ function DirectionFieldCanvas({
           className={`text-xs px-1.5 py-0.5 rounded font-mono backdrop-blur-sm border ${
             renderMode === 'WebGPU'
               ? 'bg-violet-900/60 border-violet-500/40 text-violet-300'
-              : 'bg-slate-900/60 border-slate-500/40 text-slate-400'
+              : 'bg-muted/60 border-border text-muted-foreground'
           }`}
         >
           {renderMode}
@@ -1272,7 +1273,7 @@ function PhasePlaneCanvas({
   }, [f, g, xMin, xMax, yMin, yMax, trajectories, toCanvasX, toCanvasY]);
 
   const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLCanvasElement>) => {
+    (e: MouseEvent<HTMLCanvasElement>) => {
       const canvas = canvasRef.current;
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
@@ -1314,7 +1315,7 @@ function PhasePlaneCanvas({
           className={`text-xs px-1.5 py-0.5 rounded font-mono backdrop-blur-sm border ${
             renderMode === 'WebGPU'
               ? 'bg-violet-900/60 border-violet-500/40 text-violet-300'
-              : 'bg-slate-900/60 border-slate-500/40 text-slate-400'
+              : 'bg-muted/60 border-border text-muted-foreground'
           }`}
         >
           {renderMode}
@@ -1528,7 +1529,7 @@ function SolutionCurveCanvas({
           className={`text-xs px-1.5 py-0.5 rounded font-mono backdrop-blur-sm border ${
             renderMode === 'WebGPU'
               ? 'bg-violet-900/60 border-violet-500/40 text-violet-300'
-              : 'bg-slate-900/60 border-slate-500/40 text-slate-400'
+              : 'bg-muted/60 border-border text-muted-foreground'
           }`}
         >
           {renderMode}

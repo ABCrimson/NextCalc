@@ -149,7 +149,7 @@ function createMockR2Bucket(
 
 function createTestEnv(overrides: Record<string, unknown> = {}) {
   return {
-    ALLOWED_ORIGINS: 'http://localhost:3020',
+    ALLOWED_ORIGINS: 'http://localhost:3005',
     EXPORTS_PUBLIC: createMockR2Bucket(),
     EXPORTS_PRIVATE: createMockR2Bucket(),
     SIGNED_URL_EXPIRY: '3600',
@@ -245,22 +245,22 @@ describe('Unknown routes', () => {
 
 describe('CORS middleware', () => {
   it('echoes the allowed origin back in ACAO header', async () => {
-    const env = createTestEnv({ ALLOWED_ORIGINS: 'http://localhost:3020' });
+    const env = createTestEnv({ ALLOWED_ORIGINS: 'http://localhost:3005' });
     const res = await makeRequest(
       '/health',
       {
-        headers: { Origin: 'http://localhost:3020' },
+        headers: { Origin: 'http://localhost:3005' },
       },
       env,
     );
-    expect(res.headers.get('Access-Control-Allow-Origin')).toBe('http://localhost:3020');
+    expect(res.headers.get('Access-Control-Allow-Origin')).toBe('http://localhost:3005');
   });
 
   it('responds to OPTIONS preflight with a 2xx status', async () => {
     const res = await makeRequest('/export/svg', {
       method: 'OPTIONS',
       headers: {
-        Origin: 'http://localhost:3020',
+        Origin: 'http://localhost:3005',
         'Access-Control-Request-Method': 'POST',
       },
     });

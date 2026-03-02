@@ -3,12 +3,13 @@
  * Computes derivatives using mathjs symbolic computation
  */
 
+import type { SymbolNode } from 'mathjs';
 import { all, create } from 'mathjs';
 import type { ApiResponse, DifferentiateRequest } from '../utils/validators.js';
 import { createErrorResponse, createSuccessResponse } from '../utils/validators.js';
 
 // Create a mathjs instance with all functionality
-const math = create(all);
+const math = create(all!);
 
 /**
  * Result type for differentiation operations
@@ -130,7 +131,7 @@ export function expressionContainsVariable(expression: string, variable: string)
 
     parsed.traverse((node) => {
       if (node.type === 'SymbolNode') {
-        symbols.add(node.name);
+        symbols.add((node as SymbolNode).name);
       }
     });
 
@@ -196,7 +197,7 @@ export async function computeGradient(
   const partialsResult = await computePartialDerivatives(expression, variables);
 
   if (!partialsResult.success || !partialsResult.data) {
-    return partialsResult as ApiResponse<string[]>;
+    return partialsResult as unknown as ApiResponse<string[]>;
   }
 
   const data = partialsResult.data;

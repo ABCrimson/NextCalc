@@ -16,7 +16,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
-import { prettyJSON } from 'hono/pretty-json';
 import { z } from 'zod';
 import { ipRateLimitMiddleware } from './middleware/ratelimit.js';
 import {
@@ -39,6 +38,32 @@ type Bindings = {
 };
 
 /**
+ * Timing-safe string comparison using SHA-256 digests via the Web Crypto API.
+ *
+ * A plain `===` comparison leaks information through execution time differences
+ * (short-circuit on first mismatched byte). Hashing both values first produces
+ * fixed-length byte arrays so the XOR loop always runs for the same number of
+ * iterations regardless of where the strings diverge, eliminating the timing
+ * side-channel.
+ */
+async function timingSafeEqual(a: string, b: string): Promise<boolean> {
+  const encoder = new TextEncoder();
+  const [hashA, hashB] = await Promise.all([
+    crypto.subtle.digest('SHA-256', encoder.encode(a)),
+    crypto.subtle.digest('SHA-256', encoder.encode(b)),
+  ]);
+  const viewA = new Uint8Array(hashA);
+  const viewB = new Uint8Array(hashB);
+  // SHA-256 always produces 32 bytes; the length check is a safety guard.
+  if (viewA.length !== viewB.length) return false;
+  let diff = 0;
+  for (let i = 0; i < viewA.length; i++) {
+    diff |= viewA[i]! ^ viewB[i]!;
+  }
+  return diff === 0;
+}
+
+/**
  * Initialize Hono application with type-safe bindings
  */
 const app = new Hono<{ Bindings: Bindings }>();
@@ -50,15 +75,13 @@ const app = new Hono<{ Bindings: Bindings }>();
 // CORS configuration
 app.use('/*', async (c, next) => {
   const allowedOrigins = c.env.ALLOWED_ORIGINS?.split(',') || [
-    'http://localhost:3020',
+    'http://localhost:3005',
     'https://nextcalc.pro',
   ];
 
   const origin = c.req.header('Origin') || '';
   const corsMiddleware = cors({
-    origin: allowedOrigins.includes(origin)
-      ? origin
-      : (allowedOrigins[0] ?? 'http://localhost:3020'),
+    origin: allowedOrigins.includes(origin) ? origin : '',
     allowMethods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization'],
     exposeHeaders: [
@@ -77,9 +100,6 @@ app.use('/*', async (c, next) => {
 
 // Request logging
 app.use('*', logger());
-
-// Pretty JSON responses
-app.use('*', prettyJSON());
 
 /**
  * Global error handler
@@ -288,8 +308,8 @@ app.get('/status/:identifier', async (c) => {
  */
 app.delete('/reset/:identifier', async (c) => {
   try {
-    const adminKey = c.req.header('X-Admin-Key');
-    if (adminKey !== c.env.ADMIN_KEY) {
+    const adminKey = c.req.header('X-Admin-Key') ?? '';
+    if (!(await timingSafeEqual(adminKey, c.env.ADMIN_KEY))) {
       return c.json({ success: false, error: 'Unauthorized' }, 401);
     }
 
@@ -392,8 +412,8 @@ app.get('/recommend/:requestsPerHour', (c) => {
  */
 app.get('/admin/keys', async (c) => {
   try {
-    const adminKey = c.req.header('X-Admin-Key');
-    if (adminKey !== c.env.ADMIN_KEY) {
+    const adminKey = c.req.header('X-Admin-Key') ?? '';
+    if (!(await timingSafeEqual(adminKey, c.env.ADMIN_KEY))) {
       return c.json({ success: false, error: 'Unauthorized' }, 401);
     }
 

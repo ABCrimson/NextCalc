@@ -15,7 +15,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
-import { prettyJSON } from 'hono/pretty-json';
 import { z } from 'zod';
 import { differentiateMathExpression } from './handlers/differentiate.js';
 import { computeArcLength, integrateMathExpression } from './handlers/integrate.js';
@@ -47,15 +46,13 @@ const app = new Hono<{ Bindings: Bindings }>();
 // CORS configuration - allows frontend to access API
 app.use('/*', async (c, next) => {
   const allowedOrigins = c.env.ALLOWED_ORIGINS?.split(',') || [
-    'http://localhost:3020',
+    'http://localhost:3005',
     'https://nextcalc.pro',
   ];
 
   const origin = c.req.header('Origin') || '';
   const corsMiddleware = cors({
-    origin: allowedOrigins.includes(origin)
-      ? origin
-      : (allowedOrigins[0] ?? 'http://localhost:3020'),
+    origin: allowedOrigins.includes(origin) ? origin : '',
     allowMethods: ['GET', 'POST', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization'],
     maxAge: 86400,
@@ -67,9 +64,6 @@ app.use('/*', async (c, next) => {
 
 // Request logging for observability
 app.use('*', logger());
-
-// Pretty JSON responses in development
-app.use('*', prettyJSON());
 
 /**
  * Global error handler
@@ -96,7 +90,6 @@ app.get('/health', (c) => {
     service: 'cas-service',
     version: '1.0.0',
     timestamp: new Date().toISOString(),
-    uptime: process.uptime ? process.uptime() : 'N/A',
   });
 });
 

@@ -13,6 +13,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent } from 'react';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -1798,7 +1799,7 @@ export default function GraphAlgorithmsPage() {
   // Click on canvas to add node
   // -------------------------------------------------------------------------
   const handleSvgClick = useCallback(
-    (e: React.MouseEvent<SVGSVGElement>) => {
+    (e: ReactMouseEvent<SVGSVGElement>) => {
       if (!addingNode) return;
       if (
         (e.target as SVGElement).closest('[data-node]') ||
@@ -1828,7 +1829,7 @@ export default function GraphAlgorithmsPage() {
   // Node drag
   // -------------------------------------------------------------------------
   const handleNodePointerDown = useCallback(
-    (e: React.PointerEvent<SVGGElement>, nodeId: string) => {
+    (e: ReactPointerEvent<SVGGElement>, nodeId: string) => {
       if (e.button === 2) return;
       e.stopPropagation();
       e.currentTarget.setPointerCapture(e.pointerId);
@@ -1850,7 +1851,7 @@ export default function GraphAlgorithmsPage() {
   );
 
   const handleSvgPointerMove = useCallback(
-    (e: React.PointerEvent<SVGSVGElement>) => {
+    (e: ReactPointerEvent<SVGSVGElement>) => {
       const coords = getSvgCoords(e.clientX, e.clientY);
 
       if (edgeDragFrom) {
@@ -1876,7 +1877,7 @@ export default function GraphAlgorithmsPage() {
   );
 
   const handleSvgPointerUp = useCallback(
-    (e: React.PointerEvent<SVGSVGElement>) => {
+    (e: ReactPointerEvent<SVGSVGElement>) => {
       if (edgeDragFrom) {
         const coords = getSvgCoords(e.clientX, e.clientY);
         const targetNode = nodes.find((n) => {
@@ -1916,7 +1917,7 @@ export default function GraphAlgorithmsPage() {
   // -------------------------------------------------------------------------
   // Context menu
   // -------------------------------------------------------------------------
-  const handleNodeContextMenu = useCallback((e: React.MouseEvent<SVGGElement>, nodeId: string) => {
+  const handleNodeContextMenu = useCallback((e: ReactMouseEvent<SVGGElement>, nodeId: string) => {
     e.preventDefault();
     e.stopPropagation();
     const rect = containerRef.current?.getBoundingClientRect();
@@ -1929,21 +1930,18 @@ export default function GraphAlgorithmsPage() {
     });
   }, []);
 
-  const handleEdgeContextMenu = useCallback(
-    (e: React.MouseEvent<SVGPathElement>, index: number) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const rect = containerRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      setContextMenu({
-        kind: 'edge',
-        index,
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      });
-    },
-    [],
-  );
+  const handleEdgeContextMenu = useCallback((e: ReactMouseEvent<SVGPathElement>, index: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setContextMenu({
+      kind: 'edge',
+      index,
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  }, []);
 
   // -------------------------------------------------------------------------
   // Delete

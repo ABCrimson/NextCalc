@@ -25,7 +25,7 @@ import app from './index.js';
 
 /** Minimal env supplied to every request so CORS middleware does not crash. */
 const TEST_ENV = {
-  ALLOWED_ORIGINS: 'http://localhost:3020',
+  ALLOWED_ORIGINS: 'http://localhost:3005',
 };
 
 // ---------------------------------------------------------------------------
@@ -130,16 +130,16 @@ describe('Unknown routes', () => {
 describe('CORS middleware', () => {
   it('returns Access-Control-Allow-Origin header matching the allowed origin', async () => {
     const res = await makeRequest('/health', {
-      headers: { Origin: 'http://localhost:3020' },
+      headers: { Origin: 'http://localhost:3005' },
     });
-    expect(res.headers.get('Access-Control-Allow-Origin')).toBe('http://localhost:3020');
+    expect(res.headers.get('Access-Control-Allow-Origin')).toBe('http://localhost:3005');
   });
 
   it('responds to OPTIONS preflight with 204 or 200', async () => {
     const res = await makeRequest('/solve', {
       method: 'OPTIONS',
       headers: {
-        Origin: 'http://localhost:3020',
+        Origin: 'http://localhost:3005',
         'Access-Control-Request-Method': 'POST',
       },
     });
@@ -148,7 +148,7 @@ describe('CORS middleware', () => {
 
   it('sets Access-Control-Allow-Credentials header', async () => {
     const res = await makeRequest('/health', {
-      headers: { Origin: 'http://localhost:3020' },
+      headers: { Origin: 'http://localhost:3005' },
     });
     expect(res.headers.get('Access-Control-Allow-Credentials')).toBe('true');
   });

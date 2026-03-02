@@ -27,8 +27,8 @@ For full setup instructions (database, OAuth, environment variables), see [docs/
 
 ### Prerequisites
 
-- **Node.js** >= 22.9.0 (recommended: 26.x)
-- **pnpm** >= 10.x
+- **Node.js** >= 20.0.0 (recommended: 26.x)
+- **pnpm** >= 11
 - See [DEVELOPMENT.md](DEVELOPMENT.md) for the full developer guide
 
 ### Commands
@@ -46,7 +46,7 @@ pnpm typecheck    # TypeScript type checking
 - **TypeScript strict mode** with `exactOptionalPropertyTypes`
 - **Zero `as any`** in production code (only allowed in test mocks with biome-ignore)
 - **React 19.3 patterns**: `ref` as a regular prop (no `forwardRef`), named imports only
-- **Biome 2.4.4** for linting and formatting
+- **Biome 2.5.0** for linting and formatting
 - **Semantic color tokens**: `text-foreground`, `bg-background` (not `gray-*` or `slate-*`)
 - **Focus rings**: `focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring`
 

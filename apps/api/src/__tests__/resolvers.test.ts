@@ -249,6 +249,10 @@ function createMockLoaders() {
     worksheetSharesByWorksheetId: { load: vi.fn().mockResolvedValue([]) },
     childFoldersByParentId: { load: vi.fn().mockResolvedValue([]) },
     upvoteCountByTargetId: { load: vi.fn().mockResolvedValue(0) },
+    worksheetsByFolderId: { load: vi.fn().mockResolvedValue([]) },
+    forumPostById: { load: vi.fn().mockResolvedValue(null) },
+    commentById: { load: vi.fn().mockResolvedValue(null) },
+    repliesByParentCommentId: { load: vi.fn().mockResolvedValue([]) },
   };
 }
 
@@ -1274,15 +1278,13 @@ describe('Folder Resolvers', () => {
     });
 
     it('worksheets – queries non-deleted worksheets for the folder', async () => {
-      const prisma = createMockPrisma();
-      prisma.worksheet.findMany.mockResolvedValue([mockWorksheet]);
-      const ctx = userContext(prisma);
+      const loaders = createMockLoaders();
+      loaders.worksheetsByFolderId.load.mockResolvedValue([mockWorksheet]);
+      const ctx = makeContext({ loaders: loaders as unknown as GraphQLContext['loaders'] });
 
       const result = await folderResolvers.Folder.worksheets(mockFolder, {}, ctx);
       expect(result).toEqual([mockWorksheet]);
-      expect(prisma.worksheet.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { folderId: 'folder1', deletedAt: null } }),
-      );
+      expect(loaders.worksheetsByFolderId.load).toHaveBeenCalledWith('folder1');
     });
   });
 });
@@ -2093,13 +2095,13 @@ describe('Comment Resolvers', () => {
     });
 
     it('post – fetches the associated forum post', async () => {
-      const prisma = createMockPrisma();
-      prisma.forumPost.findUnique.mockResolvedValue(mockForumPost);
-      const ctx = userContext(prisma);
+      const loaders = createMockLoaders();
+      loaders.forumPostById.load.mockResolvedValue(mockForumPost);
+      const ctx = makeContext({ loaders: loaders as unknown as GraphQLContext['loaders'] });
 
       const result = await commentResolvers.Comment.post(mockComment, {}, ctx);
       expect(result).toEqual(mockForumPost);
-      expect(prisma.forumPost.findUnique).toHaveBeenCalledWith({ where: { id: CUID_POST } });
+      expect(loaders.forumPostById.load).toHaveBeenCalledWith(CUID_POST);
     });
 
     it('parent – returns null when parentId is absent', async () => {
@@ -2109,10 +2111,10 @@ describe('Comment Resolvers', () => {
     });
 
     it('parent – fetches parent comment when parentId is present', async () => {
-      const prisma = createMockPrisma();
+      const loaders = createMockLoaders();
       const parentComment = { ...mockComment, id: 'parent1' };
-      prisma.comment.findUnique.mockResolvedValue(parentComment);
-      const ctx = userContext(prisma);
+      loaders.commentById.load.mockResolvedValue(parentComment);
+      const ctx = makeContext({ loaders: loaders as unknown as GraphQLContext['loaders'] });
 
       const result = await commentResolvers.Comment.parent(
         { ...mockComment, parentId: 'parent1' },
@@ -2120,20 +2122,18 @@ describe('Comment Resolvers', () => {
         ctx,
       );
       expect(result).toEqual(parentComment);
-      expect(prisma.comment.findUnique).toHaveBeenCalledWith({ where: { id: 'parent1' } });
+      expect(loaders.commentById.load).toHaveBeenCalledWith('parent1');
     });
 
     it('replies – fetches non-deleted child comments', async () => {
-      const prisma = createMockPrisma();
+      const loaders = createMockLoaders();
       const reply = { ...mockComment, id: 'reply1', parentId: CUID_COMMENT };
-      prisma.comment.findMany.mockResolvedValue([reply]);
-      const ctx = userContext(prisma);
+      loaders.repliesByParentCommentId.load.mockResolvedValue([reply]);
+      const ctx = makeContext({ loaders: loaders as unknown as GraphQLContext['loaders'] });
 
       const result = await commentResolvers.Comment.replies(mockComment, {}, ctx);
       expect(result).toEqual([reply]);
-      const callArg = (prisma.comment.findMany as Mock).mock.calls[0]?.[0];
-      expect(callArg.where.parentId).toBe(CUID_COMMENT);
-      expect(callArg.where.deletedAt).toBeNull();
+      expect(loaders.repliesByParentCommentId.load).toHaveBeenCalledWith(CUID_COMMENT);
     });
 
     it('upvoteCount – loads count via DataLoader', async () => {

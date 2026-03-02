@@ -114,20 +114,20 @@ export const worksheetResolvers = {
         ];
       }
 
-      // Get total count for pagination
-      const totalCount = await context.prisma.worksheet.count({ where });
-
-      // Get worksheets
-      const worksheets = await context.prisma.worksheet.findMany({
-        where,
-        take: limit,
-        skip: offset,
-        orderBy: { updatedAt: 'desc' },
-        include: {
-          user: true,
-          folder: true,
-        },
-      });
+      // Get total count and worksheets in parallel
+      const [totalCount, worksheets] = await Promise.all([
+        context.prisma.worksheet.count({ where }),
+        context.prisma.worksheet.findMany({
+          where,
+          take: limit,
+          skip: offset,
+          orderBy: { updatedAt: 'desc' },
+          include: {
+            user: true,
+            folder: true,
+          },
+        }),
+      ]);
 
       return {
         nodes: worksheets,
@@ -168,17 +168,18 @@ export const worksheetResolvers = {
         ];
       }
 
-      const totalCount = await context.prisma.worksheet.count({ where });
-
-      const worksheets = await context.prisma.worksheet.findMany({
-        where,
-        take: limit,
-        skip: offset,
-        orderBy: [{ views: 'desc' }, { updatedAt: 'desc' }],
-        include: {
-          user: true,
-        },
-      });
+      const [totalCount, worksheets] = await Promise.all([
+        context.prisma.worksheet.count({ where }),
+        context.prisma.worksheet.findMany({
+          where,
+          take: limit,
+          skip: offset,
+          orderBy: [{ views: 'desc' }, { updatedAt: 'desc' }],
+          include: {
+            user: true,
+          },
+        }),
+      ]);
 
       return {
         nodes: worksheets,

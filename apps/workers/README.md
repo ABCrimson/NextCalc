@@ -193,7 +193,7 @@ X-RateLimit-Tier: pro
 - Node.js 22+ (26 recommended)
 - pnpm 11+
 - Cloudflare account
-- Wrangler CLI (4.67+)
+- Wrangler CLI (4.68+)
 
 ### Setup
 
@@ -390,7 +390,7 @@ wrangler r2 bucket create nextcalc-exports-public
 Solution: Verify `ALLOWED_ORIGINS` in `wrangler.toml`:
 ```toml
 [vars]
-ALLOWED_ORIGINS = "http://localhost:3020,https://nextcalc.io"
+ALLOWED_ORIGINS = "http://localhost:3005,https://nextcalc.io"
 ```
 
 **4. Rate Limit Always 429**
@@ -470,7 +470,7 @@ Typical performance metrics:
 ### Code Style
 
 - TypeScript strict mode required
-- Biome 2.4.4 for linting and formatting
+- Biome 2.5.0 for linting and formatting
 - Single quotes, 2-space indent, trailing commas
 - JSDoc comments for all public functions
 

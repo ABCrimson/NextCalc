@@ -99,7 +99,7 @@ GPU-accelerated mathematical visualization engine.
 | `export/` | PNG, SVG, CSV export |
 | `types/` | Plot configuration types |
 
-**Tech:** Three.js 0.183.1, D3 7.9.0, WebGL 2, WebGPU (progressive enhancement)
+**Tech:** Three.js 0.183.2, D3 7.9.0, WebGL 2, WebGPU (progressive enhancement)
 
 ### @nextcalc/database
 
@@ -112,7 +112,7 @@ Shared Prisma 7 database package.
 
 **Tables:** users, accounts, sessions, worksheets, folders, forum_posts, comments, upvotes, audit_logs
 
-**Tech:** Prisma 7.5.0-dev.15, @neondatabase/serverless 1.0.2, @prisma/adapter-neon
+**Tech:** Prisma 7.5.0-dev.32, @neondatabase/serverless 1.0.2, @prisma/adapter-neon
 
 ### @nextcalc/api
 
@@ -148,7 +148,7 @@ Three edge microservices deployed to Cloudflare's global network:
 | export-service | LaTeX to PDF/PNG/SVG conversion | 8788 | R2 bucket |
 | rate-limiter | API quota enforcement (sliding window) | 8789 | KV namespace |
 
-**Tech:** Hono 4.12.2, Wrangler 4.67.0, Zod
+**Tech:** Hono 4.12.3, Wrangler 4.68.0, Zod
 
 ## Data Flow
 

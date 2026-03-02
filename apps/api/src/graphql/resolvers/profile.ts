@@ -36,14 +36,15 @@ export const profileResolvers = {
         throw new ForbiddenError('You can only view your own profile data');
       }
 
-      const dbUser = await context.prisma.user.findUnique({
-        where: { id: args.userId },
-      });
+      const [dbUser, userProgress] = await Promise.all([
+        context.prisma.user.findUnique({
+          where: { id: args.userId },
+        }),
+        context.prisma.userProgress.findUnique({
+          where: { userId: args.userId },
+        }),
+      ]);
       if (!dbUser) return null;
-
-      const userProgress = await context.prisma.userProgress.findUnique({
-        where: { userId: args.userId },
-      });
 
       const recentAchievements = userProgress
         ? await context.prisma.userAchievement.findMany({
@@ -99,21 +100,22 @@ export const profileResolvers = {
       const since = new Date();
       since.setDate(since.getDate() - args.days);
 
-      const attempts = await context.prisma.attempt.findMany({
-        where: {
-          userProgress: { userId: args.userId },
-          createdAt: { gte: since },
-        },
-        select: { createdAt: true },
-      });
-
-      const calculations = await context.prisma.calculationHistory.findMany({
-        where: {
-          userId: args.userId,
-          createdAt: { gte: since },
-        },
-        select: { createdAt: true },
-      });
+      const [attempts, calculations] = await Promise.all([
+        context.prisma.attempt.findMany({
+          where: {
+            userProgress: { userId: args.userId },
+            createdAt: { gte: since },
+          },
+          select: { createdAt: true },
+        }),
+        context.prisma.calculationHistory.findMany({
+          where: {
+            userId: args.userId,
+            createdAt: { gte: since },
+          },
+          select: { createdAt: true },
+        }),
+      ]);
 
       const counts = new Map<string, number>();
       for (const a of attempts) {

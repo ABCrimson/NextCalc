@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - **Node.js** 24+ (26 recommended; two installs exist on this machine: `C:\nvm4w\nodejs\node.exe` v24.8.0 and `C:\Program Files\nodejs\node.exe` v26.0.0-nightly)
-- **pnpm** 10+ (packageManager field specifies `pnpm@11.0.0-alpha.5`)
+- **pnpm** 11+ (packageManager field specifies `pnpm@11.0.0-alpha.5`)
 
 > **Note (Windows):** If pnpm is not in PATH, invoke it via:
 > ```bash

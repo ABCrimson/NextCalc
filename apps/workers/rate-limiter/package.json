@@ -9,7 +9,7 @@
     "deploy:staging": "wrangler deploy --env staging",
     "test": "vitest run",
     "test:watch": "vitest",
-    "type-check": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "lint": "biome check ."
   },
   "dependencies": {

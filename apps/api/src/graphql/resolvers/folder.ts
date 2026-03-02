@@ -298,16 +298,10 @@ export const folderResolvers = {
     },
 
     /**
-     * Resolve worksheets in folder
+     * Resolve worksheets in folder (batched via DataLoader)
      */
     worksheets: async (parent: Folder, _args: unknown, context: GraphQLContext) => {
-      return context.prisma.worksheet.findMany({
-        where: {
-          folderId: parent.id,
-          deletedAt: null,
-        },
-        orderBy: { updatedAt: 'desc' },
-      });
+      return context.loaders.worksheetsByFolderId.load(parent.id);
     },
   },
 };

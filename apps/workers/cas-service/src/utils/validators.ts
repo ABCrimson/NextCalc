@@ -133,7 +133,7 @@ export function createSuccessResponse<T>(data: T, executionTime?: number): ApiRe
     success: true,
     data,
     metadata: {
-      executionTime,
+      ...(executionTime !== undefined ? { executionTime } : {}),
       timestamp: new Date().toISOString(),
     },
   };

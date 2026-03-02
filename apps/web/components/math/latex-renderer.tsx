@@ -1,6 +1,5 @@
 'use client';
 
-import katex from 'katex';
 import { useEffect, useRef } from 'react';
 
 interface LaTeXRendererProps {
@@ -17,9 +16,13 @@ export function LaTeXRenderer({
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (containerRef.current && expression) {
+    if (!containerRef.current || !expression) return;
+    let cancelled = false;
+
+    import('katex').then((katex) => {
+      if (cancelled || !containerRef.current) return;
       try {
-        katex.render(expression, containerRef.current, {
+        katex.default.render(expression, containerRef.current, {
           displayMode,
           throwOnError: false,
           errorColor: '#cc0000',
@@ -29,7 +32,11 @@ export function LaTeXRenderer({
       } catch (error) {
         console.error('KaTeX rendering error:', error);
       }
-    }
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [expression, displayMode]);
 
   return (

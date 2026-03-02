@@ -188,8 +188,8 @@ Create **separate** OAuth apps for production:
 | Prisma | 7.5.0-dev.32 |
 | Apollo Server | 5.4.0 |
 | Biome | 2.5.0 |
-| Turborepo | 2.8.12 |
-| Tailwind CSS | 4.2.1 |
+| Turborepo | 2.8.13-canary.8 |
+| Tailwind CSS | 4.2.3 |
 | Hono (workers) | 4.12.3 |
 | Wrangler | 4.68.0 |
 | Vitest | 4.1.0-beta.5 |

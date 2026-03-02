@@ -22,5 +22,5 @@ custom_domain = true
 
 # CORS configuration and shared variables
 [vars]
-ALLOWED_ORIGINS = "http://localhost:3020,https://nextcalc.io,https://nextcalc.pro"
+ALLOWED_ORIGINS = "http://localhost:3005,https://nextcalc.io,https://nextcalc.pro"
 # ADMIN_KEY is set via `wrangler secret put ADMIN_KEY` (not in vars)

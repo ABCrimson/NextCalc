@@ -942,7 +942,7 @@ function RenderModeBadge({ mode }: { mode: 'WebGPU' | 'Canvas 2D' }) {
         className={`text-xs px-1.5 py-0.5 rounded font-mono backdrop-blur-sm border ${
           mode === 'WebGPU'
             ? 'bg-violet-900/60 border-violet-500/40 text-violet-300'
-            : 'bg-slate-900/60 border-slate-500/40 text-slate-400'
+            : 'bg-muted/60 border-border text-muted-foreground'
         }`}
       >
         {mode}
@@ -2441,7 +2441,7 @@ function SievePanel() {
           {/* Legend */}
           <div className="flex flex-wrap gap-3 text-xs">
             <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-sm bg-slate-300 inline-block" />
+              <span className="w-3 h-3 rounded-sm bg-muted-foreground/40 inline-block" />
               Unchecked
             </span>
             <span className="flex items-center gap-1.5">

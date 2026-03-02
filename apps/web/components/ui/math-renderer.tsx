@@ -1,6 +1,6 @@
 'use client';
 
-import katex from 'katex';
+import type { KatexOptions } from 'katex';
 import { useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -67,38 +67,43 @@ export function MathRenderer({
 
   useEffect(() => {
     if (!containerRef.current) return;
+    let cancelled = false;
 
-    try {
-      // KaTeX rendering options
-      const options: katex.KatexOptions = {
-        displayMode,
-        throwOnError,
-        errorColor: 'var(--color-destructive)',
-        ...(macros !== undefined && { macros }),
-        trust,
-        // Enable MathML for screen readers (accessibility)
-        output: 'mathml',
-        // Strict mode for better error messages
-        strict: 'warn',
-      };
+    // Dynamic import to avoid ~280KB in initial bundle
+    import('katex').then((katex) => {
+      if (cancelled || !containerRef.current) return;
 
-      // Render the LaTeX expression
-      katex.render(expression, containerRef.current, options);
-      hasRendered.current = true;
-    } catch (error) {
-      // Fallback error display
-      if (containerRef.current && !throwOnError) {
-        containerRef.current.innerHTML = `
-          <span
-            class="text-destructive text-sm font-mono"
-            role="alert"
-            aria-live="polite"
-          >
-            Math Error: ${error instanceof Error ? error.message : 'Invalid expression'}
-          </span>
-        `;
+      try {
+        const options: KatexOptions = {
+          displayMode,
+          throwOnError,
+          errorColor: 'var(--color-destructive)',
+          ...(macros !== undefined && { macros }),
+          trust,
+          output: 'mathml',
+          strict: 'warn',
+        };
+
+        katex.default.render(expression, containerRef.current, options);
+        hasRendered.current = true;
+      } catch (error) {
+        if (containerRef.current && !throwOnError) {
+          containerRef.current.innerHTML = `
+            <span
+              class="text-destructive text-sm font-mono"
+              role="alert"
+              aria-live="polite"
+            >
+              Math Error: ${error instanceof Error ? error.message : 'Invalid expression'}
+            </span>
+          `;
+        }
       }
-    }
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [expression, displayMode, throwOnError, macros, trust]);
 
   // Generate accessible label from expression if not provided

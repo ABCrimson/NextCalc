@@ -129,26 +129,16 @@ export const commentResolvers = {
     },
 
     post: async (parent: Comment, _args: unknown, context: GraphQLContext) => {
-      return context.prisma.forumPost.findUnique({
-        where: { id: parent.postId },
-      });
+      return context.loaders.forumPostById.load(parent.postId);
     },
 
     parent: async (parent: Comment, _args: unknown, context: GraphQLContext) => {
       if (!parent.parentId) return null;
-      return context.prisma.comment.findUnique({
-        where: { id: parent.parentId },
-      });
+      return context.loaders.commentById.load(parent.parentId);
     },
 
     replies: async (parent: Comment, _args: unknown, context: GraphQLContext) => {
-      return context.prisma.comment.findMany({
-        where: {
-          parentId: parent.id,
-          deletedAt: null,
-        },
-        orderBy: { createdAt: 'asc' },
-      });
+      return context.loaders.repliesByParentCommentId.load(parent.id);
     },
 
     upvoteCount: async (parent: Comment, _args: unknown, context: GraphQLContext) => {
