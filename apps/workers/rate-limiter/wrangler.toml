@@ -2,7 +2,7 @@
 name = "nextcalc-rate-limiter"
 account_id = "95fec9f47d9285b4ad7a28e9262bd20e"
 main = "src/index.ts"
-compatibility_date = "2026-02-15"
+compatibility_date = "2026-03-01"
 compatibility_flags = ["nodejs_compat"]
 
 # Observability and monitoring

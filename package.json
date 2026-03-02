@@ -20,7 +20,7 @@
     "graphql-tag": "2.12.6",
     "lighthouse": "13.0.3",
     "tsx": "4.21.0",
-    "turbo": "2.8.12",
+    "turbo": "2.8.13-canary.8",
     "typescript": "6.0.0-dev.20260301",
     "zod": "4.4.0-canary.20260125T215152"
   },
