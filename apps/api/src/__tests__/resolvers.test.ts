@@ -875,13 +875,16 @@ describe('Worksheet Resolvers', () => {
         ctx,
       );
       expect(result).toBe(true);
-      expect(prisma.worksheetShare.delete).toHaveBeenCalledWith({ where: { id: 'share1' } });
+      expect(prisma.worksheetShare.delete).toHaveBeenCalledWith({
+        where: { id: 'share1', worksheetId: 'ws1' },
+      });
     });
   });
 
   describe('Mutation.incrementWorksheetViews', () => {
     it('increments views and returns true', async () => {
       const prisma = createMockPrisma();
+      prisma.worksheet.findUnique.mockResolvedValue(mockWorksheet);
       prisma.worksheet.update.mockResolvedValue({ ...mockWorksheet, views: 1 });
       const ctx = userContext(prisma);
 
@@ -1464,26 +1467,26 @@ describe('Calculation Resolvers', () => {
 
 describe('Forum Resolvers', () => {
   describe('Query.forumPost', () => {
-    it('returns a post and increments view count', async () => {
+    it('returns a post and increments view count atomically', async () => {
       const prisma = createMockPrisma();
-      prisma.forumPost.findUnique.mockResolvedValue(mockForumPost);
-      prisma.forumPost.update.mockResolvedValue({ ...mockForumPost, views: 1 });
+      const updatedPost = { ...mockForumPost, views: 1 };
+      prisma.forumPost.update.mockResolvedValue(updatedPost);
       const ctx = makeContext({
         user: null,
         prisma: prisma as unknown as GraphQLContext['prisma'],
       });
 
       const result = await forumResolvers.Query.forumPost(null, { id: 'post1' }, ctx);
-      expect(result).toEqual(mockForumPost);
+      expect(result).toEqual(updatedPost);
       expect(prisma.forumPost.update).toHaveBeenCalledWith({
-        where: { id: 'post1' },
+        where: { id: 'post1', deletedAt: null },
         data: { views: { increment: 1 } },
       });
     });
 
     it('throws NotFoundError when post does not exist', async () => {
       const prisma = createMockPrisma();
-      prisma.forumPost.findUnique.mockResolvedValue(null);
+      prisma.forumPost.update.mockRejectedValue(new Error('Record not found'));
       const ctx = makeContext({
         user: null,
         prisma: prisma as unknown as GraphQLContext['prisma'],
@@ -1496,7 +1499,7 @@ describe('Forum Resolvers', () => {
 
     it('throws NotFoundError for soft-deleted posts', async () => {
       const prisma = createMockPrisma();
-      prisma.forumPost.findUnique.mockResolvedValue({ ...mockForumPost, deletedAt: NOW });
+      prisma.forumPost.update.mockRejectedValue(new Error('Record not found'));
       const ctx = makeContext({
         user: null,
         prisma: prisma as unknown as GraphQLContext['prisma'],
