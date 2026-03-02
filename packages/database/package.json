@@ -29,12 +29,12 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "1.0.2",
-    "@prisma/adapter-neon": "7.5.0-dev.32",
-    "@prisma/client": "7.5.0-dev.32"
+    "@prisma/adapter-neon": "7.5.0-dev.33",
+    "@prisma/client": "7.5.0-dev.33"
   },
   "devDependencies": {
     "dotenv": "17.3.1",
-    "prisma": "7.5.0-dev.32",
+    "prisma": "7.5.0-dev.33",
     "tsx": "4.21.0",
     "typescript": "6.0.0-dev.20260301"
   }

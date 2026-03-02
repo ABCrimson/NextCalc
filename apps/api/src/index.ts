@@ -9,7 +9,7 @@
  * - @apollo/server 5.4.0
  * - @as-integrations/next 4.1.0
  * - graphql 16.12.0
- * - Prisma 7.5.0-dev.14
+ * - Prisma 7.5.0-dev.33
  */
 
 import { startServerAndCreateNextHandler } from '@as-integrations/next';

@@ -1,12 +1,13 @@
 // NextCalc Pro Database Schema
-// Prisma 7.5.0-dev.14 with PostgreSQL (Neon)
-// Features: nested transaction savepoints, result extension fixes, relation joins
+// Prisma 7.5.0-dev.33 with PostgreSQL (Neon)
+// Features: query plan caching, partial indexes, nested transaction savepoints, relation joins
 // Shared across all apps via @nextcalc/database
 
 generator client {
   provider        = "prisma-client"
   output          = "../src/generated/prisma"
-  previewFeatures = ["fullTextSearchPostgres", "nativeDistinct", "relationJoins"]
+  compilerBuild   = "fast"
+  previewFeatures = ["fullTextSearchPostgres", "nativeDistinct", "relationJoins", "partialIndexes"]
 }
 
 datasource db {
@@ -136,6 +137,9 @@ model Worksheet {
   @@index([updatedAt(sort: Desc)])
   @@index([deletedAt]) // For soft delete queries
   @@index([userId, visibility]) // User's worksheets by visibility
+  // Partial indexes (7.4+): optimized for the common case (non-deleted records)
+  @@index([userId, visibility], map: "worksheets_userId_visibility_active_idx", where: { deletedAt: null })
+  @@index([createdAt(sort: Desc)], map: "worksheets_createdAt_active_idx", where: { deletedAt: null })
 }
 
 model Folder {
@@ -228,6 +232,9 @@ model ForumPost {
   @@index([isPinned, createdAt(sort: Desc)]) // Pinned posts first
   @@index([tags]) // PostgreSQL GIN index for array
   @@index([deletedAt])
+  // Partial indexes (7.4+): optimized for non-deleted forum posts
+  @@index([createdAt(sort: Desc)], map: "forum_posts_createdAt_active_idx", where: { deletedAt: null })
+  @@index([isPinned, createdAt(sort: Desc)], map: "forum_posts_isPinned_createdAt_active_idx", where: { deletedAt: null })
 }
 
 model Comment {
@@ -254,6 +261,9 @@ model Comment {
   @@index([createdAt(sort: Desc)])
   @@index([deletedAt])
   @@index([postId, deletedAt]) // Post comments excluding deleted
+  // Partial indexes (7.4+): optimized for non-deleted comments
+  @@index([postId], map: "comments_postId_active_idx", where: { deletedAt: null })
+  @@index([parentId], map: "comments_parentId_active_idx", where: { deletedAt: null })
 }
 
 enum UpvoteTarget {
@@ -373,6 +383,9 @@ model Problem {
   @@index([createdAt(sort: Desc)])
   @@index([deletedAt])
   @@index([difficulty, popularity(sort: Desc)]) // Popular problems by difficulty
+  // Partial indexes (7.4+): optimized for non-deleted problems
+  @@index([difficulty, popularity(sort: Desc)], map: "problems_difficulty_popularity_active_idx", where: { deletedAt: null })
+  @@index([createdAt(sort: Desc)], map: "problems_createdAt_active_idx", where: { deletedAt: null })
 }
 
 model Hint {

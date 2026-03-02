@@ -1,12 +1,14 @@
 /**
- * Prisma 7.5.0-dev.14 Client Singleton with Neon Serverless Adapter
+ * Prisma 7.5.0-dev.33 Client Singleton with Neon Serverless Adapter
  *
  * Shared database client for the NextCalc Pro monorepo.
  * Uses singleton pattern to prevent multiple instances during development HMR.
  *
- * Key features in this version:
+ * Key capabilities:
+ * - Query plan caching (7.4+) — LRU cache with ~100% hit rate for repeated query shapes
  * - Nested transaction savepoints (tx.$transaction creates SAVEPOINTs)
- * - Result extension fixes for nested/fluent relations
+ * - BigInt precision safety in JSON aggregation with relationJoins (7.3+)
+ * - Partial indexes for soft-delete optimization (7.4+ partialIndexes preview)
  * - Neon adapter with savepoint support (createSavepoint/rollbackToSavepoint/releaseSavepoint)
  * - Graceful degradation via mock client when DATABASE_URL is not set
  *
