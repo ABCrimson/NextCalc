@@ -84,6 +84,53 @@ Client --> Cloudflare Worker --> Rate Limit Check (KV)
 | Zustand over Redux | Simpler API, TypeScript-first |
 | Biome over ESLint+Prettier | Faster, single tool |
 
+## DataLoader Pattern
+
+All GraphQL resolvers use [DataLoader](https://github.com/graphql/dataloader) to prevent N+1 query problems. DataLoader instances are created per-request in the Apollo Server context and batch database calls within a single event loop tick.
+
+**Location**: `apps/api/src/lib/dataloaders.ts`
+
+| DataLoader | Batches | Used by |
+|:-----------|:--------|:--------|
+| `userById` | `User` lookups by ID | Worksheet, ForumPost, Comment resolvers |
+| `folderById` | `Folder` lookups by ID | Worksheet resolver |
+| `worksheetSharesByWorksheetId` | Share records per worksheet | Worksheet resolver |
+| `childFoldersByParentId` | Child folders per parent | Folder resolver |
+| `upvoteCountByTargetId` | Upvote counts per target | ForumPost, Comment resolvers |
+
+**How it works**: When resolving a list of forum posts, instead of issuing one `SELECT * FROM users WHERE id = ?` per post, DataLoader collects all user IDs and issues a single `SELECT * FROM users WHERE id IN (?, ?, ...)` query.
+
+## Security Considerations
+
+### IDOR Protection
+
+All mutations that modify user-owned resources validate ownership before proceeding. For example, `updateWorksheet` and `deleteWorksheet` verify that the authenticated user's `userId` matches the worksheet's `userId`. Admin users can bypass this check for moderation.
+
+**Affected resolvers**: worksheet, folder, forum post, comment, profile.
+
+### JWT Verification
+
+WebSocket subscriptions authenticate via JWT tokens passed in the connection `connectionParams`. The token is verified using `jose.jwtVerify()` with the `NEXTAUTH_SECRET` key, ensuring subscriptions cannot be opened without a valid session.
+
+### Rate Limiter Security
+
+The Cloudflare rate-limiter Worker uses timing-safe comparison (`crypto.subtle.timingSafeEqual`) for API key validation, preventing timing-based side-channel attacks on the shared secret.
+
+## Prisma 7 Adapter Pattern
+
+The database package uses Prisma 7's Neon serverless adapter. The adapter constructor takes a **config object**, not a Pool instance:
+
+```typescript
+// Correct
+const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL });
+
+// Wrong -- causes "No database host or connection string" errors
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaNeon(pool);
+```
+
+Prisma 7 creates its own connection pool internally via the adapter's `connect()` method.
+
 ## Styling System
 
 - **OKLCH** color tokens in `apps/web/app/globals.css`

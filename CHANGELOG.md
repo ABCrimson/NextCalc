@@ -2,6 +2,42 @@
 
 All notable changes to NextCalc Pro are documented in this file.
 
+## [1.1.3] - 2026-03-02
+
+### Performance
+- Fix bookmarks store 5x re-render with `useShallow` selector ([`9acc00a`](https://github.com/ABCrimson/NextCalc/commit/9acc00a))
+- Dynamic import KaTeX (~280 KB deferred from initial bundle)
+- Add 4 new DataLoaders eliminating N+1 queries (`worksheetsByFolderId`, `forumPostById`, `commentById`, `repliesByParentCommentId`)
+- Parallelize sequential DB queries with `Promise.all` in worksheet, forum, and profile resolvers
+- Typed arrays (`Uint8Array`/`Float64Array`) in prime sieve and PageRank
+- Memoize factorial computation in `series.ts`
+- Batch Canvas2D grid draws into single path operations
+- Fix GPU memory leak: dispose sprite textures/materials in `webgl-3d.ts`
+- Add `loading.tsx` skeletons for `learn/[topic]`, `problems/[id]`, `share/[code]`
+
+### Security
+- Timing-safe admin key comparison via SHA-256 + XOR in rate-limiter
+- CORS fallback returns empty string for non-matching origins
+- Recursive query complexity analysis in GraphQL performance-monitoring plugin
+- Remove `prettyJSON` middleware from all workers (prevents information leakage)
+
+### Code Quality
+- Fix all `exactOptionalPropertyTypes` violations across 3 Cloudflare Workers
+- Fix 50+ pre-existing type errors in CAS service (`FactoryFunctionMap`, `SymbolNode`, null checks)
+- Replace `React.EventType` namespace usage with named imports (6 files)
+- Replace `slate-*`/`gray-*` Tailwind classes with semantic tokens (3 pages)
+- Add `typecheck` scripts to all worker packages
+- Create `tsconfig.typecheck.json` for standalone web typechecking
+
+### Infrastructure
+- Update Turbo 2.8.12 → 2.8.13-canary.8
+- Update CI actions: checkout v4 → v6, setup-node v4 → v6, cache v4 → v5
+- Update `compatibility_date` to `2026-03-01` for all workers
+- Fix CORS port references 3020 → 3005 across all workers and configs
+- Comprehensive documentation and wiki refresh
+
+---
+
 ## [1.1.2] - 2026-03-02
 
 ### Bug Fixes
@@ -130,7 +166,8 @@ All notable changes to NextCalc Pro are documented in this file.
 
 _This changelog is generated from the git history. Commit hashes reference the short SHA for each change._
 
-[1.1.2]: https://github.com/ABCrimson/NextCalc/releases/tag/v1.1.2
+[1.1.3]: https://github.com/ABCrimson/NextCalc/compare/v1.1.2...v1.1.3
+[1.1.2]: https://github.com/ABCrimson/NextCalc/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/ABCrimson/NextCalc/releases/tag/v1.1.1
 [1.1.0]: https://github.com/ABCrimson/NextCalc/releases/tag/v1.1.0
 [1.0.0]: https://github.com/ABCrimson/NextCalc/releases/tag/v1.0.0

@@ -122,6 +122,9 @@
 - [x] CAS pattern matching with recursive simplifyChildren
 - [x] Proof search (BFS, DFS, iterative deepening)
 
+### v1.1.3 -- Codebase Audit (March 2026)
+- [x] Comprehensive codebase audit -- performance (DataLoaders, lazy KaTeX, typed arrays), security (timing-safe comparison, CORS hardening, query complexity), and code quality (50+ type fixes, exactOptionalPropertyTypes compliance)
+
 ### Feature Integration (all done)
 - [x] Calculation sharing backend -- short code generation + /share/[code] pages
 - [x] Export to PDF/LaTeX -- export menu wired to export-service Worker

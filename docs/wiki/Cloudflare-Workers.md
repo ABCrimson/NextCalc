@@ -98,3 +98,20 @@ cd apps/workers/rate-limiter && pnpm run deploy
 ## Monitoring
 
 All workers have OpenTelemetry observability enabled in `wrangler.toml`. Monitor via Cloudflare Dashboard > Workers & Pages.
+
+## Security (v1.1.0+)
+
+- **Sanitized error responses**: Workers no longer leak internal `err.message` to clients. All error responses return generic messages with appropriate HTTP status codes.
+- **Timing-safe admin auth**: Admin key comparison uses timing-safe SHA-256 hashing + constant-time XOR comparison to prevent timing attacks.
+- **No information disclosure**: `prettyJSON` middleware removed from all workers to prevent verbose JSON output that could reveal internal structure.
+- **CORS hardening**: Origins validated against `ALLOWED_ORIGINS` environment variable. Requests from unlisted origins are rejected.
+
+## Troubleshooting
+
+Common issues and solutions:
+
+- **`wrangler deploy` fails** -- Verify that `CLOUDFLARE_API_TOKEN` is set (GitHub secret or local env) and that `account_id` in `wrangler.toml` matches your Cloudflare account.
+- **CORS errors in browser** -- Check that the `ALLOWED_ORIGINS` environment variable on the worker includes your frontend domain (e.g., `https://nextcalc.io`). Multiple origins can be comma-separated.
+- **Rate limit false positives** -- Ensure Durable Object bindings are correctly configured in `wrangler.toml`. If bindings are missing, the rate limiter cannot track per-client state.
+- **R2 upload failures (export-service)** -- Confirm the R2 bucket binding name in `wrangler.toml` matches the code. Check that the bucket exists via `wrangler r2 bucket list`.
+- **KV read errors (rate-limiter)** -- Verify the KV namespace ID in `wrangler.toml`. Use `wrangler kv namespace list` to confirm.

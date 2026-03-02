@@ -102,3 +102,37 @@ Prisma 7 with Neon PostgreSQL serverless adapter. Schema: `packages/database/pri
 - **Generated**: `packages/database/src/generated/prisma/` (gitignored)
 
 Always import from `@nextcalc/database`, never from `@prisma/client`.
+
+---
+
+## Patterns & Conventions
+
+### Soft Delete Pattern
+
+Models that support deletion use a `deletedAt: DateTime?` field instead of hard deletes. Queries filter `WHERE deletedAt IS NULL` by default. This applies to `Worksheet`, `ForumPost`, and `Comment`. To include deleted records (e.g., for admin views), explicitly remove the filter.
+
+### Atomic Counters
+
+Forum post views and upvote counts use Prisma `increment` operations to prevent race conditions:
+
+```typescript
+await prisma.forumPost.update({
+  where: { id: postId },
+  data: { views: { increment: 1 } },
+});
+```
+
+This avoids the read-then-write pattern that can lose increments under concurrent requests.
+
+### Indexing
+
+Key indexes for query performance:
+
+| Index | Model | Purpose |
+|:------|:------|:--------|
+| `userId` | Worksheet, Folder, ForumPost, Comment, Upvote, CalculationHistory | Filter content by owner |
+| `folderId` | Worksheet | List worksheets in a folder |
+| `worksheetId` | WorksheetShare | Find shares for a worksheet |
+| `postId` | Comment | List comments on a post |
+| `parentId` | Folder, Comment | Traverse nested hierarchies |
+| `shortCode` | SharedCalculation | Unique lookup for shared links |

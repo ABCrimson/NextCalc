@@ -13,6 +13,22 @@
   <img src="https://img.shields.io/badge/edge-3_workers-F38020?logo=cloudflare&logoColor=white" alt="Workers" />
 </p>
 
+### What's New in v1.1.3
+
+> **Performance Audit Release** -- Comprehensive codebase audit covering performance, security, and modernization across all 574 source files.
+
+<details>
+<summary><strong>Highlights</strong></summary>
+
+| Category | Improvements |
+|:---------|:-------------|
+| **Performance** | 5x re-render fix, ~280 KB lazy KaTeX, N+1 query elimination via DataLoaders, `Promise.all` parallelization, typed arrays in hot paths, GPU memory leak fix |
+| **Security** | Timing-safe key comparison, CORS hardening, recursive query complexity analysis, worker information leakage prevention |
+| **Type Safety** | 50+ type error fixes, `exactOptionalPropertyTypes` compliance, zero `as any` in production code |
+| **Infrastructure** | Turbo 2.8.13, CI actions v6, worker compatibility date 2026-03-01 |
+
+</details>
+
 <h3 align="center">Scientific Calculator &amp; Mathematical Visualization Platform</h3>
 
 <p align="center">

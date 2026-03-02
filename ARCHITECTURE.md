@@ -252,6 +252,34 @@ export const useStore = create<State>()(
 );
 ```
 
+## Prisma 7 Migration Notes
+
+Key differences from Prisma 6 that affect this codebase:
+
+- **Adapter configuration**: `PrismaNeon` takes a `{ connectionString }` config object, **not** a `Pool` instance. Prisma 7's adapter creates its own Pool internally. Passing a Pool directly causes "No database host or connection string" errors.
+- **Generated client output**: The `output` path in `schema.prisma` must be explicit (`packages/database/src/generated/prisma/`). The generated directory is gitignored and regenerated on `postinstall`.
+- **Config file location**: `prisma.config.ts` lives at the package root (`packages/database/prisma.config.ts`), not inside the `prisma/` subfolder. It loads environment variables from `apps/web/.env.local` via dotenv.
+- **Generator name**: Use `prisma-client` (not `prisma-client-js`).
+- **Re-exports**: When re-exporting from the generated client, you must also `export * from './generated/prisma/models'` to allow TypeScript declaration emit in consuming packages.
+
+## DataLoader Architecture
+
+The API uses 9 DataLoaders (defined in `apps/api/src/lib/dataloaders.ts`) to batch N+1 queries per GraphQL request lifecycle:
+
+| DataLoader | Batches |
+|:-----------|:--------|
+| `userById` | User lookups across resolvers |
+| `folderById` | Folder lookups for worksheets |
+| `worksheetSharesByWorksheetId` | Share permissions per worksheet |
+| `childFoldersByParentId` | Nested folder tree traversal |
+| `upvoteCountByTargetId` | Upvote counts for posts/comments |
+| `commentsByPostId` | Comments per forum post |
+| `commentCountByPostId` | Comment counts for post listings |
+| `userUpvoteByTargetId` | Current user's upvote status |
+| `postsByAuthorId` | Posts per user for profile pages |
+
+Each DataLoader is created fresh per request (via the Apollo Server context factory) to ensure proper request-scoped batching and no cross-request data leakage.
+
 ## Key Design Decisions
 
 | Decision | Rationale |

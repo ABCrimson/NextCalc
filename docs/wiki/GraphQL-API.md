@@ -230,3 +230,72 @@ N+1 prevention via DataLoader instances:
 - `worksheetSharesByWorksheetId`
 - `childFoldersByParentId`
 - `upvoteCountByTargetId`
+
+---
+
+## Security & Performance (v1.1.0+)
+
+This section documents the security and performance measures introduced in the v1.1.x audit cycle.
+
+### IDOR Protection
+
+All mutations that modify resources validate `userId` ownership before executing. Attempting to update or delete another user's worksheet, folder, forum post, or comment returns a `FORBIDDEN` error. Admin users (`role: ADMIN`) can bypass this check for moderation purposes.
+
+```graphql
+# Example: deleteWorksheet checks ctx.user.id === worksheet.userId
+mutation {
+  deleteWorksheet(id: "ws_abc123")  # FORBIDDEN if not owner
+}
+```
+
+### Atomic View Counters
+
+The `incrementWorksheetViews` and forum post view mutations use Prisma's `increment` operator to prevent race conditions:
+
+```typescript
+await prisma.worksheet.update({
+  where: { id },
+  data: { views: { increment: 1 } },
+});
+```
+
+This translates to `UPDATE ... SET views = views + 1` at the SQL level, which is atomic even under concurrent access.
+
+### DataLoader Optimization
+
+9 DataLoader instances batch and deduplicate database queries within each request:
+
+| DataLoader | Keys | Resolves |
+|:-----------|:-----|:---------|
+| `userById` | User ID | `User` on Worksheet, ForumPost, Comment |
+| `folderById` | Folder ID | `Folder` on Worksheet |
+| `worksheetSharesByWorksheetId` | Worksheet ID | `[WorksheetShare]` on Worksheet |
+| `childFoldersByParentId` | Parent Folder ID | `[Folder]` on Folder |
+| `upvoteCountByTargetId` | Target ID | `Int` on ForumPost, Comment |
+| `commentsByPostId` | Post ID | `[Comment]` on ForumPost |
+| `worksheetsByUserId` | User ID | `[Worksheet]` on User |
+| `forumPostsByUserId` | User ID | `[ForumPost]` on User |
+| `foldersByUserId` | User ID | `[Folder]` on User |
+
+### Query Complexity Analysis
+
+A recursive selection set analyzer calculates depth-weighted complexity scores for incoming queries. Queries exceeding the configured threshold are rejected before execution:
+
+- **Depth weight**: Each nesting level multiplies the field cost by 2
+- **Default limit**: 1000 complexity points per query
+- **Introspection**: Exempt from complexity analysis
+
+### JWT Verification (WebSocket)
+
+WebSocket subscriptions authenticate via `jose.jwtVerify()` using the `NEXTAUTH_SECRET` as the symmetric key. Invalid or expired tokens cause the connection to close with a `4401` WebSocket close code.
+
+```typescript
+const { payload } = await jwtVerify(
+  token,
+  new TextEncoder().encode(process.env.NEXTAUTH_SECRET)
+);
+```
+
+### Error Sanitization
+
+Internal errors (database failures, unexpected exceptions) are caught and replaced with generic `INTERNAL_ERROR` codes before reaching the client. The original error is logged server-side but never exposed in GraphQL responses. Validation errors and business-logic errors retain their specific `ErrorCode` values.

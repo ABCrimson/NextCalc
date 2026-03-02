@@ -115,3 +115,21 @@ The parser produces an AST using these node types (from `NodeType` enum):
 - `FunctionNode` - Function calls (sin, cos, ln, etc.)
 
 Use builder functions: `createConstantNode()`, `createSymbolNode()`, `createOperatorNode()`.
+
+## BigInt Safety
+
+Since v1.1.0, `modPow`, `lucasLehmer`, and RSA operations use BigInt arithmetic throughout to prevent integer overflow. The `randomBigIntBelow()` helper replaces unsafe `Number(bigint)` conversions, ensuring correctness for arbitrarily large inputs.
+
+## Performance
+
+Key algorithms are optimized with typed arrays and efficient data structures:
+
+- **Sieve of Eratosthenes** uses `Uint8Array` for O(n) memory with cache-friendly sequential access
+- **PageRank** uses `Float64Array` for cache-friendly iteration over rank vectors
+- **Tarjan SCC** uses an iterative DFS stack (no recursion) to avoid stack overflow on large graphs
+- **Topological sort (Kahn)** uses an index pointer instead of `Array.shift()` for O(V+E) instead of O(V^2)
+- **Math.min/max** on large arrays replaced with `.reduce()` to prevent call stack limits
+
+## Type Safety
+
+Production code has zero `as any` -- all AST visitors use proper discriminated union types via the `NodeType` enum. Type narrowing is enforced through `switch`/`case` on `node.type`, ensuring exhaustive handling of all AST node variants. Only test mock files contain `biome-ignore` exceptions for type assertions.

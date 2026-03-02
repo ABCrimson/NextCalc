@@ -1,19 +1,21 @@
-**NextCalc Pro**
+**v1.1.3**
+
+🏠 **NextCalc Pro**
 
 - [[Home]]
 - [[Getting Started]]
 - [[Architecture]]
 
-**Packages**
+📦 **Packages**
 - [[Math Engine]]
 - [[Plot Engine]]
 
-**Backend**
+🔧 **Backend**
 - [[GraphQL API]]
 - [[Cloudflare Workers]]
 - [[Database Schema]]
 
-**Operations**
+🚀 **Operations**
 - [[Internationalization]]
 - [[Deployment]]
 - [[FAQ]]
