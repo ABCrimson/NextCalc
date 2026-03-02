@@ -1,5 +1,6 @@
 #:schema node_modules/wrangler/config-schema.json
 name = "nextcalc-export-service"
+account_id = "95fec9f47d9285b4ad7a28e9262bd20e"
 main = "src/index.ts"
 compatibility_date = "2026-02-15"
 compatibility_flags = ["nodejs_compat"]
