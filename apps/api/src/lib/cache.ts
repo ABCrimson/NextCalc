@@ -260,15 +260,13 @@ export async function getCachedUpvoteCount(targetId: string): Promise<number | n
 export async function incrementUpvoteCount(targetId: string): Promise<void> {
   if (!redis) return;
   const key = cacheKey(CACHE_KEYS.UPVOTE_COUNT, targetId);
-  await redis.incr(key);
-  await redis.expire(key, CACHE_TTL.UPVOTE_COUNT);
+  await redis.pipeline().incr(key).expire(key, CACHE_TTL.UPVOTE_COUNT).exec();
 }
 
 export async function decrementUpvoteCount(targetId: string): Promise<void> {
   if (!redis) return;
   const key = cacheKey(CACHE_KEYS.UPVOTE_COUNT, targetId);
-  await redis.decr(key);
-  await redis.expire(key, CACHE_TTL.UPVOTE_COUNT);
+  await redis.pipeline().decr(key).expire(key, CACHE_TTL.UPVOTE_COUNT).exec();
 }
 
 export async function cacheCommentCount(postId: string, count: number): Promise<void> {

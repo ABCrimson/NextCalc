@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- **Node.js** >= 20.0.0 (recommended: 26.x)
+- **Node.js** >= 24.0.0 (recommended: 26.x)
 - **pnpm** >= 11
 
 ## Installation

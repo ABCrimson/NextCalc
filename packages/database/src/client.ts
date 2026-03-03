@@ -80,9 +80,7 @@ function createPrismaClient(): PrismaClient {
 /** Shared Prisma client instance. Singleton in development to survive HMR. */
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
-if (process.env['NODE_ENV'] !== 'production') {
-	globalForPrisma.prisma = prisma;
-}
+globalForPrisma.prisma = prisma;
 
 /** Check if the database is reachable. */
 export async function checkDatabaseConnection(): Promise<boolean> {

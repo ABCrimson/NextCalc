@@ -24,26 +24,6 @@ import {
   isUnaryOperatorNode,
 } from '../parser/ast';
 
-/**
- * Term representation for algebraic manipulation
- * Represents coefficient * variable^exponent
- * (Currently unused - reserved for future polynomial operations)
- */
-// interface Term {
-//   coefficient: number;
-//   variable: string | null;
-//   exponent: number;
-// }
-
-/**
- * Polynomial representation as array of terms
- * (Currently unused - reserved for future polynomial operations)
- */
-// interface Polynomial {
-//   terms: Term[];
-//   variable: string;
-// }
-
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
@@ -62,7 +42,7 @@ function getNumericValue(node: ExpressionNode): number | null {
 /**
  * Check if two AST nodes are structurally equal
  */
-function astEquals(a: ExpressionNode, b: ExpressionNode): boolean {
+export function astEquals(a: ExpressionNode, b: ExpressionNode): boolean {
   if (a.type !== b.type) return false;
 
   if (isConstantNode(a) && isConstantNode(b)) {

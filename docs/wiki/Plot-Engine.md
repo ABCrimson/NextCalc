@@ -75,5 +75,5 @@ Screen-space ambient occlusion via GTAONode for enhanced 3D depth perception.
 ## Browser Support
 
 - **WebGL 2**: 96%+ of browsers
-- **WebGPU**: Progressive enhancement (37%+ in 2025)
+- **WebGPU**: Progressive enhancement (37%+ in 2026)
 - **Canvas 2D**: Universal fallback

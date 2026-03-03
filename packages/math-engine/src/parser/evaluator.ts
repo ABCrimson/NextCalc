@@ -227,6 +227,10 @@ function factorial(n: number): number {
     throw new EvaluationError('Factorial requires non-negative integer');
   }
 
+  if (n > 170) {
+    throw new EvaluationError('Factorial overflow: n must be \u2264 170 for number type');
+  }
+
   if (n === 0 || n === 1) return 1;
 
   let result = 1;

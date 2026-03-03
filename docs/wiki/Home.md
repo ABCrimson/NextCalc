@@ -2,7 +2,7 @@
 
 **Scientific Calculator & Mathematical Visualization Platform**
 
-> **Current Release: v1.1.3** (March 2, 2026) — [Release Notes](https://github.com/ABCrimson/NextCalc/releases/tag/v1.1.3)
+> **Current Release: v1.1.5** (March 2, 2026) — [Release Notes](https://github.com/ABCrimson/NextCalc/releases/tag/v1.1.5)
 
 [Live Demo](https://nextcalc.io) | [GitHub Repository](https://github.com/ABCrimson/NextCalc) | [Releases](https://github.com/ABCrimson/NextCalc/releases)
 
@@ -23,7 +23,7 @@ NextCalc Pro is a comprehensive scientific calculator and mathematical visualiza
 
 ---
 
-## Latest Updates (v1.1.3)
+## Latest Updates (v1.1.4)
 
 - **Performance audit**: 9 DataLoaders eliminate N+1 queries across all GraphQL resolvers; recursive query complexity analysis prevents abusive deep queries
 - **Security hardening**: IDOR protection on all mutations (ownership validation), timing-safe key comparison in rate-limiter, JWT verification for WebSocket subscriptions via `jose.jwtVerify()`

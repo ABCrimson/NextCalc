@@ -121,7 +121,7 @@ export function ThemeToggle() {
         variant="ghost"
         size="icon"
         onClick={toggleTheme}
-        className="relative overflow-hidden hover:bg-accent transition-all duration-200 hover:scale-110 focus-ring"
+        className="relative overflow-hidden hover:bg-accent transition-all duration-200 hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme (Alt+T)`}
         title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme (Alt+T)`}
       >

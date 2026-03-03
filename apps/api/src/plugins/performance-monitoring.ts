@@ -79,7 +79,8 @@ export const performanceMonitoringPlugin = (): ApolloServerPlugin<GraphQLContext
           timestamp: new Date().toISOString(),
         };
 
-        const logLevel = errors > 0 ? 'error' : duration > 1000 ? 'warn' : 'info';
+        const logLevel: 'error' | 'warn' | 'info' =
+          errors > 0 ? 'error' : duration > 1000 ? 'warn' : 'info';
 
         logger[logLevel]('GraphQL request completed', {
           operationName: metrics.operationName ?? 'anonymous',

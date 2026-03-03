@@ -4,7 +4,7 @@ Backend GraphQL API for NextCalc Pro, built with Apollo Server, Prisma, and Next
 
 ## Tech Stack
 
-- **Database:** Neon PostgreSQL with Prisma 7.5.0-dev.32
+- **Database:** Neon PostgreSQL with Prisma 7.5.0-dev.33
 - **API:** GraphQL with Apollo Server 5.4.0
 - **Authentication:** Auth.js v5 (NextAuth 5.0-beta.30) with OAuth + jose 6.1.3 JWT verification
 - **Caching:** Upstash Redis
@@ -364,7 +364,7 @@ vercel --prod
 
 # Run database migrations
 vercel env pull .env.production
-pnpm prisma:deploy
+pnpm --filter @nextcalc/database db:migrate:deploy
 ```
 
 ### Environment Variables

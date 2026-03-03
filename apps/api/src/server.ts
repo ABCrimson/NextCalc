@@ -11,7 +11,6 @@
  */
 
 import { ApolloServer } from '@apollo/server';
-import { unwrapResolverError } from '@apollo/server/errors';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import {
   ApolloServerPluginLandingPageLocalDefault,
@@ -23,7 +22,6 @@ import { resolvers } from './graphql/resolvers';
 import { typeDefs } from './graphql/schema';
 import type { GraphQLContext } from './lib/context';
 import { createDataLoaders } from './lib/dataloaders';
-import { logger } from './lib/logger';
 import {
   errorTrackingPlugin,
   performanceMonitoringPlugin,
@@ -44,23 +42,14 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
  * AS5 formatError using unwrapResolverError
  *
  * unwrapResolverError extracts the original error thrown by the resolver,
- * stripping away Apollo's wrapper. This allows logging the real error
- * while masking internal details in production responses.
+ * stripping away Apollo's wrapper. Error logging is handled by
+ * errorTrackingPlugin (didEncounterErrors hook) — formatError only
+ * masks internal details in production responses.
  */
 const formatError = (
   formattedError: GraphQLFormattedError,
-  error: unknown,
+  _error: unknown,
 ): GraphQLFormattedError => {
-  const originalError = unwrapResolverError(error);
-
-  // Always log errors structurally — in production the level filter handles visibility
-  logger.error('GraphQL error in formatError', {
-    message: formattedError.message,
-    path: formattedError.path?.join('.'),
-    code: formattedError.extensions?.code as string | undefined,
-    original: originalError instanceof Error ? originalError.message : undefined,
-  });
-
   // In production, mask internal server errors to avoid leaking implementation details
   if (
     !isDevelopment &&
@@ -98,23 +87,8 @@ export function createApolloServer(httpServer?: import('node:http').Server) {
             footer: false,
           }),
 
-      // AS5 error lifecycle hooks
-      {
-        async contextCreationDidFail({ error }) {
-          logger.error('Context creation failed', {
-            error: error instanceof Error ? error.message : String(error),
-            stack: error instanceof Error ? error.stack : undefined,
-          });
-        },
-        async unexpectedErrorProcessingRequest({ error }) {
-          logger.error('Unexpected Apollo Server error', {
-            error: error instanceof Error ? error.message : String(error),
-            stack: error instanceof Error ? error.stack : undefined,
-          });
-        },
-      },
-
-      // Custom plugins
+      // Custom plugins (errorTrackingPlugin handles contextCreationDidFail
+      // and unexpectedErrorProcessingRequest — no inline duplicates needed)
       performanceMonitoringPlugin(),
       responseCachingPlugin(),
       queryComplexityPlugin(1000),

@@ -1981,6 +1981,9 @@ export class WebGL3DRenderer implements IRenderer {
     const line = new THREE.Line(geometry, material);
     this.scene.add(line);
 
+    // Track the line so it gets disposed on the next config change
+    this.currentMesh = line as unknown as THREE.Mesh;
+
     this.metrics.pointCount = points.length;
   }
 

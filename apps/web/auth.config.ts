@@ -19,12 +19,14 @@ import Google from 'next-auth/providers/google';
 // Accept multiple env-var naming conventions (AUTH_*, *_CLIENT_*, legacy *_ID/*_SECRET).
 const providers: Provider[] = [];
 
-const githubId =
-  process.env['AUTH_GITHUB_ID'] || process.env['GITHUB_CLIENT_ID'] || process.env['GITHUB_ID'];
-const githubSecret =
+const githubId = (
+  process.env['AUTH_GITHUB_ID'] || process.env['GITHUB_CLIENT_ID'] || process.env['GITHUB_ID'] || ''
+).trim();
+const githubSecret = (
   process.env['AUTH_GITHUB_SECRET'] ||
   process.env['GITHUB_CLIENT_SECRET'] ||
-  process.env['GITHUB_SECRET'];
+  process.env['GITHUB_SECRET'] || ''
+).trim();
 
 if (githubId && githubSecret) {
   providers.push(
@@ -35,12 +37,14 @@ if (githubId && githubSecret) {
   );
 }
 
-const googleId =
-  process.env['AUTH_GOOGLE_ID'] || process.env['GOOGLE_CLIENT_ID'] || process.env['GOOGLE_ID'];
-const googleSecret =
+const googleId = (
+  process.env['AUTH_GOOGLE_ID'] || process.env['GOOGLE_CLIENT_ID'] || process.env['GOOGLE_ID'] || ''
+).trim();
+const googleSecret = (
   process.env['AUTH_GOOGLE_SECRET'] ||
   process.env['GOOGLE_CLIENT_SECRET'] ||
-  process.env['GOOGLE_SECRET'];
+  process.env['GOOGLE_SECRET'] || ''
+).trim();
 
 if (googleId && googleSecret) {
   providers.push(
@@ -59,7 +63,7 @@ if (googleId && googleSecret) {
 }
 
 export const authConfig = {
-  secret: (process.env['AUTH_SECRET'] || process.env['NEXTAUTH_SECRET'])!,
+  secret: (process.env['AUTH_SECRET'] || process.env['NEXTAUTH_SECRET'] || '').trim(),
   providers,
   pages: {
     signIn: '/auth/signin',

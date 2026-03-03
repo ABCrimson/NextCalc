@@ -1092,7 +1092,7 @@ export function BifurcationDiagramRenderer({
                     }}
                     className="w-full px-2 py-1 rounded bg-white/5 border border-white/10
                       text-[11px] font-mono text-white/80
-                      focus:border-indigo-400/50 focus:outline-none focus:ring-1 focus:ring-indigo-400/40"
+                      focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                   />
                 </div>
                 <div className="space-y-1">
@@ -1114,7 +1114,7 @@ export function BifurcationDiagramRenderer({
                     }}
                     className="w-full px-2 py-1 rounded bg-white/5 border border-white/10
                       text-[11px] font-mono text-white/80
-                      focus:border-indigo-400/50 focus:outline-none focus:ring-1 focus:ring-indigo-400/40"
+                      focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                   />
                 </div>
               </div>
@@ -1141,7 +1141,7 @@ export function BifurcationDiagramRenderer({
                   }}
                   className="w-full px-2 py-1 rounded bg-white/5 border border-white/10
                     text-[11px] font-mono text-white/80
-                    focus:border-indigo-400/50 focus:outline-none focus:ring-1 focus:ring-indigo-400/40"
+                    focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 />
               </div>
 
@@ -1187,7 +1187,7 @@ export function BifurcationDiagramRenderer({
               <div className="text-emerald-300">
                 GPU compute: <span className="font-bold">{gpuMs.toFixed(1)}ms</span>
               </div>
-              <div className="text-slate-400">
+              <div className="text-muted-foreground">
                 {activeData.length.toLocaleString()} attractor pts
               </div>
             </div>
@@ -1215,7 +1215,7 @@ export function BifurcationDiagramRenderer({
                 aria-hidden="true"
               />
               <div className="text-sm font-semibold text-indigo-300">WebGPU Compute Running...</div>
-              <div className="text-xs text-slate-400 font-mono">
+              <div className="text-xs text-muted-foreground font-mono">
                 Parallelising {(gpuParams?.rSteps ?? 512).toLocaleString()} r-values
               </div>
             </div>

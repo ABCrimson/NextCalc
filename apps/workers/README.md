@@ -284,15 +284,15 @@ Deploy each worker to Cloudflare:
 ```bash
 # CAS Service
 cd apps/workers/cas-service
-pnpm deploy
+pnpm run deploy
 
 # Export Service
 cd apps/workers/export-service
-pnpm deploy
+pnpm run deploy
 
 # Rate Limiter
 cd apps/workers/rate-limiter
-pnpm deploy
+pnpm run deploy
 ```
 
 ### Environment-Specific Deployment

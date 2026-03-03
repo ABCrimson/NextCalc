@@ -28,6 +28,7 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { SHARE_CALCULATION_MUTATION } from '@/lib/graphql/operations';
 import { useReducedMotion } from '@/lib/hooks/use-reduced-motion';
+import { convertToLatex } from '@/lib/latex';
 import {
   copyPermalinkUrl,
   copyShareUrl,
@@ -74,21 +75,6 @@ interface ShareCalculationData {
     result: string | null;
     createdAt: string;
   } | null;
-}
-
-// ---------------------------------------------------------------------------
-// LaTeX conversion (mirrors display.tsx)
-// ---------------------------------------------------------------------------
-
-function convertToLatex(expr: string): string {
-  return expr
-    .replace(/\*/g, '\\cdot ')
-    .replace(/\^/g, '^')
-    .replace(/sqrt\((.*?)\)/g, '\\sqrt{$1}')
-    .replace(/pi/g, '\\pi')
-    .replace(/sin\((.*?)\)/g, '\\sin($1)')
-    .replace(/cos\((.*?)\)/g, '\\cos($1)')
-    .replace(/tan\((.*?)\)/g, '\\tan($1)');
 }
 
 // ---------------------------------------------------------------------------

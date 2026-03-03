@@ -82,7 +82,7 @@ export class MockHighPrecisionNumber {
    */
   toString(base = 10, digits = 0): string {
     if (base !== 10) {
-      console.warn('[Mock WASM] Non-decimal bases not fully supported, using decimal');
+      console.debug('[Mock WASM] Non-decimal bases not fully supported, using decimal');
     }
     return fromScaledBigInt(this.value, digits);
   }
@@ -174,7 +174,7 @@ export class MockHighPrecisionNumber {
     const exp = Number(exponent.toBigInt());
 
     if (!Number.isInteger(exp)) {
-      console.warn('[Mock WASM] Non-integer exponents use approximate calculation');
+      console.debug('[Mock WASM] Non-integer exponents use approximate calculation');
       return this._powApprox(exponent.toNumber());
     }
 
@@ -551,7 +551,7 @@ export class MockWASMManager {
  * Create mock WASM module for testing/development
  */
 export function createMockWASM(): MockMPFRModule {
-  console.warn('[Mock WASM] Using JavaScript fallback (limited precision)');
+  console.debug('[Mock WASM] Using JavaScript fallback (limited precision)');
   const manager = new MockWASMManager();
   return manager.createModule();
 }

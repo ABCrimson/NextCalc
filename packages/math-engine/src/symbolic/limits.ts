@@ -26,7 +26,7 @@ import {
 import { evaluate } from '../parser/evaluator';
 import { differentiate } from './differentiate';
 import { maclaurinSeries, taylorSeries } from './series';
-import { simplify, substitute } from './simplify';
+import { astEquals, simplify, substitute } from './simplify';
 
 /**
  * Limit direction specification
@@ -930,7 +930,7 @@ function tryAlgebraicSimplification(
   const simplified = simplify(expr);
 
   // Check if simplification made a difference
-  if (JSON.stringify(simplified) !== JSON.stringify(expr)) {
+  if (!astEquals(simplified, expr)) {
     if (includeSteps) {
       steps.push('Applied algebraic simplification');
     }

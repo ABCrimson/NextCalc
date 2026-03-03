@@ -91,11 +91,34 @@ export const integrateSchema = z
   );
 
 /**
+ * Schema for arc length computation requests
+ * Requires definite bounds for the curve parameterization
+ */
+export const arcLengthSchema = z
+  .object({
+    expression: z
+      .string()
+      .min(1, 'Expression cannot be empty')
+      .max(1000, 'Expression too long (max 1000 characters)'),
+    variable: z
+      .string()
+      .regex(/^[a-zA-Z][a-zA-Z0-9]*$/, 'Variable must be a valid identifier')
+      .optional()
+      .default('x'),
+    lowerBound: z.number().finite(),
+    upperBound: z.number().finite(),
+  })
+  .refine((data) => data.lowerBound < data.upperBound, {
+    message: 'lowerBound must be less than upperBound',
+  });
+
+/**
  * Type inference from Zod schemas for TypeScript
  */
 export type SolveRequest = z.infer<typeof solveSchema>;
 export type DifferentiateRequest = z.infer<typeof differentiateSchema>;
 export type IntegrateRequest = z.infer<typeof integrateSchema>;
+export type ArcLengthRequest = z.infer<typeof arcLengthSchema>;
 
 /**
  * Standard API response wrapper

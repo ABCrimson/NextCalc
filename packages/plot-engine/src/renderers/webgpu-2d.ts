@@ -23,6 +23,7 @@
  */
 
 import type {
+  Color,
   IRenderer,
   PerformanceMetrics,
   Plot2DCartesianConfig,
@@ -831,7 +832,7 @@ export class WebGPU2DRenderer implements IRenderer {
     pass: GPURenderPassEncoder,
     viewport: Viewport,
     gridStep: number,
-    gridColor: unknown,
+    gridColor: Color,
     gridOpacity: number,
   ): void {
     const lines: Point2D[] = [];

@@ -239,11 +239,8 @@ export class WebGL2DRenderer implements IRenderer {
     // Set line width (note: WebGL only guarantees 1.0, implementation-dependent)
     this.gl.lineWidth(1.0);
 
-    // Enable multisampling for better anti-aliasing if available
-    const ext = this.gl.getExtension('EXT_multisample');
-    if (ext) {
-      this.gl.enable(ext.SAMPLE_ALPHA_TO_COVERAGE_WEBGL);
-    }
+    // WebGL 2 handles MSAA via the canvas `antialias` context attribute.
+    // No runtime extension needed.
   }
 
   /**

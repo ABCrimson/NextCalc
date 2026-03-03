@@ -2,7 +2,7 @@
 
 ## Completed Features (verified in codebase)
 
-### Core Calculator (`apps/web/app/page.tsx`)
+### Core Calculator (`apps/web/app/[locale]/page.tsx`)
 - [x] Basic and scientific operations
 - [x] Calculation history with Zustand persistence
 - [x] Keyboard shortcuts

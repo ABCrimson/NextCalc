@@ -67,8 +67,10 @@ export default async function TopicPage({ params }: { params: Promise<{ topic: s
     notFound();
   }
 
-  const definitions = await getDefinitionsByTopic(topic);
-  const problems = await getProblemsByTopic(topic);
+  const [definitions, problems] = await Promise.all([
+    getDefinitionsByTopic(topic),
+    getProblemsByTopic(topic),
+  ]);
 
   // Fetch user's bookmarked definition IDs
   let bookmarkedIds: string[] = [];

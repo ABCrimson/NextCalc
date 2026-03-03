@@ -52,7 +52,6 @@ model User {
   sharedCalculations SharedCalculation[]
 
   @@map("users")
-  @@index([email])
   @@index([role])
   @@index([createdAt(sort: Desc)])
 }

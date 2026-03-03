@@ -15,6 +15,7 @@ import type {
   UnaryOperatorNode,
 } from './ast';
 import {
+  NodeType,
   createConstantNode,
   createFunctionNode,
   createOperatorNode,
@@ -146,40 +147,48 @@ function operatorToFunction(op: Operator): string {
 }
 
 /**
+ * Valid math function names as a module-level Set for O(1) lookup
+ * without allocating a new array on every call.
+ */
+const VALID_MATH_FUNCTIONS: ReadonlySet<string> = new Set<MathFunction>([
+  'sin',
+  'cos',
+  'tan',
+  'sec',
+  'csc',
+  'cot',
+  'asin',
+  'acos',
+  'atan',
+  'asec',
+  'acsc',
+  'acot',
+  'sinh',
+  'cosh',
+  'tanh',
+  'sqrt',
+  'cbrt',
+  'exp',
+  'log',
+  'ln',
+  'log10',
+  'log2',
+  'abs',
+  'ceil',
+  'floor',
+  'round',
+  'factorial',
+  'Si',
+  'Ci',
+  'erf',
+  'li',
+]);
+
+/**
  * Type guard for math functions
  */
 function isMathFunction(name: string): name is MathFunction {
-  const validFunctions: MathFunction[] = [
-    'sin',
-    'cos',
-    'tan',
-    'sec',
-    'csc',
-    'cot',
-    'asin',
-    'acos',
-    'atan',
-    'asec',
-    'acsc',
-    'acot',
-    'sinh',
-    'cosh',
-    'tanh',
-    'sqrt',
-    'cbrt',
-    'exp',
-    'log',
-    'ln',
-    'log10',
-    'log2',
-    'abs',
-    'ceil',
-    'floor',
-    'round',
-    'factorial',
-  ];
-
-  return validFunctions.includes(name as MathFunction);
+  return VALID_MATH_FUNCTIONS.has(name);
 }
 
 /**
@@ -219,7 +228,7 @@ export function extractVariables(expression: string | ExpressionNode): Set<strin
   const variables = new Set<string>();
 
   function traverse(node: ExpressionNode): void {
-    if (node.type === 'SymbolNode' && node.name) {
+    if (node.type === NodeType.SymbolNode && node.name) {
       variables.add(node.name);
     } else if (node.args) {
       node.args.forEach(traverse);

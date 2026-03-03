@@ -15,10 +15,10 @@ export const profileResolvers = {
       args: { input: { name?: string; bio?: string } },
       context: GraphQLContext,
     ) => {
-      requireAuth(context);
+      const user = requireAuth(context);
       const { name, bio } = args.input;
       const updated = await context.prisma.user.update({
-        where: { id: context.user?.id },
+        where: { id: user.id },
         data: {
           ...(name !== undefined ? { name } : {}),
           ...(bio !== undefined ? { bio } : {}),
@@ -30,9 +30,9 @@ export const profileResolvers = {
 
   Query: {
     userProfile: async (_parent: unknown, args: { userId: string }, context: GraphQLContext) => {
-      requireAuth(context);
+      const user = requireAuth(context);
 
-      if (args.userId !== context.user?.id) {
+      if (args.userId !== user.id) {
         throw new ForbiddenError('You can only view your own profile data');
       }
 
@@ -91,9 +91,9 @@ export const profileResolvers = {
       args: { userId: string; days: number },
       context: GraphQLContext,
     ) => {
-      requireAuth(context);
+      const user = requireAuth(context);
 
-      if (args.userId !== context.user?.id) {
+      if (args.userId !== user.id) {
         throw new ForbiddenError('You can only view your own profile data');
       }
 
@@ -133,9 +133,9 @@ export const profileResolvers = {
     },
 
     userAnalytics: async (_parent: unknown, args: { userId: string }, context: GraphQLContext) => {
-      requireAuth(context);
+      const user = requireAuth(context);
 
-      if (args.userId !== context.user?.id) {
+      if (args.userId !== user.id) {
         throw new ForbiddenError('You can only view your own profile data');
       }
 

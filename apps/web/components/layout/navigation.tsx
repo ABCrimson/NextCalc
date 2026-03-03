@@ -343,7 +343,7 @@ export function Navigation() {
         </div>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex md:flex-1 md:items-center md:gap-1 md:text-sm md:font-medium min-w-0">
+        <div className="hidden lg:flex lg:flex-1 lg:items-center lg:gap-1 lg:text-sm lg:font-medium min-w-0 overflow-hidden">
           {/* Calculator link */}
           {preDropdownLinks.map((link) => {
             const Icon = link.icon;
@@ -538,7 +538,7 @@ export function Navigation() {
         </div>
 
         {/* Mobile Navigation */}
-        <div className="flex flex-1 items-center justify-end md:hidden">
+        <div className="flex flex-1 items-center justify-end lg:hidden">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button

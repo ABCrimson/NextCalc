@@ -130,7 +130,7 @@ GraphQL API integrated into the Next.js app via route handler.
 - Upstash Redis caching in `src/lib/cache.ts`
 - API package exports source `.ts` files (not dist/) for monorepo dev
 
-**Tech:** Apollo Server 5.4.0, GraphQL 16.12.0, DataLoader 2.2.3, Zod
+**Tech:** Apollo Server 5.4.0, GraphQL 16.13.0, DataLoader 2.2.3, Zod
 
 ### @nextcalc/types
 

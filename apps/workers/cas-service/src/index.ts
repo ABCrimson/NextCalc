@@ -20,6 +20,7 @@ import { differentiateMathExpression } from './handlers/differentiate.js';
 import { computeArcLength, integrateMathExpression } from './handlers/integrate.js';
 import { solveMathExpression } from './handlers/solve.js';
 import {
+  arcLengthSchema,
   createErrorResponse,
   differentiateSchema,
   integrateSchema,
@@ -298,22 +299,6 @@ app.post('/integrate', async (c) => {
 app.post('/arc-length', async (c) => {
   try {
     const body = await c.req.json();
-
-    // Define schema for arc length
-    const arcLengthSchema = z
-      .object({
-        expression: z.string().min(1).max(1000),
-        variable: z
-          .string()
-          .regex(/^[a-zA-Z][a-zA-Z0-9]*$/)
-          .optional()
-          .default('x'),
-        lowerBound: z.number().finite(),
-        upperBound: z.number().finite(),
-      })
-      .refine((data) => data.lowerBound < data.upperBound, {
-        message: 'lowerBound must be less than upperBound',
-      });
 
     const validatedRequest = validateRequest(body, arcLengthSchema);
 

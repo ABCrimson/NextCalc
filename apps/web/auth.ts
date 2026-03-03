@@ -1,7 +1,7 @@
 /**
  * NextAuth.js v5 (next-auth@5.0.0-beta.30) Main Configuration
  *
- * Integrates with Prisma 7.5.0-dev.14 adapter and extends session with custom user data.
+ * Integrates with Prisma 7.5.0-dev.33 adapter and extends session with custom user data.
  *
  * @see https://authjs.dev/getting-started/session-management
  */

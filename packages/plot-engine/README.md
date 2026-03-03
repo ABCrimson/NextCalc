@@ -292,7 +292,7 @@ const renderer = await createBest2DRenderer(canvas);
 ## Browser Support
 
 - **WebGL 2**: 96%+ of browsers
-- **WebGPU**: Progressive enhancement (37%+ of browsers in 2025)
+- **WebGPU**: Progressive enhancement (37%+ of browsers in 2026)
 - **Fallback**: Canvas 2D for environments without WebGL
 
 ## Testing

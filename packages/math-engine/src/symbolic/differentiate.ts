@@ -10,7 +10,7 @@ import type {
   OperatorNode,
   SymbolNode,
 } from '../parser/ast';
-import { createConstantNode, createFunctionNode, createOperatorNode } from '../parser/ast';
+import { NodeType, createConstantNode, createFunctionNode, createOperatorNode } from '../parser/ast';
 
 /**
  * Differentiate an expression with respect to a variable
@@ -20,16 +20,16 @@ import { createConstantNode, createFunctionNode, createOperatorNode } from '../p
  */
 export function differentiate(expr: ExpressionNode, variable = 'x'): ExpressionNode {
   switch (expr.type) {
-    case 'ConstantNode':
+    case NodeType.ConstantNode:
       return differentiateConstant();
 
-    case 'SymbolNode':
+    case NodeType.SymbolNode:
       return differentiateSymbol(expr as SymbolNode, variable);
 
-    case 'OperatorNode':
+    case NodeType.OperatorNode:
       return differentiateOperator(expr as OperatorNode, variable);
 
-    case 'FunctionNode':
+    case NodeType.FunctionNode:
       return differentiateFunction(expr as FunctionNode, variable);
 
     default:
@@ -86,7 +86,7 @@ function differentiateOperator(node: OperatorNode, variable: string): Expression
       // Power rule: (f ^ g)' has multiple cases
 
       // Special case 1: f^n where n is constant
-      if (right.type === 'ConstantNode') {
+      if (right.type === NodeType.ConstantNode) {
         const n = (right as ConstantNode).value;
         if (typeof n === 'number') {
           // (f^n)' = n * f^(n-1) * f'
@@ -101,7 +101,7 @@ function differentiateOperator(node: OperatorNode, variable: string): Expression
       }
 
       // Special case 2: a^f where a is constant (exponential with constant base)
-      if (left.type === 'ConstantNode') {
+      if (left.type === NodeType.ConstantNode) {
         const a = (left as ConstantNode).value;
         if (typeof a === 'number' && a > 0) {
           // (a^f)' = a^f * ln(a) * f'
@@ -397,11 +397,11 @@ function differentiateFunction(node: FunctionNode, variable: string): Expression
  */
 export function simplifyDerivative(expr: ExpressionNode): ExpressionNode {
   switch (expr.type) {
-    case 'ConstantNode':
-    case 'SymbolNode':
+    case NodeType.ConstantNode:
+    case NodeType.SymbolNode:
       return expr;
 
-    case 'OperatorNode': {
+    case NodeType.OperatorNode: {
       const node = expr as OperatorNode;
       const [left, right] = node.args;
       const leftSimp = simplifyDerivative(left);
@@ -410,7 +410,7 @@ export function simplifyDerivative(expr: ExpressionNode): ExpressionNode {
       // 0 + x = x
       if (
         node.op === '+' &&
-        leftSimp.type === 'ConstantNode' &&
+        leftSimp.type === NodeType.ConstantNode &&
         (leftSimp as ConstantNode).value === 0
       ) {
         return rightSimp;
@@ -419,7 +419,7 @@ export function simplifyDerivative(expr: ExpressionNode): ExpressionNode {
       // x + 0 = x
       if (
         node.op === '+' &&
-        rightSimp.type === 'ConstantNode' &&
+        rightSimp.type === NodeType.ConstantNode &&
         (rightSimp as ConstantNode).value === 0
       ) {
         return leftSimp;
@@ -428,7 +428,7 @@ export function simplifyDerivative(expr: ExpressionNode): ExpressionNode {
       // 0 * x = 0
       if (
         node.op === '*' &&
-        leftSimp.type === 'ConstantNode' &&
+        leftSimp.type === NodeType.ConstantNode &&
         (leftSimp as ConstantNode).value === 0
       ) {
         return createConstantNode(0);
@@ -437,7 +437,7 @@ export function simplifyDerivative(expr: ExpressionNode): ExpressionNode {
       // x * 0 = 0
       if (
         node.op === '*' &&
-        rightSimp.type === 'ConstantNode' &&
+        rightSimp.type === NodeType.ConstantNode &&
         (rightSimp as ConstantNode).value === 0
       ) {
         return createConstantNode(0);
@@ -446,7 +446,7 @@ export function simplifyDerivative(expr: ExpressionNode): ExpressionNode {
       // 1 * x = x
       if (
         node.op === '*' &&
-        leftSimp.type === 'ConstantNode' &&
+        leftSimp.type === NodeType.ConstantNode &&
         (leftSimp as ConstantNode).value === 1
       ) {
         return rightSimp;
@@ -455,7 +455,7 @@ export function simplifyDerivative(expr: ExpressionNode): ExpressionNode {
       // x * 1 = x
       if (
         node.op === '*' &&
-        rightSimp.type === 'ConstantNode' &&
+        rightSimp.type === NodeType.ConstantNode &&
         (rightSimp as ConstantNode).value === 1
       ) {
         return leftSimp;
@@ -464,7 +464,7 @@ export function simplifyDerivative(expr: ExpressionNode): ExpressionNode {
       return createOperatorNode(node.op, node.fn, [leftSimp, rightSimp]);
     }
 
-    case 'FunctionNode': {
+    case NodeType.FunctionNode: {
       const node = expr as FunctionNode;
       const argsSimp = node.args.map(simplifyDerivative);
       return createFunctionNode(node.fn, argsSimp);

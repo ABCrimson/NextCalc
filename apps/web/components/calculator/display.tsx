@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import { LaTeXRenderer } from '@/components/math/latex-renderer';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { convertToLatex } from '@/lib/latex';
 import type { ShareAngleMode, ShareMode } from '@/lib/share';
 import { formatResultWithSeparators, useThousandsSeparator } from '@/lib/stores/settings-store';
 import { ExportMenu } from './export-menu';
@@ -20,17 +21,21 @@ interface DisplayProps {
   angle?: ShareAngleMode;
 }
 
-function convertToLatex(expr: string): string {
-  // Simple conversions
-  return expr
-    .replace(/\*/g, '\\cdot ')
-    .replace(/\^/g, '^')
-    .replace(/sqrt\((.*?)\)/g, '\\sqrt{$1}')
-    .replace(/pi/g, '\\pi')
-    .replace(/sin\((.*?)\)/g, '\\sin($1)')
-    .replace(/cos\((.*?)\)/g, '\\cos($1)')
-    .replace(/tan\((.*?)\)/g, '\\tan($1)');
-}
+// ---------------------------------------------------------------------------
+// Static Framer Motion variants (no dependencies — defined at module scope)
+// ---------------------------------------------------------------------------
+
+const containerVariants = {
+  initial: { opacity: 0, y: -20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.4, ease: [0.4, 0, 0.2, 1] as const },
+};
+
+const contentVariants = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  transition: { duration: 0.3 },
+};
 
 export function Display({ expression, result, isPending = false, mode, angle }: DisplayProps) {
   const latex = convertToLatex(expression);
@@ -61,25 +66,7 @@ export function Display({ expression, result, isPending = false, mode, angle }: 
     return String(result);
   }, [result]);
 
-  // Memoize animation variants to prevent re-creation on every render
-  const containerVariants = useMemo(
-    () => ({
-      initial: { opacity: 0, y: -20 },
-      animate: { opacity: 1, y: 0 },
-      transition: { duration: 0.4, ease: [0.4, 0, 0.2, 1] as const },
-    }),
-    [],
-  );
-
-  const contentVariants = useMemo(
-    () => ({
-      initial: { opacity: 0 },
-      animate: { opacity: 1 },
-      transition: { duration: 0.3 },
-    }),
-    [],
-  );
-
+  // resultVariants depends on isPending — keep it memoized
   const resultVariants = useMemo(
     () => ({
       initial: { scale: 0.95, opacity: 0 },

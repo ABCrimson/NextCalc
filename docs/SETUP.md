@@ -187,9 +187,9 @@ Create **separate** OAuth apps for production:
 | TypeScript | 6.0.0-dev.20260301 |
 | Prisma | 7.5.0-dev.33 |
 | Apollo Server | 5.4.0 |
-| Biome | 2.5.0 |
+| Biome | 2.4.4 |
 | Turborepo | 2.8.13-canary.8 |
-| Tailwind CSS | 4.2.3 |
+| Tailwind CSS | 4.2.1 |
 | Hono (workers) | 4.12.3 |
 | Wrangler | 4.68.0 |
 | Vitest | 4.1.0-beta.5 |
