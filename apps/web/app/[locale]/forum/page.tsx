@@ -543,7 +543,7 @@ export default function ForumPage() {
                     { name: 'James Wright', rep: 1200, tier: 'contributor', id: 'james-wright' },
                   ].map((user, i) => {
                     const tier = TIER_CONFIG[user.tier] ??
-                      TIER_CONFIG['newcomer'] ?? {
+                      TIER_CONFIG.newcomer ?? {
                         label: 'Newcomer',
                         color: 'text-zinc-400',
                         icon: null,

@@ -4,7 +4,7 @@ import { LogisticMap, LorenzAttractor } from '@nextcalc/math-engine/chaos/chaos-
 import { GitBranch, Wind, Zap } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BifurcationDiagramRenderer } from '@/components/chaos/bifurcation-diagram-renderer';
 import { LogisticMapRenderer } from '@/components/chaos/logistic-map-renderer';
 

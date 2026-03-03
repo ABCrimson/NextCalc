@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background -->
+    <linearGradient id="bg5" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F1629"/>
+      <stop offset="50%" stop-color="#121A34"/>
+      <stop offset="100%" stop-color="#0D1224"/>
+    </linearGradient>
+
+    <!-- Curve gradient (blue to green) -->
+    <linearGradient id="curve-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3B47FF"/>
+      <stop offset="50%" stop-color="#6B5CFF"/>
+      <stop offset="75%" stop-color="#10D4A0"/>
+      <stop offset="100%" stop-color="#10B981"/>
+    </linearGradient>
+
+    <!-- Secondary curve gradient (purple) -->
+    <linearGradient id="curve-grad2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#9B5CFF" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#3B47FF" stop-opacity="0.15"/>
+    </linearGradient>
+
+    <!-- Axis gradient -->
+    <linearGradient id="axis-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.05"/>
+    </linearGradient>
+
+    <!-- Area fill under curve -->
+    <linearGradient id="area-fill" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#3B47FF" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#3B47FF" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Glow -->
+    <radialGradient id="glow5" cx="55%" cy="40%" r="45%">
+      <stop offset="0%" stop-color="#3B47FF" stop-opacity="0.2"/>
+      <stop offset="60%" stop-color="#6B5CFF" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#6B5CFF" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Curve glow filter -->
+    <filter id="curveGlow" x="-15%" y="-15%" width="130%" height="130%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur"/>
+      <feComponentTransfer in="blur">
+        <feFuncA type="linear" slope="0.5"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Glass panel -->
+    <linearGradient id="glass5" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.01"/>
+    </linearGradient>
+
+    <clipPath id="squircle5">
+      <rect width="512" height="512" rx="115" ry="115"/>
+    </clipPath>
+
+    <!-- Clip for area under curve -->
+    <clipPath id="graphArea">
+      <rect x="90" y="80" width="360" height="290"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#squircle5)">
+    <!-- Background -->
+    <rect width="512" height="512" fill="url(#bg5)"/>
+
+    <!-- Ambient glow -->
+    <rect width="512" height="512" fill="url(#glow5)"/>
+
+    <!-- Glass panel for graph area -->
+    <rect x="70" y="60" width="390" height="320" rx="28" fill="url(#glass5)" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+
+    <!-- Grid lines (subtle) -->
+    <g opacity="0.04">
+      <line x1="90" y1="130" x2="440" y2="130" stroke="#ffffff" stroke-width="0.75"/>
+      <line x1="90" y1="200" x2="440" y2="200" stroke="#ffffff" stroke-width="0.75"/>
+      <line x1="90" y1="270" x2="440" y2="270" stroke="#ffffff" stroke-width="0.75"/>
+      <line x1="90" y1="340" x2="440" y2="340" stroke="#ffffff" stroke-width="0.75"/>
+      <line x1="170" y1="80" x2="170" y2="370" stroke="#ffffff" stroke-width="0.75"/>
+      <line x1="250" y1="80" x2="250" y2="370" stroke="#ffffff" stroke-width="0.75"/>
+      <line x1="330" y1="80" x2="330" y2="370" stroke="#ffffff" stroke-width="0.75"/>
+      <line x1="410" y1="80" x2="410" y2="370" stroke="#ffffff" stroke-width="0.75"/>
+    </g>
+
+    <!-- Axes -->
+    <line x1="90" y1="340" x2="450" y2="340" stroke="url(#axis-grad)" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="90" y1="80" x2="90" y2="370" stroke="url(#axis-grad)" stroke-width="1.5" stroke-linecap="round"/>
+
+    <!-- Area under primary curve (shaded) -->
+    <g clip-path="url(#graphArea)">
+      <path d="M 90 340
+               C 130 340, 140 320, 170 280
+               C 200 240, 210 140, 250 120
+               C 290 100, 300 170, 330 200
+               C 360 230, 380 160, 410 130
+               C 430 110, 440 100, 450 90
+               L 450 340 Z"
+            fill="url(#area-fill)"/>
+    </g>
+
+    <!-- Secondary curve (background, sine-like) -->
+    <path d="M 90 270
+             C 130 270, 160 200, 200 200
+             C 240 200, 250 290, 290 290
+             C 330 290, 340 220, 380 220
+             C 420 220, 430 260, 450 260"
+          fill="none"
+          stroke="url(#curve-grad2)"
+          stroke-width="3"
+          stroke-linecap="round"/>
+
+    <!-- Primary curve (bold, with glow) -->
+    <g filter="url(#curveGlow)">
+      <path d="M 90 340
+               C 130 340, 140 320, 170 280
+               C 200 240, 210 140, 250 120
+               C 290 100, 300 170, 330 200
+               C 360 230, 380 160, 410 130
+               C 430 110, 440 100, 450 90"
+            fill="none"
+            stroke="url(#curve-grad)"
+            stroke-width="5"
+            stroke-linecap="round"
+            stroke-linejoin="round"/>
+    </g>
+
+    <!-- Data points on the primary curve -->
+    <g>
+      <circle cx="170" cy="280" r="5" fill="#3B47FF" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.6"/>
+      <circle cx="250" cy="120" r="5" fill="#6B5CFF" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.6"/>
+      <circle cx="330" cy="200" r="5" fill="#10D4A0" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.6"/>
+      <circle cx="410" cy="130" r="5" fill="#10B981" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.6"/>
+    </g>
+
+    <!-- f(x) label -->
+    <text x="100" y="440" font-family="'Georgia', 'Times New Roman', serif" font-size="40" font-style="italic" fill="#ffffff" fill-opacity="0.5">f</text>
+    <text x="128" y="448" font-family="'Georgia', 'Times New Roman', serif" font-size="26" fill="#ffffff" fill-opacity="0.4">(x)</text>
+
+    <!-- Axis arrow tips -->
+    <polygon points="450,340 442,335 442,345" fill="#ffffff" fill-opacity="0.15"/>
+    <polygon points="90,80 85,88 95,88" fill="#ffffff" fill-opacity="0.15"/>
+
+    <!-- Top shine on glass -->
+    <rect x="70" y="60" width="390" height="160" rx="28" fill="#ffffff" fill-opacity="0.01"/>
+
+    <!-- Top border accent -->
+    <line x1="98" y1="61" x2="432" y2="61" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1" stroke-linecap="round"/>
+  </g>
+
+  <!-- Outer border -->
+  <rect width="512" height="512" rx="115" ry="115" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="2"/>
+</svg>

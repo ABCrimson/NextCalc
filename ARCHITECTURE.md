@@ -236,6 +236,20 @@ Colors are defined in `apps/web/app/globals.css` using the OKLCH color space (P3
 - **Radix UI** -- Unified `radix-ui@1.4.4-rc` package (replaces individual `@radix-ui/*` packages)
 - **Framer Motion** -- Layout animations, `prefers-reduced-motion` support
 
+### Favicon & PWA Icons
+
+Custom geometric crystal favicon using the OKLCH glass-morphism design language. Faceted hexagonal gem with blue/purple/teal gradient glass panels on a dark navy squircle background.
+
+| File | Size | Purpose |
+|------|------|---------|
+| `icon.svg` | 512x512 | Primary SVG favicon (all modern browsers) |
+| `favicon.ico` | 16+32px | Legacy ICO for older browsers |
+| `apple-touch-icon.png` | 180x180 | Apple devices home screen |
+| `icon-192.png` / `icon-512.png` | 192 / 512 | PWA standard icons |
+| `icon-*-maskable.png` | 192 / 512 | Android adaptive icons (maskable) |
+
+Theme colors: `#3B47FF` (primary), `#0F1629` (background) -- derived from `oklch(0.55 0.27 264)`.
+
 ## State Management
 
 - **Zustand 5.0.11** -- Global state with immer middleware for calculator, worksheets, collaboration

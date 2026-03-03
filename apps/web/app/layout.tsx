@@ -20,7 +20,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 // Next.js 16.2.0: Enhanced Metadata API with comprehensive SEO + PWA
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env['NEXT_PUBLIC_APP_URL'] || 'http://localhost:3005'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3005'),
   title: {
     template: '%s | NextCalc Pro',
     default: 'NextCalc Pro - Modern Scientific Calculator',
@@ -74,8 +74,11 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
-    apple: '/icon-192.png',
+    icon: [
+      { url: '/favicon.ico', sizes: '16x16 32x32', type: 'image/x-icon' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+    apple: '/apple-touch-icon.png',
   },
   manifest: '/manifest.json',
   appleWebApp: {
@@ -94,7 +97,7 @@ export const viewport: Viewport = {
   userScalable: true,
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#F1F5F9' },
-    { media: '(prefers-color-scheme: dark)', color: '#0F172A' },
+    { media: '(prefers-color-scheme: dark)', color: '#0F1629' },
   ],
 };
 
@@ -121,7 +124,7 @@ export default async function RootLayout({
   return (
     <html suppressHydrationWarning {...(serverTheme ? { 'data-theme': serverTheme } : {})}>
       <head>
-        <link rel="apple-touch-icon" href="/icon-192.png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="NextCalc Pro" />

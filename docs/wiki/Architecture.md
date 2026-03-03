@@ -148,6 +148,22 @@ Prisma 7 creates its own connection pool internally via the adapter's `connect()
 - **Glass morphism**: `oklch()` + `backdrop-filter` + SVG noise texture
 - **Modern CSS**: nesting, `@property`, `color-mix()`, `@starting-style`
 
+## Favicon & PWA Icons
+
+Custom geometric crystal favicon using the OKLCH glass-morphism design language. Faceted hexagonal gem with blue/purple/teal gradient glass panels on a dark navy background.
+
+| File | Size | Purpose |
+|:-----|:-----|:--------|
+| `icon.svg` | 512x512 | Primary SVG favicon (all modern browsers) |
+| `favicon.ico` | 16x16 + 32x32 | Legacy ICO for older browsers |
+| `apple-touch-icon.png` | 180x180 | Apple devices home screen |
+| `icon-192.png` | 192x192 | PWA standard icon |
+| `icon-512.png` | 512x512 | PWA splash screen |
+| `icon-192-maskable.png` | 192x192 | Android adaptive icon (maskable) |
+| `icon-512-maskable.png` | 512x512 | Android adaptive icon (maskable) |
+
+**Theme colors**: `#3B47FF` (primary blue), `#0F1629` (dark background) — derived from `oklch(0.55 0.27 264)`.
+
 ## Internationalization
 
 - **Library**: `next-intl` with App Router

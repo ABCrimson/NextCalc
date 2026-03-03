@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background gradient -->
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F1629"/>
+      <stop offset="50%" stop-color="#111930"/>
+      <stop offset="100%" stop-color="#0D1224"/>
+    </linearGradient>
+
+    <!-- Blue-to-emerald gradient for infinity -->
+    <linearGradient id="inf-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3B47FF"/>
+      <stop offset="35%" stop-color="#3B8CFF"/>
+      <stop offset="65%" stop-color="#10D4A0"/>
+      <stop offset="100%" stop-color="#10B981"/>
+    </linearGradient>
+
+    <!-- Secondary glow gradient -->
+    <radialGradient id="glow2-left" cx="30%" cy="50%" r="35%">
+      <stop offset="0%" stop-color="#3B47FF" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#3B47FF" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="glow2-right" cx="70%" cy="50%" r="35%">
+      <stop offset="0%" stop-color="#10B981" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#10B981" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Glass panel -->
+    <linearGradient id="glass2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.07"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.01"/>
+    </linearGradient>
+
+    <!-- Infinity glow -->
+    <filter id="infGlow" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="blur"/>
+      <feComponentTransfer in="blur">
+        <feFuncA type="linear" slope="0.55"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <clipPath id="squircle2">
+      <rect width="512" height="512" rx="115" ry="115"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#squircle2)">
+    <!-- Background -->
+    <rect width="512" height="512" fill="url(#bg2)"/>
+
+    <!-- Radial glow accents -->
+    <rect width="512" height="512" fill="url(#glow2-left)"/>
+    <rect width="512" height="512" fill="url(#glow2-right)"/>
+
+    <!-- Subtle concentric rings -->
+    <circle cx="170" cy="256" r="120" fill="none" stroke="#ffffff" stroke-opacity="0.02" stroke-width="1"/>
+    <circle cx="342" cy="256" r="120" fill="none" stroke="#ffffff" stroke-opacity="0.02" stroke-width="1"/>
+    <circle cx="170" cy="256" r="90" fill="none" stroke="#ffffff" stroke-opacity="0.015" stroke-width="0.75"/>
+    <circle cx="342" cy="256" r="90" fill="none" stroke="#ffffff" stroke-opacity="0.015" stroke-width="0.75"/>
+
+    <!-- Frosted glass panel -->
+    <rect x="56" y="126" width="400" height="260" rx="36" fill="url(#glass2)" stroke="#ffffff" stroke-opacity="0.05" stroke-width="1"/>
+
+    <!-- Infinity symbol - smooth flowing path -->
+    <g filter="url(#infGlow)">
+      <!-- The infinity (lemniscate) path using cubic beziers -->
+      <path d="M 256 256
+               C 256 196, 310 166, 352 166
+               C 420 166, 446 216, 446 256
+               C 446 296, 420 346, 352 346
+               C 310 346, 256 316, 256 256
+               C 256 196, 202 166, 160 166
+               C 92 166, 66 216, 66 256
+               C 66 296, 92 346, 160 346
+               C 202 346, 256 316, 256 256 Z"
+            fill="none"
+            stroke="url(#inf-grad)"
+            stroke-width="32"
+            stroke-linecap="round"
+            stroke-linejoin="round"/>
+    </g>
+
+    <!-- Inner highlight on glass panel (top half) -->
+    <rect x="56" y="126" width="400" height="130" rx="36" fill="#ffffff" fill-opacity="0.02"/>
+
+    <!-- Top border shine -->
+    <line x1="92" y1="127" x2="420" y2="127" stroke="#ffffff" stroke-opacity="0.08" stroke-width="1" stroke-linecap="round"/>
+  </g>
+
+  <!-- Outer border -->
+  <rect width="512" height="512" rx="115" ry="115" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="2"/>
+</svg>
