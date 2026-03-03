@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { type LucideIcon, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
@@ -91,6 +91,11 @@ export function AlgorithmPage({
   children,
 }: AlgorithmPageProps) {
   const t = useTranslations('algorithms.page');
+  const prefersReducedMotion = useReducedMotion();
+
+  const motionProps = prefersReducedMotion
+    ? { initial: undefined, animate: undefined, whileInView: undefined }
+    : {};
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -123,6 +128,7 @@ export function AlgorithmPage({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="mb-8 sm:mb-10 lg:mb-12"
+        {...motionProps}
       >
         <div className="flex flex-col sm:flex-row items-start justify-between gap-4 sm:gap-6 mb-4 sm:mb-6">
           <div className="flex items-start gap-3 sm:gap-4 flex-1 w-full min-w-0">
@@ -195,6 +201,7 @@ export function AlgorithmPage({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             className="p-4 sm:p-6 rounded-xl border border-border bg-card/50 backdrop-blur-sm overflow-hidden"
+            {...motionProps}
           >
             <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">{t('tryItYourself')}</h2>
             <div className="min-w-0 overflow-x-auto">{children}</div>
@@ -207,6 +214,7 @@ export function AlgorithmPage({
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
             className="p-4 sm:p-6 rounded-lg border border-border bg-card/50 backdrop-blur-sm"
+            {...motionProps}
           >
             <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">
               {t('realWorldApplications')}
@@ -232,6 +240,7 @@ export function AlgorithmPage({
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
               className="p-4 sm:p-6 rounded-lg border border-border bg-card/50 backdrop-blur-sm"
+              {...motionProps}
             >
               <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">{t('references')}</h2>
               <ul className="space-y-2 sm:space-y-3">

@@ -50,7 +50,14 @@ export {
 export * from './ml/transformers/index';
 
 // Optimization (exports LossFunction for compatibility)
-export * from './optimization/adam';
+export {
+  adam,
+  type AdamOptions,
+  type AdamResult,
+  adamW,
+  type LossFunction,
+  radam,
+} from './optimization/adam';
 
 // ============================================================================
 // CRYPTOGRAPHY
@@ -58,7 +65,6 @@ export * from './optimization/adam';
 
 // Differential Privacy (NEW)
 export {
-  demonstrateDifferentialPrivacy,
   exponentialMechanism,
   gaussianMechanism,
   laplaceMechanism,
@@ -70,10 +76,24 @@ export {
   reportNoisyMax,
 } from './crypto/differential-privacy';
 // RSA
-export * from './crypto/rsa';
+export {
+  extendedGCD as rsaExtendedGCD,
+  gcd as rsaGCD,
+  generatePrime,
+  generateRSAKeyPair,
+  isProbablyPrime,
+  modInverse as rsaModInverse,
+  modPow as rsaModPow,
+  rsaDecrypt,
+  rsaDecryptString,
+  rsaEncrypt,
+  rsaEncryptString,
+  type RSAKeyPair,
+  rsaSign,
+  rsaVerify,
+} from './crypto/rsa';
 // Zero-Knowledge Proofs (NEW)
 export {
-  demonstrateSchnorrProof,
   PedersenCommitment,
   RangeProof,
   SchnorrProof,
@@ -85,11 +105,17 @@ export {
 // ============================================================================
 
 // Grover's Algorithm
-export * from './quantum/grover';
+export {
+  Complex as QuantumComplex,
+  type GroverResult,
+  groverSearch,
+  groverSearchCustom,
+  type OracleFunction,
+  QuantumState,
+} from './quantum/grover';
 
 // Shor's Algorithm (NEW)
 export {
-  demonstrateShorAlgorithm,
   findPeriod,
   gcd,
   isPerfectPower,
@@ -107,7 +133,6 @@ export * from './graph/index';
 
 // PageRank (NEW)
 export {
-  demonstratePageRank,
   type Graph,
   type PageRankResult,
   pageRank,

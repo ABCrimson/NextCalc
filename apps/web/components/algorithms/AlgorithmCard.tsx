@@ -251,7 +251,19 @@ export function AlgorithmCard({
   );
 
   if (disabled) {
-    return cardContent;
+    return (
+      <Link
+        href={href}
+        aria-disabled="true"
+        tabIndex={-1}
+        role="link"
+        className="block pointer-events-none rounded-xl"
+        aria-label={`${title} - ${difficulty} level ${category.replace('-', ' ')} algorithm (coming soon)`}
+        onClick={(e) => e.preventDefault()}
+      >
+        {cardContent}
+      </Link>
+    );
   }
 
   return (

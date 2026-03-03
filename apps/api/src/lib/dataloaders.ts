@@ -12,11 +12,19 @@ import type {
   Folder,
   ForumPost,
   PrismaClient,
+  Upvote,
   User,
   Worksheet,
   WorksheetShare,
 } from '@nextcalc/database';
 import DataLoader from 'dataloader';
+
+/**
+ * Compound key for hasUpvoted DataLoader: "userId:targetId:targetType"
+ */
+function upvoteKey(userId: string, targetId: string, targetType: string): string {
+  return `${userId}:${targetId}:${targetType}`;
+}
 
 export interface DataLoaders {
   userById: DataLoader<string, User | null>;
@@ -29,6 +37,8 @@ export interface DataLoaders {
   commentById: DataLoader<string, Comment | null>;
   repliesByParentCommentId: DataLoader<string, Comment[]>;
   worksheetsByFolderId: DataLoader<string, Worksheet[]>;
+  /** Batched hasUpvoted check. Key format: "userId:targetId:targetType" */
+  hasUpvoted: DataLoader<string, boolean>;
 }
 
 export function createDataLoaders(prisma: PrismaClient): DataLoaders {
@@ -144,6 +154,35 @@ export function createDataLoaders(prisma: PrismaClient): DataLoaders {
         }
       }
       return folderIds.map((id) => worksheetMap.get(id) ?? []);
+    }),
+
+    hasUpvoted: new DataLoader<string, boolean>(async (keys) => {
+      // Parse compound keys back to components
+      const parsed = keys.map((k) => {
+        const [userId, targetId, targetType] = k.split(':') as [string, string, string];
+        return { userId, targetId, targetType };
+      });
+
+      // Batch query: find all upvotes matching any (userId, targetId, targetType) combo
+      // Group by unique userId to minimize queries
+      const uniqueUserIds = [...new Set(parsed.map((p) => p.userId))];
+      const uniqueTargetIds = [...new Set(parsed.map((p) => p.targetId))];
+
+      const upvotes = await prisma.upvote.findMany({
+        where: {
+          userId: { in: uniqueUserIds },
+          targetId: { in: uniqueTargetIds },
+        },
+        select: { userId: true, targetId: true, targetType: true },
+      });
+
+      const upvoteSet = new Set(
+        upvotes.map((u: Pick<Upvote, 'userId' | 'targetId' | 'targetType'>) =>
+          upvoteKey(u.userId, u.targetId, u.targetType),
+        ),
+      );
+
+      return keys.map((k) => upvoteSet.has(k));
     }),
   };
 }

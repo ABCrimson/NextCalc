@@ -47,8 +47,8 @@ export interface ParameterSpec {
   max?: number;
   /** Possible choices (for choice type) */
   choices?: ParameterValue[];
-  /** Additional constraints (called with the generated numeric value) */
-  constraint?: (value: number) => boolean;
+  /** Additional constraints (called with the generated numeric value and already-resolved params) */
+  constraint?: (value: number, params: Record<string, number>) => boolean;
   /** Description */
   description?: string;
 }
@@ -273,10 +273,22 @@ export class TemplateEngine {
       let attempts = 0;
       const maxAttempts = 100;
 
+      // Build a numeric-only view of already-resolved params for constraint callbacks
+      const numericParams: Record<string, number> = {};
+      for (const [k, v] of Object.entries(params)) {
+        if (typeof v === 'number') {
+          numericParams[k] = v;
+        }
+      }
+
       do {
         value = this.generateParameter(spec);
         attempts++;
-      } while (spec.constraint && !spec.constraint(value as number) && attempts < maxAttempts);
+      } while (
+        spec.constraint &&
+        !spec.constraint(value as number, numericParams) &&
+        attempts < maxAttempts
+      );
 
       if (attempts >= maxAttempts) {
         throw new Error(`Could not generate valid value for parameter ${spec.name}`);

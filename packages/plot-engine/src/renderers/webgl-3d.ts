@@ -36,36 +36,47 @@ import type {
   RenderBackend,
 } from '../types/index';
 import { getColorFromMap } from '../utils/color';
+import { getJSHeapUsage } from '../utils/memory';
 
 // ---------------------------------------------------------------------------
 // Axis label sprite helpers
 // ---------------------------------------------------------------------------
 
 /**
- * Creates a canvas-based text texture for use as a sprite label.
- * The canvas is sized to the text so it looks crisp at any zoom level.
+ * Module-level cache for axis label textures.
+ * The axis labels are always the fixed strings 'X', 'Y', 'Z' and never
+ * change at runtime, so we create each texture at most once and reuse it.
+ */
+const axisLabelTextureCache = new Map<string, THREE.CanvasTexture>();
+
+/**
+ * Creates (or returns a cached) canvas-based text texture for use as a
+ * sprite label.  The canvas is sized to the text so it looks crisp at any
+ * zoom level.
  */
 function makeAxisLabelTexture(text: string): THREE.CanvasTexture {
+  const cached = axisLabelTextureCache.get(text);
+  if (cached) return cached;
+
   const fontSize = 48;
   const padding = 12;
 
-  // Measure text width first
   const offscreen = document.createElement('canvas');
-  const ctx2 = offscreen.getContext('2d')!;
-  ctx2.font = `bold ${fontSize}px sans-serif`;
-  const textWidth = ctx2.measureText(text).width;
+  // Use a single context: set the font for measurement, then resize the
+  // canvas (which resets state) and redraw at full resolution.
+  const ctx = offscreen.getContext('2d')!;
+  ctx.font = `bold ${fontSize}px sans-serif`;
+  const textWidth = ctx.measureText(text).width;
 
-  // Size the actual canvas
   const canvasWidth = Math.ceil(textWidth + padding * 2);
   const canvasHeight = Math.ceil(fontSize + padding * 2);
   offscreen.width = canvasWidth;
   offscreen.height = canvasHeight;
 
-  // Redraw at full resolution
-  const ctx = offscreen.getContext('2d')!;
+  // After resize the context state is reset — re-apply all settings.
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-  // Soft dark pill background for legibility against any surface colour
+  // Soft dark pill background for legibility against any surface colour.
   ctx.fillStyle = 'rgba(10, 10, 20, 0.65)';
   ctx.beginPath();
   const r = canvasHeight * 0.35;
@@ -81,6 +92,7 @@ function makeAxisLabelTexture(text: string): THREE.CanvasTexture {
 
   const texture = new THREE.CanvasTexture(offscreen);
   texture.needsUpdate = true;
+  axisLabelTextureCache.set(text, texture);
   return texture;
 }
 
@@ -1229,6 +1241,12 @@ export class WebGL3DRenderer implements IRenderer {
   // Geometry caching to avoid regeneration
   private lastConfigHash: string | null = null;
 
+  // Grid resolution cache: when the grid dimensions haven't changed we can
+  // reuse the index buffer and just update position/color attribute data
+  // instead of recreating the entire BufferGeometry.
+  private lastSurfaceGridKey: string | null = null;
+  private cachedIndexBuffer: THREE.BufferAttribute | null = null;
+
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
   }
@@ -1679,7 +1697,6 @@ export class WebGL3DRenderer implements IRenderer {
 
     const positions = new Float32Array(vertexCount * 3);
     const colors = new Float32Array(vertexCount * 3);
-    const indices: number[] = [];
 
     const xMin = viewport.xMin;
     const xMax = viewport.xMax;
@@ -1738,23 +1755,39 @@ export class WebGL3DRenderer implements IRenderer {
       }
     }
 
-    // Create indices for triangles
-    for (let i = 0; i < xRes; i++) {
-      for (let j = 0; j < yRes; j++) {
-        const a = i * (yRes + 1) + j;
-        const b = a + yRes + 1;
-        const c = a + 1;
-        const d = b + 1;
+    // Reuse the index buffer when the grid resolution hasn't changed,
+    // since the triangle topology is purely a function of xRes/yRes.
+    const gridKey = `${xRes}x${yRes}`;
+    let indexAttr: THREE.BufferAttribute;
+    if (this.lastSurfaceGridKey === gridKey && this.cachedIndexBuffer) {
+      indexAttr = this.cachedIndexBuffer;
+    } else {
+      const indices = new Uint32Array(xRes * yRes * 6);
+      let idxPtr = 0;
+      for (let i = 0; i < xRes; i++) {
+        for (let j = 0; j < yRes; j++) {
+          const a = i * (yRes + 1) + j;
+          const b = a + yRes + 1;
+          const c = a + 1;
+          const d = b + 1;
 
-        indices.push(a, b, c);
-        indices.push(c, b, d);
+          indices[idxPtr++] = a;
+          indices[idxPtr++] = b;
+          indices[idxPtr++] = c;
+          indices[idxPtr++] = c;
+          indices[idxPtr++] = b;
+          indices[idxPtr++] = d;
+        }
       }
+      indexAttr = new THREE.BufferAttribute(indices, 1);
+      this.cachedIndexBuffer = indexAttr;
+      this.lastSurfaceGridKey = gridKey;
     }
 
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-    geometry.setIndex(indices);
+    geometry.setIndex(indexAttr);
     geometry.computeVertexNormals();
 
     if (wireframe) {
@@ -1866,13 +1899,16 @@ export class WebGL3DRenderer implements IRenderer {
 
     const uRes = resolution.u;
     const vRes = resolution.v;
-    const vertices: number[] = [];
-    const colors: number[] = [];
-    const indices: number[] = [];
+    const vertexCount = (uRes + 1) * (vRes + 1);
+
+    const positions = new Float32Array(vertexCount * 3);
+    const colors = new Float32Array(vertexCount * 3);
+    const indices = new Uint32Array(uRes * vRes * 6);
 
     const du = (uRange.max - uRange.min) / uRes;
     const dv = (vRange.max - vRange.min) / vRes;
 
+    let vIdx = 0;
     for (let i = 0; i <= uRes; i++) {
       for (let j = 0; j <= vRes; j++) {
         const u = uRange.min + i * du;
@@ -1884,26 +1920,42 @@ export class WebGL3DRenderer implements IRenderer {
           const z = functions.z(u, v);
 
           if (Number.isFinite(x) && Number.isFinite(y) && Number.isFinite(z)) {
-            vertices.push(x, z, y); // THREE.js y-up
+            positions[vIdx * 3] = x;
+            positions[vIdx * 3 + 1] = z; // THREE.js y-up
+            positions[vIdx * 3 + 2] = y;
 
             if (colorMap) {
               const t = (u - uRange.min) / (uRange.max - uRange.min);
               const color = getColorFromMap(colorMap, t);
-              colors.push(color.r, color.g, color.b);
+              colors[vIdx * 3] = color.r;
+              colors[vIdx * 3 + 1] = color.g;
+              colors[vIdx * 3 + 2] = color.b;
             } else {
-              colors.push(0.4, 0.6, 0.9);
+              colors[vIdx * 3] = 0.4;
+              colors[vIdx * 3 + 1] = 0.6;
+              colors[vIdx * 3 + 2] = 0.9;
             }
           } else {
-            vertices.push(0, 0, 0);
-            colors.push(1, 0, 0);
+            positions[vIdx * 3] = 0;
+            positions[vIdx * 3 + 1] = 0;
+            positions[vIdx * 3 + 2] = 0;
+            colors[vIdx * 3] = 1;
+            colors[vIdx * 3 + 1] = 0;
+            colors[vIdx * 3 + 2] = 0;
           }
         } catch {
-          vertices.push(0, 0, 0);
-          colors.push(1, 0, 0);
+          positions[vIdx * 3] = 0;
+          positions[vIdx * 3 + 1] = 0;
+          positions[vIdx * 3 + 2] = 0;
+          colors[vIdx * 3] = 1;
+          colors[vIdx * 3 + 1] = 0;
+          colors[vIdx * 3 + 2] = 0;
         }
+        vIdx++;
       }
     }
 
+    let idxPtr = 0;
     for (let i = 0; i < uRes; i++) {
       for (let j = 0; j < vRes; j++) {
         const a = i * (vRes + 1) + j;
@@ -1911,15 +1963,19 @@ export class WebGL3DRenderer implements IRenderer {
         const c = a + 1;
         const d = b + 1;
 
-        indices.push(a, b, c);
-        indices.push(c, b, d);
+        indices[idxPtr++] = a;
+        indices[idxPtr++] = b;
+        indices[idxPtr++] = c;
+        indices[idxPtr++] = c;
+        indices[idxPtr++] = b;
+        indices[idxPtr++] = d;
       }
     }
 
     const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-    geometry.setIndex(indices);
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    geometry.setIndex(new THREE.BufferAttribute(indices, 1));
     geometry.computeVertexNormals();
 
     const material = new THREE.MeshStandardMaterial({
@@ -1938,7 +1994,7 @@ export class WebGL3DRenderer implements IRenderer {
     this.currentMesh.receiveShadow = true;
     this.scene.add(this.currentMesh);
 
-    this.metrics.pointCount = vertices.length / 3;
+    this.metrics.pointCount = vertexCount;
   }
 
   /**
@@ -2031,10 +2087,10 @@ export class WebGL3DRenderer implements IRenderer {
           ? parseInt(color.substring(1), 16)
           : 0x2563eb;
 
-      const material = new THREE.MeshPhongMaterial({
+      const material = new THREE.MeshStandardMaterial({
         color: colorHex,
-        shininess: 30,
-        specular: 0x222222,
+        metalness: 0.1,
+        roughness: 0.6,
       });
 
       const tube = new THREE.Mesh(geometry, material);
@@ -2137,9 +2193,11 @@ export class WebGL3DRenderer implements IRenderer {
       } else {
         mat.dispose();
       }
+      this.currentMesh = null;
     }
 
     if (this.currentWireframe) {
+      this.scene?.remove(this.currentWireframe);
       this.currentWireframe.geometry.dispose();
       if (Array.isArray(this.currentWireframe.material)) {
         this.currentWireframe.material.forEach((m) => m.dispose());
@@ -2151,6 +2209,7 @@ export class WebGL3DRenderer implements IRenderer {
 
     // Dispose axis label sprites (canvas textures need explicit disposal)
     if (this.axisLabelGroup) {
+      this.scene?.remove(this.axisLabelGroup);
       this.axisLabelGroup.traverse((child) => {
         if (child instanceof THREE.Sprite) {
           child.material.map?.dispose();
@@ -2160,15 +2219,31 @@ export class WebGL3DRenderer implements IRenderer {
       this.axisLabelGroup = null;
     }
 
-    // Dispose any sprite materials and textures added directly to the scene
-    // (catches sprites outside axisLabelGroup, e.g. future additions)
+    // Traverse the entire scene and dispose all remaining geometries,
+    // materials, and textures (lights, grid helper, axes helper, etc.)
     if (this.scene) {
       this.scene.traverse((child) => {
-        if (child instanceof THREE.Sprite) {
+        if (child instanceof THREE.Mesh || child instanceof THREE.Line || child instanceof THREE.LineSegments) {
+          child.geometry.dispose();
+          if (Array.isArray(child.material)) {
+            child.material.forEach((m) => {
+              m.map?.dispose();
+              m.dispose();
+            });
+          } else {
+            child.material.map?.dispose();
+            child.material.dispose();
+          }
+        } else if (child instanceof THREE.Sprite) {
           child.material.map?.dispose();
           child.material.dispose();
         }
       });
+
+      // Remove all children from the scene
+      while (this.scene.children.length > 0) {
+        this.scene.remove(this.scene.children[0]!);
+      }
     }
 
     // Dispose procedural environment cubemap
@@ -2191,6 +2266,9 @@ export class WebGL3DRenderer implements IRenderer {
     this.scene = null;
     this.camera = null;
     this.directionalLight = null;
+    this.cachedIndexBuffer = null;
+    this.lastSurfaceGridKey = null;
+    this.lastConfigHash = null;
   }
 
   /**
@@ -2203,10 +2281,7 @@ export class WebGL3DRenderer implements IRenderer {
       this.metrics.drawCalls = this.renderer.info.render.calls;
     }
 
-    if ('memory' in performance) {
-      const memory = (performance as unknown as { memory?: { usedJSHeapSize: number } }).memory;
-      this.metrics.memoryUsage = memory?.usedJSHeapSize ?? 0;
-    }
+    this.metrics.memoryUsage = getJSHeapUsage();
 
     return { ...this.metrics };
   }

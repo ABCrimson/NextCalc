@@ -59,6 +59,11 @@ export interface MAMLConfig {
   readonly innerSteps: number;
   /** Number of outer loop steps (epochs) */
   readonly outerSteps: number;
+  /**
+   * Optional callback invoked every 10 epochs with the current epoch index
+   * and average loss. Use this instead of console.log for progress reporting.
+   */
+  readonly onProgress?: (epoch: number, avgLoss: number) => void;
 }
 
 /**
@@ -141,10 +146,10 @@ export function maml(
       }
     }
 
-    // Log progress
-    if (epoch % 10 === 0) {
+    // Report progress every 10 epochs via optional callback
+    if (epoch % 10 === 0 && config.onProgress !== undefined) {
       const avgLoss = evaluateTasks(tasks, metaParams, model, loss);
-      console.log(`MAML Epoch ${epoch}: Average loss = ${avgLoss.toFixed(4)}`);
+      config.onProgress(epoch, avgLoss);
     }
   }
 

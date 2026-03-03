@@ -229,16 +229,7 @@ export const forumResolvers = {
 
     hasUpvoted: async (parent: ForumPost, _args: unknown, context: GraphQLContext) => {
       if (!context.user) return false;
-      const upvote = await context.prisma.upvote.findUnique({
-        where: {
-          userId_targetId_targetType: {
-            userId: context.user.id,
-            targetId: parent.id,
-            targetType: 'POST',
-          },
-        },
-      });
-      return !!upvote;
+      return context.loaders.hasUpvoted.load(`${context.user.id}:${parent.id}:POST`);
     },
   },
 };

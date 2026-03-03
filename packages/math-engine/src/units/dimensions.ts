@@ -77,21 +77,45 @@ export function isDimensionless(dim: Dimension): boolean {
  * Multiply two dimensions (add exponents)
  */
 export function multiplyDimensions(a: Dimension, b: Dimension): Dimension {
-  return a.map((val, i) => val + (b[i] ?? 0)) as unknown as Dimension;
+  return [
+    a[0] + b[0],
+    a[1] + b[1],
+    a[2] + b[2],
+    a[3] + b[3],
+    a[4] + b[4],
+    a[5] + b[5],
+    a[6] + b[6],
+  ] satisfies Dimension;
 }
 
 /**
  * Divide two dimensions (subtract exponents)
  */
 export function divideDimensions(a: Dimension, b: Dimension): Dimension {
-  return a.map((val, i) => val - (b[i] ?? 0)) as unknown as Dimension;
+  return [
+    a[0] - b[0],
+    a[1] - b[1],
+    a[2] - b[2],
+    a[3] - b[3],
+    a[4] - b[4],
+    a[5] - b[5],
+    a[6] - b[6],
+  ] satisfies Dimension;
 }
 
 /**
  * Raise dimension to a power (multiply all exponents)
  */
 export function powerDimension(dim: Dimension, power: number): Dimension {
-  return dim.map((val) => val * power) as unknown as Dimension;
+  return [
+    dim[0] * power,
+    dim[1] * power,
+    dim[2] * power,
+    dim[3] * power,
+    dim[4] * power,
+    dim[5] * power,
+    dim[6] * power,
+  ] satisfies Dimension;
 }
 
 /**

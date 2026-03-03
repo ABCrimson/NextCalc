@@ -24,6 +24,35 @@ import {
 } from './ast';
 
 /**
+ * Structural interfaces that match the shapes Math.js nodes expose at runtime.
+ * Using `interface extends MathNode` lets TypeScript verify the intersection without
+ * a double-cast (no `as unknown as`).
+ */
+interface MathJSConstantNode extends MathNode {
+  value: unknown;
+}
+
+interface MathJSSymbolNode extends MathNode {
+  name: string;
+}
+
+interface MathJSOperatorNode extends MathNode {
+  op: string;
+  fn?: string;
+  args?: MathNode[];
+}
+
+interface MathJSFunctionNode extends MathNode {
+  fn?: { name: string };
+  name?: string;
+  args: MathNode[];
+}
+
+interface MathJSParenthesisNode extends MathNode {
+  content: MathNode;
+}
+
+/**
  * Parse a mathematical expression string into a type-safe AST
  * @param expression - Mathematical expression as string (e.g., "2 + 3 * sin(x)")
  * @returns Type-safe ExpressionNode AST
@@ -53,14 +82,14 @@ function convertMathJSNode(node: MathNode): ExpressionNode {
       return convertFunctionNode(node);
     case 'ParenthesisNode':
       // Flatten parentheses - just return the inner content
-      return convertMathJSNode((node as unknown as { content: MathNode }).content);
+      return convertMathJSNode((node as MathJSParenthesisNode).content);
     default:
       throw new ParseError(`Unsupported node type: ${node.type}`);
   }
 }
 
 function convertConstantNode(node: MathNode): ConstantNode {
-  const value = (node as unknown as { value: unknown }).value;
+  const value = (node as MathJSConstantNode).value;
 
   // Handle different value types
   if (typeof value === 'number' || typeof value === 'bigint') {
@@ -82,11 +111,11 @@ function convertConstantNode(node: MathNode): ConstantNode {
 }
 
 function convertSymbolNode(node: MathNode): SymbolNode {
-  return createSymbolNode((node as unknown as { name: string }).name);
+  return createSymbolNode((node as MathJSSymbolNode).name);
 }
 
 function convertOperatorNode(node: MathNode): OperatorNode | UnaryOperatorNode {
-  const mathJSNode = node as unknown as { op: string; fn?: string; args?: MathNode[] };
+  const mathJSNode = node as MathJSOperatorNode;
   const op = mathJSNode.op as Operator;
   const fn = mathJSNode.fn || operatorToFunction(op);
 
@@ -112,7 +141,7 @@ function convertOperatorNode(node: MathNode): OperatorNode | UnaryOperatorNode {
 }
 
 function convertFunctionNode(node: MathNode): FunctionNode {
-  const mathJSNode = node as unknown as { fn?: { name: string }; name?: string; args: MathNode[] };
+  const mathJSNode = node as MathJSFunctionNode;
   const fn = mathJSNode.fn?.name || mathJSNode.name;
 
   if (!fn || !isMathFunction(fn)) {

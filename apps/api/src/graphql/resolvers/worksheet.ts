@@ -331,21 +331,14 @@ export const worksheetResolvers = {
           ...(input.folderId ? { folderId: input.folderId } : {}),
           userId: user.id,
         },
-        include: {
-          user: true,
-          folder: true,
-        },
       });
 
       // Invalidate user's worksheet cache
       await queryCache.invalidate('worksheets');
       await queryCache.invalidate('userWorksheetsChanged');
 
-      // Publish subscription event for real-time updates
-      const userWorksheets = await context.prisma.worksheet.findMany({
-        where: { userId: user.id, deletedAt: null },
-      });
-      await publishUserWorksheetsChanged(user.id, userWorksheets);
+      // Publish subscription event (lightweight — only the created worksheet)
+      await publishUserWorksheetsChanged(user.id, [worksheet]);
 
       return worksheet;
     },
@@ -388,11 +381,6 @@ export const worksheetResolvers = {
           ...(input.content ? { content: input.content as object } : {}),
           ...(input.visibility ? { visibility: input.visibility } : {}),
           ...(input.folderId ? { folderId: input.folderId } : {}),
-        },
-        include: {
-          user: true,
-          folder: true,
-          shares: true,
         },
       });
 
@@ -514,25 +502,21 @@ export const worksheetResolvers = {
 
     /**
      * Increment worksheet view count
+     * Uses atomic updateMany with deletedAt filter — single query, no TOCTOU race.
      */
     incrementWorksheetViews: async (
       _parent: unknown,
       args: { id: string },
       context: GraphQLContext,
     ) => {
-      const worksheet = await context.prisma.worksheet.findUnique({
-        where: { id: args.id },
-        select: { id: true, deletedAt: true },
-      });
-
-      if (!worksheet || worksheet.deletedAt) {
-        throw new NotFoundError('Worksheet', args.id);
-      }
-
-      await context.prisma.worksheet.update({
-        where: { id: args.id },
+      const { count } = await context.prisma.worksheet.updateMany({
+        where: { id: args.id, deletedAt: null },
         data: { views: { increment: 1 } },
       });
+
+      if (count === 0) {
+        throw new NotFoundError('Worksheet', args.id);
+      }
 
       return true;
     },

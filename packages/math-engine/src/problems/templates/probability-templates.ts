@@ -74,8 +74,8 @@ export const combinationsTemplate = createTemplate({
       type: 'integer',
       min: 2,
       max: 5,
-      constraint: function (r) {
-        return r <= (this as unknown as Record<string, number>)['n']!;
+      constraint: (r, params) => {
+        return r <= (params['n'] ?? 0);
       },
     },
   ],
@@ -140,8 +140,8 @@ export const permutationsTemplate = createTemplate({
       type: 'integer',
       min: 2,
       max: 5,
-      constraint: function (r) {
-        return r <= (this as unknown as Record<string, number>)['n']!;
+      constraint: (r, params) => {
+        return r <= (params['n'] ?? 0);
       },
     },
   ],

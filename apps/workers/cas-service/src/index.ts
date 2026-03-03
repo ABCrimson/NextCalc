@@ -46,10 +46,7 @@ const app = new Hono<{ Bindings: Bindings }>();
 
 // CORS configuration - allows frontend to access API
 app.use('/*', async (c, next) => {
-  const allowedOrigins = c.env.ALLOWED_ORIGINS?.split(',') || [
-    'http://localhost:3005',
-    'https://nextcalc.pro',
-  ];
+  const allowedOrigins = c.env.ALLOWED_ORIGINS?.split(',') ?? [];
 
   const origin = c.req.header('Origin') || '';
   const corsMiddleware = cors({

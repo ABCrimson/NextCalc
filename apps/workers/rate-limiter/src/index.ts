@@ -74,10 +74,7 @@ const app = new Hono<{ Bindings: Bindings }>();
 
 // CORS configuration
 app.use('/*', async (c, next) => {
-  const allowedOrigins = c.env.ALLOWED_ORIGINS?.split(',') || [
-    'http://localhost:3005',
-    'https://nextcalc.pro',
-  ];
+  const allowedOrigins = c.env.ALLOWED_ORIGINS?.split(',') ?? [];
 
   const origin = c.req.header('Origin') || '';
   const corsMiddleware = cors({
@@ -446,21 +443,15 @@ app.get('/admin/keys', async (c) => {
  *
  * @route GET /example/protected
  */
-app.get(
-  '/example/protected',
-  ipRateLimitMiddleware(
-    // This would be c.env.RATE_LIMITS in actual use
-    // For demo purposes, we can't access env here
-    {} as KVNamespace,
-    'free',
-  ),
-  (c) => {
-    return c.json({
-      success: true,
-      message: 'This endpoint is rate limited',
-    });
-  },
-);
+app.get('/example/protected', async (c, next) => {
+  const middleware = ipRateLimitMiddleware(c.env.RATE_LIMITS, 'free');
+  return middleware(c, next);
+}, (c) => {
+  return c.json({
+    success: true,
+    message: 'This endpoint is rate limited',
+  });
+});
 
 /**
  * 404 handler

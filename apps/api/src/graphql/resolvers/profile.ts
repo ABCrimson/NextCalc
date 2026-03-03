@@ -36,14 +36,11 @@ export const profileResolvers = {
         throw new ForbiddenError('You can only view your own profile data');
       }
 
-      const [dbUser, userProgress] = await Promise.all([
-        context.prisma.user.findUnique({
-          where: { id: args.userId },
-        }),
-        context.prisma.userProgress.findUnique({
-          where: { userId: args.userId },
-        }),
-      ]);
+      // User is already in context (requireAuth populates it) — skip redundant query
+      const dbUser = args.userId === user.id ? user : await context.prisma.user.findUnique({ where: { id: args.userId } });
+      const userProgress = await context.prisma.userProgress.findUnique({
+        where: { userId: args.userId },
+      });
       if (!dbUser) return null;
 
       const recentAchievements = userProgress
@@ -189,8 +186,11 @@ export const profileResolvers = {
         completedAt: s.completedAt?.toISOString() ?? null,
       }));
 
+      // Only fetch last 91 days of attempts for streak calculation (not unbounded)
+      const streakSince = new Date();
+      streakSince.setDate(streakSince.getDate() - 91);
       const allAttempts = await context.prisma.attempt.findMany({
-        where: { userProgressId: userProgress.id, correct: true },
+        where: { userProgressId: userProgress.id, correct: true, createdAt: { gte: streakSince } },
         orderBy: { createdAt: 'asc' },
         select: { createdAt: true },
       });

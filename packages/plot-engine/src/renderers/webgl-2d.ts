@@ -36,6 +36,7 @@ import { BufferPool } from '../utils/buffer-pool';
 import { parseColor } from '../utils/color';
 import { marchingSquares } from '../utils/marching-squares';
 import { multiply, ortho, scaling, translation } from '../utils/matrix';
+import { getJSHeapUsage } from '../utils/memory';
 import { ShaderCache } from '../utils/shader-cache';
 import {
   axisShader,
@@ -529,16 +530,34 @@ export class WebGL2DRenderer implements IRenderer {
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer.buffer);
     this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.DYNAMIC_DRAW);
 
-    // Create VAO
-    const vao = this.gl.createVertexArray();
-    if (vao) {
-      this.gl.bindVertexArray(vao);
+    // Get or create VAO for polar rendering
+    const vaoKey = 'polar';
+    let vaoState = this.vaoCache.get(vaoKey);
 
-      const posLoc = shader.attributes.get('a_polar');
-      if (posLoc !== undefined) {
-        this.gl.enableVertexAttribArray(posLoc);
-        this.gl.vertexAttribPointer(posLoc, 2, this.gl.FLOAT, false, 0, 0);
+    if (!vaoState) {
+      const vao = this.gl.createVertexArray();
+      if (vao) {
+        this.gl.bindVertexArray(vao);
+
+        const posLoc = shader.attributes.get('a_polar');
+        if (posLoc !== undefined) {
+          this.gl.enableVertexAttribArray(posLoc);
+          this.gl.vertexAttribPointer(posLoc, 2, this.gl.FLOAT, false, 0, 0);
+        }
+
+        vaoState = {
+          vao,
+          buffer: buffer.buffer,
+          vertexCount: points.length,
+          attributes: new Map([
+            ['a_polar', { location: shader.attributes.get('a_polar')!, size: 2, type: this.gl.FLOAT }],
+          ]),
+        };
+        this.vaoCache.set(vaoKey, vaoState);
       }
+    } else {
+      this.gl.bindVertexArray(vaoState.vao);
+      vaoState.vertexCount = points.length;
     }
 
     this.gl.useProgram(shader.program);
@@ -567,10 +586,6 @@ export class WebGL2DRenderer implements IRenderer {
     this.gl.drawArrays(this.gl.LINE_STRIP, 0, points.length);
     this.metrics.drawCalls++;
 
-    // Cleanup
-    if (vao) {
-      this.gl.deleteVertexArray(vao);
-    }
     this.gl.bindVertexArray(null);
     this.bufferPool.release(buffer);
   }
@@ -623,15 +638,34 @@ export class WebGL2DRenderer implements IRenderer {
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer.buffer);
     this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.DYNAMIC_DRAW);
 
-    const vao = this.gl.createVertexArray();
-    if (vao) {
-      this.gl.bindVertexArray(vao);
+    // Get or create VAO for parametric curve rendering
+    const vaoKey = 'parametric';
+    let vaoState = this.vaoCache.get(vaoKey);
 
-      const posLoc = shader.attributes.get('a_position');
-      if (posLoc !== undefined) {
-        this.gl.enableVertexAttribArray(posLoc);
-        this.gl.vertexAttribPointer(posLoc, 2, this.gl.FLOAT, false, 0, 0);
+    if (!vaoState) {
+      const vao = this.gl.createVertexArray();
+      if (vao) {
+        this.gl.bindVertexArray(vao);
+
+        const posLoc = shader.attributes.get('a_position');
+        if (posLoc !== undefined) {
+          this.gl.enableVertexAttribArray(posLoc);
+          this.gl.vertexAttribPointer(posLoc, 2, this.gl.FLOAT, false, 0, 0);
+        }
+
+        vaoState = {
+          vao,
+          buffer: buffer.buffer,
+          vertexCount: points.length,
+          attributes: new Map([
+            ['a_position', { location: shader.attributes.get('a_position')!, size: 2, type: this.gl.FLOAT }],
+          ]),
+        };
+        this.vaoCache.set(vaoKey, vaoState);
       }
+    } else {
+      this.gl.bindVertexArray(vaoState.vao);
+      vaoState.vertexCount = points.length;
     }
 
     this.gl.useProgram(shader.program);
@@ -660,9 +694,6 @@ export class WebGL2DRenderer implements IRenderer {
     this.gl.drawArrays(this.gl.LINE_STRIP, 0, points.length);
     this.metrics.drawCalls++;
 
-    if (vao) {
-      this.gl.deleteVertexArray(vao);
-    }
     this.gl.bindVertexArray(null);
     this.bufferPool.release(buffer);
   }
@@ -1363,9 +1394,8 @@ export class WebGL2DRenderer implements IRenderer {
    * Gets performance metrics
    */
   getMetrics(): PerformanceMetrics {
-    if (this.gl && 'memory' in performance) {
-      const memory = (performance as unknown as { memory?: { usedJSHeapSize: number } }).memory;
-      this.metrics.memoryUsage = memory?.usedJSHeapSize ?? 0;
+    if (this.gl) {
+      this.metrics.memoryUsage = getJSHeapUsage();
     }
 
     return { ...this.metrics };

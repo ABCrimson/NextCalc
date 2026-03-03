@@ -138,14 +138,25 @@ export const folderResolvers = {
         );
       }
 
-      return context.prisma.folder.create({
-        data: {
-          name: input.name,
-          ...(input.description ? { description: input.description } : {}),
-          ...(input.parentId ? { parentId: input.parentId } : {}),
-          userId: user.id,
-        },
-      });
+      try {
+        return await context.prisma.folder.create({
+          data: {
+            name: input.name,
+            ...(input.description ? { description: input.description } : {}),
+            ...(input.parentId ? { parentId: input.parentId } : {}),
+            userId: user.id,
+          },
+        });
+      } catch (error) {
+        // Handle TOCTOU race: unique constraint violation on (userId, name, parentId)
+        if (error instanceof Error && 'code' in error && (error as { code: string }).code === 'P2002') {
+          throw new ValidationError(
+            'A folder with this name already exists in this location',
+            'name',
+          );
+        }
+        throw error;
+      }
     },
 
     /**
@@ -182,18 +193,16 @@ export const folderResolvers = {
           throw new ValidationError('A folder cannot be its own parent', 'parentId');
         }
 
-        // Check if new parent is a descendant of current folder
-        let current = await context.prisma.folder.findUnique({
-          where: { id: input.parentId },
-        });
-
-        while (current?.parentId) {
-          if (current.parentId === args.id) {
+        // Check if new parent is a descendant of current folder (depth-limited)
+        const MAX_DEPTH = 20;
+        let currentId: string | null = input.parentId;
+        for (let depth = 0; depth < MAX_DEPTH && currentId; depth++) {
+          const ancestor = await context.loaders.folderById.load(currentId);
+          if (!ancestor?.parentId) break;
+          if (ancestor.parentId === args.id) {
             throw new ValidationError('Cannot move folder to a descendant', 'parentId');
           }
-          current = await context.prisma.folder.findUnique({
-            where: { id: current.parentId },
-          });
+          currentId = ancestor.parentId;
         }
       }
 

@@ -8,4 +8,5 @@ export * from './color';
 export * from './gpu-detection';
 export * from './marching-squares';
 export * from './matrix';
+export * from './memory';
 export * from './shader-cache';

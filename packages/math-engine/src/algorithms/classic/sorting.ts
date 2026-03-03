@@ -276,8 +276,16 @@ export function generateTestArray(size: number, type: 'random' | 'sorted' | 'rev
   const arr = Array.from({ length: size }, (_, i) => i);
 
   switch (type) {
-    case 'random':
-      return arr.sort(() => Math.random() - 0.5);
+    case 'random': {
+      // Fisher-Yates shuffle: O(n), unbiased
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const temp = arr[i]!;
+        arr[i] = arr[j]!;
+        arr[j] = temp;
+      }
+      return arr;
+    }
     case 'sorted':
       return arr;
     case 'reverse':

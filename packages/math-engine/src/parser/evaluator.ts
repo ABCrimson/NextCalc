@@ -17,6 +17,31 @@ import { visit } from './ast';
 import { parse } from './parser';
 
 /**
+ * Module-level LRU cache for parsed expression strings.
+ * Capped at 256 entries; the oldest entry is evicted when the limit is reached.
+ * Keyed by the raw expression string, valued by the parsed AST.
+ */
+const PARSE_CACHE_MAX = 256;
+const parseCache = new Map<string, ExpressionNode>();
+
+function cachedParse(expression: string): ExpressionNode {
+  const cached = parseCache.get(expression);
+  if (cached !== undefined) {
+    return cached;
+  }
+  const ast = parse(expression);
+  // Evict oldest entry when at capacity (Map preserves insertion order)
+  if (parseCache.size >= PARSE_CACHE_MAX) {
+    const oldestKey = parseCache.keys().next().value;
+    if (oldestKey !== undefined) {
+      parseCache.delete(oldestKey);
+    }
+  }
+  parseCache.set(expression, ast);
+  return ast;
+}
+
+/**
  * Evaluation context with variable bindings
  */
 export interface EvaluationContext {
@@ -43,9 +68,9 @@ export function evaluate(
   context: EvaluationContext = {},
 ): EvaluationResult {
   try {
-    // Parse string expressions to AST first, then evaluate using our custom evaluator
-    // This ensures all our custom functions (like ln) are supported
-    const ast = typeof expression === 'string' ? parse(expression) : expression;
+    // Parse string expressions to AST first (with LRU cache), then evaluate using our
+    // custom evaluator. This ensures all our custom functions (like ln) are supported.
+    const ast = typeof expression === 'string' ? cachedParse(expression) : expression;
     const value = evaluateAST(ast, context);
 
     return { success: true, value };
@@ -258,8 +283,8 @@ export class EvaluationError extends Error {
  * Uses the full symbolic simplification engine
  */
 export function simplify(expression: ExpressionNode | string): ExpressionNode {
-  // Parse string expressions first
-  const ast = typeof expression === 'string' ? parse(expression) : expression;
+  // Parse string expressions first (with LRU cache)
+  const ast = typeof expression === 'string' ? cachedParse(expression) : expression;
 
   // Apply symbolic simplification
   return symbolicSimplify(ast);

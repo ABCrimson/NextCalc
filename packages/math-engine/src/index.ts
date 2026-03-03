@@ -84,8 +84,6 @@ export {
   batchGradientDescent,
   bellmanFord,
   createGraph,
-  demonstratePageRank,
-  demonstrateShorAlgorithm,
   // Graph (Shortest Paths)
   dijkstra,
   findPeriod,
@@ -131,7 +129,6 @@ export {
   type TrainingData,
   topicSensitivePageRank,
   topKPages,
-  trainNeuralNetworkAdam,
   type Vector,
 } from './algorithms/index';
 // Complex numbers module

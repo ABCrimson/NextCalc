@@ -39,6 +39,7 @@ import type {
 import { parseColor } from '../utils/color';
 import { marchingSquares } from '../utils/marching-squares';
 import { multiply, ortho, scaling, translation } from '../utils/matrix';
+import { getJSHeapUsage } from '../utils/memory';
 import type { WGSLShaderSource } from './wgsl-shaders';
 import {
   axisShaderWGSL,
@@ -1322,10 +1323,7 @@ export class WebGPU2DRenderer implements IRenderer {
   // ---------------------------------------------------------------------------
 
   getMetrics(): PerformanceMetrics {
-    if ('memory' in performance) {
-      const mem = (performance as unknown as { memory?: { usedJSHeapSize: number } }).memory;
-      this.metrics.memoryUsage = mem?.usedJSHeapSize ?? 0;
-    }
+    this.metrics.memoryUsage = getJSHeapUsage();
     return { ...this.metrics };
   }
 

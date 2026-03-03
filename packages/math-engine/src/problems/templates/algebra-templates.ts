@@ -89,11 +89,10 @@ export const quadraticEquationTemplate = createTemplate({
       type: 'integer',
       min: -10,
       max: 10,
-      constraint: function (c) {
+      constraint: (c, params) => {
         // Ensure real solutions (discriminant >= 0)
-        const params = this as unknown as Record<string, number>;
-        const b = params['b']!;
-        const a = params['a']!;
+        const b = params['b'] ?? 0;
+        const a = params['a'] ?? 1;
         const discriminant = b * b - 4 * a * c;
         return discriminant >= 0;
       },
@@ -175,10 +174,9 @@ export const systemLinearTemplate = createTemplate({
       type: 'integer',
       min: 1,
       max: 20,
-      constraint: function (_c2) {
+      constraint: (_c2, params) => {
         // Ensure unique solution (determinant != 0)
-        const params = this as unknown as Record<string, number>;
-        const det = params['a1']! * params['b2']! - params['a2']! * params['b1']!;
+        const det = (params['a1'] ?? 0) * (params['b2'] ?? 0) - (params['a2'] ?? 0) * (params['b1'] ?? 0);
         return det !== 0;
       },
     },
@@ -249,14 +247,13 @@ export const factorizationTemplate = createTemplate({
       type: 'integer',
       min: -20,
       max: 20,
-      constraint: function (c) {
+      constraint: (c, params) => {
         // Ensure it factors nicely
-        const params = this as unknown as Record<string, number>;
-        const b = params['b'];
+        const b = params['b'] ?? 0;
 
         // Find factors of c that add to b
         for (let i = -20; i <= 20; i++) {
-          if (c % i === 0) {
+          if (i !== 0 && c % i === 0) {
             const j = c / i;
             if (i + j === b) {
               return true;
