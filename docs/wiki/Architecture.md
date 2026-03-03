@@ -168,6 +168,15 @@ Custom geometric crystal favicon using the OKLCH glass-morphism design language.
 
 **Theme colors**: `#3B47FF` (primary blue), `#0F1629` (dark background) — derived from `oklch(0.55 0.27 264)`.
 
+## Level System (v1.2.0)
+
+- **XP Formula**: RS3-style `sum(floor(i + 300 * 2^(i/7)) / 4)` — exponential curve, 100 levels
+- **10 Tiers**: Novice (1-10), Apprentice (11-20), Journeyman (21-30), Adept (31-40), Expert (41-50), Master (51-60), Grandmaster (61-70), Legend (71-80), Mythic (81-90), Transcendent (91-100)
+- **Admin Tier**: Architect (L101) — admin-only, 3 special icon variants
+- **Level Icons**: Programmatic crystal SVGs (`LevelIcon` component) + 103 pre-generated SVG files
+- **OKLCH Colors**: Per-level hue progression through full spectrum, per-tier CSS classes
+- **Files**: `apps/web/components/profile/level-utils.ts`, `level-icon.tsx`, `level-icon-static.tsx`
+
 ## Internationalization
 
 - **Library**: `next-intl` with App Router

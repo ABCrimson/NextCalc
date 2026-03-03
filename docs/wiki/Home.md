@@ -2,7 +2,7 @@
 
 **Scientific Calculator & Mathematical Visualization Platform**
 
-> **Current Release: v1.1.5** (March 2, 2026) — [Release Notes](https://github.com/ABCrimson/NextCalc/releases/tag/v1.1.5)
+> **Current Release: v1.2.0** (March 3, 2026) — [Release Notes](https://github.com/ABCrimson/NextCalc/releases/tag/v1.2.0)
 
 [Live Demo](https://nextcalc.io) | [GitHub Repository](https://github.com/ABCrimson/NextCalc) | [Releases](https://github.com/ABCrimson/NextCalc/releases)
 
@@ -23,12 +23,13 @@ NextCalc Pro is a comprehensive scientific calculator and mathematical visualiza
 
 ---
 
-## Latest Updates (v1.1.4)
+## Latest Updates (v1.2.0)
 
-- **Performance audit**: 9 DataLoaders eliminate N+1 queries across all GraphQL resolvers; recursive query complexity analysis prevents abusive deep queries
-- **Security hardening**: IDOR protection on all mutations (ownership validation), timing-safe key comparison in rate-limiter, JWT verification for WebSocket subscriptions via `jose.jwtVerify()`
-- **Type safety**: Zero `as any` in all production code across the entire monorepo; strict `exactOptionalPropertyTypes` enforced
-- **Error sanitization**: Internal server errors are no longer leaked to API clients; structured error codes returned instead
+- **Auth fixes**: SignIn redirect fix (no more /dashboard 404), signOut CSRF token fix, OAuth name/image sync on every sign-in
+- **Forum**: `commentCount` GraphQL field replaces empty-array hack — real comment counts everywhere, fake contributors removed
+- **RS3 Level System**: 100 levels with exponential XP curve, 10 named tiers (Novice → Transcendent), OKLCH color progression
+- **Crystal Level Icons**: 103 programmatic + pre-generated SVG icons, 10 visual tiers, 3 admin-only L101 variants
+- **Profile**: Avatar `onError` fallback, level icon as default avatar, XP bar with tier display
 
 ---
 

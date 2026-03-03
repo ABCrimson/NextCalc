@@ -13,19 +13,20 @@
   <img src="https://img.shields.io/badge/edge-3_workers-F38020?logo=cloudflare&logoColor=white" alt="Workers" />
 </p>
 
-### What's New in v1.1.3
+### What's New in v1.2.0
 
-> **Performance Audit Release** -- Comprehensive codebase audit covering performance, security, and modernization across all 574 source files.
+> **Auth Fixes, Forum Counters, RS3 Level System & Crystal Level Icons**
 
 <details>
 <summary><strong>Highlights</strong></summary>
 
 | Category | Improvements |
 |:---------|:-------------|
-| **Performance** | 5x re-render fix, ~280 KB lazy KaTeX, N+1 query elimination via DataLoaders, `Promise.all` parallelization, typed arrays in hot paths, GPU memory leak fix |
-| **Security** | Timing-safe key comparison, CORS hardening, recursive query complexity analysis, worker information leakage prevention |
-| **Type Safety** | 50+ type error fixes, `exactOptionalPropertyTypes` compliance, zero `as any` in production code |
-| **Infrastructure** | Turbo 2.8.13, CI actions v6, worker compatibility date 2026-03-01 |
+| **Auth** | Fix signIn redirect (no more /dashboard 404), fix signOut CSRF token, sync OAuth name/image on every sign-in |
+| **Forum** | `commentCount` GraphQL field replaces empty-array hack, real comment counts on all pages, remove hardcoded fake contributors |
+| **Level System** | RS3-style XP curve (100 levels), 10 named tiers (Novice → Transcendent), OKLCH color progression |
+| **Level Icons** | 103 crystal SVG icons (programmatic + pre-generated), 10 visual tiers with increasing complexity, 3 admin-only L101 variants |
+| **Profile** | Avatar `onError` fallback, level icon as default avatar, XP bar with tier display |
 
 </details>
 

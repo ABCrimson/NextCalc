@@ -235,8 +235,7 @@ export const folderResolvers = {
       const folder = await context.prisma.folder.findUnique({
         where: { id: args.id },
         include: {
-          worksheets: true,
-          children: true,
+          _count: { select: { worksheets: true, children: true } },
         },
       });
 
@@ -247,11 +246,11 @@ export const folderResolvers = {
       requireOwnership(context, folder.userId);
 
       // Check if folder has worksheets or subfolders
-      if (folder.worksheets.length > 0) {
+      if (folder._count.worksheets > 0) {
         throw new ValidationError('Cannot delete folder containing worksheets', 'id');
       }
 
-      if (folder.children.length > 0) {
+      if (folder._count.children > 0) {
         throw new ValidationError('Cannot delete folder containing subfolders', 'id');
       }
 

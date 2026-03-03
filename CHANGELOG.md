@@ -2,6 +2,38 @@
 
 All notable changes to NextCalc Pro are documented in this file.
 
+## [1.2.0] - 2026-03-03
+
+### Auth Fixes
+- Fix signIn redirect from `/dashboard` (404) to `/` (`b441eb3`)
+- Fix signOut to use CSRF token — NextAuth v5 requires CSRF on POST to `/api/auth/signout` (`b441eb3`)
+- Add `onError` fallback to navbar avatar — broken provider images fall back to level icon (`b441eb3`)
+- Sync OAuth provider name and image on every sign-in event (`b441eb3`)
+
+### Forum
+- Add `commentCount: Int!` field to GraphQL `ForumPost` type with dedicated resolver (`b441eb3`)
+- Fix forum post listing and detail pages showing 0 comments (was fetching `comments(limit: 0)`) (`b441eb3`)
+- Remove hardcoded fake top contributors, show i18n empty state message (`b441eb3`)
+
+### Level System
+- RS3-style XP formula: `sum(floor(i + 300 * 2^(i/7)) / 4)` — exponential curve with 100 levels (`b441eb3`)
+- 10 named tiers: Novice, Apprentice, Journeyman, Adept, Expert, Master, Grandmaster, Legend, Mythic, Transcendent (`b441eb3`)
+- Admin-only Architect tier (L101) for special users (`b441eb3`)
+- OKLCH color progression per level, XP formatting helpers (`b441eb3`)
+
+### Level Icons
+- Programmatic crystal SVG component (`LevelIcon`) with 10 visual tiers of increasing geometric complexity (`b441eb3`)
+- Pre-generated 103 SVG files via Node.js script (`generate-level-icons.ts`) (`b441eb3`)
+- Static SVG loader component (`LevelIconStatic`) for `/icons/levels/level-NNN.svg` (`b441eb3`)
+- 3 L101 special variants: Prismatic Crystal Crown, Cosmic Nexus, Phoenix Crystal (`b441eb3`)
+
+### Profile
+- Extract `HeroAvatar` component with `onError` image fallback + level icon default (`b441eb3`)
+- XP bar with tier name display in profile HeroCard (`b441eb3`)
+- Level icon as default avatar in navigation and profile when no provider image (`b441eb3`)
+
+---
+
 ## [1.1.3] - 2026-03-02
 
 ### Performance
@@ -166,6 +198,7 @@ All notable changes to NextCalc Pro are documented in this file.
 
 _This changelog is generated from the git history. Commit hashes reference the short SHA for each change._
 
+[1.2.0]: https://github.com/ABCrimson/NextCalc/compare/v1.1.3...v1.2.0
 [1.1.3]: https://github.com/ABCrimson/NextCalc/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/ABCrimson/NextCalc/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/ABCrimson/NextCalc/releases/tag/v1.1.1

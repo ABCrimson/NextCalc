@@ -222,6 +222,8 @@ class ASTEvaluator implements ASTVisitor<number | bigint | string> {
 /**
  * Factorial implementation
  */
+const FACT_TABLE: number[] = [1, 1];
+
 function factorial(n: number): number {
   if (!Number.isInteger(n) || n < 0) {
     throw new EvaluationError('Factorial requires non-negative integer');
@@ -231,14 +233,11 @@ function factorial(n: number): number {
     throw new EvaluationError('Factorial overflow: n must be \u2264 170 for number type');
   }
 
-  if (n === 0 || n === 1) return 1;
-
-  let result = 1;
-  for (let i = 2; i <= n; i++) {
-    result *= i;
+  while (FACT_TABLE.length <= n) {
+    FACT_TABLE.push(FACT_TABLE[FACT_TABLE.length - 1]! * FACT_TABLE.length);
   }
 
-  return result;
+  return FACT_TABLE[n]!;
 }
 
 /**

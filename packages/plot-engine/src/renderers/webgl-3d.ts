@@ -1187,7 +1187,7 @@ export class WebGL3DRenderer implements IRenderer {
   private scene: THREE.Scene | null = null;
   private camera: THREE.PerspectiveCamera | null = null;
   private renderer: WebGPURenderer | null = null;
-  private currentMesh: THREE.Mesh | null = null;
+  private currentMesh: THREE.Mesh | THREE.Line | null = null;
   private currentWireframe: THREE.LineSegments | null = null;
   private axisLabelGroup: THREE.Group | null = null;
   private animationFrameId: number | null = null;
@@ -1982,7 +1982,7 @@ export class WebGL3DRenderer implements IRenderer {
     this.scene.add(line);
 
     // Track the line so it gets disposed on the next config change
-    this.currentMesh = line as unknown as THREE.Mesh;
+    this.currentMesh = line ;
 
     this.metrics.pointCount = points.length;
   }
@@ -2077,7 +2077,7 @@ export class WebGL3DRenderer implements IRenderer {
         }
       }
       // Cast to Mesh for compatibility with the tracking field type
-      this.currentMesh = line as unknown as THREE.Mesh;
+      this.currentMesh = line ;
     }
   }
 
@@ -2129,11 +2129,13 @@ export class WebGL3DRenderer implements IRenderer {
     }
 
     if (this.currentMesh) {
+      this.scene?.remove(this.currentMesh);
       this.currentMesh.geometry.dispose();
-      if (Array.isArray(this.currentMesh.material)) {
-        this.currentMesh.material.forEach((m) => m.dispose());
+      const mat = this.currentMesh.material;
+      if (Array.isArray(mat)) {
+        mat.forEach((m) => m.dispose());
       } else {
-        this.currentMesh.material.dispose();
+        mat.dispose();
       }
     }
 

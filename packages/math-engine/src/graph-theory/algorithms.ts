@@ -492,52 +492,59 @@ export function kosarajuSCC(graph: Graph): SCCResult {
   const { vertices } = graph;
   const adj = buildAdjacencyList(graph);
 
-  // First DFS to compute finish times
+  // First DFS (iterative) to compute finish times
   const visited = new Set<number>();
   const finishOrder: number[] = [];
 
-  function dfs1(v: number): void {
-    if (visited.has(v)) return;
+  for (let v = 0; v < vertices; v++) {
+    if (visited.has(v)) continue;
+    const stack: Array<{ node: number; idx: number }> = [{ node: v, idx: 0 }];
     visited.add(v);
 
-    const neighbors = adj.get(v) ?? [];
-    for (const neighbor of neighbors) {
-      dfs1(neighbor.to);
+    while (stack.length > 0) {
+      const frame = stack[stack.length - 1]!;
+      const neighbors = adj.get(frame.node) ?? [];
+      if (frame.idx < neighbors.length) {
+        const w = neighbors[frame.idx]!.to;
+        frame.idx++;
+        if (!visited.has(w)) {
+          visited.add(w);
+          stack.push({ node: w, idx: 0 });
+        }
+      } else {
+        finishOrder.push(frame.node);
+        stack.pop();
+      }
     }
-
-    finishOrder.push(v);
-  }
-
-  for (let v = 0; v < vertices; v++) {
-    dfs1(v);
   }
 
   // Build transpose graph
   const transpose = transposeGraph(graph);
   const transposeAdj = buildAdjacencyList(transpose);
 
-  // Second DFS on transpose in reverse finish order
+  // Second DFS (iterative) on transpose in reverse finish order
   visited.clear();
   const components: number[][] = [];
 
-  function dfs2(v: number, component: number[]): void {
-    if (visited.has(v)) return;
-    visited.add(v);
-    component.push(v);
-
-    const neighbors = transposeAdj.get(v) ?? [];
-    for (const neighbor of neighbors) {
-      dfs2(neighbor.to, component);
-    }
-  }
-
   for (let i = finishOrder.length - 1; i >= 0; i--) {
     const v = finishOrder[i]!;
-    if (!visited.has(v)) {
-      const component: number[] = [];
-      dfs2(v, component);
-      components.push(component);
+    if (visited.has(v)) continue;
+    const component: number[] = [];
+    const stack = [v];
+    visited.add(v);
+
+    while (stack.length > 0) {
+      const u = stack.pop()!;
+      component.push(u);
+      const neighbors = transposeAdj.get(u) ?? [];
+      for (const neighbor of neighbors) {
+        if (!visited.has(neighbor.to)) {
+          visited.add(neighbor.to);
+          stack.push(neighbor.to);
+        }
+      }
     }
+    components.push(component);
   }
 
   // Create component map
@@ -627,10 +634,11 @@ export function isBipartite(graph: Graph): boolean {
 
   function bfs(start: number): boolean {
     const queue = [start];
+    let head = 0;
     color.set(start, 0);
 
-    while (queue.length > 0) {
-      const v = queue.shift()!;
+    while (head < queue.length) {
+      const v = queue[head++]!;
       const currentColor = color.get(v)!;
 
       const neighbors = adj.get(v) ?? [];
@@ -717,9 +725,10 @@ export function maxFlow(graph: Graph, source: number, sink: number): MaxFlowResu
     const parent = new Map<number, number>();
     const visited = new Set<number>([source]);
     const queue = [source];
+    let head = 0;
 
-    while (queue.length > 0) {
-      const u = queue.shift()!;
+    while (head < queue.length) {
+      const u = queue[head++]!;
 
       if (u === sink) {
         // Reconstruct path
@@ -792,10 +801,11 @@ export function maxFlow(graph: Graph, source: number, sink: number): MaxFlowResu
   // Find minimum cut (vertices reachable from source in residual graph)
   const reachable = new Set<number>();
   const queue = [source];
+  let head = 0;
   reachable.add(source);
 
-  while (queue.length > 0) {
-    const u = queue.shift()!;
+  while (head < queue.length) {
+    const u = queue[head++]!;
     const neighbors = residual.get(u)!;
 
     for (const [v, capacity] of neighbors) {

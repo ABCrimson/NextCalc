@@ -211,6 +211,26 @@ All technical debt items have been addressed as of v1.0.0:
 - Database: `FavoriteType` enum exported from `@nextcalc/database`
 - Turbo: Sentry env vars added to build cache keys, `test` depends on `^build`
 
+### v1.2.0 -- Auth, Forum, Level System & Icons (March 2026)
+
+- [x] Fix signIn redirect from `/dashboard` (404) to `/`
+- [x] Fix signOut to use CSRF token (NextAuth v5 requirement)
+- [x] Add `onError` fallback to navbar avatar (broken image → initials/level icon)
+- [x] Sync OAuth provider name/image on every sign-in
+- [x] Add `commentCount` field to GraphQL ForumPost type + resolver
+- [x] Fix forum post listing and detail pages showing 0 comments
+- [x] Remove hardcoded fake top contributors, show empty state
+- [x] Extract HeroAvatar component with `onError` image fallback
+- [x] RS3-style XP formula: `sum(floor(i + 300 * 2^(i/7)) / 4)` — exponential curve, 100 levels
+- [x] 10 named tiers (Novice → Transcendent) + admin-only Architect (L101)
+- [x] OKLCH color progression per level, XP formatting helpers
+- [x] Programmatic crystal SVG component (`LevelIcon`) with 10 visual tiers
+- [x] Pre-generated 103 SVG files via Node.js script (`generate-level-icons.ts`)
+- [x] Static SVG loader component (`LevelIconStatic`)
+- [x] 3 L101 special variants: Prismatic Crown, Cosmic Nexus, Phoenix Crystal
+- [x] Level icon as default avatar in navigation and profile
+- [x] XP bar with tier name display in profile HeroCard
+
 ---
 
 ## Future Ideas

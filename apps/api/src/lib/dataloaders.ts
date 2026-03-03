@@ -24,6 +24,7 @@ export interface DataLoaders {
   worksheetSharesByWorksheetId: DataLoader<string, WorksheetShare[]>;
   childFoldersByParentId: DataLoader<string, Folder[]>;
   upvoteCountByTargetId: DataLoader<string, number>;
+  commentCountByPostId: DataLoader<string, number>;
   forumPostById: DataLoader<string, ForumPost | null>;
   commentById: DataLoader<string, Comment | null>;
   repliesByParentCommentId: DataLoader<string, Comment[]>;
@@ -85,6 +86,16 @@ export function createDataLoaders(prisma: PrismaClient): DataLoaders {
       });
       const countMap = new Map(counts.map((c) => [c.targetId, c._count.id]));
       return targetIds.map((id) => countMap.get(id) ?? 0);
+    }),
+
+    commentCountByPostId: new DataLoader<string, number>(async (postIds) => {
+      const counts = await prisma.comment.groupBy({
+        by: ['postId'],
+        where: { postId: { in: [...postIds] }, deletedAt: null },
+        _count: { id: true },
+      });
+      const countMap = new Map(counts.map((c) => [c.postId, c._count.id]));
+      return postIds.map((id) => countMap.get(id) ?? 0);
     }),
 
     forumPostById: new DataLoader<string, ForumPost | null>(async (ids) => {

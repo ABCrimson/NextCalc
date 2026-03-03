@@ -284,7 +284,7 @@ export default function AlgorithmsPage() {
           {/* Algorithms Grid */}
           <div className="lg:col-span-3">
             {/* Results count */}
-            <div className="mb-6">
+            <div className="mb-6" role="status" aria-live="polite" aria-atomic="true">
               <h2 className="text-2xl font-semibold mb-2">
                 {filteredAlgorithms.length === algorithmDefs.length
                   ? t('allAlgorithms')

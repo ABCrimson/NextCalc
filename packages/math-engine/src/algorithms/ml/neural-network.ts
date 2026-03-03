@@ -49,6 +49,10 @@ export interface TrainingConfig {
   readonly lambda?: number;
   /** Whether to shuffle training data */
   readonly shuffle?: boolean;
+  /** Progress callback fired every `logInterval` epochs */
+  readonly onProgress?: (epoch: number, loss: number) => void;
+  /** How often to fire onProgress (default: 100 epochs) */
+  readonly logInterval?: number;
 }
 
 /**
@@ -414,7 +418,15 @@ export class NeuralNetwork {
 
     for (let epoch = 0; epoch < epochs; epoch++) {
       // Shuffle data
-      const shuffledData = shuffle ? [...data].sort(() => Math.random() - 0.5) : data;
+      let shuffledData: ReadonlyArray<TrainingData> = data;
+      if (shuffle) {
+        const arr = [...data];
+        for (let j = arr.length - 1; j > 0; j--) {
+          const k = Math.floor(Math.random() * (j + 1));
+          [arr[j], arr[k]] = [arr[k]!, arr[j]!];
+        }
+        shuffledData = arr;
+      }
 
       // Mini-batch training
       for (let i = 0; i < shuffledData.length; i += batchSize) {
@@ -512,10 +524,10 @@ export class NeuralNetwork {
         }
       }
 
-      // Optional: log progress
-      if (epoch % 100 === 0) {
+      // Optional: log progress via callback
+      if (config.onProgress && epoch % (config.logInterval ?? 100) === 0) {
         const loss = this.computeLoss(data);
-        console.log(`Epoch ${epoch}, Loss: ${loss.toFixed(6)}`);
+        config.onProgress(epoch, loss);
       }
     }
   }

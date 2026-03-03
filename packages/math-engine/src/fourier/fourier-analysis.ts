@@ -357,11 +357,18 @@ export function fourierSeries(
   const omega = (2 * Math.PI) / period;
   const dx = period / samples;
 
+  // Pre-compute all f(x) values once (reused across all n)
+  const xValues = new Float64Array(samples);
+  const fxValues = new Float64Array(samples);
+  for (let i = 0; i < samples; i++) {
+    xValues[i] = i * dx;
+    fxValues[i] = func(xValues[i]!);
+  }
+
   // Compute a0 (DC component)
   let a0 = 0;
   for (let i = 0; i < samples; i++) {
-    const x = i * dx;
-    a0 += func(x);
+    a0 += fxValues[i]!;
   }
   a0 = (2 * a0) / samples;
 
@@ -374,10 +381,9 @@ export function fourierSeries(
     let bnSum = 0;
 
     for (let i = 0; i < samples; i++) {
-      const x = i * dx;
-      const fx = func(x);
-      anSum += fx * Math.cos(n * omega * x);
-      bnSum += fx * Math.sin(n * omega * x);
+      const nwx = n * omega * xValues[i]!;
+      anSum += fxValues[i]! * Math.cos(nwx);
+      bnSum += fxValues[i]! * Math.sin(nwx);
     }
 
     an[n - 1] = (2 * anSum) / samples;

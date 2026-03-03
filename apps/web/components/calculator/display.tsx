@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useMemo } from 'react';
 import { LaTeXRenderer } from '@/components/math/latex-renderer';
 import { Card } from '@/components/ui/card';
@@ -38,6 +38,7 @@ const contentVariants = {
 };
 
 export function Display({ expression, result, isPending = false, mode, angle }: DisplayProps) {
+  const prefersReduced = useReducedMotion();
   const latex = convertToLatex(expression);
   const thousandsSeparator = useThousandsSeparator();
 
@@ -69,11 +70,11 @@ export function Display({ expression, result, isPending = false, mode, angle }: 
   // resultVariants depends on isPending — keep it memoized
   const resultVariants = useMemo(
     () => ({
-      initial: { scale: 0.95, opacity: 0 },
+      initial: prefersReduced ? false : { scale: 0.95, opacity: 0 },
       animate: { scale: 1, opacity: isPending ? 0.7 : 1 },
-      transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] as const },
+      transition: prefersReduced ? { duration: 0 } : { duration: 0.2, ease: [0.4, 0, 0.2, 1] as const },
     }),
-    [isPending],
+    [isPending, prefersReduced],
   );
 
   return (

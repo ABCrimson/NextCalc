@@ -23,7 +23,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { signIn as nextAuthSignIn } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
-import { type ComponentType, useEffect, useState } from 'react';
+import { type ComponentType, Suspense, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 type OAuthProvider = 'github' | 'google';
@@ -72,6 +72,20 @@ function resolveErrorKey(errorCode: string | null): string | null {
 }
 
 export default function SignInPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-background">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      }
+    >
+      <SignInContent />
+    </Suspense>
+  );
+}
+
+function SignInContent() {
   const t = useTranslations('auth');
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') ?? '/';

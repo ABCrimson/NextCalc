@@ -181,7 +181,9 @@ type ForumPost {
   isClosed: Boolean!
   user: User!
   comments: [Comment!]!
+  commentCount: Int!
   upvoteCount: Int!
+  hasUpvoted: Boolean!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
