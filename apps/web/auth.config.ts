@@ -62,8 +62,13 @@ if (googleId && googleSecret) {
   );
 }
 
+const secret = (process.env['AUTH_SECRET'] || process.env['NEXTAUTH_SECRET'] || '').trim();
+if (!secret && process.env['NODE_ENV'] === 'production') {
+  throw new Error('AUTH_SECRET or NEXTAUTH_SECRET environment variable must be set in production');
+}
+
 export const authConfig = {
-  secret: (process.env['AUTH_SECRET'] || process.env['NEXTAUTH_SECRET'] || '').trim(),
+  secret,
   providers,
   pages: {
     signIn: '/auth/signin',

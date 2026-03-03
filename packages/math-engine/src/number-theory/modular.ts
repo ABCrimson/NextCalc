@@ -73,18 +73,18 @@ export function modPow(base: number, exp: number, m: number): number {
   if (exp < 0) throw new Error('modPow: Exponent must be non-negative');
   if (m <= 0) throw new Error('modPow: Modulus must be positive');
 
-  let result = 1;
-  base = ((base % m) + m) % m;
+  let b = BigInt(((base % m) + m) % m);
+  let e = BigInt(exp);
+  const mod = BigInt(m);
+  let result = 1n;
 
-  while (exp > 0) {
-    if (exp % 2 === 1) {
-      result = (result * base) % m;
-    }
-    exp = Math.floor(exp / 2);
-    base = (base * base) % m;
+  while (e > 0n) {
+    if (e & 1n) result = (result * b) % mod;
+    e >>= 1n;
+    b = (b * b) % mod;
   }
 
-  return result;
+  return Number(result);
 }
 
 /**
@@ -187,19 +187,20 @@ export function crt(remainders: ReadonlyArray<number>, moduli: ReadonlyArray<num
   }
 
   const M = moduli.reduce((prod, m) => prod * m, 1);
-  let x = 0;
+  const bigM = BigInt(M);
+  let x = 0n;
 
   for (let i = 0; i < remainders.length; i++) {
     const ai = remainders[i];
     const mi = moduli[i];
     if (ai === undefined || mi === undefined) continue;
 
-    const Mi = M / mi;
-    const yi = modInverse(Mi, mi);
-    x = (x + ai * Mi * yi) % M;
+    const Mi = BigInt(M) / BigInt(mi);
+    const yi = BigInt(modInverse(Number(Mi % BigInt(mi)), mi));
+    x = (x + BigInt(ai) * Mi * yi) % bigM;
   }
 
-  return ((x % M) + M) % M;
+  return Number(((x % bigM) + bigM) % bigM);
 }
 
 /**
@@ -283,10 +284,11 @@ export function multiplicativeOrder(a: number, n: number): number {
 
   const phi = eulerPhi(n);
   let order = 1;
-  let power = a % n;
+  let power = BigInt(a) % BigInt(n);
+  const bn = BigInt(n);
 
-  while (power !== 1 && order <= phi) {
-    power = (power * a) % n;
+  while (power !== 1n && order <= phi) {
+    power = (power * BigInt(a)) % bn;
     order++;
   }
 
@@ -359,9 +361,8 @@ export function hasPrimitiveRoot(n: number): boolean {
   const { factors } = trialDivision(n);
 
   if (factors.size === 1) {
-    const factorEntries = [...factors];
-    const firstEntry = factorEntries[0];
-    if (firstEntry) {
+    const { value: firstEntry, done } = factors.entries().next();
+    if (!done && firstEntry) {
       const [prime] = firstEntry;
       return prime !== 2;
     }
@@ -369,9 +370,9 @@ export function hasPrimitiveRoot(n: number): boolean {
 
   // Check if n = 2p^k for odd prime p
   if (factors.size === 2) {
-    const factorEntries = [...factors];
-    const firstEntry = factorEntries[0];
-    const secondEntry = factorEntries[1];
+    const iter = factors.entries();
+    const { value: firstEntry } = iter.next();
+    const { value: secondEntry } = iter.next();
     if (firstEntry && secondEntry) {
       const [p1, e1] = firstEntry;
       const [p2, e2] = secondEntry;
@@ -521,15 +522,17 @@ export function modSqrt(a: number, p: number): number {
   let t = modPow(a, Q, p);
   let R = modPow(a, (Q + 1) / 2, p);
 
-  while (true) {
+  let maxIter = 1000;
+  while (maxIter-- > 0) {
     if (t === 0) return 0;
     if (t === 1) return R;
 
     // Find least i such that t^(2^i) = 1
     let i = 1;
-    let temp = (t * t) % p;
-    while (temp !== 1) {
-      temp = (temp * temp) % p;
+    const bp = BigInt(p);
+    let temp = BigInt(t) * BigInt(t) % bp;
+    while (temp !== 1n) {
+      temp = temp * temp % bp;
       i++;
     }
 
@@ -539,6 +542,7 @@ export function modSqrt(a: number, p: number): number {
     t = (t * c) % p;
     R = (R * b) % p;
   }
+  throw new Error('modSqrt: Tonelli-Shanks failed to converge');
 }
 
 // ============================================================================

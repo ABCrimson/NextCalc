@@ -134,6 +134,7 @@ export class WebGPU2DRenderer implements IRenderer {
 
   // Re-usable vertex staging buffer pool
   private vertexBuffers: FrameBuffer[] = [];
+  private frameBufferIndex = 0;
 
   // Transformation matrices
   private viewMatrix: Float32Array | null = null;
@@ -263,6 +264,38 @@ export class WebGPU2DRenderer implements IRenderer {
   // Device loss recovery
   // ---------------------------------------------------------------------------
 
+  /**
+   * Releases GPU resources (buffers, pipelines, bind groups) without
+   * destroying the device itself. Called before re-initialisation on
+   * device recovery to avoid leaking the old resources.
+   */
+  private releaseGPUResources(): void {
+    for (const fb of this.vertexBuffers) {
+      fb.gpuBuffer.destroy();
+    }
+    this.vertexBuffers = [];
+
+    if (this.sceneUniformBuffer) {
+      this.sceneUniformBuffer.destroy();
+      this.sceneUniformBuffer = null;
+    }
+    if (this.drawUniformBuffer) {
+      this.drawUniformBuffer.destroy();
+      this.drawUniformBuffer = null;
+    }
+
+    this.pipelines.clear();
+    this.sceneBindGroupLayout = null;
+    this.drawBindGroupLayout = null;
+    this.frameSceneBindGroup = null;
+    this.sceneUniformsDirty = true;
+
+    if (this.context) {
+      this.context.unconfigure();
+      this.context = null;
+    }
+  }
+
   private watchDeviceLost(): void {
     if (!this.device) return;
 
@@ -273,6 +306,7 @@ export class WebGPU2DRenderer implements IRenderer {
 
         if (info.reason !== 'destroyed') {
           console.log('Attempting WebGPU device recovery…');
+          this.releaseGPUResources();
           this.initialize()
             .then(() => {
               this.isLost = false;
@@ -457,6 +491,7 @@ export class WebGPU2DRenderer implements IRenderer {
     const startTime = performance.now();
     this.metrics.drawCalls = 0;
     this.metrics.pointCount = 0;
+    this.frameBufferIndex = 0;
 
     // Acquire swap-chain texture
     let currentTexture: GPUTexture;
@@ -1234,10 +1269,11 @@ export class WebGPU2DRenderer implements IRenderer {
   private acquireVertexBuffer(byteLength: number): GPUBuffer {
     if (!this.device) throw new Error('Device not initialised');
 
-    // Find first unused buffer with sufficient capacity
-    for (const fb of this.vertexBuffers) {
-      if (fb.capacity >= byteLength) {
-        return fb.gpuBuffer;
+    // Search from current frame index to avoid reusing buffers within a frame
+    for (let i = this.frameBufferIndex; i < this.vertexBuffers.length; i++) {
+      if (this.vertexBuffers[i]!.capacity >= byteLength) {
+        this.frameBufferIndex = i + 1;
+        return this.vertexBuffers[i]!.gpuBuffer;
       }
     }
 
@@ -1251,6 +1287,7 @@ export class WebGPU2DRenderer implements IRenderer {
 
     const entry: FrameBuffer = { gpuBuffer, capacity: alignedSize };
     this.vertexBuffers.push(entry);
+    this.frameBufferIndex = this.vertexBuffers.length;
     return gpuBuffer;
   }
 
@@ -1316,6 +1353,10 @@ export class WebGPU2DRenderer implements IRenderer {
       this.device.destroy();
       this.device = null;
     }
+  }
+
+  [Symbol.dispose](): void {
+    this.dispose();
   }
 
   // ---------------------------------------------------------------------------

@@ -367,9 +367,11 @@ export function pollardRho(n: number): number {
   let y = 2;
   let d = 1;
 
-  // Polynomial: f(x) = x² + 1 mod n
-  const f = (x: number) => (x * x + 1) % n;
+  // Polynomial: f(x) = x² + 1 mod n (BigInt to avoid overflow for n > ~46341)
+  const bn = BigInt(n);
+  const f = (x: number) => Number((BigInt(x) * BigInt(x) + 1n) % bn);
 
+  let maxRestarts = 50;
   while (d === 1) {
     x = f(x);
     y = f(f(y));
@@ -377,6 +379,9 @@ export function pollardRho(n: number): number {
 
     // Avoid infinite loop
     if (d === n) {
+      if (--maxRestarts <= 0) {
+        throw new Error('pollardRho: failed to find non-trivial factor');
+      }
       // Restart with different starting point
       x = Math.floor(Math.random() * (n - 2)) + 2;
       y = x;
@@ -635,7 +640,16 @@ export function goldbachPairs(n: number): ReadonlyArray<readonly [number, number
  */
 export function satisfiesGoldbach(n: number): boolean {
   if (n <= 2 || n % 2 !== 0) return false;
-  return goldbachPairs(n).length > 0;
+
+  const primes = sieveOfEratosthenes(n);
+  const primeSet = new Set(primes);
+
+  for (const p of primes) {
+    if (p > n / 2) break;
+    if (primeSet.has(n - p)) return true;
+  }
+
+  return false;
 }
 
 // ============================================================================

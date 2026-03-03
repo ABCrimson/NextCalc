@@ -165,7 +165,7 @@ export async function submitAnswer(
       data: { popularity: { increment: 1 } },
     });
 
-    revalidatePath(`/problems/${data.problemId}`);
+    revalidatePath('/[locale]/problems/[id]', 'page');
 
     return {
       success: true,
@@ -197,6 +197,11 @@ export async function requestHint(
   formData: FormData,
 ): Promise<ActionResult<RequestHintResult>> {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { success: false, error: 'Authentication required' };
+    }
+
     const raw = Object.fromEntries(formData.entries());
     const data = HintRequestSchema.parse(raw);
 
@@ -261,7 +266,7 @@ export async function toggleFavorite(
 
     if (existing) {
       await prisma.favorite.delete({ where: { id: existing.id } });
-      revalidatePath('/problems');
+      revalidatePath('/[locale]/problems', 'page');
       return { success: true, data: { isFavorite: false } };
     }
 

@@ -4,7 +4,21 @@
  * @module export/svg
  */
 
-import type { ExportSVGOptions, Point2D } from '../types/index';
+import type { Color, ExportSVGOptions, Point2D } from '../types/index';
+
+/**
+ * Escapes a string for safe use inside an XML/SVG attribute value.
+ */
+function escapeXmlAttr(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function colorToString(color: Color): string {
+  if (typeof color === 'string') return color;
+  return color.a !== undefined
+    ? `rgba(${color.r},${color.g},${color.b},${color.a})`
+    : `rgb(${color.r},${color.g},${color.b})`;
+}
 
 /**
  * Converts an array of points to an SVG path string
@@ -56,7 +70,7 @@ export function exportToSVG(
 
   // Background
   if (backgroundColor) {
-    svg += `\n  <rect width="${width}" height="${height}" fill="${backgroundColor}"/>`;
+    svg += `\n  <rect width="${width}" height="${height}" fill="${escapeXmlAttr(colorToString(backgroundColor))}"/>`;
   }
 
   // Plot each series
@@ -94,7 +108,9 @@ export function downloadAsSVG(
   const link = document.createElement('a');
   link.download = filename.endsWith('.svg') ? filename : `${filename}.svg`;
   link.href = url;
+  document.body.appendChild(link);
   link.click();
+  link.remove();
 
   URL.revokeObjectURL(url);
 }

@@ -138,7 +138,7 @@ app.post('/export/pdf', async (c) => {
     // Validate request
     const schema = z.object({
       latex: z.string().min(1).max(10000),
-      userId: z.string().optional(),
+      userId: z.string().uuid().optional(),
       options: z
         .object({
           pageSize: z.enum(['letter', 'a4', 'legal']).optional(),
@@ -233,7 +233,7 @@ app.post('/export/png', async (c) => {
     // Validate request
     const schema = z.object({
       latex: z.string().min(1).max(10000),
-      userId: z.string().optional(),
+      userId: z.string().uuid().optional(),
       options: z
         .object({
           width: z.number().min(100).max(4000).optional(),
@@ -330,7 +330,7 @@ app.post('/export/svg', async (c) => {
     // Validate request
     const schema = z.object({
       latex: z.string().min(1).max(10000),
-      userId: z.string().optional(),
+      userId: z.string().uuid().optional(),
       options: z
         .object({
           fontSize: z.number().min(8).max(72).optional(),

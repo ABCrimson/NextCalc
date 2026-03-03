@@ -34,6 +34,7 @@ export const {
         token.email = user.email!;
         token.name = user.name!;
         token.picture = user.image!;
+        token.version = 0;
       }
 
       // Handle token refresh - check if token is still valid
@@ -46,8 +47,7 @@ export const {
 
           // Invalidate token if version doesn't match (user logged out all sessions)
           if (dbUser && dbUser.tokenVersion !== (token.version || 0)) {
-            // biome-ignore lint/style/noNonNullAssertion: Force re-authentication by returning null
-            return null!;
+            return null as unknown as typeof token;
           }
 
           // Update role in token if changed

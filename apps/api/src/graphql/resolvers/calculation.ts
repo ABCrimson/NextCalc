@@ -23,6 +23,20 @@ const performCalculation = (
   precision = 16,
 ): { result: string; formatted: string } => {
   try {
+    const VALID_VAR_NAME = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+    const RESERVED_NAMES = new Set(['evaluate', 'import', 'createUnit', 'parse', 'simplify', 'derivative', 'compile', 'chain', 'typed', 'config', 'on', 'off', 'emit']);
+
+    if (variables) {
+      for (const key of Object.keys(variables)) {
+        if (!VALID_VAR_NAME.test(key)) {
+          throw new Error(`Invalid variable name: ${key}`);
+        }
+        if (RESERVED_NAMES.has(key)) {
+          throw new Error(`Reserved variable name: ${key}`);
+        }
+      }
+    }
+
     const scope = variables ? { ...variables } : {};
     const raw = evaluate(expression, scope);
     const result =
