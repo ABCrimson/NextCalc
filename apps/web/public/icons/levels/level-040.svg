@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs><linearGradient id="g4" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="oklch(0.60 0.24 268.5)"/><stop offset="50%" stop-color="oklch(0.52 0.20 293.5)"/><stop offset="100%" stop-color="oklch(0.45 0.18 318.5)"/>
+  </linearGradient></defs>
+  <polygon points="32.00,6.40 54.17,19.20 54.17,44.80 32.00,57.60 9.83,44.80 9.83,19.20" fill="url(#g4)" stroke="oklch(0.65 0.22 268.5)" stroke-width="1.5"/>
+  <polygon points="32.00,20.48 34.82,27.12 41.98,26.24 37.63,32.00 41.98,37.76 34.82,36.88 32.00,43.52 29.18,36.88 22.02,37.76 26.37,32.00 22.02,26.24 29.18,27.12" fill="oklch(0.75 0.20 293.5)" opacity="0.5"/>
+  <polygon points="32.00,24.32 38.65,28.16 38.65,35.84 32.00,39.68 25.35,35.84 25.35,28.16" fill="oklch(0.80 0.15 318.5)" opacity="0.4"/>
+</svg>

@@ -219,6 +219,12 @@ export const forumResolvers = {
       });
     },
 
+    commentCount: async (parent: ForumPost, _args: unknown, context: GraphQLContext) => {
+      return context.prisma.comment.count({
+        where: { postId: parent.id, deletedAt: null },
+      });
+    },
+
     upvoteCount: async (parent: ForumPost, _args: unknown, context: GraphQLContext) => {
       return context.loaders.upvoteCountByTargetId.load(parent.id);
     },

@@ -167,8 +167,8 @@ export default function ForumPage() {
         unpinned.sort((a, b) => {
           const hoursA = Math.max(1, (now - new Date(a.createdAt).getTime()) / 3_600_000);
           const hoursB = Math.max(1, (now - new Date(b.createdAt).getTime()) / 3_600_000);
-          const scoreA = (a.upvoteCount + (a.comments?.length ?? 0) * 0.5) / (hoursA + 2) ** 1.5;
-          const scoreB = (b.upvoteCount + (b.comments?.length ?? 0) * 0.5) / (hoursB + 2) ** 1.5;
+          const scoreA = (a.upvoteCount + (a.commentCount ?? 0) * 0.5) / (hoursA + 2) ** 1.5;
+          const scoreB = (b.upvoteCount + (b.commentCount ?? 0) * 0.5) / (hoursB + 2) ** 1.5;
           return scoreB - scoreA;
         });
         break;
@@ -249,7 +249,7 @@ export default function ForumPage() {
     ? (data.forumPosts.pageInfo?.totalCount ?? graphqlPosts.length)
     : mockPosts.length;
   const totalComments = useGraphQL
-    ? graphqlPosts.reduce((sum: number, p: ForumPostNode) => sum + (p.comments?.length ?? 0), 0)
+    ? graphqlPosts.reduce((sum: number, p: ForumPostNode) => sum + (p.commentCount ?? 0), 0)
     : mockPosts.reduce((sum, p) => sum + p.commentCount, 0);
   const totalContributors = useGraphQL
     ? new Set(graphqlPosts.map((p: ForumPostNode) => p.user.id)).size
@@ -534,57 +534,13 @@ export default function ForumPage() {
                     {t('topContributors')}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  {[
-                    { name: 'Alice Chen', rep: 4280, tier: 'legend', id: 'alice-chen' },
-                    { name: 'Sofia Rossi', rep: 3100, tier: 'legend', id: 'sofia-rossi' },
-                    { name: 'Priya Sharma', rep: 2150, tier: 'expert', id: 'priya-sharma' },
-                    { name: 'David Kim', rep: 1670, tier: 'expert', id: 'david-kim' },
-                    { name: 'James Wright', rep: 1200, tier: 'contributor', id: 'james-wright' },
-                  ].map((user, i) => {
-                    const tier = TIER_CONFIG[user.tier] ??
-                      TIER_CONFIG.newcomer ?? {
-                        label: 'Newcomer',
-                        color: 'text-zinc-400',
-                        icon: null,
-                        glow: '',
-                      };
-                    const TIcon = tier.icon;
-                    return (
-                      <Link
-                        key={user.name}
-                        href={`/forum/user/${user.id}`}
-                        className="flex items-center gap-3 rounded-lg px-1 py-0.5 -mx-1 transition-colors hover:bg-accent/50"
-                      >
-                        <span className="text-xs font-bold text-muted-foreground w-4 text-right">
-                          {i + 1}
-                        </span>
-                        <div
-                          className={cn(
-                            'h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold',
-                            'bg-gradient-to-br from-muted/60 to-muted/30 border border-border',
-                            tier.glow,
-                          )}
-                        >
-                          <span className={tier.color}>
-                            {user.name
-                              .split(' ')
-                              .map((n) => n[0])
-                              .join('')}
-                          </span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1">
-                            <span className="text-xs font-semibold truncate">{user.name}</span>
-                            {TIcon && <TIcon className={cn('h-3 w-3', tier.color)} />}
-                          </div>
-                        </div>
-                        <span className="text-[10px] font-mono text-muted-foreground">
-                          {formatNumber(user.rep)}
-                        </span>
-                      </Link>
-                    );
-                  })}
+                <CardContent>
+                  <div className="flex flex-col items-center justify-center py-6 text-center">
+                    <Users className="h-8 w-8 text-muted-foreground/30 mb-2" />
+                    <p className="text-xs text-muted-foreground">
+                      {t('noContributorsYet')}
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
 

@@ -30,7 +30,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
-import type { ComponentType } from 'react';
+import { type ComponentType, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -42,6 +42,7 @@ import {
 import { Link, usePathname, useRouter } from '@/i18n/navigation';
 import { signIn, signOut, useSession } from '@/lib/auth/hooks';
 import { cn } from '@/lib/utils';
+import { LevelIcon } from '@/components/profile/level-icon';
 import { CommandPalette } from './command-palette';
 import { ThemeToggle } from './theme-toggle';
 
@@ -223,15 +224,28 @@ const algorithmPaths = [
   '/ml-algorithms',
 ];
 
-function UserAvatar({ name, image }: { name?: string; image?: string }) {
-  if (image) {
+function UserAvatar({ name, image, level }: { name?: string; image?: string; level?: number }) {
+  const [imgError, setImgError] = useState(false);
+
+  if (image && !imgError) {
     return (
+      /* biome-ignore lint/performance/noImgElement: external OAuth avatar URL with unpredictable domain */
       <img
         src={image}
         alt={name || 'User avatar'}
         className="h-7 w-7 rounded-full ring-2 ring-border/50"
         referrerPolicy="no-referrer"
+        onError={() => setImgError(true)}
       />
+    );
+  }
+
+  // Level icon fallback when available
+  if (level && level > 0) {
+    return (
+      <span className="flex h-7 w-7 items-center justify-center rounded-full ring-2 ring-border/50 overflow-hidden">
+        <LevelIcon level={level} size={28} />
+      </span>
     );
   }
 

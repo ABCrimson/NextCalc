@@ -19,6 +19,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { UPDATE_PROFILE_MUTATION } from '@/lib/graphql/operations';
 import { ActivityCalendar } from './activity-calendar';
+import { LevelIcon } from './level-icon';
+import { formatXp, getLevelTier, levelProgress, xpForLevelCached } from './level-utils';
 
 // ---------------------------------------------------------------------------
 // Domain types
@@ -82,16 +84,6 @@ export interface ProfileOverviewProps {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function getInitials(name: string | null): string {
-  if (!name) return '?';
-  return name
-    .split(' ')
-    .map((part) => part[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
-}
-
 function formatJoinedDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('en-US', {
     month: 'long',
@@ -121,9 +113,7 @@ function formatRelativeTime(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-function xpForLevel(level: number): number {
-  return level * level * 100;
-}
+// xpForLevel now imported from level-utils.ts (RS3-style exponential curve)
 
 // ---------------------------------------------------------------------------
 // Framer Motion variants
@@ -638,6 +628,44 @@ function EditProfileDialog({
 }
 
 // ---------------------------------------------------------------------------
+// HeroAvatar — image with onError fallback to initials
+// ---------------------------------------------------------------------------
+
+function HeroAvatar({ name, image, level }: { name: string | null; image: string | null; level: number }) {
+  const [imgError, setImgError] = useState(false);
+
+  return (
+    <div className="relative flex-shrink-0" aria-hidden="true">
+      {image && !imgError ? (
+        /* biome-ignore lint/performance/noImgElement: external OAuth avatar URL */
+        <img
+          src={image}
+          alt={name ?? 'User avatar'}
+          className="h-24 w-24 rounded-full border-2 border-border object-cover sm:h-28 sm:w-28"
+          referrerPolicy="no-referrer"
+          onError={() => setImgError(true)}
+        />
+      ) : (
+        <div
+          className="flex h-24 w-24 items-center justify-center rounded-full border-2 border-border overflow-hidden sm:h-28 sm:w-28"
+          role="img"
+          aria-label={`Avatar for ${name ?? 'user'}`}
+        >
+          <LevelIcon level={level} size={112} />
+        </div>
+      )}
+      {/* Level badge */}
+      <div
+        className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-primary text-xs font-bold text-primary-foreground"
+        aria-label={`Level ${level}`}
+      >
+        {level}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // HeroCard — avatar, identity, XP bar, edit button
 // ---------------------------------------------------------------------------
 
@@ -651,43 +679,16 @@ function HeroCard({ user, progress, onEditClick }: HeroCardProps) {
   const t = useTranslations('profile');
   const currentXp = progress?.experience ?? 0;
   const currentLevel = progress?.level ?? 1;
-  const xpNeeded = xpForLevel(currentLevel + 1);
-  const xpProgress = Math.min((currentXp / xpNeeded) * 100, 100);
+  const tier = getLevelTier(currentLevel);
+  const xpNeeded = xpForLevelCached(currentLevel + 1);
+  const xpProgress = levelProgress(currentXp) * 100;
 
   return (
     <Card>
       <CardContent className="p-6">
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
           {/* Avatar */}
-          <div className="relative flex-shrink-0" aria-hidden="true">
-            {user.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={user.image}
-                alt={user.name ?? 'User avatar'}
-                className="h-24 w-24 rounded-full border-2 border-border object-cover sm:h-28 sm:w-28"
-              />
-            ) : (
-              <div
-                className="flex h-24 w-24 items-center justify-center rounded-full border-2 border-border text-2xl font-bold text-primary sm:h-28 sm:w-28"
-                role="img"
-                aria-label={`Avatar for ${user.name ?? 'user'}`}
-                style={{
-                  background:
-                    'linear-gradient(135deg, oklch(0.55 0.27 264 / 0.18), oklch(0.60 0.25 300 / 0.18))',
-                }}
-              >
-                {getInitials(user.name)}
-              </div>
-            )}
-            {/* Level badge */}
-            <div
-              className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-primary text-xs font-bold text-primary-foreground"
-              aria-label={`Level ${currentLevel}`}
-            >
-              {currentLevel}
-            </div>
-          </div>
+          <HeroAvatar name={user.name} image={user.image} level={currentLevel} />
 
           {/* Identity block */}
           <div className="min-w-0 flex-1 text-center sm:text-left">
@@ -734,10 +735,10 @@ function HeroCard({ user, progress, onEditClick }: HeroCardProps) {
             <div className="mt-3 max-w-sm">
               <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
                 <span>
-                  {t('level')} {currentLevel}
+                  {t('level')} {currentLevel} — <span className={tier.textClass}>{tier.name}</span>
                 </span>
                 <span>
-                  {currentXp.toLocaleString()} / {xpNeeded.toLocaleString()} XP
+                  {formatXp(currentXp)} / {formatXp(xpNeeded)} XP
                 </span>
               </div>
               <div

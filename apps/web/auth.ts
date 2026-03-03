@@ -79,10 +79,29 @@ export const {
     },
   },
   events: {
-    async signIn({ user, isNewUser }) {
-      // Log sign-in event
+    async signIn({ user, isNewUser, profile }) {
       if (user.id) {
         try {
+          // Sync name and image from the latest OAuth provider profile
+          if (!isNewUser && profile) {
+            const providerName = profile.name as string | undefined;
+            const providerImage = (profile.picture ?? profile.avatar_url) as string | undefined;
+            const updates: Record<string, string> = {};
+            if (providerName && providerName !== user.name) {
+              updates.name = providerName;
+            }
+            if (providerImage && providerImage !== user.image) {
+              updates.image = providerImage;
+            }
+            if (Object.keys(updates).length > 0) {
+              await prisma.user.update({
+                where: { id: user.id },
+                data: updates,
+              });
+            }
+          }
+
+          // Log sign-in event
           await prisma.auditLog.create({
             data: {
               userId: user.id,

@@ -300,6 +300,9 @@ export const typeDefs = gql`
     "Post comments"
     comments(limit: Int = 20, offset: Int = 0): [Comment!]!
 
+    "Total number of comments (including replies)"
+    commentCount: Int!
+
     "Number of upvotes"
     upvoteCount: Int!
 

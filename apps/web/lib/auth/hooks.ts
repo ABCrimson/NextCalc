@@ -186,14 +186,14 @@ export const useHasRole = (...requiredRoles: UserRole[]) => {
  * ```tsx
  * function LoginButton() {
  *   return (
- *     <button onClick={() => signIn('/dashboard')}>
+ *     <button onClick={() => signIn('/')}>
  *       Sign in
  *     </button>
  *   );
  * }
  * ```
  */
-export const signIn = (callbackUrl = '/dashboard') => {
+export const signIn = (callbackUrl = '/') => {
   window.location.href = `/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`;
 };
 
@@ -217,18 +217,25 @@ export const signIn = (callbackUrl = '/dashboard') => {
  */
 export const signOut = async (callbackUrl = '/') => {
   try {
-    // Call sign-out endpoint
+    // Fetch CSRF token required by NextAuth v5
+    const csrfRes = await fetch('/api/auth/csrf');
+    const { csrfToken } = await csrfRes.json();
+
+    // POST sign-out with CSRF token (NextAuth expects form-encoded body)
     await fetch('/api/auth/signout', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
+      body: new URLSearchParams({ csrfToken, callbackUrl }),
     });
 
     // Redirect to callback URL
     window.location.href = callbackUrl;
   } catch (error) {
     console.error('Sign out error:', error);
+    // Redirect anyway so user isn't stuck
+    window.location.href = callbackUrl;
   }
 };
 

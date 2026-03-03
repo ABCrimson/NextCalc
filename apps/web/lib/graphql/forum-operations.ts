@@ -33,9 +33,7 @@ export const FORUM_POSTS_QUERY = gql`
           name
           image
         }
-        comments(limit: 0) {
-          id
-        }
+        commentCount
       }
       pageInfo {
         hasNextPage
@@ -61,6 +59,7 @@ export const FORUM_POST_QUERY = gql`
       isClosed
       createdAt
       updatedAt
+      commentCount
       upvoteCount
       hasUpvoted
       user {

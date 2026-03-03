@@ -28,7 +28,8 @@ export interface ForumPostNode {
     name: string | null;
     image: string | null;
   };
-  comments: { id: string }[];
+  commentCount: number;
+  comments?: { id: string }[];
 }
 
 /** GraphQL Comment shape from FORUM_POST_QUERY */
@@ -74,6 +75,7 @@ export interface ForumPostDetail {
   updatedAt: string;
   upvoteCount: number;
   hasUpvoted: boolean;
+  commentCount?: number;
   user: {
     id: string;
     name: string | null;

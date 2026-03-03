@@ -296,7 +296,7 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
                   </span>
                   <span className="flex items-center gap-1">
                     <MessageSquare className="h-3 w-3" />
-                    {t('commentsCount', { count: post.comments.length })}
+                    {t('commentsCount', { count: (post as { commentCount?: number }).commentCount ?? post.comments.length })}
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
@@ -360,7 +360,7 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
               <div className="rounded-2xl border border-border p-6 backdrop-blur-md bg-card/50 space-y-4">
                 <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
                   <MessageSquare className="h-5 w-5 text-indigo-400" />
-                  {t('commentsCount', { count: post.comments.length })}
+                  {t('commentsCount', { count: (post as { commentCount?: number }).commentCount ?? post.comments.length })}
                 </h2>
 
                 {post.comments.length > 0 && (

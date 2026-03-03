@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs><linearGradient id="g8" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="oklch(0.70 0.28 49.0)"/><stop offset="100%" stop-color="oklch(0.48 0.24 69.0)"/>
+  </linearGradient></defs>
+  <line x1="41.60" y1="32.00" x2="62.72" y2="32.00" stroke="oklch(0.80 0.20 49.0)" stroke-width="0.8" opacity="0.25"/>
+  <line x1="38.79" y1="38.79" x2="53.72" y2="53.72" stroke="oklch(0.80 0.20 64.0)" stroke-width="0.8" opacity="0.25"/>
+  <line x1="32.00" y1="41.60" x2="32.00" y2="62.72" stroke="oklch(0.80 0.20 79.0)" stroke-width="0.8" opacity="0.25"/>
+  <line x1="25.21" y1="38.79" x2="10.28" y2="53.72" stroke="oklch(0.80 0.20 94.0)" stroke-width="0.8" opacity="0.25"/>
+  <line x1="22.40" y1="32.00" x2="1.28" y2="32.00" stroke="oklch(0.80 0.20 109.0)" stroke-width="0.8" opacity="0.25"/>
+  <line x1="25.21" y1="25.21" x2="10.28" y2="10.28" stroke="oklch(0.80 0.20 124.0)" stroke-width="0.8" opacity="0.25"/>
+  <line x1="32.00" y1="22.40" x2="32.00" y2="1.28" stroke="oklch(0.80 0.20 139.0)" stroke-width="0.8" opacity="0.25"/>
+  <line x1="38.79" y1="25.21" x2="53.72" y2="10.28" stroke="oklch(0.80 0.20 154.0)" stroke-width="0.8" opacity="0.25"/>
+  <polygon points="32.00,12.80 48.63,22.40 48.63,41.60 32.00,51.20 15.37,41.60 15.37,22.40" fill="url(#g8)" stroke="oklch(0.75 0.26 49.0)" stroke-width="1.5"/>
+  <polygon points="28.01,13.22 32.00,7.04 35.99,13.22" fill="oklch(0.75 0.22 49.0)" opacity="0.5"/>
+  <polygon points="46.27,19.15 53.62,19.52 50.26,26.07" fill="oklch(0.75 0.22 64.0)" opacity="0.5"/>
+  <polygon points="50.26,37.93 53.62,44.48 46.27,44.85" fill="oklch(0.75 0.22 79.0)" opacity="0.5"/>
+  <polygon points="35.99,50.78 32.00,56.96 28.01,50.78" fill="oklch(0.75 0.22 94.0)" opacity="0.5"/>
+  <polygon points="17.73,44.85 10.38,44.48 13.74,37.93" fill="oklch(0.75 0.22 109.0)" opacity="0.5"/>
+  <polygon points="13.74,26.07 10.38,19.52 17.73,19.15" fill="oklch(0.75 0.22 124.0)" opacity="0.5"/>
+  <polygon points="32.00,25.28 33.73,29.01 37.82,28.64 35.46,32.00 37.82,35.36 33.73,34.99 32.00,38.72 30.27,34.99 26.18,35.36 28.54,32.00 26.18,28.64 30.27,29.01" fill="oklch(0.85 0.18 49.0)" opacity="0.5"/>
+</svg>
