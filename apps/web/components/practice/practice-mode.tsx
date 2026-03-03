@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import {
   Award,
   CheckCircle2,
@@ -223,6 +223,18 @@ export function PracticeMode({
     handleAnswer(false);
   }, [handleAnswer]);
 
+  // Restart practice session (reset all state instead of reloading the page)
+  const handleRestart = useCallback(() => {
+    setCurrentProblemIndex(0);
+    setIsStarted(false);
+    setIsPaused(false);
+    setTimeRemaining(timeLimit);
+    setProblemStartTime(0);
+    setCurrentStreak(0);
+    setMaxStreak(0);
+    setResults([]);
+  }, [timeLimit]);
+
   // Complete practice session
   const handleComplete = useCallback(
     (finalResults: PracticeResults['problemsCompleted']) => {
@@ -316,7 +328,7 @@ export function PracticeMode({
   if (results.length >= Math.min(targetCount, problems.length)) {
     return (
       <div className={cn('space-y-6', className)}>
-        <motion.div
+        <m.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
@@ -394,12 +406,12 @@ export function PracticeMode({
                 </div>
               </div>
 
-              <Button onClick={() => window.location.reload()} size="lg" className="w-full">
+              <Button onClick={handleRestart} size="lg" className="w-full">
                 Practice Again
               </Button>
             </CardContent>
           </Card>
-        </motion.div>
+        </m.div>
       </div>
     );
   }
@@ -487,7 +499,7 @@ export function PracticeMode({
       {/* Current Problem */}
       <AnimatePresence mode="wait">
         {currentProblem && (
-          <motion.div
+          <m.div
             key={currentProblem.id}
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
@@ -546,7 +558,7 @@ export function PracticeMode({
                 </Button>
               </CardContent>
             </Card>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

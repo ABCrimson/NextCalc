@@ -2,7 +2,7 @@
 
 import type { HistoryEntry } from '@nextcalc/types';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { memo, useDeferredValue, useMemo, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { formatResultWithSeparators, useThousandsSeparator } from '@/lib/stores/settings-store';
@@ -27,7 +27,7 @@ const HistoryItem = memo(function HistoryItem({
   const formattedResult = formatResultWithSeparators(entry.result, thousandsSeparator);
 
   return (
-    <motion.button
+    <m.button
       key={entry.id}
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
@@ -57,7 +57,7 @@ const HistoryItem = memo(function HistoryItem({
       <div className="text-lg font-mono font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
         = {formattedResult}
       </div>
-    </motion.button>
+    </m.button>
   );
 });
 
@@ -95,7 +95,7 @@ export function History({ entries, onSelect }: HistoryProps) {
   }
 
   return (
-    <motion.div {...containerVariants}>
+    <m.div {...containerVariants}>
       <Card className="p-6 glass-heavy noise rounded-2xl shadow-2xl shadow-primary/10 ring-1 ring-white/5 transition-all duration-300">
         <h3 className="text-xs font-semibold mb-4 text-muted-foreground uppercase tracking-[0.15em] flex items-center gap-2">
           <span className="w-1 h-4 bg-gradient-to-b from-primary to-primary/50 rounded-full" />
@@ -147,6 +147,6 @@ export function History({ entries, onSelect }: HistoryProps) {
           </div>
         </div>
       </Card>
-    </motion.div>
+    </m.div>
   );
 }

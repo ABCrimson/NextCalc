@@ -7,7 +7,7 @@
  * @module components/plots/PlotContainer
  */
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { AlertTriangle, Loader2, RefreshCw, TrendingUp } from 'lucide-react';
 import type { ErrorInfo, ReactNode } from 'react';
 import { Component, Suspense } from 'react';
@@ -82,7 +82,7 @@ const skeletonItemVariants = {
  */
 function PlotSkeleton() {
   return (
-    <motion.div
+    <m.div
       variants={skeletonVariants}
       initial="hidden"
       animate="visible"
@@ -102,13 +102,13 @@ function PlotSkeleton() {
 
       <div className="relative space-y-4">
         {/* Header skeleton */}
-        <motion.div variants={skeletonItemVariants} className="flex items-center justify-between">
+        <m.div variants={skeletonItemVariants} className="flex items-center justify-between">
           <Skeleton className="h-8 w-48 bg-muted/50" />
           <Skeleton className="h-8 w-32 bg-muted/50" />
-        </motion.div>
+        </m.div>
 
         {/* Plot area skeleton */}
-        <motion.div variants={skeletonItemVariants} className="relative">
+        <m.div variants={skeletonItemVariants} className="relative">
           <Skeleton className="h-[400px] w-full bg-muted/50 rounded-lg" />
           {/* Animated loader overlay */}
           <div className="absolute inset-0 flex items-center justify-center">
@@ -120,16 +120,16 @@ function PlotSkeleton() {
               </p>
             </div>
           </div>
-        </motion.div>
+        </m.div>
 
         {/* Controls skeleton */}
-        <motion.div variants={skeletonItemVariants} className="flex gap-2">
+        <m.div variants={skeletonItemVariants} className="flex gap-2">
           <Skeleton className="h-10 w-24 bg-muted/50" />
           <Skeleton className="h-10 w-24 bg-muted/50" />
           <Skeleton className="h-10 w-32 bg-muted/50 ml-auto" />
-        </motion.div>
+        </m.div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -139,7 +139,7 @@ function PlotSkeleton() {
  */
 function PlotError({ error, onRetry }: { error: string; onRetry?: () => void }) {
   return (
-    <motion.div
+    <m.div
       variants={errorVariants}
       initial="hidden"
       animate="visible"
@@ -159,14 +159,14 @@ function PlotError({ error, onRetry }: { error: string; onRetry?: () => void }) 
 
       <div className="relative text-center max-w-md mx-auto">
         {/* Error icon with animation */}
-        <motion.div
+        <m.div
           initial={{ scale: 0, rotate: -180 }}
           animate={{ scale: 1, rotate: 0 }}
           transition={{ type: 'spring', stiffness: 260, damping: 20 }}
           className="inline-flex items-center justify-center w-16 h-16 mb-4 rounded-full bg-red-900/50 border-2 border-red-500/50"
         >
           <AlertTriangle className="h-8 w-8 text-red-400" />
-        </motion.div>
+        </m.div>
 
         {/* Error message */}
         <h3 className="text-xl font-semibold text-red-200 mb-2">Visualization Error</h3>
@@ -195,7 +195,7 @@ function PlotError({ error, onRetry }: { error: string; onRetry?: () => void }) 
           If this persists, try refreshing the page or checking your input values
         </p>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -220,7 +220,7 @@ class PlotErrorBoundary extends Component<
   }
 
   override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Plot rendering error:', error, errorInfo);
+    console.debug('Plot rendering error:', error, errorInfo);
   }
 
   resetError = () => {
@@ -259,7 +259,7 @@ export function PlotContainer({
   error = null,
 }: PlotContainerProps) {
   return (
-    <motion.div
+    <m.div
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -268,7 +268,7 @@ export function PlotContainer({
       {/* Header section with glass-morphism */}
       <AnimatePresence mode="wait">
         {(title || description) && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
@@ -293,7 +293,7 @@ export function PlotContainer({
                 <p className="text-sm text-muted-foreground leading-relaxed ml-7">{description}</p>
               )}
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
@@ -301,7 +301,7 @@ export function PlotContainer({
       <div className="relative min-h-[400px]">
         <AnimatePresence mode="wait">
           {error ? (
-            <motion.div
+            <m.div
               key="error"
               variants={containerVariants}
               initial="hidden"
@@ -309,9 +309,9 @@ export function PlotContainer({
               exit="exit"
             >
               <PlotError error={error} />
-            </motion.div>
+            </m.div>
           ) : isLoading ? (
-            <motion.div
+            <m.div
               key="loading"
               variants={containerVariants}
               initial="hidden"
@@ -319,9 +319,9 @@ export function PlotContainer({
               exit="exit"
             >
               <PlotSkeleton />
-            </motion.div>
+            </m.div>
           ) : (
-            <motion.div
+            <m.div
               key="content"
               variants={containerVariants}
               initial="hidden"
@@ -347,11 +347,11 @@ export function PlotContainer({
                   </div>
                 </Suspense>
               </PlotErrorBoundary>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 

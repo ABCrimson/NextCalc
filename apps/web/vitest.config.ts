@@ -27,7 +27,7 @@ export default defineConfig({
 
     // IMPORTANT: Exclude e2e tests (Playwright) from Vitest
     // Playwright tests use different APIs and should be run separately
-    exclude: ['node_modules/**', 'dist/**', 'e2e/**', '**/*.e2e.{ts,tsx}', '**/*.spec.{ts,tsx}'],
+    exclude: ['node_modules/**', 'dist/**', 'e2e/**', '**/*.e2e.{ts,tsx}'],
 
     // Include patterns for unit and integration tests
     include: ['**/*.test.{ts,tsx}'],

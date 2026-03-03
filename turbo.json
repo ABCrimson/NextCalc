@@ -30,7 +30,8 @@
         "ENABLE_EXPERIMENTAL_COREPACK",
         "SENTRY_AUTH_TOKEN",
         "SENTRY_DSN",
-        "NEXT_PUBLIC_SENTRY_DSN"
+        "NEXT_PUBLIC_SENTRY_DSN",
+        "NEXT_PUBLIC_EXPORT_SERVICE_URL"
       ],
       "outputs": [".next/**", "dist/**", "build/**"],
       "outputLogs": "new-only"

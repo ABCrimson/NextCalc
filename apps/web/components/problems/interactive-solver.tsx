@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import {
   Check,
   ChevronLeft,
@@ -268,7 +268,7 @@ export function InteractiveSolver({
 
           {showSolution && currentStepData && (
             <AnimatePresence mode="wait">
-              <motion.div
+              <m.div
                 key={currentStep}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -319,7 +319,7 @@ export function InteractiveSolver({
                     )}
                   </CardContent>
                 </Card>
-              </motion.div>
+              </m.div>
             </AnimatePresence>
           )}
 
@@ -384,15 +384,15 @@ export function InteractiveSolver({
                   {/* Feedback */}
                   <AnimatePresence>
                     {feedback && (
-                      <motion.div
+                      <m.div
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         className={cn(
                           'p-4 rounded-lg flex items-center gap-2',
                           feedback.type === 'success'
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                            : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+                            ? 'bg-primary/10 text-primary'
+                            : 'bg-destructive/10 text-destructive',
                         )}
                         role="alert"
                         aria-live="polite"
@@ -403,7 +403,7 @@ export function InteractiveSolver({
                           <X className="h-5 w-5" aria-hidden="true" />
                         )}
                         <span className="font-medium">{feedback.message}</span>
-                      </motion.div>
+                      </m.div>
                     )}
                   </AnimatePresence>
 
@@ -504,11 +504,11 @@ function HintCard({
           <span>Click to reveal hint {index + 1}</span>
         </Button>
       ) : (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
           transition={{ duration: 0.3 }}
-          className="p-4 bg-yellow-50 dark:bg-yellow-900/20"
+          className="p-4 bg-muted"
         >
           <div className="flex items-start gap-2">
             <Lightbulb
@@ -517,7 +517,7 @@ function HintCard({
             />
             <p className="text-sm">{hint}</p>
           </div>
-        </motion.div>
+        </m.div>
       )}
     </div>
   );

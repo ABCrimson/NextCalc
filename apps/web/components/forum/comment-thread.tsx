@@ -8,7 +8,7 @@
  */
 
 import { useMutation } from '@apollo/client/react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { ChevronDown, ChevronUp, Loader2, MessageSquare, Reply, Trash2 } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import {
@@ -46,6 +46,7 @@ function SingleComment({
   const prefersReduced = useReducedMotion();
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [replyContent, setReplyContent] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const [createComment, { loading: submitting }] = useMutation(CREATE_COMMENT_MUTATION, {
     onCompleted() {
@@ -75,14 +76,14 @@ function SingleComment({
   }, [createComment, postId, comment.id, replyContent]);
 
   const handleDelete = useCallback(() => {
-    if (!window.confirm('Delete this comment? This cannot be undone.')) return;
     deleteComment({ variables: { id: comment.id } });
+    setShowDeleteConfirm(false);
   }, [deleteComment, comment.id]);
 
   const isOwner = currentUserId === comment.user.id;
 
   return (
-    <motion.div
+    <m.div
       {...(prefersReduced
         ? {}
         : {
@@ -138,9 +139,9 @@ function SingleComment({
               </button>
             )}
 
-            {isOwner && (
+            {isOwner && !showDeleteConfirm && (
               <button
-                onClick={handleDelete}
+                onClick={() => setShowDeleteConfirm(true)}
                 disabled={deleting}
                 className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded px-1"
               >
@@ -152,12 +153,29 @@ function SingleComment({
                 Delete
               </button>
             )}
+            {isOwner && showDeleteConfirm && (
+              <span className="flex items-center gap-1 text-xs">
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="text-destructive hover:text-destructive/80 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded px-1"
+                >
+                  {deleting ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Confirm Delete'}
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded px-1"
+                >
+                  Cancel
+                </button>
+              </span>
+            )}
           </div>
 
           {/* Inline reply form */}
           <AnimatePresence>
             {showReplyForm && (
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
@@ -175,7 +193,7 @@ function SingleComment({
                     size="sm"
                     onClick={handleSubmitReply}
                     disabled={!replyContent.trim() || submitting}
-                    className="gap-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white"
+                    className="gap-1 bg-gradient-to-r from-primary to-calculator-special hover:from-primary/90 hover:to-calculator-special/90 text-white"
                   >
                     {submitting ? (
                       <Loader2 className="h-3 w-3 animate-spin" />
@@ -195,12 +213,12 @@ function SingleComment({
                     Cancel
                   </Button>
                 </div>
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
         </div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -293,7 +311,7 @@ function CommentWithReplies({
       {hasMany && (
         <button
           onClick={() => setExpanded(!expanded)}
-          className="ml-12 flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 transition-colors py-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded"
+          className="ml-12 flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors py-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded"
         >
           {expanded ? (
             <>

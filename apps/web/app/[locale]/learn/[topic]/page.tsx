@@ -1,8 +1,8 @@
-import { getDefinitionsByTopic, MathTopic } from '@nextcalc/math-engine/knowledge';
-import { getProblemsByTopic } from '@nextcalc/math-engine/problems';
+import { type Definition, getDefinitionsByTopic, MathTopic } from '@nextcalc/math-engine/knowledge';
+import { getProblemsByTopic, type Problem } from '@nextcalc/math-engine/problems';
 import { ArrowLeft, BookOpen, Code, Puzzle } from 'lucide-react';
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { auth } from '@/auth';
@@ -54,6 +54,28 @@ export async function generateMetadata({
 }
 
 /**
+ * Cached loader for static topic content (definitions + problems).
+ *
+ * Both `getDefinitionsByTopic` and `getProblemsByTopic` return data from the
+ * static knowledge base in math-engine. Wrapping them in `'use cache'` lets
+ * Next.js skip re-evaluation across requests and incremental builds.
+ *
+ * The user-specific bookmark data is intentionally NOT included here since it
+ * depends on the current session.
+ */
+async function getTopicStaticContent(topic: MathTopic) {
+  'use cache';
+
+  const definitions = getDefinitionsByTopic(topic);
+  const problems = getProblemsByTopic(topic);
+
+  return {
+    definitions: [...definitions] as Definition[],
+    problems: [...problems] as Problem[],
+  };
+}
+
+/**
  * Topic-Specific Learning Page
  *
  * Server component that displays definitions and resources for a specific topic.
@@ -67,10 +89,7 @@ export default async function TopicPage({ params }: { params: Promise<{ topic: s
     notFound();
   }
 
-  const [definitions, problems] = await Promise.all([
-    getDefinitionsByTopic(topic),
-    getProblemsByTopic(topic),
-  ]);
+  const { definitions, problems } = await getTopicStaticContent(topic);
 
   // Fetch user's bookmarked definition IDs
   let bookmarkedIds: string[] = [];

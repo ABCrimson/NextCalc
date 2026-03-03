@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 /**
@@ -104,7 +104,7 @@ export function ProgressRing({
         />
 
         {/* Progress circle */}
-        <motion.circle
+        <m.circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
@@ -123,7 +123,7 @@ export function ProgressRing({
 
       {/* Center label */}
       {displayValue && (
-        <motion.div
+        <m.div
           className="absolute inset-0 flex items-center justify-center"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -132,7 +132,7 @@ export function ProgressRing({
           <span className="text-sm font-semibold text-foreground" aria-hidden="true">
             {displayValue}
           </span>
-        </motion.div>
+        </m.div>
       )}
     </div>
   );

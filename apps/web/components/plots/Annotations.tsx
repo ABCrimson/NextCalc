@@ -14,7 +14,7 @@
  * @module components/plots/Annotations
  */
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useCallback, useId, useMemo } from 'react';
 
@@ -273,7 +273,7 @@ export function Annotations({
             const midY = (ann.py1 + ann.py2) / 2;
 
             return (
-              <motion.g
+              <m.g
                 key={ann.id}
                 variants={arrowVariants}
                 initial="hidden"
@@ -388,7 +388,7 @@ export function Annotations({
                     <DeleteButton onDelete={() => onDelete(ann.id)} label={ann.text ?? 'arrow'} />
                   </foreignObject>
                 )}
-              </motion.g>
+              </m.g>
             );
           })}
         </AnimatePresence>
@@ -403,7 +403,7 @@ export function Annotations({
           const color = ann.color ?? '#06b6d4';
 
           return (
-            <motion.div
+            <m.div
               key={ann.id}
               variants={labelVariants}
               initial="hidden"
@@ -473,7 +473,7 @@ export function Annotations({
 
               {/* Delete button — always visible when selected, hover on others */}
               {isSelected && <DeleteButton onDelete={() => onDelete(ann.id)} label={ann.text} />}
-            </motion.div>
+            </m.div>
           );
         })}
       </AnimatePresence>

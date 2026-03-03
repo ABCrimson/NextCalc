@@ -14,7 +14,7 @@
  * canvas sits on top regardless.
  */
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { Hand, Maximize2, ZoomIn, ZoomOut } from 'lucide-react';
 import {
   type MouseEvent,
@@ -1615,7 +1615,7 @@ export function UnifiedGraphRenderer({
       )}
 
       {/* Controls Overlay */}
-      <motion.div
+      <m.div
         className="absolute top-4 right-4 flex flex-col gap-2 glass-light rounded-lg p-2"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -1651,22 +1651,22 @@ export function UnifiedGraphRenderer({
         >
           <Maximize2 className="h-4 w-4" />
         </Button>
-      </motion.div>
+      </m.div>
 
       {/* Zoom indicator */}
-      <motion.div
+      <m.div
         className="absolute bottom-4 right-4 glass-light rounded-lg px-3 py-1.5 text-sm font-medium"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
       >
         {Math.round(zoom * 100)}%
-      </motion.div>
+      </m.div>
 
       {/* Hovered node hint */}
       <AnimatePresence>
         {hoveredNode && (
-          <motion.div
+          <m.div
             className="absolute bottom-4 left-4 glass-heavy rounded-lg px-4 py-2 text-sm"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1677,7 +1677,7 @@ export function UnifiedGraphRenderer({
               <Hand className="h-4 w-4" />
               <span>Drag to move node • Click to select</span>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

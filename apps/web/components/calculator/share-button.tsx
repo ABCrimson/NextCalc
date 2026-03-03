@@ -21,7 +21,7 @@
  */
 
 import { useMutation } from '@apollo/client/react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { Check, Copy, ExternalLink, Loader2, Share2 } from 'lucide-react';
 import { Popover as PopoverPrimitive } from 'radix-ui';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
@@ -347,7 +347,7 @@ export function ShareButton({ expression, result, mode, angle, className }: Shar
         >
           <AnimatePresence mode="wait">
             {open && (
-              <motion.div
+              <m.div
                 key="share-popover"
                 variants={popoverVariants}
                 initial="initial"
@@ -406,7 +406,7 @@ export function ShareButton({ expression, result, mode, angle, className }: Shar
                   >
                     <AnimatePresence mode="wait" initial={false}>
                       {copyStatus === 'copied' ? (
-                        <motion.span
+                        <m.span
                           key="check"
                           initial={
                             prefersReducedMotion ? { opacity: 0 } : { scale: 0.6, opacity: 0 }
@@ -418,9 +418,9 @@ export function ShareButton({ expression, result, mode, angle, className }: Shar
                         >
                           <Check className="h-4 w-4" aria-hidden="true" />
                           Copied!
-                        </motion.span>
+                        </m.span>
                       ) : isCreating ? (
-                        <motion.span
+                        <m.span
                           key="loading"
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
@@ -430,9 +430,9 @@ export function ShareButton({ expression, result, mode, angle, className }: Shar
                         >
                           <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                           Creating...
-                        </motion.span>
+                        </m.span>
                       ) : (
-                        <motion.span
+                        <m.span
                           key="copy"
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
@@ -442,7 +442,7 @@ export function ShareButton({ expression, result, mode, angle, className }: Shar
                         >
                           <Copy className="h-4 w-4" aria-hidden="true" />
                           Copy Link
-                        </motion.span>
+                        </m.span>
                       )}
                     </AnimatePresence>
                   </button>
@@ -483,7 +483,7 @@ export function ShareButton({ expression, result, mode, angle, className }: Shar
                     )}
                   </p>
                 )}
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
         </PopoverPrimitive.Content>

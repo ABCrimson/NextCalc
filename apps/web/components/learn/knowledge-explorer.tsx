@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { Book, Bookmark, ChevronRight, ExternalLink, Lightbulb, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -129,11 +129,11 @@ export function KnowledgeExplorer({
   };
 
   const typeColors: Record<KnowledgeItemType, string> = {
-    definition: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-    theorem: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
-    proof: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-    example: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-    concept: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
+    definition: 'bg-primary/10 text-primary',
+    theorem: 'bg-accent/10 text-accent-foreground',
+    proof: 'bg-secondary/10 text-secondary-foreground',
+    example: 'bg-muted text-muted-foreground',
+    concept: 'bg-primary/5 text-primary',
   };
 
   return (
@@ -178,7 +178,7 @@ export function KnowledgeExplorer({
             <ScrollArea className="h-[600px]">
               <div className="space-y-2">
                 {filteredItems.map((item) => (
-                  <motion.div
+                  <m.div
                     key={item.id}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -231,7 +231,7 @@ export function KnowledgeExplorer({
                         <TopicTag topic={item.topic} size="sm" />
                       </CardHeader>
                     </Card>
-                  </motion.div>
+                  </m.div>
                 ))}
 
                 {filteredItems.length === 0 && (
@@ -247,7 +247,7 @@ export function KnowledgeExplorer({
       <div className="lg:col-span-2">
         <AnimatePresence mode="wait">
           {selectedItem ? (
-            <motion.div
+            <m.div
               key={selectedItem.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -366,7 +366,7 @@ export function KnowledgeExplorer({
                   )}
                 </CardContent>
               </Card>
-            </motion.div>
+            </m.div>
           ) : (
             <Card>
               <CardContent className="flex flex-col items-center justify-center h-[600px] text-center">

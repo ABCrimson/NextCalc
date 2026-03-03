@@ -1,7 +1,7 @@
 'use client';
 
 import { type ShorResult, shorAlgorithm } from '@nextcalc/math-engine';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { Activity, ChevronRight, Cpu, Info, Pause, Play, RotateCcw, X, Zap } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert } from '@/components/ui/alert';
@@ -226,7 +226,7 @@ function GateBox({
 }) {
   const p = GATE_PALETTE[gateKey];
   return (
-    <motion.div
+    <m.div
       className="relative flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center text-base font-bold select-none z-10"
       style={{
         background: isActive ? p.bg : isExecuted ? 'rgba(25,22,50,0.7)' : `${p.bg}28`,
@@ -245,7 +245,7 @@ function GateBox({
     >
       {p.label}
       {isActive && (
-        <motion.div
+        <m.div
           className="absolute inset-0 rounded-lg pointer-events-none"
           style={{
             background:
@@ -255,7 +255,7 @@ function GateBox({
           transition={{ duration: 1.1, repeat: Infinity }}
         />
       )}
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -284,7 +284,7 @@ function AmplitudeBar({
   const mag = Complex.magnitude(amplitude);
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, x: -14 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.016 }}
@@ -307,7 +307,7 @@ function AmplitudeBar({
             border: `1px solid hsl(264,${30 + prob * 25}%,${30 + prob * 20}%,0.35)`,
           }}
         >
-          <motion.div
+          <m.div
             className="absolute inset-y-0 left-0 rounded-lg"
             style={{
               background: `linear-gradient(90deg,
@@ -343,7 +343,7 @@ function AmplitudeBar({
           {amplitude.imag.toFixed(2)}i
         </Badge>
       )}
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -754,7 +754,7 @@ export function QuantumSimulator({
               {/* Measurement result */}
               <AnimatePresence>
                 {measurementResult && (
-                  <motion.div
+                  <m.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
@@ -783,7 +783,7 @@ export function QuantumSimulator({
                         </div>
                       </div>
                     </Alert>
-                  </motion.div>
+                  </m.div>
                 )}
               </AnimatePresence>
             </CardContent>
@@ -1154,7 +1154,7 @@ export function QuantumSimulator({
                     </Button>
                   </div>
                   {shorResult && (
-                    <motion.div
+                    <m.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       className="space-y-3"
@@ -1188,7 +1188,7 @@ export function QuantumSimulator({
                           <ScrollArea className="h-64">
                             <div className="space-y-2 pr-4">
                               {shorResult.steps.map((step, i) => (
-                                <motion.div
+                                <m.div
                                   key={i}
                                   initial={{ opacity: 0, x: -10 }}
                                   animate={{ opacity: i <= shorCurrentStep ? 1 : 0.4, x: 0 }}
@@ -1211,13 +1211,13 @@ export function QuantumSimulator({
                                       {step}
                                     </div>
                                   </div>
-                                </motion.div>
+                                </m.div>
                               ))}
                             </div>
                           </ScrollArea>
                         </CardContent>
                       </Card>
-                    </motion.div>
+                    </m.div>
                   )}
                 </div>
               </TabsContent>

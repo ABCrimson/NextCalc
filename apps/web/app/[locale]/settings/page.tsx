@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import {
   AlertCircle,
   Calculator,
@@ -135,13 +135,13 @@ function saveSettings(settings: UserSettings): void {
 /** Animated section card that slides in from below. */
 function SettingsSection({ children, delay = 0 }: { children: ReactNode; delay?: number }) {
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay, ease: 'easeOut' }}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -341,12 +341,12 @@ export default function SettingsPage() {
       {/* Animated gradient background */}
       <div className="fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background" />
-        <motion.div
+        <m.div
           className="absolute top-[-10%] right-[-5%] w-[480px] h-[480px] rounded-full bg-gradient-to-br from-violet-500/10 to-indigo-500/10 blur-3xl"
           animate={{ x: [0, 60, 0], y: [0, 40, 0], scale: [1, 1.15, 1] }}
           transition={{ duration: 22, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
         />
-        <motion.div
+        <m.div
           className="absolute bottom-[-10%] left-[-5%] w-[560px] h-[560px] rounded-full bg-gradient-to-br from-sky-500/10 to-cyan-500/10 blur-3xl"
           animate={{ x: [0, -60, 0], y: [0, -40, 0], scale: [1, 1.1, 1] }}
           transition={{ duration: 28, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
@@ -355,7 +355,7 @@ export default function SettingsPage() {
         <div
           className="absolute inset-0 opacity-[0.06]"
           style={{
-            backgroundImage: 'radial-gradient(circle, rgba(148,163,184,0.8) 1px, transparent 1px)',
+            backgroundImage: 'radial-gradient(circle, oklch(0.72 0.02 260 / 0.15) 1px, transparent 1px)',
             backgroundSize: '28px 28px',
           }}
         />
@@ -363,7 +363,7 @@ export default function SettingsPage() {
 
       <div className="container mx-auto max-w-3xl px-4 py-10 relative">
         {/* Page header */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45 }}
@@ -378,7 +378,7 @@ export default function SettingsPage() {
             </h1>
           </div>
           <p className="text-muted-foreground text-sm ml-[52px]">{t('subtitle')}</p>
-        </motion.div>
+        </m.div>
 
         <main className="space-y-6" aria-label="Settings sections">
           {/* ------------------------------------------------------------------ */}
@@ -691,24 +691,24 @@ export default function SettingsPage() {
               {/* Status feedback */}
               <div aria-live="polite" aria-atomic="true">
                 {saveStatus.type === 'saved' && (
-                  <motion.span
+                  <m.span
                     initial={{ opacity: 0, x: -8 }}
                     animate={{ opacity: 1, x: 0 }}
                     className="flex items-center gap-1.5 text-sm text-emerald-400 font-medium"
                   >
                     <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
                     {t('saved')}
-                  </motion.span>
+                  </m.span>
                 )}
                 {saveStatus.type === 'error' && (
-                  <motion.span
+                  <m.span
                     initial={{ opacity: 0, x: -8 }}
                     animate={{ opacity: 1, x: 0 }}
                     className="flex items-center gap-1.5 text-sm text-destructive font-medium"
                   >
                     <AlertCircle className="h-4 w-4" aria-hidden="true" />
                     {t('saveFailed')}
-                  </motion.span>
+                  </m.span>
                 )}
                 {saveStatus.type === 'idle' && (
                   <span className="text-xs text-muted-foreground">{t('saveAutoHint')}</span>

@@ -248,16 +248,30 @@ export function isValidExpression(expression: string): boolean {
 }
 
 /**
+ * Built-in mathematical constants that are not variables
+ */
+const BUILTIN_CONSTANTS: ReadonlySet<string> = new Set([
+  'pi',
+  'π',
+  'e',
+  'tau',
+  'τ',
+  'i',
+  'phi',
+  'φ',
+]);
+
+/**
  * Extract all variable names from an expression
  * @param expression - Expression string or parsed AST
- * @returns Set of variable names
+ * @returns Set of variable names (excludes built-in constants like pi, e, tau)
  */
 export function extractVariables(expression: string | ExpressionNode): Set<string> {
   const ast = typeof expression === 'string' ? parse(expression) : expression;
   const variables = new Set<string>();
 
   function traverse(node: ExpressionNode): void {
-    if (node.type === NodeType.SymbolNode && node.name) {
+    if (node.type === NodeType.SymbolNode && node.name && !BUILTIN_CONSTANTS.has(node.name)) {
       variables.add(node.name);
     } else if (node.args) {
       node.args.forEach(traverse);

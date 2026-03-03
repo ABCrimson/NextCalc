@@ -9,6 +9,7 @@ import type { NextRequest } from 'next/server';
 import type { Session } from 'next-auth';
 import { auth } from '../../auth';
 import { can, type Permission } from './rbac';
+import { ROLE_HIERARCHY } from './roles';
 
 /**
  * Route context type for Next.js 16
@@ -52,14 +53,8 @@ export async function verifyAuth() {
 export async function verifyRole(requiredRole: UserRole) {
   const session = await verifyAuth();
 
-  const roleHierarchy: Record<UserRole, number> = {
-    USER: 1,
-    MODERATOR: 2,
-    ADMIN: 3,
-  };
-
-  const userLevel = roleHierarchy[session.user.role];
-  const requiredLevel = roleHierarchy[requiredRole];
+  const userLevel = ROLE_HIERARCHY[session.user.role];
+  const requiredLevel = ROLE_HIERARCHY[requiredRole];
 
   if (userLevel < requiredLevel) {
     throw new Error(
@@ -112,7 +107,7 @@ export function withAuth(
       const session = await verifyAuth();
       return await handler(req, session, context);
     } catch (error) {
-      if (error instanceof Error && error.message.includes('Unauthorized')) {
+      if (error instanceof Error && (error.message.includes('Unauthorized') || error.message.includes('Authentication'))) {
         return Response.json({ error: error.message }, { status: 401 });
       }
       throw error;

@@ -38,21 +38,12 @@ export const profileResolvers = {
 
       // User is already in context (requireAuth populates it) — skip redundant query
       const dbUser = args.userId === user.id ? user : await context.prisma.user.findUnique({ where: { id: args.userId } });
-      const userProgress = await context.prisma.userProgress.findUnique({
-        where: { userId: args.userId },
-      });
       if (!dbUser) return null;
 
-      const recentAchievements = userProgress
-        ? await context.prisma.userAchievement.findMany({
-            where: { userProgressId: userProgress.id },
-            include: { achievement: true },
-            orderBy: { earnedAt: 'desc' },
-            take: 10,
-          })
-        : [];
-
-      const [worksheetCount, forumPostCount, calculationCount] = await Promise.all([
+      const [userProgress, worksheetCount, forumPostCount, calculationCount] = await Promise.all([
+        context.prisma.userProgress.findUnique({
+          where: { userId: args.userId },
+        }),
         context.prisma.worksheet.count({
           where: { userId: args.userId, deletedAt: null },
         }),
@@ -63,6 +54,15 @@ export const profileResolvers = {
           where: { userId: args.userId },
         }),
       ]);
+
+      const recentAchievements = userProgress
+        ? await context.prisma.userAchievement.findMany({
+            where: { userProgressId: userProgress.id },
+            include: { achievement: true },
+            orderBy: { earnedAt: 'desc' },
+            take: 10,
+          })
+        : [];
 
       return {
         user: dbUser,
@@ -94,8 +94,10 @@ export const profileResolvers = {
         throw new ForbiddenError('You can only view your own profile data');
       }
 
+      const days = Math.min(args.days ?? 365, 365);
+
       const since = new Date();
-      since.setDate(since.getDate() - args.days);
+      since.setDate(since.getDate() - days);
 
       const [attempts, calculations] = await Promise.all([
         context.prisma.attempt.findMany({
@@ -149,25 +151,35 @@ export const profileResolvers = {
         };
       }
 
-      const topicProgressData = await context.prisma.topicProgress.findMany({
-        where: { userProgressId: userProgress.id },
-        include: { topic: true },
-      });
+      // Only fetch last 91 days of attempts for streak calculation (not unbounded)
+      const streakSince = new Date();
+      streakSince.setDate(streakSince.getDate() - 91);
+
+      const [topicProgressData, sessions, allAttempts] = await Promise.all([
+        context.prisma.topicProgress.findMany({
+          where: { userProgressId: userProgress.id },
+          include: { topic: true },
+        }),
+        context.prisma.practiceSession.findMany({
+          where: {
+            userProgressId: userProgress.id,
+            completedAt: { not: null },
+          },
+          orderBy: { completedAt: 'desc' },
+          take: 30,
+        }),
+        context.prisma.attempt.findMany({
+          where: { userProgressId: userProgress.id, correct: true, createdAt: { gte: streakSince } },
+          orderBy: { createdAt: 'asc' },
+          select: { createdAt: true },
+        }),
+      ]);
 
       const topicMastery = topicProgressData.map((tp) => ({
         topic: tp.topic.name,
         mastery: tp.masteryLevel,
         problemsSolved: tp.problemsSolved,
       }));
-
-      const sessions = await context.prisma.practiceSession.findMany({
-        where: {
-          userProgressId: userProgress.id,
-          completedAt: { not: null },
-        },
-        orderBy: { completedAt: 'desc' },
-        take: 30,
-      });
 
       const accuracyTrend = sessions
         .filter((s) => s.completedAt)
@@ -185,15 +197,6 @@ export const profileResolvers = {
         totalTime: s.totalTime,
         completedAt: s.completedAt?.toISOString() ?? null,
       }));
-
-      // Only fetch last 91 days of attempts for streak calculation (not unbounded)
-      const streakSince = new Date();
-      streakSince.setDate(streakSince.getDate() - 91);
-      const allAttempts = await context.prisma.attempt.findMany({
-        where: { userProgressId: userProgress.id, correct: true, createdAt: { gte: streakSince } },
-        orderBy: { createdAt: 'asc' },
-        select: { createdAt: true },
-      });
 
       const streakByDay = new Map<string, number>();
       let currentStreak = 0;

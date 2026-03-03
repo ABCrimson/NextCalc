@@ -163,50 +163,63 @@ export function fft(signal: number[], sampleRate = 1.0): FFTResult {
 /**
  * FFT implementation for complex input
  *
- * Core recursive FFT using Cooley-Tukey decimation-in-time algorithm.
+ * Iterative Cooley-Tukey FFT using bit-reversal permutation and butterfly
+ * computation.  Uses Float64Array for real and imaginary parts to eliminate
+ * O(N log N) object allocations.
  *
  * @param x - Complex input sequence
  * @returns Complex output sequence
  */
 function fftComplex(x: Complex[]): Complex[] {
   const n = x.length;
-
-  // Base case: DFT for single element
   if (n <= 1) return x;
 
-  // Divide: separate even and odd indices
-  const even: Complex[] = [];
-  const odd: Complex[] = [];
+  // Use typed arrays for real and imaginary parts
+  const re = new Float64Array(n);
+  const im = new Float64Array(n);
 
+  // Bit-reversal permutation
+  const bits = Math.log2(n) | 0;
   for (let i = 0; i < n; i++) {
-    if (i % 2 === 0) {
-      even.push(x[i] as Complex);
-    } else {
-      odd.push(x[i] as Complex);
+    let rev = 0;
+    for (let b = 0; b < bits; b++) {
+      rev = (rev << 1) | ((i >> b) & 1);
+    }
+    const xi = x[i]!;
+    re[rev] = xi.real;
+    im[rev] = xi.imag;
+  }
+
+  // Butterfly computation
+  for (let size = 2; size <= n; size *= 2) {
+    const halfSize = size / 2;
+    const angleStep = (-2 * Math.PI) / size;
+
+    for (let start = 0; start < n; start += size) {
+      for (let k = 0; k < halfSize; k++) {
+        const angle = angleStep * k;
+        const twRe = Math.cos(angle);
+        const twIm = Math.sin(angle);
+
+        const evenIdx = start + k;
+        const oddIdx = start + k + halfSize;
+
+        // twiddle * odd
+        const tRe = twRe * re[oddIdx]! - twIm * im[oddIdx]!;
+        const tIm = twRe * im[oddIdx]! + twIm * re[oddIdx]!;
+
+        re[oddIdx] = re[evenIdx]! - tRe;
+        im[oddIdx] = im[evenIdx]! - tIm;
+        re[evenIdx] = re[evenIdx]! + tRe;
+        im[evenIdx] = im[evenIdx]! + tIm;
+      }
     }
   }
 
-  // Conquer: recursively compute FFT of halves
-  const evenFFT = fftComplex(even);
-  const oddFFT = fftComplex(odd);
-
-  // Combine: apply twiddle factors
+  // Convert back to Complex array
   const result: Complex[] = Array(n);
-
-  for (let k = 0; k < n / 2; k++) {
-    // Twiddle factor: W_N^k = e^(-2πik/N)
-    const angle = (-2 * Math.PI * k) / n;
-    const twiddle: Complex = {
-      real: Math.cos(angle),
-      imag: Math.sin(angle),
-    };
-
-    // Complex multiplication: twiddle * oddFFT[k]
-    const twiddledOdd = complexMultiply(twiddle, oddFFT[k] as Complex);
-
-    // Combine results
-    result[k] = complexAdd(evenFFT[k] as Complex, twiddledOdd);
-    result[k + n / 2] = complexSubtract(evenFFT[k] as Complex, twiddledOdd);
+  for (let i = 0; i < n; i++) {
+    result[i] = { real: re[i]!, imag: im[i]! };
   }
 
   return result;
@@ -577,36 +590,6 @@ export function findDominantFrequencies(
 // ============================================================================
 // UTILITY FUNCTIONS
 // ============================================================================
-
-/**
- * Complex number addition
- */
-function complexAdd(a: Complex, b: Complex): Complex {
-  return {
-    real: a.real + b.real,
-    imag: a.imag + b.imag,
-  };
-}
-
-/**
- * Complex number subtraction
- */
-function complexSubtract(a: Complex, b: Complex): Complex {
-  return {
-    real: a.real - b.real,
-    imag: a.imag - b.imag,
-  };
-}
-
-/**
- * Complex number multiplication
- */
-function complexMultiply(a: Complex, b: Complex): Complex {
-  return {
-    real: a.real * b.real - a.imag * b.imag,
-    imag: a.real * b.imag + a.imag * b.real,
-  };
-}
 
 /**
  * Find next power of two greater than or equal to n

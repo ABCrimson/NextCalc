@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { useMemo } from 'react';
 import { LaTeXRenderer } from '@/components/math/latex-renderer';
 import { Card } from '@/components/ui/card';
@@ -78,7 +78,7 @@ export function Display({ expression, result, isPending = false, mode, angle }: 
   );
 
   return (
-    <motion.div {...containerVariants}>
+    <m.div {...containerVariants}>
       {/* ARIA live region for screen readers */}
       <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
         {liveAnnouncement}
@@ -108,7 +108,7 @@ export function Display({ expression, result, isPending = false, mode, angle }: 
             </TabsList>
 
             <TabsContent value="plain">
-              <motion.div {...contentVariants} className="text-right space-y-3 min-w-0">
+              <m.div {...contentVariants} className="text-right space-y-3 min-w-0">
                 <div
                   className="text-base text-muted-foreground font-mono min-h-[1.75rem] tracking-wider overflow-x-auto whitespace-nowrap scrollbar-none"
                   role="status"
@@ -116,7 +116,7 @@ export function Display({ expression, result, isPending = false, mode, angle }: 
                 >
                   {expression || '\u00A0'}
                 </div>
-                <motion.div
+                <m.div
                   key={String(displayResult)}
                   {...resultVariants}
                   className="text-5xl font-bold font-mono min-h-[3.5rem] bg-gradient-to-br from-sky-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent overflow-x-auto whitespace-nowrap scrollbar-none"
@@ -125,12 +125,12 @@ export function Display({ expression, result, isPending = false, mode, angle }: 
                   aria-busy={isPending}
                 >
                   {displayResult !== null ? formattedResult : '\u00A0'}
-                </motion.div>
-              </motion.div>
+                </m.div>
+              </m.div>
             </TabsContent>
 
             <TabsContent value="latex">
-              <motion.div {...contentVariants} className="text-right space-y-3 min-w-0">
+              <m.div {...contentVariants} className="text-right space-y-3 min-w-0">
                 {expression && (
                   <div
                     className="min-h-[1.75rem] text-foreground/80 overflow-x-auto"
@@ -141,7 +141,7 @@ export function Display({ expression, result, isPending = false, mode, angle }: 
                   </div>
                 )}
                 {displayResult !== null && (
-                  <motion.div
+                  <m.div
                     key={String(displayResult)}
                     {...resultVariants}
                     className="text-5xl font-bold font-mono bg-gradient-to-br from-sky-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent overflow-x-auto whitespace-nowrap scrollbar-none"
@@ -150,9 +150,9 @@ export function Display({ expression, result, isPending = false, mode, angle }: 
                     aria-busy={isPending}
                   >
                     = {formattedResult}
-                  </motion.div>
+                  </m.div>
                 )}
-              </motion.div>
+              </m.div>
             </TabsContent>
           </Tabs>
 
@@ -170,6 +170,6 @@ export function Display({ expression, result, isPending = false, mode, angle }: 
           </div>
         </div>
       </Card>
-    </motion.div>
+    </m.div>
   );
 }

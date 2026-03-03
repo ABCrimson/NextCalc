@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { Pause, Play, RotateCcw, SkipBack, SkipForward } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -217,7 +217,7 @@ export function AlgorithmVisualizer({
             <CardHeader>
               <CardTitle className="text-lg">Visualization</CardTitle>
               <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
-                <motion.div
+                <m.div
                   className="h-full bg-primary"
                   initial={{ width: 0 }}
                   animate={{ width: `${progress}%` }}
@@ -227,7 +227,7 @@ export function AlgorithmVisualizer({
             </CardHeader>
             <CardContent>
               <AnimatePresence mode="wait">
-                <motion.div
+                <m.div
                   key={currentStep}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -247,7 +247,7 @@ export function AlgorithmVisualizer({
                       })}
                     />
                   )}
-                </motion.div>
+                </m.div>
               </AnimatePresence>
             </CardContent>
           </Card>
@@ -344,7 +344,7 @@ export function AlgorithmVisualizer({
                 </CardHeader>
                 <CardContent>
                   <AnimatePresence mode="wait">
-                    <motion.div
+                    <m.div
                       key={currentStep}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -353,7 +353,7 @@ export function AlgorithmVisualizer({
                       className="prose dark:prose-invert max-w-none"
                     >
                       <p>{currentStepData?.description}</p>
-                    </motion.div>
+                    </m.div>
                   </AnimatePresence>
                 </CardContent>
               </Card>
@@ -445,7 +445,7 @@ function VisualizationRenderer({
           const isCompared = compared.includes(index);
 
           return (
-            <motion.div
+            <m.div
               key={`${index}-${value}`}
               layout
               layoutId={`array-element-${index}`}
@@ -491,7 +491,7 @@ function VisualizationRenderer({
 
               {/* Animated glow effect for highlighted/compared */}
               {(isHighlighted || isCompared) && (
-                <motion.div
+                <m.div
                   className="absolute inset-0 rounded-xl"
                   style={{
                     background: isHighlighted
@@ -519,7 +519,7 @@ function VisualizationRenderer({
               >
                 {index}
               </div>
-            </motion.div>
+            </m.div>
           );
         })}
       </div>
@@ -551,7 +551,7 @@ function VisualizationRenderer({
               const isHighlighted = highlighted.includes(flatIndex);
 
               return (
-                <motion.div
+                <m.div
                   key={`${rowIndex}-${colIndex}`}
                   layout
                   initial={{ scale: 0.5, opacity: 0, rotateX: -90 }}
@@ -578,7 +578,7 @@ function VisualizationRenderer({
                   }}
                 >
                   {value}
-                </motion.div>
+                </m.div>
               );
             })}
           </div>
@@ -624,7 +624,7 @@ function VisualizationRenderer({
               const parent = parentLvl?.[parentIdx];
               if (!parent) return null;
               return (
-                <motion.line
+                <m.line
                   key={`edge-${lvl}-${i}`}
                   x1={parent.x}
                   y1={parent.y}
@@ -645,7 +645,7 @@ function VisualizationRenderer({
               const isHL = highlighted.includes(node.index);
               const isCmp = compared.includes(node.index);
               return (
-                <motion.g
+                <m.g
                   key={`node-${node.index}`}
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
@@ -678,7 +678,7 @@ function VisualizationRenderer({
                   >
                     {node.value}
                   </text>
-                </motion.g>
+                </m.g>
               );
             }),
           )}
@@ -728,7 +728,7 @@ function VisualizationRenderer({
           const to = nodes[edge.to];
           if (!from || !to) return null;
           return (
-            <motion.line
+            <m.line
               key={`gedge-${i}`}
               x1={from.x}
               y1={from.y}
@@ -747,7 +747,7 @@ function VisualizationRenderer({
           const isHL = highlighted.includes(node.index);
           const isCmp = compared.includes(node.index);
           return (
-            <motion.g
+            <m.g
               key={`gnode-${node.index}`}
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -783,7 +783,7 @@ function VisualizationRenderer({
               >
                 {node.value}
               </text>
-            </motion.g>
+            </m.g>
           );
         })}
       </svg>

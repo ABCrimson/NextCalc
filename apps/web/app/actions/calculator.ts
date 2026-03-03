@@ -88,17 +88,9 @@ export async function saveCalculation(
       };
     }
 
-    // In a real app, save to database here
-    // For now, just return success with mock ID
-    const id = crypto.randomUUID();
-
-    // Simulate database write
-    await new Promise((resolve) => setTimeout(resolve, 10));
-
-    return {
-      success: true,
-      id,
-    };
+    // TODO: Implement actual database persistence via Prisma
+    // This action is a placeholder — callers should handle the error gracefully.
+    throw new Error('saveCalculation is not yet implemented. Database persistence pending.');
   } catch (error) {
     return {
       success: false,
@@ -143,17 +135,16 @@ export async function validateExpression(expression: string): Promise<{
       };
     }
 
-    // Try parsing
-    try {
-      mathEvaluate(expression, { mode: 'approximate' });
+    // Try evaluating to validate
+    const evalResult = mathEvaluate(expression, { mode: 'approximate' });
+    if (evalResult.success) {
       return { valid: true };
-    } catch (error) {
-      return {
-        valid: false,
-        error: error instanceof Error ? error.message : 'Invalid expression',
-        suggestions: ['Check syntax', 'Use supported functions (sin, cos, tan, sqrt)'],
-      };
     }
+    return {
+      valid: false,
+      error: evalResult.error.message,
+      suggestions: ['Check syntax', 'Use supported functions (sin, cos, tan, sqrt)'],
+    };
   } catch (_error) {
     return {
       valid: false,

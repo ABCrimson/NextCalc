@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { type MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 interface TimeDomainRendererProps {
@@ -763,7 +763,7 @@ export function TimeDomainRenderer({ signal, sampleRate = 1 }: TimeDomainRendere
 
       <AnimatePresence>
         {hoveredSample && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.8, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 10 }}
@@ -784,13 +784,13 @@ export function TimeDomainRenderer({ signal, sampleRate = 1 }: TimeDomainRendere
               <div className="text-cyan-300">Time: {hoveredSample.time.toFixed(4)}s</div>
               <div className="text-purple-300">Value: {hoveredSample.value.toFixed(4)}</div>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
       <AnimatePresence>
         {(zoom !== 1 || pan !== 0) && (
-          <motion.button
+          <m.button
             initial={{ opacity: 0, scale: 0.8, y: -10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: -10 }}
@@ -809,11 +809,11 @@ export function TimeDomainRenderer({ signal, sampleRate = 1 }: TimeDomainRendere
             aria-label="Reset view to default zoom and pan"
           >
             Reset View
-          </motion.button>
+          </m.button>
         )}
       </AnimatePresence>
 
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -833,7 +833,7 @@ export function TimeDomainRenderer({ signal, sampleRate = 1 }: TimeDomainRendere
         Scroll to zoom
         <span className="mx-2 text-muted-foreground">•</span>
         Drag to pan
-      </motion.div>
+      </m.div>
     </div>
   );
 }

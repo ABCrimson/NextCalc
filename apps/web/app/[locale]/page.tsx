@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { Grid3x3, Infinity, Ruler, Sparkles, Square, TrendingUp, Variable } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
@@ -8,7 +8,7 @@ import { type CSSProperties, Suspense } from 'react';
 import { Link } from '@/i18n/navigation';
 
 const InstallPWA = dynamic(
-  () => import('@/components/install-pwa').then((m) => ({ default: m.InstallPWA })),
+  () => import('@/components/install-pwa').then((mod) => ({ default: mod.InstallPWA })),
   {
     ssr: false,
   },
@@ -170,7 +170,7 @@ export default function Home() {
 
       <div className="container mx-auto max-w-7xl">
         {/* Hero Section */}
-        <motion.header
+        <m.header
           className="text-center mb-12"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -190,43 +190,43 @@ export default function Home() {
           </p>
 
           {/* Tech Badges with staggered entrance and shimmer */}
-          <motion.div
+          <m.div
             className="flex flex-wrap items-center justify-center gap-3 mt-6 text-sm font-medium"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
           >
-            <motion.div
+            <m.div
               variants={badgeVariants}
               className="group relative flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg shadow-green-500/40 hover:shadow-xl hover:shadow-green-500/60 transition-all duration-300 hover:scale-105 overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
               <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
               <span className="relative z-10">{t('common.live' as Parameters<typeof t>[0])}</span>
-            </motion.div>
-            <motion.div
+            </m.div>
+            <m.div
               variants={badgeVariants}
               className="group relative px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/40 hover:shadow-xl hover:shadow-blue-500/60 transition-all duration-300 hover:scale-105 overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
               <span className="relative z-10">TypeScript 6.0</span>
-            </motion.div>
-            <motion.div
+            </m.div>
+            <m.div
               variants={badgeVariants}
               className="group relative px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg shadow-purple-500/40 hover:shadow-xl hover:shadow-purple-500/60 transition-all duration-300 hover:scale-105 overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
               <span className="relative z-10">Tailwind 4.2.0</span>
-            </motion.div>
-            <motion.div
+            </m.div>
+            <m.div
               variants={badgeVariants}
               className="group relative px-4 py-2 rounded-full bg-gradient-to-r from-rose-500 to-orange-600 text-white shadow-lg shadow-rose-500/40 hover:shadow-xl hover:shadow-rose-500/60 transition-all duration-300 hover:scale-105 overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
               <span className="relative z-10">Turbopack</span>
-            </motion.div>
-          </motion.div>
-        </motion.header>
+            </m.div>
+          </m.div>
+        </m.header>
 
         {/* Suspense boundary for calculator */}
         <Suspense
@@ -248,7 +248,7 @@ export default function Home() {
 
         {/* Quick Links to Advanced Features - Bento Grid */}
         <div className="mt-12 flex flex-col items-center gap-6">
-          <motion.div
+          <m.div
             className="text-center"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -260,10 +260,10 @@ export default function Home() {
             <p className="text-muted-foreground">
               {t('home.explore.subtitle' as Parameters<typeof t>[0])}
             </p>
-          </motion.div>
+          </m.div>
 
           {/* Bento grid with varying card sizes */}
-          <motion.div
+          <m.div
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 w-full max-w-5xl auto-rows-[minmax(120px,auto)]"
             variants={containerVariants}
             initial="hidden"
@@ -275,7 +275,7 @@ export default function Home() {
               // First two cards span wider on larger screens for bento layout variation
               const isLarge = index < 2;
               return (
-                <motion.div
+                <m.div
                   key={card.href}
                   variants={cardVariants}
                   className={isLarge ? 'lg:col-span-1' : ''}
@@ -318,10 +318,10 @@ export default function Home() {
                       </div>
                     </div>
                   </Link>
-                </motion.div>
+                </m.div>
               );
             })}
-          </motion.div>
+          </m.div>
         </div>
 
         {/* Modern minimal footer with gradient divider */}

@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import {
   ChevronRight,
   Info,
@@ -865,7 +865,7 @@ export function PageRankExplorer({
                               opacity="0.7"
                             />
                           )}
-                          <motion.circle
+                          <m.circle
                             cx={node.position.x}
                             cy={node.position.y}
                             r={radius}
@@ -949,7 +949,7 @@ export function PageRankExplorer({
                     maxRank > 0 && Number.isFinite(rank / maxRank) ? (rank / maxRank) * 100 : 0;
 
                   return (
-                    <motion.div
+                    <m.div
                       key={node.id}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -962,7 +962,7 @@ export function PageRankExplorer({
                       <div className="w-12 text-sm font-semibold">{node.label}</div>
                       <div className="flex-1">
                         <div className="relative h-8 bg-muted rounded overflow-hidden">
-                          <motion.div
+                          <m.div
                             className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary/80 to-primary"
                             initial={{ width: 0 }}
                             animate={{ width: `${barWidth}%` }}
@@ -983,7 +983,7 @@ export function PageRankExplorer({
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
-                    </motion.div>
+                    </m.div>
                   );
                 })}
               </div>
@@ -1100,7 +1100,7 @@ export function PageRankExplorer({
                           const maxChange = Math.max(...convergenceHistory.map((p) => p.change));
                           const height = maxChange > 0 ? (point.change / maxChange) * 100 : 0;
                           return (
-                            <motion.div
+                            <m.div
                               key={i}
                               className="flex-1 bg-primary rounded-t"
                               initial={{ height: 0 }}

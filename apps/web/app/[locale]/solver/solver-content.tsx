@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { SolverPanel } from '@/components/calculator/solver-panel';
 
 // ---------------------------------------------------------------------------
@@ -161,7 +161,7 @@ function FeatureCard({ card }: { card: FeatureCard }) {
   const tagColor = `oklch(0.80 ${accentChroma - 0.02} ${accentHue})`;
 
   return (
-    <motion.div
+    <m.div
       variants={itemVariants}
       whileHover={{ scale: 1.025, y: -3 }}
       transition={{ duration: 0.2, ease: 'easeOut' }}
@@ -226,7 +226,7 @@ function FeatureCard({ card }: { card: FeatureCard }) {
           {description}
         </p>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -245,7 +245,7 @@ export function SolverPageContent() {
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background" />
 
         {/* Orb 1 — emerald, top-right */}
-        <motion.div
+        <m.div
           className="absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full blur-3xl"
           style={{
             background:
@@ -256,7 +256,7 @@ export function SolverPageContent() {
         />
 
         {/* Orb 2 — teal/cyan, bottom-left */}
-        <motion.div
+        <m.div
           className="absolute -bottom-40 -left-40 w-[700px] h-[700px] rounded-full blur-3xl"
           style={{
             background:
@@ -267,7 +267,7 @@ export function SolverPageContent() {
         />
 
         {/* Orb 3 — purple, center */}
-        <motion.div
+        <m.div
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-3xl"
           style={{
             background: 'radial-gradient(circle, oklch(0.60 0.14 300 / 0.07) 0%, transparent 70%)',
@@ -308,7 +308,7 @@ export function SolverPageContent() {
       {/* ------------------------------------------------------------------ */}
       <div className="container mx-auto max-w-4xl py-12 px-4 relative">
         {/* Header */}
-        <motion.header
+        <m.header
           className="mb-10"
           variants={headerVariants}
           initial="hidden"
@@ -364,22 +364,22 @@ export function SolverPageContent() {
               </span>
             ))}
           </div>
-        </motion.header>
+        </m.header>
 
         {/* Solver panel — wrapped for entry animation */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
           <SolverPanel />
-        </motion.div>
+        </m.div>
 
         {/* ---------------------------------------------------------------- */}
         {/* Supported equation types                                          */}
         {/* ---------------------------------------------------------------- */}
         <section className="mt-14" aria-labelledby="equation-types-heading">
-          <motion.h2
+          <m.h2
             id="equation-types-heading"
             className="text-2xl font-semibold mb-6"
             style={{
@@ -394,9 +394,9 @@ export function SolverPageContent() {
             transition={{ duration: 0.4 }}
           >
             Supported Equation Types
-          </motion.h2>
+          </m.h2>
 
-          <motion.div
+          <m.div
             className="grid gap-5 md:grid-cols-2"
             variants={containerVariants}
             initial="hidden"
@@ -406,14 +406,14 @@ export function SolverPageContent() {
             {featureCards.map((card) => (
               <FeatureCard key={card.title} card={card} />
             ))}
-          </motion.div>
+          </m.div>
         </section>
 
         {/* ---------------------------------------------------------------- */}
         {/* Example equations                                                 */}
         {/* ---------------------------------------------------------------- */}
         <section className="mt-14" aria-labelledby="examples-heading">
-          <motion.h2
+          <m.h2
             id="examples-heading"
             className="text-2xl font-semibold mb-6"
             style={{
@@ -428,9 +428,9 @@ export function SolverPageContent() {
             transition={{ duration: 0.4 }}
           >
             Example Equations
-          </motion.h2>
+          </m.h2>
 
-          <motion.div
+          <m.div
             className="space-y-3"
             variants={containerVariants}
             initial="hidden"
@@ -438,7 +438,7 @@ export function SolverPageContent() {
             viewport={{ once: true, margin: '-40px' }}
           >
             {examples.map(({ accentHue, label, equation, solution }) => (
-              <motion.div
+              <m.div
                 key={label}
                 variants={itemVariants}
                 whileHover={{ scale: 1.008 }}
@@ -470,16 +470,16 @@ export function SolverPageContent() {
                     </p>
                   </div>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
-          </motion.div>
+          </m.div>
         </section>
 
         {/* ---------------------------------------------------------------- */}
         {/* Tips                                                              */}
         {/* ---------------------------------------------------------------- */}
         <section className="mt-14" aria-labelledby="tips-heading">
-          <motion.h2
+          <m.h2
             id="tips-heading"
             className="text-2xl font-semibold mb-6"
             style={{
@@ -494,9 +494,9 @@ export function SolverPageContent() {
             transition={{ duration: 0.4 }}
           >
             Tips
-          </motion.h2>
+          </m.h2>
 
-          <motion.div
+          <m.div
             className="relative p-6 rounded-xl border overflow-hidden backdrop-blur-md"
             style={{
               background:
@@ -526,7 +526,7 @@ export function SolverPageContent() {
                 </p>
               ))}
             </div>
-          </motion.div>
+          </m.div>
         </section>
       </div>
     </main>

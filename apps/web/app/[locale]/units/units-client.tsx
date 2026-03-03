@@ -1,7 +1,7 @@
 'use client';
 
 import type { Variants } from 'framer-motion';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 
 interface CategoryCard {
   icon: string;
@@ -55,7 +55,7 @@ export function UnitsBackground() {
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background" />
 
       {/* Orb 1 — top right: blue-cyan for length/data categories */}
-      <motion.div
+      <m.div
         className="absolute -top-40 -right-40 w-[650px] h-[650px] rounded-full blur-3xl"
         style={{
           background:
@@ -74,7 +74,7 @@ export function UnitsBackground() {
       />
 
       {/* Orb 2 — bottom left: cyan-emerald for conversion theme */}
-      <motion.div
+      <m.div
         className="absolute -bottom-48 -left-48 w-[750px] h-[750px] rounded-full blur-3xl"
         style={{
           background:
@@ -94,7 +94,7 @@ export function UnitsBackground() {
       />
 
       {/* Orb 3 — center: subtle indigo accent */}
-      <motion.div
+      <m.div
         className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-3xl"
         style={{
           background: 'radial-gradient(circle, oklch(0.62 0.16 264 / 0.07) 0%, transparent 70%)',
@@ -149,14 +149,14 @@ export function UnitsBackground() {
  */
 export function UnitsCategories({ categoryCards }: UnitsClientProps) {
   return (
-    <motion.div
+    <m.div
       className="grid gap-4 sm:grid-cols-2 md:grid-cols-3"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
       {categoryCards.map((card) => (
-        <motion.div
+        <m.div
           key={card.label}
           variants={cardVariants}
           className={`group relative p-5 rounded-xl bg-gradient-to-br ${card.colorClasses} border backdrop-blur-md transition-all duration-300`}
@@ -184,8 +184,8 @@ export function UnitsCategories({ categoryCards }: UnitsClientProps) {
             <p className={`text-xs font-mono ${card.countClasses}`}>{card.exampleUnits}</p>
             <p className={`text-xs mt-1 ${card.countClasses}`}>{card.unitCount} units</p>
           </div>
-        </motion.div>
+        </m.div>
       ))}
-    </motion.div>
+    </m.div>
   );
 }

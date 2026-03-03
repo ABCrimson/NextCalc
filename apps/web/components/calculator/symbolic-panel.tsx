@@ -1,7 +1,7 @@
 'use client';
 
 import { evaluate } from '@nextcalc/math-engine';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { AlertCircle, Check, ChevronDown, ChevronUp, Copy, Info, ListOrdered } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useCallback, useId, useMemo, useState } from 'react';
@@ -178,7 +178,7 @@ function StepCard({ step, index, isExpanded, onToggle, isFinal }: StepCardProps)
   const bodyId = useId();
 
   return (
-    <motion.div
+    <m.div
       layout
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
@@ -237,7 +237,7 @@ function StepCard({ step, index, isExpanded, onToggle, isFinal }: StepCardProps)
       {/* Expandable explanation body */}
       <AnimatePresence initial={false}>
         {isExpanded && (
-          <motion.div
+          <m.div
             id={bodyId}
             role="region"
             aria-labelledby={headerId}
@@ -262,10 +262,10 @@ function StepCard({ step, index, isExpanded, onToggle, isFinal }: StepCardProps)
                 Operation: {step.operation}
               </p>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -313,7 +313,7 @@ function StepsPanel({ steps, finalLatex, timeMs, copiedSteps, onCopyFinal }: Ste
   const allExpanded = expandedSteps.size === steps.length;
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
@@ -367,7 +367,7 @@ function StepsPanel({ steps, finalLatex, timeMs, copiedSteps, onCopyFinal }: Ste
                 />
                 {/* Animated arrow connector between steps */}
                 {!isLast && (
-                  <motion.div
+                  <m.div
                     initial={{ opacity: 0, scaleY: 0 }}
                     animate={{ opacity: 1, scaleY: 1 }}
                     transition={{ duration: 0.2, delay: idx * 0.04 }}
@@ -386,7 +386,7 @@ function StepsPanel({ steps, finalLatex, timeMs, copiedSteps, onCopyFinal }: Ste
                         <path d="M0 0L4 5L8 0" fill="currentColor" />
                       </svg>
                     </div>
-                  </motion.div>
+                  </m.div>
                 )}
               </li>
             );
@@ -423,7 +423,7 @@ function StepsPanel({ steps, finalLatex, timeMs, copiedSteps, onCopyFinal }: Ste
           >
             <AnimatePresence mode="wait" initial={false}>
               {copiedSteps ? (
-                <motion.span
+                <m.span
                   key="check"
                   initial={{ scale: 0.7, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
@@ -431,9 +431,9 @@ function StepsPanel({ steps, finalLatex, timeMs, copiedSteps, onCopyFinal }: Ste
                   transition={{ duration: 0.15 }}
                 >
                   <Check className="h-4 w-4 text-green-500" aria-hidden="true" />
-                </motion.span>
+                </m.span>
               ) : (
-                <motion.span
+                <m.span
                   key="copy"
                   initial={{ scale: 0.7, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
@@ -441,13 +441,13 @@ function StepsPanel({ steps, finalLatex, timeMs, copiedSteps, onCopyFinal }: Ste
                   transition={{ duration: 0.15 }}
                 >
                   <Copy className="h-4 w-4" aria-hidden="true" />
-                </motion.span>
+                </m.span>
               )}
             </AnimatePresence>
           </Button>
         </div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -821,7 +821,7 @@ export function SymbolicPanel() {
   const stepsSection = hasSteps && (
     <AnimatePresence initial={false}>
       {showSteps && (
-        <motion.div
+        <m.div
           id="symbolic-steps-panel"
           key="steps"
           initial={{ opacity: 0, height: 0 }}
@@ -839,7 +839,7 @@ export function SymbolicPanel() {
               onCopyFinal={handleCopyFinal}
             />
           </div>
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   );

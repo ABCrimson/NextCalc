@@ -26,38 +26,38 @@ export const DIMENSIONLESS: Dimension = [0, 0, 0, 0, 0, 0, 0];
  * Base SI dimensions
  */
 export const SI_BASE_DIMENSIONS = {
-  length: [1, 0, 0, 0, 0, 0, 0] as Dimension,
-  mass: [0, 1, 0, 0, 0, 0, 0] as Dimension,
-  time: [0, 0, 1, 0, 0, 0, 0] as Dimension,
-  current: [0, 0, 0, 1, 0, 0, 0] as Dimension,
-  temperature: [0, 0, 0, 0, 1, 0, 0] as Dimension,
-  amount: [0, 0, 0, 0, 0, 1, 0] as Dimension,
-  luminousIntensity: [0, 0, 0, 0, 0, 0, 1] as Dimension,
-} as const;
+  length: [1, 0, 0, 0, 0, 0, 0],
+  mass: [0, 1, 0, 0, 0, 0, 0],
+  time: [0, 0, 1, 0, 0, 0, 0],
+  current: [0, 0, 0, 1, 0, 0, 0],
+  temperature: [0, 0, 0, 0, 1, 0, 0],
+  amount: [0, 0, 0, 0, 0, 1, 0],
+  luminousIntensity: [0, 0, 0, 0, 0, 0, 1],
+} as const satisfies Record<string, Dimension>;
 
 /**
  * Derived dimensions
  */
 export const DERIVED_DIMENSIONS = {
   // Mechanical
-  area: [2, 0, 0, 0, 0, 0, 0] as Dimension, // m²
-  volume: [3, 0, 0, 0, 0, 0, 0] as Dimension, // m³
-  velocity: [1, 0, -1, 0, 0, 0, 0] as Dimension, // m/s
-  acceleration: [1, 0, -2, 0, 0, 0, 0] as Dimension, // m/s²
-  force: [1, 1, -2, 0, 0, 0, 0] as Dimension, // kg⋅m/s² (Newton)
-  energy: [2, 1, -2, 0, 0, 0, 0] as Dimension, // kg⋅m²/s² (Joule)
-  power: [2, 1, -3, 0, 0, 0, 0] as Dimension, // kg⋅m²/s³ (Watt)
-  pressure: [-1, 1, -2, 0, 0, 0, 0] as Dimension, // kg/(m⋅s²) (Pascal)
+  area: [2, 0, 0, 0, 0, 0, 0], // m²
+  volume: [3, 0, 0, 0, 0, 0, 0], // m³
+  velocity: [1, 0, -1, 0, 0, 0, 0], // m/s
+  acceleration: [1, 0, -2, 0, 0, 0, 0], // m/s²
+  force: [1, 1, -2, 0, 0, 0, 0], // kg⋅m/s² (Newton)
+  energy: [2, 1, -2, 0, 0, 0, 0], // kg⋅m²/s² (Joule)
+  power: [2, 1, -3, 0, 0, 0, 0], // kg⋅m²/s³ (Watt)
+  pressure: [-1, 1, -2, 0, 0, 0, 0], // kg/(m⋅s²) (Pascal)
 
   // Electrical
-  charge: [0, 0, 1, 1, 0, 0, 0] as Dimension, // A⋅s (Coulomb)
-  voltage: [2, 1, -3, -1, 0, 0, 0] as Dimension, // kg⋅m²/(A⋅s³) (Volt)
-  resistance: [2, 1, -3, -2, 0, 0, 0] as Dimension, // kg⋅m²/(A²⋅s³) (Ohm)
-  capacitance: [-2, -1, 4, 2, 0, 0, 0] as Dimension, // A²⋅s⁴/(kg⋅m²) (Farad)
+  charge: [0, 0, 1, 1, 0, 0, 0], // A⋅s (Coulomb)
+  voltage: [2, 1, -3, -1, 0, 0, 0], // kg⋅m²/(A⋅s³) (Volt)
+  resistance: [2, 1, -3, -2, 0, 0, 0], // kg⋅m²/(A²⋅s³) (Ohm)
+  capacitance: [-2, -1, 4, 2, 0, 0, 0], // A²⋅s⁴/(kg⋅m²) (Farad)
 
   // Frequency
-  frequency: [0, 0, -1, 0, 0, 0, 0] as Dimension, // 1/s (Hertz)
-} as const;
+  frequency: [0, 0, -1, 0, 0, 0, 0], // 1/s (Hertz)
+} as const satisfies Record<string, Dimension>;
 
 /**
  * Check if two dimensions are equal

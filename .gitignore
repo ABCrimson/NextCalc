@@ -10,6 +10,10 @@ build/
 .DS_Store
 *.tsbuildinfo
 
+# TypeDoc generated API documentation (regenerated via `pnpm docs`)
+packages/math-engine/docs/
+packages/plot-engine/docs/
+
 # Prisma generated client (regenerated on install via postinstall)
 packages/database/src/generated/
 

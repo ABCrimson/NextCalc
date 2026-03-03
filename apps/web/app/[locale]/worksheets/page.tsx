@@ -5,7 +5,7 @@
  * and management actions (open, delete, create new).
  */
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import {
   Clock,
   Eye,
@@ -19,10 +19,11 @@ import {
   SortDesc,
   Trash2,
 } from 'lucide-react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useState, useTransition } from 'react';
+import { AlertDialog } from 'radix-ui';
+import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
+import { Button } from '@/components/ui/button';
+import { Link, useRouter } from '@/i18n/navigation';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -61,8 +62,7 @@ async function fetchWorksheets(): Promise<WorksheetSummary[]> {
 
 export default function WorksheetsPage() {
   const t = useTranslations('worksheets');
-  const pathname = usePathname();
-  const locale = pathname.split('/')[1] ?? 'en';
+  const router = useRouter();
 
   const [worksheets, setWorksheets] = useState<WorksheetSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,6 +72,8 @@ export default function WorksheetsPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [_isPending, startTransition] = useTransition();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const pendingDeleteRef = useRef<string | null>(null);
 
   // Load worksheets
   useEffect(() => {
@@ -88,10 +90,9 @@ export default function WorksheetsPage() {
     };
   }, []);
 
-  // Delete handler
+  // Delete handler — triggered when the user confirms in the AlertDialog
   const handleDelete = useCallback(
     async (id: string) => {
-      if (!confirm(t('deleteConfirm'))) return;
       setDeletingId(id);
       try {
         const res = await fetch(`/api/worksheets/${id}`, { method: 'DELETE' });
@@ -104,8 +105,27 @@ export default function WorksheetsPage() {
         setDeletingId(null);
       }
     },
-    [t],
+    [],
   );
+
+  // Prompt the user via AlertDialog before deleting
+  const promptDelete = useCallback((id: string) => {
+    pendingDeleteRef.current = id;
+    setDeleteConfirmId(id);
+  }, []);
+
+  const confirmDelete = useCallback(() => {
+    if (pendingDeleteRef.current) {
+      void handleDelete(pendingDeleteRef.current);
+      pendingDeleteRef.current = null;
+    }
+    setDeleteConfirmId(null);
+  }, [handleDelete]);
+
+  const cancelDelete = useCallback(() => {
+    pendingDeleteRef.current = null;
+    setDeleteConfirmId(null);
+  }, []);
 
   // Filter and sort
   const filtered = worksheets
@@ -146,7 +166,7 @@ export default function WorksheetsPage() {
           <p className="mt-1 text-muted-foreground text-sm">{t('subtitle')}</p>
         </div>
         <Link
-          href={`/${locale}/worksheet`}
+          href="/worksheet"
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         >
           <Plus className="h-4 w-4" />
@@ -237,7 +257,7 @@ export default function WorksheetsPage() {
           <h2 className="text-lg font-medium text-foreground mb-2">{t('emptyTitle')}</h2>
           <p className="text-muted-foreground text-sm mb-6">{t('emptyDescription')}</p>
           <Link
-            href={`/${locale}/worksheet`}
+            href="/worksheet"
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
             <Plus className="h-4 w-4" />
@@ -259,7 +279,7 @@ export default function WorksheetsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <AnimatePresence mode="popLayout">
             {filtered.map((ws) => (
-              <motion.div
+              <m.div
                 key={ws.id}
                 layout
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -268,7 +288,7 @@ export default function WorksheetsPage() {
                 transition={{ duration: 0.2 }}
               >
                 <div className="group relative rounded-2xl border border-border bg-card/80 backdrop-blur-sm p-5 hover:border-primary/30 hover:shadow-lg transition-all">
-                  <Link href={`/${locale}/worksheet?id=${ws.id}`} className="block">
+                  <Link href={`/worksheet?id=${ws.id}`} className="block">
                     <h3 className="font-semibold text-foreground truncate group-hover:text-primary transition-colors">
                       {ws.title}
                     </h3>
@@ -294,7 +314,7 @@ export default function WorksheetsPage() {
                   </Link>
                   <button
                     type="button"
-                    onClick={() => handleDelete(ws.id)}
+                    onClick={() => promptDelete(ws.id)}
                     disabled={deletingId === ws.id}
                     className="absolute top-3 right-3 p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring focus-visible:opacity-100"
                     aria-label={t('delete')}
@@ -306,7 +326,7 @@ export default function WorksheetsPage() {
                     )}
                   </button>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
           </AnimatePresence>
         </div>
@@ -317,7 +337,7 @@ export default function WorksheetsPage() {
         <div className="rounded-2xl border border-border overflow-hidden">
           <AnimatePresence mode="popLayout">
             {filtered.map((ws, i) => (
-              <motion.div
+              <m.div
                 key={ws.id}
                 layout
                 initial={{ opacity: 0, x: -10 }}
@@ -328,7 +348,7 @@ export default function WorksheetsPage() {
                 <div
                   className={`group flex items-center gap-4 px-5 py-4 hover:bg-accent/50 transition-colors ${i > 0 ? 'border-t border-border' : ''}`}
                 >
-                  <Link href={`/${locale}/worksheet?id=${ws.id}`} className="flex-1 min-w-0">
+                  <Link href={`/worksheet?id=${ws.id}`} className="flex-1 min-w-0">
                     <div className="flex items-center gap-3">
                       <FileText className="h-5 w-5 text-muted-foreground shrink-0" />
                       <div className="min-w-0">
@@ -344,7 +364,7 @@ export default function WorksheetsPage() {
                   </Link>
                   <button
                     type="button"
-                    onClick={() => handleDelete(ws.id)}
+                    onClick={() => promptDelete(ws.id)}
                     disabled={deletingId === ws.id}
                     className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring focus-visible:opacity-100"
                     aria-label={t('delete')}
@@ -356,11 +376,41 @@ export default function WorksheetsPage() {
                     )}
                   </button>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
           </AnimatePresence>
         </div>
       )}
+      {/* Delete confirmation dialog */}
+      <AlertDialog.Root open={deleteConfirmId !== null} onOpenChange={(open) => { if (!open) cancelDelete(); }}>
+        <AlertDialog.Portal>
+          <AlertDialog.Overlay className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+          <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 grid w-full max-w-md -translate-x-1/2 -translate-y-1/2 gap-4 border border-border bg-background p-6 shadow-lg rounded-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95">
+            <AlertDialog.Title className="text-lg font-semibold text-foreground">
+              {t('deleteConfirmTitle')}
+            </AlertDialog.Title>
+            <AlertDialog.Description className="text-sm text-muted-foreground">
+              {t('deleteConfirm')}
+            </AlertDialog.Description>
+            <div className="flex justify-end gap-3 mt-2">
+              <AlertDialog.Cancel asChild>
+                <Button variant="outline" onClick={cancelDelete}>
+                  {t('cancel')}
+                </Button>
+              </AlertDialog.Cancel>
+              <AlertDialog.Action asChild>
+                <Button
+                  variant="destructive"
+                  onClick={confirmDelete}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  {t('delete')}
+                </Button>
+              </AlertDialog.Action>
+            </div>
+          </AlertDialog.Content>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>
     </main>
   );
 }

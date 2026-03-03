@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 
 export default function Loading() {
@@ -8,7 +8,7 @@ export default function Loading() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-background/95 to-background">
-      <motion.div
+      <m.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
@@ -16,7 +16,7 @@ export default function Loading() {
       >
         {/* Animated Logo/Spinner */}
         <div className="flex justify-center">
-          <motion.div
+          <m.div
             animate={{
               rotate: 360,
             }}
@@ -34,7 +34,7 @@ export default function Loading() {
           <h2 className="text-xl font-semibold text-foreground mb-2">
             {t('common.loadingApp' as Parameters<typeof t>[0])}
           </h2>
-          <motion.p
+          <m.p
             animate={{ opacity: [0.5, 1, 0.5] }}
             transition={{
               duration: 1.5,
@@ -44,13 +44,13 @@ export default function Loading() {
             className="text-muted-foreground"
           >
             {t('common.initializing' as Parameters<typeof t>[0])}
-          </motion.p>
+          </m.p>
         </div>
 
         {/* Progress Dots */}
         <div className="flex gap-2 justify-center">
           {[0, 1, 2].map((index) => (
-            <motion.div
+            <m.div
               key={index}
               animate={{
                 scale: [1, 1.2, 1],
@@ -65,7 +65,7 @@ export default function Loading() {
             />
           ))}
         </div>
-      </motion.div>
+      </m.div>
     </div>
   );
 }

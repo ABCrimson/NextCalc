@@ -52,7 +52,10 @@ const nextConfig: NextConfig = {
   },
 
   // Transpile workspace packages
-  transpilePackages: ['@nextcalc/types', '@nextcalc/math-engine', '@nextcalc/plot-engine'],
+  // Only transpile @nextcalc/types (alias points to src/).
+  // math-engine and plot-engine aliases point to dist/ (pre-built), so
+  // they don't need transpilation and it would conflict with resolveAlias.
+  transpilePackages: ['@nextcalc/types'],
 
   // Experimental features in Next.js 16.2.0
   experimental: {
@@ -62,10 +65,10 @@ const nextConfig: NextConfig = {
     // Use React 19's taint API for security
     taint: true,
 
-    // Note: cacheComponents (PPR replacement) is disabled because it's incompatible
-    // with 'export const dynamic' and 'export const runtime' in API routes.
-    // Enable when migrating API routes to new caching model.
-    // cacheComponents: true,
+    // Enable the 'use cache' directive for server-side data fetching functions.
+    // This allows per-function opt-in caching without conflicting with
+    // 'export const dynamic' / 'export const runtime' in API routes.
+    useCache: true,
 
     // Optimize package imports (expanded for better bundle size)
     optimizePackageImports: [

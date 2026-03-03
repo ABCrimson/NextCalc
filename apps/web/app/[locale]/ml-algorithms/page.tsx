@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { Brain, Eye, Zap } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -212,7 +212,7 @@ export default function MLAlgorithmsPage() {
         </svg>
 
         {/* Orb 1 — top-right: blue (real-axis hue 264) */}
-        <motion.div
+        <m.div
           className="absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full blur-3xl"
           style={{
             background:
@@ -223,7 +223,7 @@ export default function MLAlgorithmsPage() {
         />
 
         {/* Orb 2 — bottom-left: purple/pink (hue 300-320) */}
-        <motion.div
+        <m.div
           className="absolute -bottom-40 -left-40 w-[700px] h-[700px] rounded-full blur-3xl"
           style={{
             background:
@@ -234,7 +234,7 @@ export default function MLAlgorithmsPage() {
         />
 
         {/* Orb 3 — center: rose/pink (hue 355) */}
-        <motion.div
+        <m.div
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-3xl"
           style={{
             background: 'radial-gradient(circle, oklch(0.65 0.18 355 / 0.08) 0%, transparent 70%)',

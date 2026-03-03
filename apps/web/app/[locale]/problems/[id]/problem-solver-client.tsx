@@ -5,6 +5,7 @@ import { useActionState, useCallback, useEffect, useRef, useState } from 'react'
 import type { ActionResult, RequestHintResult, SubmitAnswerResult } from '@/app/actions/problems';
 import { requestHint, submitAnswer } from '@/app/actions/problems';
 import { InteractiveSolver } from '@/components/math/interactive-solver';
+import { useRouter } from '@/i18n/navigation';
 
 interface ProblemSolverClientProps {
   problem: Problem;
@@ -15,6 +16,7 @@ const initialAnswerState: ActionResult<SubmitAnswerResult> = { success: false };
 const initialHintState: ActionResult<RequestHintResult> = { success: false };
 
 export function ProblemSolverClient({ problem, relatedProblemIds }: ProblemSolverClientProps) {
+  const router = useRouter();
   const [answerState, submitAnswerAction, answerPending] = useActionState(
     submitAnswer,
     initialAnswerState,
@@ -80,7 +82,7 @@ export function ProblemSolverClient({ problem, relatedProblemIds }: ProblemSolve
       {...(relatedProblemIds.length > 0
         ? {
             onNextProblem: () => {
-              window.location.href = `/problems/${relatedProblemIds[0]}`;
+              router.push(`/problems/${relatedProblemIds[0]}`);
             },
           }
         : {})}

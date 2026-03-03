@@ -43,20 +43,24 @@ import { getJSHeapUsage } from '../utils/memory';
 // ---------------------------------------------------------------------------
 
 /**
- * Module-level cache for axis label textures.
- * The axis labels are always the fixed strings 'X', 'Y', 'Z' and never
- * change at runtime, so we create each texture at most once and reuse it.
+ * Creates a canvas-based text texture for use as a sprite label.
+ * The canvas is sized to the text so it looks crisp at any zoom level.
+ *
+ * If a `cache` map is provided the texture is memoised per text string.
+ * When no cache is given the texture is always freshly created.
  */
-const axisLabelTextureCache = new Map<string, THREE.CanvasTexture>();
+function makeAxisLabelTexture(
+  text: string,
+  cache?: Map<string, THREE.CanvasTexture>,
+): THREE.CanvasTexture {
+  if (cache) {
+    const cached = cache.get(text);
+    if (cached) return cached;
+  }
 
-/**
- * Creates (or returns a cached) canvas-based text texture for use as a
- * sprite label.  The canvas is sized to the text so it looks crisp at any
- * zoom level.
- */
-function makeAxisLabelTexture(text: string): THREE.CanvasTexture {
-  const cached = axisLabelTextureCache.get(text);
-  if (cached) return cached;
+  if (typeof document === 'undefined') {
+    throw new Error('makeAxisLabelTexture requires a browser environment');
+  }
 
   const fontSize = 48;
   const padding = 12;
@@ -92,7 +96,7 @@ function makeAxisLabelTexture(text: string): THREE.CanvasTexture {
 
   const texture = new THREE.CanvasTexture(offscreen);
   texture.needsUpdate = true;
-  axisLabelTextureCache.set(text, texture);
+  cache?.set(text, texture);
   return texture;
 }
 
@@ -100,8 +104,13 @@ function makeAxisLabelTexture(text: string): THREE.CanvasTexture {
  * Creates a billboard sprite positioned at `position`.
  * `scale` controls the world-space size of the label quad.
  */
-function makeAxisLabelSprite(text: string, position: THREE.Vector3, scale: number): THREE.Sprite {
-  const texture = makeAxisLabelTexture(text);
+function makeAxisLabelSprite(
+  text: string,
+  position: THREE.Vector3,
+  scale: number,
+  cache?: Map<string, THREE.CanvasTexture>,
+): THREE.Sprite {
+  const texture = makeAxisLabelTexture(text, cache);
   const material = new THREE.SpriteMaterial({
     map: texture,
     transparent: true,
@@ -1210,6 +1219,9 @@ export class WebGL3DRenderer implements IRenderer {
   // Lighting
   private directionalLight: THREE.DirectionalLight | null = null;
 
+  // Instance-level axis label texture cache (disposed with the renderer)
+  private axisLabelTextureCache = new Map<string, THREE.CanvasTexture>();
+
   // HDR environment map
   private envMap: THREE.CubeTexture | null = null;
   private _envMapEnabled = false;
@@ -1329,9 +1341,9 @@ export class WebGL3DRenderer implements IRenderer {
       const labelScale = 3.5;
       this.axisLabelGroup = new THREE.Group();
 
-      const xLabel = makeAxisLabelSprite('X', new THREE.Vector3(22, 0, 0), labelScale);
-      const yLabel = makeAxisLabelSprite('Y', new THREE.Vector3(0, 0, 22), labelScale);
-      const zLabel = makeAxisLabelSprite('Z', new THREE.Vector3(0, 22, 0), labelScale);
+      const xLabel = makeAxisLabelSprite('X', new THREE.Vector3(22, 0, 0), labelScale, this.axisLabelTextureCache);
+      const yLabel = makeAxisLabelSprite('Y', new THREE.Vector3(0, 0, 22), labelScale, this.axisLabelTextureCache);
+      const zLabel = makeAxisLabelSprite('Z', new THREE.Vector3(0, 22, 0), labelScale, this.axisLabelTextureCache);
 
       this.axisLabelGroup.add(xLabel, yLabel, zLabel);
       this.scene.add(this.axisLabelGroup);
@@ -2246,6 +2258,10 @@ export class WebGL3DRenderer implements IRenderer {
       }
     }
 
+    // Dispose cached axis label textures
+    this.axisLabelTextureCache.forEach((tex) => tex.dispose());
+    this.axisLabelTextureCache.clear();
+
     // Dispose procedural environment cubemap
     if (this.envMap) {
       this.envMap.dispose();
@@ -2269,6 +2285,10 @@ export class WebGL3DRenderer implements IRenderer {
     this.cachedIndexBuffer = null;
     this.lastSurfaceGridKey = null;
     this.lastConfigHash = null;
+  }
+
+  [Symbol.dispose](): void {
+    this.dispose();
   }
 
   /**

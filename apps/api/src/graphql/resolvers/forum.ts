@@ -4,7 +4,7 @@
  * Handles forum post CRUD operations with soft delete support.
  */
 
-import type { ForumPost } from '@nextcalc/database';
+import type { ForumPost, Prisma } from '@nextcalc/database';
 import type { GraphQLContext } from '../../lib/context';
 import { requireAuth, requireOwnership } from '../../lib/context';
 import {
@@ -18,15 +18,20 @@ import { createForumPostSchema, updateForumPostSchema, validate } from '../../li
 export const forumResolvers = {
   Query: {
     forumPost: async (_parent: unknown, args: { id: string }, context: GraphQLContext) => {
-      try {
-        // Atomic increment + return updated record in a single query
-        return await context.prisma.forumPost.update({
-          where: { id: args.id, deletedAt: null },
-          data: { views: { increment: 1 } },
-        });
-      } catch {
+      const post = await context.prisma.forumPost.findUnique({
+        where: { id: args.id },
+      });
+
+      if (!post || post.deletedAt) {
         throw new NotFoundError('ForumPost', args.id);
       }
+
+      // Fire-and-forget view increment — keeps query as a pure read
+      context.prisma.forumPost
+        .update({ where: { id: args.id }, data: { views: { increment: 1 } } })
+        .catch(() => {});
+
+      return post;
     },
 
     forumPosts: async (
@@ -42,7 +47,7 @@ export const forumResolvers = {
       const limit = Math.min(args.limit ?? 20, 100);
       const offset = args.offset ?? 0;
 
-      const where: Record<string, unknown> = { deletedAt: null };
+      const where: Prisma.ForumPostWhereInput = { deletedAt: null };
 
       if (args.tags?.length) {
         where.tags = { hasSome: args.tags };
@@ -88,7 +93,7 @@ export const forumResolvers = {
       },
       context: GraphQLContext,
     ) => {
-      const where: Record<string, unknown> = { deletedAt: null };
+      const where: Prisma.ForumPostWhereInput = { deletedAt: null };
 
       if (args.tags?.length) {
         where.tags = { hasSome: args.tags };
@@ -158,9 +163,9 @@ export const forumResolvers = {
       return context.prisma.forumPost.update({
         where: { id: args.id },
         data: {
-          ...(input.title ? { title: input.title } : {}),
-          ...(input.content ? { content: input.content } : {}),
-          ...(input.tags ? { tags: input.tags } : {}),
+          ...(input.title !== undefined ? { title: input.title } : {}),
+          ...(input.content !== undefined ? { content: input.content } : {}),
+          ...(input.tags !== undefined ? { tags: input.tags } : {}),
         },
       });
     },
@@ -183,6 +188,7 @@ export const forumResolvers = {
         data: { deletedAt: new Date() },
       });
 
+      // Audit log runs in parallel with any other post-mutation work
       await context.prisma.auditLog.create({
         data: {
           userId: user.id,

@@ -433,11 +433,19 @@ export const useWorksheetStore = create<WorksheetStore>()(
         importFromJSON: (json) => {
           try {
             const parsed = JSON.parse(json) as WorksheetDocument;
-            // Minimal validation
+            const validKinds = new Set<string>(['math', 'text', 'plot']);
+            // Validate structure and cell kinds
             if (
               typeof parsed.id === 'string' &&
               typeof parsed.title === 'string' &&
-              Array.isArray(parsed.cells)
+              Array.isArray(parsed.cells) &&
+              parsed.cells.every(
+                (cell: unknown) =>
+                  typeof cell === 'object' &&
+                  cell !== null &&
+                  'kind' in cell &&
+                  validKinds.has((cell as { kind: string }).kind),
+              )
             ) {
               set((draft) => {
                 draft.worksheet = parsed;

@@ -22,7 +22,7 @@
  * - TypeScript 6.0 strict + exactOptionalPropertyTypes
  */
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import {
   ChevronRight,
   Pause,
@@ -894,7 +894,7 @@ function TaylorPlot({
                 ? 0.95
                 : 0.28 + (idx / Math.max(orderPaths.length - 1, 1)) * 0.35;
               return path ? (
-                <motion.path
+                <m.path
                   key={`order-${termCount}`}
                   d={path}
                   fill="none"
@@ -915,7 +915,7 @@ function TaylorPlot({
           {/* Single approximation path (step-by-step mode) */}
           <AnimatePresence mode="sync">
             {approxPath && !showAllOrders && (
-              <motion.path
+              <m.path
                 key={`approx-${visibleTerms}`}
                 d={approxPath}
                 fill="none"
@@ -1114,7 +1114,7 @@ function PresetChip({ preset, isSelected, onClick }: PresetChipProps) {
       }
     : {};
   return (
-    <motion.button
+    <m.button
       type="button"
       onClick={onClick}
       whileHover={{ scale: 1.05 }}
@@ -1132,7 +1132,7 @@ function PresetChip({ preset, isSelected, onClick }: PresetChipProps) {
       style={selectedStyle}
     >
       {isSelected && (
-        <motion.span
+        <m.span
           layoutId="preset-indicator"
           className="absolute inset-0 rounded-full"
           style={{
@@ -1143,7 +1143,7 @@ function PresetChip({ preset, isSelected, onClick }: PresetChipProps) {
         />
       )}
       <span className="relative z-10">{preset.displayLabel}</span>
-    </motion.button>
+    </m.button>
   );
 }
 
@@ -1246,7 +1246,7 @@ function TermList({ terms, visibleTerms, variable }: TermListProps) {
               }
             : {};
           return (
-            <motion.div
+            <m.div
               key={term.index}
               initial={{ opacity: 0, x: -20, height: 0 }}
               animate={{ opacity: 1, x: 0, height: 'auto' }}
@@ -1276,7 +1276,7 @@ function TermList({ terms, visibleTerms, variable }: TermListProps) {
                   className="text-sm"
                 />
               </div>
-            </motion.div>
+            </m.div>
           );
         })}
       </AnimatePresence>
@@ -1592,7 +1592,7 @@ export function TaylorSeriesVisualizer() {
         </div>
         {/* Description line for selected preset */}
         <AnimatePresence mode="wait">
-          <motion.p
+          <m.p
             key={selectedPreset.id}
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1603,7 +1603,7 @@ export function TaylorSeriesVisualizer() {
             <span style={{ color: selectedPreset.color }}>{selectedPreset.displayLabel}</span>{' '}
             &mdash; {selectedPreset.seriesText}
             <span className="ml-2 text-muted-foreground/60">({selectedPreset.convergence})</span>
-          </motion.p>
+          </m.p>
         </AnimatePresence>
       </GlassCard>
 

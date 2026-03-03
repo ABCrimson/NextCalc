@@ -1,7 +1,7 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import Link from 'next/link';
+import { m } from 'framer-motion';
+import { Link } from '@/i18n/navigation';
 import { SymbolicPanel } from '@/components/calculator/symbolic-panel';
 
 // ---------------------------------------------------------------------------
@@ -128,7 +128,7 @@ function AnimatedBackground() {
       </svg>
 
       {/* Orb 1 - top-right: violet */}
-      <motion.div
+      <m.div
         className="absolute -top-40 -right-40 w-[650px] h-[650px] rounded-full blur-3xl"
         style={{
           background:
@@ -147,7 +147,7 @@ function AnimatedBackground() {
       />
 
       {/* Orb 2 - bottom-left: fuchsia */}
-      <motion.div
+      <m.div
         className="absolute -bottom-48 -left-48 w-[720px] h-[720px] rounded-full blur-3xl"
         style={{
           background:
@@ -167,7 +167,7 @@ function AnimatedBackground() {
       />
 
       {/* Orb 3 - center: pink accent */}
-      <motion.div
+      <m.div
         className="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[480px] h-[480px] rounded-full blur-3xl"
         style={{
           background: 'radial-gradient(circle, oklch(0.65 0.20 355 / 0.08) 0%, transparent 70%)',
@@ -208,13 +208,13 @@ export function SymbolicPageClient() {
 
       <div className="container mx-auto max-w-4xl py-12 px-4 relative">
         {/* Header */}
-        <motion.header
+        <m.header
           className="mb-10"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          <motion.div className="flex items-center gap-4 mb-3" variants={fadeUpVariants}>
+          <m.div className="flex items-center gap-4 mb-3" variants={fadeUpVariants}>
             {/* Icon badge */}
             <div
               className="p-3 rounded-2xl border shrink-0"
@@ -241,10 +241,10 @@ export function SymbolicPageClient() {
                 Differentiate functions symbolically with step-by-step calculations
               </p>
             </div>
-          </motion.div>
+          </m.div>
 
           {/* Feature badges */}
-          <motion.div className="flex flex-wrap gap-2 mt-4" variants={fadeUpVariants}>
+          <m.div className="flex flex-wrap gap-2 mt-4" variants={fadeUpVariants}>
             {[
               { label: 'Symbolic Diff', hue: 295 },
               { label: 'Integration', hue: 330 },
@@ -263,21 +263,21 @@ export function SymbolicPageClient() {
                 {label}
               </span>
             ))}
-          </motion.div>
-        </motion.header>
+          </m.div>
+        </m.header>
 
         {/* Main calculator panel */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
         >
           <SymbolicPanel />
-        </motion.div>
+        </m.div>
 
         {/* Features section */}
         <section className="mt-14 space-y-6" aria-labelledby="features-heading">
-          <motion.h2
+          <m.h2
             id="features-heading"
             className="text-2xl font-semibold"
             style={{
@@ -292,10 +292,10 @@ export function SymbolicPageClient() {
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
           >
             Features
-          </motion.h2>
+          </m.h2>
 
           {/* Taylor Series — featured link card */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-60px' }}
@@ -346,10 +346,10 @@ export function SymbolicPageClient() {
                 </span>
               </div>
             </Link>
-          </motion.div>
+          </m.div>
 
           {/* 2-column feature grid */}
-          <motion.div
+          <m.div
             className="grid gap-6 md:grid-cols-2"
             variants={containerVariants}
             initial="hidden"
@@ -357,7 +357,7 @@ export function SymbolicPageClient() {
             viewport={{ once: true, margin: '-60px' }}
           >
             {FEATURE_CARDS.map((card) => (
-              <motion.div
+              <m.div
                 key={card.title}
                 variants={cardVariants}
                 className="group relative p-6 rounded-xl overflow-hidden border backdrop-blur-md bg-card/50 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5"
@@ -417,14 +417,14 @@ export function SymbolicPageClient() {
                     {card.description}
                   </p>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
-          </motion.div>
+          </m.div>
         </section>
 
         {/* Example Usage section */}
         <section className="mt-14" aria-labelledby="examples-heading">
-          <motion.h2
+          <m.h2
             id="examples-heading"
             className="text-2xl font-semibold mb-6"
             style={{
@@ -439,9 +439,9 @@ export function SymbolicPageClient() {
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
           >
             Example Usage
-          </motion.h2>
+          </m.h2>
 
-          <motion.div
+          <m.div
             className="space-y-3"
             variants={containerVariants}
             initial="hidden"
@@ -449,7 +449,7 @@ export function SymbolicPageClient() {
             viewport={{ once: true, margin: '-60px' }}
           >
             {EXAMPLES.map(({ hue, label, input, output }) => (
-              <motion.div
+              <m.div
                 key={input}
                 variants={cardVariants}
                 className="group relative p-4 rounded-xl border backdrop-blur-md bg-card/50 transition-all duration-200 hover:scale-[1.005]"
@@ -472,9 +472,9 @@ export function SymbolicPageClient() {
                     {output}
                   </div>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
-          </motion.div>
+          </m.div>
         </section>
       </div>
     </main>

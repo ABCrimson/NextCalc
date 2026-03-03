@@ -423,6 +423,8 @@ export interface IRenderer {
   render(config: PlotConfig): void;
   resize(width: number, height: number): void;
   dispose(): void;
+  /** TC39 Explicit Resource Management — enables `using renderer = ...` */
+  [Symbol.dispose](): void;
   getMetrics(): PerformanceMetrics;
 }
 
@@ -437,6 +439,7 @@ export interface IInteractionController {
   enable(): void;
   disable(): void;
   reset(): void;
+  dispose(): void;
   addEventListener(type: string, handler: (event: ControlEvent) => void): void;
   removeEventListener(type: string, handler: (event: ControlEvent) => void): void;
 }

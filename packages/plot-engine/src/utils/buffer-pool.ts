@@ -137,6 +137,14 @@ export class BufferPool {
   }
 
   /**
+   * Enables `using` declarations (TC39 Explicit Resource Management).
+   * `using pool = new BufferPool(gl)` will auto-dispose on scope exit.
+   */
+  [Symbol.dispose](): void {
+    this.dispose();
+  }
+
+  /**
    * Gets statistics about the buffer pool
    */
   getStats(): { total: number; inUse: number; available: number } {

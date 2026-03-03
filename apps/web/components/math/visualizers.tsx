@@ -1,7 +1,7 @@
 'use client';
 
 import type { SolutionStep } from '@nextcalc/math-engine/problems';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { Activity, Code, Pause, Play, RotateCcw, SkipForward, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -120,7 +120,7 @@ export function StepVisualizer({
 
       {/* Step Display */}
       <AnimatePresence mode="wait">
-        <motion.div
+        <m.div
           key={currentStep}
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
@@ -176,7 +176,7 @@ export function StepVisualizer({
                   <span>{Math.round(((currentStep + 1) / steps.length) * 100)}%</span>
                 </div>
                 <div className="h-2 bg-muted rounded-full overflow-hidden">
-                  <motion.div
+                  <m.div
                     initial={{ width: 0 }}
                     animate={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
                     className="h-full bg-gradient-to-r from-primary to-primary/60"
@@ -186,7 +186,7 @@ export function StepVisualizer({
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </m.div>
       </AnimatePresence>
 
       {/* All Steps Overview */}
@@ -409,7 +409,7 @@ export function AlgorithmVisualizer({
           </CardHeader>
           <CardContent>
             <AnimatePresence mode="wait">
-              <motion.div
+              <m.div
                 key={currentStep}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -417,7 +417,7 @@ export function AlgorithmVisualizer({
                 className="space-y-2"
               >
                 {Array.from(currentStepData.variables.entries()).map(([name, value]) => (
-                  <motion.div
+                  <m.div
                     key={name}
                     layout
                     className={cn(
@@ -433,9 +433,9 @@ export function AlgorithmVisualizer({
                         {String(value)}
                       </Badge>
                     </div>
-                  </motion.div>
+                  </m.div>
                 ))}
-              </motion.div>
+              </m.div>
             </AnimatePresence>
           </CardContent>
         </Card>

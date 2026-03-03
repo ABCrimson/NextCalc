@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation } from '@apollo/client/react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import type { FormEvent } from 'react';
@@ -362,7 +362,7 @@ function RecentActivityFeed({ calculations, worksheets, locale }: RecentActivity
   }
 
   return (
-    <motion.ul
+    <m.ul
       className="divide-y divide-border/50"
       aria-label="Recent activity feed"
       variants={containerVariants}
@@ -370,7 +370,7 @@ function RecentActivityFeed({ calculations, worksheets, locale }: RecentActivity
       animate="visible"
     >
       {entries.map((entry) => (
-        <motion.li
+        <m.li
           key={entry.id}
           variants={feedItemVariants}
           className="flex items-start gap-3 py-3 first:pt-0 last:pb-0"
@@ -433,9 +433,9 @@ function RecentActivityFeed({ calculations, worksheets, locale }: RecentActivity
           >
             {formatRelativeTime(entry.time)}
           </time>
-        </motion.li>
+        </m.li>
       ))}
-    </motion.ul>
+    </m.ul>
   );
 }
 
@@ -573,7 +573,7 @@ function EditProfileDialog({
           {/* Error / success feedback */}
           <AnimatePresence>
             {saveError && (
-              <motion.p
+              <m.p
                 key="error"
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -582,10 +582,10 @@ function EditProfileDialog({
                 className="text-sm text-destructive"
               >
                 {saveError}
-              </motion.p>
+              </m.p>
             )}
             {saveSuccess && (
-              <motion.p
+              <m.p
                 key="success"
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -594,7 +594,7 @@ function EditProfileDialog({
                 className="text-sm text-emerald-600 dark:text-emerald-400"
               >
                 {t('editSuccess')}
-              </motion.p>
+              </m.p>
             )}
           </AnimatePresence>
 
@@ -831,51 +831,51 @@ export function ProfileOverview({
   ];
 
   return (
-    <motion.div
+    <m.div
       variants={containerVariants}
       initial="hidden"
       animate="visible"
       className="space-y-6"
     >
       {/* Hero card — avatar, name, bio, edit */}
-      <motion.div variants={itemVariants}>
+      <m.div variants={itemVariants}>
         <HeroCard user={localUser} progress={progress} onEditClick={() => setEditOpen(true)} />
-      </motion.div>
+      </m.div>
 
       {/* Stats grid — 4 primary KPIs at top, rest below */}
-      <motion.div variants={itemVariants}>
-        <motion.div
+      <m.div variants={itemVariants}>
+        <m.div
           variants={statsContainerVariants}
           initial="hidden"
           animate="visible"
           className="grid grid-cols-2 gap-3 sm:grid-cols-4"
         >
           {stats.slice(0, 4).map((stat) => (
-            <motion.div key={stat.label} variants={statsItemVariants}>
+            <m.div key={stat.label} variants={statsItemVariants}>
               <StatCard {...stat} />
-            </motion.div>
+            </m.div>
           ))}
-        </motion.div>
-      </motion.div>
+        </m.div>
+      </m.div>
 
       {/* Secondary stats */}
-      <motion.div variants={itemVariants}>
-        <motion.div
+      <m.div variants={itemVariants}>
+        <m.div
           variants={statsContainerVariants}
           initial="hidden"
           animate="visible"
           className="grid grid-cols-2 gap-3 sm:grid-cols-4"
         >
           {stats.slice(4).map((stat) => (
-            <motion.div key={stat.label} variants={statsItemVariants}>
+            <m.div key={stat.label} variants={statsItemVariants}>
               <StatCard {...stat} />
-            </motion.div>
+            </m.div>
           ))}
-        </motion.div>
-      </motion.div>
+        </m.div>
+      </m.div>
 
       {/* Quick Actions */}
-      <motion.div variants={itemVariants}>
+      <m.div variants={itemVariants}>
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-lg">{t('quickActions')}</CardTitle>
@@ -884,10 +884,10 @@ export function ProfileOverview({
             <QuickActions />
           </CardContent>
         </Card>
-      </motion.div>
+      </m.div>
 
       {/* Recent Activity Feed + Activity Calendar — side by side on large screens */}
-      <motion.div variants={itemVariants} className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <m.div variants={itemVariants} className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Recent Activity */}
         <Card className="flex flex-col">
           <CardHeader className="pb-3">
@@ -917,11 +917,11 @@ export function ProfileOverview({
             <ActivityCalendar data={activityData} />
           </CardContent>
         </Card>
-      </motion.div>
+      </m.div>
 
       {/* Recent Achievements */}
       {recentAchievements.length > 0 && (
-        <motion.div variants={itemVariants}>
+        <m.div variants={itemVariants}>
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-lg">{t('recentAchievements')}</CardTitle>
@@ -952,7 +952,7 @@ export function ProfileOverview({
               </ul>
             </CardContent>
           </Card>
-        </motion.div>
+        </m.div>
       )}
 
       {/* Edit Profile Dialog */}
@@ -963,6 +963,6 @@ export function ProfileOverview({
         initialBio={localUser.bio}
         onSuccess={handleProfileUpdated}
       />
-    </motion.div>
+    </m.div>
   );
 }

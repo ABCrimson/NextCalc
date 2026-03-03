@@ -12,20 +12,22 @@ export type ExpressionNode = {
   readonly name?: string;
 };
 
-export enum NodeType {
+export const NodeType = {
   // Literals
-  ConstantNode = 'ConstantNode',
-  SymbolNode = 'SymbolNode',
+  ConstantNode: 'ConstantNode',
+  SymbolNode: 'SymbolNode',
 
   // Operations
-  OperatorNode = 'OperatorNode',
-  UnaryOperatorNode = 'UnaryOperatorNode',
-  FunctionNode = 'FunctionNode',
+  OperatorNode: 'OperatorNode',
+  UnaryOperatorNode: 'UnaryOperatorNode',
+  FunctionNode: 'FunctionNode',
 
   // Structural
-  ParenthesisNode = 'ParenthesisNode',
-  AccessorNode = 'AccessorNode',
-}
+  ParenthesisNode: 'ParenthesisNode',
+  AccessorNode: 'AccessorNode',
+} as const satisfies Record<string, string>;
+
+export type NodeType = (typeof NodeType)[keyof typeof NodeType];
 
 // Type guards for runtime type checking
 export function isConstantNode(node: ExpressionNode): node is ConstantNode {
@@ -50,31 +52,31 @@ export function isFunctionNode(node: ExpressionNode): node is FunctionNode {
 
 // Specific node types
 export interface ConstantNode extends ExpressionNode {
-  readonly type: NodeType.ConstantNode;
+  readonly type: typeof NodeType.ConstantNode;
   readonly value: number | bigint | string;
 }
 
 export interface SymbolNode extends ExpressionNode {
-  readonly type: NodeType.SymbolNode;
+  readonly type: typeof NodeType.SymbolNode;
   readonly name: string;
 }
 
 export interface OperatorNode extends ExpressionNode {
-  readonly type: NodeType.OperatorNode;
+  readonly type: typeof NodeType.OperatorNode;
   readonly op: Operator;
   readonly fn: string;
   readonly args: readonly [ExpressionNode, ExpressionNode];
 }
 
 export interface UnaryOperatorNode extends ExpressionNode {
-  readonly type: NodeType.UnaryOperatorNode;
+  readonly type: typeof NodeType.UnaryOperatorNode;
   readonly op: UnaryOperator;
   readonly fn: string;
   readonly args: readonly [ExpressionNode];
 }
 
 export interface FunctionNode extends ExpressionNode {
-  readonly type: NodeType.FunctionNode;
+  readonly type: typeof NodeType.FunctionNode;
   readonly fn: MathFunction;
   readonly args: readonly ExpressionNode[];
 }

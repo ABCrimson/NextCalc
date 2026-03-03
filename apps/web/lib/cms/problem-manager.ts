@@ -361,6 +361,12 @@ export class ProblemManager {
    * ```
    */
   static async importProblemsFromMarkdown(directory: string): Promise<Problem[]> {
+    const allowedRoot = path.resolve(process.cwd(), 'content');
+    const resolvedDir = path.resolve(directory);
+    if (!resolvedDir.startsWith(allowedRoot)) {
+      throw new Error('Directory traversal not allowed');
+    }
+
     const files = await fs.readdir(directory);
     const markdownFiles = files.filter((f) => f.endsWith('.md'));
 
@@ -472,13 +478,15 @@ export class ProblemManager {
       select: { id: true },
     });
 
-    for (const problem of problems) {
-      const successRate = await ProblemManager.calculateSuccessRate(problem.id);
-      await prisma.problem.update({
-        where: { id: problem.id },
-        data: { successRate },
-      });
-    }
+    await Promise.all(
+      problems.map(async (problem) => {
+        const successRate = await ProblemManager.calculateSuccessRate(problem.id);
+        await prisma.problem.update({
+          where: { id: problem.id },
+          data: { successRate },
+        });
+      }),
+    );
   }
 }
 

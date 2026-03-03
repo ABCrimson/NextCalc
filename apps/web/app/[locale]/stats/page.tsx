@@ -1,8 +1,9 @@
 import { BarChart3 } from 'lucide-react';
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { StatsPanel } from '@/components/calculator/stats-panel';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Statistical Analysis - NextCalc Pro',
   description: 'Comprehensive descriptive statistics and regression analysis for data insights',
 };

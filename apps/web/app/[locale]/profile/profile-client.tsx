@@ -1,8 +1,8 @@
 'use client';
 
 import { useQuery } from '@apollo/client/react';
-import { motion } from 'framer-motion';
-import Link from 'next/link';
+import { m } from 'framer-motion';
+import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { AchievementGrid } from '@/components/profile/achievement-grid';
 import { AnalyticsCharts } from '@/components/profile/analytics-charts';
@@ -224,7 +224,7 @@ function SignInPrompt() {
   const tError = useTranslations('error');
   return (
     <div className="flex flex-col items-center justify-center py-24 text-center">
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
@@ -263,7 +263,7 @@ function SignInPrompt() {
             {tError('goHome')}
           </Link>
         </div>
-      </motion.div>
+      </m.div>
     </div>
   );
 }
@@ -397,7 +397,7 @@ function ProfileDashboard({ userId }: ProfileDashboardProps) {
   const recentWorksheets = recentData?.worksheets?.nodes ?? [];
 
   return (
-    <motion.div variants={fadeInVariants} initial="hidden" animate="visible" className="space-y-6">
+    <m.div variants={fadeInVariants} initial="hidden" animate="visible" className="space-y-6">
       {/* Partial-data warning banners */}
       {(activityError ?? analyticsError ?? recentError) && (
         <div
@@ -451,7 +451,7 @@ function ProfileDashboard({ userId }: ProfileDashboardProps) {
           <PracticeHistoryTable sessions={practiceHistory} />
         </TabsContent>
       </Tabs>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -466,7 +466,7 @@ export function ProfileClient() {
   return (
     <div className="container mx-auto max-w-5xl px-4 py-10">
       {/* Page header */}
-      <motion.header
+      <m.header
         className="mb-8"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -484,7 +484,7 @@ export function ProfileClient() {
           {t('myProfile')}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">{t('myProfileSubtitle')}</p>
-      </motion.header>
+      </m.header>
 
       {/* Main content area */}
       {status === 'loading' && <ProfileSkeleton />}

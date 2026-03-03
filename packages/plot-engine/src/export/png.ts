@@ -59,5 +59,7 @@ export async function downloadAsPNG(
   const link = document.createElement('a');
   link.download = filename.endsWith('.png') ? filename : `${filename}.png`;
   link.href = dataUrl;
+  document.body.appendChild(link);
   link.click();
+  link.remove();
 }

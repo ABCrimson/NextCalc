@@ -22,7 +22,7 @@
  *   - Live pulse respects prefers-reduced-motion (Framer Motion built-in)
  */
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { Share2, Users } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -42,7 +42,7 @@ import { ShareDialog } from './share-dialog';
 
 function LiveIndicator() {
   return (
-    <motion.span
+    <m.span
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.8 }}
@@ -58,7 +58,7 @@ function LiveIndicator() {
         <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
       </span>
       Live
-    </motion.span>
+    </m.span>
   );
 }
 
@@ -86,7 +86,7 @@ function AvatarStack({ maxVisible = 4 }: AvatarStackProps) {
   const overflow = allPeers.length - maxVisible;
 
   return (
-    <motion.div
+    <m.div
       layout
       className="flex items-center"
       aria-label={`${allPeers.length} collaborator${allPeers.length !== 1 ? 's' : ''} active`}
@@ -95,7 +95,7 @@ function AvatarStack({ maxVisible = 4 }: AvatarStackProps) {
       <ul className="flex items-center -space-x-2" aria-label="Active collaborators">
         <AnimatePresence initial={false}>
           {visible.map((peer) => (
-            <motion.li
+            <m.li
               key={peer.id}
               layout
               initial={{ opacity: 0, scale: 0.6, x: 8 }}
@@ -117,12 +117,12 @@ function AvatarStack({ maxVisible = 4 }: AvatarStackProps) {
               >
                 {peer.name.charAt(0).toUpperCase()}
               </span>
-            </motion.li>
+            </m.li>
           ))}
         </AnimatePresence>
 
         {overflow > 0 && (
-          <motion.li layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="ml-1">
+          <m.li layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="ml-1">
             <span
               className="flex items-center justify-center h-7 w-7 rounded-full bg-muted border border-border/60 text-xs font-medium text-muted-foreground ring-2 ring-background cursor-default select-none"
               aria-label={`${overflow} more collaborator${overflow !== 1 ? 's' : ''}`}
@@ -130,10 +130,10 @@ function AvatarStack({ maxVisible = 4 }: AvatarStackProps) {
             >
               +{overflow}
             </span>
-          </motion.li>
+          </m.li>
         )}
       </ul>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -198,7 +198,7 @@ export function CollabBar() {
         {/* Avatar stack — shown when session is active */}
         <AnimatePresence>
           {hasSession && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, width: 0 }}
               animate={{ opacity: 1, width: 'auto' }}
               exit={{ opacity: 0, width: 0 }}
@@ -206,7 +206,7 @@ export function CollabBar() {
               className="overflow-hidden"
             >
               <AvatarStack />
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
 

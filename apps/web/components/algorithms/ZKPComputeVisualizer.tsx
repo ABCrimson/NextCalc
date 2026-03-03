@@ -22,7 +22,7 @@
  * - ARIA labels, live regions, keyboard navigation.
  */
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { BarChart2, Cpu, Info, Lock, Play, RotateCcw, ShieldCheck, X, Zap } from 'lucide-react';
 import type { KeyboardEvent } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -81,6 +81,18 @@ function modPow(base: bigint, exp: bigint, mod: bigint): bigint {
   return result;
 }
 
+function cryptoRandomBigInt(max: number): bigint {
+  const arr = new Uint32Array(1);
+  crypto.getRandomValues(arr);
+  return BigInt(arr[0]! % max) + 1n;
+}
+
+function cryptoRandomInt(max: number): number {
+  const arr = new Uint32Array(1);
+  crypto.getRandomValues(arr);
+  return (arr[0]! % max) + 1;
+}
+
 function safeNumber(n: bigint): number {
   // Clamp to safe u32 range for the GPU buffer (our prime is < 2^25)
   const MAX = BigInt(DEMO_P);
@@ -92,15 +104,15 @@ function generateRound(injectFailure: boolean): SchnorrRound {
   const g = BigInt(DEMO_G);
 
   // Prover's secret x ∈ [1, p-1)
-  const x = BigInt(Math.floor(Math.random() * 1_000_000) + 1);
+  const x = cryptoRandomBigInt(1_000_000);
   const y = safeNumber(modPow(g, x, p)); // public key y = g^x mod p
 
   // Commitment: random r, t = g^r mod p
-  const rRand = BigInt(Math.floor(Math.random() * 1_000_000) + 1);
+  const rRand = cryptoRandomBigInt(1_000_000);
   const t = safeNumber(modPow(g, rRand, p));
 
   // Challenge c
-  const c = Math.floor(Math.random() * 1_000_000) + 1;
+  const c = cryptoRandomInt(1_000_000);
   const cBig = BigInt(c);
 
   // Response: s = r + c*x mod (p-1)
@@ -219,7 +231,7 @@ export function ZKPComputeVisualizer({
         );
         waveIndex++;
         if (start < rounds.length) {
-          animFrameRef.current = window.setTimeout(animateWave, WAVE_DELAY_MS) as unknown as number;
+          animFrameRef.current = window.setTimeout(animateWave, WAVE_DELAY_MS);
         }
       };
       animateWave();
@@ -423,7 +435,7 @@ export function ZKPComputeVisualizer({
             style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
           >
             {cells.map((cell) => (
-              <motion.button
+              <m.button
                 key={cell.index}
                 type="button"
                 initial={{ opacity: 0, scale: 0.8 }}
@@ -461,7 +473,7 @@ export function ZKPComputeVisualizer({
                     {String(cell.index + 1).padStart(2, '0')}
                   </span>
                 )}
-              </motion.button>
+              </m.button>
             ))}
           </div>
 
@@ -516,7 +528,7 @@ export function ZKPComputeVisualizer({
 
             {stats.total > 0 && (
               <div className="mt-3 h-2 rounded-full bg-muted/50 overflow-hidden">
-                <motion.div
+                <m.div
                   className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500"
                   animate={{ width: `${((stats.verified + stats.failed) / stats.total) * 100}%` }}
                   transition={{ duration: 0.3 }}
@@ -529,7 +541,7 @@ export function ZKPComputeVisualizer({
           {/* Timing comparison */}
           <AnimatePresence>
             {(gpuResult !== null || cpuResult !== null) && (
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
@@ -578,7 +590,7 @@ export function ZKPComputeVisualizer({
                     </p>
                   )}
                 </dl>
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
 
@@ -590,7 +602,7 @@ export function ZKPComputeVisualizer({
               const round = selectedRound;
               if (cell === null || round === null) return null;
               return (
-                <motion.div
+                <m.div
                   key={cell.index}
                   initial={{ opacity: 0, x: 10 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -652,7 +664,7 @@ export function ZKPComputeVisualizer({
                       </p>
                     )}
                   </div>
-                </motion.div>
+                </m.div>
               );
             })()}
           </AnimatePresence>

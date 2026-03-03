@@ -8,12 +8,10 @@
  */
 
 import { useQuery } from '@apollo/client/react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { AlertCircle, ArrowLeft, Clock, Eye, MessageSquare, ThumbsUp } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
-import { use } from 'react';
 import { ForumBackground } from '@/components/forum/forum-background';
 import {
   buildMockUserProfile,
@@ -61,12 +59,11 @@ function ProfileSkeleton() {
 // ============================================================================
 
 interface UserProfileClientProps {
-  params: Promise<{ id: string }>;
+  id: string;
 }
 
-export function UserProfileClient({ params }: UserProfileClientProps) {
+export function UserProfileClient({ id }: UserProfileClientProps) {
   const t = useTranslations('forum');
-  const { id } = use(params);
   const prefersReduced = useReducedMotion();
   const router = useRouter();
 
@@ -92,7 +89,7 @@ export function UserProfileClient({ params }: UserProfileClientProps) {
       <div className="relative z-10 py-12 px-4">
         <div className="container mx-auto max-w-3xl">
           {/* Back button */}
-          <motion.div
+          <m.div
             className="mb-6"
             {...(prefersReduced
               ? {}
@@ -110,7 +107,7 @@ export function UserProfileClient({ params }: UserProfileClientProps) {
               <ArrowLeft className="h-4 w-4" />
               {t('backToForum')}
             </Button>
-          </motion.div>
+          </m.div>
 
           {/* Loading */}
           {loading && !user && <ProfileSkeleton />}
@@ -129,7 +126,7 @@ export function UserProfileClient({ params }: UserProfileClientProps) {
 
           {/* Profile */}
           {user && (
-            <motion.div
+            <m.div
               className="space-y-6"
               {...(prefersReduced
                 ? {}
@@ -165,7 +162,7 @@ export function UserProfileClient({ params }: UserProfileClientProps) {
                     user.forumPosts.map((post, i) => {
                       const hue = getPostHue(post.id);
                       return (
-                        <motion.div
+                        <m.div
                           key={post.id}
                           {...(prefersReduced
                             ? {}
@@ -216,7 +213,7 @@ export function UserProfileClient({ params }: UserProfileClientProps) {
                               </div>
                             </div>
                           </Link>
-                        </motion.div>
+                        </m.div>
                       );
                     })
                   )}
@@ -232,7 +229,7 @@ export function UserProfileClient({ params }: UserProfileClientProps) {
                   </div>
                 </TabsContent>
               </Tabs>
-            </motion.div>
+            </m.div>
           )}
         </div>
       </div>

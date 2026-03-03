@@ -30,7 +30,7 @@ interface PerformanceMetrics {
  */
 export const performanceMonitoringPlugin = (): ApolloServerPlugin<GraphQLContext> => ({
   async requestDidStart(): Promise<GraphQLRequestListener<GraphQLContext>> {
-    const startTime = Date.now();
+    const startTime = performance.now();
     const resolverDurations = new Map<string, number>();
 
     return {
@@ -44,9 +44,9 @@ export const performanceMonitoringPlugin = (): ApolloServerPlugin<GraphQLContext
       async executionDidStart() {
         return {
           willResolveField({ info }) {
-            const start = Date.now();
+            const start = performance.now();
             return () => {
-              const duration = Date.now() - start;
+              const duration = performance.now() - start;
               const fieldPath = `${info.parentType.name}.${info.fieldName}`;
               const existing = resolverDurations.get(fieldPath) || 0;
               resolverDurations.set(fieldPath, existing + duration);
@@ -63,7 +63,7 @@ export const performanceMonitoringPlugin = (): ApolloServerPlugin<GraphQLContext
       },
 
       async willSendResponse(requestContext: GraphQLRequestContext<GraphQLContext>) {
-        const duration = Date.now() - startTime;
+        const duration = performance.now() - startTime;
         const errors = requestContext.errors?.length || 0;
 
         const metrics: PerformanceMetrics = {

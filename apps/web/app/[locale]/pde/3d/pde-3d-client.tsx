@@ -13,7 +13,7 @@
  * @module app/pde/3d/pde-3d-client
  */
 
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import {
   Box,
   Flame,
@@ -94,7 +94,7 @@ function FloatingOrb({
 }) {
   const prefersReduced = useReducedMotion();
   return (
-    <motion.div
+    <m.div
       className={cn('absolute rounded-full blur-3xl pointer-events-none', className)}
       style={{ background: gradient }}
       {...(prefersReduced

@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { Moon, Sun } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -127,7 +127,7 @@ export function ThemeToggle() {
       >
         <AnimatePresence mode="wait" initial={false}>
           {theme === 'dark' ? (
-            <motion.div
+            <m.div
               key="moon"
               initial={{ rotate: -90, scale: 0 }}
               animate={{ rotate: 0, scale: 1 }}
@@ -135,9 +135,9 @@ export function ThemeToggle() {
               transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
             >
               <Moon className="h-5 w-5 text-blue-300" aria-hidden="true" />
-            </motion.div>
+            </m.div>
           ) : (
-            <motion.div
+            <m.div
               key="sun"
               initial={{ rotate: -90, scale: 0 }}
               animate={{ rotate: 0, scale: 1 }}
@@ -145,12 +145,12 @@ export function ThemeToggle() {
               transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
             >
               <Sun className="h-5 w-5 text-amber-500" aria-hidden="true" />
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
 
         {/* Glow effect on hover */}
-        <motion.div
+        <m.div
           className="absolute inset-0 rounded-md"
           initial={{ opacity: 0 }}
           whileHover={{

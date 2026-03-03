@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import {
   Activity,
   Atom,
@@ -224,7 +224,7 @@ export default function AlgorithmsPage() {
         </div>
 
         <div className="max-w-7xl mx-auto text-center">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -260,7 +260,7 @@ export default function AlgorithmsPage() {
                 <span>{t('category.graphTheory')}</span>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         </div>
       </section>
 
@@ -301,7 +301,7 @@ export default function AlgorithmsPage() {
             {filteredAlgorithms.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {filteredAlgorithms.map((algorithm, index) => (
-                  <motion.div
+                  <m.div
                     key={algorithm.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -319,12 +319,12 @@ export default function AlgorithmsPage() {
                         : {})}
                       {...(algorithm.disabled ? { disabled: algorithm.disabled } : {})}
                     />
-                  </motion.div>
+                  </m.div>
                 ))}
               </div>
             ) : (
               // Empty state
-              <motion.div
+              <m.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="text-center py-16"
@@ -346,7 +346,7 @@ export default function AlgorithmsPage() {
                 >
                   {t('clearAllFilters')}
                 </button>
-              </motion.div>
+              </m.div>
             )}
           </div>
         </div>
@@ -354,7 +354,7 @@ export default function AlgorithmsPage() {
 
       {/* Educational callout */}
       <section className="max-w-7xl mx-auto px-4 pb-16">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -370,7 +370,7 @@ export default function AlgorithmsPage() {
               <p className="text-muted-foreground leading-relaxed">{t('learningDescription')}</p>
             </div>
           </div>
-        </motion.div>
+        </m.div>
       </section>
     </div>
   );

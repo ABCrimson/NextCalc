@@ -7,7 +7,7 @@
  * @module components/plots/PolarAxisLabels
  */
 
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useMemo } from 'react';
 
 export interface PolarAxisLabelsProps {
@@ -185,7 +185,7 @@ export function PolarAxisLabels({
       aria-label="Polar coordinate axis labels"
     >
       {/* Animated center point marker with glow effect */}
-      <motion.div
+      <m.div
         variants={centerPointVariants}
         initial="hidden"
         animate="visible"
@@ -200,7 +200,7 @@ export function PolarAxisLabels({
         aria-label="Polar origin point"
       >
         {/* Pulsing ring effect */}
-        <motion.div
+        <m.div
           className="absolute inset-0 rounded-full bg-cyan-400/30"
           animate={{
             scale: [1, 1.8, 1],
@@ -212,11 +212,11 @@ export function PolarAxisLabels({
             ease: 'easeInOut',
           }}
         />
-      </motion.div>
+      </m.div>
 
       {/* Radial circle labels (r values) with staggered animation */}
       {radialTicks.map((tick, i) => (
-        <motion.div
+        <m.div
           key={`r-${tick.value}`}
           custom={i}
           variants={radialLabelVariants}
@@ -240,12 +240,12 @@ export function PolarAxisLabels({
         >
           <span className="text-cyan-300">r=</span>
           <span className="text-cyan-100">{tick.label}</span>
-        </motion.div>
+        </m.div>
       ))}
 
       {/* Angular labels (θ values) with staggered animation and adaptive styling */}
       {angularTicks.map((tick, i) => (
-        <motion.div
+        <m.div
           key={`theta-${tick.angle}`}
           custom={i}
           variants={angularLabelVariants}
@@ -271,11 +271,11 @@ export function PolarAxisLabels({
           aria-label={`Angle ${tick.label}`}
         >
           {tick.label}
-        </motion.div>
+        </m.div>
       ))}
 
       {/* Coordinate system label with enhanced styling */}
-      <motion.div
+      <m.div
         variants={headerVariants}
         initial="hidden"
         animate="visible"
@@ -295,10 +295,10 @@ export function PolarAxisLabels({
         aria-label="Polar coordinate system"
       >
         <span className="tracking-wide">Polar (r, θ)</span>
-      </motion.div>
+      </m.div>
 
       {/* Range indicator with enhanced styling */}
-      <motion.div
+      <m.div
         variants={headerVariants}
         initial="hidden"
         animate="visible"
@@ -319,7 +319,7 @@ export function PolarAxisLabels({
       >
         <span className="text-cyan-400">r</span> ∈ [{rRange.min.toFixed(1)}, {rRange.max.toFixed(1)}
         ]
-      </motion.div>
+      </m.div>
     </div>
   );
 }

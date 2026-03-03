@@ -1,7 +1,7 @@
 'use client';
 
 import type { Hint, Problem, SolutionStep } from '@nextcalc/math-engine/problems';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import {
   ArrowRight,
   BookOpen,
@@ -106,8 +106,6 @@ export function InteractiveSolver({
   const [answer, setAnswer] = useState(userAnswer);
   const [revealState, setRevealState] = useState<RevealState>('hidden' as RevealState);
   const [expandedSteps, setExpandedSteps] = useState<Set<number>>(new Set());
-  const [_showHints, _setShowHints] = useState(false);
-  const [_showSolutionModal, _setShowSolutionModal] = useState(false);
   const [activeMethodIndex, setActiveMethodIndex] = useState(0);
 
   // Refs for focus management
@@ -166,9 +164,9 @@ export function InteractiveSolver({
           prev === 'hidden' ? ('full' as RevealState) : ('hidden' as RevealState),
         );
       }
-      // Escape: Close modals
+      // Escape: Hide solution
       if (e.key === 'Escape') {
-        _setShowSolutionModal(false);
+        setRevealState('hidden' as RevealState);
       }
     };
 
@@ -255,7 +253,7 @@ export function InteractiveSolver({
               {/* Answer Feedback */}
               <AnimatePresence>
                 {answerChecked && (
-                  <motion.div
+                  <m.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
@@ -294,7 +292,7 @@ export function InteractiveSolver({
                         </div>
                       </>
                     )}
-                  </motion.div>
+                  </m.div>
                 )}
               </AnimatePresence>
 
@@ -375,7 +373,7 @@ export function InteractiveSolver({
             <CardContent>
               <AnimatePresence mode="wait">
                 {revealState === 'hidden' ? (
-                  <motion.div
+                  <m.div
                     key="hidden"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -385,9 +383,9 @@ export function InteractiveSolver({
                     <EyeOff className="h-12 w-12 mx-auto mb-4 opacity-50" />
                     <p>Click "Show Solution" to reveal the step-by-step solution.</p>
                     <p className="text-sm mt-2">Try solving it yourself first!</p>
-                  </motion.div>
+                  </m.div>
                 ) : (
-                  <motion.div
+                  <m.div
                     key="revealed"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -424,7 +422,7 @@ export function InteractiveSolver({
                         </CardContent>
                       </Card>
                     )}
-                  </motion.div>
+                  </m.div>
                 )}
               </AnimatePresence>
             </CardContent>
@@ -543,7 +541,7 @@ interface SolutionStepCardProps {
 
 function SolutionStepCard({ step, isExpanded, onToggle }: SolutionStepCardProps) {
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3, delay: step.stepNumber * 0.05 }}
@@ -563,15 +561,15 @@ function SolutionStepCard({ step, isExpanded, onToggle }: SolutionStepCardProps)
                 </div>
                 <CardTitle className="text-base">{step.description}</CardTitle>
               </div>
-              <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
+              <m.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
                 <ChevronDown className="h-5 w-5 text-muted-foreground" />
-              </motion.div>
+              </m.div>
             </div>
           </CardHeader>
         </button>
         <AnimatePresence>
           {isExpanded && (
-            <motion.div
+            <m.div
               id={`step-${step.stepNumber}-content`}
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
@@ -599,11 +597,11 @@ function SolutionStepCard({ step, isExpanded, onToggle }: SolutionStepCardProps)
                   </div>
                 )}
               </CardContent>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </Card>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -636,13 +634,13 @@ function HintCard({ hint, index, isRevealed, onReveal, disabled }: HintCardProps
       </CardHeader>
       <CardContent>
         {isRevealed ? (
-          <motion.p
+          <m.p
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-sm"
           >
             {hint.text}
-          </motion.p>
+          </m.p>
         ) : (
           <Button
             variant="outline"

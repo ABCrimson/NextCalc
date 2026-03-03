@@ -378,6 +378,21 @@ export class Plot2DController implements IInteractionController {
   }
 
   /**
+   * Disposes the controller, removing all event listeners and clearing handlers.
+   */
+  dispose(): void {
+    this.disable();
+    this.eventListeners.clear();
+  }
+
+  /**
+   * TC39 Explicit Resource Management — enables `using controller = ...`
+   */
+  [Symbol.dispose](): void {
+    this.dispose();
+  }
+
+  /**
    * Gets current viewport
    */
   getViewport(): Viewport {

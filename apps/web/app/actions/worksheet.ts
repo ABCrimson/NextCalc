@@ -64,7 +64,7 @@ export async function saveWorksheet(
         },
       });
 
-      revalidatePath('/worksheet');
+      revalidatePath('/[locale]/worksheet', 'page');
       return {
         success: true,
         data: { worksheetId: worksheet.id, version: 0 },
@@ -230,7 +230,7 @@ export async function deleteWorksheet(
       data: { deletedAt: new Date() },
     });
 
-    revalidatePath('/worksheet');
+    revalidatePath('/[locale]/worksheet', 'page');
     return {
       success: true,
       data: { worksheetId: data.worksheetId },

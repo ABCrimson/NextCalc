@@ -201,11 +201,11 @@ export function stdDev(data: number[], sample = true): number {
  */
 export interface RangeResult {
   /** Minimum value in the dataset */
-  min: number;
+  readonly min: number;
   /** Maximum value in the dataset */
-  max: number;
+  readonly max: number;
   /** Difference between max and min */
-  range: number;
+  readonly range: number;
 }
 
 /**

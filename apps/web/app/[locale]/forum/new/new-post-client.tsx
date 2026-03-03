@@ -7,9 +7,9 @@
  * with the standard forum background.
  */
 
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { ArrowLeft, PenLine } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { ForumBackground } from '@/components/forum/forum-background';
 import { PostForm } from '@/components/forum/post-form';
@@ -45,7 +45,7 @@ export function NewPostClient() {
       <div className="relative z-10 py-12 px-4">
         <div className="container mx-auto max-w-2xl">
           {/* Back button */}
-          <motion.div
+          <m.div
             className="mb-6"
             {...(prefersReduced
               ? {}
@@ -63,10 +63,10 @@ export function NewPostClient() {
               <ArrowLeft className="h-4 w-4" />
               {t('backToForum')}
             </Button>
-          </motion.div>
+          </m.div>
 
           {/* Header */}
-          <motion.div
+          <m.div
             className="mb-6"
             {...(prefersReduced
               ? {}
@@ -85,7 +85,7 @@ export function NewPostClient() {
                 <p className="text-sm text-muted-foreground">{t('newDiscussionSubtitle')}</p>
               </div>
             </div>
-          </motion.div>
+          </m.div>
 
           {/* Form */}
           <PostForm />

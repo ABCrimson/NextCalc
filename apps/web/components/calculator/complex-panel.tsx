@@ -1,7 +1,7 @@
 'use client';
 
 import { Complex } from '@nextcalc/math-engine/complex';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { AlertCircle, ArrowLeftRight, Check, Copy, RefreshCw, Zap } from 'lucide-react';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -712,14 +712,14 @@ function ResultDisplay({ result }: ResultDisplayProps) {
   ];
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
       className="space-y-3"
     >
       {rows.map((row, idx) => (
-        <motion.div
+        <m.div
           key={row.key}
           initial={{ opacity: 0, x: -8 }}
           animate={{ opacity: 1, x: 0 }}
@@ -759,11 +759,11 @@ function ResultDisplay({ result }: ResultDisplayProps) {
               <Copy className="h-4 w-4 text-muted-foreground" />
             )}
           </Button>
-        </motion.div>
+        </m.div>
       ))}
 
       {/* Modulus and Argument chips */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.22, duration: 0.3 }}
@@ -799,8 +799,8 @@ function ResultDisplay({ result }: ResultDisplayProps) {
             {fmt((result.value.argument * 180) / Math.PI)}&deg;
           </p>
         </div>
-      </motion.div>
-    </motion.div>
+      </m.div>
+    </m.div>
   );
 }
 
@@ -814,7 +814,7 @@ interface ArgandDiagramCardProps {
 
 function ArgandDiagramCard({ points }: ArgandDiagramCardProps) {
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, scale: 0.97 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
@@ -875,7 +875,7 @@ function ArgandDiagramCard({ points }: ArgandDiagramCardProps) {
           </span>
         ))}
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -1436,7 +1436,7 @@ export function ComplexPanel() {
   // -------------------------------------------------------------------------
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
@@ -1671,7 +1671,7 @@ export function ComplexPanel() {
             {/* Error */}
             <AnimatePresence>
               {binaryError && (
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
@@ -1680,14 +1680,14 @@ export function ComplexPanel() {
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>{binaryError}</AlertDescription>
                   </Alert>
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
 
             {/* Result */}
             <AnimatePresence>
               {binaryResult && (
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
@@ -1710,7 +1710,7 @@ export function ComplexPanel() {
                     <ResultDisplay result={binaryResult} />
                   </div>
                   <ArgandDiagramCard points={argandPoints} />
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
           </TabsContent>
@@ -1833,7 +1833,7 @@ export function ComplexPanel() {
             {/* Error */}
             <AnimatePresence>
               {unaryError && (
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
@@ -1842,14 +1842,14 @@ export function ComplexPanel() {
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>{unaryError}</AlertDescription>
                   </Alert>
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
 
             {/* Result */}
             <AnimatePresence>
               {unaryResult && (
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
@@ -1872,7 +1872,7 @@ export function ComplexPanel() {
                     <ResultDisplay result={unaryResult} />
                   </div>
                   <ArgandDiagramCard points={unaryArgandPoints} />
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
           </TabsContent>
@@ -1919,7 +1919,7 @@ export function ComplexPanel() {
                 </div>
                 <div className="space-y-2 max-h-[560px] overflow-y-auto pr-1">
                   {history.map((entry, idx) => (
-                    <motion.div
+                    <m.div
                       key={entry.id}
                       initial={{ opacity: 0, x: -12 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -1943,7 +1943,7 @@ export function ComplexPanel() {
                       <p className="text-xs text-muted-foreground mt-0.5">
                         Polar: {entry.result.polar}
                       </p>
-                    </motion.div>
+                    </m.div>
                   ))}
                 </div>
               </>
@@ -2029,6 +2029,6 @@ export function ComplexPanel() {
           </div>
         </details>
       </div>
-    </motion.div>
+    </m.div>
   );
 }

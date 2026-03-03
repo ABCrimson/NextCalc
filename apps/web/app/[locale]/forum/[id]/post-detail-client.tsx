@@ -8,7 +8,7 @@
  */
 
 import { useMutation, useQuery } from '@apollo/client/react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import {
   AlertCircle,
   ArrowLeft,
@@ -20,10 +20,9 @@ import {
   Pin,
   Send,
 } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
-import { use, useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { CommentThread } from '@/components/forum/comment-thread';
 import { ForumBackground } from '@/components/forum/forum-background';
 import {
@@ -94,13 +93,12 @@ function DetailSkeleton() {
 // ============================================================================
 
 interface PostDetailClientProps {
-  params: Promise<{ id: string }>;
+  id: string;
 }
 
-export function PostDetailClient({ params }: PostDetailClientProps) {
+export function PostDetailClient({ id }: PostDetailClientProps) {
   const t = useTranslations('forum');
   const tAuth = useTranslations('auth');
-  const { id } = use(params);
   const prefersReduced = useReducedMotion();
   const router = useRouter();
   const { status: authStatus } = useSession();
@@ -175,7 +173,7 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
       <div className="relative z-10 py-12 px-4">
         <div className="container mx-auto max-w-3xl">
           {/* Back button */}
-          <motion.div
+          <m.div
             className="mb-6"
             {...(prefersReduced
               ? {}
@@ -193,7 +191,7 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
               <ArrowLeft className="h-4 w-4" />
               {t('backToForum')}
             </Button>
-          </motion.div>
+          </m.div>
 
           {/* Loading */}
           {loading && !post && <DetailSkeleton />}
@@ -212,7 +210,7 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
 
           {/* Post content */}
           {post && (
-            <motion.div
+            <m.div
               className="space-y-6"
               {...(prefersReduced
                 ? {}
@@ -413,7 +411,7 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
                           <button
                             type="button"
                             onClick={() => {
-                              window.location.href = `/auth/signin?callbackUrl=${encodeURIComponent(`/forum/${id}`)}`;
+                              router.push(`/auth/signin?callbackUrl=${encodeURIComponent(`/forum/${id}`)}`);
                             }}
                             className="text-indigo-400 hover:text-indigo-300 underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                           >
@@ -433,7 +431,7 @@ export function PostDetailClient({ params }: PostDetailClientProps) {
                   </div>
                 )}
               </div>
-            </motion.div>
+            </m.div>
           )}
         </div>
       </div>

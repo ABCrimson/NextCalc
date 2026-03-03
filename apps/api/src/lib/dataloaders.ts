@@ -63,12 +63,7 @@ export function createDataLoaders(prisma: PrismaClient): DataLoaders {
       const shares = await prisma.worksheetShare.findMany({
         where: { worksheetId: { in: [...worksheetIds] } },
       });
-      const shareMap = new Map<string, WorksheetShare[]>();
-      for (const share of shares) {
-        const existing = shareMap.get(share.worksheetId) ?? [];
-        existing.push(share);
-        shareMap.set(share.worksheetId, existing);
-      }
+      const shareMap = Map.groupBy(shares, (s) => s.worksheetId);
       return worksheetIds.map((id) => shareMap.get(id) ?? []);
     }),
 
@@ -77,14 +72,10 @@ export function createDataLoaders(prisma: PrismaClient): DataLoaders {
         where: { parentId: { in: [...parentIds] } },
         orderBy: { name: 'asc' },
       });
-      const folderMap = new Map<string, Folder[]>();
-      for (const folder of folders) {
-        if (folder.parentId) {
-          const existing = folderMap.get(folder.parentId) ?? [];
-          existing.push(folder);
-          folderMap.set(folder.parentId, existing);
-        }
-      }
+      const folderMap = Map.groupBy(
+        folders.filter((f): f is Folder & { parentId: string } => f.parentId !== null),
+        (f) => f.parentId,
+      );
       return parentIds.map((id) => folderMap.get(id) ?? []);
     }),
 
@@ -129,14 +120,10 @@ export function createDataLoaders(prisma: PrismaClient): DataLoaders {
         where: { parentId: { in: [...parentIds] }, deletedAt: null },
         orderBy: { createdAt: 'asc' },
       });
-      const repliesMap = new Map<string, Comment[]>();
-      for (const reply of replies) {
-        if (reply.parentId) {
-          const existing = repliesMap.get(reply.parentId) ?? [];
-          existing.push(reply);
-          repliesMap.set(reply.parentId, existing);
-        }
-      }
+      const repliesMap = Map.groupBy(
+        replies.filter((r): r is Comment & { parentId: string } => r.parentId !== null),
+        (r) => r.parentId,
+      );
       return parentIds.map((id) => repliesMap.get(id) ?? []);
     }),
 
@@ -145,14 +132,10 @@ export function createDataLoaders(prisma: PrismaClient): DataLoaders {
         where: { folderId: { in: [...folderIds] }, deletedAt: null },
         orderBy: { updatedAt: 'desc' },
       });
-      const worksheetMap = new Map<string, Worksheet[]>();
-      for (const worksheet of worksheets) {
-        if (worksheet.folderId) {
-          const existing = worksheetMap.get(worksheet.folderId) ?? [];
-          existing.push(worksheet);
-          worksheetMap.set(worksheet.folderId, existing);
-        }
-      }
+      const worksheetMap = Map.groupBy(
+        worksheets.filter((w): w is Worksheet & { folderId: string } => w.folderId !== null),
+        (w) => w.folderId,
+      );
       return folderIds.map((id) => worksheetMap.get(id) ?? []);
     }),
 

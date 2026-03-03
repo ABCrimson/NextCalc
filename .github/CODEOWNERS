@@ -1,0 +1,60 @@
+# ┌─────────────────────────────────────────────────────────────────────┐
+# │                    NextCalc Pro — CODEOWNERS                       │
+# │                                                                     │
+# │  Defines code ownership for automated review assignments.           │
+# │  See: https://docs.github.com/en/repositories/managing-your-       │
+# │       repositorys-settings-and-features/customizing-your-           │
+# │       repository/about-code-owners                                  │
+# └─────────────────────────────────────────────────────────────────────┘
+
+# ─── Default Owners ──────────────────────────────────────────────────
+# Fallback reviewers for anything not matched below.
+*                                       @nextcalc/maintainers
+
+# ─── Core Packages ───────────────────────────────────────────────────
+
+# Math engine — expression parser, symbolic algebra, solvers, CAS
+packages/math-engine/                   @nextcalc/math-team
+
+# Plot engine — WebGL/WebGPU renderers, 3D visualization, exporters
+packages/plot-engine/                   @nextcalc/visualization-team
+
+# Database — Prisma schema, migrations, client singleton, types
+packages/database/                      @nextcalc/backend-team
+
+# Shared TypeScript types
+packages/types/                         @nextcalc/maintainers
+
+# ─── Applications ────────────────────────────────────────────────────
+
+# Web frontend — Next.js 16, React 19, i18n, PWA
+apps/web/                               @nextcalc/frontend-team
+
+# GraphQL API — Apollo Server, resolvers, dataloaders
+apps/api/                               @nextcalc/backend-team
+
+# Cloudflare Workers — CAS service, export service, rate limiter
+apps/workers/                           @nextcalc/infrastructure-team
+
+# ─── Infrastructure & Configuration ─────────────────────────────────
+
+# CI/CD workflows and GitHub configuration
+.github/                                @nextcalc/infrastructure-team @nextcalc/maintainers
+
+# Root configuration files — monorepo tooling
+package.json                            @nextcalc/maintainers
+pnpm-workspace.yaml                     @nextcalc/maintainers
+pnpm-lock.yaml                          @nextcalc/maintainers
+turbo.json                              @nextcalc/maintainers
+tsconfig.json                           @nextcalc/maintainers
+biome.json                              @nextcalc/maintainers
+vercel.json                             @nextcalc/maintainers
+renovate.json                           @nextcalc/maintainers
+
+# Security policy
+SECURITY.md                             @nextcalc/maintainers
+
+# ─── Documentation ───────────────────────────────────────────────────
+
+docs/                                   @nextcalc/maintainers
+*.md                                    @nextcalc/maintainers

@@ -7,7 +7,7 @@ import {
   getProblemsByTopic,
   type Problem,
 } from '@nextcalc/math-engine/problems';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { Play, Settings, Target, Timer, TrendingUp, Zap } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { CSSProperties } from 'react';
@@ -131,7 +131,7 @@ function AnimatedBackground({ prefersReduced }: { prefersReduced: boolean }) {
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none" aria-hidden="true">
       {/* Orb 1 — orange, top-left quadrant */}
-      <motion.div
+      <m.div
         className="absolute w-[500px] h-[500px] rounded-full blur-3xl"
         style={{
           background: 'radial-gradient(circle, oklch(0.72 0.22 55 / 0.18) 0%, transparent 70%)',
@@ -154,7 +154,7 @@ function AnimatedBackground({ prefersReduced }: { prefersReduced: boolean }) {
       />
 
       {/* Orb 2 — amber/rose, bottom-right quadrant */}
-      <motion.div
+      <m.div
         className="absolute w-[600px] h-[600px] rounded-full blur-3xl"
         style={{
           background: 'radial-gradient(circle, oklch(0.70 0.20 25 / 0.14) 0%, transparent 70%)',
@@ -178,7 +178,7 @@ function AnimatedBackground({ prefersReduced }: { prefersReduced: boolean }) {
       />
 
       {/* Orb 3 — rose/pink, center-upper area */}
-      <motion.div
+      <m.div
         className="absolute w-[380px] h-[380px] rounded-full blur-3xl"
         style={{
           background: 'radial-gradient(circle, oklch(0.68 0.18 0 / 0.12) 0%, transparent 70%)',
@@ -237,7 +237,7 @@ function StatCard({ data }: { data: StatCardData }) {
   const hoverGlow = `0 0 28px oklch(0.72 ${chroma} ${hue} / 0.20)`;
 
   return (
-    <motion.div variants={cardVariants} whileHover={{ y: -3, transition: { duration: 0.2 } }}>
+    <m.div variants={cardVariants} whileHover={{ y: -3, transition: { duration: 0.2 } }}>
       <Card
         className="backdrop-blur-md bg-card/50 border-border hover:border-border/80 transition-all duration-300"
         style={
@@ -273,7 +273,7 @@ function StatCard({ data }: { data: StatCardData }) {
           <p className="text-sm text-muted-foreground mt-1">{subLabel}</p>
         </CardContent>
       </Card>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -453,7 +453,7 @@ export default function PracticePage() {
 
       <div className="container mx-auto py-8 px-4">
         {/* Hero Section */}
-        <motion.div
+        <m.div
           className="mb-12 text-center"
           {...(prefersReduced
             ? {}
@@ -499,10 +499,10 @@ export default function PracticePage() {
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             {t('heroDescription')}
           </p>
-        </motion.div>
+        </m.div>
 
         {/* Stats Overview */}
-        <motion.div
+        <m.div
           className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12"
           {...(prefersReduced
             ? {}
@@ -517,11 +517,11 @@ export default function PracticePage() {
           {STAT_CARDS.map((data) => (
             <StatCard key={data.labelKey} data={data} />
           ))}
-        </motion.div>
+        </m.div>
 
         {/* Configuration Form */}
         <div className="max-w-3xl mx-auto">
-          <motion.div
+          <m.div
             {...(prefersReduced
               ? {}
               : {
@@ -741,7 +741,7 @@ export default function PracticePage() {
                       </span>
                     </div>
                     {config.adaptiveDifficulty && (
-                      <motion.div
+                      <m.div
                         {...(prefersReduced
                           ? {}
                           : {
@@ -764,13 +764,13 @@ export default function PracticePage() {
                         <span className="text-sm text-foreground">
                           {t('adaptiveDifficultyEnabled')}
                         </span>
-                      </motion.div>
+                      </m.div>
                     )}
                   </CardContent>
                 </Card>
 
                 {/* Start Button */}
-                <motion.div
+                <m.div
                   {...(prefersReduced
                     ? {}
                     : {
@@ -792,10 +792,10 @@ export default function PracticePage() {
                     <Play className="h-5 w-5 mr-2" aria-hidden="true" />
                     {t('startPracticeSession')}
                   </Button>
-                </motion.div>
+                </m.div>
               </CardContent>
             </Card>
-          </motion.div>
+          </m.div>
         </div>
       </div>
     </div>

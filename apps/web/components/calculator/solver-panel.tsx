@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import {
   AlertCircle,
   BookOpen,
@@ -757,7 +757,7 @@ function StepCard({ step, index, isExpanded, onToggle, isFinal }: StepCardProps)
   const bodyId = useId();
 
   return (
-    <motion.div
+    <m.div
       layout
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
@@ -816,7 +816,7 @@ function StepCard({ step, index, isExpanded, onToggle, isFinal }: StepCardProps)
       {/* Expandable explanation body */}
       <AnimatePresence initial={false}>
         {isExpanded && (
-          <motion.div
+          <m.div
             id={bodyId}
             role="region"
             aria-labelledby={headerId}
@@ -841,10 +841,10 @@ function StepCard({ step, index, isExpanded, onToggle, isFinal }: StepCardProps)
                 Operation: {step.operation}
               </p>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -928,7 +928,7 @@ function ResultsPanel({ solution, onCopyAnswer, copied }: ResultsPanelProps) {
   const allExpanded = expandedSteps.size === solution.steps.length;
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
@@ -985,7 +985,7 @@ function ResultsPanel({ solution, onCopyAnswer, copied }: ResultsPanelProps) {
                 />
                 {/* Animated arrow connector between steps (not after the last step) */}
                 {!isLast && (
-                  <motion.div
+                  <m.div
                     initial={{ opacity: 0, scaleY: 0 }}
                     animate={{ opacity: 1, scaleY: 1 }}
                     transition={{ duration: 0.2, delay: idx * 0.04 }}
@@ -1004,7 +1004,7 @@ function ResultsPanel({ solution, onCopyAnswer, copied }: ResultsPanelProps) {
                         <path d="M0 0L4 5L8 0" fill="currentColor" />
                       </svg>
                     </div>
-                  </motion.div>
+                  </m.div>
                 )}
               </li>
             );
@@ -1041,7 +1041,7 @@ function ResultsPanel({ solution, onCopyAnswer, copied }: ResultsPanelProps) {
           >
             <AnimatePresence mode="wait" initial={false}>
               {copied ? (
-                <motion.span
+                <m.span
                   key="check"
                   initial={{ scale: 0.7, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
@@ -1049,9 +1049,9 @@ function ResultsPanel({ solution, onCopyAnswer, copied }: ResultsPanelProps) {
                   transition={{ duration: 0.15 }}
                 >
                   <Check className="h-4 w-4 text-green-500" aria-hidden="true" />
-                </motion.span>
+                </m.span>
               ) : (
-                <motion.span
+                <m.span
                   key="copy"
                   initial={{ scale: 0.7, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
@@ -1059,13 +1059,13 @@ function ResultsPanel({ solution, onCopyAnswer, copied }: ResultsPanelProps) {
                   transition={{ duration: 0.15 }}
                 >
                   <Copy className="h-4 w-4" aria-hidden="true" />
-                </motion.span>
+                </m.span>
               )}
             </AnimatePresence>
           </Button>
         </div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -1432,7 +1432,7 @@ export function SolverPanel() {
         {/* Error display */}
         <AnimatePresence mode="wait">
           {error && (
-            <motion.div
+            <m.div
               key="error"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
@@ -1449,14 +1449,14 @@ export function SolverPanel() {
                 <AlertCircle className="h-4 w-4" aria-hidden="true" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
 
         {/* Solution */}
         <AnimatePresence mode="wait">
           {solution && !error && (
-            <motion.div
+            <m.div
               key={`${solution.problem}-${solution.mode}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1464,7 +1464,7 @@ export function SolverPanel() {
               transition={{ duration: 0.18 }}
             >
               <ResultsPanel solution={solution} onCopyAnswer={handleCopyAnswer} copied={copied} />
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </CardContent>

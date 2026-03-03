@@ -41,11 +41,8 @@ export async function register() {
         // Dynamic import — @sentry/nextjs is not a required dependency.
         // If installed, Sentry will initialise. Otherwise the catch block
         // handles the missing module gracefully.
-        const Sentry = await (Function('return import("@sentry/nextjs")')() as Promise<
-          Record<string, unknown>
-        >);
-        const init = Sentry['init'] as (config: Record<string, unknown>) => void;
-        init({
+        const Sentry = await import('@sentry/nextjs');
+        Sentry.init({
           dsn: sentryDsn,
           tracesSampleRate: parseFloat(process.env['SENTRY_TRACES_SAMPLE_RATE'] ?? '0.1'),
           environment: process.env['NODE_ENV'] ?? 'development',

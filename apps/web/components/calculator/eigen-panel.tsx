@@ -21,7 +21,7 @@
  * @module EigenPanel
  */
 
-import { AnimatePresence, motion, type Variants } from 'framer-motion';
+import { AnimatePresence, m, type Variants } from 'framer-motion';
 import { AlertCircle, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
 import type { KeyboardEvent, ReactElement } from 'react';
 import { useCallback, useId, useRef, useState, useTransition } from 'react';
@@ -1221,7 +1221,7 @@ export function EigenPanel() {
         {/* ---- Error display ------------------------------------------- */}
         <AnimatePresence>
           {error && (
-            <motion.div
+            <m.div
               key="error"
               variants={fadeSlide}
               initial="hidden"
@@ -1232,14 +1232,14 @@ export function EigenPanel() {
                 <AlertCircle className="h-4 w-4" aria-hidden="true" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
 
         {/* ---- Results -------------------------------------------------- */}
         <AnimatePresence>
           {result && (
-            <motion.div
+            <m.div
               key="results"
               ref={resultRef}
               variants={staggerContainer}
@@ -1251,7 +1251,7 @@ export function EigenPanel() {
               aria-label="Eigendecomposition results"
             >
               {/* Characteristic polynomial */}
-              <motion.section variants={fadeSlide} className="space-y-2">
+              <m.section variants={fadeSlide} className="space-y-2">
                 <button
                   type="button"
                   onClick={() => setShowCharPoly((p) => !p)}
@@ -1271,7 +1271,7 @@ export function EigenPanel() {
                 </button>
                 <AnimatePresence>
                   {showCharPoly && (
-                    <motion.div
+                    <m.div
                       variants={fadeSlide}
                       initial="hidden"
                       animate="visible"
@@ -1284,13 +1284,13 @@ export function EigenPanel() {
                         ariaLabel={`Characteristic polynomial: ${result.charPolyLatex}`}
                         className="text-violet-200"
                       />
-                    </motion.div>
+                    </m.div>
                   )}
                 </AnimatePresence>
-              </motion.section>
+              </m.section>
 
               {/* Eigenvalues */}
-              <motion.section variants={fadeSlide} className="space-y-3">
+              <m.section variants={fadeSlide} className="space-y-3">
                 <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <span
                     className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-violet-600 text-white text-xs"
@@ -1300,13 +1300,13 @@ export function EigenPanel() {
                   </span>
                   Eigenvalues
                 </h4>
-                <motion.ul
+                <m.ul
                   variants={staggerContainer}
                   className="grid gap-2 sm:grid-cols-2"
                   aria-label="List of eigenvalues"
                 >
                   {result.eigenvalues.map((lam, idx) => (
-                    <motion.li
+                    <m.li
                       key={idx}
                       variants={fadeSlide}
                       className={cn(
@@ -1322,13 +1322,13 @@ export function EigenPanel() {
                         expression={eigenvalueLatex(lam, idx)}
                         ariaLabel={`Eigenvalue ${idx + 1} equals ${round(lam, 6)}`}
                       />
-                    </motion.li>
+                    </m.li>
                   ))}
-                </motion.ul>
-              </motion.section>
+                </m.ul>
+              </m.section>
 
               {/* Eigenvectors */}
-              <motion.section variants={fadeSlide} className="space-y-3">
+              <m.section variants={fadeSlide} className="space-y-3">
                 <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <span
                     className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-emerald-600 text-white text-xs"
@@ -1338,12 +1338,12 @@ export function EigenPanel() {
                   </span>
                   Eigenvectors
                 </h4>
-                <motion.div
+                <m.div
                   variants={staggerContainer}
                   className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
                 >
                   {result.eigenvectors.map((ev, idx) => (
-                    <motion.div
+                    <m.div
                       key={idx}
                       variants={fadeSlide}
                       className={cn(
@@ -1389,13 +1389,13 @@ export function EigenPanel() {
                           className="text-foreground text-sm"
                         />
                       </div>
-                    </motion.div>
+                    </m.div>
                   ))}
-                </motion.div>
-              </motion.section>
+                </m.div>
+              </m.section>
 
               {/* Eigenvector visualisation — varies by matrix size */}
-              <motion.section variants={fadeSlide} className="space-y-2">
+              <m.section variants={fadeSlide} className="space-y-2">
                 <h4 className="text-sm font-semibold text-foreground">
                   {size === 2 && 'Eigenvector Visualisation (2D)'}
                   {size === 3 && 'Eigenvector Visualisation (3D Isometric Projection)'}
@@ -1420,10 +1420,10 @@ export function EigenPanel() {
                     eigenvectors={result.eigenvectors}
                   />
                 )}
-              </motion.section>
+              </m.section>
 
               {/* Diagonalisation */}
-              <motion.section variants={fadeSlide} className="space-y-2">
+              <m.section variants={fadeSlide} className="space-y-2">
                 <button
                   type="button"
                   onClick={() => setShowDiag((p) => !p)}
@@ -1461,7 +1461,7 @@ export function EigenPanel() {
 
                 <AnimatePresence>
                   {showDiag && result.isDiagonalisable && result.P && result.D && result.Pinv && (
-                    <motion.div
+                    <m.div
                       variants={fadeSlide}
                       initial="hidden"
                       animate="visible"
@@ -1546,21 +1546,21 @@ export function EigenPanel() {
                           ))}
                         </div>
                       </details>
-                    </motion.div>
+                    </m.div>
                   )}
                 </AnimatePresence>
-              </motion.section>
+              </m.section>
 
               {/* Verification note */}
-              <motion.div
+              <m.div
                 variants={fadeSlide}
                 className="text-xs text-muted-foreground border-t border-border pt-3"
               >
                 <strong>Algorithm:</strong> QR iteration with Wilkinson shift for eigenvalues,
                 followed by inverse iteration to refine eigenvectors. Suitable for dense matrices up
                 to 4×4. Results are rounded to 6 decimal places.
-              </motion.div>
-            </motion.div>
+              </m.div>
+            </m.div>
           )}
         </AnimatePresence>
 

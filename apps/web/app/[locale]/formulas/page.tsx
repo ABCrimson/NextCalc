@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import {
   BarChart3,
   BookOpen,
@@ -887,7 +887,7 @@ function FormulaCard({ formula, index }: FormulaCardProps) {
   }, []);
 
   return (
-    <motion.article
+    <m.article
       layout
       initial={{ opacity: 0, y: 16, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -928,7 +928,7 @@ function FormulaCard({ formula, index }: FormulaCardProps) {
           {meta.label}
         </span>
 
-        <motion.div
+        <m.div
           aria-hidden="true"
           initial={false}
           animate={{ scale: copied ? 1.15 : 1 }}
@@ -944,7 +944,7 @@ function FormulaCard({ formula, index }: FormulaCardProps) {
           ) : (
             <Copy className="h-3.5 w-3.5" aria-hidden="true" />
           )}
-        </motion.div>
+        </m.div>
       </div>
 
       {/* Formula name */}
@@ -971,7 +971,7 @@ function FormulaCard({ formula, index }: FormulaCardProps) {
       {/* Copied feedback overlay */}
       <AnimatePresence>
         {copied && (
-          <motion.div
+          <m.div
             key="copied-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -985,10 +985,10 @@ function FormulaCard({ formula, index }: FormulaCardProps) {
               <Check className="h-4 w-4" aria-hidden="true" />
               Copied!
             </span>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
-    </motion.article>
+    </m.article>
   );
 }
 
@@ -1092,7 +1092,7 @@ export default function FormulasPage() {
         </div>
 
         <div className="max-w-7xl mx-auto text-center">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -1134,7 +1134,7 @@ export default function FormulasPage() {
                 );
               })}
             </div>
-          </motion.div>
+          </m.div>
         </div>
       </section>
 
@@ -1296,16 +1296,16 @@ export default function FormulasPage() {
 
             {/* Formula grid */}
             {filteredFormulas.length > 0 ? (
-              <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+              <m.div layout className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                 <AnimatePresence mode="popLayout">
                   {filteredFormulas.map((formula, index) => (
                     <FormulaCard key={formula.id} formula={formula} index={index} />
                   ))}
                 </AnimatePresence>
-              </motion.div>
+              </m.div>
             ) : (
               /* Empty state */
-              <motion.div
+              <m.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="flex flex-col items-center justify-center py-20 text-center"
@@ -1325,7 +1325,7 @@ export default function FormulasPage() {
                 >
                   Clear all filters
                 </button>
-              </motion.div>
+              </m.div>
             )}
           </div>
         </div>
@@ -1335,7 +1335,7 @@ export default function FormulasPage() {
       {/* Educational callout                                                  */}
       {/* ------------------------------------------------------------------ */}
       <section className="max-w-7xl mx-auto px-4 pb-16" aria-label="Tip">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -1357,7 +1357,7 @@ export default function FormulasPage() {
               </p>
             </div>
           </div>
-        </motion.div>
+        </m.div>
       </section>
     </div>
   );

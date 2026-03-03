@@ -140,7 +140,7 @@ export const useRequireAuth = (redirectUrl?: string) => {
     }
   }, [status, redirectUrl, isRedirecting]);
 
-  if (status === 'loading' || isRedirecting) {
+  if (status === 'loading' || status === 'unauthenticated' || isRedirecting) {
     return null;
   }
 
@@ -217,21 +217,8 @@ export const signIn = (callbackUrl = '/') => {
  */
 export const signOut = async (callbackUrl = '/') => {
   try {
-    // Fetch CSRF token required by NextAuth v5
-    const csrfRes = await fetch('/api/auth/csrf');
-    const { csrfToken } = await csrfRes.json();
-
-    // POST sign-out with CSRF token (NextAuth expects form-encoded body)
-    await fetch('/api/auth/signout', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({ csrfToken, callbackUrl }),
-    });
-
-    // Redirect to callback URL
-    window.location.href = callbackUrl;
+    const { signOut: nextAuthSignOut } = await import('next-auth/react');
+    await nextAuthSignOut({ callbackUrl });
   } catch (error) {
     console.error('Sign out error:', error);
     // Redirect anyway so user isn't stuck

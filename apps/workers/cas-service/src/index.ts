@@ -48,9 +48,8 @@ const app = new Hono<{ Bindings: Bindings }>();
 app.use('/*', async (c, next) => {
   const allowedOrigins = c.env.ALLOWED_ORIGINS?.split(',') ?? [];
 
-  const origin = c.req.header('Origin') || '';
   const corsMiddleware = cors({
-    origin: allowedOrigins.includes(origin) ? origin : '',
+    origin: (requestOrigin: string) => allowedOrigins.includes(requestOrigin) ? requestOrigin : null,
     allowMethods: ['GET', 'POST', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization'],
     maxAge: 86400,

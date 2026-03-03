@@ -29,7 +29,7 @@
  */
 
 import type { HistoryEntry } from '@nextcalc/types';
-import { AnimatePresence, motion, useReducedMotion, type Variants } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion, type Variants } from 'framer-motion';
 import {
   Activity,
   BarChart2,
@@ -787,7 +787,7 @@ export function CommandPalette({ className }: CommandPaletteProps) {
         {open && (
           <>
             {/* Backdrop */}
-            <motion.div
+            <m.div
               key="cmd-backdrop"
               className="fixed inset-0 z-[100] bg-background/60 backdrop-blur-sm"
               variants={overlayVariants}
@@ -800,7 +800,7 @@ export function CommandPalette({ className }: CommandPaletteProps) {
             />
 
             {/* Dialog */}
-            <motion.div
+            <m.div
               key="cmd-dialog"
               ref={containerRef}
               className="fixed left-1/2 top-[15vh] z-[101] w-full max-w-xl -translate-x-1/2"
@@ -838,7 +838,7 @@ export function CommandPalette({ className }: CommandPaletteProps) {
                     placeholder="Search commands..."
                     className={cn(
                       'flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground',
-                      'focus:outline-none focus-visible:outline-none',
+                      'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
                       'caret-primary',
                     )}
                     spellCheck={false}
@@ -1021,7 +1021,7 @@ export function CommandPalette({ className }: CommandPaletteProps) {
                   </span>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           </>
         )}
       </AnimatePresence>

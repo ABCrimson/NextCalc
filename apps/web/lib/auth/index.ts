@@ -4,9 +4,11 @@
  * Helper functions for authentication and authorization.
  */
 
+import { cache } from 'react';
 import type { UserRole } from '@nextcalc/database';
 import { auth } from '../../auth';
 import { prisma } from '../prisma';
+import { ROLE_HIERARCHY } from './roles';
 
 /**
  * Get the current authenticated user session
@@ -22,7 +24,7 @@ export async function getSession() {
  *
  * @returns User object or null if not authenticated
  */
-export async function getCurrentUser() {
+export const getCurrentUser = cache(async () => {
   const session = await getSession();
   if (!session?.user?.id) {
     return null;
@@ -43,7 +45,7 @@ export async function getCurrentUser() {
   });
 
   return user;
-}
+});
 
 /**
  * Require authentication - throw error if not authenticated
@@ -71,13 +73,7 @@ export async function hasRole(requiredRole: UserRole): Promise<boolean> {
     return false;
   }
 
-  const roleHierarchy: Record<UserRole, number> = {
-    USER: 1,
-    MODERATOR: 2,
-    ADMIN: 3,
-  };
-
-  return roleHierarchy[session.user.role] >= roleHierarchy[requiredRole];
+  return ROLE_HIERARCHY[session.user.role] >= ROLE_HIERARCHY[requiredRole];
 }
 
 /**

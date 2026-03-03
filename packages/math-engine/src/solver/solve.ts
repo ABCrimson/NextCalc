@@ -8,7 +8,8 @@
  * 4. Transcendental equations (numerical via Newton-Raphson)
  */
 
-import type { ExpressionNode, OperatorNode } from '../parser/ast';
+import type { ExpressionNode } from '../parser/ast';
+import { createOperatorNode } from '../parser/ast';
 import { evaluate } from '../parser/evaluator';
 import { parse } from '../parser/parser';
 import { differentiate } from '../symbolic/differentiate';
@@ -294,13 +295,7 @@ export function solve(
       const rhsExpr = parse(rhs);
 
       // Move everything to left side: lhs - rhs = 0
-      expr = {
-        _brand: 'ExpressionNode' as const,
-        type: 'OperatorNode' as const,
-        op: '-' as const,
-        fn: 'subtract',
-        args: [lhsExpr, rhsExpr] as const,
-      } as OperatorNode;
+      expr = createOperatorNode('-', 'subtract', [lhsExpr, rhsExpr]);
     } else {
       expr = parse(equation);
     }

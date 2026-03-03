@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import {
   Brain,
   Info,
@@ -850,14 +850,14 @@ export function MetaLearningPlayground({
             </CardHeader>
             <CardContent>
               {lossHistory.length === 0 ? (
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="text-center py-12"
                 >
                   <TrendingDown className="h-12 w-12 mx-auto mb-3 opacity-30 text-muted-foreground" />
                   <p className="text-muted-foreground">Start training to see loss history</p>
-                </motion.div>
+                </m.div>
               ) : (
                 <div className="space-y-4">
                   {/*
@@ -956,7 +956,7 @@ export function MetaLearningPlayground({
 
                           {/* Data point dots */}
                           {lossChartData.points.map((point, i) => (
-                            <motion.circle
+                            <m.circle
                               key={i}
                               cx={point.x}
                               cy={point.y}
@@ -971,7 +971,7 @@ export function MetaLearningPlayground({
                               <title>
                                 Step {i + 1}: {lossHistory[i]?.toFixed(4)}
                               </title>
-                            </motion.circle>
+                            </m.circle>
                           ))}
                         </>
                       )}
@@ -1000,7 +1000,7 @@ export function MetaLearningPlayground({
                         delay: 0.3,
                       },
                     ].map((s) => (
-                      <motion.div
+                      <m.div
                         key={s.label}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -1019,7 +1019,7 @@ export function MetaLearningPlayground({
                         >
                           {s.value}
                         </div>
-                      </motion.div>
+                      </m.div>
                     ))}
                   </div>
                 </div>

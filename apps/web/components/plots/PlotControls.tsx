@@ -8,7 +8,7 @@
  */
 
 import { downloadAsCSV2D, downloadAsPNG, downloadAsSVG, type Point2D } from '@nextcalc/plot-engine';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import {
   Download,
   FileImage,
@@ -84,6 +84,7 @@ export function PlotControls({
   } as ExportState);
 
   const [showKeyboardHints, setShowKeyboardHints] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   // Keyboard shortcuts handler
   useEffect(() => {
@@ -121,6 +122,7 @@ export function PlotControls({
   const handleExportPNG = useCallback(async () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    setExportError(null);
 
     try {
       setExportState({ isExporting: true, format: 'png', progress: 0 } as ExportState);
@@ -152,16 +154,16 @@ export function PlotControls({
         setExportState({ isExporting: false, format: null, progress: 0 } as ExportState);
       }, 500);
     } catch (error) {
-      console.error('PNG export failed:', error);
-      // Toast notification would be better than alert for accessibility
-      alert('Failed to export PNG. Please try again.');
+      console.debug('PNG export failed:', error);
+      setExportError('Failed to export PNG. Please try again.');
       setExportState({ isExporting: false, format: null, progress: 0 } as ExportState);
     }
   }, [canvasRef]);
 
   const handleExportSVG = useCallback(async () => {
+    setExportError(null);
     if (!plotData || !viewport || plotType !== '2d') {
-      alert('SVG export is only available for 2D plots');
+      setExportError('SVG export is only available for 2D plots.');
       return;
     }
 
@@ -191,15 +193,16 @@ export function PlotControls({
         setExportState({ isExporting: false, format: null, progress: 0 } as ExportState);
       }, 500);
     } catch (error) {
-      console.error('SVG export failed:', error);
-      alert('Failed to export SVG. Please try again.');
+      console.debug('SVG export failed:', error);
+      setExportError('Failed to export SVG. Please try again.');
       setExportState({ isExporting: false, format: null, progress: 0 } as ExportState);
     }
   }, [plotData, viewport, plotType]);
 
   const handleExportCSV = useCallback(async () => {
+    setExportError(null);
     if (!plotData || plotType !== '2d') {
-      alert('CSV export is only available for 2D plots');
+      setExportError('CSV export is only available for 2D plots.');
       return;
     }
 
@@ -229,8 +232,8 @@ export function PlotControls({
         setExportState({ isExporting: false, format: null, progress: 0 } as ExportState);
       }, 500);
     } catch (error) {
-      console.error('CSV export failed:', error);
-      alert('Failed to export CSV. Please try again.');
+      console.debug('CSV export failed:', error);
+      setExportError('Failed to export CSV. Please try again.');
       setExportState({ isExporting: false, format: null, progress: 0 } as ExportState);
     }
   }, [plotData, plotType]);
@@ -238,7 +241,7 @@ export function PlotControls({
   return (
     <TooltipProvider delayDuration={300}>
       {/* Glass-morphism container with gradient border */}
-      <motion.div
+      <m.div
         className={`
           relative flex items-center gap-2 p-2 rounded-xl
           bg-gradient-to-br from-background/60 via-card/50 to-background/60
@@ -259,7 +262,7 @@ export function PlotControls({
             <>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <motion.div
+                  <m.div
                     variants={buttonVariants}
                     initial="initial"
                     whileHover="hover"
@@ -281,7 +284,7 @@ export function PlotControls({
                     >
                       <ZoomIn className="h-4 w-4" />
                     </Button>
-                  </motion.div>
+                  </m.div>
                 </TooltipTrigger>
                 <TooltipContent
                   side="bottom"
@@ -297,7 +300,7 @@ export function PlotControls({
 
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <motion.div
+                  <m.div
                     variants={buttonVariants}
                     initial="initial"
                     whileHover="hover"
@@ -319,7 +322,7 @@ export function PlotControls({
                     >
                       <ZoomOut className="h-4 w-4" />
                     </Button>
-                  </motion.div>
+                  </m.div>
                 </TooltipTrigger>
                 <TooltipContent
                   side="bottom"
@@ -338,7 +341,7 @@ export function PlotControls({
           {/* Reset view button */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <motion.div
+              <m.div
                 variants={buttonVariants}
                 initial="initial"
                 whileHover="hover"
@@ -360,7 +363,7 @@ export function PlotControls({
                 >
                   <Maximize2 className="h-4 w-4" />
                 </Button>
-              </motion.div>
+              </m.div>
             </TooltipTrigger>
             <TooltipContent
               side="bottom"
@@ -382,7 +385,7 @@ export function PlotControls({
             <Tooltip>
               <TooltipTrigger asChild>
                 <DropdownMenuTrigger asChild>
-                  <motion.div
+                  <m.div
                     variants={buttonVariants}
                     initial="initial"
                     whileHover="hover"
@@ -416,7 +419,7 @@ export function PlotControls({
                         </>
                       )}
                     </Button>
-                  </motion.div>
+                  </m.div>
                 </DropdownMenuTrigger>
               </TooltipTrigger>
               <TooltipContent
@@ -484,7 +487,7 @@ export function PlotControls({
           {/* Keyboard hints toggle */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <motion.div
+              <m.div
                 variants={buttonVariants}
                 initial="initial"
                 whileHover="hover"
@@ -503,7 +506,7 @@ export function PlotControls({
                 >
                   <Keyboard className="h-4 w-4" />
                 </Button>
-              </motion.div>
+              </m.div>
             </TooltipTrigger>
             <TooltipContent
               side="bottom"
@@ -520,7 +523,7 @@ export function PlotControls({
         {/* Export progress indicator */}
         <AnimatePresence>
           {exportState.isExporting && (
-            <motion.div
+            <m.div
               variants={progressVariants}
               initial="hidden"
               animate="visible"
@@ -532,14 +535,38 @@ export function PlotControls({
                 className="h-1 bg-muted/80"
                 aria-label={`Export progress: ${exportState.progress}%`}
               />
-            </motion.div>
+            </m.div>
+          )}
+        </AnimatePresence>
+
+        {/* Export error message */}
+        <AnimatePresence>
+          {exportError && (
+            <m.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              className="absolute top-full left-0 right-0 mt-1 px-3 py-2 rounded-lg bg-destructive/10 text-destructive text-xs border border-destructive/20"
+              role="alert"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span>{exportError}</span>
+                <button
+                  onClick={() => setExportError(null)}
+                  className="text-destructive hover:text-destructive/80 font-medium shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded"
+                  aria-label="Dismiss error"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </m.div>
           )}
         </AnimatePresence>
 
         {/* Keyboard shortcuts overlay */}
         <AnimatePresence>
           {showKeyboardHints && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, scale: 0.9, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: -10 }}
@@ -594,10 +621,10 @@ export function PlotControls({
                   <kbd className="px-1.5 py-0.5 bg-muted rounded text-muted-foreground">?</kbd>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
-      </motion.div>
+      </m.div>
     </TooltipProvider>
   );
 }

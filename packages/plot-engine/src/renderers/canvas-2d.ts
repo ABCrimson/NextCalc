@@ -95,6 +95,10 @@ export class Canvas2DRenderer implements IRenderer {
     this.ctx = null;
   }
 
+  [Symbol.dispose](): void {
+    this.dispose();
+  }
+
   getMetrics(): PerformanceMetrics {
     return {
       initTime: this.initTime,
@@ -300,7 +304,7 @@ export class Canvas2DRenderer implements IRenderer {
     if (yAxis.ticks.enabled) {
       ctx.textAlign = 'right';
       ctx.textBaseline = 'middle';
-      const x0 = Math.min(Math.max(this.worldToCanvasX(0, vp), 15), this.canvas.width);
+      const x0 = Math.min(Math.max(this.worldToCanvasX(0, vp), 15), this.canvas.width - 15);
       const startY = Math.ceil(vp.yMin / yAxis.grid.majorStep) * yAxis.grid.majorStep;
       for (let y = startY; y <= vp.yMax; y += yAxis.grid.majorStep) {
         if (Math.abs(y) < 1e-10) continue;

@@ -19,7 +19,7 @@
  *     under the key "worksheet-storage" after every mutation.
  */
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import {
   AlignLeft,
   BookOpen,
@@ -61,6 +61,7 @@ function Toolbar({ titleInputId }: ToolbarProps) {
   const { setTitle, resetWorksheet, exportAsJSON, importFromJSON } = useWorksheetActions();
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   const handleExport = useCallback(() => {
     const json = exportAsJSON();
@@ -92,13 +93,8 @@ function Toolbar({ titleInputId }: ToolbarProps) {
   );
 
   const handleReset = useCallback(() => {
-    if (
-      window.confirm(
-        'Reset worksheet? This will permanently delete all cells and cannot be undone.',
-      )
-    ) {
-      resetWorksheet();
-    }
+    resetWorksheet();
+    setShowResetConfirm(false);
   }, [resetWorksheet]);
 
   return (
@@ -174,16 +170,39 @@ function Toolbar({ titleInputId }: ToolbarProps) {
           tabIndex={-1}
         />
 
-        <Button
-          variant="ghost"
-          size="sm"
-          className="gap-2 text-xs h-8 hover:text-destructive hover:bg-destructive/10"
-          onClick={handleReset}
-          aria-label="Reset worksheet — clears all cells"
-        >
-          <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-          <span className="hidden sm:inline">Reset</span>
-        </Button>
+        {showResetConfirm ? (
+          <span className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1 text-xs h-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+              onClick={handleReset}
+              aria-label="Confirm reset"
+            >
+              Confirm Reset
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs h-8"
+              onClick={() => setShowResetConfirm(false)}
+              aria-label="Cancel reset"
+            >
+              Cancel
+            </Button>
+          </span>
+        ) : (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-2 text-xs h-8 hover:text-destructive hover:bg-destructive/10"
+            onClick={() => setShowResetConfirm(true)}
+            aria-label="Reset worksheet — clears all cells"
+          >
+            <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+            <span className="hidden sm:inline">Reset</span>
+          </Button>
+        )}
 
         {/* Collaboration controls — separator then CollabBar */}
         <div className="h-4 w-px bg-border/50 mx-1 hidden sm:block" aria-hidden="true" />
@@ -332,7 +351,7 @@ function VariablesSidebar({ cells }: { cells: readonly WorksheetCell[] }) {
 // ---------------------------------------------------------------------------
 function EmptyState({ onAdd }: { onAdd: (kind: CellKind) => void }) {
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       className="flex flex-col items-center justify-center py-16 text-center"
@@ -371,7 +390,7 @@ function EmptyState({ onAdd }: { onAdd: (kind: CellKind) => void }) {
           </Button>
         ))}
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -468,7 +487,7 @@ function AddCellFAB() {
       <AnimatePresence>
         {open &&
           items.map(({ kind, icon, label, color }, i) => (
-            <motion.div
+            <m.div
               key={kind}
               initial={{ opacity: 0, scale: 0.8, y: 8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -491,7 +510,7 @@ function AddCellFAB() {
                 {icon}
                 {label}
               </button>
-            </motion.div>
+            </m.div>
           ))}
       </AnimatePresence>
 
@@ -507,12 +526,12 @@ function AddCellFAB() {
         aria-expanded={open}
         aria-haspopup="true"
       >
-        <motion.div
+        <m.div
           animate={{ rotate: open ? 45 : 0 }}
           transition={{ type: 'spring', stiffness: 400, damping: 28 }}
         >
           <Plus className="h-6 w-6" aria-hidden="true" />
-        </motion.div>
+        </m.div>
       </button>
     </div>
   );

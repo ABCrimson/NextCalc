@@ -1,0 +1,48 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "@nextcalc/math-engine",
+  "entryPoints": [
+    "src/index.ts",
+    "src/parser/index.ts",
+    "src/symbolic/index.ts",
+    "src/matrix/index.ts",
+    "src/solver/index.ts",
+    "src/stats/index.ts",
+    "src/complex/index.ts",
+    "src/units/index.ts",
+    "src/algorithms/index.ts",
+    "src/differential/index.ts",
+    "src/calculus/index.ts",
+    "src/cas/index.ts",
+    "src/fourier/index.ts",
+    "src/graph-theory/index.ts",
+    "src/problems/index.ts",
+    "src/prover/index.ts",
+    "src/content/index.ts",
+    "src/knowledge/index.ts",
+    "src/wasm/index.ts",
+    "src/chaos/chaos-theory.ts",
+    "src/game-theory/game-theory.ts"
+  ],
+  "out": "docs",
+  "tsconfig": "tsconfig.json",
+  "readme": "none",
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeInternal": true,
+  "includeVersion": true,
+  "categorizeByGroup": true,
+  "sort": ["source-order", "alphabetical"],
+  "validation": {
+    "notExported": false,
+    "invalidLink": true,
+    "notDocumented": false
+  },
+  "plugin": [],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/wasm/native/**"
+  ],
+  "skipErrorChecking": true
+}

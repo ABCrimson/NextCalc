@@ -202,11 +202,11 @@ export class KnowledgeBaseManager {
    */
   static async getTopicTree(category?: Category): Promise<TopicNode[]> {
     const where: Prisma.TopicWhereInput = {
-      parentId: null,
-      ...(category && { category }),
+      ...(category ? { category } : {}),
     };
 
-    const rootTopics = await prisma.topic.findMany({
+    // Fetch ALL topics in a single query, then build the tree in memory
+    const allTopics = await prisma.topic.findMany({
       where,
       include: {
         _count: {
@@ -220,41 +220,21 @@ export class KnowledgeBaseManager {
       orderBy: { name: 'asc' },
     });
 
-    // Recursively build tree
-    const buildTree = async (
-      topics: (Topic & { _count: { problems: number; theorems: number; examples: number } })[],
-    ): Promise<TopicNode[]> => {
-      return await Promise.all(
-        topics.map(async (topic) => {
-          const children = await prisma.topic.findMany({
-            where: { parentId: topic.id },
-            include: {
-              _count: {
-                select: {
-                  problems: true,
-                  theorems: true,
-                  examples: true,
-                },
-              },
-            },
-            orderBy: { name: 'asc' },
-          });
+    const buildTree = (parentId: string | null): TopicNode[] =>
+      allTopics
+        .filter((t) => t.parentId === parentId)
+        .map((t) => ({
+          id: t.id,
+          name: t.name,
+          slug: t.slug,
+          category: t.category,
+          description: t.description,
+          parentId: t.parentId,
+          _count: t._count,
+          children: buildTree(t.id),
+        }));
 
-          return {
-            id: topic.id,
-            name: topic.name,
-            slug: topic.slug,
-            category: topic.category,
-            description: topic.description,
-            parentId: topic.parentId,
-            _count: topic._count,
-            children: await buildTree(children),
-          };
-        }),
-      );
-    };
-
-    return await buildTree(rootTopics);
+    return buildTree(null);
   }
 
   /**
@@ -552,8 +532,13 @@ export class KnowledgeBaseManager {
   static async getTopicPath(topicId: string): Promise<Topic[]> {
     const path: Topic[] = [];
     let currentId: string | null = topicId;
+    const visited = new Set<string>();
+    const MAX_DEPTH = 20;
 
-    while (currentId) {
+    while (currentId && path.length < MAX_DEPTH) {
+      if (visited.has(currentId)) break;
+      visited.add(currentId);
+
       const foundTopic: Awaited<ReturnType<typeof prisma.topic.findUnique>> =
         await prisma.topic.findUnique({
           where: { id: currentId },
@@ -589,12 +574,14 @@ export class KnowledgeBaseManager {
       throw new Error('Theorem not found');
     }
 
-    const allPrerequisites = new Set<Theorem>();
+    const visitedIds = new Set<string>();
+    const allPrerequisites: Theorem[] = [];
 
     const collectPrerequisites = async (thm: Theorem & { prerequisites?: Theorem[] }) => {
       for (const prereq of thm.prerequisites ?? []) {
-        if (!allPrerequisites.has(prereq)) {
-          allPrerequisites.add(prereq);
+        if (!visitedIds.has(prereq.id)) {
+          visitedIds.add(prereq.id);
+          allPrerequisites.push(prereq);
           await collectPrerequisites(prereq);
         }
       }
@@ -602,7 +589,7 @@ export class KnowledgeBaseManager {
 
     await collectPrerequisites(theorem);
 
-    return Array.from(allPrerequisites);
+    return allPrerequisites;
   }
 
   /**

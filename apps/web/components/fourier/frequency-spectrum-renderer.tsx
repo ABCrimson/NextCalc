@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { type MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 interface FrequencySpectrumRendererProps {
@@ -808,7 +808,7 @@ export function FrequencySpectrumRenderer({
 
       <AnimatePresence>
         {hoveredBin && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.8, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 10 }}
@@ -835,13 +835,13 @@ export function FrequencySpectrumRenderer({
                 <div className="text-purple-300">Phase: {hoveredBin.phase.toFixed(3)} rad</div>
               )}
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
       <AnimatePresence>
         {(zoom !== 1 || pan !== 0) && (
-          <motion.button
+          <m.button
             initial={{ opacity: 0, scale: 0.8, y: -10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: -10 }}
@@ -860,11 +860,11 @@ export function FrequencySpectrumRenderer({
             aria-label="Reset view to default zoom and pan"
           >
             Reset View
-          </motion.button>
+          </m.button>
         )}
       </AnimatePresence>
 
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -889,7 +889,7 @@ export function FrequencySpectrumRenderer({
         Scroll to zoom
         <span className="mx-2 text-muted-foreground">•</span>
         Drag to pan
-      </motion.div>
+      </m.div>
     </div>
   );
 }

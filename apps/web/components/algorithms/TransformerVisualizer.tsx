@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { Download, Info, Pause, Play, RotateCcw, Send } from 'lucide-react';
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert } from '@/components/ui/alert';
@@ -806,7 +806,7 @@ export function TransformerVisualizer({
                     {/* Column headers */}
                     <div className="shrink-0" style={{ minWidth: '6rem' }} />
                     {tokens.map((token, i) => (
-                      <motion.div
+                      <m.div
                         key={`col-${i}`}
                         className="text-[0.65rem] sm:text-xs font-bold text-center px-1 py-2"
                         style={{
@@ -831,14 +831,14 @@ export function TransformerVisualizer({
                         >
                           {token}
                         </span>
-                      </motion.div>
+                      </m.div>
                     ))}
 
                     {/* Attention scores */}
                     {currentHead?.scores.map((row, i) => (
                       <Fragment key={`row-${i}`}>
                         {/* Row header */}
-                        <motion.div
+                        <m.div
                           className="text-[0.65rem] sm:text-xs font-bold flex items-center justify-end pr-2"
                           style={{
                             background:
@@ -866,7 +866,7 @@ export function TransformerVisualizer({
                           >
                             {tokens[i] ?? ''}
                           </span>
-                        </motion.div>
+                        </m.div>
 
                         {/* Score cells */}
                         {row.map((score, j) => {
@@ -875,7 +875,7 @@ export function TransformerVisualizer({
                           const colors = intensityToOklch(intensity);
 
                           return (
-                            <motion.div
+                            <m.div
                               key={`cell-${i}-${j}`}
                               className={cn(
                                 'relative flex items-center justify-center',
@@ -917,7 +917,7 @@ export function TransformerVisualizer({
                             >
                               {/* Pulsing glow overlay for high attention */}
                               {intensity > 0.68 && (
-                                <motion.div
+                                <m.div
                                   className="absolute inset-0 rounded-md pointer-events-none"
                                   style={{
                                     background: `radial-gradient(circle at 50% 40%, ${colors.border} 0%, transparent 68%)`,
@@ -936,7 +936,7 @@ export function TransformerVisualizer({
                               <span className="relative z-10 tabular-nums">
                                 {intensity.toFixed(2)}
                               </span>
-                            </motion.div>
+                            </m.div>
                           );
                         })}
                       </Fragment>
@@ -962,7 +962,7 @@ export function TransformerVisualizer({
                 {/* Hovered cell info */}
                 <AnimatePresence>
                   {hoveredCell && (
-                    <motion.div
+                    <m.div
                       initial={{ opacity: 0, y: -8 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -8 }}
@@ -984,7 +984,7 @@ export function TransformerVisualizer({
                           </code>
                         </div>
                       </Alert>
-                    </motion.div>
+                    </m.div>
                   )}
                 </AnimatePresence>
               </div>

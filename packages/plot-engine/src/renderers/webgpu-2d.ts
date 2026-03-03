@@ -257,7 +257,7 @@ export class WebGPU2DRenderer implements IRenderer {
     this.updateProjectionMatrix();
 
     this.metrics.initTime = performance.now() - startTime;
-    console.log(`WebGPU 2D Renderer initialised in ${this.metrics.initTime.toFixed(2)} ms`);
+    console.debug(`WebGPU 2D Renderer initialised in ${this.metrics.initTime.toFixed(2)} ms`);
   }
 
   // ---------------------------------------------------------------------------
@@ -305,12 +305,12 @@ export class WebGPU2DRenderer implements IRenderer {
         console.warn(`WebGPU device lost (reason: ${info.reason}): ${info.message}`);
 
         if (info.reason !== 'destroyed') {
-          console.log('Attempting WebGPU device recovery…');
+          console.debug('Attempting WebGPU device recovery…');
           this.releaseGPUResources();
           this.initialize()
             .then(() => {
               this.isLost = false;
-              console.log('WebGPU device recovered.');
+              console.debug('WebGPU device recovered.');
               this.deviceLostCallback?.();
             })
             .catch((err) => {

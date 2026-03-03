@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { ChevronDown, Cpu, Zap } from 'lucide-react';
 import {
   type MouseEvent,
@@ -965,7 +965,7 @@ export function BifurcationDiagramRenderer({
 
         <AnimatePresence>
           {showPresets && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 8, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.97 }}
@@ -1003,7 +1003,7 @@ export function BifurcationDiagramRenderer({
                   </button>
                 ))}
               </div>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </div>
@@ -1025,7 +1025,7 @@ export function BifurcationDiagramRenderer({
 
       <AnimatePresence>
         {showControls && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 12, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.97 }}
@@ -1149,12 +1149,12 @@ export function BifurcationDiagramRenderer({
                 Press Enter or click outside an input to apply. Map change resets range to defaults.
               </p>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
       {/* GPU/CPU backend badge */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: -6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15 }}
@@ -1170,12 +1170,12 @@ export function BifurcationDiagramRenderer({
           <Cpu className="w-3 h-3" aria-hidden="true" />
         )}
         {gpuBadgeLabel}
-      </motion.div>
+      </m.div>
 
       {/* GPU timing detail — shown after compute finishes */}
       <AnimatePresence>
         {gpuStatus === 'done' && gpuMs !== null && cpuMs !== null && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
@@ -1191,14 +1191,14 @@ export function BifurcationDiagramRenderer({
                 {activeData.length.toLocaleString()} attractor pts
               </div>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
       {/* GPU loading overlay */}
       <AnimatePresence>
         {gpuStatus === 'loading' && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -1208,7 +1208,7 @@ export function BifurcationDiagramRenderer({
               className="flex flex-col items-center gap-3 px-6 py-4 rounded-xl
               bg-black/70 backdrop-blur-md border border-indigo-500/30"
             >
-              <motion.div
+              <m.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
                 className="w-7 h-7 rounded-full border-2 border-indigo-400 border-t-transparent"
@@ -1219,7 +1219,7 @@ export function BifurcationDiagramRenderer({
                 Parallelising {(gpuParams?.rSteps ?? 512).toLocaleString()} r-values
               </div>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
@@ -1262,7 +1262,7 @@ export function BifurcationDiagramRenderer({
       {/* Hover tooltip */}
       <AnimatePresence>
         {hoveredPoint && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.85, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.85, y: 8 }}
@@ -1281,14 +1281,14 @@ export function BifurcationDiagramRenderer({
               <div className="text-emerald-300 font-semibold">r = {hoveredPoint.r.toFixed(4)}</div>
               <div className="text-cyan-300">x = {hoveredPoint.x.toFixed(6)}</div>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
       {/* Reset button */}
       <AnimatePresence>
         {isZoomed && (
-          <motion.button
+          <m.button
             initial={{ opacity: 0, scale: 0.85, y: -8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.85, y: -8 }}
@@ -1306,12 +1306,12 @@ export function BifurcationDiagramRenderer({
             aria-label="Reset view"
           >
             Reset
-          </motion.button>
+          </m.button>
         )}
       </AnimatePresence>
 
       {/* Info bar */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -1331,7 +1331,7 @@ export function BifurcationDiagramRenderer({
         drag to pan
         <span className="mx-1.5">·</span>
         <span className="text-cyan-400">{renderTime.toFixed(1)}ms draw</span>
-      </motion.div>
+      </m.div>
     </div>
   );
 }

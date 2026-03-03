@@ -242,7 +242,9 @@ export const sessionCache = {
 
 export const queryCache = {
   key: (queryName: string, variables?: Record<string, unknown>) => {
-    const varHash = variables ? JSON.stringify(variables) : '';
+    const varHash = variables
+      ? JSON.stringify(variables, Object.keys(variables).sort())
+      : '';
     return `query:${queryName}:${varHash}`;
   },
 
@@ -256,7 +258,7 @@ export const queryCache = {
   get: async <T = unknown>(queryName: string, variables?: Record<string, unknown>) =>
     cacheGet<T>(queryCache.key(queryName, variables)),
 
-  invalidate: async (queryName: string) => {
-    await cacheDel(queryName);
+  invalidate: async (queryName: string, variables?: Record<string, unknown>) => {
+    await cacheDel(queryCache.key(queryName, variables));
   },
 };

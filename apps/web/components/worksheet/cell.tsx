@@ -22,7 +22,7 @@
  */
 
 import { evaluate as evaluateExpr } from '@nextcalc/math-engine';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import {
   AlertCircle,
   AlignLeft,
@@ -297,7 +297,7 @@ function MathCellContent({ cell, cellIndex, getVariablesUpTo }: MathCellContentP
       {/* Result display */}
       <AnimatePresence mode="wait">
         {cell.status === 'success' && cell.result !== null && (
-          <motion.div
+          <m.div
             key={`result-${cell.result}`}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -342,11 +342,11 @@ function MathCellContent({ cell, cellIndex, getVariablesUpTo }: MathCellContentP
                 ))}
               </div>
             )}
-          </motion.div>
+          </m.div>
         )}
 
         {cell.status === 'error' && cell.errorMessage && (
-          <motion.div
+          <m.div
             key="error"
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -358,7 +358,7 @@ function MathCellContent({ cell, cellIndex, getVariablesUpTo }: MathCellContentP
           >
             <AlertCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" aria-hidden="true" />
             <span className="text-sm text-destructive font-mono">{cell.errorMessage}</span>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>
@@ -848,7 +848,7 @@ export const WorksheetCell = memo(function WorksheetCell({
   const editingPeers = remotePeers.filter((p) => p.activeCellId === cell.id);
 
   return (
-    <motion.article
+    <m.article
       layout
       initial={{ opacity: 0, y: 16, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -878,7 +878,7 @@ export const WorksheetCell = memo(function WorksheetCell({
       {/* Remote collaborator editing indicator — shown above the header */}
       <AnimatePresence>
         {editingPeers.length > 0 && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
@@ -911,7 +911,7 @@ export const WorksheetCell = memo(function WorksheetCell({
               ))}
               <span className="text-muted-foreground/70 ml-0.5">editing…</span>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
@@ -990,6 +990,6 @@ export const WorksheetCell = memo(function WorksheetCell({
         {cell.kind === 'text' && <TextCellContent cell={cell} cellIndex={cellIndex} />}
         {cell.kind === 'plot' && <PlotCellContent cell={cell} cellIndex={cellIndex} />}
       </div>
-    </motion.article>
+    </m.article>
   );
 });

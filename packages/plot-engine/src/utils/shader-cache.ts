@@ -150,4 +150,12 @@ export class ShaderCache {
   dispose(): void {
     this.clear();
   }
+
+  /**
+   * Enables `using` declarations (TC39 Explicit Resource Management).
+   * `using cache = new ShaderCache(gl)` will auto-dispose on scope exit.
+   */
+  [Symbol.dispose](): void {
+    this.dispose();
+  }
 }

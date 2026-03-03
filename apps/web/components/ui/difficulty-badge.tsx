@@ -51,25 +51,25 @@ const difficultyConfig = {
     label: 'Beginner',
     icon: Sparkles,
     className:
-      'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border-green-300 dark:border-green-700',
+      'bg-[oklch(0.92_0.08_145)] text-[oklch(0.35_0.10_145)] dark:bg-[oklch(0.30_0.06_145/0.30)] dark:text-[oklch(0.75_0.15_145)] border-[oklch(0.80_0.10_145)] dark:border-[oklch(0.40_0.08_145)]',
   },
   intermediate: {
     label: 'Intermediate',
     icon: Zap,
     className:
-      'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border-blue-300 dark:border-blue-700',
+      'bg-[oklch(0.92_0.06_250)] text-[oklch(0.35_0.10_250)] dark:bg-[oklch(0.30_0.06_250/0.30)] dark:text-[oklch(0.75_0.12_250)] border-[oklch(0.78_0.08_250)] dark:border-[oklch(0.40_0.08_250)]',
   },
   advanced: {
     label: 'Advanced',
     icon: Flame,
     className:
-      'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400 border-orange-300 dark:border-orange-700',
+      'bg-[oklch(0.92_0.08_60)] text-[oklch(0.40_0.12_60)] dark:bg-[oklch(0.30_0.06_60/0.30)] dark:text-[oklch(0.75_0.15_60)] border-[oklch(0.80_0.10_60)] dark:border-[oklch(0.40_0.08_60)]',
   },
   master: {
     label: 'Master',
     icon: Crown,
     className:
-      'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 border-purple-300 dark:border-purple-700',
+      'bg-[oklch(0.92_0.08_300)] text-[oklch(0.35_0.12_300)] dark:bg-[oklch(0.30_0.06_300/0.30)] dark:text-[oklch(0.75_0.15_300)] border-[oklch(0.78_0.10_300)] dark:border-[oklch(0.40_0.08_300)]',
   },
 } as const;
 

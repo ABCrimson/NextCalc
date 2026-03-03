@@ -1,7 +1,7 @@
 import { getProblemById, getRelatedProblems } from '@nextcalc/math-engine/problems';
 import { ArrowLeft, Share2 } from 'lucide-react';
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { Badge } from '@/components/ui/badge';

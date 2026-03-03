@@ -166,6 +166,30 @@ export const queryCache = {
       });
     }
   },
+
+  /**
+   * Invalidate all cache keys matching a prefix (e.g. "worksheet" deletes "worksheet:*").
+   * Uses SCAN to avoid blocking Redis with KEYS.
+   */
+  async invalidateByPrefix(prefix: string): Promise<void> {
+    if (!redis) return;
+    try {
+      let cursor = '0';
+      do {
+        const result = await redis.scan(cursor, { match: `${prefix}:*`, count: 100 });
+        cursor = String(result[0]);
+        const keys = result[1];
+        if (keys.length > 0) {
+          await redis.del(...keys);
+        }
+      } while (cursor !== '0');
+    } catch (error) {
+      logger.error('queryCache.invalidateByPrefix error', {
+        prefix,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  },
 };
 
 // ---------------------------------------------------------------------------

@@ -47,6 +47,8 @@ export type {
 	Favorite,
 	Achievement,
 	UserAchievement,
+	SharedCalculation,
+	PracticeSession,
 	// Prisma namespace for advanced queries
 	Prisma,
 } from './generated/prisma/client';

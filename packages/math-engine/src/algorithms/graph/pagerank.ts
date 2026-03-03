@@ -59,6 +59,14 @@ export function pageRank(
   // Compute outdegrees
   const outdegrees = graph.map((neighbors) => neighbors.length);
 
+  // Pre-build reverse adjacency map: inLinks[i] = list of nodes that link to i
+  const inLinks: number[][] = Array.from({ length: n }, () => []);
+  for (let j = 0; j < n; j++) {
+    for (const target of graph[j]!) {
+      inLinks[target]!.push(j);
+    }
+  }
+
   let converged = false;
   let iter = 0;
 
@@ -76,8 +84,8 @@ export function pageRank(
       let sum = 0;
 
       // Sum contributions from all nodes linking to i
-      for (let j = 0; j < n; j++) {
-        if (graph[j]!.includes(i) && outdegrees[j]! > 0) {
+      for (const j of inLinks[i]!) {
+        if (outdegrees[j]! > 0) {
           sum += ranks[j]! / outdegrees[j]!;
         }
       }
@@ -93,6 +101,7 @@ export function pageRank(
       converged = true;
       // Use the newly computed ranks, not the old ones
       ranks = newRanks;
+      iter++;
       break;
     }
 
@@ -135,6 +144,14 @@ export function personalizedPageRank(
 
   const outdegrees = graph.map((neighbors) => neighbors.length);
 
+  // Pre-build reverse adjacency map: inLinks[i] = list of nodes that link to i
+  const inLinks: number[][] = Array.from({ length: n }, () => []);
+  for (let j = 0; j < n; j++) {
+    for (const target of graph[j]!) {
+      inLinks[target]!.push(j);
+    }
+  }
+
   for (let iter = 0; iter < maxIterations; iter++) {
     // Calculate dangling node contribution
     let danglingSum = 0;
@@ -147,8 +164,8 @@ export function personalizedPageRank(
     for (let i = 0; i < n; i++) {
       let linkSum = 0;
 
-      for (let j = 0; j < n; j++) {
-        if (graph[j]!.includes(i) && outdegrees[j]! > 0) {
+      for (const j of inLinks[i]!) {
+        if (outdegrees[j]! > 0) {
           linkSum += ranks[j]! / outdegrees[j]!;
         }
       }

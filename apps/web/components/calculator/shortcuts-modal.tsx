@@ -20,7 +20,7 @@
  *  - `Escape`          — close the dialog (Radix built-in, also caught in global handler)
  */
 
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { Keyboard, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -198,7 +198,7 @@ function OnboardingTooltip({ visible, onDismiss }: OnboardingTooltipProps) {
   return (
     <AnimatePresence>
       {visible && (
-        <motion.div
+        <m.div
           role="status"
           aria-live="polite"
           aria-label="Tip: press ? to see all keyboard shortcuts"
@@ -261,7 +261,7 @@ function OnboardingTooltip({ visible, onDismiss }: OnboardingTooltipProps) {
           >
             <X className="h-3 w-3" aria-hidden="true" />
           </button>
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   );
@@ -380,7 +380,7 @@ export function ShortcutsModal({ registerGlobalHotkey = true }: ShortcutsModalPr
         <div className="relative">
           <OnboardingTooltip visible={showOnboarding} onDismiss={dismissOnboarding} />
 
-          <motion.button
+          <m.button
             type="button"
             onClick={openModal}
             aria-label="Open keyboard shortcuts (press ? or Shift+/)"
@@ -407,7 +407,7 @@ export function ShortcutsModal({ registerGlobalHotkey = true }: ShortcutsModalPr
             <span className="font-semibold text-sm leading-none select-none" aria-hidden="true">
               ?
             </span>
-          </motion.button>
+          </m.button>
         </div>
       </div>
 

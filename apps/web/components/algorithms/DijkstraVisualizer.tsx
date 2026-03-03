@@ -17,7 +17,7 @@
  * ```
  */
 
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { Info, Pause, Play, RotateCcw, SkipForward, Zap } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -272,7 +272,7 @@ export function DijkstraVisualizer() {
   const [currentStep, setCurrentStep] = useState(0);
   const [algorithmState, setAlgorithmState] = useState<DijkstraState | null>(null);
   const [startNode, setStartNode] = useState<NodeId>('A');
-  const [endNode, _setEndNode] = useState<NodeId>('E');
+  const endNode: NodeId = 'E';
 
   const preset = PRESET_GRAPHS[selectedPreset]!;
 
@@ -417,7 +417,7 @@ export function DijkstraVisualizer() {
   return (
     <div className="w-full space-y-6">
       {/* Header */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -440,7 +440,7 @@ export function DijkstraVisualizer() {
             </Badge>
           </div>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

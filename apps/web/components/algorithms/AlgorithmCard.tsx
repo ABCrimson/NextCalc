@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { ArrowRight, type LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
@@ -167,7 +167,7 @@ export function AlgorithmCard({
   const styles = categoryStyles[category];
 
   const cardContent = (
-    <motion.div
+    <m.div
       className={cn(
         'group relative p-6 rounded-xl border transition-all duration-300 overflow-hidden',
         `bg-gradient-to-br ${styles.gradient}`,
@@ -247,7 +247,7 @@ export function AlgorithmCard({
           </div>
         )}
       </div>
-    </motion.div>
+    </m.div>
   );
 
   if (disabled) {

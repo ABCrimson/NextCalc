@@ -78,7 +78,9 @@ export function downloadAsCSV2D(
   const link = document.createElement('a');
   link.download = filename.endsWith('.csv') ? filename : `${filename}.csv`;
   link.href = url;
+  document.body.appendChild(link);
   link.click();
+  link.remove();
 
   URL.revokeObjectURL(url);
 }
@@ -102,7 +104,9 @@ export function downloadAsCSV3D(
   const link = document.createElement('a');
   link.download = filename.endsWith('.csv') ? filename : `${filename}.csv`;
   link.href = url;
+  document.body.appendChild(link);
   link.click();
+  link.remove();
 
   URL.revokeObjectURL(url);
 }

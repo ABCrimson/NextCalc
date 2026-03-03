@@ -109,7 +109,7 @@ export function makeClient() {
         if (code === 'UNAUTHENTICATED' && typeof window !== 'undefined') {
           // Don't redirect for `me` query — it's expected to return null
           if (operation.operationName !== 'Me') {
-            window.location.href = '/api/auth/signin';
+            window.location.href = '/auth/signin';
           }
         }
       }

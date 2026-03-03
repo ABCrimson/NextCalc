@@ -93,6 +93,7 @@ export const userResolvers = {
       return context.prisma.folder.findMany({
         where: { userId: parent.id },
         orderBy: { name: 'asc' },
+        take: 200,
       });
     },
 

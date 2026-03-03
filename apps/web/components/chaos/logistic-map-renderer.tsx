@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import {
   type MouseEvent,
   type TouchEvent as ReactTouchEvent,
@@ -883,7 +883,7 @@ export function LogisticMapRenderer({ data, title = 'x(n)' }: LogisticMapRendere
       {/* Tooltip */}
       <AnimatePresence>
         {hoveredPoint && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.85, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.85, y: 8 }}
@@ -902,14 +902,14 @@ export function LogisticMapRenderer({ data, title = 'x(n)' }: LogisticMapRendere
               <div className="text-indigo-300 font-semibold">n = {hoveredPoint.index}</div>
               <div className="text-cyan-300">x = {hoveredPoint.value.toFixed(6)}</div>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
       {/* Reset button */}
       <AnimatePresence>
         {(zoom !== 1 || pan.x !== 0 || pan.y !== 0) && (
-          <motion.button
+          <m.button
             initial={{ opacity: 0, scale: 0.85, y: -8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.85, y: -8 }}
@@ -927,12 +927,12 @@ export function LogisticMapRenderer({ data, title = 'x(n)' }: LogisticMapRendere
             aria-label="Reset view"
           >
             Reset
-          </motion.button>
+          </m.button>
         )}
       </AnimatePresence>
 
       {/* Info bar */}
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
@@ -949,12 +949,12 @@ export function LogisticMapRenderer({ data, title = 'x(n)' }: LogisticMapRendere
         scroll/pinch to zoom
         <span className="mx-1.5">·</span>
         drag to pan
-      </motion.div>
+      </m.div>
 
       {/* Loading overlay */}
       <AnimatePresence>
         {isPending && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -964,7 +964,7 @@ export function LogisticMapRenderer({ data, title = 'x(n)' }: LogisticMapRendere
             <span className="px-3 py-1.5 rounded bg-black/60 text-foreground text-xs font-medium">
               Rendering…
             </span>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

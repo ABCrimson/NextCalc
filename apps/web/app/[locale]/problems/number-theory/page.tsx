@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import {
   ArrowRight,
   CheckCircle2,
@@ -908,7 +908,7 @@ function StepList({ steps }: { steps: Array<{ label: string; latex: string; note
   return (
     <ol className="space-y-3">
       {steps.map((step, i) => (
-        <motion.li
+        <m.li
           key={i}
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
@@ -925,7 +925,7 @@ function StepList({ steps }: { steps: Array<{ label: string; latex: string; note
             </div>
             {step.note && <p className="text-xs text-muted-foreground mt-1">{step.note}</p>}
           </div>
-        </motion.li>
+        </m.li>
       ))}
     </ol>
   );
@@ -1040,7 +1040,7 @@ function PrimeChecker() {
 
         <AnimatePresence mode="wait">
           {result && (
-            <motion.div
+            <m.div
               key={String(result.n)}
               initial={{ opacity: 0, scale: 0.97 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -1098,7 +1098,7 @@ function PrimeChecker() {
                   )}
                 </CardContent>
               </Card>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </div>
@@ -1329,7 +1329,7 @@ function FactorizationPanel() {
 
       <AnimatePresence mode="wait">
         {result && (
-          <motion.div
+          <m.div
             key={String(result.n)}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1374,7 +1374,7 @@ function FactorizationPanel() {
                 <FactorTreeCanvas root={result.tree} />
               </CardContent>
             </Card>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>
@@ -1464,7 +1464,7 @@ function GCDPanel() {
 
       <AnimatePresence mode="wait">
         {result && (
-          <motion.div
+          <m.div
             key={`${result.a}-${result.b}`}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1514,7 +1514,7 @@ function GCDPanel() {
               <CardContent>
                 <div className="space-y-2">
                   {result.steps.map((step, i) => (
-                    <motion.div
+                    <m.div
                       key={i}
                       initial={{ opacity: 0, x: -8 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -1535,7 +1535,7 @@ function GCDPanel() {
                           Done
                         </Badge>
                       )}
-                    </motion.div>
+                    </m.div>
                   ))}
                   <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
                     <MathRenderer
@@ -1552,7 +1552,7 @@ function GCDPanel() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>
@@ -1664,7 +1664,7 @@ function ModularPanel() {
 
       <AnimatePresence mode="wait">
         {result && (
-          <motion.div
+          <m.div
             key={`${result.a}-${result.n}-${result.exp}`}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1757,7 +1757,7 @@ function ModularPanel() {
                 />
               </CardContent>
             </Card>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>
@@ -2499,7 +2499,7 @@ function SievePanel() {
       {/* Current step description */}
       <AnimatePresence mode="wait">
         {sieveState.currentPrime > 0 && (
-          <motion.div
+          <m.div
             key={sieveState.currentPrime}
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
@@ -2527,10 +2527,10 @@ function SievePanel() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </m.div>
         )}
         {sieveState.done && (
-          <motion.div key="done" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}>
+          <m.div key="done" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}>
             <Card className="border-green-500/30 bg-green-500/5">
               <CardContent className="py-3 px-4">
                 <p className="text-sm text-green-400 font-medium">
@@ -2539,7 +2539,7 @@ function SievePanel() {
                 </p>
               </CardContent>
             </Card>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
@@ -2571,7 +2571,7 @@ function SievePanel() {
 
       {/* Results */}
       {sieveState.done && (
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+        <m.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
           <Card className="border-cyan-500/40">
             <CardHeader>
               <CardTitle className="text-base">
@@ -2608,7 +2608,7 @@ function SievePanel() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </m.div>
       )}
 
       {/* Algorithm card */}
@@ -2736,7 +2736,7 @@ function TotientPanel() {
 
       <AnimatePresence mode="wait">
         {result && (
-          <motion.div
+          <m.div
             key={String(result.n)}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -2805,7 +2805,7 @@ function TotientPanel() {
                 />
               </CardContent>
             </Card>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>
@@ -3053,7 +3053,7 @@ function FibLucasPanel() {
 
       <AnimatePresence mode="wait">
         {result && (
-          <motion.div
+          <m.div
             key={result.n}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -3151,7 +3151,7 @@ function FibLucasPanel() {
                 )}
               </CardContent>
             </Card>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>
@@ -3436,7 +3436,7 @@ function CollatzPanel() {
 
       <AnimatePresence mode="wait">
         {result && (
-          <motion.div
+          <m.div
             key={String(result.n)}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -3508,7 +3508,7 @@ function CollatzPanel() {
                 </p>
               </CardContent>
             </Card>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>
@@ -3598,7 +3598,7 @@ export default function NumberTheoryPage() {
 
       {/* Active tool panel */}
       <AnimatePresence mode="wait">
-        <motion.div
+        <m.div
           key={activeTab}
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -3606,7 +3606,7 @@ export default function NumberTheoryPage() {
           transition={{ duration: 0.2 }}
         >
           <ActiveComponent />
-        </motion.div>
+        </m.div>
       </AnimatePresence>
 
       {/* Footer reference */}

@@ -7,7 +7,7 @@
  * and dot grid used across all forum pages.
  */
 
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 function FloatingOrb({
@@ -21,7 +21,7 @@ function FloatingOrb({
 }) {
   const prefersReduced = useReducedMotion();
   return (
-    <motion.div
+    <m.div
       className={cn('absolute rounded-full blur-3xl pointer-events-none', className)}
       style={{ background: gradient }}
       {...(prefersReduced

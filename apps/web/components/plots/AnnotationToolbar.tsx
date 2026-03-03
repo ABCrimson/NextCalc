@@ -13,7 +13,7 @@
  * @module components/plots/AnnotationToolbar
  */
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { MousePointerClick, MoveRight, Tag, Trash2 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useEffect } from 'react';
@@ -106,7 +106,7 @@ function ToolbarButton({
       : 'text-muted-foreground border-border bg-background/50 hover:bg-background/80 hover:text-foreground hover:border-border';
 
   return (
-    <motion.button
+    <m.button
       type="button"
       title={title}
       aria-label={title}
@@ -119,7 +119,7 @@ function ToolbarButton({
     >
       {icon}
       <span>{label}</span>
-    </motion.button>
+    </m.button>
   );
 }
 
@@ -210,7 +210,7 @@ export function AnnotationToolbar({
       {/* Placement hint pill */}
       <AnimatePresence mode="wait">
         {isPlacing && hint && (
-          <motion.div
+          <m.div
             key={mode}
             variants={hintVariants}
             initial="hidden"
@@ -227,7 +227,7 @@ export function AnnotationToolbar({
             <MousePointerClick className="w-3.5 h-3.5 shrink-0 animate-pulse" />
             <span>{hint}</span>
             <span className="ml-auto text-[10px] text-cyan-400/60 shrink-0">Esc to cancel</span>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

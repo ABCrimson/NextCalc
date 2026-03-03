@@ -13,13 +13,17 @@ export const metadata: Metadata = {
 };
 
 /**
- * LearnPage — thin server component.
+ * Cached data loader for the learning hub.
  *
- * Fetches topic data server-side and serializes the Map to a plain object
- * before passing it to the client component. Maps cannot cross the
- * server → client boundary in React Server Components.
+ * The topic list and definition counts come from the static knowledge base
+ * in math-engine and never change at runtime. Wrapping them in `'use cache'`
+ * lets Next.js memoize the result across requests and incremental builds
+ * without requiring a full static page (the page itself may still have
+ * dynamic siblings in the layout).
  */
-export default async function LearnPage() {
+async function getLearnPageData() {
+  'use cache';
+
   const topicsReadonly = await getAllTopics();
   const definitionCountsMap = await getDefinitionCountByTopic();
 
@@ -32,5 +36,16 @@ export default async function LearnPage() {
     definitionCounts[k] = v;
   }
 
+  return { topics, definitionCounts };
+}
+
+/**
+ * LearnPage — thin server component.
+ *
+ * Delegates data fetching to a cached helper, then passes the serialized
+ * data to the client component.
+ */
+export default async function LearnPage() {
+  const { topics, definitionCounts } = await getLearnPageData();
   return <LearnContent topics={topics} definitionCounts={definitionCounts} />;
 }

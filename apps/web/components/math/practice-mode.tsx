@@ -2,7 +2,7 @@
 
 import type { MathTopic } from '@nextcalc/math-engine/knowledge';
 import type { Problem } from '@nextcalc/math-engine/problems';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import {
   ArrowRight,
   Award,
@@ -329,21 +329,21 @@ export function PracticeMode({
   if (state === 'completed') {
     return (
       <div className="max-w-4xl mx-auto space-y-6">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.3 }}
         >
           <Card className="border-2 border-primary/50">
             <CardHeader className="text-center pb-4">
-              <motion.div
+              <m.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
                 className="mx-auto mb-4"
               >
                 <Trophy className="h-16 w-16 text-yellow-500" />
-              </motion.div>
+              </m.div>
               <CardTitle className="text-3xl">Session Complete!</CardTitle>
               <CardDescription className="text-lg">
                 Great work! Here's how you performed.
@@ -397,7 +397,7 @@ export function PracticeMode({
                       </span>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
-                      <motion.div
+                      <m.div
                         initial={{ width: 0 }}
                         animate={{ width: `${metrics.accuracy}%` }}
                         transition={{ duration: 1, delay: 0.3 }}
@@ -416,7 +416,7 @@ export function PracticeMode({
                         const answer = answers[index];
                         if (!answer) return null;
                         return (
-                          <motion.div
+                          <m.div
                             key={index}
                             initial={{ height: 0 }}
                             animate={{ height: `${height}%` }}
@@ -436,7 +436,7 @@ export function PracticeMode({
 
               {/* Achievements */}
               {metrics.accuracy >= 90 && (
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 }}
@@ -451,7 +451,7 @@ export function PracticeMode({
                       </p>
                     </div>
                   </div>
-                </motion.div>
+                </m.div>
               )}
             </CardContent>
             <CardFooter className="flex gap-3">
@@ -467,7 +467,7 @@ export function PracticeMode({
               </Button>
             </CardFooter>
           </Card>
-        </motion.div>
+        </m.div>
       </div>
     );
   }
@@ -515,7 +515,7 @@ export function PracticeMode({
 
           {/* Progress bar */}
           <div className="mt-4 h-2 bg-muted rounded-full overflow-hidden">
-            <motion.div
+            <m.div
               initial={{ width: 0 }}
               animate={{ width: `${((currentIndex + 1) / totalQuestions) * 100}%` }}
               className="h-full bg-gradient-to-r from-primary to-primary/60"
@@ -527,7 +527,7 @@ export function PracticeMode({
 
       {/* Question Card */}
       <AnimatePresence mode="wait">
-        <motion.div
+        <m.div
           key={currentIndex}
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
@@ -615,7 +615,7 @@ export function PracticeMode({
               </Button>
             </CardFooter>
           </Card>
-        </motion.div>
+        </m.div>
       </AnimatePresence>
     </div>
   );
@@ -633,7 +633,7 @@ interface MetricCardProps {
 
 function MetricCard({ icon, label, value, color }: MetricCardProps) {
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
@@ -642,7 +642,7 @@ function MetricCard({ icon, label, value, color }: MetricCardProps) {
       <div className={cn('mx-auto mb-2', color)}>{icon}</div>
       <div className="text-sm text-muted-foreground mb-1">{label}</div>
       <div className="text-2xl font-bold">{value}</div>
-    </motion.div>
+    </m.div>
   );
 }
 

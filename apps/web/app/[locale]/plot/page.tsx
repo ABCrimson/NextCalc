@@ -21,7 +21,7 @@ import type {
   Plot2DParametricConfig,
   Plot2DPolarConfig,
 } from '@nextcalc/plot-engine';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { Activity, Layers, Maximize2, Zap } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
@@ -713,12 +713,12 @@ export default function PlotsExamplesPage() {
       {/* Animated gradient background */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background" />
-        <motion.div
+        <m.div
           className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-cyan-500/10 to-blue-500/10 blur-3xl"
           animate={{ x: [0, 100, 0], y: [0, 50, 0], scale: [1, 1.2, 1] }}
           transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
         />
-        <motion.div
+        <m.div
           className="absolute bottom-0 left-0 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-purple-500/10 to-pink-500/10 blur-3xl"
           animate={{ x: [0, -100, 0], y: [0, -50, 0], scale: [1, 1.1, 1] }}
           transition={{ duration: 25, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
@@ -735,7 +735,7 @@ export default function PlotsExamplesPage() {
 
       <div className="container mx-auto py-8 px-4 relative">
         {/* Sticky header */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -779,11 +779,11 @@ export default function PlotsExamplesPage() {
               </div>
             </div>
           </div>
-        </motion.div>
+        </m.div>
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.4 }}
@@ -814,13 +814,13 @@ export default function PlotsExamplesPage() {
                 {t('tab.3dSurface')}
               </TabsTrigger>
             </TabsList>
-          </motion.div>
+          </m.div>
 
           {/* ----------------------------------------------------------------
               2D CARTESIAN TAB
           ---------------------------------------------------------------- */}
           <TabsContent value="2d-cartesian" className="space-y-6">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.4 }}
@@ -904,7 +904,7 @@ export default function PlotsExamplesPage() {
                   />
                 )}
               </div>
-            </motion.div>
+            </m.div>
 
             <div className="bg-gradient-to-br from-background/80 to-card/80 p-4 rounded-lg border border-border">
               <h3 className="font-semibold text-foreground mb-2">Example Code</h3>
@@ -929,7 +929,7 @@ const config = {
               2D POLAR TAB
           ---------------------------------------------------------------- */}
           <TabsContent value="2d-polar" className="space-y-6">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.4 }}
@@ -1003,7 +1003,7 @@ const config = {
                   <PolarAnalysisPanel functions={polarAnalysisFunctions} samples={1000} />
                 )}
               </div>
-            </motion.div>
+            </m.div>
 
             <div className="bg-gradient-to-br from-background/80 to-card/80 p-4 rounded-lg border border-border">
               <h3 className="font-semibold text-foreground mb-2">Example Code</h3>
@@ -1024,7 +1024,7 @@ const config = {
               2D PARAMETRIC TAB
           ---------------------------------------------------------------- */}
           <TabsContent value="2d-parametric" className="space-y-6">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.4 }}
@@ -1164,7 +1164,7 @@ const config = {
                     ) : null;
                   })()}
               </div>
-            </motion.div>
+            </m.div>
 
             <div className="bg-gradient-to-br from-background/80 to-card/80 p-4 rounded-lg border border-border">
               <h3 className="font-semibold text-foreground mb-2">Example Code</h3>
@@ -1212,13 +1212,13 @@ const config = {
         </Tabs>
 
         {/* Feature cards */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.5 }}
           className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6"
         >
-          <motion.div
+          <m.div
             whileHover={{ y: -8, scale: 1.02 }}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             className="group relative p-6 rounded-xl overflow-hidden bg-gradient-to-br from-blue-950/40 to-blue-900/40 border border-blue-500/40 hover:border-blue-400/70 shadow-[0_0_20px_rgba(59,130,246,0.2)] hover:shadow-[0_0_35px_rgba(59,130,246,0.4)] transition-all duration-300"
@@ -1245,9 +1245,9 @@ const config = {
                 ))}
               </ul>
             </div>
-          </motion.div>
+          </m.div>
 
-          <motion.div
+          <m.div
             whileHover={{ y: -8, scale: 1.02 }}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             className="group relative p-6 rounded-xl overflow-hidden bg-gradient-to-br from-emerald-950/40 to-emerald-900/40 border border-emerald-500/40 hover:border-emerald-400/70 shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:shadow-[0_0_35px_rgba(16,185,129,0.4)] transition-all duration-300"
@@ -1274,9 +1274,9 @@ const config = {
                 ))}
               </ul>
             </div>
-          </motion.div>
+          </m.div>
 
-          <motion.div
+          <m.div
             whileHover={{ y: -8, scale: 1.02 }}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             className="group relative p-6 rounded-xl overflow-hidden bg-gradient-to-br from-purple-950/40 to-purple-900/40 border border-purple-500/40 hover:border-purple-400/70 shadow-[0_0_20px_rgba(168,85,247,0.2)] hover:shadow-[0_0_35px_rgba(168,85,247,0.4)] transition-all duration-300"
@@ -1303,8 +1303,8 @@ const config = {
                 ))}
               </ul>
             </div>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       </div>
     </div>
   );

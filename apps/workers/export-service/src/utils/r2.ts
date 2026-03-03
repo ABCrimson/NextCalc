@@ -111,7 +111,9 @@ export async function uploadToR2(
   const object = await bucket.put(key, content, {
     httpMetadata: {
       contentType,
-      cacheControl: 'public, max-age=31536000', // 1 year
+      // Short-lived cache — exports are user-specific and should not linger
+      // TODO: Implement Worker-level expiry enforcement with signed URLs
+      cacheControl: 'private, max-age=3600', // 1 hour
     },
     ...(metadata ? { customMetadata: metadata } : {}),
   });
@@ -133,16 +135,23 @@ export async function uploadToR2(
 }
 
 /**
- * Generates a signed URL for accessing an R2 object
- * Note: R2 presigned URLs require the S3 API, which is not directly available in Workers
- * This is a placeholder - actual implementation requires Workers API or custom signing
+ * Generates a temporary public export URL for accessing an R2 object.
+ *
+ * WARNING: This returns an unauthenticated public URL pattern. It does NOT
+ * produce a cryptographically signed URL. The `expires` query parameter is
+ * informational only and is NOT enforced server-side.
+ *
+ * TODO: Replace with one of the following authenticated approaches:
+ *   1. S3-compatible presigned URLs via @aws-sdk/s3-request-presigner
+ *   2. Worker-proxied downloads with session/token validation
+ *   3. Cloudflare Access service tokens for R2 public bucket
  *
  * @param bucket - R2 bucket binding
  * @param key - Object key
- * @param expirySeconds - URL expiry time in seconds
- * @returns Signed URL
+ * @param expirySeconds - Intended URL lifetime in seconds (NOT enforced)
+ * @returns Temporary public URL (unauthenticated)
  */
-export async function generateSignedUrl(
+export async function generateExportUrl(
   bucket: R2Bucket,
   key: string,
   expirySeconds: number = 3600,
@@ -154,9 +163,8 @@ export async function generateSignedUrl(
     throw new Error('Object not found');
   }
 
-  // For now, return a public URL
-  // In production, implement proper S3 presigned URL generation
-  // or use Cloudflare's Access for authentication
+  // Temporary public URL — NOT cryptographically signed.
+  // The `expires` parameter is advisory only; enforce expiry at the serving layer.
   return `https://exports.nextcalc.pro/${key}?expires=${Date.now() + expirySeconds * 1000}`;
 }
 

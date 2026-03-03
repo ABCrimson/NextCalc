@@ -8,7 +8,7 @@
  * Supports both GraphQL data and mock fallback data.
  */
 
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { ChevronRight, Clock, Eye, Hash, MessageSquare, Pin } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -89,7 +89,7 @@ export function PostCard({ post, index }: PostCardProps) {
   }, [router, post.id]);
 
   return (
-    <motion.article
+    <m.article
       layout
       {...(prefersReduced
         ? {}
@@ -106,14 +106,6 @@ export function PostCard({ post, index }: PostCardProps) {
         backdropFilter: 'blur(16px)',
       }}
       onClick={handleClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          handleClick();
-        }
-      }}
-      role="link"
-      tabIndex={0}
     >
       {/* Left accent bar */}
       <div
@@ -152,7 +144,13 @@ export function PostCard({ post, index }: PostCardProps) {
                 </Badge>
               )}
               <h3 className="text-base font-semibold text-foreground group-hover:text-[oklch(0.78_0.14_264)] transition-colors leading-snug">
-                {post.title}
+                <Link
+                  href={`/forum/${post.id}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                >
+                  {post.title}
+                </Link>
               </h3>
             </div>
             <p className="text-sm text-muted-foreground line-clamp-1">{post.content}</p>
@@ -198,7 +196,7 @@ export function PostCard({ post, index }: PostCardProps) {
           </div>
         </div>
       </div>
-    </motion.article>
+    </m.article>
   );
 }
 
@@ -222,7 +220,7 @@ export function MockPostCard({ post, index, onUpvote }: MockPostCardProps) {
   }, [router, post.id]);
 
   return (
-    <motion.article
+    <m.article
       layout
       {...(prefersReduced
         ? {}
@@ -239,14 +237,6 @@ export function MockPostCard({ post, index, onUpvote }: MockPostCardProps) {
         backdropFilter: 'blur(16px)',
       }}
       onClick={handleClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          handleClick();
-        }
-      }}
-      role="link"
-      tabIndex={0}
     >
       {/* Left accent bar */}
       <div
@@ -286,7 +276,13 @@ export function MockPostCard({ post, index, onUpvote }: MockPostCardProps) {
                 </Badge>
               )}
               <h3 className="text-base font-semibold text-foreground group-hover:text-[oklch(0.78_0.14_264)] transition-colors leading-snug">
-                {post.title}
+                <Link
+                  href={`/forum/${post.id}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                >
+                  {post.title}
+                </Link>
               </h3>
             </div>
             <p className="text-sm text-muted-foreground line-clamp-1">{post.content}</p>
@@ -337,6 +333,6 @@ export function MockPostCard({ post, index, onUpvote }: MockPostCardProps) {
           </div>
         </div>
       </div>
-    </motion.article>
+    </m.article>
   );
 }

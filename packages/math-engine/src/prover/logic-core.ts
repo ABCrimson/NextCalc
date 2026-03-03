@@ -12,22 +12,24 @@
 /**
  * Logical operator types
  */
-export enum LogicalOperator {
+export const LogicalOperator = {
   /** Negation (¬, ~, NOT) */
-  NOT = 'NOT',
+  NOT: 'NOT',
   /** Conjunction (∧, &, AND) */
-  AND = 'AND',
+  AND: 'AND',
   /** Disjunction (∨, |, OR) */
-  OR = 'OR',
+  OR: 'OR',
   /** Implication (→, =>, IMPLIES) */
-  IMPLIES = 'IMPLIES',
+  IMPLIES: 'IMPLIES',
   /** Biconditional (↔, <=>, IFF) */
-  IFF = 'IFF',
+  IFF: 'IFF',
   /** Universal quantifier (∀, FORALL) */
-  FORALL = 'FORALL',
+  FORALL: 'FORALL',
   /** Existential quantifier (∃, EXISTS) */
-  EXISTS = 'EXISTS',
-}
+  EXISTS: 'EXISTS',
+} as const satisfies Record<string, string>;
+
+export type LogicalOperator = (typeof LogicalOperator)[keyof typeof LogicalOperator];
 
 /**
  * Formula node types in the Abstract Syntax Tree
@@ -59,10 +61,10 @@ export interface NotFormula {
 export interface BinaryFormula {
   type: 'binary';
   operator:
-    | LogicalOperator.AND
-    | LogicalOperator.OR
-    | LogicalOperator.IMPLIES
-    | LogicalOperator.IFF;
+    | typeof LogicalOperator.AND
+    | typeof LogicalOperator.OR
+    | typeof LogicalOperator.IMPLIES
+    | typeof LogicalOperator.IFF;
   left: Formula;
   right: Formula;
 }
@@ -72,7 +74,7 @@ export interface BinaryFormula {
  */
 export interface QuantifiedFormula {
   type: 'quantified';
-  quantifier: LogicalOperator.FORALL | LogicalOperator.EXISTS;
+  quantifier: typeof LogicalOperator.FORALL | typeof LogicalOperator.EXISTS;
   variable: string;
   scope: Formula;
 }
@@ -326,6 +328,10 @@ export function evaluate(formula: Formula, assignment: Assignment): boolean {
           return !left || right;
         case LogicalOperator.IFF:
           return left === right;
+        default: {
+          const _exhaustive: never = formula.operator;
+          throw new Error(`Unknown operator: ${_exhaustive}`);
+        }
       }
     }
 
@@ -463,6 +469,10 @@ export function toString(formula: Formula, unicode = true): string {
             precedence = 0;
             symbol = symbols.iff;
             break;
+          default: {
+            const _exhaustive: never = f.operator;
+            throw new Error(`Unknown operator: ${_exhaustive}`);
+          }
         }
 
         const result = `${inner(f.left, precedence)} ${symbol} ${inner(f.right, precedence)}`;

@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import {
   AlertCircle,
   BarChart2,
@@ -693,7 +693,7 @@ function TemplateCard({ template, accent, text, iconBg, animationDelay }: Templa
   const resultStr = renderResult();
 
   return (
-    <motion.article
+    <m.article
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: animationDelay, ease: 'easeOut' }}
@@ -813,7 +813,7 @@ function TemplateCard({ template, accent, text, iconBg, animationDelay }: Templa
         {/* Result / Error display */}
         <AnimatePresence mode="wait">
           {state.error && (
-            <motion.div
+            <m.div
               key="error"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
@@ -828,11 +828,11 @@ function TemplateCard({ template, accent, text, iconBg, animationDelay }: Templa
                 aria-hidden="true"
               />
               <p className="text-xs text-destructive leading-snug">{state.error}</p>
-            </motion.div>
+            </m.div>
           )}
 
           {state.computed && state.result !== null && !state.error && (
-            <motion.div
+            <m.div
               key="result"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
@@ -851,11 +851,11 @@ function TemplateCard({ template, accent, text, iconBg, animationDelay }: Templa
                   <span className="text-xs text-muted-foreground ml-1">{template.resultUnit}</span>
                 )}
               </div>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </div>
-    </motion.article>
+    </m.article>
   );
 }
 
@@ -872,7 +872,7 @@ function CategorySection({ category, baseDelay }: CategorySectionProps) {
   const Icon = category.icon;
 
   return (
-    <motion.section
+    <m.section
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.25 }}
@@ -907,7 +907,7 @@ function CategorySection({ category, baseDelay }: CategorySectionProps) {
           />
         ))}
       </div>
-    </motion.section>
+    </m.section>
   );
 }
 
@@ -1017,7 +1017,7 @@ export default function TemplatesPage() {
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden py-14 px-4">
         <div className="max-w-5xl mx-auto text-center">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -1052,7 +1052,7 @@ export default function TemplatesPage() {
                 <span>{totalTemplates} templates</span>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         </div>
       </section>
 
@@ -1074,7 +1074,7 @@ export default function TemplatesPage() {
             />
           ))}
           {!showAll && (
-            <motion.button
+            <m.button
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               type="button"
@@ -1082,7 +1082,7 @@ export default function TemplatesPage() {
               className="ml-auto text-xs text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded"
             >
               {t('clearFilters')}
-            </motion.button>
+            </m.button>
           )}
         </div>
       </nav>
@@ -1103,7 +1103,7 @@ export default function TemplatesPage() {
 
         {/* Empty state — only shown when all filtered categories are deselected */}
         {!showAll && CATEGORIES.every((c) => !activeCategories.has(c.id)) && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="text-center py-20"
@@ -1117,13 +1117,13 @@ export default function TemplatesPage() {
             >
               {t('clearFilters')}
             </button>
-          </motion.div>
+          </m.div>
         )}
       </main>
 
       {/* ── How to use callout ────────────────────────────────────────────── */}
       <section className="max-w-5xl mx-auto px-4 pb-16" aria-labelledby="how-to-heading">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -1143,7 +1143,7 @@ export default function TemplatesPage() {
               </p>
             </div>
           </div>
-        </motion.div>
+        </m.div>
       </section>
     </div>
   );

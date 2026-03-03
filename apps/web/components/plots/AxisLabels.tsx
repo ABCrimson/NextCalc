@@ -9,7 +9,7 @@
  * @module components/plots/AxisLabels
  */
 
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useMemo } from 'react';
 
 export interface AxisLabelsProps {
@@ -169,7 +169,7 @@ export function AxisLabels({ viewport, width, height, xAxisConfig, yAxisConfig }
     >
       {/* X-axis tick labels with staggered fade-in animation */}
       {xTicks.map((tick, i) => (
-        <motion.div
+        <m.div
           key={`x-${tick.value}`}
           custom={i}
           variants={labelVariants}
@@ -192,12 +192,12 @@ export function AxisLabels({ viewport, width, height, xAxisConfig, yAxisConfig }
           aria-label={`x equals ${tick.label}`}
         >
           <span className="text-cyan-300 font-medium">{tick.label}</span>
-        </motion.div>
+        </m.div>
       ))}
 
       {/* Y-axis tick labels with staggered fade-in animation */}
       {yTicks.map((tick, i) => (
-        <motion.div
+        <m.div
           key={`y-${tick.value}`}
           custom={i}
           variants={labelVariants}
@@ -220,12 +220,12 @@ export function AxisLabels({ viewport, width, height, xAxisConfig, yAxisConfig }
           aria-label={`y equals ${tick.label}`}
         >
           <span className="text-cyan-300 font-medium">{tick.label}</span>
-        </motion.div>
+        </m.div>
       ))}
 
       {/* X-axis label with enhanced styling */}
       {xAxisConfig?.label && (
-        <motion.div
+        <m.div
           variants={axisLabelVariants}
           initial="hidden"
           animate="visible"
@@ -245,12 +245,12 @@ export function AxisLabels({ viewport, width, height, xAxisConfig, yAxisConfig }
           aria-label={`X axis represents ${xAxisConfig.label}`}
         >
           <span className="tracking-wide">{xAxisConfig.label}</span>
-        </motion.div>
+        </m.div>
       )}
 
       {/* Y-axis label with enhanced styling */}
       {yAxisConfig?.label && (
-        <motion.div
+        <m.div
           variants={axisLabelVariants}
           initial="hidden"
           animate="visible"
@@ -270,7 +270,7 @@ export function AxisLabels({ viewport, width, height, xAxisConfig, yAxisConfig }
           aria-label={`Y axis represents ${yAxisConfig.label}`}
         >
           <span className="tracking-wide">{yAxisConfig.label}</span>
-        </motion.div>
+        </m.div>
       )}
     </div>
   );

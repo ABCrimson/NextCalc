@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 
@@ -98,7 +98,7 @@ export function AchievementGrid({ achievements }: AchievementGridProps) {
   }
 
   return (
-    <motion.div
+    <m.div
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -106,7 +106,7 @@ export function AchievementGrid({ achievements }: AchievementGridProps) {
       aria-label={`${achievements.length} achievement${achievements.length !== 1 ? 's' : ''} earned`}
     >
       {achievements.map((achievement) => (
-        <motion.div key={achievement.id} variants={itemVariants}>
+        <m.div key={achievement.id} variants={itemVariants}>
           <Card className="group relative flex h-full flex-col items-center overflow-hidden p-4 text-center transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/10">
             {/* Badge image or icon fallback */}
             <div
@@ -148,8 +148,8 @@ export function AchievementGrid({ achievements }: AchievementGridProps) {
               {formatEarnedDate(achievement.earnedAt)}
             </p>
           </Card>
-        </motion.div>
+        </m.div>
       ))}
-    </motion.div>
+    </m.div>
   );
 }

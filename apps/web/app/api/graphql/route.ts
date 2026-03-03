@@ -22,5 +22,4 @@ export const POST = (
   ctx: { params: Promise<Record<string, string>> },
 ): Promise<Response> => handler.POST(req as NextRequest, ctx);
 
-export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

@@ -18,7 +18,7 @@
  * @module components/plots/PlotAnalysisPanel
  */
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import {
   ArrowDownUp,
   ChevronDown,
@@ -684,7 +684,7 @@ export function PlotAnalysisPanel({
 
       <AnimatePresence initial={false}>
         {isOpen && (
-          <motion.div
+          <m.div
             id="analysis-panel-body"
             key="body"
             initial={{ height: 0, opacity: 0 }}
@@ -830,7 +830,7 @@ export function PlotAnalysisPanel({
                 zoom level.
               </p>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

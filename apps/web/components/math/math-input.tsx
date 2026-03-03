@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { AlertCircle, Calculator, Check, Grid3x3, Infinity, Pi, Sigma, Type } from 'lucide-react';
 import type { KeyboardEvent } from 'react';
 import { useCallback, useMemo, useRef, useState } from 'react';
@@ -264,7 +264,7 @@ export function MathInput({
           {/* Auto-complete suggestions */}
           <AnimatePresence>
             {showSuggestions && filteredSuggestions.length > 0 && (
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
@@ -284,14 +284,14 @@ export function MathInput({
                     {suggestion}
                   </button>
                 ))}
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
         </div>
 
         {/* Validation Error */}
         {!validationResult.valid && validationResult.error && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             id="input-error"
@@ -300,19 +300,19 @@ export function MathInput({
           >
             <AlertCircle className="h-4 w-4" />
             {validationResult.error}
-          </motion.div>
+          </m.div>
         )}
 
         {/* Validation Success */}
         {validationResult.valid && value.trim() && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mt-2 flex items-center gap-2 text-sm text-green-600 dark:text-green-400"
+            className="mt-2 flex items-center gap-2 text-sm text-calculator-equals"
           >
             <Check className="h-4 w-4" />
             Valid expression
-          </motion.div>
+          </m.div>
         )}
       </div>
 
@@ -363,7 +363,7 @@ export function MathInput({
 
             {/* Symbols Grid */}
             <AnimatePresence mode="wait">
-              <motion.div
+              <m.div
                 key={selectedCategory}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -384,13 +384,13 @@ export function MathInput({
                     {symbol}
                   </Button>
                 ))}
-              </motion.div>
+              </m.div>
             </AnimatePresence>
 
             {/* LaTeX Templates */}
             <AnimatePresence>
               {showTemplates && (
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
@@ -416,7 +416,7 @@ export function MathInput({
                       </Button>
                     ))}
                   </div>
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
 

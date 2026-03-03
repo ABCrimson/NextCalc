@@ -73,36 +73,6 @@ export function astEquals(a: ExpressionNode, b: ExpressionNode): boolean {
 }
 
 /**
- * Clone AST node (deep copy)
- */
-function cloneNode(node: ExpressionNode): ExpressionNode {
-  if (isConstantNode(node)) {
-    return createConstantNode(node.value);
-  }
-
-  if (isSymbolNode(node)) {
-    return createSymbolNode(node.name);
-  }
-
-  if (isUnaryOperatorNode(node)) {
-    return createUnaryOperatorNode(node.op, node.fn, [cloneNode(node.args[0])] as const);
-  }
-
-  if (isOperatorNode(node)) {
-    const left = node.args[0];
-    const right = node.args[1];
-    if (!left || !right) return node;
-    return createOperatorNode(node.op, node.fn, [cloneNode(left), cloneNode(right)] as const);
-  }
-
-  if (isFunctionNode(node)) {
-    return createFunctionNode(node.fn, node.args.map(cloneNode));
-  }
-
-  return node;
-}
-
-/**
  * Check if expression is a power operation
  */
 function isPower(node: ExpressionNode): node is OperatorNode {
@@ -173,7 +143,9 @@ function containsVariable(expr: ExpressionNode, variable: string): boolean {
  * ```
  */
 export function simplify(expr: ExpressionNode): ExpressionNode {
-  // Apply simplification rules recursively until no changes
+  // Apply simplification rules recursively until no changes.
+  // simplifyOnce always returns a new object when it makes a change,
+  // so we can compare by reference first, then fall back to structural equality.
   let current = expr;
   let previous: ExpressionNode | null = null;
   let iterations = 0;
@@ -183,7 +155,7 @@ export function simplify(expr: ExpressionNode): ExpressionNode {
     if (iterations++ > maxIterations) {
       throw new Error('Simplification exceeded maximum iterations');
     }
-    previous = cloneNode(current);
+    previous = current;
     current = simplifyOnce(current);
   }
 
@@ -984,7 +956,7 @@ function factorGCF(expr: ExpressionNode, variable: string): ExpressionNode | nul
     const gcfExpr =
       minPower === 1
         ? createSymbolNode(variable)
-        : createOperatorNode('^', 'power', [
+        : createOperatorNode('^', 'pow', [
             createSymbolNode(variable),
             createConstantNode(minPower),
           ] as const);
@@ -1010,7 +982,7 @@ function factorGCF(expr: ExpressionNode, variable: string): ExpressionNode | nul
     const varPart =
       minPower === 1
         ? createSymbolNode(variable)
-        : createOperatorNode('^', 'power', [
+        : createOperatorNode('^', 'pow', [
             createSymbolNode(variable),
             createConstantNode(minPower),
           ] as const);
@@ -1151,7 +1123,7 @@ function termsToExpression(terms: PolynomialTerm[], variable: string): Expressio
     const varExpr =
       term.variablePower === 1
         ? createSymbolNode(variable)
-        : createOperatorNode('^', 'power', [
+        : createOperatorNode('^', 'pow', [
             createSymbolNode(variable),
             createConstantNode(term.variablePower),
           ] as const);

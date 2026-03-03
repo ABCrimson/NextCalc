@@ -20,7 +20,7 @@
  */
 
 import { extractVariables } from '@nextcalc/math-engine';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
 import type { ChangeEvent, KeyboardEvent } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -264,7 +264,7 @@ function SliderRow({ name, config, onValueChange, onMinChange, onMaxChange }: Sl
   );
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, x: -8 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -8 }}
@@ -338,7 +338,7 @@ function SliderRow({ name, config, onValueChange, onMinChange, onMaxChange }: Sl
       >
         {formatValue(clampedValue)}
       </span>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -438,7 +438,7 @@ export function VariableSliders({ expressions, onChange, className = '' }: Varia
   if (paramNames.length === 0) return null;
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
@@ -496,7 +496,7 @@ export function VariableSliders({ expressions, onChange, className = '' }: Varia
         {/* Slider body */}
         <AnimatePresence initial={false}>
           {!collapsed && (
-            <motion.div
+            <m.div
               id="variable-sliders-body"
               key="body"
               initial={{ height: 0, opacity: 0 }}
@@ -545,10 +545,10 @@ export function VariableSliders({ expressions, onChange, className = '' }: Varia
                   Click the min/max labels to edit the range.
                 </p>
               </div>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </div>
-    </motion.div>
+    </m.div>
   );
 }

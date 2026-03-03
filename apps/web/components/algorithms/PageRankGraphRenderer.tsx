@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import {
   type PointerEvent,
   useCallback,
@@ -658,7 +658,7 @@ export function PageRankGraphRenderer({
             const { l, c, h } = rankToOklch(nr);
 
             return (
-              <motion.g
+              <m.g
                 key={node.id}
                 data-node-id={node.id}
                 {...(prefersReduced
@@ -686,7 +686,7 @@ export function PageRankGraphRenderer({
 
                 {/* Selection pulse ring */}
                 {isSelected && (
-                  <motion.circle
+                  <m.circle
                     cx={pos.x}
                     cy={pos.y}
                     r={radius + 8}
@@ -761,7 +761,7 @@ export function PageRankGraphRenderer({
                     </text>
                   </>
                 )}
-              </motion.g>
+              </m.g>
             );
           })}
         </AnimatePresence>

@@ -19,10 +19,11 @@ import { Calculator, Home, TrendingUp, Variable } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Link } from '@/i18n/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 
 export default function NotFound() {
   const t = useTranslations();
+  const router = useRouter();
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4 bg-gradient-to-br from-background via-background/95 to-background relative overflow-hidden">
@@ -111,7 +112,7 @@ export default function NotFound() {
           {/* Back Button */}
           <div className="pt-4">
             <Button
-              onClick={() => window.history.back()}
+              onClick={() => router.back()}
               className="bg-gradient-to-r from-primary via-calculator-operator to-calculator-equals hover:opacity-90 transition-opacity"
               size="lg"
             >

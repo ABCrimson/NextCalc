@@ -9,7 +9,7 @@
  * - Enhanced error handling and logging
  */
 
-import type { SharePermission, Worksheet, WorksheetVisibility } from '@nextcalc/database';
+import type { Prisma, SharePermission, Worksheet, WorksheetVisibility } from '@nextcalc/database';
 import { queryCache } from '../../lib/cache';
 import type { GraphQLContext } from '../../lib/context';
 import { requireAuth, requireOwnership } from '../../lib/context';
@@ -94,7 +94,7 @@ export const worksheetResolvers = {
       }
 
       // Build where clause
-      const where: Record<string, unknown> = {
+      const where: Prisma.WorksheetWhereInput = {
         deletedAt: null,
         userId: targetUserId,
       };
@@ -122,10 +122,6 @@ export const worksheetResolvers = {
           take: limit,
           skip: offset,
           orderBy: { updatedAt: 'desc' },
-          include: {
-            user: true,
-            folder: true,
-          },
         }),
       ]);
 
@@ -156,7 +152,7 @@ export const worksheetResolvers = {
       const limit = Math.min(args.limit || 20, 100);
       const offset = args.offset || 0;
 
-      const where: Record<string, unknown> = {
+      const where: Prisma.WorksheetWhereInput = {
         deletedAt: null,
         visibility: 'PUBLIC',
       };
@@ -175,9 +171,6 @@ export const worksheetResolvers = {
           take: limit,
           skip: offset,
           orderBy: [{ views: 'desc' }, { updatedAt: 'desc' }],
-          include: {
-            user: true,
-          },
         }),
       ]);
 
@@ -214,7 +207,7 @@ export const worksheetResolvers = {
         throw new ForbiddenError("You do not have permission to access other users' worksheets");
       }
 
-      const where: Record<string, unknown> = {
+      const where: Prisma.WorksheetWhereInput = {
         deletedAt: null,
         userId: targetUserId,
       };
@@ -261,7 +254,7 @@ export const worksheetResolvers = {
       },
       context: GraphQLContext,
     ) => {
-      const where: Record<string, unknown> = {
+      const where: Prisma.WorksheetWhereInput = {
         deletedAt: null,
         visibility: 'PUBLIC',
       };
@@ -325,17 +318,16 @@ export const worksheetResolvers = {
       const worksheet = await context.prisma.worksheet.create({
         data: {
           title: input.title,
-          ...(input.description ? { description: input.description } : {}),
+          ...(input.description !== undefined ? { description: input.description } : {}),
           content: input.content as object,
           visibility: input.visibility || 'PRIVATE',
-          ...(input.folderId ? { folderId: input.folderId } : {}),
+          ...(input.folderId !== undefined ? { folderId: input.folderId } : {}),
           userId: user.id,
         },
       });
 
-      // Invalidate user's worksheet cache
-      await queryCache.invalidate('worksheets');
-      await queryCache.invalidate('userWorksheetsChanged');
+      // Invalidate worksheet caches by prefix (keys are "worksheet:id")
+      await queryCache.invalidateByPrefix('worksheet');
 
       // Publish subscription event (lightweight — only the created worksheet)
       await publishUserWorksheetsChanged(user.id, [worksheet]);
@@ -376,17 +368,16 @@ export const worksheetResolvers = {
       const updated = await context.prisma.worksheet.update({
         where: { id: args.id },
         data: {
-          ...(input.title ? { title: input.title } : {}),
-          ...(input.description ? { description: input.description } : {}),
-          ...(input.content ? { content: input.content as object } : {}),
-          ...(input.visibility ? { visibility: input.visibility } : {}),
-          ...(input.folderId ? { folderId: input.folderId } : {}),
+          ...(input.title !== undefined ? { title: input.title } : {}),
+          ...(input.description !== undefined ? { description: input.description } : {}),
+          ...(input.content !== undefined ? { content: input.content as object } : {}),
+          ...(input.visibility !== undefined ? { visibility: input.visibility } : {}),
+          ...(input.folderId !== undefined ? { folderId: input.folderId } : {}),
         },
       });
 
-      // Invalidate caches
-      await queryCache.invalidate('worksheet');
-      await queryCache.invalidate('worksheets');
+      // Invalidate worksheet caches by prefix (keys are "worksheet:id")
+      await queryCache.invalidateByPrefix('worksheet');
 
       // Publish subscription event for real-time updates
       await publishWorksheetUpdate(args.id, updated);
@@ -415,19 +406,19 @@ export const worksheetResolvers = {
         data: { deletedAt: new Date() },
       });
 
-      // Invalidate caches
-      await queryCache.invalidate('worksheets');
-
-      // Create audit log
-      await context.prisma.auditLog.create({
-        data: {
-          userId: user.id,
-          action: 'delete',
-          entity: 'worksheet',
-          entityId: args.id,
-          metadata: { title: worksheet.title },
-        },
-      });
+      // Invalidate worksheet caches and create audit log in parallel
+      await Promise.all([
+        queryCache.invalidateByPrefix('worksheet'),
+        context.prisma.auditLog.create({
+          data: {
+            userId: user.id,
+            action: 'delete',
+            entity: 'worksheet',
+            entityId: args.id,
+            metadata: { title: worksheet.title },
+          },
+        }),
+      ]);
 
       return true;
     },
@@ -540,7 +531,8 @@ export const worksheetResolvers = {
         if (subscriptionFilters.worksheetUpdated(payload, args)) {
           return payload.worksheetUpdated;
         }
-        return null;
+        // Return undefined to skip delivery (null would violate non-nullable Worksheet!)
+        return undefined;
       },
     },
 
@@ -571,7 +563,8 @@ export const worksheetResolvers = {
         if (subscriptionFilters.userWorksheetsChanged(payload, args, context)) {
           return payload.userWorksheetsChanged;
         }
-        return null;
+        // Return undefined to skip delivery (null would violate non-nullable type)
+        return undefined;
       },
     },
   },

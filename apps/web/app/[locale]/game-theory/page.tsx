@@ -1,7 +1,7 @@
 'use client';
 
 import { NormalFormGame } from '@nextcalc/math-engine/game-theory/game-theory';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { Brain, ChevronRight, Target, TrendingUp, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -482,7 +482,7 @@ interface PresetButtonProps {
 
 function PresetButton({ preset, isActive, onClick }: PresetButtonProps) {
   return (
-    <motion.button
+    <m.button
       type="button"
       onClick={onClick}
       whileHover={{ x: 4 }}
@@ -511,7 +511,7 @@ function PresetButton({ preset, isActive, onClick }: PresetButtonProps) {
           {preset.description}
         </span>
       </span>
-    </motion.button>
+    </m.button>
   );
 }
 
@@ -525,7 +525,7 @@ interface MatrixCellProps {
 
 function MatrixCell({ row, col, payoffs, isNashEquilibrium, onUpdate }: MatrixCellProps) {
   return (
-    <motion.div
+    <m.div
       layout
       className={[
         'relative rounded-lg border p-2.5 transition-all duration-200',
@@ -536,7 +536,7 @@ function MatrixCell({ row, col, payoffs, isNashEquilibrium, onUpdate }: MatrixCe
       aria-label={`Cell row ${row + 1} column ${col + 1}${isNashEquilibrium ? ', Nash equilibrium' : ''}`}
     >
       {isNashEquilibrium && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-primary rounded-full border-2 border-background shadow-sm"
@@ -565,7 +565,7 @@ function MatrixCell({ row, col, payoffs, isNashEquilibrium, onUpdate }: MatrixCe
           aria-label={`Player 2 payoff, row ${row + 1} column ${col + 1}`}
         />
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -686,7 +686,7 @@ export default function GameTheoryPage() {
 
       <div className="container mx-auto max-w-6xl relative">
         {/* ── Header ─────────────────────────────────────────────────────── */}
-        <motion.header
+        <m.header
           className="mb-10"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -726,12 +726,12 @@ export default function GameTheoryPage() {
               {t('twoPlayerNormalForm')}
             </Badge>
           </div>
-        </motion.header>
+        </m.header>
 
         {/* ── Main Grid ──────────────────────────────────────────────────── */}
         <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
           {/* ── Control Panel ─────────────────────────────────────────────── */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ type: 'spring', stiffness: 260, damping: 28, delay: 0.1 }}
@@ -767,7 +767,7 @@ export default function GameTheoryPage() {
                   <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     {t('classicGames')}
                   </Label>
-                  <motion.div
+                  <m.div
                     key={gridSize}
                     variants={staggerContainer}
                     initial="initial"
@@ -776,16 +776,16 @@ export default function GameTheoryPage() {
                   >
                     <AnimatePresence mode="wait">
                       {activePresets.map((preset) => (
-                        <motion.div key={preset.key} variants={fadeInUp}>
+                        <m.div key={preset.key} variants={fadeInUp}>
                           <PresetButton
                             preset={preset}
                             isActive={activePreset === preset.key}
                             onClick={() => loadPreset(preset)}
                           />
-                        </motion.div>
+                        </m.div>
                       ))}
                     </AnimatePresence>
-                  </motion.div>
+                  </m.div>
                 </div>
 
                 {/* Analyze button */}
@@ -799,10 +799,10 @@ export default function GameTheoryPage() {
                 </Button>
               </CardContent>
             </Card>
-          </motion.div>
+          </m.div>
 
           {/* ── Payoff Matrix ──────────────────────────────────────────────── */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ type: 'spring', stiffness: 260, damping: 28, delay: 0.15 }}
@@ -928,13 +928,13 @@ export default function GameTheoryPage() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </m.div>
         </div>
 
         {/* ── Results ────────────────────────────────────────────────────── */}
         <AnimatePresence>
           {result && (
-            <motion.div
+            <m.div
               key="results"
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
@@ -953,7 +953,7 @@ export default function GameTheoryPage() {
                 </CardHeader>
                 <CardContent>
                   {result.nashEquilibria.length > 0 ? (
-                    <motion.div
+                    <m.div
                       className="space-y-3"
                       variants={staggerContainer}
                       initial="initial"
@@ -967,7 +967,7 @@ export default function GameTheoryPage() {
                         const colLabel =
                           useCustomColLabels[eq.player2] ?? `Strategy ${eq.player2 + 1}`;
                         return (
-                          <motion.div
+                          <m.div
                             key={index}
                             variants={fadeInUp}
                             className="p-4 rounded-xl bg-gradient-to-br from-primary/15 via-primary/8 to-transparent border border-primary/30 shadow-[inset_0_1px_0_0_oklch(1_0_0_/_0.08)]"
@@ -1010,12 +1010,12 @@ export default function GameTheoryPage() {
                                 </div>
                               </div>
                             </div>
-                          </motion.div>
+                          </m.div>
                         );
                       })}
-                    </motion.div>
+                    </m.div>
                   ) : (
-                    <motion.div
+                    <m.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       className="flex flex-col items-center justify-center py-10 text-center gap-3"
@@ -1029,7 +1029,7 @@ export default function GameTheoryPage() {
                           {t('mixedStrategyHint')}
                         </div>
                       </div>
-                    </motion.div>
+                    </m.div>
                   )}
                 </CardContent>
               </Card>
@@ -1102,12 +1102,12 @@ export default function GameTheoryPage() {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
 
         {/* ── Educational Content ────────────────────────────────────────── */}
-        <motion.section
+        <m.section
           className="mt-12 space-y-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1157,7 +1157,7 @@ export default function GameTheoryPage() {
                 titleColor: 'text-destructive',
               },
             ].map(({ title, body, accentFrom, accentTo, borderColor, hoverBorder, titleColor }) => (
-              <motion.div
+              <m.div
                 key={title}
                 variants={cardHover}
                 initial="rest"
@@ -1175,10 +1175,10 @@ export default function GameTheoryPage() {
               >
                 <h3 className={`text-base font-semibold mb-2 ${titleColor}`}>{title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{body}</p>
-              </motion.div>
+              </m.div>
             ))}
           </div>
-        </motion.section>
+        </m.section>
       </div>
     </main>
   );

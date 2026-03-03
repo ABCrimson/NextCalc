@@ -1,10 +1,11 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useRouter } from '@/i18n/navigation';
 import { captureError } from '@/lib/monitoring/error-tracking';
 
 export default function ErrorPage({
@@ -15,6 +16,7 @@ export default function ErrorPage({
   reset: () => void;
 }) {
   const t = useTranslations();
+  const router = useRouter();
 
   useEffect(() => {
     // Log to console in development
@@ -37,7 +39,7 @@ export default function ErrorPage({
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4 bg-gradient-to-br from-background via-background/95 to-background">
-      <motion.div
+      <m.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3 }}
@@ -108,7 +110,7 @@ export default function ErrorPage({
               </Button>
               <Button
                 variant="outline"
-                onClick={() => (window.location.href = '/')}
+                onClick={() => router.push('/')}
                 className="border-border text-foreground/80 hover:bg-muted/50"
               >
                 {t('error.goHome' as Parameters<typeof t>[0])}
@@ -116,7 +118,7 @@ export default function ErrorPage({
             </div>
           </div>
         </Card>
-      </motion.div>
+      </m.div>
     </div>
   );
 }

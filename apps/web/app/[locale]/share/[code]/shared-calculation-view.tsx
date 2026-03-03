@@ -7,7 +7,7 @@
  * an "Open in Calculator" button that loads the expression into the calculator.
  */
 
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { Calculator, Check, Copy, Share2, User } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { LaTeXRenderer } from '@/components/math/latex-renderer';
@@ -103,7 +103,7 @@ export function SharedCalculationView({ shared }: SharedCalculationViewProps) {
 
       <div className="container mx-auto max-w-2xl">
         {/* Header */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
@@ -117,10 +117,10 @@ export function SharedCalculationView({ shared }: SharedCalculationViewProps) {
           {shared.description && (
             <p className="text-muted-foreground mt-2 max-w-lg mx-auto">{shared.description}</p>
           )}
-        </motion.div>
+        </m.div>
 
         {/* Main calculation card */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1, ease: [0.4, 0, 0.2, 1] }}
@@ -192,10 +192,10 @@ export function SharedCalculationView({ shared }: SharedCalculationViewProps) {
               </Button>
             </div>
           </Card>
-        </motion.div>
+        </m.div>
 
         {/* Meta info */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.3 }}
@@ -210,10 +210,10 @@ export function SharedCalculationView({ shared }: SharedCalculationViewProps) {
             )}
           </div>
           <span>{formattedDate}</span>
-        </motion.div>
+        </m.div>
 
         {/* Back to calculator link */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.4 }}
@@ -225,7 +225,7 @@ export function SharedCalculationView({ shared }: SharedCalculationViewProps) {
           >
             Back to NextCalc Pro
           </Link>
-        </motion.div>
+        </m.div>
       </div>
     </main>
   );

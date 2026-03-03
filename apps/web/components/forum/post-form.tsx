@@ -8,7 +8,7 @@
  */
 
 import { useMutation } from '@apollo/client/react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { AlertCircle, Hash, Loader2, Send } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
@@ -20,6 +20,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { CREATE_FORUM_POST_MUTATION, FORUM_POSTS_QUERY } from '@/lib/graphql/forum-operations';
 import { cn } from '@/lib/utils';
 
+interface CreateForumPostData {
+  createForumPost: { id: string };
+}
+
 export function PostForm() {
   const prefersReduced = useReducedMotion();
   const router = useRouter();
@@ -28,10 +32,6 @@ export function PostForm() {
   const [content, setContent] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [validationError, setValidationError] = useState<string | null>(null);
-
-  interface CreateForumPostData {
-    createForumPost: { id: string };
-  }
 
   const [createPost, { loading }] = useMutation<CreateForumPostData>(CREATE_FORUM_POST_MUTATION, {
     refetchQueries: [{ query: FORUM_POSTS_QUERY }],
@@ -97,7 +97,7 @@ export function PostForm() {
   }, [title, content, selectedTags, createPost]);
 
   return (
-    <motion.div
+    <m.div
       {...(prefersReduced
         ? {}
         : {
@@ -187,6 +187,6 @@ export function PostForm() {
           Publish Post
         </Button>
       </div>
-    </motion.div>
+    </m.div>
   );
 }

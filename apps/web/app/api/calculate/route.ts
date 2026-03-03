@@ -7,8 +7,6 @@ import { evaluate } from '@nextcalc/math-engine';
 import type { ComputeMode } from '@nextcalc/types';
 import { type NextRequest, NextResponse } from 'next/server';
 
-export const runtime = 'nodejs'; // Use Node.js runtime for math-engine compatibility
-
 interface CalculateRequest {
   expression: string;
   mode?: ComputeMode;

@@ -7,16 +7,15 @@ import type { EvaluationContext } from '@nextcalc/math-engine';
 import type { ComputeRequest, ComputeResponse } from './compute.worker';
 
 type PendingRequest = {
-  // biome-ignore lint/suspicious/noExplicitAny: generic resolve callback from Promise constructor
+  // biome-ignore lint/suspicious/noExplicitAny: heterogeneous promise map requires untyped resolve
   resolve: (value: any) => void;
   reject: (error: Error) => void;
-  timeout: NodeJS.Timeout;
+  timeout: ReturnType<typeof setTimeout>;
 };
 
 export class ComputeManager {
   private worker: Worker | null = null;
   private pendingRequests = new Map<string, PendingRequest>();
-  private requestCounter = 0;
   private readyPromise: Promise<void>;
   private readyResolve!: () => void;
 
@@ -111,7 +110,7 @@ export class ComputeManager {
       throw new Error('Compute worker not available');
     }
 
-    const id = `req-${++this.requestCounter}`;
+    const id = crypto.randomUUID();
 
     return new Promise<T>((resolve, reject) => {
       const timeout = setTimeout(() => {
@@ -171,6 +170,14 @@ export class ComputeManager {
       pending.reject(new Error('Worker terminated'));
       this.pendingRequests.delete(id);
     }
+  }
+
+  /**
+   * Enables `using` declarations (TC39 Explicit Resource Management).
+   * `using mgr = new ComputeManager()` will auto-terminate on scope exit.
+   */
+  [Symbol.dispose](): void {
+    this.terminate();
   }
 }
 

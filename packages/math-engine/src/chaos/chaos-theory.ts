@@ -28,6 +28,8 @@
  * ```
  */
 
+import { fft } from '../fourier/fourier-analysis';
+
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
@@ -127,11 +129,19 @@ export class LogisticMap {
 
     for (let i = 0; i < steps; i++) {
       const r = rMin + i * dr;
-      const map = new LogisticMap(r);
-      const series = map.timeSeries(0.5, samples, iterations);
 
-      for (const value of series) {
-        points.push({ parameter: r, value });
+      // Inline logistic iteration to avoid allocating a new LogisticMap per step
+      let x = 0.5;
+
+      // Discard transient
+      for (let t = 0; t < iterations; t++) {
+        x = r * x * (1 - x);
+      }
+
+      // Collect samples
+      for (let s = 0; s < samples; s++) {
+        points.push({ parameter: r, value: x });
+        x = r * x * (1 - x);
       }
     }
 
@@ -346,6 +356,8 @@ export class LorenzAttractor {
   poincareSection(z0 = 27, steps = 100000, dt = 0.01): Array<{ x: number; y: number }> {
     const points: Array<{ x: number; y: number }> = [];
     let state = { x: 1, y: 1, z: 1 };
+    let prevX = state.x;
+    let prevY = state.y;
     let prevZ = state.z;
 
     for (let i = 0; i < steps; i++) {
@@ -353,14 +365,16 @@ export class LorenzAttractor {
 
       // Check for crossing
       if ((prevZ - z0) * (state.z - z0) < 0) {
-        // Linear interpolation to find exact crossing
+        // Linear interpolation to find exact crossing point
         const t = (z0 - prevZ) / (state.z - prevZ);
         points.push({
-          x: state.x * t + prevZ * (1 - t),
-          y: state.y * t + prevZ * (1 - t),
+          x: prevX + t * (state.x - prevX),
+          y: prevY + t * (state.y - prevY),
         });
       }
 
+      prevX = state.x;
+      prevY = state.y;
       prevZ = state.z;
     }
 
@@ -620,6 +634,11 @@ export function autocorrelation(series: TimeSeries, maxLag: number): number[] {
   const mean = series.reduce((a, b) => a + b, 0) / n;
   const variance = series.reduce((sum, x) => sum + (x - mean) ** 2, 0) / n;
 
+  // Guard against zero-variance (constant series)
+  if (variance === 0) {
+    return Array.from({ length: maxLag + 1 }, (_, i) => (i === 0 ? 1 : 0));
+  }
+
   const autocorr: number[] = [];
 
   for (let lag = 0; lag <= maxLag; lag++) {
@@ -634,24 +653,18 @@ export function autocorrelation(series: TimeSeries, maxLag: number): number[] {
 }
 
 /**
- * Compute power spectrum using FFT approximation
+ * Compute power spectrum using FFT (O(n log n))
  */
 export function powerSpectrum(series: TimeSeries): number[] {
-  const n = series.length;
+  // Delegate to the O(n log n) FFT from fourier-analysis
+  const result = fft(Array.from(series));
+  const halfLen = Math.floor(result.real.length / 2);
   const spectrum: number[] = [];
 
-  // Simplified DFT (not optimized FFT)
-  for (let k = 0; k < n / 2; k++) {
-    let real = 0;
-    let imag = 0;
-
-    for (let t = 0; t < n; t++) {
-      const angle = (2 * Math.PI * k * t) / n;
-      real += series[t]! * Math.cos(angle);
-      imag -= series[t]! * Math.sin(angle);
-    }
-
-    spectrum.push(real * real + imag * imag);
+  for (let k = 0; k < halfLen; k++) {
+    const re = result.real[k]!;
+    const im = result.imag[k]!;
+    spectrum.push(re * re + im * im);
   }
 
   return spectrum;

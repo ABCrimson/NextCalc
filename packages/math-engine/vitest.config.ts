@@ -16,5 +16,12 @@ export default defineConfig({
 
     // Include test files co-located with source
     include: ['src/**/*.test.ts'],
+
+    // Enable type-checking alongside tests
+    typecheck: {
+      enabled: true,
+      checker: 'tsc',
+      include: ['src/**/*.test.ts'],
+    },
   },
 });

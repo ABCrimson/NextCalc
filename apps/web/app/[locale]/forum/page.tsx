@@ -11,7 +11,7 @@
  */
 
 import { useQuery } from '@apollo/client/react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import {
   ArrowUpRight,
   Award,
@@ -19,7 +19,6 @@ import {
   Filter,
   Flame,
   Hash,
-  Loader2,
   MessageSquare,
   Plus,
   Search,
@@ -29,8 +28,7 @@ import {
   Users,
   Zap,
 } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ForumBackground } from '@/components/forum/forum-background';
@@ -88,6 +86,23 @@ function PostSkeleton() {
 }
 
 // ============================================================================
+// TYPES
+// ============================================================================
+
+interface ForumPostsQueryData {
+  forumPosts: {
+    nodes: ForumPostNode[];
+    pageInfo: {
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+      totalCount: number;
+      currentPage: number;
+      totalPages: number;
+    };
+  };
+}
+
+// ============================================================================
 // MAIN PAGE
 // ============================================================================
 
@@ -124,20 +139,6 @@ export default function ForumPage() {
       };
     });
   });
-
-  // GraphQL query
-  interface ForumPostsQueryData {
-    forumPosts: {
-      nodes: ForumPostNode[];
-      pageInfo: {
-        hasNextPage: boolean;
-        hasPreviousPage: boolean;
-        totalCount: number;
-        currentPage: number;
-        totalPages: number;
-      };
-    };
-  }
 
   const { data, loading, error } = useQuery<ForumPostsQueryData>(FORUM_POSTS_QUERY, {
     variables: {
@@ -257,7 +258,7 @@ export default function ForumPage() {
 
   const handleNewPost = useCallback(() => {
     if (authStatus !== 'authenticated') {
-      window.location.href = `/auth/signin?callbackUrl=${encodeURIComponent('/forum/new')}`;
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent('/forum/new')}`);
       return;
     }
     router.push('/forum/new');
@@ -271,7 +272,7 @@ export default function ForumPage() {
       <div className="relative z-10 py-12 px-4">
         <div className="container mx-auto max-w-5xl">
           {/* Hero Header */}
-          <motion.header
+          <m.header
             className="mb-10"
             {...(prefersReduced
               ? {}
@@ -327,14 +328,14 @@ export default function ForumPage() {
                 {tCommon('realTime')}
               </Badge>
             </div>
-          </motion.header>
+          </m.header>
 
           {/* Main layout */}
           <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
             {/* Left: Posts */}
             <div className="space-y-4">
               {/* Search + Sort + New Post */}
-              <motion.div
+              <m.div
                 className="flex flex-col sm:flex-row gap-3"
                 {...(prefersReduced
                   ? {}
@@ -387,12 +388,12 @@ export default function ForumPage() {
                   <Plus className="h-4 w-4" />
                   {t('newPost')}
                 </Button>
-              </motion.div>
+              </m.div>
 
               {/* Active tag filter indicator */}
               <AnimatePresence>
                 {selectedTag && (
-                  <motion.div
+                  <m.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
@@ -407,7 +408,7 @@ export default function ForumPage() {
                     >
                       {tCommon('clear')}
                     </button>
-                  </motion.div>
+                  </m.div>
                 )}
               </AnimatePresence>
 
@@ -450,19 +451,11 @@ export default function ForumPage() {
                 </div>
               ) : null}
 
-              {/* Load more (GraphQL only) */}
-              {useGraphQL && data.forumPosts.pageInfo?.hasNextPage && (
-                <div className="text-center pt-4">
-                  <Button variant="outline" className="backdrop-blur-sm bg-card/50">
-                    <Loader2 className="h-4 w-4 mr-2" />
-                    {t('loadMore')}
-                  </Button>
-                </div>
-              )}
+              {/* TODO: Load more (GraphQL only) — needs fetchMore + cursor state */}
             </div>
 
             {/* Right: Sidebar */}
-            <motion.aside
+            <m.aside
               className="space-y-4"
               {...(prefersReduced
                 ? {}
@@ -568,7 +561,7 @@ export default function ForumPage() {
                   ))}
                 </CardContent>
               </Card>
-            </motion.aside>
+            </m.aside>
           </div>
         </div>
       </div>

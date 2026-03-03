@@ -1,0 +1,32 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "@nextcalc/plot-engine",
+  "entryPoints": [
+    "src/index.ts",
+    "src/renderers/index.ts",
+    "src/sampling/index.ts",
+    "src/export/index.ts",
+    "src/controls/index.ts",
+    "src/types/index.ts"
+  ],
+  "out": "docs",
+  "tsconfig": "tsconfig.json",
+  "readme": "none",
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeInternal": true,
+  "includeVersion": true,
+  "categorizeByGroup": true,
+  "sort": ["source-order", "alphabetical"],
+  "validation": {
+    "notExported": false,
+    "invalidLink": true,
+    "notDocumented": false
+  },
+  "plugin": [],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ],
+  "skipErrorChecking": true
+}

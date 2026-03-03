@@ -142,7 +142,7 @@ export class WebGL2DRenderer implements IRenderer {
 
       this.metrics.initTime = performance.now() - startTime;
 
-      console.log(`WebGL 2D Renderer initialized in ${this.metrics.initTime.toFixed(2)}ms`);
+      console.debug(`WebGL 2D Renderer initialized in ${this.metrics.initTime.toFixed(2)}ms`);
     } catch (error) {
       throw new Error(`WebGL 2D renderer initialization failed: ${error}`);
     }
@@ -162,7 +162,7 @@ export class WebGL2DRenderer implements IRenderer {
 
     this.contextRestoredHandler = async () => {
       this.contextLost = false;
-      console.log('WebGL context restored. Re-initializing...');
+      console.debug('WebGL context restored. Re-initializing...');
 
       try {
         // Re-initialize resources
@@ -174,7 +174,7 @@ export class WebGL2DRenderer implements IRenderer {
         this.setupGLState();
         this.updateProjectionMatrix();
 
-        console.log('WebGL context successfully recovered');
+        console.debug('WebGL context successfully recovered');
       } catch (error) {
         console.error('Failed to recover WebGL context:', error);
       }
@@ -1388,6 +1388,10 @@ export class WebGL2DRenderer implements IRenderer {
     }
 
     this.gl = null;
+  }
+
+  [Symbol.dispose](): void {
+    this.dispose();
   }
 
   /**

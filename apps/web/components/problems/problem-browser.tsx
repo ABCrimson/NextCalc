@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Filter, Grid3x3, Heart, List, Search } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -339,7 +339,7 @@ export function ProblemBrowser({
       {/* Problem Grid/List */}
       <AnimatePresence mode="wait">
         {paginatedProblems.length === 0 ? (
-          <motion.div
+          <m.div
             key="no-results"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -350,9 +350,9 @@ export function ProblemBrowser({
             <Button variant="link" onClick={clearFilters} className="mt-2">
               Clear filters
             </Button>
-          </motion.div>
+          </m.div>
         ) : (
-          <motion.div
+          <m.div
             key={`${viewMode}-${currentPage}`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -375,7 +375,7 @@ export function ProblemBrowser({
                 index={index}
               />
             ))}
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
@@ -458,7 +458,7 @@ function ProblemCard({
   const successRate = problem.successRate || 0;
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05, duration: 0.3 }}
@@ -530,6 +530,6 @@ function ProblemCard({
           )}
         </CardContent>
       </Card>
-    </motion.div>
+    </m.div>
   );
 }

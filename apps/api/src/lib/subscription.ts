@@ -18,7 +18,9 @@ import type { ExecutionArgs } from 'graphql';
 import { PubSub } from 'graphql-subscriptions';
 import { redis } from './cache';
 import type { GraphQLContext } from './context';
+import { createDataLoaders } from './dataloaders';
 import { logger } from './logger';
+import { prisma } from './prisma';
 
 // ---------------------------------------------------------------------------
 // Hybrid PubSub: Upstash Redis Streams + in-memory fallback
@@ -175,14 +177,10 @@ export const createSubscriptionContext = async (
     logger.debug('Subscription authenticated', { userId: user.id });
   }
 
-  // Subscriptions run over WebSocket — no Prisma or DataLoaders available.
-  // Use typed stubs so resolvers can type-check without `as any`.
-  const stubPrisma = {} as GraphQLContext['prisma'];
-  const stubLoaders = {} as GraphQLContext['loaders'];
   return {
     user: user as GraphQLContext['user'],
-    prisma: stubPrisma,
-    loaders: stubLoaders,
+    prisma,
+    loaders: createDataLoaders(prisma),
     req: {
       headers: (connectionParams.headers as Record<string, string>) || {},
       ...(ctx.extra?.request?.socket?.remoteAddress

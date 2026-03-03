@@ -29,7 +29,7 @@ function Alert({ className, variant, ref, ...props }: AlertProps) {
 }
 
 interface AlertTitleProps extends HTMLAttributes<HTMLHeadingElement> {
-  ref?: Ref<HTMLParagraphElement>;
+  ref?: Ref<HTMLHeadingElement>;
 }
 
 function AlertTitle({ className, ref, ...props }: AlertTitleProps) {

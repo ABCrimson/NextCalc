@@ -13,7 +13,7 @@
  * @module components/plots/PolarAnalysisPanel
  */
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import {
   ChevronDown,
   ChevronRight,
@@ -552,7 +552,7 @@ export function PolarAnalysisPanel({
 
       <AnimatePresence initial={false}>
         {isOpen && (
-          <motion.div
+          <m.div
             id="polar-analysis-panel-body"
             key="body"
             initial={{ height: 0, opacity: 0 }}
@@ -634,7 +634,7 @@ export function PolarAnalysisPanel({
                 integral(r^2 dtheta).
               </p>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

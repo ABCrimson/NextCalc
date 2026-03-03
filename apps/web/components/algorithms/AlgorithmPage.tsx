@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { type LucideIcon, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
@@ -123,7 +123,7 @@ export function AlgorithmPage({
       </div>
 
       {/* Header */}
-      <motion.header
+      <m.header
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -154,7 +154,7 @@ export function AlgorithmPage({
             <Share2 className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden="true" />
           </button>
         </div>
-      </motion.header>
+      </m.header>
 
       {/* Main content grid */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8 mb-8 sm:mb-10 lg:mb-12 min-w-0">
@@ -196,7 +196,7 @@ export function AlgorithmPage({
         {/* Main content */}
         <main className="lg:col-span-3 space-y-6 sm:space-y-8 lg:space-y-12 order-1 lg:order-2 min-w-0">
           {/* Interactive visualizer */}
-          <motion.section
+          <m.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -205,10 +205,10 @@ export function AlgorithmPage({
           >
             <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">{t('tryItYourself')}</h2>
             <div className="min-w-0 overflow-x-auto">{children}</div>
-          </motion.section>
+          </m.section>
 
           {/* Applications */}
-          <motion.section
+          <m.section
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -230,11 +230,11 @@ export function AlgorithmPage({
                 </li>
               ))}
             </ul>
-          </motion.section>
+          </m.section>
 
           {/* References */}
           {references && references.length > 0 && (
-            <motion.section
+            <m.section
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -259,7 +259,7 @@ export function AlgorithmPage({
                   </li>
                 ))}
               </ul>
-            </motion.section>
+            </m.section>
           )}
         </main>
       </div>

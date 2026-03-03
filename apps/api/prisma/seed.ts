@@ -14,16 +14,18 @@ async function main() {
   // Clear existing data (in development only!)
   if (process.env.NODE_ENV === 'development') {
     console.log('🗑️  Clearing existing data...');
-    await prisma.upvote.deleteMany();
-    await prisma.comment.deleteMany();
-    await prisma.forumPost.deleteMany();
-    await prisma.worksheetShare.deleteMany();
-    await prisma.worksheet.deleteMany();
-    await prisma.folder.deleteMany();
-    await prisma.auditLog.deleteMany();
-    await prisma.session.deleteMany();
-    await prisma.account.deleteMany();
-    await prisma.user.deleteMany();
+    await prisma.$transaction([
+      prisma.upvote.deleteMany(),
+      prisma.comment.deleteMany(),
+      prisma.forumPost.deleteMany(),
+      prisma.worksheetShare.deleteMany(),
+      prisma.worksheet.deleteMany(),
+      prisma.folder.deleteMany(),
+      prisma.auditLog.deleteMany(),
+      prisma.session.deleteMany(),
+      prisma.account.deleteMany(),
+      prisma.user.deleteMany(),
+    ]);
   }
 
   // Create users

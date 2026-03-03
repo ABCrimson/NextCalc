@@ -35,8 +35,8 @@ test.describe('Sign-In Page', () => {
   test('page has proper ARIA accessibility', async ({ page }) => {
     const main = page.locator('main[aria-label]');
     const hasMainLabel = await main.isVisible().catch(() => false);
-    // At minimum, the page structure should be accessible
-    expect(hasMainLabel || true).toBeTruthy();
+    // The main element should have an aria-label for accessibility
+    expect(hasMainLabel).toBeTruthy();
   });
 
   test('link back to calculator exists', async ({ page }) => {

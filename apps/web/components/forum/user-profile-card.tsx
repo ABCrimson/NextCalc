@@ -7,7 +7,7 @@
  * Displays avatar, name, role badge, bio, join date, and stats.
  */
 
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { Calendar, Crown, FileText, MessageSquare, Shield, User } from 'lucide-react';
 import { formatDate, getInitials, type UserProfileData } from '@/components/forum/forum-shared';
 import { Badge } from '@/components/ui/badge';
@@ -48,7 +48,7 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
   const totalUpvotes = user.forumPosts.reduce((sum, p) => sum + p.upvoteCount, 0);
 
   return (
-    <motion.div
+    <m.div
       {...(prefersReduced
         ? {}
         : {
@@ -121,6 +121,6 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
           </div>
         </div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }

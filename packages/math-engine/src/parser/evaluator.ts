@@ -238,6 +238,25 @@ class ASTEvaluator implements ASTVisitor<number | bigint | string> {
       case 'factorial':
         return factorial(a);
 
+      // Error function (Abramowitz & Stegun approximation, max error 1.5e-7)
+      case 'erf': {
+        const t = 1 / (1 + 0.3275911 * Math.abs(a));
+        const poly =
+          t *
+          (0.254829592 +
+            t * (-0.284496736 + t * (1.421413741 + t * (-1.453152027 + t * 1.061405429))));
+        const result = 1 - poly * Math.exp(-(a * a));
+        return a >= 0 ? result : -result;
+      }
+
+      // Special functions — not yet implemented
+      case 'Si':
+        throw new EvaluationError('Function Si (sine integral) is not yet implemented');
+      case 'Ci':
+        throw new EvaluationError('Function Ci (cosine integral) is not yet implemented');
+      case 'li':
+        throw new EvaluationError('Function li (logarithmic integral) is not yet implemented');
+
       default:
         throw new EvaluationError(`Unknown function: ${node.fn}`);
     }

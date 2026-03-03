@@ -1,8 +1,8 @@
 'use client';
 
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Award, Bookmark, BookOpen, CheckCircle2, TrendingUp } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import type { CSSProperties, ReactNode } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -204,7 +204,7 @@ function AnimatedBackground({ shouldReduceMotion }: { shouldReduceMotion: boolea
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none" aria-hidden="true">
       {/* Orb 1 — top-right: blue/indigo */}
-      <motion.div
+      <m.div
         className="absolute -top-40 -right-40 w-[640px] h-[640px] rounded-full blur-3xl"
         style={{
           background:
@@ -215,7 +215,7 @@ function AnimatedBackground({ shouldReduceMotion }: { shouldReduceMotion: boolea
       />
 
       {/* Orb 2 — bottom-left: purple/violet */}
-      <motion.div
+      <m.div
         className="absolute -bottom-48 -left-48 w-[700px] h-[700px] rounded-full blur-3xl"
         style={{
           background:
@@ -226,7 +226,7 @@ function AnimatedBackground({ shouldReduceMotion }: { shouldReduceMotion: boolea
       />
 
       {/* Orb 3 — center-left: indigo accent */}
-      <motion.div
+      <m.div
         className="absolute top-1/2 -left-24 w-[480px] h-[480px] rounded-full blur-3xl"
         style={{
           background:
@@ -302,7 +302,7 @@ function TopicCard({ topic, definitionCount, shouldReduceMotion }: TopicCardProp
   const hoverProps = shouldReduceMotion ? {} : { whileHover: { scale: 1.025, y: -3 } as const };
 
   return (
-    <motion.div {...hoverProps} transition={{ duration: 0.2, ease: [0, 0, 0.2, 1] }}>
+    <m.div {...hoverProps} transition={{ duration: 0.2, ease: [0, 0, 0.2, 1] }}>
       <div className="block h-full rounded-xl">
         <Card className="h-full relative overflow-hidden backdrop-blur-md bg-card/50 border-border group">
           {/* Subtle gradient wash on hover */}
@@ -392,7 +392,7 @@ function TopicCard({ topic, definitionCount, shouldReduceMotion }: TopicCardProp
           </Link>
         </Card>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -430,7 +430,7 @@ export function LearnContent({ topics, definitionCounts }: LearnContentProps) {
 
       <div className="container mx-auto py-8 px-4 relative">
         {/* ── Hero Section ── */}
-        <motion.div
+        <m.div
           className="mb-12 text-center"
           variants={heroVariants}
           initial="hidden"
@@ -442,43 +442,43 @@ export function LearnContent({ topics, definitionCounts }: LearnContentProps) {
             </span>
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">{t('heroDescription')}</p>
-        </motion.div>
+        </m.div>
 
         {/* ── Stats Overview ── */}
-        <motion.div
+        <m.div
           className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
           variants={statsContainerVariants}
           initial="hidden"
           animate="visible"
           aria-label="Learning Hub statistics"
         >
-          <motion.div variants={statsItemVariants}>
+          <m.div variants={statsItemVariants}>
             <StatCard
               icon={<BookOpen className="h-5 w-5 text-blue-400" aria-hidden="true" />}
               title={t('topicsCovered')}
               value={topics.length}
               label={t('mathematicalDomains')}
             />
-          </motion.div>
+          </m.div>
 
-          <motion.div variants={statsItemVariants}>
+          <m.div variants={statsItemVariants}>
             <StatCard
               icon={<TrendingUp className="h-5 w-5 text-purple-400" aria-hidden="true" />}
               title={t('definitions')}
               value={totalDefinitions}
               label={t('conceptsToExplore')}
             />
-          </motion.div>
+          </m.div>
 
-          <motion.div variants={statsItemVariants}>
+          <m.div variants={statsItemVariants}>
             <StatCard
               icon={<Award className="h-5 w-5 text-green-400" aria-hidden="true" />}
               title={t('learningPaths')}
               value={12}
               label={t('structuredCourses')}
             />
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
 
         {/* ── Topics Grid ── */}
         <section aria-labelledby="topics-heading">
@@ -486,7 +486,7 @@ export function LearnContent({ topics, definitionCounts }: LearnContentProps) {
             {t('exploreByTopic')}
           </h2>
 
-          <motion.div
+          <m.div
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             variants={topicsContainerVariants}
             initial="hidden"
@@ -494,19 +494,19 @@ export function LearnContent({ topics, definitionCounts }: LearnContentProps) {
             viewport={{ once: true, margin: '-60px' }}
           >
             {knownTopics.map((topic) => (
-              <motion.div key={topic} variants={topicItemVariants}>
+              <m.div key={topic} variants={topicItemVariants}>
                 <TopicCard
                   topic={topic}
                   definitionCount={definitionCounts[topic] ?? 0}
                   shouldReduceMotion={shouldReduceMotion}
                 />
-              </motion.div>
+              </m.div>
             ))}
-          </motion.div>
+          </m.div>
         </section>
 
         {/* ── Call to Action ── */}
-        <motion.div
+        <m.div
           className="mt-12 text-center"
           variants={ctaVariants}
           initial="hidden"
@@ -530,7 +530,7 @@ export function LearnContent({ topics, definitionCounts }: LearnContentProps) {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </m.div>
       </div>
     </div>
   );

@@ -48,7 +48,7 @@ export async function toggleBookmark(
 
     if (existing) {
       await prisma.favorite.delete({ where: { id: existing.id } });
-      revalidatePath('/learn');
+      revalidatePath('/[locale]/learn', 'page');
       return { success: true, data: { isBookmarked: false } };
     }
 
@@ -60,7 +60,7 @@ export async function toggleBookmark(
       },
     });
 
-    revalidatePath('/learn');
+    revalidatePath('/[locale]/learn', 'page');
     return { success: true, data: { isBookmarked: true } };
   } catch (error) {
     console.error('toggleBookmark error:', error);

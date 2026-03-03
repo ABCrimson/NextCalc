@@ -273,4 +273,12 @@ export class SamplingWorkerManager {
       this.pendingRequests.delete(id);
     }
   }
+
+  /**
+   * Enables `using` declarations (TC39 Explicit Resource Management).
+   * `using mgr = new SamplingWorkerManager()` will auto-dispose on scope exit.
+   */
+  [Symbol.dispose](): void {
+    this.dispose();
+  }
 }

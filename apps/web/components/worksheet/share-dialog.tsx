@@ -17,7 +17,7 @@
  *   - Focus ring: focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring
  */
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import {
   Check,
   Copy,
@@ -144,7 +144,7 @@ function CopyButton({ value, label }: CopyButtonProps) {
     >
       <AnimatePresence mode="wait" initial={false}>
         {copied ? (
-          <motion.span
+          <m.span
             key="check"
             initial={{ scale: 0.6, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -152,9 +152,9 @@ function CopyButton({ value, label }: CopyButtonProps) {
             transition={{ duration: 0.15 }}
           >
             <Check className="h-4 w-4" aria-hidden="true" />
-          </motion.span>
+          </m.span>
         ) : (
-          <motion.span
+          <m.span
             key="copy"
             initial={{ scale: 0.6, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -162,7 +162,7 @@ function CopyButton({ value, label }: CopyButtonProps) {
             transition={{ duration: 0.15 }}
           >
             <Copy className="h-4 w-4" aria-hidden="true" />
-          </motion.span>
+          </m.span>
         )}
       </AnimatePresence>
     </button>

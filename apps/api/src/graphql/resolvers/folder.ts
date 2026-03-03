@@ -142,8 +142,8 @@ export const folderResolvers = {
         return await context.prisma.folder.create({
           data: {
             name: input.name,
-            ...(input.description ? { description: input.description } : {}),
-            ...(input.parentId ? { parentId: input.parentId } : {}),
+            ...(input.description !== undefined ? { description: input.description } : {}),
+            ...(input.parentId !== undefined ? { parentId: input.parentId } : {}),
             userId: user.id,
           },
         });
@@ -193,8 +193,10 @@ export const folderResolvers = {
           throw new ValidationError('A folder cannot be its own parent', 'parentId');
         }
 
-        // Check if new parent is a descendant of current folder (depth-limited)
-        const MAX_DEPTH = 20;
+        // Check if new parent is a descendant of current folder (depth-limited).
+        // Serial DataLoader loads are acceptable here — folder trees are shallow
+        // in practice, and this runs only on folder moves (rare mutation path).
+        const MAX_DEPTH = 10;
         let currentId: string | null = input.parentId;
         for (let depth = 0; depth < MAX_DEPTH && currentId; depth++) {
           const ancestor = await context.loaders.folderById.load(currentId);
@@ -228,9 +230,9 @@ export const folderResolvers = {
       return context.prisma.folder.update({
         where: { id: args.id },
         data: {
-          ...(input.name ? { name: input.name } : {}),
-          ...(input.description ? { description: input.description } : {}),
-          ...(input.parentId ? { parentId: input.parentId } : {}),
+          ...(input.name !== undefined ? { name: input.name } : {}),
+          ...(input.description !== undefined ? { description: input.description } : {}),
+          ...(input.parentId !== undefined ? { parentId: input.parentId } : {}),
         },
       });
     },
@@ -263,11 +265,11 @@ export const folderResolvers = {
         throw new ValidationError('Cannot delete folder containing subfolders', 'id');
       }
 
+      // Delete must complete before audit log (FK constraint), so run sequentially
       await context.prisma.folder.delete({
         where: { id: args.id },
       });
 
-      // Create audit log
       await context.prisma.auditLog.create({
         data: {
           userId: user.id,

@@ -1,7 +1,7 @@
 'use client';
 
 import { RangeProof } from '@nextcalc/math-engine/algorithms';
-import { AnimatePresence, motion, useReducedMotion, type Variants } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion, type Variants } from 'framer-motion';
 // import { Progress } from '@/components/ui/progress'; // Unused
 import {
   AlertTriangle,
@@ -220,7 +220,7 @@ function ProtocolSequenceDiagram({
         <AnimatePresence>
           {arrows.map((arrow, i) =>
             arrow.visible ? (
-              <motion.rect
+              <m.rect
                 key={`band-${arrow.key}`}
                 x={0}
                 y={(ROW_Y[i] ?? 0) - BAND_H}
@@ -325,7 +325,7 @@ function ProtocolSequenceDiagram({
         <AnimatePresence>
           {arrows.map((arrow, i) =>
             arrow.visible ? (
-              <motion.g
+              <m.g
                 key={`step-${arrow.key}`}
                 variants={labelVariants}
                 custom={prefersReduced ? 0 : 0.25}
@@ -345,7 +345,7 @@ function ProtocolSequenceDiagram({
                 >
                   {i + 1}
                 </text>
-              </motion.g>
+              </m.g>
             ) : null,
           )}
         </AnimatePresence>
@@ -372,14 +372,14 @@ function ProtocolSequenceDiagram({
             const labelY = arrow.direction === 'right' ? y + 18 : y - 8;
 
             return (
-              <motion.g
+              <m.g
                 key={`arrow-group-${arrow.key}`}
                 initial="hidden"
                 animate="visible"
                 exit="exit"
               >
                 {/* Shaft */}
-                <motion.path
+                <m.path
                   d={`M ${x1},${y} L ${x2},${y}`}
                   stroke={arrow.color.stroke}
                   strokeWidth={2.5}
@@ -389,7 +389,7 @@ function ProtocolSequenceDiagram({
                   custom={i * 0.15}
                 />
                 {/* Arrowhead (drawn as a separate non-dashed path) */}
-                <motion.path
+                <m.path
                   d={headPath}
                   stroke={arrow.color.stroke}
                   strokeWidth={2.5}
@@ -401,7 +401,7 @@ function ProtocolSequenceDiagram({
                 />
 
                 {/* Shaft label */}
-                <motion.text
+                <m.text
                   x={midX}
                   y={labelY}
                   textAnchor="middle"
@@ -413,10 +413,10 @@ function ProtocolSequenceDiagram({
                   custom={prefersReduced ? 0 : 0.35 + i * 0.1}
                 >
                   {arrow.label}
-                </motion.text>
+                </m.text>
 
                 {/* Math annotation */}
-                <motion.text
+                <m.text
                   x={midX}
                   y={mathY}
                   textAnchor="middle"
@@ -428,8 +428,8 @@ function ProtocolSequenceDiagram({
                   custom={prefersReduced ? 0 : 0.45 + i * 0.1}
                 >
                   {arrow.math}
-                </motion.text>
-              </motion.g>
+                </m.text>
+              </m.g>
             );
           })}
         </AnimatePresence>
@@ -437,7 +437,7 @@ function ProtocolSequenceDiagram({
         {/* ── Idle placeholder text ─────────────────────────────────── */}
         <AnimatePresence>
           {!hasCommitment && (
-            <motion.text
+            <m.text
               key="idle-hint"
               x={SVG_W / 2}
               y={SVG_H / 2}
@@ -450,7 +450,7 @@ function ProtocolSequenceDiagram({
               exit={{ opacity: 0 }}
             >
               Run the protocol steps above to see message flow
-            </motion.text>
+            </m.text>
           )}
         </AnimatePresence>
       </svg>
@@ -458,7 +458,7 @@ function ProtocolSequenceDiagram({
       {/* ── Verification footer ───────────────────────────────────── */}
       <AnimatePresence>
         {verified !== undefined && (
-          <motion.div
+          <m.div
             key="verify-banner"
             variants={verifyVariants}
             initial="hidden"
@@ -474,7 +474,7 @@ function ProtocolSequenceDiagram({
             aria-live="polite"
           >
             {/* Animated checkmark / cross */}
-            <motion.div
+            <m.div
               initial={{ scale: 0, rotate: -30 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={
@@ -490,7 +490,7 @@ function ProtocolSequenceDiagram({
               )}
             >
               {verified ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
-            </motion.div>
+            </m.div>
 
             <div className="min-w-0">
               <p
@@ -505,7 +505,7 @@ function ProtocolSequenceDiagram({
                 Verify: g^s {verified ? '\u2261' : '\u2262'} t\u00B7y^c (mod p)
               </p>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>
@@ -673,10 +673,12 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
    */
   const randomBigInt = useCallback((max: bigint): bigint => {
     const maxNumber = Number(max);
+    const arr = new Uint32Array(1);
+    crypto.getRandomValues(arr);
     if (maxNumber > Number.MAX_SAFE_INTEGER) {
-      return BigInt(Math.floor(Math.random() * 1000000) + 1);
+      return BigInt(arr[0]! % 1000000) + 1n;
     }
-    return BigInt(Math.floor(Math.random() * maxNumber) + 1);
+    return BigInt(arr[0]! % maxNumber) + 1n;
   }, []);
 
   // ============================================================================

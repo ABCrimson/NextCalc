@@ -1,7 +1,7 @@
 'use client';
 
 import type { AngleMode, CalculatorAction } from '@nextcalc/types';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useCallback, useEffect, useRef } from 'react';
 
 // ---------------------------------------------------------------------------
@@ -258,7 +258,7 @@ export function Keyboard({
     const isEffectivelyDisabled = disabled || isMrDisabled || isMcDisabled;
 
     return (
-      <motion.button
+      <m.button
         key={`${rowIdx}-${colIdx}-${btn.label}`}
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: isEffectivelyDisabled ? 0.4 : 1, scale: 1 }}
@@ -281,13 +281,13 @@ export function Keyboard({
           {faceLabel}
         </span>
         {/* Shine sweep */}
-        <motion.div
+        <m.div
           className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent"
           initial={{ x: '-100%' }}
           whileHover={{ x: '100%' }}
           transition={{ duration: 0.6 }}
         />
-      </motion.button>
+      </m.button>
     );
   };
 
@@ -316,7 +316,7 @@ export function Keyboard({
         </div>
       )}
 
-      <motion.div
+      <m.div
         ref={keyboardRef}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -362,7 +362,7 @@ export function Keyboard({
             {row.map((btn, colIdx) => renderButton(btn, rowIdx + 3, colIdx))}
           </div>
         ))}
-      </motion.div>
+      </m.div>
     </>
   );
 }

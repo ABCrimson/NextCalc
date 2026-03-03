@@ -171,43 +171,35 @@ export function polynomialRegression(
   }
 
   const n = x.length;
+  const cols = degree + 1;
 
-  // Build the Vandermonde matrix and solve using normal equations
+  // Build the Vandermonde matrix using Float64Array for cache-friendly access
   // X^T * X * coeffs = X^T * y
 
   // Create matrix X where X[i][j] = x[i]^j
-  const X: number[][] = [];
+  const X: Float64Array[] = [];
   for (let i = 0; i < n; i++) {
-    X[i] = [];
-    const xVal = x[i];
-    if (xVal === undefined) continue;
-    const row = X[i];
-    if (!row) continue;
-    for (let j = 0; j <= degree; j++) {
-      row[j] = xVal ** j;
+    const row = new Float64Array(cols);
+    const xVal = x[i]!;
+    row[0] = 1;
+    for (let j = 1; j <= degree; j++) {
+      row[j] = row[j - 1]! * xVal;
     }
+    X[i] = row;
   }
 
-  // Compute X^T * X (gram matrix)
+  // Compute X^T * X (Gram matrix) using Float64Array
   const XtX: number[][] = [];
   for (let i = 0; i <= degree; i++) {
-    XtX[i] = [];
+    const row: number[] = [];
     for (let j = 0; j <= degree; j++) {
       let sum = 0;
       for (let k = 0; k < n; k++) {
-        const xRow = X[k];
-        if (!xRow) continue;
-        const xki = xRow[i];
-        const xkj = xRow[j];
-        if (xki !== undefined && xkj !== undefined) {
-          sum += xki * xkj;
-        }
+        sum += X[k]![i]! * X[k]![j]!;
       }
-      const row = XtX[i];
-      if (row) {
-        row[j] = sum;
-      }
+      row[j] = sum;
     }
+    XtX[i] = row;
   }
 
   // Compute X^T * y
@@ -215,13 +207,7 @@ export function polynomialRegression(
   for (let i = 0; i <= degree; i++) {
     let sum = 0;
     for (let k = 0; k < n; k++) {
-      const xRow = X[k];
-      const yVal = y[k];
-      if (!xRow || yVal === undefined) continue;
-      const xki = xRow[i];
-      if (xki !== undefined) {
-        sum += xki * yVal;
-      }
+      sum += X[k]![i]! * y[k]!;
     }
     Xty[i] = sum;
   }

@@ -1,7 +1,7 @@
 'use client';
 
 import { kruskal, prim } from '@nextcalc/math-engine/graph-theory';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import {
   BookOpen,
   Info,
@@ -1435,7 +1435,7 @@ function ContextMenu({ target, onDeleteNode, onDeleteEdge, onClose }: ContextMen
   if (!target) return null;
 
   return (
-    <motion.div
+    <m.div
       ref={ref}
       role="menu"
       aria-label={target.kind === 'node' ? `Node ${target.id} context menu` : 'Edge context menu'}
@@ -1461,7 +1461,7 @@ function ContextMenu({ target, onDeleteNode, onDeleteEdge, onClose }: ContextMen
         <Trash2 className="w-3.5 h-3.5" />
         Delete {target.kind === 'node' ? 'node' : 'edge'}
       </button>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -2114,7 +2114,7 @@ export default function GraphAlgorithmsPage() {
     <main className="min-h-screen py-10 px-4 relative">
       {/* Animated background orbs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-        <motion.div
+        <m.div
           className="absolute -top-32 -left-32 w-[600px] h-[600px] rounded-full opacity-20"
           style={{
             background:
@@ -2127,7 +2127,7 @@ export default function GraphAlgorithmsPage() {
               }
             : {})}
         />
-        <motion.div
+        <m.div
           className="absolute top-1/2 -right-40 w-[500px] h-[500px] rounded-full opacity-15"
           style={{
             background:
@@ -2140,7 +2140,7 @@ export default function GraphAlgorithmsPage() {
               }
             : {})}
         />
-        <motion.div
+        <m.div
           className="absolute -bottom-40 left-1/3 w-[550px] h-[550px] rounded-full opacity-15"
           style={{
             background:
@@ -2172,7 +2172,7 @@ export default function GraphAlgorithmsPage() {
       </div>
       <div className="container mx-auto max-w-6xl relative">
         {/* Header */}
-        <motion.header
+        <m.header
           className="mb-8"
           initial={prefersReducedMotion ? false : { opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -2204,11 +2204,11 @@ export default function GraphAlgorithmsPage() {
               </Badge>
             ))}
           </div>
-        </motion.header>
+        </m.header>
 
         <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
           {/* ---- CONTROL PANEL ---- */}
-          <motion.div
+          <m.div
             initial={prefersReducedMotion ? false : { opacity: 0, x: -16 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
@@ -2388,7 +2388,7 @@ export default function GraphAlgorithmsPage() {
                         </p>
                       )}
                       {edges.map((edge, index) => (
-                        <motion.div
+                        <m.div
                           key={`${edge.from}-${edge.to}-${index}`}
                           role="listitem"
                           initial={prefersReducedMotion ? false : { opacity: 0, height: 0 }}
@@ -2416,17 +2416,17 @@ export default function GraphAlgorithmsPage() {
                           >
                             <Trash2 className="w-3 h-3" />
                           </button>
-                        </motion.div>
+                        </m.div>
                       ))}
                     </AnimatePresence>
                   </div>
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </m.div>
 
           {/* ---- GRAPH CANVAS ---- */}
-          <motion.div
+          <m.div
             initial={prefersReducedMotion ? false : { opacity: 0, x: 16 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, delay: 0.15 }}
@@ -2941,13 +2941,13 @@ export default function GraphAlgorithmsPage() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </m.div>
         </div>
 
         {/* ---- RESULTS ---- */}
         <AnimatePresence>
           {result && (
-            <motion.div
+            <m.div
               key="results"
               initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -3160,14 +3160,14 @@ export default function GraphAlgorithmsPage() {
                   )}
                 </CardContent>
               </Card>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
 
         {/* ---- DETAILED PROOF ---- */}
         <AnimatePresence>
           {result && (
-            <motion.div
+            <m.div
               key="proof"
               initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -3213,12 +3213,12 @@ export default function GraphAlgorithmsPage() {
                   })()}
                 </CardContent>
               </Card>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
 
         {/* ---- EDUCATIONAL CONTENT ---- */}
-        <motion.section
+        <m.section
           className="mt-12 space-y-6"
           initial={prefersReducedMotion ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -3258,7 +3258,7 @@ export default function GraphAlgorithmsPage() {
                 accent: 'cyan',
               },
             ].map(({ title, desc, accent }) => (
-              <motion.div
+              <m.div
                 key={title}
                 {...(!prefersReducedMotion ? { whileHover: { y: -2 } } : {})}
                 transition={{ duration: 0.2 }}
@@ -3284,10 +3284,10 @@ export default function GraphAlgorithmsPage() {
                   {title}
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
-              </motion.div>
+              </m.div>
             ))}
           </div>
-        </motion.section>
+        </m.section>
       </div>
     </main>
   );

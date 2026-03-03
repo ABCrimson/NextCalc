@@ -3,7 +3,7 @@
 import type { MathTopic } from '@nextcalc/math-engine/knowledge';
 import type { DifficultyLevel, Problem, ProblemFilter } from '@nextcalc/math-engine/problems';
 import { ProblemType } from '@nextcalc/math-engine/problems';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import {
   Bookmark,
   BookmarkPlus,
@@ -478,7 +478,7 @@ export function ProblemBrowser({
               </CardContent>
             </Card>
           ) : (
-            <motion.div
+            <m.div
               key={viewMode}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -505,7 +505,7 @@ export function ProblemBrowser({
                   />
                 );
               })}
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
 
@@ -569,7 +569,7 @@ function ProblemCard({
     (TOPIC_COLORS as Record<string, string>)[problem.topic] || 'from-muted to-muted/80';
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.05 }}
@@ -598,7 +598,7 @@ function ProblemCard({
         {/* Progress bar */}
         {progress > 0 && (
           <div className="absolute top-0 left-0 right-0 h-1 bg-muted">
-            <motion.div
+            <m.div
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
               className={cn('h-full bg-gradient-to-r', topicColor)}
@@ -690,6 +690,6 @@ function ProblemCard({
           </Badge>
         </CardFooter>
       </Card>
-    </motion.div>
+    </m.div>
   );
 }

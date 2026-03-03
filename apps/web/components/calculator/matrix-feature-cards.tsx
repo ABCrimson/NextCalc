@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 
 interface FeatureCard {
   symbol: string;
@@ -93,14 +93,14 @@ const cardVariants = {
 
 export function MatrixFeatureCards() {
   return (
-    <motion.div
+    <m.div
       className="grid gap-6 md:grid-cols-2"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
       {FEATURE_CARDS.map((card) => (
-        <motion.div
+        <m.div
           key={card.title}
           variants={cardVariants}
           className="group relative p-6 rounded-xl overflow-hidden border transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5 backdrop-blur-md"
@@ -159,8 +159,8 @@ export function MatrixFeatureCards() {
               {card.description}
             </p>
           </div>
-        </motion.div>
+        </m.div>
       ))}
-    </motion.div>
+    </m.div>
   );
 }

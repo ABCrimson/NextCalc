@@ -73,6 +73,14 @@ export const RATE_LIMIT_CONFIGS: Record<UserTier, RateLimitConfig> = {
  * - Prevents burst attacks
  * - Fair distribution over time
  *
+ * Known limitation: KV's read-modify-write cycle is non-atomic. Under high
+ * concurrency two requests can read the same count and both pass the check,
+ * allowing up to one extra request above the limit. A safety margin of 1 is
+ * subtracted from the limit comparison to reduce over-admission probability.
+ *
+ * TODO: Migrate to Durable Objects for atomic rate limiting that eliminates
+ * the race condition entirely via single-threaded in-memory counters.
+ *
  * @param kv - Cloudflare KV namespace
  * @param identifier - Unique identifier (user ID, IP address, API key)
  * @param tier - User tier
@@ -119,9 +127,9 @@ export async function checkRateLimit(
   const windowStart = now - windowMs;
   requests = requests.filter((timestamp) => timestamp > windowStart);
 
-  // Check if limit exceeded
+  // Check if limit exceeded (safety margin of 1 to reduce KV race condition over-admission)
   const currentCount = requests.length;
-  const allowed = currentCount < limit;
+  const allowed = currentCount < limit - 1;
 
   // If allowed, add current timestamp
   if (allowed) {

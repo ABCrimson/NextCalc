@@ -1,11 +1,12 @@
 'use client';
 
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { useActionState, useMemo } from 'react';
 import type { ActionResult, ToggleFavoriteResult } from '@/app/actions/problems';
 import { toggleFavorite } from '@/app/actions/problems';
 import { ProblemBrowser } from '@/components/problems/problem-browser';
+import { useRouter } from '@/i18n/navigation';
 import type { Problem } from '@/types/problems';
 
 /**
@@ -120,6 +121,7 @@ const QUICK_STATS = [
  */
 export default function ProblemsPage() {
   const t = useTranslations('problems');
+  const router = useRouter();
   const [_favoriteState, toggleFavoriteAction] = useActionState<
     ActionResult<ToggleFavoriteResult>,
     FormData
@@ -168,7 +170,7 @@ export default function ProblemsPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background" />
 
         {/* Orb 1 — indigo, top-right quadrant */}
-        <motion.div
+        <m.div
           className="absolute top-[-10%] right-[-5%] w-[560px] h-[560px] rounded-full blur-3xl"
           style={{
             background:
@@ -187,7 +189,7 @@ export default function ProblemsPage() {
         />
 
         {/* Orb 2 — blue, bottom-left quadrant */}
-        <motion.div
+        <m.div
           className="absolute bottom-[-15%] left-[-10%] w-[640px] h-[640px] rounded-full blur-3xl"
           style={{
             background:
@@ -206,7 +208,7 @@ export default function ProblemsPage() {
         />
 
         {/* Orb 3 — cyan, center */}
-        <motion.div
+        <m.div
           className="absolute top-[35%] left-[40%] w-[420px] h-[420px] rounded-full blur-3xl"
           style={{
             background:
@@ -249,7 +251,7 @@ export default function ProblemsPage() {
       ---------------------------------------------------------------- */}
       <div className="container mx-auto py-10 px-4 relative">
         {/* Hero section — glass morphism card with entrance animation */}
-        <motion.div
+        <m.div
           initial={heroInitial}
           animate={heroAnimate}
           transition={heroTransition}
@@ -307,10 +309,10 @@ export default function ProblemsPage() {
               ))}
             </div>
           </div>
-        </motion.div>
+        </m.div>
 
         {/* ProblemBrowser wrapped in a glass morphism card */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, ...(prefersReducedMotion ? {} : { y: 32 }) }}
           animate={{ opacity: 1, ...(prefersReducedMotion ? {} : { y: 0 }) }}
           transition={
@@ -333,7 +335,7 @@ export default function ProblemsPage() {
             <ProblemBrowser
               problems={problems}
               onProblemSelect={(problem) => {
-                window.location.href = `/problems/${problem.id}`;
+                router.push(`/problems/${problem.id}`);
               }}
               onToggleFavorite={(problemId) => {
                 const fd = new FormData();
@@ -343,7 +345,7 @@ export default function ProblemsPage() {
               showFavorites
             />
           </div>
-        </motion.div>
+        </m.div>
       </div>
     </div>
   );

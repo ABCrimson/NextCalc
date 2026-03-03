@@ -128,7 +128,7 @@ export class ScaledDotProductAttention {
   }
 
   private softmax(vector: Vector): Vector {
-    const max = Math.max(...vector);
+    const max = vector.reduce((a, b) => (b > a ? b : a), -Infinity);
     const exps = vector.map((x) => Math.exp(x - max));
     const sum = exps.reduce((a, b) => a + b, 0);
     return exps.map((x) => x / sum);
@@ -450,7 +450,8 @@ export class SimCLRLoss {
       normB += bi * bi;
     }
 
-    return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+    const denom = Math.sqrt(normA) * Math.sqrt(normB);
+    return denom === 0 ? 0 : dotProduct / denom;
   }
 }
 
@@ -604,8 +605,8 @@ export class DPSGDOptimizer {
   }
 
   private gaussianNoise(): number {
-    // Box-Muller transform
-    const u1 = Math.random();
+    // Box-Muller transform — guard u1 against 0 to prevent Math.log(0) = -Infinity
+    const u1 = Math.random() || Number.EPSILON;
     const u2 = Math.random();
     const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
     return z * this.noiseMultiplier * this.maxGradNorm;
@@ -653,7 +654,7 @@ export class KnowledgeDistillation {
 
   private softmax(logits: Vector, temperature: number): Vector {
     const scaled = logits.map((l) => l / temperature);
-    const max = Math.max(...scaled);
+    const max = scaled.reduce((a, b) => (b > a ? b : a), -Infinity);
     const exps = scaled.map((l) => Math.exp(l - max));
     const sum = exps.reduce((a, b) => a + b, 0);
     return exps.map((e) => e / sum);

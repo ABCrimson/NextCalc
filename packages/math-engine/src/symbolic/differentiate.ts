@@ -9,6 +9,7 @@ import type {
   FunctionNode,
   OperatorNode,
   SymbolNode,
+  UnaryOperatorNode,
 } from '../parser/ast';
 import { NodeType, createConstantNode, createFunctionNode, createOperatorNode } from '../parser/ast';
 
@@ -31,6 +32,17 @@ export function differentiate(expr: ExpressionNode, variable = 'x'): ExpressionN
 
     case NodeType.FunctionNode:
       return differentiateFunction(expr as FunctionNode, variable);
+
+    case NodeType.UnaryOperatorNode: {
+      const unary = expr as UnaryOperatorNode;
+      const argPrime = differentiate(unary.args[0]!, variable);
+      if (unary.op === '-') {
+        // d/dx(-f) = -1 * f'
+        return createOperatorNode('*', 'multiply', [createConstantNode(-1), argPrime]);
+      }
+      // d/dx(+f) = f'
+      return argPrime;
+    }
 
     default:
       throw new Error(`Cannot differentiate node type: ${expr.type}`);

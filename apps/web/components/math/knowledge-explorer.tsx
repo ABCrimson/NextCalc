@@ -1,7 +1,7 @@
 'use client';
 
 import type { Definition, MathTopic } from '@nextcalc/math-engine/knowledge';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 import {
   Bookmark,
   BookmarkPlus,
@@ -226,7 +226,7 @@ function DefinitionCard({
   }[definition.difficulty] || { label: 'Intermediate', variant: 'intermediate' as const };
 
   return (
-    <motion.div
+    <m.div
       layout
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -270,7 +270,7 @@ function DefinitionCard({
 
         <AnimatePresence>
           {isExpanded && (
-            <motion.div
+            <m.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
@@ -363,10 +363,10 @@ function DefinitionCard({
                   </div>
                 )}
               </CardContent>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </Card>
-    </motion.div>
+    </m.div>
   );
 }

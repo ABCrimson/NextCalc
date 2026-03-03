@@ -27,6 +27,11 @@ interface Viewport {
  * Marching squares lookup table
  * Each entry defines the edges to connect for a given cell configuration
  * Edges are numbered: 0=bottom, 1=right, 2=top, 3=left
+ *
+ * Saddle-point cases (5 = 0101 and 10 = 1010) have two possible
+ * decompositions.  The first pair of entries is used when the cell-center
+ * value agrees with the primary diagonal; the second pair when it does not.
+ * `resolveSaddleEdges` picks the correct pair at runtime.
  */
 const MARCHING_SQUARES_CASES: number[][] = [
   [], // 0000: all outside
@@ -34,18 +39,50 @@ const MARCHING_SQUARES_CASES: number[][] = [
   [0, 1], // 0010: bottom-right corner inside
   [1, 3], // 0011: bottom edge inside
   [1, 2], // 0100: top-right corner inside
-  [0, 1, 2, 3], // 0101: saddle point (ambiguous)
+  [0, 1, 2, 3], // 0101: saddle point – placeholder, resolved at runtime
   [0, 2], // 0110: right edge inside
   [2, 3], // 0111: top-left corner outside
   [2, 3], // 1000: top-left corner inside
   [0, 2], // 1001: left edge inside
-  [1, 2, 0, 3], // 1010: saddle point (ambiguous)
+  [1, 2, 0, 3], // 1010: saddle point – placeholder, resolved at runtime
   [1, 2], // 1011: top-right corner outside
   [1, 3], // 1100: top edge inside
   [0, 1], // 1101: bottom-right corner outside
   [0, 3], // 1110: bottom-left corner outside
   [], // 1111: all inside
 ];
+
+/**
+ * Resolves the ambiguous saddle-point cases (5 and 10) by sampling the
+ * function value at the cell center and comparing it to the isovalue.
+ *
+ * For case 5 (0101 — BL and TR inside):
+ *   center >= isovalue  =>  connect BL–TR  => [1, 3] (right-to-left)
+ *   center <  isovalue  =>  two separate segments => [0, 1, 2, 3]
+ *
+ * For case 10 (1010 — BR and TL inside):
+ *   center >= isovalue  =>  connect BR–TL  => [0, 2] (bottom-to-top)
+ *   center <  isovalue  =>  two separate segments => [0, 3, 1, 2]
+ */
+function resolveSaddleEdges(
+  grid: number[][],
+  i: number,
+  j: number,
+  cellCase: number,
+  isovalue: number,
+): number[] {
+  // Average the four corner values as an approximation of the center value.
+  const centerValue =
+    (grid[i]![j]! + grid[i]![j + 1]! + grid[i + 1]![j]! + grid[i + 1]![j + 1]!) / 4;
+  const centerInside = centerValue >= isovalue;
+
+  if (cellCase === 5) {
+    // 0101: bottom-left and top-right inside
+    return centerInside ? [1, 3] : [0, 1, 2, 3];
+  }
+  // cellCase === 10: bottom-right and top-left inside
+  return centerInside ? [0, 2] : [0, 3, 1, 2];
+}
 
 /**
  * Applies the Marching Squares algorithm to find iso-contours
@@ -71,15 +108,14 @@ export function marchingSquares(
   if (cols === 0) return [];
 
   const contours: ContourSegment[] = [];
-  const visited = new Set<string>();
+  const visited = new Uint8Array(rows * cols);
 
   // Process each cell in the grid
   for (let i = 0; i < rows - 1; i++) {
     for (let j = 0; j < cols - 1; j++) {
-      const cellKey = `${i},${j}`;
-      if (visited.has(cellKey)) continue;
+      if (visited[i * cols + j] !== 0) continue;
 
-      const segment = traceContour(grid, isovalue, i, j, dx, dy, viewport, visited);
+      const segment = traceContour(grid, isovalue, i, j, dx, dy, viewport, visited, cols);
 
       if (segment.points.length >= 2) {
         contours.push(segment);
@@ -101,11 +137,11 @@ function traceContour(
   dx: number,
   dy: number,
   viewport: Viewport,
-  visited: Set<string>,
+  visited: Uint8Array,
+  cols: number,
 ): ContourSegment {
   const points: Point2D[] = [];
   const rows = grid.length;
-  const cols = grid[0]!.length;
 
   let i = startI;
   let j = startJ;
@@ -114,18 +150,19 @@ function traceContour(
 
   // Trace the contour
   while (iterations < maxIterations) {
-    const cellKey = `${i},${j}`;
-
-    if (visited.has(cellKey)) break;
-    visited.add(cellKey);
+    if (visited[i * cols + j] !== 0) break;
+    visited[i * cols + j] = 1;
 
     // Get cell configuration
     const cellCase = getCellCase(grid, i, j, isovalue);
 
     if (cellCase === 0 || cellCase === 15) break;
 
-    // Get edge intersections for this case
-    const edges = MARCHING_SQUARES_CASES[cellCase];
+    // Get edge intersections for this case (disambiguate saddle points)
+    const edges =
+      cellCase === 5 || cellCase === 10
+        ? resolveSaddleEdges(grid, i, j, cellCase, isovalue)
+        : MARCHING_SQUARES_CASES[cellCase];
     if (!edges || edges.length === 0) break;
 
     // Calculate intersection points
@@ -143,7 +180,7 @@ function traceContour(
     }
 
     // Move to next cell (simple greedy approach)
-    const moved = moveToNextCell(grid, isovalue, i, j, visited);
+    const moved = moveToNextCell(grid, isovalue, i, j, visited, cols);
     if (!moved) break;
 
     i = moved.i;
@@ -243,10 +280,10 @@ function moveToNextCell(
   isovalue: number,
   i: number,
   j: number,
-  visited: Set<string>,
+  visited: Uint8Array,
+  cols: number,
 ): { i: number; j: number } | null {
   const rows = grid.length;
-  const cols = grid[0]!.length;
 
   // Check neighboring cells
   const neighbors = [
@@ -262,7 +299,7 @@ function moveToNextCell(
       neighbor.i < rows - 1 &&
       neighbor.j >= 0 &&
       neighbor.j < cols - 1 &&
-      !visited.has(`${neighbor.i},${neighbor.j}`)
+      visited[neighbor.i * cols + neighbor.j] === 0
     ) {
       const cellCase = getCellCase(grid, neighbor.i, neighbor.j, isovalue);
       if (cellCase > 0 && cellCase < 15) {
