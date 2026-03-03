@@ -121,5 +121,5 @@ export const {
       }
     },
   },
-  debug: true, // TEMPORARY: enable debug to diagnose production adapter error
+  debug: process.env.NODE_ENV === 'development',
 });
