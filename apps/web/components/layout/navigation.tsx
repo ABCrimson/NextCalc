@@ -28,6 +28,7 @@ import {
   Variable,
   Wind,
 } from 'lucide-react';
+import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import type { ComponentType } from 'react';
 import { Button } from '@/components/ui/button';
@@ -324,9 +325,14 @@ export function Navigation() {
             aria-label={t('nav.home' as Parameters<typeof t>[0])}
           >
             <div className="relative">
-              <Calculator
-                className="h-6 w-6 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110"
+              <Image
+                src="/icon.svg"
+                alt=""
+                width={28}
+                height={28}
+                className="rounded-lg transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110"
                 aria-hidden="true"
+                priority
               />
               <div className="absolute -inset-1 bg-primary/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </div>
