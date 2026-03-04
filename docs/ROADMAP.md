@@ -211,6 +211,19 @@ All technical debt items have been addressed as of v1.0.0:
 - Database: `FavoriteType` enum exported from `@nextcalc/database`
 - Turbo: Sentry env vars added to build cache keys, `test` depends on `^build`
 
+### v1.2.1 -- CI/CD Pipeline Fixes & Comprehensive Audit (March 2026)
+
+- [x] Fix 54 test failures across all packages (API, web, export-service, rate-limiter)
+- [x] Fix Biome formatting across 170+ files
+- [x] Upgrade CI actions: `actions/checkout@v4` → `@v6`, `actions/setup-node@v4` → `@v6`
+- [x] Add `AUTH_SECRET` env var to CI build step (NextAuth build-time requirement)
+- [x] Add `@graphql-codegen/cli` and `@graphql-typed-document-node/core` devDependencies for typecheck
+- [x] Update deploy-workers workflow: v6 actions, `pnpm-lock.yaml` trigger, `workflow_dispatch`
+- [x] New DataLoaders: `hasUpvoted`, `commentCountByPostId` — eliminates N+1 queries
+- [x] Redis `invalidateByPrefix` cache method using SCAN
+- [x] Path traversal guard in `getTopicPath`, GraphQL redirect sanitization
+- [x] 78 audit issues fixed across entire monorepo (25 HIGH, 47 MEDIUM, 6 LOW)
+
 ### v1.2.0 -- Auth, Forum, Level System & Icons (March 2026)
 
 - [x] Fix signIn redirect from `/dashboard` (404) to `/`

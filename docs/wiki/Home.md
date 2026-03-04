@@ -2,7 +2,7 @@
 
 **Scientific Calculator & Mathematical Visualization Platform**
 
-> **Current Release: v1.2.0** (March 3, 2026) — [Release Notes](https://github.com/ABCrimson/NextCalc/releases/tag/v1.2.0)
+> **Current Release: v1.2.1** (March 3, 2026) — [Release Notes](https://github.com/ABCrimson/NextCalc/releases/tag/v1.2.1)
 
 [Live Demo](https://nextcalc.io) | [GitHub Repository](https://github.com/ABCrimson/NextCalc) | [Releases](https://github.com/ABCrimson/NextCalc/releases)
 
@@ -23,13 +23,17 @@ NextCalc Pro is a comprehensive scientific calculator and mathematical visualiza
 
 ---
 
-## Latest Updates (v1.2.0)
+## Latest Updates (v1.2.1)
 
-- **Auth fixes**: SignIn redirect fix (no more /dashboard 404), signOut CSRF token fix, OAuth name/image sync on every sign-in
-- **Forum**: `commentCount` GraphQL field replaces empty-array hack — real comment counts everywhere, fake contributors removed
-- **RS3 Level System**: 100 levels with exponential XP curve, 10 named tiers (Novice → Transcendent), OKLCH color progression
-- **Crystal Level Icons**: 103 programmatic + pre-generated SVG icons, 10 visual tiers, 3 admin-only L101 variants
-- **Profile**: Avatar `onError` fallback, level icon as default avatar, XP bar with tier display
+- **CI/CD pipeline fixes**: All 5 jobs now pass (Install, Lint, Typecheck, Build, Test)
+- **54 test failures fixed**: API (15), web (35), export-service (3), rate-limiter (1)
+- **Biome formatting**: 170+ files reformatted (import organization, line wrapping)
+- **New DataLoaders**: `hasUpvoted`, `commentCountByPostId` for efficient forum queries
+- **Redis cache**: Added `invalidateByPrefix` (SCAN-based pattern deletion)
+- **Comprehensive audit**: 78 issues fixed from v1.2.0 (security, performance, code quality)
+- **CI improvements**: `AUTH_SECRET` env var for NextAuth, `actions/checkout@v6` + `actions/setup-node@v6`
+- **Workers deploy**: Triggers on `pnpm-lock.yaml` changes, supports `workflow_dispatch`
+- **Dependencies**: Added `@graphql-codegen/cli`, `@graphql-typed-document-node/core`; updated lockfile for typedoc
 
 ---
 
@@ -64,4 +68,4 @@ NextCalc Pro is a comprehensive scientific calculator and mathematical visualiza
 | Cache | Upstash Redis |
 | Workers | Hono 4.12 on Cloudflare |
 | Build | Turborepo 2.8 |
-| Linting | Biome 2.5.0 |
+| Linting | Biome 2.4.4 |

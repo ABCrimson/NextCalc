@@ -85,7 +85,7 @@ Core mathematical computation library with subpath exports.
 | `content/` | Educational content | lessons, explanations |
 | `wasm/` | WASM arbitrary precision (scaffolded) | `getWASMManager()` (mock fallback) |
 
-**Tech:** Math.js 15.1.1, TypeScript 6.0, Vitest
+**Tech:** Math.js 15.2, TypeScript 6.0, Vitest
 
 ### @nextcalc/plot-engine
 
@@ -125,9 +125,9 @@ GraphQL API integrated into the Next.js app via route handler.
 
 **Key features:**
 - Auth is configurable via `setAuthFunction()` -- real NextAuth injected from the web route handler
-- DataLoaders for N+1 prevention (userById, folderById, worksheetSharesByWorksheetId, etc.)
+- 11 DataLoaders for N+1 prevention (userById, folderById, worksheetSharesByWorksheetId, childFoldersByParentId, upvoteCountByTargetId, commentsByPostId, commentCountByPostId, hasUpvoted, postsByAuthorId, repliesByParentCommentId, worksheetsByFolderId)
 - Resolvers: user, worksheet, folder, calculation, forum, comment, upvote
-- Upstash Redis caching in `src/lib/cache.ts`
+- Upstash Redis caching in `src/lib/cache.ts` with `invalidateByPrefix` via SCAN
 - API package exports source `.ts` files (not dist/) for monorepo dev
 
 **Tech:** Apollo Server 5.4.0, GraphQL 16.13.0, DataLoader 2.2.3, Zod
@@ -148,7 +148,7 @@ Three edge microservices deployed to Cloudflare's global network:
 | export-service | LaTeX to PDF/PNG/SVG conversion | 8788 | R2 bucket |
 | rate-limiter | API quota enforcement (sliding window) | 8789 | KV namespace |
 
-**Tech:** Hono 4.12.3, Wrangler 4.68.0, Zod
+**Tech:** Hono 4.12.3, Wrangler 4.69.0, Zod
 
 ## Data Flow
 
@@ -278,7 +278,7 @@ Key differences from Prisma 6 that affect this codebase:
 
 ## DataLoader Architecture
 
-The API uses 9 DataLoaders (defined in `apps/api/src/lib/dataloaders.ts`) to batch N+1 queries per GraphQL request lifecycle:
+The API uses 11 DataLoaders (defined in `apps/api/src/lib/dataloaders.ts`) to batch N+1 queries per GraphQL request lifecycle:
 
 | DataLoader | Batches |
 |:-----------|:--------|
@@ -288,9 +288,11 @@ The API uses 9 DataLoaders (defined in `apps/api/src/lib/dataloaders.ts`) to bat
 | `childFoldersByParentId` | Nested folder tree traversal |
 | `upvoteCountByTargetId` | Upvote counts for posts/comments |
 | `commentsByPostId` | Comments per forum post |
-| `commentCountByPostId` | Comment counts for post listings |
-| `userUpvoteByTargetId` | Current user's upvote status |
+| `commentCountByPostId` | Comment counts for post listings (v1.2.0) |
+| `hasUpvoted` | Current user's upvote status (renamed from `userUpvoteByTargetId` in v1.2.1) |
 | `postsByAuthorId` | Posts per user for profile pages |
+| `worksheetsByFolderId` | Worksheets per folder (v1.1.3) |
+| `repliesByParentCommentId` | Nested comment replies (v1.1.3) |
 
 Each DataLoader is created fresh per request (via the Apollo Server context factory) to ensure proper request-scoped batching and no cross-request data leakage.
 

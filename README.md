@@ -13,20 +13,20 @@
   <img src="https://img.shields.io/badge/edge-3_workers-F38020?logo=cloudflare&logoColor=white" alt="Workers" />
 </p>
 
-### What's New in v1.2.0
+### What's New in v1.2.1
 
-> **Auth Fixes, Forum Counters, RS3 Level System & Crystal Level Icons**
+> **Comprehensive Audit, CI/CD Pipeline Fixes & Full Green CI**
 
 <details>
 <summary><strong>Highlights</strong></summary>
 
 | Category | Improvements |
 |:---------|:-------------|
-| **Auth** | Fix signIn redirect (no more /dashboard 404), fix signOut CSRF token, sync OAuth name/image on every sign-in |
-| **Forum** | `commentCount` GraphQL field replaces empty-array hack, real comment counts on all pages, remove hardcoded fake contributors |
-| **Level System** | RS3-style XP curve (100 levels), 10 named tiers (Novice → Transcendent), OKLCH color progression |
-| **Level Icons** | 103 crystal SVG icons (programmatic + pre-generated), 10 visual tiers with increasing complexity, 3 admin-only L101 variants |
-| **Profile** | Avatar `onError` fallback, level icon as default avatar, XP bar with tier display |
+| **Audit** | 78 issues fixed across entire monorepo (25 HIGH, 47 MEDIUM, 6 LOW) — security, performance, code quality |
+| **CI/CD** | All 5 CI jobs green (Install, Lint, Typecheck, Build, Test), 54 test failures fixed, 170+ files formatted |
+| **Security** | Path traversal guard, GraphQL redirect sanitization, input validation hardening |
+| **Performance** | New DataLoaders (`hasUpvoted`, `commentCountByPostId`), `invalidateByPrefix` cache method |
+| **Infrastructure** | GitHub Actions v6, `AUTH_SECRET` in CI build, Workers deploy with `workflow_dispatch` |
 
 </details>
 

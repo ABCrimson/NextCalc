@@ -91,7 +91,7 @@ cd apps/workers/export-service && pnpm run deploy
 cd apps/workers/rate-limiter && pnpm run deploy
 ```
 
-**CI/CD:** Push to `apps/workers/**` on `main` triggers `.github/workflows/deploy-workers.yml`. Requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` GitHub secrets. Each worker deploys independently (`fail-fast: false`).
+**CI/CD:** Push to `apps/workers/**` or `pnpm-lock.yaml` on `main` triggers `.github/workflows/deploy-workers.yml`. Also supports `workflow_dispatch` for manual runs. Requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` GitHub secrets. Each worker deploys independently (`fail-fast: false`). Uses `actions/checkout@v6` and `actions/setup-node@v6`.
 
 > **Note:** Use `pnpm run deploy` (not `pnpm deploy`) — pnpm 11 treats `deploy` as a built-in command.
 

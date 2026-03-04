@@ -2,6 +2,31 @@
 
 All notable changes to NextCalc Pro are documented in this file.
 
+## [1.2.1] - 2026-03-04
+
+### CI/CD Pipeline
+
+- Fix 15 API test failures — add missing mocks for `hasUpvoted` DataLoader, `$transaction`, `invalidateByPrefix`, `updateMany` (`2405bb9`)
+- Fix 35 web test failures — add `m` (lazy motion) proxy to framer-motion mock in vitest.setup.ts (`2405bb9`)
+- Fix 3 export-service test failures — use valid UUID strings for userId in test data (`2405bb9`)
+- Fix 1 rate-limiter test failure — adjust safety margin assertion (`2405bb9`)
+- Fix Biome formatting across 170+ files — import organization, line wrapping, JSON formatting (`2405bb9`)
+- Upgrade CI actions: `actions/checkout@v4` → `@v6`, `actions/setup-node@v4` → `@v6` (`2405bb9`)
+- Provide `AUTH_SECRET` env var in CI build step — NextAuth requires it at build time (`3c9e476`)
+- Add `@graphql-codegen/cli` and `@graphql-typed-document-node/core` devDependencies — required for typecheck (`8ef2f61`)
+- Update lockfile for `typedoc` devDependency (`ca71852`)
+- Update deploy-workers workflow — v6 actions, `pnpm-lock.yaml` path trigger, `workflow_dispatch` support (`b22cae5`)
+
+### Comprehensive Audit (from v1.2.0)
+
+- **78 issues fixed** across the entire monorepo (25 HIGH, 47 MEDIUM, 6 LOW)
+- **Security**: path traversal guard in `getTopicPath`, GraphQL redirect sanitization, `importFromJSON` validation
+- **Performance**: N+1 queries eliminated with `hasUpvoted` and `commentCountByPostId` DataLoaders, `invalidateByPrefix` cache method using SCAN
+- **Code quality**: Redis SCAN cursor type fix, `alternateLocale` metadata fix, `setTimeout` ref type fix, dead state removal
+- **Infrastructure**: Vitest `.spec` exclusion fix, `transpilePackages` cleanup, vacuous E2E test removal
+
+---
+
 ## [1.2.0] - 2026-03-03
 
 ### Auth Fixes
@@ -198,6 +223,7 @@ All notable changes to NextCalc Pro are documented in this file.
 
 _This changelog is generated from the git history. Commit hashes reference the short SHA for each change._
 
+[1.2.1]: https://github.com/ABCrimson/NextCalc/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/ABCrimson/NextCalc/compare/v1.1.3...v1.2.0
 [1.1.3]: https://github.com/ABCrimson/NextCalc/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/ABCrimson/NextCalc/compare/v1.1.1...v1.1.2

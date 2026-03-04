@@ -248,27 +248,32 @@ Create **separate** OAuth apps for production:
 
 ## CI/CD Considerations
 
-### GitHub Actions (Example)
+### GitHub Actions CI Pipeline
 
-```yaml
-name: CI
-on: [push, pull_request]
+The CI pipeline (`.github/workflows/ci.yml`) runs 5 parallel jobs on every push to `main` and on pull requests:
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
-      - run: pnpm install
-      - run: pnpm build
-      - run: pnpm test
-      - run: pnpm lint
-```
+| Job | What It Does | Timeout |
+|-----|-------------|---------|
+| **Install** | `pnpm install --frozen-lockfile` + Prisma generate + cache `node_modules` | 10 min |
+| **Lint** | `pnpm turbo run lint` (Biome 2.4.4) | 10 min |
+| **Typecheck** | `pnpm turbo run typecheck` (TypeScript 6.0) | 15 min |
+| **Build** | `pnpm turbo run build` (requires `AUTH_SECRET` env var) | 20 min |
+| **Test** | `pnpm turbo run test` (Vitest, with 300s timeout) | 10 min |
+
+**Key details:**
+- Actions: `actions/checkout@v6`, `actions/setup-node@v6`, `pnpm/action-setup@v4`
+- Node 24, pnpm 11 with `--frozen-lockfile`
+- `AUTH_SECRET: ci-build-placeholder` must be set in the Build step (NextAuth requires it at build time)
+- Turbo remote caching via `TURBO_TOKEN` / `TURBO_TEAM` secrets
+- Test step handles Vitest cleanup timeout (exit code 124 treated as success)
+
+### Workers Deploy Workflow
+
+The worker deploy pipeline (`.github/workflows/deploy-workers.yml`) triggers on:
+- Push to `main` with changes in `apps/workers/**` or `pnpm-lock.yaml`
+- Manual `workflow_dispatch`
+
+Deploys all 3 workers in parallel via matrix strategy (`fail-fast: false`).
 
 ### Vercel Integration
 

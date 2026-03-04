@@ -193,7 +193,7 @@ X-RateLimit-Tier: pro
 - Node.js 22+ (26 recommended)
 - pnpm 11+
 - Cloudflare account
-- Wrangler CLI (4.68+)
+- Wrangler CLI (4.69+)
 
 ### Setup
 
@@ -306,6 +306,13 @@ wrangler deploy --env development
 # Production
 wrangler deploy --env production
 ```
+
+### CI/CD Workflow
+
+The GitHub Actions deploy workflow (`deploy-workers.yml`) supports:
+- **v6 actions**: Updated to actions/checkout@v4, actions/setup-node@v4, and pnpm/action-setup@v4
+- **Lockfile trigger**: Deployments automatically trigger on `pnpm-lock.yaml` changes affecting workers
+- **Manual dispatch**: Supports `workflow_dispatch` for on-demand deployments
 
 ### Deployment Checklist
 
@@ -470,7 +477,7 @@ Typical performance metrics:
 ### Code Style
 
 - TypeScript strict mode required
-- Biome 2.5.0 for linting and formatting
+- Biome 2.4.4 for linting and formatting
 - Single quotes, 2-space indent, trailing commas
 - JSDoc comments for all public functions
 

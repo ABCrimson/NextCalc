@@ -54,7 +54,7 @@ cd apps/workers/export-service && pnpm deploy
 cd apps/workers/rate-limiter && pnpm deploy
 ```
 
-Or via GitHub Actions: `.github/workflows/deploy-workers.yml` triggers on changes to `apps/workers/`. Requires `CLOUDFLARE_API_TOKEN` GitHub secret. Each worker deploys independently (`fail-fast: false`).
+Or via GitHub Actions: `.github/workflows/deploy-workers.yml` triggers on changes to `apps/workers/` and `pnpm-lock.yaml`, and supports `workflow_dispatch` for manual runs. Requires `CLOUDFLARE_API_TOKEN` GitHub secret. Each worker deploys independently (`fail-fast: false`). Uses `actions/checkout@v6` and `actions/setup-node@v6`.
 
 ### Worker URLs
 
@@ -68,12 +68,15 @@ Or via GitHub Actions: `.github/workflows/deploy-workers.yml` triggers on change
 
 ## CI/CD Pipeline
 
-`.github/workflows/ci.yml` runs on every push:
+`.github/workflows/ci.yml` runs on every push (5 jobs, all passing as of v1.2.1):
 
-1. **Lint** -- Biome 2.5.0
-2. **Typecheck** -- TypeScript 6.0
-3. **Test** -- Vitest
-4. **Build** -- Turborepo (all packages)
+1. **Install** -- pnpm install + dependency caching
+2. **Lint** -- Biome 2.4.4
+3. **Typecheck** -- TypeScript 6.0
+4. **Build** -- Turborepo (all packages). Requires `AUTH_SECRET` env var for NextAuth.
+5. **Test** -- Vitest
+
+**CI tooling** (v1.2.1): `actions/checkout@v6` and `actions/setup-node@v6`.
 
 ---
 

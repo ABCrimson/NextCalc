@@ -232,6 +232,8 @@ N+1 prevention via DataLoader instances:
 - `worksheetSharesByWorksheetId`
 - `childFoldersByParentId`
 - `upvoteCountByTargetId`
+- `hasUpvoted` (v1.2.1)
+- `commentCountByPostId` (v1.2.1)
 
 ---
 
@@ -265,7 +267,7 @@ This translates to `UPDATE ... SET views = views + 1` at the SQL level, which is
 
 ### DataLoader Optimization
 
-9 DataLoader instances batch and deduplicate database queries within each request:
+11 DataLoader instances batch and deduplicate database queries within each request:
 
 | DataLoader | Keys | Resolves |
 |:-----------|:-----|:---------|
@@ -274,7 +276,9 @@ This translates to `UPDATE ... SET views = views + 1` at the SQL level, which is
 | `worksheetSharesByWorksheetId` | Worksheet ID | `[WorksheetShare]` on Worksheet |
 | `childFoldersByParentId` | Parent Folder ID | `[Folder]` on Folder |
 | `upvoteCountByTargetId` | Target ID | `Int` on ForumPost, Comment |
+| `hasUpvoted` | Target ID + User ID | `Boolean` on ForumPost, Comment (v1.2.1) |
 | `commentsByPostId` | Post ID | `[Comment]` on ForumPost |
+| `commentCountByPostId` | Post ID | `Int` on ForumPost (v1.2.1) |
 | `worksheetsByUserId` | User ID | `[Worksheet]` on User |
 | `forumPostsByUserId` | User ID | `[ForumPost]` on User |
 | `foldersByUserId` | User ID | `[Folder]` on User |
