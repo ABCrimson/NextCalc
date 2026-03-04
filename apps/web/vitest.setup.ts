@@ -180,28 +180,6 @@ Object.defineProperty(window, 'innerHeight', {
   value: 768,
 });
 
-// Track event listeners for cleanup (document might not be fully ready yet)
-const eventListeners = new Map<string, Set<EventListener>>();
-let documentMocksInitialized = false;
-
-// Initialize document mocks safely in beforeEach
-beforeEach(() => {
-  if (
-    !documentMocksInitialized &&
-    typeof document !== 'undefined' &&
-    typeof document.addEventListener === 'function'
-  ) {
-    // Only initialize once and only if document is available
-    documentMocksInitialized = true;
-  }
-  // Clear listeners map for each test
-  eventListeners.clear();
-});
-
-// Clean up event listeners after each test
-afterEach(() => {
-  eventListeners.clear();
-});
 
 // Mock Next.js navigation hooks (not available outside Next.js runtime)
 vi.mock('next/navigation', () => ({

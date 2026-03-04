@@ -15,5 +15,18 @@ export default defineConfig({
     // Restore spies/mocks after every test automatically
     restoreMocks: true,
     clearMocks: true,
+
+    // Coverage configuration
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json'],
+      exclude: ['node_modules/', 'dist/', '**/*.d.ts', '**/*.test.ts'],
+      thresholds: {
+        statements: 60,
+        branches: 55,
+        functions: 60,
+        lines: 60,
+      },
+    },
   },
 });

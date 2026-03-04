@@ -79,7 +79,8 @@ describe('Parser', () => {
 
     it('should not include constants', () => {
       const vars = extractVariables('2 * pi + x');
-      expect(vars).toEqual(new Set(['pi', 'x']));
+      // pi is a known constant — extractVariables correctly excludes it
+      expect(vars).toEqual(new Set(['x']));
     });
 
     it('should extract from nested functions', () => {
