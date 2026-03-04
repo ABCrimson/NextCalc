@@ -264,8 +264,10 @@ export function TransformerVisualizer({
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const flowCanvasRef = useRef<HTMLCanvasElement>(null);
+  const flowContainerRef = useRef<HTMLDivElement>(null);
   const animationFrameRef = useRef<number | null>(null);
   const flowAnimationTimeRef = useRef<number>(0);
+  const isFlowVisibleRef = useRef<boolean>(true);
 
   // Recompute attention when config changes
   useEffect(() => {
@@ -451,17 +453,51 @@ export function TransformerVisualizer({
       }
     }
 
-    // Continue animation
-    animationFrameRef.current = requestAnimationFrame(renderAttentionFlows);
+    // Continue animation only while visible
+    if (isFlowVisibleRef.current) {
+      animationFrameRef.current = requestAnimationFrame(renderAttentionFlows);
+    } else {
+      animationFrameRef.current = null;
+    }
   }, [currentHead, config.sequenceLength, tokens, hoveredCell]);
 
-  // Start/stop attention flow animation
+  // Start/stop attention flow animation — pauses when scrolled out of view
   useEffect(() => {
+    const container = flowContainerRef.current;
+
+    // IntersectionObserver gates the rAF loop to avoid wasting CPU when not visible
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry) return;
+        isFlowVisibleRef.current = entry.isIntersecting;
+        if (entry.isIntersecting) {
+          // Restart the loop when the canvas scrolls back into view
+          if (animationFrameRef.current === null) {
+            renderAttentionFlows();
+          }
+        } else {
+          // Stop the loop when scrolled out of view
+          if (animationFrameRef.current !== null) {
+            cancelAnimationFrame(animationFrameRef.current);
+            animationFrameRef.current = null;
+          }
+        }
+      },
+      { threshold: 0 },
+    );
+
+    if (container) {
+      observer.observe(container);
+    }
+
+    // Initial render
     renderAttentionFlows();
 
     return () => {
-      if (animationFrameRef.current) {
+      observer.disconnect();
+      if (animationFrameRef.current !== null) {
         cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
       }
     };
   }, [renderAttentionFlows]);
@@ -614,6 +650,13 @@ export function TransformerVisualizer({
 
   return (
     <div className={cn('w-full mx-auto space-y-4 sm:space-y-6', className)}>
+      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static CSS keyframes only */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes transformer-pulse {
+          0%, 100% { opacity: 0.35; }
+          50% { opacity: 0.72; }
+        }
+      `}} />
       {/* Header */}
       <Card>
         <CardHeader>
@@ -747,6 +790,7 @@ export function TransformerVisualizer({
 
                 {/* Attention Flow Canvas — bipartite arc diagram */}
                 <div
+                  ref={flowContainerRef}
                   className="relative rounded-xl overflow-hidden"
                   style={{
                     background:
@@ -910,26 +954,17 @@ export function TransformerVisualizer({
                                 type: 'spring',
                                 stiffness: 240,
                                 damping: 22,
-                                delay: (i * config.sequenceLength + j) * 0.008,
                               }}
                               role="cell"
                               aria-label={`Attention from "${tokens[i]}" to "${tokens[j]}": ${intensity.toFixed(3)}`}
                             >
-                              {/* Pulsing glow overlay for high attention */}
+                              {/* Pulsing glow overlay for high attention — CSS animation */}
                               {intensity > 0.68 && (
-                                <m.div
+                                <div
                                   className="absolute inset-0 rounded-md pointer-events-none"
                                   style={{
                                     background: `radial-gradient(circle at 50% 40%, ${colors.border} 0%, transparent 68%)`,
-                                  }}
-                                  animate={{
-                                    opacity: [0.35, 0.72, 0.35],
-                                  }}
-                                  transition={{
-                                    duration: 2.2,
-                                    repeat: Number.POSITIVE_INFINITY,
-                                    ease: 'easeInOut',
-                                    delay: (i + j) * 0.15,
+                                    animation: `transformer-pulse 2.2s ease-in-out ${((i + j) * 0.15).toFixed(2)}s infinite`,
                                   }}
                                 />
                               )}

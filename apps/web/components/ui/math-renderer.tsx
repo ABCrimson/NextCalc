@@ -4,6 +4,15 @@ import type { KatexOptions } from 'katex';
 import { useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 
+// Module-level cache: avoids redundant async resolution when multiple MathRenderers mount
+let katexPromise: Promise<typeof import('katex')> | null = null;
+function getKatex() {
+  if (!katexPromise) {
+    katexPromise = import('katex');
+  }
+  return katexPromise;
+}
+
 /**
  * MathRenderer Component
  *
@@ -69,8 +78,8 @@ export function MathRenderer({
     if (!containerRef.current) return;
     let cancelled = false;
 
-    // Dynamic import to avoid ~280KB in initial bundle
-    import('katex').then((katex) => {
+    // Dynamic import to avoid ~280KB in initial bundle (module-level cached)
+    getKatex().then((katex) => {
       if (cancelled || !containerRef.current) return;
 
       try {

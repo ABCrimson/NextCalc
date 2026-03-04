@@ -1,39 +1,29 @@
 'use client';
 
-import { m } from 'framer-motion';
-import { SymbolicPanel } from '@/components/calculator/symbolic-panel';
+import dynamic from 'next/dynamic';
 import { Link } from '@/i18n/navigation';
 
 // ---------------------------------------------------------------------------
-// Animation variants
+// Dynamic import — defers ~300KB (math-engine, KaTeX, Radix, Framer Motion)
 // ---------------------------------------------------------------------------
 
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.12,
-    },
+const SymbolicPanel = dynamic(
+  () => import('@/components/calculator/symbolic-panel').then((m) => ({ default: m.SymbolicPanel })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="rounded-xl border bg-card p-6 space-y-6 animate-pulse">
+        <div className="h-10 bg-muted rounded-lg w-full" />
+        <div className="space-y-4">
+          <div className="h-5 bg-muted rounded w-32" />
+          <div className="h-10 bg-muted rounded-lg w-full" />
+          <div className="h-5 bg-muted rounded w-24" />
+          <div className="h-10 bg-muted rounded-lg w-full" />
+        </div>
+      </div>
+    ),
   },
-} as const;
-
-const fadeUpVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
-  },
-} as const;
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
-  },
-} as const;
+);
 
 // ---------------------------------------------------------------------------
 // Feature card data
@@ -101,7 +91,7 @@ const EXAMPLES: readonly ExampleRow[] = [
 ] as const;
 
 // ---------------------------------------------------------------------------
-// Animated background orbs
+// Animated background orbs — pure CSS (compositor-thread, no JS)
 // ---------------------------------------------------------------------------
 
 function AnimatedBackground() {
@@ -127,60 +117,29 @@ function AnimatedBackground() {
         <rect width="100%" height="100%" filter="url(#symbolic-noise)" />
       </svg>
 
-      {/* Orb 1 - top-right: violet */}
-      <m.div
-        className="absolute -top-40 -right-40 w-[650px] h-[650px] rounded-full blur-3xl"
+      {/* Orb 1 - top-right: violet — CSS animation instead of Framer Motion */}
+      <div
+        className="absolute -top-40 -right-40 w-[650px] h-[650px] rounded-full blur-3xl animate-[symbolic-orb1_20s_ease-in-out_infinite]"
         style={{
           background:
             'radial-gradient(circle, oklch(0.62 0.22 295 / 0.14) 0%, oklch(0.55 0.25 295 / 0.07) 60%, transparent 100%)',
         }}
-        animate={{
-          y: [0, -28, 0],
-          x: [0, 14, 0],
-          scale: [1, 1.04, 1],
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
       />
 
       {/* Orb 2 - bottom-left: fuchsia */}
-      <m.div
-        className="absolute -bottom-48 -left-48 w-[720px] h-[720px] rounded-full blur-3xl"
+      <div
+        className="absolute -bottom-48 -left-48 w-[720px] h-[720px] rounded-full blur-3xl animate-[symbolic-orb2_25s_ease-in-out_4s_infinite]"
         style={{
           background:
             'radial-gradient(circle, oklch(0.60 0.24 330 / 0.13) 0%, oklch(0.55 0.22 330 / 0.06) 60%, transparent 100%)',
         }}
-        animate={{
-          y: [0, 32, 0],
-          x: [0, -18, 0],
-          scale: [1, 1.06, 1],
-        }}
-        transition={{
-          duration: 25,
-          repeat: Infinity,
-          ease: 'easeInOut',
-          delay: 4,
-        }}
       />
 
       {/* Orb 3 - center: pink accent */}
-      <m.div
-        className="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[480px] h-[480px] rounded-full blur-3xl"
+      <div
+        className="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[480px] h-[480px] rounded-full blur-3xl animate-[symbolic-orb3_30s_ease-in-out_8s_infinite]"
         style={{
           background: 'radial-gradient(circle, oklch(0.65 0.20 355 / 0.08) 0%, transparent 70%)',
-        }}
-        animate={{
-          y: [0, -20, 0],
-          x: [0, 24, 0],
-        }}
-        transition={{
-          duration: 30,
-          repeat: Infinity,
-          ease: 'easeInOut',
-          delay: 8,
         }}
       />
 
@@ -191,6 +150,35 @@ function AnimatedBackground() {
           backgroundImage:
             'radial-gradient(circle, oklch(0.55 0.02 295 / 0.15) 1px, transparent 1px)',
           backgroundSize: '32px 32px',
+        }}
+      />
+
+      {/* CSS keyframes — compositor-only transforms, no main thread work */}
+      <style
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: static CSS keyframes only
+        dangerouslySetInnerHTML={{
+          __html: `
+@keyframes symbolic-orb1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(14px, -28px) scale(1.04); }
+}
+@keyframes symbolic-orb2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-18px, 32px) scale(1.06); }
+}
+@keyframes symbolic-orb3 {
+  0%, 100% { transform: translate(-50%, -50%) translate(0, 0); }
+  50% { transform: translate(-50%, -50%) translate(24px, -20px); }
+}
+@keyframes symbolic-fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes symbolic-card-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+`,
         }}
       />
     </div>
@@ -207,9 +195,12 @@ export function SymbolicPageClient() {
       <AnimatedBackground />
 
       <div className="container mx-auto max-w-4xl py-12 px-4 relative">
-        {/* Header */}
-        <m.header className="mb-10" variants={containerVariants} initial="hidden" animate="visible">
-          <m.div className="flex items-center gap-4 mb-3" variants={fadeUpVariants}>
+        {/* Header — CSS fade-up animation */}
+        <header className="mb-10">
+          <div
+            className="flex items-center gap-4 mb-3"
+            style={{ animation: 'symbolic-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) both' }}
+          >
             {/* Icon badge */}
             <div
               className="p-3 rounded-2xl border shrink-0"
@@ -236,10 +227,15 @@ export function SymbolicPageClient() {
                 Differentiate functions symbolically with step-by-step calculations
               </p>
             </div>
-          </m.div>
+          </div>
 
           {/* Feature badges */}
-          <m.div className="flex flex-wrap gap-2 mt-4" variants={fadeUpVariants}>
+          <div
+            className="flex flex-wrap gap-2 mt-4"
+            style={{
+              animation: 'symbolic-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 0.12s both',
+            }}
+          >
             {[
               { label: 'Symbolic Diff', hue: 295 },
               { label: 'Integration', hue: 330 },
@@ -258,21 +254,21 @@ export function SymbolicPageClient() {
                 {label}
               </span>
             ))}
-          </m.div>
-        </m.header>
+          </div>
+        </header>
 
-        {/* Main calculator panel */}
-        <m.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+        {/* Main calculator panel — dynamically imported */}
+        <div
+          style={{
+            animation: 'symbolic-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 0.25s both',
+          }}
         >
           <SymbolicPanel />
-        </m.div>
+        </div>
 
         {/* Features section */}
         <section className="mt-14 space-y-6" aria-labelledby="features-heading">
-          <m.h2
+          <h2
             id="features-heading"
             className="text-2xl font-semibold"
             style={{
@@ -281,21 +277,12 @@ export function SymbolicPageClient() {
               WebkitBackgroundClip: 'text',
               color: 'transparent',
             }}
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
           >
             Features
-          </m.h2>
+          </h2>
 
           {/* Taylor Series — featured link card */}
-          <m.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-          >
+          <div>
             <Link
               href="/symbolic/taylor"
               className="group block p-6 rounded-xl backdrop-blur-md bg-card/50 border border-border hover:border-orange-400/60 transition-all duration-300 overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
@@ -341,25 +328,19 @@ export function SymbolicPageClient() {
                 </span>
               </div>
             </Link>
-          </m.div>
+          </div>
 
           {/* 2-column feature grid */}
-          <m.div
-            className="grid gap-6 md:grid-cols-2"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-60px' }}
-          >
-            {FEATURE_CARDS.map((card) => (
-              <m.div
+          <div className="grid gap-6 md:grid-cols-2">
+            {FEATURE_CARDS.map((card, idx) => (
+              <div
                 key={card.title}
-                variants={cardVariants}
                 className="group relative p-6 rounded-xl overflow-hidden border backdrop-blur-md bg-card/50 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5"
                 style={{
                   background: `linear-gradient(135deg, oklch(0.18 0.03 ${card.hue} / 0.45), oklch(0.16 0.025 ${card.hue} / 0.35))`,
                   borderColor: `oklch(0.62 0.20 ${card.hue} / 0.35)`,
                   boxShadow: `0 0 18px oklch(0.55 0.22 ${card.hue} / 0.14)`,
+                  animation: `symbolic-card-up 0.45s cubic-bezier(0.22,1,0.36,1) ${idx * 0.12}s both`,
                 }}
               >
                 {/* Hover shimmer */}
@@ -412,14 +393,14 @@ export function SymbolicPageClient() {
                     {card.description}
                   </p>
                 </div>
-              </m.div>
+              </div>
             ))}
-          </m.div>
+          </div>
         </section>
 
         {/* Example Usage section */}
         <section className="mt-14" aria-labelledby="examples-heading">
-          <m.h2
+          <h2
             id="examples-heading"
             className="text-2xl font-semibold mb-6"
             style={{
@@ -428,29 +409,19 @@ export function SymbolicPageClient() {
               WebkitBackgroundClip: 'text',
               color: 'transparent',
             }}
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
           >
             Example Usage
-          </m.h2>
+          </h2>
 
-          <m.div
-            className="space-y-3"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-60px' }}
-          >
-            {EXAMPLES.map(({ hue, label, input, output }) => (
-              <m.div
+          <div className="space-y-3">
+            {EXAMPLES.map(({ hue, label, input, output }, idx) => (
+              <div
                 key={input}
-                variants={cardVariants}
                 className="group relative p-4 rounded-xl border backdrop-blur-md bg-card/50 transition-all duration-200 hover:scale-[1.005]"
                 style={{
                   background: `linear-gradient(135deg, oklch(0.18 0.02 ${hue} / 0.30), oklch(0.14 0.015 250 / 0.55))`,
                   borderColor: `oklch(0.62 0.18 ${hue} / 0.25)`,
+                  animation: `symbolic-card-up 0.45s cubic-bezier(0.22,1,0.36,1) ${idx * 0.12}s both`,
                 }}
               >
                 <div className="flex flex-wrap items-start justify-between gap-2">
@@ -467,9 +438,9 @@ export function SymbolicPageClient() {
                     {output}
                   </div>
                 </div>
-              </m.div>
+              </div>
             ))}
-          </m.div>
+          </div>
         </section>
       </div>
     </main>
