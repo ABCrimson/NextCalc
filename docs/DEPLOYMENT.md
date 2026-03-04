@@ -255,7 +255,7 @@ The CI pipeline (`.github/workflows/ci.yml`) runs 5 parallel jobs on every push 
 | Job | What It Does | Timeout |
 |-----|-------------|---------|
 | **Install** | `pnpm install --frozen-lockfile` + Prisma generate + cache `node_modules` | 10 min |
-| **Lint** | `pnpm turbo run lint` (Biome 2.4.4) | 10 min |
+| **Lint** | `pnpm turbo run lint` (Biome 2.4) | 10 min |
 | **Typecheck** | `pnpm turbo run typecheck` (TypeScript 6.0) | 15 min |
 | **Build** | `pnpm turbo run build` (requires `AUTH_SECRET` env var) | 20 min |
 | **Test** | `pnpm turbo run test` (Vitest, with 300s timeout) | 10 min |

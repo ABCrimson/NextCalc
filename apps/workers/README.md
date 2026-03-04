@@ -310,7 +310,7 @@ wrangler deploy --env production
 ### CI/CD Workflow
 
 The GitHub Actions deploy workflow (`deploy-workers.yml`) supports:
-- **v6 actions**: Updated to actions/checkout@v4, actions/setup-node@v4, and pnpm/action-setup@v4
+- **v6 actions**: Updated to actions/checkout@v6, actions/setup-node@v6, and pnpm/action-setup@v4
 - **Lockfile trigger**: Deployments automatically trigger on `pnpm-lock.yaml` changes affecting workers
 - **Manual dispatch**: Supports `workflow_dispatch` for on-demand deployments
 

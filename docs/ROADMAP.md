@@ -211,8 +211,14 @@ All technical debt items have been addressed as of v1.0.0:
 - Database: `FavoriteType` enum exported from `@nextcalc/database`
 - Turbo: Sentry env vars added to build cache keys, `test` depends on `^build`
 
-### v1.2.1 -- CI/CD Pipeline Fixes & Comprehensive Audit (March 2026)
+### v1.2.1 -- Performance, CI/CD Pipeline Fixes & Comprehensive Audit (March 2026)
 
+- [x] Dynamic-import SymbolicPanel (~300KB deferred) via `next/dynamic` + `ssr: false`
+- [x] Replace Framer Motion orb/entry animations with CSS `@keyframes` on `/symbolic`
+- [x] IntersectionObserver-gated `requestAnimationFrame` loop on TransformerVisualizer
+- [x] Replace Framer Motion pulsing overlays with CSS `@keyframes` on `/algorithms/transformers`
+- [x] Remove staggered entry delay from 64 heatmap cells (eliminates 64 animation timers)
+- [x] Cache KaTeX dynamic import at module level in MathRenderer
 - [x] Fix 54 test failures across all packages (API, web, export-service, rate-limiter)
 - [x] Fix Biome formatting across 170+ files
 - [x] Upgrade CI actions: `actions/checkout@v4` → `@v6`, `actions/setup-node@v4` → `@v6`

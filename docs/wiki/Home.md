@@ -25,15 +25,15 @@ NextCalc Pro is a comprehensive scientific calculator and mathematical visualiza
 
 ## Latest Updates (v1.2.1)
 
+- **Performance**: Dynamic-import SymbolicPanel (~300KB deferred), CSS `@keyframes` replace Framer Motion animations on `/symbolic` and `/algorithms/transformers`, IntersectionObserver-gated rAF loop, module-level KaTeX cache
 - **CI/CD pipeline fixes**: All 5 jobs now pass (Install, Lint, Typecheck, Build, Test)
 - **54 test failures fixed**: API (15), web (35), export-service (3), rate-limiter (1)
 - **Biome formatting**: 170+ files reformatted (import organization, line wrapping)
-- **New DataLoaders**: `hasUpvoted`, `commentCountByPostId` for efficient forum queries
+- **New DataLoaders**: `hasUpvoted`, `commentCountByPostId`, `forumPostById`, `commentById` for efficient queries
 - **Redis cache**: Added `invalidateByPrefix` (SCAN-based pattern deletion)
 - **Comprehensive audit**: 78 issues fixed from v1.2.0 (security, performance, code quality)
 - **CI improvements**: `AUTH_SECRET` env var for NextAuth, `actions/checkout@v6` + `actions/setup-node@v6`
 - **Workers deploy**: Triggers on `pnpm-lock.yaml` changes, supports `workflow_dispatch`
-- **Dependencies**: Added `@graphql-codegen/cli`, `@graphql-typed-document-node/core`; updated lockfile for typedoc
 
 ---
 
@@ -68,4 +68,4 @@ NextCalc Pro is a comprehensive scientific calculator and mathematical visualiza
 | Cache | Upstash Redis |
 | Workers | Hono 4.12 on Cloudflare |
 | Build | Turborepo 2.8 |
-| Linting | Biome 2.4.4 |
+| Linting | Biome 2.4 |

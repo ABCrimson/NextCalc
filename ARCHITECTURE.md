@@ -125,7 +125,7 @@ GraphQL API integrated into the Next.js app via route handler.
 
 **Key features:**
 - Auth is configurable via `setAuthFunction()` -- real NextAuth injected from the web route handler
-- 11 DataLoaders for N+1 prevention (userById, folderById, worksheetSharesByWorksheetId, childFoldersByParentId, upvoteCountByTargetId, commentsByPostId, commentCountByPostId, hasUpvoted, postsByAuthorId, repliesByParentCommentId, worksheetsByFolderId)
+- 11 DataLoaders for N+1 prevention (userById, folderById, worksheetSharesByWorksheetId, childFoldersByParentId, upvoteCountByTargetId, commentCountByPostId, forumPostById, commentById, repliesByParentCommentId, worksheetsByFolderId, hasUpvoted)
 - Resolvers: user, worksheet, folder, calculation, forum, comment, upvote
 - Upstash Redis caching in `src/lib/cache.ts` with `invalidateByPrefix` via SCAN
 - API package exports source `.ts` files (not dist/) for monorepo dev
@@ -287,12 +287,12 @@ The API uses 11 DataLoaders (defined in `apps/api/src/lib/dataloaders.ts`) to ba
 | `worksheetSharesByWorksheetId` | Share permissions per worksheet |
 | `childFoldersByParentId` | Nested folder tree traversal |
 | `upvoteCountByTargetId` | Upvote counts for posts/comments |
-| `commentsByPostId` | Comments per forum post |
-| `commentCountByPostId` | Comment counts for post listings (v1.2.0) |
-| `hasUpvoted` | Current user's upvote status (renamed from `userUpvoteByTargetId` in v1.2.1) |
-| `postsByAuthorId` | Posts per user for profile pages |
-| `worksheetsByFolderId` | Worksheets per folder (v1.1.3) |
-| `repliesByParentCommentId` | Nested comment replies (v1.1.3) |
+| `commentCountByPostId` | Comment counts for post listings |
+| `forumPostById` | Forum post lookups by ID |
+| `commentById` | Comment lookups by ID |
+| `repliesByParentCommentId` | Nested comment replies |
+| `worksheetsByFolderId` | Worksheets per folder |
+| `hasUpvoted` | Current user's upvote status (composite key: targetId + userId) |
 
 Each DataLoader is created fresh per request (via the Apollo Server context factory) to ensure proper request-scoped batching and no cross-request data leakage.
 

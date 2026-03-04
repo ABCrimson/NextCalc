@@ -15,17 +15,17 @@
 
 ### What's New in v1.2.1
 
-> **Comprehensive Audit, CI/CD Pipeline Fixes & Full Green CI**
+> **Performance Optimizations, Comprehensive Audit & Full Green CI**
 
 <details>
 <summary><strong>Highlights</strong></summary>
 
 | Category | Improvements |
 |:---------|:-------------|
+| **Performance** | Dynamic-import SymbolicPanel (~300KB deferred), CSS `@keyframes` replace Framer Motion animations, IntersectionObserver-gated rAF loop, module-level KaTeX cache |
 | **Audit** | 78 issues fixed across entire monorepo (25 HIGH, 47 MEDIUM, 6 LOW) — security, performance, code quality |
 | **CI/CD** | All 5 CI jobs green (Install, Lint, Typecheck, Build, Test), 54 test failures fixed, 170+ files formatted |
 | **Security** | Path traversal guard, GraphQL redirect sanitization, input validation hardening |
-| **Performance** | New DataLoaders (`hasUpvoted`, `commentCountByPostId`), `invalidateByPrefix` cache method |
 | **Infrastructure** | GitHub Actions v6, `AUTH_SECRET` in CI build, Workers deploy with `workflow_dispatch` |
 
 </details>
@@ -154,7 +154,7 @@ graph TB
 | Cache | Upstash Redis | 1.37 |
 | Workers | Hono on Cloudflare | 4.12 |
 | Build | Turborepo | 2.8 |
-| Linting | Biome | 2.5 |
+| Linting | Biome | 2.4 |
 | Testing | Vitest + Playwright | 4.1 |
 
 ---

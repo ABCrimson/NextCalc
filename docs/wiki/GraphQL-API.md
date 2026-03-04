@@ -226,14 +226,18 @@ enum ErrorCode {
 
 ## DataLoaders
 
-N+1 prevention via DataLoader instances:
+11 DataLoader instances for N+1 prevention (created per-request):
 - `userById`
 - `folderById`
 - `worksheetSharesByWorksheetId`
 - `childFoldersByParentId`
 - `upvoteCountByTargetId`
-- `hasUpvoted` (v1.2.1)
-- `commentCountByPostId` (v1.2.1)
+- `commentCountByPostId`
+- `forumPostById`
+- `commentById`
+- `repliesByParentCommentId`
+- `worksheetsByFolderId`
+- `hasUpvoted` (composite key: targetId + userId)
 
 ---
 
@@ -276,12 +280,12 @@ This translates to `UPDATE ... SET views = views + 1` at the SQL level, which is
 | `worksheetSharesByWorksheetId` | Worksheet ID | `[WorksheetShare]` on Worksheet |
 | `childFoldersByParentId` | Parent Folder ID | `[Folder]` on Folder |
 | `upvoteCountByTargetId` | Target ID | `Int` on ForumPost, Comment |
-| `hasUpvoted` | Target ID + User ID | `Boolean` on ForumPost, Comment (v1.2.1) |
-| `commentsByPostId` | Post ID | `[Comment]` on ForumPost |
-| `commentCountByPostId` | Post ID | `Int` on ForumPost (v1.2.1) |
-| `worksheetsByUserId` | User ID | `[Worksheet]` on User |
-| `forumPostsByUserId` | User ID | `[ForumPost]` on User |
-| `foldersByUserId` | User ID | `[Folder]` on User |
+| `commentCountByPostId` | Post ID | `Int` on ForumPost |
+| `forumPostById` | Post ID | `ForumPost` for lookups |
+| `commentById` | Comment ID | `Comment` for lookups |
+| `repliesByParentCommentId` | Parent Comment ID | `[Comment]` nested replies |
+| `worksheetsByFolderId` | Folder ID | `[Worksheet]` on Folder |
+| `hasUpvoted` | Target ID + User ID (composite) | `Boolean` on ForumPost, Comment |
 
 ### Query Complexity Analysis
 

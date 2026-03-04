@@ -4,6 +4,16 @@ All notable changes to NextCalc Pro are documented in this file.
 
 ## [1.2.1] - 2026-03-04
 
+### Performance
+
+- Dynamic-import `SymbolicPanel` (~300KB deferred) via `next/dynamic` + `ssr: false` on `/symbolic` route (`43d4893`)
+- Replace Framer Motion orb animations with CSS `@keyframes` on `/symbolic` (compositor thread, zero main-thread cost) (`43d4893`)
+- Replace all `m.*` entry animations with plain HTML + CSS animation on `/symbolic` — removes framer-motion from page chunk entirely (~34KB saved) (`43d4893`)
+- Add IntersectionObserver gate to TransformerVisualizer `requestAnimationFrame` loop — pauses 60fps canvas when scrolled out of view (`43d4893`)
+- Replace Framer Motion pulsing overlays with CSS `@keyframes` on `/algorithms/transformers` — eliminates per-frame React reconciliation for 64+ heatmap cells (`43d4893`)
+- Remove staggered entry delay from 64 heatmap cells in TransformerVisualizer — eliminates 64 separate animation timers (`43d4893`)
+- Cache KaTeX dynamic import at module level in `MathRenderer` — avoids redundant async resolution across multiple instances (`43d4893`)
+
 ### CI/CD Pipeline
 
 - Fix 15 API test failures — add missing mocks for `hasUpvoted` DataLoader, `$transaction`, `invalidateByPrefix`, `updateMany` (`2405bb9`)
@@ -119,7 +129,7 @@ All notable changes to NextCalc Pro are documented in this file.
 ### Dependency Updates
 - Update 90+ packages across all 10 workspace packages (`86f3eb3`)
 - Next.js 16.2.0-canary.69, React 19.3.0-canary, TypeScript 6.0.0-dev.20260301
-- Prisma 7.5.0-dev.32, Biome 2.5.0, Turborepo 2.8.12
+- Prisma 7.5.0-dev.32, Biome 2.4.4, Turborepo 2.8.12
 - Hono 4.12.3, Wrangler 4.68.0, Vitest 4.1.0-beta.5, KaTeX 0.16.33
 - Three.js 0.183.2, jose 6.1.3 (new)
 

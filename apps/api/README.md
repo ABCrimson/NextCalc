@@ -10,7 +10,7 @@ Backend GraphQL API for NextCalc Pro, built with Apollo Server, Prisma, and Next
 - **Caching:** Upstash Redis
 - **Rate Limiting:** Upstash Rate Limit
 - **Connection Pooling:** Neon Serverless Driver
-- **Linting/Formatting:** Biome 2.4.4
+- **Linting/Formatting:** Biome 2.4
 
 ## Prerequisites
 
@@ -310,7 +310,7 @@ pnpm prisma migrate reset
 
 ### Optimization Strategies
 
-1. **DataLoaders** - Batch and cache database queries (userById, folderById, worksheetSharesByWorksheetId, childFoldersByParentId, upvoteCountByTargetId, hasUpvoted, commentCountByPostId)
+1. **DataLoaders** - 11 DataLoader instances batch and cache database queries (userById, folderById, worksheetSharesByWorksheetId, childFoldersByParentId, upvoteCountByTargetId, commentCountByPostId, forumPostById, commentById, repliesByParentCommentId, worksheetsByFolderId, hasUpvoted)
 2. **Indexes** - Optimize common query patterns
 3. **Connection pooling** - Neon serverless driver
 4. **Cursor pagination** - Efficient for large datasets

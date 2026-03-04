@@ -71,7 +71,7 @@ Or via GitHub Actions: `.github/workflows/deploy-workers.yml` triggers on change
 `.github/workflows/ci.yml` runs on every push (5 jobs, all passing as of v1.2.1):
 
 1. **Install** -- pnpm install + dependency caching
-2. **Lint** -- Biome 2.4.4
+2. **Lint** -- Biome 2.4
 3. **Typecheck** -- TypeScript 6.0
 4. **Build** -- Turborepo (all packages). Requires `AUTH_SECRET` env var for NextAuth.
 5. **Test** -- Vitest

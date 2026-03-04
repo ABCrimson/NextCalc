@@ -97,10 +97,12 @@ All GraphQL resolvers use [DataLoader](https://github.com/graphql/dataloader) to
 | `worksheetSharesByWorksheetId` | Share records per worksheet | Worksheet resolver |
 | `childFoldersByParentId` | Child folders per parent | Folder resolver |
 | `upvoteCountByTargetId` | Upvote counts per target | ForumPost, Comment resolvers |
-| `commentsByPostId` | Comments per forum post | ForumPost resolver |
 | `commentCountByPostId` | Comment counts for post listings | ForumPost resolver |
-| `hasUpvoted` | Current user's upvote status (renamed from `userUpvoteByTargetId` in v1.2.1) | ForumPost, Comment resolvers |
-| `postsByAuthorId` | Posts per user for profile pages | Profile resolver |
+| `forumPostById` | Forum post lookups by ID | Forum resolvers |
+| `commentById` | Comment lookups by ID | Comment resolvers |
+| `repliesByParentCommentId` | Nested comment replies | Comment resolver |
+| `worksheetsByFolderId` | Worksheets per folder | Folder resolver |
+| `hasUpvoted` | Current user's upvote status (composite key) | ForumPost, Comment resolvers |
 
 **How it works**: When resolving a list of forum posts, instead of issuing one `SELECT * FROM users WHERE id = ?` per post, DataLoader collects all user IDs and issues a single `SELECT * FROM users WHERE id IN (?, ?, ...)` query.
 
