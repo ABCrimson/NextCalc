@@ -107,7 +107,10 @@ export function withAuth(
       const session = await verifyAuth();
       return await handler(req, session, context);
     } catch (error) {
-      if (error instanceof Error && (error.message.includes('Unauthorized') || error.message.includes('Authentication'))) {
+      if (
+        error instanceof Error &&
+        (error.message.includes('Unauthorized') || error.message.includes('Authentication'))
+      ) {
         return Response.json({ error: error.message }, { status: 401 });
       }
       throw error;

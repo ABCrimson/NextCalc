@@ -355,7 +355,8 @@ export default function SettingsPage() {
         <div
           className="absolute inset-0 opacity-[0.06]"
           style={{
-            backgroundImage: 'radial-gradient(circle, oklch(0.72 0.02 260 / 0.15) 1px, transparent 1px)',
+            backgroundImage:
+              'radial-gradient(circle, oklch(0.72 0.02 260 / 0.15) 1px, transparent 1px)',
             backgroundSize: '28px 28px',
           }}
         />

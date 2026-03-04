@@ -15,12 +15,12 @@ import type {
   UnaryOperatorNode,
 } from './ast';
 import {
-  NodeType,
   createConstantNode,
   createFunctionNode,
   createOperatorNode,
   createSymbolNode,
   createUnaryOperatorNode,
+  NodeType,
 } from './ast';
 
 /**

@@ -19,11 +19,11 @@
  */
 
 import { AlertCircle, Calculator, Chrome, Github, Loader2 } from 'lucide-react';
-import { Link } from '@/i18n/navigation';
 import { useSearchParams } from 'next/navigation';
 import { signIn as nextAuthSignIn } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { type ComponentType, Suspense, useEffect, useState } from 'react';
+import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 
 type OAuthProvider = 'github' | 'google';
@@ -89,7 +89,8 @@ function SignInContent() {
   const t = useTranslations('auth');
   const searchParams = useSearchParams();
   const rawCallback = searchParams.get('callbackUrl') ?? '/';
-  const callbackUrl = rawCallback.startsWith('/') && !rawCallback.startsWith('//') ? rawCallback : '/';
+  const callbackUrl =
+    rawCallback.startsWith('/') && !rawCallback.startsWith('//') ? rawCallback : '/';
   const errorCode = searchParams.get('error');
   const errorKey = resolveErrorKey(errorCode);
   const errorMessage = errorKey ? t(errorKey) : null;

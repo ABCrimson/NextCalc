@@ -20,7 +20,6 @@ import {
   Pin,
   Send,
 } from 'lucide-react';
-import { Link, useRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { useCallback, useState } from 'react';
 import { CommentThread } from '@/components/forum/comment-thread';
@@ -44,6 +43,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
+import { Link, useRouter } from '@/i18n/navigation';
 import { useSession } from '@/lib/auth/hooks';
 import { CREATE_COMMENT_MUTATION, FORUM_POST_QUERY } from '@/lib/graphql/forum-operations';
 import { cn } from '@/lib/utils';
@@ -294,7 +294,10 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
                   </span>
                   <span className="flex items-center gap-1">
                     <MessageSquare className="h-3 w-3" />
-                    {t('commentsCount', { count: (post as { commentCount?: number }).commentCount ?? post.comments.length })}
+                    {t('commentsCount', {
+                      count:
+                        (post as { commentCount?: number }).commentCount ?? post.comments.length,
+                    })}
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
@@ -358,7 +361,9 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
               <div className="rounded-2xl border border-border p-6 backdrop-blur-md bg-card/50 space-y-4">
                 <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
                   <MessageSquare className="h-5 w-5 text-indigo-400" />
-                  {t('commentsCount', { count: (post as { commentCount?: number }).commentCount ?? post.comments.length })}
+                  {t('commentsCount', {
+                    count: (post as { commentCount?: number }).commentCount ?? post.comments.length,
+                  })}
                 </h2>
 
                 {post.comments.length > 0 && (
@@ -411,7 +416,9 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
                           <button
                             type="button"
                             onClick={() => {
-                              router.push(`/auth/signin?callbackUrl=${encodeURIComponent(`/forum/${id}`)}`);
+                              router.push(
+                                `/auth/signin?callbackUrl=${encodeURIComponent(`/forum/${id}`)}`,
+                              );
                             }}
                             className="text-indigo-400 hover:text-indigo-300 underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                           >

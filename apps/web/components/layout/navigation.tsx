@@ -31,6 +31,7 @@ import {
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { type ComponentType, useState } from 'react';
+import { LevelIcon } from '@/components/profile/level-icon';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -42,7 +43,6 @@ import {
 import { Link, usePathname, useRouter } from '@/i18n/navigation';
 import { signIn, signOut, useSession } from '@/lib/auth/hooks';
 import { cn } from '@/lib/utils';
-import { LevelIcon } from '@/components/profile/level-icon';
 import { CommandPalette } from './command-palette';
 import { ThemeToggle } from './theme-toggle';
 

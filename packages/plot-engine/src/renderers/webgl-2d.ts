@@ -550,7 +550,10 @@ export class WebGL2DRenderer implements IRenderer {
           buffer: buffer.buffer,
           vertexCount: points.length,
           attributes: new Map([
-            ['a_polar', { location: shader.attributes.get('a_polar')!, size: 2, type: this.gl.FLOAT }],
+            [
+              'a_polar',
+              { location: shader.attributes.get('a_polar')!, size: 2, type: this.gl.FLOAT },
+            ],
           ]),
         };
         this.vaoCache.set(vaoKey, vaoState);
@@ -658,7 +661,10 @@ export class WebGL2DRenderer implements IRenderer {
           buffer: buffer.buffer,
           vertexCount: points.length,
           attributes: new Map([
-            ['a_position', { location: shader.attributes.get('a_position')!, size: 2, type: this.gl.FLOAT }],
+            [
+              'a_position',
+              { location: shader.attributes.get('a_position')!, size: 2, type: this.gl.FLOAT },
+            ],
           ]),
         };
         this.vaoCache.set(vaoKey, vaoState);

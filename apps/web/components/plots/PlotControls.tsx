@@ -341,12 +341,7 @@ export function PlotControls({
           {/* Reset view button */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <m.div
-                variants={buttonVariants}
-                initial="initial"
-                whileHover="hover"
-                whileTap="tap"
-              >
+              <m.div variants={buttonVariants} initial="initial" whileHover="hover" whileTap="tap">
                 <Button
                   onClick={onReset}
                   variant="outline"
@@ -487,12 +482,7 @@ export function PlotControls({
           {/* Keyboard hints toggle */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <m.div
-                variants={buttonVariants}
-                initial="initial"
-                whileHover="hover"
-                whileTap="tap"
-              >
+              <m.div variants={buttonVariants} initial="initial" whileHover="hover" whileTap="tap">
                 <Button
                   onClick={() => setShowKeyboardHints((prev) => !prev)}
                   variant="ghost"

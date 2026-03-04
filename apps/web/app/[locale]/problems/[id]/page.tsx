@@ -1,12 +1,12 @@
 import { getProblemById, getRelatedProblems } from '@nextcalc/math-engine/problems';
 import { ArrowLeft, Share2 } from 'lucide-react';
 import type { Metadata } from 'next';
-import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Link } from '@/i18n/navigation';
 import { ProblemSolverClient } from './problem-solver-client';
 
 /**

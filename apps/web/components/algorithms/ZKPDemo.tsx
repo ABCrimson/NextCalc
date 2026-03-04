@@ -372,12 +372,7 @@ function ProtocolSequenceDiagram({
             const labelY = arrow.direction === 'right' ? y + 18 : y - 8;
 
             return (
-              <m.g
-                key={`arrow-group-${arrow.key}`}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-              >
+              <m.g key={`arrow-group-${arrow.key}`} initial="hidden" animate="visible" exit="exit">
                 {/* Shaft */}
                 <m.path
                   d={`M ${x1},${y} L ${x2},${y}`}

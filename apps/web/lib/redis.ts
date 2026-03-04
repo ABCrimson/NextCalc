@@ -242,9 +242,7 @@ export const sessionCache = {
 
 export const queryCache = {
   key: (queryName: string, variables?: Record<string, unknown>) => {
-    const varHash = variables
-      ? JSON.stringify(variables, Object.keys(variables).sort())
-      : '';
+    const varHash = variables ? JSON.stringify(variables, Object.keys(variables).sort()) : '';
     return `query:${queryName}:${varHash}`;
   },
 

@@ -530,9 +530,9 @@ export function modSqrt(a: number, p: number): number {
     // Find least i such that t^(2^i) = 1
     let i = 1;
     const bp = BigInt(p);
-    let temp = BigInt(t) * BigInt(t) % bp;
+    let temp = (BigInt(t) * BigInt(t)) % bp;
     while (temp !== 1n) {
-      temp = temp * temp % bp;
+      temp = (temp * temp) % bp;
       i++;
     }
 

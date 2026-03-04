@@ -51,9 +51,9 @@ export * from './ml/transformers/index';
 
 // Optimization (exports LossFunction for compatibility)
 export {
-  adam,
   type AdamOptions,
   type AdamResult,
+  adam,
   adamW,
   type LossFunction,
   radam,
@@ -84,11 +84,11 @@ export {
   isProbablyPrime,
   modInverse as rsaModInverse,
   modPow as rsaModPow,
+  type RSAKeyPair,
   rsaDecrypt,
   rsaDecryptString,
   rsaEncrypt,
   rsaEncryptString,
-  type RSAKeyPair,
   rsaSign,
   rsaVerify,
 } from './crypto/rsa';

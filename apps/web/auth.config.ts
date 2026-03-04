@@ -20,12 +20,16 @@ import Google from 'next-auth/providers/google';
 const providers: Provider[] = [];
 
 const githubId = (
-  process.env['AUTH_GITHUB_ID'] || process.env['GITHUB_CLIENT_ID'] || process.env['GITHUB_ID'] || ''
+  process.env['AUTH_GITHUB_ID'] ||
+  process.env['GITHUB_CLIENT_ID'] ||
+  process.env['GITHUB_ID'] ||
+  ''
 ).trim();
 const githubSecret = (
   process.env['AUTH_GITHUB_SECRET'] ||
   process.env['GITHUB_CLIENT_SECRET'] ||
-  process.env['GITHUB_SECRET'] || ''
+  process.env['GITHUB_SECRET'] ||
+  ''
 ).trim();
 
 if (githubId && githubSecret) {
@@ -38,12 +42,16 @@ if (githubId && githubSecret) {
 }
 
 const googleId = (
-  process.env['AUTH_GOOGLE_ID'] || process.env['GOOGLE_CLIENT_ID'] || process.env['GOOGLE_ID'] || ''
+  process.env['AUTH_GOOGLE_ID'] ||
+  process.env['GOOGLE_CLIENT_ID'] ||
+  process.env['GOOGLE_ID'] ||
+  ''
 ).trim();
 const googleSecret = (
   process.env['AUTH_GOOGLE_SECRET'] ||
   process.env['GOOGLE_CLIENT_SECRET'] ||
-  process.env['GOOGLE_SECRET'] || ''
+  process.env['GOOGLE_SECRET'] ||
+  ''
 ).trim();
 
 if (googleId && googleSecret) {

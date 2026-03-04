@@ -149,7 +149,11 @@ export const folderResolvers = {
         });
       } catch (error) {
         // Handle TOCTOU race: unique constraint violation on (userId, name, parentId)
-        if (error instanceof Error && 'code' in error && (error as { code: string }).code === 'P2002') {
+        if (
+          error instanceof Error &&
+          'code' in error &&
+          (error as { code: string }).code === 'P2002'
+        ) {
           throw new ValidationError(
             'A folder with this name already exists in this location',
             'name',

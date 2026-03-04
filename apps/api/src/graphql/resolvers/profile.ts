@@ -37,7 +37,10 @@ export const profileResolvers = {
       }
 
       // User is already in context (requireAuth populates it) — skip redundant query
-      const dbUser = args.userId === user.id ? user : await context.prisma.user.findUnique({ where: { id: args.userId } });
+      const dbUser =
+        args.userId === user.id
+          ? user
+          : await context.prisma.user.findUnique({ where: { id: args.userId } });
       if (!dbUser) return null;
 
       const [userProgress, worksheetCount, forumPostCount, calculationCount] = await Promise.all([
@@ -169,7 +172,11 @@ export const profileResolvers = {
           take: 30,
         }),
         context.prisma.attempt.findMany({
-          where: { userProgressId: userProgress.id, correct: true, createdAt: { gte: streakSince } },
+          where: {
+            userProgressId: userProgress.id,
+            correct: true,
+            createdAt: { gte: streakSince },
+          },
           orderBy: { createdAt: 'asc' },
           select: { createdAt: true },
         }),

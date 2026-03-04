@@ -290,18 +290,30 @@ vi.mock('framer-motion', () => {
     return filtered;
   };
 
+  // biome-ignore lint/suspicious/noExplicitAny: mock implementation — untyped by design
+  const createMotionComponent =
+    (tag: string) =>
+    ({ children, ref, ...props }: any) =>
+      React.createElement(tag, { ...filterMotionProps(props), ref }, children);
+
+  const motionProxy = {
+    div: createMotionComponent('div'),
+    button: createMotionComponent('button'),
+    span: createMotionComponent('span'),
+    section: createMotionComponent('section'),
+    ul: createMotionComponent('ul'),
+    li: createMotionComponent('li'),
+    p: createMotionComponent('p'),
+    nav: createMotionComponent('nav'),
+    a: createMotionComponent('a'),
+    h1: createMotionComponent('h1'),
+    h2: createMotionComponent('h2'),
+    h3: createMotionComponent('h3'),
+  };
+
   return {
-    motion: {
-      // biome-ignore lint/suspicious/noExplicitAny: mock implementation — untyped by design
-      div: ({ children, ref, ...props }: any) =>
-        React.createElement('div', { ...filterMotionProps(props), ref }, children),
-      // biome-ignore lint/suspicious/noExplicitAny: mock implementation — untyped by design
-      button: ({ children, ref, ...props }: any) =>
-        React.createElement('button', { ...filterMotionProps(props), ref }, children),
-      // biome-ignore lint/suspicious/noExplicitAny: mock implementation — untyped by design
-      span: ({ children, ref, ...props }: any) =>
-        React.createElement('span', { ...filterMotionProps(props), ref }, children),
-    },
+    motion: motionProxy,
+    m: motionProxy,
     // biome-ignore lint/suspicious/noExplicitAny: mock implementation — untyped by design
     AnimatePresence: ({ children }: any) => children,
     useAnimation: () => ({

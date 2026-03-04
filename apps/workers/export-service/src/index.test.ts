@@ -288,7 +288,11 @@ describe('POST /export/svg', () => {
     const env = createTestEnv();
     const privateBucket = env.EXPORTS_PRIVATE as ReturnType<typeof createMockR2Bucket>;
 
-    await postJson('/export/svg', { latex: 'x^2', userId: 'user-abc' }, env);
+    await postJson(
+      '/export/svg',
+      { latex: 'x^2', userId: '550e8400-e29b-41d4-a716-446655440000' },
+      env,
+    );
 
     expect((privateBucket.put as Mock).mock.calls.length).toBeGreaterThan(0);
   });
@@ -424,7 +428,11 @@ describe('POST /export/png', () => {
     const env = createTestEnv();
     const privateBucket = env.EXPORTS_PRIVATE as ReturnType<typeof createMockR2Bucket>;
 
-    await postJson('/export/png', { latex: 'x^2', userId: 'user-png' }, env);
+    await postJson(
+      '/export/png',
+      { latex: 'x^2', userId: '550e8400-e29b-41d4-a716-446655440000' },
+      env,
+    );
 
     expect((privateBucket.put as Mock).mock.calls.length).toBeGreaterThan(0);
   });
@@ -542,7 +550,11 @@ describe('POST /export/pdf', () => {
     const env = createTestEnv();
     const privateBucket = env.EXPORTS_PRIVATE as ReturnType<typeof createMockR2Bucket>;
 
-    await postJson('/export/pdf', { latex: 'x^2', userId: 'user-xyz' }, env);
+    await postJson(
+      '/export/pdf',
+      { latex: 'x^2', userId: '550e8400-e29b-41d4-a716-446655440000' },
+      env,
+    );
 
     expect((privateBucket.put as Mock).mock.calls.length).toBeGreaterThan(0);
   });

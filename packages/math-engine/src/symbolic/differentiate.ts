@@ -11,7 +11,12 @@ import type {
   SymbolNode,
   UnaryOperatorNode,
 } from '../parser/ast';
-import { NodeType, createConstantNode, createFunctionNode, createOperatorNode } from '../parser/ast';
+import {
+  createConstantNode,
+  createFunctionNode,
+  createOperatorNode,
+  NodeType,
+} from '../parser/ast';
 
 /**
  * Differentiate an expression with respect to a variable

@@ -2,12 +2,12 @@
 
 import { m, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Award, Bookmark, BookOpen, CheckCircle2, TrendingUp } from 'lucide-react';
-import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import type { CSSProperties, ReactNode } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Link } from '@/i18n/navigation';
 import { useBookmarksStore } from '@/lib/stores/bookmarks-store';
 
 // ─── Types ────────────────────────────────────────────────────────────────────

@@ -4,8 +4,8 @@
  * Helper functions for authentication and authorization.
  */
 
-import { cache } from 'react';
 import type { UserRole } from '@nextcalc/database';
+import { cache } from 'react';
 import { auth } from '../../auth';
 import { prisma } from '../prisma';
 import { ROLE_HIERARCHY } from './roles';

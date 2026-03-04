@@ -631,7 +631,15 @@ function EditProfileDialog({
 // HeroAvatar — image with onError fallback to initials
 // ---------------------------------------------------------------------------
 
-function HeroAvatar({ name, image, level }: { name: string | null; image: string | null; level: number }) {
+function HeroAvatar({
+  name,
+  image,
+  level,
+}: {
+  name: string | null;
+  image: string | null;
+  level: number;
+}) {
   const [imgError, setImgError] = useState(false);
 
   return (
@@ -831,12 +839,7 @@ export function ProfileOverview({
   ];
 
   return (
-    <m.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="space-y-6"
-    >
+    <m.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
       {/* Hero card — avatar, name, bio, edit */}
       <m.div variants={itemVariants}>
         <HeroCard user={localUser} progress={progress} onEditClick={() => setEditOpen(true)} />

@@ -24,7 +24,7 @@ export function xpForLevel(level: number): number {
   if (level <= 1) return 0;
   let total = 0;
   for (let i = 1; i < level; i++) {
-    total += Math.floor(i + 300 * Math.pow(2, i / 7));
+    total += Math.floor(i + 300 * 2 ** (i / 7));
   }
   return Math.floor(total / 4);
 }
@@ -73,17 +73,105 @@ export interface LevelTier {
 }
 
 export const LEVEL_TIERS: LevelTier[] = [
-  { name: 'Novice',        minLevel: 1,   maxLevel: 10,  color: 'gray',    bgClass: 'bg-zinc-500/15',    textClass: 'text-zinc-400',    borderClass: 'border-zinc-500/30' },
-  { name: 'Apprentice',    minLevel: 11,  maxLevel: 20,  color: 'green',   bgClass: 'bg-emerald-500/15', textClass: 'text-emerald-400', borderClass: 'border-emerald-500/30' },
-  { name: 'Journeyman',    minLevel: 21,  maxLevel: 30,  color: 'blue',    bgClass: 'bg-blue-500/15',    textClass: 'text-blue-400',    borderClass: 'border-blue-500/30' },
-  { name: 'Adept',         minLevel: 31,  maxLevel: 40,  color: 'indigo',  bgClass: 'bg-indigo-500/15',  textClass: 'text-indigo-400',  borderClass: 'border-indigo-500/30' },
-  { name: 'Expert',        minLevel: 41,  maxLevel: 50,  color: 'purple',  bgClass: 'bg-purple-500/15',  textClass: 'text-purple-400',  borderClass: 'border-purple-500/30' },
-  { name: 'Master',        minLevel: 51,  maxLevel: 60,  color: 'violet',  bgClass: 'bg-violet-500/15',  textClass: 'text-violet-400',  borderClass: 'border-violet-500/30' },
-  { name: 'Grandmaster',   minLevel: 61,  maxLevel: 70,  color: 'amber',   bgClass: 'bg-amber-500/15',   textClass: 'text-amber-400',   borderClass: 'border-amber-500/30' },
-  { name: 'Legend',         minLevel: 71,  maxLevel: 80,  color: 'orange',  bgClass: 'bg-orange-500/15',  textClass: 'text-orange-400',  borderClass: 'border-orange-500/30' },
-  { name: 'Mythic',        minLevel: 81,  maxLevel: 90,  color: 'red',     bgClass: 'bg-red-500/15',     textClass: 'text-red-400',     borderClass: 'border-red-500/30' },
-  { name: 'Transcendent',  minLevel: 91,  maxLevel: 100, color: 'rainbow', bgClass: 'bg-fuchsia-500/15', textClass: 'text-fuchsia-400', borderClass: 'border-fuchsia-500/30' },
-  { name: 'Architect',     minLevel: 101, maxLevel: 101, color: 'special', bgClass: 'bg-amber-400/20',   textClass: 'text-amber-300',   borderClass: 'border-amber-400/40' },
+  {
+    name: 'Novice',
+    minLevel: 1,
+    maxLevel: 10,
+    color: 'gray',
+    bgClass: 'bg-zinc-500/15',
+    textClass: 'text-zinc-400',
+    borderClass: 'border-zinc-500/30',
+  },
+  {
+    name: 'Apprentice',
+    minLevel: 11,
+    maxLevel: 20,
+    color: 'green',
+    bgClass: 'bg-emerald-500/15',
+    textClass: 'text-emerald-400',
+    borderClass: 'border-emerald-500/30',
+  },
+  {
+    name: 'Journeyman',
+    minLevel: 21,
+    maxLevel: 30,
+    color: 'blue',
+    bgClass: 'bg-blue-500/15',
+    textClass: 'text-blue-400',
+    borderClass: 'border-blue-500/30',
+  },
+  {
+    name: 'Adept',
+    minLevel: 31,
+    maxLevel: 40,
+    color: 'indigo',
+    bgClass: 'bg-indigo-500/15',
+    textClass: 'text-indigo-400',
+    borderClass: 'border-indigo-500/30',
+  },
+  {
+    name: 'Expert',
+    minLevel: 41,
+    maxLevel: 50,
+    color: 'purple',
+    bgClass: 'bg-purple-500/15',
+    textClass: 'text-purple-400',
+    borderClass: 'border-purple-500/30',
+  },
+  {
+    name: 'Master',
+    minLevel: 51,
+    maxLevel: 60,
+    color: 'violet',
+    bgClass: 'bg-violet-500/15',
+    textClass: 'text-violet-400',
+    borderClass: 'border-violet-500/30',
+  },
+  {
+    name: 'Grandmaster',
+    minLevel: 61,
+    maxLevel: 70,
+    color: 'amber',
+    bgClass: 'bg-amber-500/15',
+    textClass: 'text-amber-400',
+    borderClass: 'border-amber-500/30',
+  },
+  {
+    name: 'Legend',
+    minLevel: 71,
+    maxLevel: 80,
+    color: 'orange',
+    bgClass: 'bg-orange-500/15',
+    textClass: 'text-orange-400',
+    borderClass: 'border-orange-500/30',
+  },
+  {
+    name: 'Mythic',
+    minLevel: 81,
+    maxLevel: 90,
+    color: 'red',
+    bgClass: 'bg-red-500/15',
+    textClass: 'text-red-400',
+    borderClass: 'border-red-500/30',
+  },
+  {
+    name: 'Transcendent',
+    minLevel: 91,
+    maxLevel: 100,
+    color: 'rainbow',
+    bgClass: 'bg-fuchsia-500/15',
+    textClass: 'text-fuchsia-400',
+    borderClass: 'border-fuchsia-500/30',
+  },
+  {
+    name: 'Architect',
+    minLevel: 101,
+    maxLevel: 101,
+    color: 'special',
+    bgClass: 'bg-amber-400/20',
+    textClass: 'text-amber-300',
+    borderClass: 'border-amber-400/40',
+  },
 ];
 
 /** Get the tier for a given level. */
@@ -135,8 +223,8 @@ export function getLevelHue(level: number): number {
 export function getLevelColor(level: number): string {
   const hue = getLevelHue(level);
   const t = Math.min(level / 100, 1);
-  const lightness = 0.55 + t * 0.15;   // 0.55 → 0.70
-  const chroma = 0.12 + t * 0.16;      // 0.12 → 0.28
+  const lightness = 0.55 + t * 0.15; // 0.55 → 0.70
+  const chroma = 0.12 + t * 0.16; // 0.12 → 0.28
   return `oklch(${lightness.toFixed(2)} ${chroma.toFixed(2)} ${hue.toFixed(1)})`;
 }
 

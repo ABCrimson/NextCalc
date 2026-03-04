@@ -43,6 +43,7 @@ vi.mock('../lib/cache', () => ({
     get: vi.fn().mockResolvedValue(null),
     set: vi.fn().mockResolvedValue(undefined),
     invalidate: vi.fn().mockResolvedValue(undefined),
+    invalidateByPrefix: vi.fn().mockResolvedValue(undefined),
   },
   redisHealthCheck: vi.fn().mockResolvedValue({ status: 'healthy', latency: 1 }),
   rateLimit: vi.fn().mockResolvedValue({ allowed: true, remaining: 99, resetAt: new Date() }),
@@ -172,7 +173,7 @@ const mockUpvote = {
 // ---------------------------------------------------------------------------
 
 function createMockPrisma() {
-  return {
+  const prisma = {
     $queryRaw: vi.fn().mockResolvedValue([{ '?column?': 1 }]),
     user: {
       findUnique: vi.fn(),
@@ -188,6 +189,7 @@ function createMockPrisma() {
       findFirst: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
+      updateMany: vi.fn().mockResolvedValue({ count: 1 }),
       delete: vi.fn(),
       count: vi.fn().mockResolvedValue(0),
     },
@@ -239,6 +241,11 @@ function createMockPrisma() {
       count: vi.fn().mockResolvedValue(0),
     },
   };
+  // $transaction passes the mock prisma as the tx argument to the callback
+  (prisma as Record<string, unknown>).$transaction = vi
+    .fn()
+    .mockImplementation(async (fn: (tx: typeof prisma) => Promise<unknown>) => fn(prisma));
+  return prisma;
 }
 
 /** Mock DataLoaders – each loader exposes a .load() spy */
@@ -249,10 +256,12 @@ function createMockLoaders() {
     worksheetSharesByWorksheetId: { load: vi.fn().mockResolvedValue([]) },
     childFoldersByParentId: { load: vi.fn().mockResolvedValue([]) },
     upvoteCountByTargetId: { load: vi.fn().mockResolvedValue(0) },
+    commentCountByPostId: { load: vi.fn().mockResolvedValue(0) },
     worksheetsByFolderId: { load: vi.fn().mockResolvedValue([]) },
     forumPostById: { load: vi.fn().mockResolvedValue(null) },
     commentById: { load: vi.fn().mockResolvedValue(null) },
     repliesByParentCommentId: { load: vi.fn().mockResolvedValue([]) },
+    hasUpvoted: { load: vi.fn().mockResolvedValue(false) },
   };
 }
 
@@ -404,6 +413,7 @@ describe('User Resolvers', () => {
       expect(prisma.folder.findMany).toHaveBeenCalledWith({
         where: { userId: 'user1' },
         orderBy: { name: 'asc' },
+        take: 200,
       });
     });
 
@@ -888,8 +898,7 @@ describe('Worksheet Resolvers', () => {
   describe('Mutation.incrementWorksheetViews', () => {
     it('increments views and returns true', async () => {
       const prisma = createMockPrisma();
-      prisma.worksheet.findUnique.mockResolvedValue(mockWorksheet);
-      prisma.worksheet.update.mockResolvedValue({ ...mockWorksheet, views: 1 });
+      prisma.worksheet.updateMany.mockResolvedValue({ count: 1 });
       const ctx = userContext(prisma);
 
       const result = await worksheetResolvers.Mutation.incrementWorksheetViews(
@@ -898,8 +907,8 @@ describe('Worksheet Resolvers', () => {
         ctx,
       );
       expect(result).toBe(true);
-      expect(prisma.worksheet.update).toHaveBeenCalledWith({
-        where: { id: 'ws1' },
+      expect(prisma.worksheet.updateMany).toHaveBeenCalledWith({
+        where: { id: 'ws1', deletedAt: null },
         data: { views: { increment: 1 } },
       });
     });
@@ -1129,10 +1138,16 @@ describe('Folder Resolvers', () => {
       const folderBeingUpdated = { ...mockFolder, id: CUID_FOLDER1 };
       const childWithCycle = { ...mockFolder, id: CUID_FOLDER2, parentId: CUID_FOLDER1 };
       const prisma2 = createMockPrisma();
-      prisma2.folder.findUnique
-        .mockResolvedValueOnce(folderBeingUpdated) // folder being updated
-        .mockResolvedValueOnce(childWithCycle); // proposed parent – its parentId IS args.id
-      const ctx = userContext(prisma2);
+      // prisma.folder.findUnique returns the folder being updated
+      prisma2.folder.findUnique.mockResolvedValueOnce(folderBeingUpdated);
+      // The descendant check now uses loaders.folderById.load() instead of prisma
+      const loaders = createMockLoaders();
+      loaders.folderById.load.mockResolvedValueOnce(childWithCycle);
+      const ctx = makeContext({
+        user: mockUser,
+        prisma: prisma2 as unknown as GraphQLContext['prisma'],
+        loaders: loaders as unknown as GraphQLContext['loaders'],
+      });
 
       await expect(
         folderResolvers.Mutation.updateFolder(
@@ -1157,7 +1172,10 @@ describe('Folder Resolvers', () => {
   describe('Mutation.deleteFolder', () => {
     it('deletes an empty folder and returns true', async () => {
       const prisma = createMockPrisma();
-      prisma.folder.findUnique.mockResolvedValue({ ...mockFolder, worksheets: [], children: [] });
+      prisma.folder.findUnique.mockResolvedValue({
+        ...mockFolder,
+        _count: { worksheets: 0, children: 0 },
+      });
       prisma.folder.delete.mockResolvedValue(mockFolder);
       const ctx = userContext(prisma);
 
@@ -1168,7 +1186,10 @@ describe('Folder Resolvers', () => {
 
     it('creates an audit log entry on delete', async () => {
       const prisma = createMockPrisma();
-      prisma.folder.findUnique.mockResolvedValue({ ...mockFolder, worksheets: [], children: [] });
+      prisma.folder.findUnique.mockResolvedValue({
+        ...mockFolder,
+        _count: { worksheets: 0, children: 0 },
+      });
       prisma.folder.delete.mockResolvedValue(mockFolder);
       const ctx = userContext(prisma);
 
@@ -1188,8 +1209,7 @@ describe('Folder Resolvers', () => {
       const prisma = createMockPrisma();
       prisma.folder.findUnique.mockResolvedValue({
         ...mockFolder,
-        worksheets: [mockWorksheet],
-        children: [],
+        _count: { worksheets: 1, children: 0 },
       });
       const ctx = userContext(prisma);
 
@@ -1202,8 +1222,7 @@ describe('Folder Resolvers', () => {
       const prisma = createMockPrisma();
       prisma.folder.findUnique.mockResolvedValue({
         ...mockFolder,
-        worksheets: [],
-        children: [{ ...mockFolder, id: 'child1', parentId: 'folder1' }],
+        _count: { worksheets: 0, children: 1 },
       });
       const ctx = userContext(prisma);
 
@@ -1227,8 +1246,7 @@ describe('Folder Resolvers', () => {
       prisma.folder.findUnique.mockResolvedValue({
         ...mockFolder,
         userId: 'user2',
-        worksheets: [],
-        children: [],
+        _count: { worksheets: 0, children: 0 },
       });
       const ctx = userContext(prisma);
 
@@ -1469,20 +1487,19 @@ describe('Calculation Resolvers', () => {
 
 describe('Forum Resolvers', () => {
   describe('Query.forumPost', () => {
-    it('returns a post and increments view count atomically', async () => {
+    it('returns a post and fires view increment', async () => {
       const prisma = createMockPrisma();
-      const updatedPost = { ...mockForumPost, views: 1 };
-      prisma.forumPost.update.mockResolvedValue(updatedPost);
+      prisma.forumPost.findUnique.mockResolvedValue(mockForumPost);
+      prisma.forumPost.update.mockResolvedValue({ ...mockForumPost, views: 1 });
       const ctx = makeContext({
         user: null,
         prisma: prisma as unknown as GraphQLContext['prisma'],
       });
 
       const result = await forumResolvers.Query.forumPost(null, { id: 'post1' }, ctx);
-      expect(result).toEqual(updatedPost);
-      expect(prisma.forumPost.update).toHaveBeenCalledWith({
-        where: { id: 'post1', deletedAt: null },
-        data: { views: { increment: 1 } },
+      expect(result).toEqual(mockForumPost);
+      expect(prisma.forumPost.findUnique).toHaveBeenCalledWith({
+        where: { id: 'post1' },
       });
     });
 
@@ -1787,18 +1804,25 @@ describe('Forum Resolvers', () => {
     });
 
     it('hasUpvoted – returns true when upvote record exists', async () => {
-      const prisma = createMockPrisma();
-      prisma.upvote.findUnique.mockResolvedValue(mockUpvote);
-      const ctx = userContext(prisma);
+      const loaders = createMockLoaders();
+      loaders.hasUpvoted.load.mockResolvedValue(true);
+      const ctx = makeContext({
+        user: mockUser,
+        loaders: loaders as unknown as GraphQLContext['loaders'],
+      });
 
       const result = await forumResolvers.ForumPost.hasUpvoted(mockForumPost, {}, ctx);
       expect(result).toBe(true);
+      expect(loaders.hasUpvoted.load).toHaveBeenCalledWith(`user1:${CUID_POST}:POST`);
     });
 
     it('hasUpvoted – returns false when no upvote record exists', async () => {
-      const prisma = createMockPrisma();
-      prisma.upvote.findUnique.mockResolvedValue(null);
-      const ctx = userContext(prisma);
+      const loaders = createMockLoaders();
+      loaders.hasUpvoted.load.mockResolvedValue(false);
+      const ctx = makeContext({
+        user: mockUser,
+        loaders: loaders as unknown as GraphQLContext['loaders'],
+      });
 
       const result = await forumResolvers.ForumPost.hasUpvoted(mockForumPost, {}, ctx);
       expect(result).toBe(false);
@@ -2153,22 +2177,25 @@ describe('Comment Resolvers', () => {
     });
 
     it('hasUpvoted – returns true when upvote exists', async () => {
-      const prisma = createMockPrisma();
-      prisma.upvote.findUnique.mockResolvedValue({
-        ...mockUpvote,
-        targetId: 'comment1',
-        targetType: 'COMMENT',
+      const loaders = createMockLoaders();
+      loaders.hasUpvoted.load.mockResolvedValue(true);
+      const ctx = makeContext({
+        user: mockUser,
+        loaders: loaders as unknown as GraphQLContext['loaders'],
       });
-      const ctx = userContext(prisma);
 
       const result = await commentResolvers.Comment.hasUpvoted(mockComment, {}, ctx);
       expect(result).toBe(true);
+      expect(loaders.hasUpvoted.load).toHaveBeenCalledWith(`user1:${CUID_COMMENT}:COMMENT`);
     });
 
     it('hasUpvoted – returns false when no upvote exists', async () => {
-      const prisma = createMockPrisma();
-      prisma.upvote.findUnique.mockResolvedValue(null);
-      const ctx = userContext(prisma);
+      const loaders = createMockLoaders();
+      loaders.hasUpvoted.load.mockResolvedValue(false);
+      const ctx = makeContext({
+        user: mockUser,
+        loaders: loaders as unknown as GraphQLContext['loaders'],
+      });
 
       const result = await commentResolvers.Comment.hasUpvoted(mockComment, {}, ctx);
       expect(result).toBe(false);

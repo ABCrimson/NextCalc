@@ -35,11 +35,7 @@ type User {
   updatedAt: DateTime!
 
   "User's worksheets"
-  worksheets(
-    limit: Int = 20
-    offset: Int = 0
-    visibility: WorksheetVisibility
-  ): [Worksheet!]!
+  worksheets(limit: Int = 20, offset: Int = 0, visibility: WorksheetVisibility): [Worksheet!]!
 
   "User's folders"
   folders: [Folder!]!
@@ -675,11 +671,7 @@ type Query {
   """
   Get public worksheets (gallery)
   """
-  publicWorksheets(
-    limit: Int = 20
-    offset: Int = 0
-    searchQuery: String
-  ): WorksheetConnection!
+  publicWorksheets(limit: Int = 20, offset: Int = 0, searchQuery: String): WorksheetConnection!
 
   """
   Get folder by ID
@@ -709,11 +701,7 @@ type Query {
   """
   Get comments for a post
   """
-  comments(
-    postId: ID!
-    limit: Int = 20
-    offset: Int = 0
-  ): [Comment!]!
+  comments(postId: ID!, limit: Int = 20, offset: Int = 0): [Comment!]!
 
   """
   Perform a calculation
@@ -723,10 +711,7 @@ type Query {
   """
   Get calculation history
   """
-  calculationHistory(
-    limit: Int = 50
-    offset: Int = 0
-  ): [CalculationHistory!]!
+  calculationHistory(limit: Int = 50, offset: Int = 0): [CalculationHistory!]!
 
   """
   Get full user profile with stats

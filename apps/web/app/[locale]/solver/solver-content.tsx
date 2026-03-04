@@ -308,12 +308,7 @@ export function SolverPageContent() {
       {/* ------------------------------------------------------------------ */}
       <div className="container mx-auto max-w-4xl py-12 px-4 relative">
         {/* Header */}
-        <m.header
-          className="mb-10"
-          variants={headerVariants}
-          initial="hidden"
-          animate="visible"
-        >
+        <m.header className="mb-10" variants={headerVariants} initial="hidden" animate="visible">
           <div className="flex items-center gap-4 mb-3">
             {/* Icon badge */}
             <div

@@ -1221,13 +1221,7 @@ export function EigenPanel() {
         {/* ---- Error display ------------------------------------------- */}
         <AnimatePresence>
           {error && (
-            <m.div
-              key="error"
-              variants={fadeSlide}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-            >
+            <m.div key="error" variants={fadeSlide} initial="hidden" animate="visible" exit="exit">
               <Alert variant="destructive" role="alert" aria-live="assertive">
                 <AlertCircle className="h-4 w-4" aria-hidden="true" />
                 <AlertDescription>{error}</AlertDescription>

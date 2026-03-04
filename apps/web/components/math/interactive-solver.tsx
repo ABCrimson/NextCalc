@@ -634,11 +634,7 @@ function HintCard({ hint, index, isRevealed, onReveal, disabled }: HintCardProps
       </CardHeader>
       <CardContent>
         {isRevealed ? (
-          <m.p
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-sm"
-          >
+          <m.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-sm">
             {hint.text}
           </m.p>
         ) : (

@@ -176,7 +176,8 @@ export const systemLinearTemplate = createTemplate({
       max: 20,
       constraint: (_c2, params) => {
         // Ensure unique solution (determinant != 0)
-        const det = (params['a1'] ?? 0) * (params['b2'] ?? 0) - (params['a2'] ?? 0) * (params['b1'] ?? 0);
+        const det =
+          (params['a1'] ?? 0) * (params['b2'] ?? 0) - (params['a2'] ?? 0) * (params['b1'] ?? 0);
         return det !== 0;
       },
     },

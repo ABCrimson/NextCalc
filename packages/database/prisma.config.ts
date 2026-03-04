@@ -25,11 +25,11 @@ const url = process.env.DIRECT_DATABASE_URL || process.env.DATABASE_URL;
 const datasourceUrl = url || 'postgresql://placeholder:placeholder@localhost:5432/placeholder';
 
 export default defineConfig({
-	schema: path.join(__dirname, 'prisma', 'schema.prisma'),
-	migrations: {
-		path: path.join(__dirname, 'prisma', 'migrations'),
-	},
-	datasource: {
-		url: datasourceUrl,
-	},
+  schema: path.join(__dirname, 'prisma', 'schema.prisma'),
+  migrations: {
+    path: path.join(__dirname, 'prisma', 'migrations'),
+  },
+  datasource: {
+    url: datasourceUrl,
+  },
 });

@@ -77,7 +77,8 @@ app.use('/*', async (c, next) => {
   const allowedOrigins = c.env.ALLOWED_ORIGINS?.split(',') ?? [];
 
   const corsMiddleware = cors({
-    origin: (requestOrigin: string) => allowedOrigins.includes(requestOrigin) ? requestOrigin : null,
+    origin: (requestOrigin: string) =>
+      allowedOrigins.includes(requestOrigin) ? requestOrigin : null,
     allowMethods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization'],
     exposeHeaders: [
@@ -442,15 +443,19 @@ app.get('/admin/keys', async (c) => {
  *
  * @route GET /example/protected
  */
-app.get('/example/protected', async (c, next) => {
-  const middleware = ipRateLimitMiddleware(c.env.RATE_LIMITS, 'free');
-  return middleware(c, next);
-}, (c) => {
-  return c.json({
-    success: true,
-    message: 'This endpoint is rate limited',
-  });
-});
+app.get(
+  '/example/protected',
+  async (c, next) => {
+    const middleware = ipRateLimitMiddleware(c.env.RATE_LIMITS, 'free');
+    return middleware(c, next);
+  },
+  (c) => {
+    return c.json({
+      success: true,
+      message: 'This endpoint is rate limited',
+    });
+  },
+);
 
 /**
  * 404 handler

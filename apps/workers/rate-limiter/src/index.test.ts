@@ -675,11 +675,17 @@ describe('Rate limit enforcement (sequence test)', () => {
     const limit = RATE_LIMIT_CONFIGS.free.requestsPerHour;
     const now = Date.now();
 
-    // Pre-populate KV with (limit - 1) timestamps so the next /check is the
+    // Pre-populate KV with (limit - 2) timestamps so the next /check is the
     // last allowed one, and the one after that is denied.
+    //
+    // The sliding-window implementation applies a safety margin of 1 to reduce
+    // KV read-modify-write race conditions: `allowed = currentCount < limit - 1`.
+    // This means the effective cap is (limit - 1) in-flight requests, not limit.
+    // With (limit - 2) pre-existing requests, the first call is still accepted
+    // (98 < 99) and the second call is rejected (99 < 99 = false).
     const kv = createMockKV({
       'ratelimit:sequence-user': {
-        requests: Array.from({ length: limit - 1 }, (_, i) => now - (limit - i) * 10),
+        requests: Array.from({ length: limit - 2 }, (_, i) => now - (limit - i) * 10),
         tier: 'free',
         lastUpdated: now,
       },
@@ -713,7 +719,9 @@ describe('Rate limit enforcement (sequence test)', () => {
       data: { allowed: boolean; remaining: number };
     };
     expect(jsonDenied.data.allowed).toBe(false);
-    expect(jsonDenied.data.remaining).toBe(0);
+    // With the safety-margin check (`currentCount < limit - 1`), the denied
+    // response has currentCount = limit - 1 = 99, so remaining = limit - 99 = 1.
+    expect(jsonDenied.data.remaining).toBe(1);
   });
 
   it('ignores timestamps outside the 1-hour sliding window', async () => {

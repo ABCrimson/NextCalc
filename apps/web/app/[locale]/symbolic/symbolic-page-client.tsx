@@ -1,8 +1,8 @@
 'use client';
 
 import { m } from 'framer-motion';
-import { Link } from '@/i18n/navigation';
 import { SymbolicPanel } from '@/components/calculator/symbolic-panel';
+import { Link } from '@/i18n/navigation';
 
 // ---------------------------------------------------------------------------
 // Animation variants
@@ -208,12 +208,7 @@ export function SymbolicPageClient() {
 
       <div className="container mx-auto max-w-4xl py-12 px-4 relative">
         {/* Header */}
-        <m.header
-          className="mb-10"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
+        <m.header className="mb-10" variants={containerVariants} initial="hidden" animate="visible">
           <m.div className="flex items-center gap-4 mb-3" variants={fadeUpVariants}>
             {/* Icon badge */}
             <div

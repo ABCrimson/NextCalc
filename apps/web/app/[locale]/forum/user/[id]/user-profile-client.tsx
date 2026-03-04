@@ -10,7 +10,6 @@
 import { useQuery } from '@apollo/client/react';
 import { m, useReducedMotion } from 'framer-motion';
 import { AlertCircle, ArrowLeft, Clock, Eye, MessageSquare, ThumbsUp } from 'lucide-react';
-import { Link, useRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { ForumBackground } from '@/components/forum/forum-background';
 import {
@@ -26,6 +25,7 @@ import { UserProfileCard } from '@/components/forum/user-profile-card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Link, useRouter } from '@/i18n/navigation';
 import { USER_PROFILE_QUERY } from '@/lib/graphql/forum-operations';
 
 // ============================================================================

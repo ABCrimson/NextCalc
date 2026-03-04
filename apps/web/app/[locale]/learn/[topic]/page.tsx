@@ -2,13 +2,13 @@ import { type Definition, getDefinitionsByTopic, MathTopic } from '@nextcalc/mat
 import { getProblemsByTopic, type Problem } from '@nextcalc/math-engine/problems';
 import { ArrowLeft, BookOpen, Code, Puzzle } from 'lucide-react';
 import type { Metadata } from 'next';
-import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { auth } from '@/auth';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Link } from '@/i18n/navigation';
 import { prisma } from '@/lib/prisma';
 import { BookmarkExplorerClient } from './bookmark-explorer-client';
 

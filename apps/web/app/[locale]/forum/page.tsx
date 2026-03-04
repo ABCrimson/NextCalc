@@ -28,7 +28,6 @@ import {
   Users,
   Zap,
 } from 'lucide-react';
-import { Link, useRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ForumBackground } from '@/components/forum/forum-background';
@@ -49,6 +48,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Link, useRouter } from '@/i18n/navigation';
 import { useSession } from '@/lib/auth/hooks';
 import { FORUM_POSTS_QUERY } from '@/lib/graphql/forum-operations';
 import { cn } from '@/lib/utils';
@@ -530,9 +530,7 @@ export default function ForumPage() {
                 <CardContent>
                   <div className="flex flex-col items-center justify-center py-6 text-center">
                     <Users className="h-8 w-8 text-muted-foreground/30 mb-2" />
-                    <p className="text-xs text-muted-foreground">
-                      {t('noContributorsYet')}
-                    </p>
+                    <p className="text-xs text-muted-foreground">{t('noContributorsYet')}</p>
                   </div>
                 </CardContent>
               </Card>

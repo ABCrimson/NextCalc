@@ -51,7 +51,14 @@ function hexPoints(cx: number, cy: number, r: number, rotateOffset = -90): strin
   }).join(' ');
 }
 
-function starPoints(cx: number, cy: number, outerR: number, innerR: number, points: number, rotateOffset = -90): string {
+function starPoints(
+  cx: number,
+  cy: number,
+  outerR: number,
+  innerR: number,
+  points: number,
+  rotateOffset = -90,
+): string {
   return Array.from({ length: points * 2 }, (_, i) => {
     const r = i % 2 === 0 ? outerR : innerR;
     const angle = rotateOffset + (i * 360) / (points * 2);
@@ -77,7 +84,12 @@ function Tier1({ level, size }: { level: number; size: number }) {
   const r = size * 0.38;
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <defs>
         <linearGradient id={uid(level, 'g1')} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor={`oklch(0.65 0.18 ${hue})`} />
@@ -91,7 +103,15 @@ function Tier1({ level, size }: { level: number; size: number }) {
         strokeWidth={size * 0.03}
       />
       {/* Center facet line */}
-      <line x1={c} y1={c - r * 0.5} x2={c} y2={c + r * 0.5} stroke={`oklch(0.8 0.1 ${hue})`} strokeWidth={size * 0.015} opacity={0.5} />
+      <line
+        x1={c}
+        y1={c - r * 0.5}
+        x2={c}
+        y2={c + r * 0.5}
+        stroke={`oklch(0.8 0.1 ${hue})`}
+        strokeWidth={size * 0.015}
+        opacity={0.5}
+      />
     </svg>
   );
 }
@@ -104,7 +124,12 @@ function Tier2({ level, size }: { level: number; size: number }) {
   const r = size * 0.38;
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <defs>
         <linearGradient id={uid(level, 'g2o')} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor={`oklch(0.60 0.20 ${hue})`} />
@@ -115,8 +140,17 @@ function Tier2({ level, size }: { level: number; size: number }) {
           <stop offset="100%" stopColor={`oklch(0.55 0.18 ${hue})`} />
         </linearGradient>
       </defs>
-      <polygon points={hexPoints(c, c, r)} fill={`url(#${uid(level, 'g2o')})`} stroke={color} strokeWidth={size * 0.03} />
-      <polygon points={hexPoints(c, c, r * 0.55)} fill={`url(#${uid(level, 'g2i')})`} opacity={0.7} />
+      <polygon
+        points={hexPoints(c, c, r)}
+        fill={`url(#${uid(level, 'g2o')})`}
+        stroke={color}
+        strokeWidth={size * 0.03}
+      />
+      <polygon
+        points={hexPoints(c, c, r * 0.55)}
+        fill={`url(#${uid(level, 'g2i')})`}
+        opacity={0.7}
+      />
     </svg>
   );
 }
@@ -126,10 +160,15 @@ function Tier3({ level, size }: { level: number; size: number }) {
   const hue = getLevelHue(level);
   const hue2 = (hue + 30) % 360;
   const c = size / 2;
-  const r = size * 0.40;
+  const r = size * 0.4;
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <defs>
         <radialGradient id={uid(level, 'glow')}>
           <stop offset="0%" stopColor={`oklch(0.70 0.25 ${hue})`} stopOpacity={0.4} />
@@ -142,13 +181,33 @@ function Tier3({ level, size }: { level: number; size: number }) {
         </linearGradient>
       </defs>
       <circle cx={c} cy={c} r={r * 1.3} fill={`url(#${uid(level, 'glow')})`} />
-      <polygon points={hexPoints(c, c, r)} fill={`url(#${uid(level, 'g3')})`} stroke={`oklch(0.65 0.20 ${hue})`} strokeWidth={size * 0.025} />
-      <polygon points={hexPoints(c, c, r * 0.5, -60)} fill={`oklch(0.75 0.18 ${hue2})`} opacity={0.35} />
+      <polygon
+        points={hexPoints(c, c, r)}
+        fill={`url(#${uid(level, 'g3')})`}
+        stroke={`oklch(0.65 0.20 ${hue})`}
+        strokeWidth={size * 0.025}
+      />
+      <polygon
+        points={hexPoints(c, c, r * 0.5, -60)}
+        fill={`oklch(0.75 0.18 ${hue2})`}
+        opacity={0.35}
+      />
       {/* Facet lines */}
       {[0, 60, 120].map((angle) => {
         const [x1, y1] = polarToXY(c, c, r * 0.15, angle - 90);
         const [x2, y2] = polarToXY(c, c, r * 0.95, angle - 90);
-        return <line key={angle} x1={x1} y1={y1} x2={x2} y2={y2} stroke={`oklch(0.80 0.12 ${hue})`} strokeWidth={size * 0.012} opacity={0.3} />;
+        return (
+          <line
+            key={angle}
+            x1={x1}
+            y1={y1}
+            x2={x2}
+            y2={y2}
+            stroke={`oklch(0.80 0.12 ${hue})`}
+            strokeWidth={size * 0.012}
+            opacity={0.3}
+          />
+        );
       })}
     </svg>
   );
@@ -160,10 +219,15 @@ function Tier4({ level, size }: { level: number; size: number }) {
   const hue2 = (hue + 25) % 360;
   const hue3 = (hue + 50) % 360;
   const c = size / 2;
-  const r = size * 0.40;
+  const r = size * 0.4;
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <defs>
         <linearGradient id={uid(level, 'g4')} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor={`oklch(0.60 0.24 ${hue})`} />
@@ -171,8 +235,17 @@ function Tier4({ level, size }: { level: number; size: number }) {
           <stop offset="100%" stopColor={`oklch(0.45 0.18 ${hue3})`} />
         </linearGradient>
       </defs>
-      <polygon points={hexPoints(c, c, r)} fill={`url(#${uid(level, 'g4')})`} stroke={`oklch(0.65 0.22 ${hue})`} strokeWidth={size * 0.025} />
-      <polygon points={starPoints(c, c, r * 0.45, r * 0.22, 6)} fill={`oklch(0.75 0.20 ${hue2})`} opacity={0.5} />
+      <polygon
+        points={hexPoints(c, c, r)}
+        fill={`url(#${uid(level, 'g4')})`}
+        stroke={`oklch(0.65 0.22 ${hue})`}
+        strokeWidth={size * 0.025}
+      />
+      <polygon
+        points={starPoints(c, c, r * 0.45, r * 0.22, 6)}
+        fill={`oklch(0.75 0.20 ${hue2})`}
+        opacity={0.5}
+      />
       <polygon points={hexPoints(c, c, r * 0.3)} fill={`oklch(0.80 0.15 ${hue3})`} opacity={0.4} />
     </svg>
   );
@@ -185,7 +258,12 @@ function Tier5({ level, size }: { level: number; size: number }) {
   const r = size * 0.38;
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <defs>
         <radialGradient id={uid(level, 'ring')}>
           <stop offset="60%" stopColor="transparent" />
@@ -198,13 +276,29 @@ function Tier5({ level, size }: { level: number; size: number }) {
         </linearGradient>
       </defs>
       <circle cx={c} cy={c} r={r * 1.35} fill={`url(#${uid(level, 'ring')})`} />
-      <polygon points={hexPoints(c, c, r)} fill={`url(#${uid(level, 'g5')})`} stroke={`oklch(0.70 0.22 ${hue})`} strokeWidth={size * 0.025} />
+      <polygon
+        points={hexPoints(c, c, r)}
+        fill={`url(#${uid(level, 'g5')})`}
+        stroke={`oklch(0.70 0.22 ${hue})`}
+        strokeWidth={size * 0.025}
+      />
       {/* Inner facets */}
       {[0, 120, 240].map((angle) => {
         const [px, py] = polarToXY(c, c, r * 0.75, angle - 90);
-        return <polygon key={angle} points={hexPoints(px, py, r * 0.2, angle)} fill={`oklch(0.75 0.18 ${hue})`} opacity={0.3} />;
+        return (
+          <polygon
+            key={angle}
+            points={hexPoints(px, py, r * 0.2, angle)}
+            fill={`oklch(0.75 0.18 ${hue})`}
+            opacity={0.3}
+          />
+        );
       })}
-      <polygon points={starPoints(c, c, r * 0.35, r * 0.18, 6)} fill={`oklch(0.80 0.22 ${hue})`} opacity={0.45} />
+      <polygon
+        points={starPoints(c, c, r * 0.35, r * 0.18, 6)}
+        fill={`oklch(0.80 0.22 ${hue})`}
+        opacity={0.45}
+      />
     </svg>
   );
 }
@@ -216,7 +310,12 @@ function Tier6({ level, size }: { level: number; size: number }) {
   const r = size * 0.32;
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <defs>
         <linearGradient id={uid(level, 'g6')} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor={`oklch(0.65 0.26 ${hue})`} />
@@ -240,9 +339,19 @@ function Tier6({ level, size }: { level: number; size: number }) {
         );
       })}
       {/* Main crystal */}
-      <polygon points={hexPoints(c, c, r)} fill={`url(#${uid(level, 'g6')})`} stroke={`oklch(0.70 0.24 ${hue})`} strokeWidth={size * 0.025} />
+      <polygon
+        points={hexPoints(c, c, r)}
+        fill={`url(#${uid(level, 'g6')})`}
+        stroke={`oklch(0.70 0.24 ${hue})`}
+        strokeWidth={size * 0.025}
+      />
       {/* Shimmer */}
-      <circle cx={c - r * 0.2} cy={c - r * 0.3} r={r * 0.25} fill={`url(#${uid(level, 'shimmer')})`} />
+      <circle
+        cx={c - r * 0.2}
+        cy={c - r * 0.3}
+        r={r * 0.25}
+        fill={`url(#${uid(level, 'shimmer')})`}
+      />
     </svg>
   );
 }
@@ -251,10 +360,15 @@ function Tier6({ level, size }: { level: number; size: number }) {
 function Tier7({ level, size }: { level: number; size: number }) {
   const hue = getLevelHue(level);
   const c = size / 2;
-  const r = size * 0.30;
+  const r = size * 0.3;
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <defs>
         <linearGradient id={uid(level, 'g7')} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor={`oklch(0.68 0.28 ${hue})`} />
@@ -268,15 +382,42 @@ function Tier7({ level, size }: { level: number; size: number }) {
       {/* Aura */}
       <circle cx={c} cy={c} r={r * 1.6} fill={`url(#${uid(level, 'aura7')})`} />
       {/* Orbit ring */}
-      <circle cx={c} cy={c} r={r * 1.25} fill="none" stroke={`oklch(0.60 0.15 ${hue})`} strokeWidth={size * 0.008} strokeDasharray={`${size * 0.03} ${size * 0.06}`} opacity={0.4} />
+      <circle
+        cx={c}
+        cy={c}
+        r={r * 1.25}
+        fill="none"
+        stroke={`oklch(0.60 0.15 ${hue})`}
+        strokeWidth={size * 0.008}
+        strokeDasharray={`${size * 0.03} ${size * 0.06}`}
+        opacity={0.4}
+      />
       {/* Orbit particles */}
       {[0, 72, 144, 216, 288].map((angle) => {
         const [px, py] = polarToXY(c, c, r * 1.25, angle);
-        return <circle key={angle} cx={px} cy={py} r={size * 0.02} fill={`oklch(0.80 0.22 ${(hue + angle) % 360})`} opacity={0.7} />;
+        return (
+          <circle
+            key={angle}
+            cx={px}
+            cy={py}
+            r={size * 0.02}
+            fill={`oklch(0.80 0.22 ${(hue + angle) % 360})`}
+            opacity={0.7}
+          />
+        );
       })}
       {/* Main crystal */}
-      <polygon points={hexPoints(c, c, r)} fill={`url(#${uid(level, 'g7')})`} stroke={`oklch(0.72 0.26 ${hue})`} strokeWidth={size * 0.025} />
-      <polygon points={starPoints(c, c, r * 0.4, r * 0.2, 6)} fill={`oklch(0.82 0.20 ${hue})`} opacity={0.4} />
+      <polygon
+        points={hexPoints(c, c, r)}
+        fill={`url(#${uid(level, 'g7')})`}
+        stroke={`oklch(0.72 0.26 ${hue})`}
+        strokeWidth={size * 0.025}
+      />
+      <polygon
+        points={starPoints(c, c, r * 0.4, r * 0.2, 6)}
+        fill={`oklch(0.82 0.20 ${hue})`}
+        opacity={0.4}
+      />
     </svg>
   );
 }
@@ -285,10 +426,15 @@ function Tier7({ level, size }: { level: number; size: number }) {
 function Tier8({ level, size }: { level: number; size: number }) {
   const hue = getLevelHue(level);
   const c = size / 2;
-  const r = size * 0.30;
+  const r = size * 0.3;
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <defs>
         <linearGradient id={uid(level, 'g8')} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor={`oklch(0.70 0.28 ${hue})`} />
@@ -301,23 +447,45 @@ function Tier8({ level, size }: { level: number; size: number }) {
         const [x1, y1] = polarToXY(c, c, r * 0.5, angle);
         const [x2, y2] = polarToXY(c, c, r * 1.6, angle);
         return (
-          <line key={i} x1={x1} y1={y1} x2={x2} y2={y2}
+          <line
+            key={i}
+            x1={x1}
+            y1={y1}
+            x2={x2}
+            y2={y2}
             stroke={`oklch(0.80 0.20 ${(hue + i * 15) % 360})`}
-            strokeWidth={size * 0.015} opacity={0.25}
+            strokeWidth={size * 0.015}
+            opacity={0.25}
           />
         );
       })}
       {/* Main crystal */}
-      <polygon points={hexPoints(c, c, r)} fill={`url(#${uid(level, 'g8')})`} stroke={`oklch(0.75 0.26 ${hue})`} strokeWidth={size * 0.03} />
+      <polygon
+        points={hexPoints(c, c, r)}
+        fill={`url(#${uid(level, 'g8')})`}
+        stroke={`oklch(0.75 0.26 ${hue})`}
+        strokeWidth={size * 0.03}
+      />
       {/* Crown points */}
       {[0, 60, 120, 180, 240, 300].map((angle) => {
         const [bx, by] = polarToXY(c, c, r, angle - 90);
         const [tx, ty] = polarToXY(c, c, r * 1.3, angle - 90);
         const [lx, ly] = polarToXY(c, c, r, angle - 90 - 12);
         const [rx, ry] = polarToXY(c, c, r, angle - 90 + 12);
-        return <polygon key={angle} points={`${lx},${ly} ${tx},${ty} ${rx},${ry}`} fill={`oklch(0.75 0.22 ${(hue + angle / 4) % 360})`} opacity={0.5} />;
+        return (
+          <polygon
+            key={angle}
+            points={`${lx},${ly} ${tx},${ty} ${rx},${ry}`}
+            fill={`oklch(0.75 0.22 ${(hue + angle / 4) % 360})`}
+            opacity={0.5}
+          />
+        );
       })}
-      <polygon points={starPoints(c, c, r * 0.35, r * 0.18, 6)} fill={`oklch(0.85 0.18 ${hue})`} opacity={0.5} />
+      <polygon
+        points={starPoints(c, c, r * 0.35, r * 0.18, 6)}
+        fill={`oklch(0.85 0.18 ${hue})`}
+        opacity={0.5}
+      />
     </svg>
   );
 }
@@ -326,10 +494,15 @@ function Tier8({ level, size }: { level: number; size: number }) {
 function Tier9({ level, size }: { level: number; size: number }) {
   const hue = getLevelHue(level);
   const c = size / 2;
-  const r = size * 0.30;
+  const r = size * 0.3;
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <defs>
         <linearGradient id={uid(level, 'g9')} x1="0%" y1="100%" x2="100%" y2="0%">
           <stop offset="0%" stopColor={`oklch(0.55 0.30 ${hue})`} />
@@ -343,18 +516,42 @@ function Tier9({ level, size }: { level: number; size: number }) {
         </radialGradient>
       </defs>
       {/* Flame aura */}
-      <ellipse cx={c} cy={c - r * 0.2} rx={r * 1.4} ry={r * 1.7} fill={`url(#${uid(level, 'flame')})`} />
+      <ellipse
+        cx={c}
+        cy={c - r * 0.2}
+        rx={r * 1.4}
+        ry={r * 1.7}
+        fill={`url(#${uid(level, 'flame')})`}
+      />
       {/* Particles */}
       {Array.from({ length: 12 }, (_, i) => {
-        const angle = i * 30 + (level * 7);
+        const angle = i * 30 + level * 7;
         const dist = r * (1.0 + (i % 3) * 0.25);
         const [px, py] = polarToXY(c, c, dist, angle);
         const pr = size * (0.01 + (i % 2) * 0.008);
-        return <circle key={i} cx={px} cy={py} r={pr} fill={`oklch(0.85 0.22 ${(hue + i * 20) % 360})`} opacity={0.5 + (i % 3) * 0.15} />;
+        return (
+          <circle
+            key={i}
+            cx={px}
+            cy={py}
+            r={pr}
+            fill={`oklch(0.85 0.22 ${(hue + i * 20) % 360})`}
+            opacity={0.5 + (i % 3) * 0.15}
+          />
+        );
       })}
       {/* Main crystal */}
-      <polygon points={hexPoints(c, c, r)} fill={`url(#${uid(level, 'g9')})`} stroke={`oklch(0.72 0.28 ${hue})`} strokeWidth={size * 0.03} />
-      <polygon points={starPoints(c, c, r * 0.45, r * 0.2, 8)} fill={`oklch(0.80 0.24 ${(hue + 15) % 360})`} opacity={0.4} />
+      <polygon
+        points={hexPoints(c, c, r)}
+        fill={`url(#${uid(level, 'g9')})`}
+        stroke={`oklch(0.72 0.28 ${hue})`}
+        strokeWidth={size * 0.03}
+      />
+      <polygon
+        points={starPoints(c, c, r * 0.45, r * 0.2, 8)}
+        fill={`oklch(0.80 0.24 ${(hue + 15) % 360})`}
+        opacity={0.4}
+      />
     </svg>
   );
 }
@@ -366,17 +563,37 @@ function Tier10({ level, size }: { level: number; size: number }) {
   const animId = uid(level, 'rainbow');
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <defs>
         <linearGradient id={animId} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="oklch(0.70 0.30 0)">
-            <animate attributeName="stop-color" values="oklch(0.70 0.30 0);oklch(0.70 0.30 60);oklch(0.70 0.30 120);oklch(0.70 0.30 180);oklch(0.70 0.30 240);oklch(0.70 0.30 300);oklch(0.70 0.30 360)" dur="4s" repeatCount="indefinite" />
+            <animate
+              attributeName="stop-color"
+              values="oklch(0.70 0.30 0);oklch(0.70 0.30 60);oklch(0.70 0.30 120);oklch(0.70 0.30 180);oklch(0.70 0.30 240);oklch(0.70 0.30 300);oklch(0.70 0.30 360)"
+              dur="4s"
+              repeatCount="indefinite"
+            />
           </stop>
           <stop offset="50%" stopColor="oklch(0.60 0.28 180)">
-            <animate attributeName="stop-color" values="oklch(0.60 0.28 180);oklch(0.60 0.28 240);oklch(0.60 0.28 300);oklch(0.60 0.28 0);oklch(0.60 0.28 60);oklch(0.60 0.28 120);oklch(0.60 0.28 180)" dur="4s" repeatCount="indefinite" />
+            <animate
+              attributeName="stop-color"
+              values="oklch(0.60 0.28 180);oklch(0.60 0.28 240);oklch(0.60 0.28 300);oklch(0.60 0.28 0);oklch(0.60 0.28 60);oklch(0.60 0.28 120);oklch(0.60 0.28 180)"
+              dur="4s"
+              repeatCount="indefinite"
+            />
           </stop>
           <stop offset="100%" stopColor="oklch(0.50 0.26 300)">
-            <animate attributeName="stop-color" values="oklch(0.50 0.26 300);oklch(0.50 0.26 0);oklch(0.50 0.26 60);oklch(0.50 0.26 120);oklch(0.50 0.26 180);oklch(0.50 0.26 240);oklch(0.50 0.26 300)" dur="4s" repeatCount="indefinite" />
+            <animate
+              attributeName="stop-color"
+              values="oklch(0.50 0.26 300);oklch(0.50 0.26 0);oklch(0.50 0.26 60);oklch(0.50 0.26 120);oklch(0.50 0.26 180);oklch(0.50 0.26 240);oklch(0.50 0.26 300)"
+              dur="4s"
+              repeatCount="indefinite"
+            />
           </stop>
         </linearGradient>
         <radialGradient id={uid(level, 'prism-glow')}>
@@ -392,22 +609,46 @@ function Tier10({ level, size }: { level: number; size: number }) {
         const [x1, y1] = polarToXY(c, c, r * 0.6, angle);
         const [x2, y2] = polarToXY(c, c, r * 1.5, angle);
         return (
-          <line key={i} x1={x1} y1={y1} x2={x2} y2={y2}
+          <line
+            key={i}
+            x1={x1}
+            y1={y1}
+            x2={x2}
+            y2={y2}
             stroke={`oklch(0.80 0.25 ${(i * 30) % 360})`}
-            strokeWidth={size * 0.01} opacity={0.2}
+            strokeWidth={size * 0.01}
+            opacity={0.2}
           />
         );
       })}
       {/* Main crystal */}
-      <polygon points={hexPoints(c, c, r)} fill={`url(#${animId})`} stroke="oklch(0.75 0.25 60)" strokeWidth={size * 0.03} />
+      <polygon
+        points={hexPoints(c, c, r)}
+        fill={`url(#${animId})`}
+        stroke="oklch(0.75 0.25 60)"
+        strokeWidth={size * 0.03}
+      />
       {/* Inner star */}
-      <polygon points={starPoints(c, c, r * 0.5, r * 0.25, 6)} fill="oklch(0.85 0.15 60)" opacity={0.4} />
+      <polygon
+        points={starPoints(c, c, r * 0.5, r * 0.25, 6)}
+        fill="oklch(0.85 0.15 60)"
+        opacity={0.4}
+      />
       {/* Sparkle particles */}
       {Array.from({ length: 8 }, (_, i) => {
         const angle = i * 45 + 22.5;
         const dist = r * 1.15;
         const [px, py] = polarToXY(c, c, dist, angle);
-        return <circle key={i} cx={px} cy={py} r={size * 0.015} fill={`oklch(0.90 0.20 ${(i * 45) % 360})`} opacity={0.6} />;
+        return (
+          <circle
+            key={i}
+            cx={px}
+            cy={py}
+            r={size * 0.015}
+            fill={`oklch(0.90 0.20 ${(i * 45) % 360})`}
+            opacity={0.6}
+          />
+        );
       })}
     </svg>
   );
@@ -423,14 +664,29 @@ function Icon101PrismaticCrown({ size }: { size: number }) {
   const r = size * 0.28;
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <defs>
         <linearGradient id="i101-crown-grad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="oklch(0.78 0.30 45)">
-            <animate attributeName="stop-color" values="oklch(0.78 0.30 45);oklch(0.78 0.30 105);oklch(0.78 0.30 165);oklch(0.78 0.30 225);oklch(0.78 0.30 285);oklch(0.78 0.30 345);oklch(0.78 0.30 45)" dur="6s" repeatCount="indefinite" />
+            <animate
+              attributeName="stop-color"
+              values="oklch(0.78 0.30 45);oklch(0.78 0.30 105);oklch(0.78 0.30 165);oklch(0.78 0.30 225);oklch(0.78 0.30 285);oklch(0.78 0.30 345);oklch(0.78 0.30 45)"
+              dur="6s"
+              repeatCount="indefinite"
+            />
           </stop>
           <stop offset="100%" stopColor="oklch(0.55 0.28 200)">
-            <animate attributeName="stop-color" values="oklch(0.55 0.28 200);oklch(0.55 0.28 260);oklch(0.55 0.28 320);oklch(0.55 0.28 20);oklch(0.55 0.28 80);oklch(0.55 0.28 140);oklch(0.55 0.28 200)" dur="6s" repeatCount="indefinite" />
+            <animate
+              attributeName="stop-color"
+              values="oklch(0.55 0.28 200);oklch(0.55 0.28 260);oklch(0.55 0.28 320);oklch(0.55 0.28 20);oklch(0.55 0.28 80);oklch(0.55 0.28 140);oklch(0.55 0.28 200)"
+              dur="6s"
+              repeatCount="indefinite"
+            />
           </stop>
         </linearGradient>
         <radialGradient id="i101-crown-aura">
@@ -441,7 +697,12 @@ function Icon101PrismaticCrown({ size }: { size: number }) {
       {/* Aura */}
       <circle cx={c} cy={c} r={r * 2} fill="url(#i101-crown-aura)" />
       {/* 12-point crown */}
-      <polygon points={starPoints(c, c, r * 1.4, r * 0.9, 12)} fill="url(#i101-crown-grad)" stroke="oklch(0.80 0.25 45)" strokeWidth={size * 0.02} />
+      <polygon
+        points={starPoints(c, c, r * 1.4, r * 0.9, 12)}
+        fill="url(#i101-crown-grad)"
+        stroke="oklch(0.80 0.25 45)"
+        strokeWidth={size * 0.02}
+      />
       {/* Inner crystal */}
       <polygon points={hexPoints(c, c, r * 0.7)} fill="oklch(0.88 0.18 45 / 0.6)" />
       <polygon points={starPoints(c, c, r * 0.4, r * 0.2, 6)} fill="oklch(0.92 0.12 45 / 0.5)" />
@@ -449,9 +710,23 @@ function Icon101PrismaticCrown({ size }: { size: number }) {
       {Array.from({ length: 12 }, (_, i) => {
         const angle = i * 30;
         const [px, py] = polarToXY(c, c, r * 1.6, angle);
-        return <circle key={i} cx={px} cy={py} r={size * 0.012} fill={`oklch(0.92 0.22 ${(i * 30) % 360})`} opacity={0.7}>
-          <animate attributeName="opacity" values="0.3;0.9;0.3" dur={`${1.5 + i * 0.2}s`} repeatCount="indefinite" />
-        </circle>;
+        return (
+          <circle
+            key={i}
+            cx={px}
+            cy={py}
+            r={size * 0.012}
+            fill={`oklch(0.92 0.22 ${(i * 30) % 360})`}
+            opacity={0.7}
+          >
+            <animate
+              attributeName="opacity"
+              values="0.3;0.9;0.3"
+              dur={`${1.5 + i * 0.2}s`}
+              repeatCount="indefinite"
+            />
+          </circle>
+        );
       })}
     </svg>
   );
@@ -460,10 +735,15 @@ function Icon101PrismaticCrown({ size }: { size: number }) {
 /** 101B: Cosmic Nexus */
 function Icon101CosmicNexus({ size }: { size: number }) {
   const c = size / 2;
-  const r = size * 0.30;
+  const r = size * 0.3;
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <defs>
         <radialGradient id="i101-galaxy">
           <stop offset="0%" stopColor="oklch(0.80 0.28 264)" stopOpacity={0.7} />
@@ -472,7 +752,12 @@ function Icon101CosmicNexus({ size }: { size: number }) {
         </radialGradient>
         <linearGradient id="i101-nexus-frame" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="oklch(0.72 0.28 264)">
-            <animate attributeName="stop-color" values="oklch(0.72 0.28 264);oklch(0.72 0.28 324);oklch(0.72 0.28 24);oklch(0.72 0.28 84);oklch(0.72 0.28 144);oklch(0.72 0.28 204);oklch(0.72 0.28 264)" dur="8s" repeatCount="indefinite" />
+            <animate
+              attributeName="stop-color"
+              values="oklch(0.72 0.28 264);oklch(0.72 0.28 324);oklch(0.72 0.28 24);oklch(0.72 0.28 84);oklch(0.72 0.28 144);oklch(0.72 0.28 204);oklch(0.72 0.28 264)"
+              dur="8s"
+              repeatCount="indefinite"
+            />
           </stop>
           <stop offset="100%" stopColor="oklch(0.50 0.26 300)" />
         </linearGradient>
@@ -484,7 +769,18 @@ function Icon101CosmicNexus({ size }: { size: number }) {
         const angle = i * 60;
         const [x1, y1] = polarToXY(c, c, r * 0.3, angle);
         const [x2, y2] = polarToXY(c, c, r * 1.2, angle + 30);
-        return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={`oklch(0.75 0.22 ${(264 + i * 30) % 360})`} strokeWidth={size * 0.01} opacity={0.3} />;
+        return (
+          <line
+            key={i}
+            x1={x1}
+            y1={y1}
+            x2={x2}
+            y2={y2}
+            stroke={`oklch(0.75 0.22 ${(264 + i * 30) % 360})`}
+            strokeWidth={size * 0.01}
+            opacity={0.3}
+          />
+        );
       })}
       {/* Octagonal frame */}
       <polygon
@@ -503,9 +799,23 @@ function Icon101CosmicNexus({ size }: { size: number }) {
         const angle = i * 22.5 + 11;
         const dist = r * (0.8 + (i % 3) * 0.35);
         const [px, py] = polarToXY(c, c, dist, angle);
-        return <circle key={i} cx={px} cy={py} r={size * 0.008} fill="oklch(0.95 0.05 264)" opacity={0.4 + (i % 4) * 0.15}>
-          <animate attributeName="opacity" values="0.2;0.8;0.2" dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
-        </circle>;
+        return (
+          <circle
+            key={i}
+            cx={px}
+            cy={py}
+            r={size * 0.008}
+            fill="oklch(0.95 0.05 264)"
+            opacity={0.4 + (i % 4) * 0.15}
+          >
+            <animate
+              attributeName="opacity"
+              values="0.2;0.8;0.2"
+              dur={`${2 + i * 0.3}s`}
+              repeatCount="indefinite"
+            />
+          </circle>
+        );
       })}
     </svg>
   );
@@ -517,14 +827,24 @@ function Icon101PhoenixCrystal({ size }: { size: number }) {
   const r = size * 0.25;
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <defs>
         <linearGradient id="i101-phoenix-grad" x1="50%" y1="100%" x2="50%" y2="0%">
           <stop offset="0%" stopColor="oklch(0.55 0.30 25)" />
           <stop offset="40%" stopColor="oklch(0.70 0.28 40)" />
           <stop offset="70%" stopColor="oklch(0.78 0.25 55)" />
           <stop offset="100%" stopColor="oklch(0.85 0.20 70)">
-            <animate attributeName="stop-color" values="oklch(0.85 0.20 70);oklch(0.88 0.22 50);oklch(0.85 0.20 70)" dur="2s" repeatCount="indefinite" />
+            <animate
+              attributeName="stop-color"
+              values="oklch(0.85 0.20 70);oklch(0.88 0.22 50);oklch(0.85 0.20 70)"
+              dur="2s"
+              repeatCount="indefinite"
+            />
           </stop>
         </linearGradient>
         <radialGradient id="i101-phoenix-flame">
@@ -545,17 +865,39 @@ function Icon101PhoenixCrystal({ size }: { size: number }) {
         fill="oklch(0.72 0.28 40 / 0.5)"
       />
       {/* Crystal base */}
-      <polygon points={hexPoints(c, c + r * 0.2, r * 0.8)} fill="url(#i101-phoenix-grad)" stroke="oklch(0.75 0.25 45)" strokeWidth={size * 0.025} />
+      <polygon
+        points={hexPoints(c, c + r * 0.2, r * 0.8)}
+        fill="url(#i101-phoenix-grad)"
+        stroke="oklch(0.75 0.25 45)"
+        strokeWidth={size * 0.025}
+      />
       {/* Inner star */}
-      <polygon points={starPoints(c, c + r * 0.2, r * 0.35, r * 0.18, 6)} fill="oklch(0.88 0.18 55 / 0.5)" />
+      <polygon
+        points={starPoints(c, c + r * 0.2, r * 0.35, r * 0.18, 6)}
+        fill="oklch(0.88 0.18 55 / 0.5)"
+      />
       {/* Rising particles */}
       {Array.from({ length: 10 }, (_, i) => {
         const x = c + (i - 5) * r * 0.25;
         const y = c - r * 0.5 - i * r * 0.18;
         const pr = size * (0.008 + (i % 3) * 0.005);
-        return <circle key={i} cx={x} cy={y} r={pr} fill={`oklch(0.88 0.22 ${30 + i * 5})`} opacity={0.4 + (i % 2) * 0.2}>
-          <animate attributeName="opacity" values="0.2;0.7;0.2" dur={`${1 + i * 0.15}s`} repeatCount="indefinite" />
-        </circle>;
+        return (
+          <circle
+            key={i}
+            cx={x}
+            cy={y}
+            r={pr}
+            fill={`oklch(0.88 0.22 ${30 + i * 5})`}
+            opacity={0.4 + (i % 2) * 0.2}
+          >
+            <animate
+              attributeName="opacity"
+              values="0.2;0.7;0.2"
+              dur={`${1 + i * 0.15}s`}
+              repeatCount="indefinite"
+            />
+          </circle>
+        );
       })}
     </svg>
   );
@@ -565,16 +907,24 @@ function Icon101PhoenixCrystal({ size }: { size: number }) {
 // MAIN COMPONENT
 // ============================================================================
 
-export function LevelIcon({ level, size = 48, className, variant101 = 'prismatic-crown' }: LevelIconProps) {
+export function LevelIcon({
+  level,
+  size = 48,
+  className,
+  variant101 = 'prismatic-crown',
+}: LevelIconProps) {
   const clampedLevel = Math.max(1, Math.min(level, 101));
 
   const svgContent = (() => {
     // Level 101: special admin-only variants
     if (clampedLevel >= 101) {
       switch (variant101) {
-        case 'cosmic-nexus': return <Icon101CosmicNexus size={size} />;
-        case 'phoenix-crystal': return <Icon101PhoenixCrystal size={size} />;
-        default: return <Icon101PrismaticCrown size={size} />;
+        case 'cosmic-nexus':
+          return <Icon101CosmicNexus size={size} />;
+        case 'phoenix-crystal':
+          return <Icon101PhoenixCrystal size={size} />;
+        default:
+          return <Icon101PrismaticCrown size={size} />;
       }
     }
     // Tiers by level range

@@ -1341,9 +1341,24 @@ export class WebGL3DRenderer implements IRenderer {
       const labelScale = 3.5;
       this.axisLabelGroup = new THREE.Group();
 
-      const xLabel = makeAxisLabelSprite('X', new THREE.Vector3(22, 0, 0), labelScale, this.axisLabelTextureCache);
-      const yLabel = makeAxisLabelSprite('Y', new THREE.Vector3(0, 0, 22), labelScale, this.axisLabelTextureCache);
-      const zLabel = makeAxisLabelSprite('Z', new THREE.Vector3(0, 22, 0), labelScale, this.axisLabelTextureCache);
+      const xLabel = makeAxisLabelSprite(
+        'X',
+        new THREE.Vector3(22, 0, 0),
+        labelScale,
+        this.axisLabelTextureCache,
+      );
+      const yLabel = makeAxisLabelSprite(
+        'Y',
+        new THREE.Vector3(0, 0, 22),
+        labelScale,
+        this.axisLabelTextureCache,
+      );
+      const zLabel = makeAxisLabelSprite(
+        'Z',
+        new THREE.Vector3(0, 22, 0),
+        labelScale,
+        this.axisLabelTextureCache,
+      );
 
       this.axisLabelGroup.add(xLabel, yLabel, zLabel);
       this.scene.add(this.axisLabelGroup);
@@ -2050,7 +2065,7 @@ export class WebGL3DRenderer implements IRenderer {
     this.scene.add(line);
 
     // Track the line so it gets disposed on the next config change
-    this.currentMesh = line ;
+    this.currentMesh = line;
 
     this.metrics.pointCount = points.length;
   }
@@ -2145,7 +2160,7 @@ export class WebGL3DRenderer implements IRenderer {
         }
       }
       // Cast to Mesh for compatibility with the tracking field type
-      this.currentMesh = line ;
+      this.currentMesh = line;
     }
   }
 
@@ -2235,7 +2250,11 @@ export class WebGL3DRenderer implements IRenderer {
     // materials, and textures (lights, grid helper, axes helper, etc.)
     if (this.scene) {
       this.scene.traverse((child) => {
-        if (child instanceof THREE.Mesh || child instanceof THREE.Line || child instanceof THREE.LineSegments) {
+        if (
+          child instanceof THREE.Mesh ||
+          child instanceof THREE.Line ||
+          child instanceof THREE.LineSegments
+        ) {
           child.geometry.dispose();
           if (Array.isArray(child.material)) {
             child.material.forEach((m) => {

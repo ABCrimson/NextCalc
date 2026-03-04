@@ -95,12 +95,14 @@ function tier2(level: number): string {
 function tier3(level: number): string {
   const h = getLevelHue(level);
   const h2 = (h + 30) % 360;
-  const r = S * 0.40;
-  const lines = [0, 60, 120].map(a => {
-    const [x1, y1] = polar(C, C, r * 0.15, a - 90);
-    const [x2, y2] = polar(C, C, r * 0.95, a - 90);
-    return `<line x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="oklch(0.80 0.12 ${h.toFixed(1)})" stroke-width="0.7" opacity="0.3"/>`;
-  }).join('\n  ');
+  const r = S * 0.4;
+  const lines = [0, 60, 120]
+    .map((a) => {
+      const [x1, y1] = polar(C, C, r * 0.15, a - 90);
+      const [x2, y2] = polar(C, C, r * 0.95, a - 90);
+      return `<line x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="oklch(0.80 0.12 ${h.toFixed(1)})" stroke-width="0.7" opacity="0.3"/>`;
+    })
+    .join('\n  ');
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="${S}" viewBox="0 0 ${S} ${S}">
   <defs>
     <radialGradient id="glow"><stop offset="0%" stop-color="oklch(0.70 0.25 ${h.toFixed(1)})" stop-opacity="0.4"/><stop offset="100%" stop-color="oklch(0.70 0.25 ${h.toFixed(1)})" stop-opacity="0"/></radialGradient>
@@ -119,7 +121,7 @@ function tier4(level: number): string {
   const h = getLevelHue(level);
   const h2 = (h + 25) % 360;
   const h3 = (h + 50) % 360;
-  const r = S * 0.40;
+  const r = S * 0.4;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="${S}" viewBox="0 0 ${S} ${S}">
   <defs><linearGradient id="g4" x1="0%" y1="0%" x2="100%" y2="100%">
     <stop offset="0%" stop-color="oklch(0.60 0.24 ${h.toFixed(1)})"/><stop offset="50%" stop-color="oklch(0.52 0.20 ${h2.toFixed(1)})"/><stop offset="100%" stop-color="oklch(0.45 0.18 ${h3.toFixed(1)})"/>
@@ -133,10 +135,12 @@ function tier4(level: number): string {
 function tier5(level: number): string {
   const h = getLevelHue(level);
   const r = S * 0.38;
-  const facets = [0, 120, 240].map(a => {
-    const [px, py] = polar(C, C, r * 0.75, a - 90);
-    return `<polygon points="${hexPts(px, py, r * 0.2, a)}" fill="oklch(0.75 0.18 ${h.toFixed(1)})" opacity="0.3"/>`;
-  }).join('\n  ');
+  const facets = [0, 120, 240]
+    .map((a) => {
+      const [px, py] = polar(C, C, r * 0.75, a - 90);
+      return `<polygon points="${hexPts(px, py, r * 0.2, a)}" fill="oklch(0.75 0.18 ${h.toFixed(1)})" opacity="0.3"/>`;
+    })
+    .join('\n  ');
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="${S}" viewBox="0 0 ${S} ${S}">
   <defs>
     <radialGradient id="ring"><stop offset="60%" stop-color="transparent"/><stop offset="80%" stop-color="oklch(0.65 0.25 ${h.toFixed(1)} / 0.3)"/><stop offset="100%" stop-color="transparent"/></radialGradient>
@@ -154,10 +158,12 @@ function tier5(level: number): string {
 function tier6(level: number): string {
   const h = getLevelHue(level);
   const r = S * 0.32;
-  const sats = [0, 120, 240].map(a => {
-    const [sx, sy] = polar(C, C, r * 1.1, a - 90);
-    return `<polygon points="${hexPts(sx, sy, r * 0.35, a)}" fill="oklch(0.55 0.20 ${((h + a / 3) % 360).toFixed(1)})" opacity="0.6"/>`;
-  }).join('\n  ');
+  const sats = [0, 120, 240]
+    .map((a) => {
+      const [sx, sy] = polar(C, C, r * 1.1, a - 90);
+      return `<polygon points="${hexPts(sx, sy, r * 0.35, a)}" fill="oklch(0.55 0.20 ${((h + a / 3) % 360).toFixed(1)})" opacity="0.6"/>`;
+    })
+    .join('\n  ');
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="${S}" viewBox="0 0 ${S} ${S}">
   <defs>
     <linearGradient id="g6" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -173,11 +179,13 @@ function tier6(level: number): string {
 
 function tier7(level: number): string {
   const h = getLevelHue(level);
-  const r = S * 0.30;
-  const orbs = [0, 72, 144, 216, 288].map(a => {
-    const [px, py] = polar(C, C, r * 1.25, a);
-    return `<circle cx="${px.toFixed(2)}" cy="${py.toFixed(2)}" r="1.2" fill="oklch(0.80 0.22 ${((h + a) % 360).toFixed(1)})" opacity="0.7"/>`;
-  }).join('\n  ');
+  const r = S * 0.3;
+  const orbs = [0, 72, 144, 216, 288]
+    .map((a) => {
+      const [px, py] = polar(C, C, r * 1.25, a);
+      return `<circle cx="${px.toFixed(2)}" cy="${py.toFixed(2)}" r="1.2" fill="oklch(0.80 0.22 ${((h + a) % 360).toFixed(1)})" opacity="0.7"/>`;
+    })
+    .join('\n  ');
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="${S}" viewBox="0 0 ${S} ${S}">
   <defs>
     <linearGradient id="g7" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -195,20 +203,22 @@ function tier7(level: number): string {
 
 function tier8(level: number): string {
   const h = getLevelHue(level);
-  const r = S * 0.30;
+  const r = S * 0.3;
   const rays = Array.from({ length: 8 }, (_, i) => {
     const a = i * 45;
     const [x1, y1] = polar(C, C, r * 0.5, a);
     const [x2, y2] = polar(C, C, r * 1.6, a);
     return `<line x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="oklch(0.80 0.20 ${((h + i * 15) % 360).toFixed(1)})" stroke-width="0.8" opacity="0.25"/>`;
   }).join('\n  ');
-  const crowns = [0, 60, 120, 180, 240, 300].map(a => {
-    const [, ] = polar(C, C, r, a - 90);
-    const [tx, ty] = polar(C, C, r * 1.3, a - 90);
-    const [lx, ly] = polar(C, C, r, a - 90 - 12);
-    const [rx, ry] = polar(C, C, r, a - 90 + 12);
-    return `<polygon points="${lx.toFixed(2)},${ly.toFixed(2)} ${tx.toFixed(2)},${ty.toFixed(2)} ${rx.toFixed(2)},${ry.toFixed(2)}" fill="oklch(0.75 0.22 ${((h + a / 4) % 360).toFixed(1)})" opacity="0.5"/>`;
-  }).join('\n  ');
+  const crowns = [0, 60, 120, 180, 240, 300]
+    .map((a) => {
+      const [,] = polar(C, C, r, a - 90);
+      const [tx, ty] = polar(C, C, r * 1.3, a - 90);
+      const [lx, ly] = polar(C, C, r, a - 90 - 12);
+      const [rx, ry] = polar(C, C, r, a - 90 + 12);
+      return `<polygon points="${lx.toFixed(2)},${ly.toFixed(2)} ${tx.toFixed(2)},${ty.toFixed(2)} ${rx.toFixed(2)},${ry.toFixed(2)}" fill="oklch(0.75 0.22 ${((h + a / 4) % 360).toFixed(1)})" opacity="0.5"/>`;
+    })
+    .join('\n  ');
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${S}" height="${S}" viewBox="0 0 ${S} ${S}">
   <defs><linearGradient id="g8" x1="0%" y1="0%" x2="100%" y2="100%">
     <stop offset="0%" stop-color="oklch(0.70 0.28 ${h.toFixed(1)})"/><stop offset="100%" stop-color="oklch(0.48 0.24 ${((h + 20) % 360).toFixed(1)})"/>
@@ -222,9 +232,9 @@ function tier8(level: number): string {
 
 function tier9(level: number): string {
   const h = getLevelHue(level);
-  const r = S * 0.30;
+  const r = S * 0.3;
   const particles = Array.from({ length: 12 }, (_, i) => {
-    const a = i * 30 + (level * 7);
+    const a = i * 30 + level * 7;
     const d = r * (1.0 + (i % 3) * 0.25);
     const [px, py] = polar(C, C, d, a);
     const pr = 0.6 + (i % 2) * 0.4;
@@ -296,7 +306,7 @@ function icon101(variant: 'prismatic-crown' | 'cosmic-nexus' | 'phoenix-crystal'
 </svg>`;
   }
   if (variant === 'cosmic-nexus') {
-    const rr = S * 0.30;
+    const rr = S * 0.3;
     const spirals = Array.from({ length: 6 }, (_, i) => {
       const a = i * 60;
       const [x1, y1] = polar(C, C, rr * 0.3, a);

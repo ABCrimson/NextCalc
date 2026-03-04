@@ -2,7 +2,6 @@
 
 import { useQuery } from '@apollo/client/react';
 import { m } from 'framer-motion';
-import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { AchievementGrid } from '@/components/profile/achievement-grid';
 import { AnalyticsCharts } from '@/components/profile/analytics-charts';
@@ -10,6 +9,7 @@ import { PracticeHistoryTable } from '@/components/profile/practice-history-tabl
 import { ProfileOverview } from '@/components/profile/profile-overview';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Link } from '@/i18n/navigation';
 import { signIn, useSession } from '@/lib/auth/hooks';
 import {
   DASHBOARD_RECENT_ACTIVITY_QUERY,

@@ -24,7 +24,21 @@ const performCalculation = (
 ): { result: string; formatted: string } => {
   try {
     const VALID_VAR_NAME = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
-    const RESERVED_NAMES = new Set(['evaluate', 'import', 'createUnit', 'parse', 'simplify', 'derivative', 'compile', 'chain', 'typed', 'config', 'on', 'off', 'emit']);
+    const RESERVED_NAMES = new Set([
+      'evaluate',
+      'import',
+      'createUnit',
+      'parse',
+      'simplify',
+      'derivative',
+      'compile',
+      'chain',
+      'typed',
+      'config',
+      'on',
+      'off',
+      'emit',
+    ]);
 
     if (variables) {
       for (const key of Object.keys(variables)) {

@@ -39,10 +39,6 @@
     "notDocumented": false
   },
   "plugin": [],
-  "exclude": [
-    "**/*.test.ts",
-    "**/*.spec.ts",
-    "**/wasm/native/**"
-  ],
+  "exclude": ["**/*.test.ts", "**/*.spec.ts", "**/wasm/native/**"],
   "skipErrorChecking": true
 }

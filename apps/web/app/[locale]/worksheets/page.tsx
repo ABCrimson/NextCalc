@@ -91,22 +91,19 @@ export default function WorksheetsPage() {
   }, []);
 
   // Delete handler — triggered when the user confirms in the AlertDialog
-  const handleDelete = useCallback(
-    async (id: string) => {
-      setDeletingId(id);
-      try {
-        const res = await fetch(`/api/worksheets/${id}`, { method: 'DELETE' });
-        if (res.ok) {
-          startTransition(() => {
-            setWorksheets((prev) => prev.filter((w) => w.id !== id));
-          });
-        }
-      } finally {
-        setDeletingId(null);
+  const handleDelete = useCallback(async (id: string) => {
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/worksheets/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        startTransition(() => {
+          setWorksheets((prev) => prev.filter((w) => w.id !== id));
+        });
       }
-    },
-    [],
-  );
+    } finally {
+      setDeletingId(null);
+    }
+  }, []);
 
   // Prompt the user via AlertDialog before deleting
   const promptDelete = useCallback((id: string) => {
@@ -382,7 +379,12 @@ export default function WorksheetsPage() {
         </div>
       )}
       {/* Delete confirmation dialog */}
-      <AlertDialog.Root open={deleteConfirmId !== null} onOpenChange={(open) => { if (!open) cancelDelete(); }}>
+      <AlertDialog.Root
+        open={deleteConfirmId !== null}
+        onOpenChange={(open) => {
+          if (!open) cancelDelete();
+        }}
+      >
         <AlertDialog.Portal>
           <AlertDialog.Overlay className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
           <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 grid w-full max-w-md -translate-x-1/2 -translate-y-1/2 gap-4 border border-border bg-background p-6 shadow-lg rounded-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95">

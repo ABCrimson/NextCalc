@@ -10,7 +10,11 @@ import type { Color, ExportSVGOptions, Point2D } from '../types/index';
  * Escapes a string for safe use inside an XML/SVG attribute value.
  */
 function escapeXmlAttr(str: string): string {
-  return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }
 
 function colorToString(color: Color): string {

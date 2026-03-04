@@ -9,11 +9,11 @@
 
 import { m, useReducedMotion } from 'framer-motion';
 import { ArrowLeft, PenLine } from 'lucide-react';
-import { useRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { ForumBackground } from '@/components/forum/forum-background';
 import { PostForm } from '@/components/forum/post-form';
 import { Button } from '@/components/ui/button';
+import { useRouter } from '@/i18n/navigation';
 import { useRequireAuth } from '@/lib/auth/hooks';
 
 export function NewPostClient() {

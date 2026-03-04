@@ -115,7 +115,9 @@ export function UpvoteButton({
       )}
       {...(prefersReduced ? {} : { whileTap: { scale: 0.85 } })}
       aria-label={
-        optimistic.upvoted ? `Remove upvote (${optimistic.count} upvotes)` : `Upvote (${optimistic.count} upvotes)`
+        optimistic.upvoted
+          ? `Remove upvote (${optimistic.count} upvotes)`
+          : `Upvote (${optimistic.count} upvotes)`
       }
       disabled={!isAuthenticated && !mock}
     >
@@ -129,7 +131,9 @@ export function UpvoteButton({
             })}
         transition={{ duration: 0.3 }}
       >
-        <ThumbsUp className={cn('h-4 w-4 transition-transform', optimistic.upvoted && 'scale-110')} />
+        <ThumbsUp
+          className={cn('h-4 w-4 transition-transform', optimistic.upvoted && 'scale-110')}
+        />
       </m.div>
       <span className="text-xs font-bold tabular-nums">{formatNumber(optimistic.count)}</span>
     </m.button>

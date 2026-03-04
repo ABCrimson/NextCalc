@@ -72,7 +72,9 @@ export function Display({ expression, result, isPending = false, mode, angle }: 
     () => ({
       initial: prefersReduced ? false : { scale: 0.95, opacity: 0 },
       animate: { scale: 1, opacity: isPending ? 0.7 : 1 },
-      transition: prefersReduced ? { duration: 0 } : { duration: 0.2, ease: [0.4, 0, 0.2, 1] as const },
+      transition: prefersReduced
+        ? { duration: 0 }
+        : { duration: 0.2, ease: [0.4, 0, 0.2, 1] as const },
     }),
     [isPending, prefersReduced],
   );
