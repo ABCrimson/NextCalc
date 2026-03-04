@@ -224,4 +224,6 @@ jobs:
             turbo-build-${{ runner.os }}-
 
       - name: Build all packages
+        env:
+          AUTH_SECRET: ci-build-placeholder
         run: pnpm turbo run build
