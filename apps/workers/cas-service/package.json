@@ -13,7 +13,7 @@
     "lint": "biome check ."
   },
   "dependencies": {
-    "hono": "4.12.3",
+    "hono": "4.12.5",
     "mathjs": "15.1.1",
     "zod": "4.4.0-canary.20260125T215152"
   },
