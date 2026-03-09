@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "dotenv": "17.3.1",
-    "prisma": "7.5.0-dev.33",
+    "prisma": "7.5.0-dev.41",
     "tsx": "4.21.0",
     "typescript": "6.0.0-dev.20260301"
   }
