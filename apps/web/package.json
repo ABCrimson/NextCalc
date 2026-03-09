@@ -54,7 +54,7 @@
     "zustand": "5.0.11"
   },
   "devDependencies": {
-    "@axe-core/playwright": "4.11.2-0f5a6e3.0",
+    "@axe-core/playwright": "4.11.2-9a07fd7.0",
     "@biomejs/biome": "2.4.4",
     "@graphql-codegen/cli": "7.0.0-alpha-20260226131033-a969ebb287a7074d9b41d6e3af3e76b24ba462fa",
     "@graphql-typed-document-node/core": "^3.2.0",
