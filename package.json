@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "@apollo/server": "5.4.0",
-    "@biomejs/biome": "2.4.4",
+    "@biomejs/biome": "2.4.6",
     "@graphql-tools/merge": "9.1.7",
     "@graphql-tools/schema": "10.0.31",
     "chrome-launcher": "^1.2.1",
@@ -20,7 +20,7 @@
     "graphql-tag": "2.12.6",
     "lighthouse": "13.0.3",
     "tsx": "4.21.0",
-    "turbo": "2.8.13-canary.8",
+    "turbo": "2.8.14",
     "typescript": "6.0.0-dev.20260301",
     "zod": "4.4.0-canary.20260125T215152"
   },
