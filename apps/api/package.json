@@ -49,11 +49,11 @@
     "zod": "4.4.0-canary.20260125T215152"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.4",
+    "@biomejs/biome": "2.4.6",
     "@graphql-codegen/cli": "7.0.0-alpha-20260226131033-a969ebb287a7074d9b41d6e3af3e76b24ba462fa",
     "@graphql-codegen/typescript": "6.0.0-alpha-20260226131033-a969ebb287a7074d9b41d6e3af3e76b24ba462fa",
     "@graphql-codegen/typescript-resolvers": "6.0.0-alpha-20260226131033-a969ebb287a7074d9b41d6e3af3e76b24ba462fa",
-    "@types/node": "25.3.3",
+    "@types/node": "25.3.5",
     "@types/ws": "8.18.1",
     "tsx": "4.21.0",
     "typescript": "6.0.0-dev.20260301",
