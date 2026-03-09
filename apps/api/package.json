@@ -52,7 +52,7 @@
     "@biomejs/biome": "2.4.4",
     "@graphql-codegen/cli": "7.0.0-alpha-20260226131033-a969ebb287a7074d9b41d6e3af3e76b24ba462fa",
     "@graphql-codegen/typescript": "6.0.0-alpha-20260226131033-a969ebb287a7074d9b41d6e3af3e76b24ba462fa",
-    "@graphql-codegen/typescript-resolvers": "6.0.0-alpha-20260226131033-a969ebb287a7074d9b41d6e3af3e76b24ba462fa",
+    "@graphql-codegen/typescript-resolvers": "6.0.0-alpha-20260308111732-1c74ce2a5d8333d4f725c438ff9b6bbbf3e2386e",
     "@types/node": "25.3.3",
     "@types/ws": "8.18.1",
     "tsx": "4.21.0",
