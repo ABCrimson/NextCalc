@@ -42,12 +42,12 @@
   "dependencies": {
     "@nextcalc/math-engine": "workspace:*",
     "d3": "7.9.0",
-    "three": "0.183.2"
+    "three": "0.184.0"
   },
   "devDependencies": {
     "@types/d3": "7.4.3",
     "@types/node": "25.3.3",
-    "@types/three": "0.183.1",
+    "@types/three": "0.184.0",
     "fast-check": "4.5.3",
     "typedoc": "^0.28.17",
     "typescript": "6.0.0-dev.20260301",
