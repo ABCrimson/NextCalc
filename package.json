@@ -11,18 +11,18 @@
     "deploy:workers": "pnpm --filter './apps/workers/*' run deploy"
   },
   "devDependencies": {
-    "@apollo/server": "5.4.0",
+    "@apollo/server": "5.5.1",
     "@biomejs/biome": "2.4.4",
     "@graphql-tools/merge": "9.1.7",
-    "@graphql-tools/schema": "10.0.31",
+    "@graphql-tools/schema": "10.0.33",
     "chrome-launcher": "^1.2.1",
-    "graphql": "16.13.0",
+    "graphql": "16.14.0",
     "graphql-tag": "2.12.6",
     "lighthouse": "13.0.3",
     "tsx": "4.21.0",
     "turbo": "2.8.13-canary.8",
     "typescript": "6.0.0-dev.20260301",
-    "zod": "4.4.0-canary.20260125T215152"
+    "zod": "4.4.3"
   },
   "packageManager": "pnpm@11.0.0-alpha.11",
   "engines": {
@@ -30,6 +30,6 @@
     "pnpm": ">=11.0.0-alpha.1"
   },
   "dependencies": {
-    "@upstash/redis": "1.37.0-rc.12"
+    "@upstash/redis": "1.38.0"
   }
 }
