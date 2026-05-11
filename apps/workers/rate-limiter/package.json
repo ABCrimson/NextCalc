@@ -13,8 +13,8 @@
     "lint": "biome check ."
   },
   "dependencies": {
-    "hono": "4.12.3",
-    "zod": "4.4.0-canary.20260125T215152"
+    "hono": "4.12.18",
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.4",
