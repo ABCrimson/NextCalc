@@ -20,6 +20,7 @@ import {
   Filter,
   Flame,
   Hash,
+  Loader2,
   MessageSquare,
   Plus,
   Search,
@@ -116,9 +117,12 @@ export default function ForumPage() {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  const { data, loading, error } = useQuery<ForumPostsQueryData>(FORUM_POSTS_QUERY, {
+  // Page size for the initial query and each "Load more" fetch
+  const PAGE_SIZE = 50;
+
+  const { data, loading, error, fetchMore } = useQuery<ForumPostsQueryData>(FORUM_POSTS_QUERY, {
     variables: {
-      limit: 50,
+      limit: PAGE_SIZE,
       offset: 0,
       ...(debouncedSearch.trim() ? { searchQuery: debouncedSearch.trim() } : {}),
       ...(selectedTag ? { tags: [selectedTag] } : {}),
@@ -127,6 +131,29 @@ export default function ForumPage() {
   });
 
   const graphqlPosts: ForumPostNode[] = data?.forumPosts?.nodes ?? [];
+
+  // "Load more" pagination — fetch the next offset window and merge via the
+  // offset-pagination typePolicy in lib/graphql/client.ts.
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const hasNextPage = data?.forumPosts?.pageInfo?.hasNextPage ?? false;
+
+  const handleLoadMore = useCallback(async () => {
+    if (loadingMore || !hasNextPage) return;
+    setLoadingMore(true);
+    try {
+      await fetchMore({
+        variables: {
+          limit: PAGE_SIZE,
+          offset: graphqlPosts.length,
+          ...(debouncedSearch.trim() ? { searchQuery: debouncedSearch.trim() } : {}),
+          ...(selectedTag ? { tags: [selectedTag] } : {}),
+        },
+      });
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [loadingMore, hasNextPage, fetchMore, graphqlPosts.length, debouncedSearch, selectedTag]);
 
   // Client-side sort for GraphQL data
   const sortedPosts = useMemo(() => {
@@ -363,7 +390,27 @@ export default function ForumPage() {
                 </div>
               ) : null}
 
-              {/* TODO: Load more — needs fetchMore + cursor state */}
+              {/* Load more */}
+              {!error && hasNextPage && sortedPosts.length > 0 && (
+                <div className="flex justify-center pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleLoadMore}
+                    disabled={loadingMore}
+                    className="gap-2 backdrop-blur-md bg-card/50 border-border"
+                  >
+                    {loadingMore ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        {tCommon('loading')}
+                      </>
+                    ) : (
+                      t('loadMore')
+                    )}
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Right: Sidebar */}
