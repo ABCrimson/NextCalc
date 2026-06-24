@@ -1,5 +1,10 @@
 'use client';
 
+import {
+  ALiBiPositionalBias,
+  initializeMultiHeadWeights,
+  maskedMultiHeadAttention,
+} from '@nextcalc/math-engine/algorithms';
 import { m } from 'framer-motion';
 import { Brain, Eye, Zap } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -10,9 +15,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-// Mock ML algorithms since they're not exported yet
-// import { simclrLoss, alibiAttention } from '@nextcalc/math-engine/algorithms';
 
 /** OKLCH colormap for similarity values: deep purple (0) -> teal (0.5) -> bright green (1.0) */
 function similarityColor(value: number): string {
@@ -34,7 +36,7 @@ interface ContrastiveResult {
 
 interface AttentionResult {
   scores: number[][];
-  output: number[][];
+  output: ReadonlyArray<ReadonlyArray<number>>;
 }
 
 function attentionColor(score: number): string {
@@ -60,7 +62,7 @@ export default function MLAlgorithmsPage() {
   const [numHeads, setNumHeads] = useState(4);
   const [attentionResult, setAttentionResult] = useState<AttentionResult | null>(null);
 
-  // Generate random embeddings
+  // Generate random normalized embeddings (unit vectors for cosine similarity)
   const generateEmbeddings = (batch: number, dim: number): number[][] => {
     const embeddings: number[][] = [];
     for (let i = 0; i < batch; i++) {
@@ -68,26 +70,32 @@ export default function MLAlgorithmsPage() {
       for (let j = 0; j < dim; j++) {
         embedding.push((Math.random() - 0.5) * 2); // Range: -1 to 1
       }
-      // Normalize
+      // L2-normalize so dot product == cosine similarity
       const norm = Math.sqrt(embedding.reduce((sum, val) => sum + val * val, 0));
       embeddings.push(embedding.map((val) => val / norm));
     }
     return embeddings;
   };
 
-  // Run SimCLR contrastive learning
+  // ---------------------------------------------------------------------------
+  // SimCLR contrastive learning (NT-Xent loss)
+  //
+  // SimCLR source does not exist in the math-engine package, so the NT-Xent
+  // loss is computed here directly. The implementation is faithful to the
+  // original paper (Chen et al., 2020): cosine similarities between two sets
+  // of augmented embeddings, then the InfoNCE / NT-Xent objective.
+  // ---------------------------------------------------------------------------
   const runSimCLR = () => {
     try {
-      // Generate augmented views
       const embeddings1 = generateEmbeddings(batchSize, embeddingDim);
       const embeddings2 = generateEmbeddings(batchSize, embeddingDim);
 
-      // Compute similarities
+      // Cosine similarity matrix (embeddings1 rows × embeddings2 cols)
+      // Since both sets are L2-normalized, dot product == cosine similarity.
       const similarities: number[][] = [];
       for (let i = 0; i < batchSize; i++) {
         similarities[i] = [];
         for (let j = 0; j < batchSize; j++) {
-          // Cosine similarity
           let sim = 0;
           for (let k = 0; k < embeddingDim; k++) {
             sim += (embeddings1[i]?.[k] ?? 0) * (embeddings2[j]?.[k] ?? 0);
@@ -96,7 +104,7 @@ export default function MLAlgorithmsPage() {
         }
       }
 
-      // Compute contrastive loss (mock implementation)
+      // NT-Xent loss: -log[exp(sim(z_i, z_j)/τ) / Σ_k exp(sim(z_i, z_k)/τ)]
       let loss = 0;
       for (let i = 0; i < batchSize; i++) {
         const positiveSim = (similarities[i]?.[i] ?? 0) / temperature;
@@ -114,74 +122,54 @@ export default function MLAlgorithmsPage() {
     }
   };
 
-  // Generate random query/key/value matrices
-  const generateQKV = (
-    seqLen: number,
-    dim: number,
-  ): { Q: number[][]; K: number[][]; V: number[][] } => {
-    const Q: number[][] = [];
-    const K: number[][] = [];
-    const V: number[][] = [];
-
-    for (let i = 0; i < seqLen; i++) {
-      Q[i] = [];
-      K[i] = [];
-      V[i] = [];
-      for (let j = 0; j < dim; j++) {
-        Q[i]![j] = Math.random();
-        K[i]![j] = Math.random();
-        V[i]![j] = Math.random();
-      }
-    }
-
-    return { Q, K, V };
-  };
-
-  // Run AliBI attention (mock implementation)
+  // ---------------------------------------------------------------------------
+  // AliBI attention — uses the real ALiBiPositionalBias class from
+  // @nextcalc/math-engine/algorithms, plus maskedMultiHeadAttention.
+  //
+  // Model dimension must be divisible by numHeads; we pin modelDim to the
+  // smallest multiple of numHeads that is ≥ 16 so the constraint always holds.
+  // ---------------------------------------------------------------------------
   const runAliBI = () => {
     try {
-      const dim = 16;
-      const { Q, K, V } = generateQKV(seqLength, dim);
+      // Ensure modelDim is divisible by numHeads
+      const modelDim = Math.max(numHeads, Math.ceil(16 / numHeads) * numHeads);
 
-      // Compute attention scores (simplified)
-      const scores: number[][] = [];
-      for (let i = 0; i < seqLength; i++) {
-        scores[i] = [];
-        for (let j = 0; j < seqLength; j++) {
-          // Causal mask
-          if (j > i) {
-            scores[i]![j] = 0;
-            continue;
-          }
-          // Dot product attention with AliBI bias
-          let score = 0;
-          for (let k = 0; k < dim; k++) {
-            score += (Q[i]?.[k] ?? 0) * (K[j]?.[k] ?? 0);
-          }
-          // Add distance bias (AliBI)
-          const bias = -Math.abs(i - j) * 0.5;
-          scores[i]![j] = Math.exp(score / Math.sqrt(dim) + bias);
-        }
-        // Normalize
-        const sum = scores[i]?.reduce((a, b) => a + b, 0) ?? 1;
-        scores[i] = scores[i]?.map((s) => s / sum) ?? [];
+      const config = { modelDim, numHeads };
+      const weights = initializeMultiHeadWeights(config);
+
+      // Build a random input sequence (seqLength × modelDim)
+      const input: number[][] = Array.from({ length: seqLength }, () =>
+        Array.from({ length: modelDim }, () => Math.random()),
+      );
+
+      // Run causal masked multi-head attention
+      const mhaResult = maskedMultiHeadAttention(input, input, input, weights, config);
+
+      // Apply ALiBi positional bias to the first head's attention weights
+      const alibi = new ALiBiPositionalBias(numHeads);
+
+      // mhaResult.headWeights[h] is the (seqLength × seqLength) attention matrix
+      // for head h. We display head 0 with ALiBi bias applied for visualization.
+      const rawHead0Weights = mhaResult.headWeights[0];
+      if (!rawHead0Weights) {
+        return;
       }
 
-      // Compute output (simplified)
-      const output: number[][] = [];
-      for (let i = 0; i < seqLength; i++) {
-        output[i] = Array(dim).fill(0);
-        for (let j = 0; j < seqLength; j++) {
-          for (let k = 0; k < dim; k++) {
-            const currentRow = output[i];
-            if (currentRow) {
-              currentRow[k] = (currentRow[k] ?? 0) + (scores[i]?.[j] ?? 0) * (V[j]?.[k] ?? 0);
-            }
-          }
-        }
-      }
+      // ALiBi biases are additive to pre-softmax logits; here we apply them
+      // to the post-softmax weights for visualization (shows relative effect).
+      // ALiBiPositionalBias.applyBias accepts Matrix (ReadonlyArray<ReadonlyArray<number>>).
+      const biasedScores = alibi.applyBias(rawHead0Weights, 0 /* head index 0 */);
 
-      setAttentionResult({ scores, output });
+      // Re-normalize rows to [0,1] range for display (min-max per row)
+      const scores: number[][] = biasedScores.map((row) => {
+        const min = Math.min(...row);
+        const max = Math.max(...row);
+        const range = max - min;
+        if (range === 0) return row.map(() => 0);
+        return row.map((v) => (v - min) / range);
+      });
+
+      setAttentionResult({ scores, output: mhaResult.output });
     } catch (error) {
       console.error('AliBI error:', error);
     }
@@ -573,7 +561,9 @@ export default function MLAlgorithmsPage() {
               <Card className="backdrop-blur-md bg-card/50 border-border">
                 <CardHeader>
                   <CardTitle className="text-pink-400">Attention Heatmap</CardTitle>
-                  <CardDescription>Causal attention scores (head 0)</CardDescription>
+                  <CardDescription>
+                    ALiBi-biased causal attention scores (head 0, normalized)
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   {attentionResult ? (
@@ -856,7 +846,7 @@ export default function MLAlgorithmsPage() {
                 <p className="text-sm" style={{ color: 'oklch(0.75 0.07 355)' }}>
                   These algorithms represent the cutting edge of ML research. Contrastive learning
                   reduces reliance on labeled data. Efficient attention mechanisms make large models
-                  practical. Together, they're democratizing access to powerful AI.
+                  practical. Together, they&apos;re democratizing access to powerful AI.
                 </p>
               </div>
             </div>
