@@ -24,6 +24,27 @@
 import { describe, expect, it, type Mock, vi } from 'vitest';
 
 // ---------------------------------------------------------------------------
+// Mock aws4fetch so private-export presigning works without network access.
+// The mock AwsClient.sign() appends standard SigV4 query parameters to the
+// URL so the rest of the stack can proceed normally.
+// ---------------------------------------------------------------------------
+vi.mock('aws4fetch', () => {
+  class AwsClient {
+    async sign(request: Request, _opts?: unknown): Promise<Request> {
+      const url = new URL(request.url);
+      url.searchParams.set('X-Amz-Algorithm', 'AWS4-HMAC-SHA256');
+      url.searchParams.set('X-Amz-Credential', 'TESTKEY/20260624/auto/s3/aws4_request');
+      url.searchParams.set('X-Amz-Date', '20260624T000000Z');
+      url.searchParams.set('X-Amz-Expires', '3600');
+      url.searchParams.set('X-Amz-Signature', 'mock-signature');
+      return new Request(url.toString(), { method: 'GET' });
+    }
+  }
+
+  return { AwsClient };
+});
+
+// ---------------------------------------------------------------------------
 // Mock MathJax internals BEFORE importing app so the module graph resolves
 // with the stub already in place.  The svg-internal module is the only one
 // that calls MathJax; by replacing generateSvgFromLatex with a stub we avoid
@@ -154,6 +175,14 @@ function createTestEnv(overrides: Record<string, unknown> = {}) {
     EXPORTS_PRIVATE: createMockR2Bucket(),
     SIGNED_URL_EXPIRY: '3600',
     MAX_FILE_SIZE: '5242880',
+    // R2 S3 secrets required for private export presigned URL generation.
+    // The aws4fetch mock above intercepts the actual signing, so these are
+    // test-only placeholder values — no real network calls are made.
+    R2_ACCOUNT_ID: 'test-account-id',
+    R2_ACCESS_KEY_ID: 'test-access-key-id',
+    R2_SECRET_ACCESS_KEY: 'test-secret-access-key',
+    R2_PRIVATE_BUCKET: 'nextcalc-exports-private',
+    R2_PUBLIC_BASE_URL: 'https://exports.nextcalc.pro',
     ...overrides,
   };
 }

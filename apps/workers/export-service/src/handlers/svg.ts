@@ -3,7 +3,7 @@
  * Converts LaTeX math expressions to SVG format using MathJax
  */
 
-import type { R2Bucket } from '../utils/r2.js';
+import type { R2Bucket, R2S3Config } from '../utils/r2.js';
 import {
   generateExportKey,
   getMimeType,
@@ -47,20 +47,19 @@ export interface SvgExportResult extends UploadResult {
  * - Customizable colors and styling
  * - Inline or display mode
  *
- * Note: This is a simplified implementation. In production:
- * - Use MathJax for actual LaTeX to SVG conversion
- * - Consider using a headless browser for complex rendering
- * - Cache common expressions
- *
- * @param request - SVG export request
- * @param bucket - R2 bucket for storage
+ * @param request   - SVG export request
+ * @param bucket    - R2 bucket for storage
  * @param maxFileSize - Maximum file size in bytes
+ * @param isPrivate - True for user-scoped private exports (requires r2Config)
+ * @param r2Config  - R2 S3 credentials for presigned URL generation
  * @returns SVG export result with download URL
  */
 export async function exportToSvg(
   request: SvgExportRequest,
   bucket: R2Bucket,
   maxFileSize: number,
+  isPrivate: boolean,
+  r2Config: R2S3Config | undefined,
 ): Promise<SvgExportResult> {
   const { latex, userId, options = {} } = request;
 
@@ -89,11 +88,19 @@ export async function exportToSvg(
   const key = generateExportKey(userId, 'svg');
 
   // Upload to R2
-  const uploadResult = await uploadToR2(bucket, key, svgBuffer, getMimeType('svg'), {
-    latex,
-    createdAt: new Date().toISOString(),
-    userId: userId || 'anonymous',
-  });
+  const uploadResult = await uploadToR2(
+    bucket,
+    key,
+    svgBuffer,
+    getMimeType('svg'),
+    isPrivate,
+    r2Config,
+    {
+      latex,
+      createdAt: new Date().toISOString(),
+      userId: userId || 'anonymous',
+    },
+  );
 
   // Parse SVG dimensions
   const dimensions = extractSvgDimensions(svg);
@@ -132,6 +139,8 @@ function extractSvgDimensions(svg: string): { width: number; height: number } | 
  * @param userId - User ID
  * @param bucket - R2 bucket
  * @param maxFileSize - Maximum file size per SVG
+ * @param isPrivate   - True for user-scoped private exports
+ * @param r2Config    - R2 S3 credentials for presigned URL generation
  * @returns Array of export results
  */
 export async function batchExportToSvg(
@@ -139,6 +148,8 @@ export async function batchExportToSvg(
   userId: string | undefined,
   bucket: R2Bucket,
   maxFileSize: number,
+  isPrivate: boolean,
+  r2Config: R2S3Config | undefined,
 ): Promise<SvgExportResult[]> {
   const results: SvgExportResult[] = [];
 
@@ -148,6 +159,8 @@ export async function batchExportToSvg(
         { latex, ...(userId ? { userId } : {}) },
         bucket,
         maxFileSize,
+        isPrivate,
+        r2Config,
       );
       results.push(result);
     } catch (error) {

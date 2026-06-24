@@ -17,6 +17,7 @@ import {
   generateExportKey,
   getMimeType,
   type R2Bucket,
+  type R2S3Config,
   type UploadResult,
   uploadToR2,
   validateFileSize,
@@ -192,12 +193,16 @@ async function generatePdfFromLatex(
  * @param request      - PDF export request (LaTeX + options)
  * @param bucket       - R2 bucket binding for storage
  * @param maxFileSize  - Maximum allowed PDF size in bytes
+ * @param isPrivate    - True for user-scoped private exports (requires r2Config)
+ * @param r2Config     - R2 S3 credentials for presigned URL generation
  * @returns Upload result including page count, page size, and download URL
  */
 export async function exportToPdf(
   request: PdfExportRequest,
   bucket: R2Bucket,
   maxFileSize: number,
+  isPrivate: boolean,
+  r2Config: R2S3Config | undefined,
 ): Promise<PdfExportResult> {
   const { latex, userId, options = {} } = request;
 
@@ -223,13 +228,21 @@ export async function exportToPdf(
   // Upload to R2
   const key = generateExportKey(userId, 'pdf');
 
-  const uploadResult = await uploadToR2(bucket, key, pdfBytes, getMimeType('pdf'), {
-    latex,
-    pageSize,
-    title,
-    createdAt: new Date().toISOString(),
-    userId: userId ?? 'anonymous',
-  });
+  const uploadResult = await uploadToR2(
+    bucket,
+    key,
+    pdfBytes,
+    getMimeType('pdf'),
+    isPrivate,
+    r2Config,
+    {
+      latex,
+      pageSize,
+      title,
+      createdAt: new Date().toISOString(),
+      userId: userId ?? 'anonymous',
+    },
+  );
 
   return {
     ...uploadResult,
@@ -253,6 +266,8 @@ export async function exportToPdf(
  * @param userId       - Optional user ID for R2 key namespacing
  * @param bucket       - R2 bucket binding
  * @param maxFileSize  - Maximum file size in bytes
+ * @param isPrivate    - True for user-scoped private exports
+ * @param r2Config     - R2 S3 credentials for presigned URL generation
  * @param options      - Common PDF options applied to every page
  * @returns PDF export result for the combined document
  */
@@ -261,6 +276,8 @@ export async function batchExportToPdf(
   userId: string | undefined,
   bucket: R2Bucket,
   maxFileSize: number,
+  isPrivate: boolean,
+  r2Config: R2S3Config | undefined,
   options?: PdfExportRequest['options'],
 ): Promise<PdfExportResult> {
   const pageSize = options?.pageSize ?? 'a4';
@@ -344,14 +361,22 @@ export async function batchExportToPdf(
   // Upload to R2
   const key = generateExportKey(userId, 'pdf');
 
-  const uploadResult = await uploadToR2(bucket, key, pdfBytes, getMimeType('pdf'), {
-    latex: expressions.join(' | '),
-    pageSize,
-    title,
-    pages: expressions.length.toString(),
-    createdAt: new Date().toISOString(),
-    userId: userId ?? 'anonymous',
-  });
+  const uploadResult = await uploadToR2(
+    bucket,
+    key,
+    pdfBytes,
+    getMimeType('pdf'),
+    isPrivate,
+    r2Config,
+    {
+      latex: expressions.join(' | '),
+      pageSize,
+      title,
+      pages: expressions.length.toString(),
+      createdAt: new Date().toISOString(),
+      userId: userId ?? 'anonymous',
+    },
+  );
 
   return {
     ...uploadResult,

@@ -17,6 +17,7 @@ import {
   generateExportKey,
   getMimeType,
   type R2Bucket,
+  type R2S3Config,
   type UploadResult,
   uploadToR2,
   validateFileSize,
@@ -88,12 +89,16 @@ export interface PngConversionResult {
  * @param request      - PNG export request (LaTeX + options)
  * @param bucket       - R2 bucket binding for storage
  * @param maxFileSize  - Maximum allowed PNG size in bytes
+ * @param isPrivate    - True for user-scoped private exports (requires r2Config)
+ * @param r2Config     - R2 S3 credentials for presigned URL generation
  * @returns Upload result including dimensions, DPI, and download URL
  */
 export async function exportToPng(
   request: PngExportRequest,
   bucket: R2Bucket,
   maxFileSize: number,
+  isPrivate: boolean,
+  r2Config: R2S3Config | undefined,
 ): Promise<PngExportResult> {
   const { latex, userId, options = {} } = request;
 
@@ -129,7 +134,7 @@ export async function exportToPng(
   // ------------------------------------------------------------------
   const key = generateExportKey(userId, 'png');
 
-  const uploadResult = await uploadToR2(bucket, key, png, getMimeType('png'), {
+  const uploadResult = await uploadToR2(bucket, key, png, getMimeType('png'), isPrivate, r2Config, {
     latex,
     width: width.toString(),
     height: height.toString(),
@@ -195,6 +200,8 @@ export async function convertSvgToPng(
  * @param userId       - Optional user ID for R2 key namespacing
  * @param bucket       - R2 bucket binding
  * @param maxFileSize  - Maximum file size per PNG in bytes
+ * @param isPrivate    - True for user-scoped private exports
+ * @param r2Config     - R2 S3 credentials for presigned URL generation
  * @param options      - Common export options applied to every expression
  * @returns Array of successful export results
  */
@@ -203,6 +210,8 @@ export async function batchExportToPng(
   userId: string | undefined,
   bucket: R2Bucket,
   maxFileSize: number,
+  isPrivate: boolean,
+  r2Config: R2S3Config | undefined,
   options?: PngExportRequest['options'],
 ): Promise<PngExportResult[]> {
   const results: PngExportResult[] = [];
@@ -217,6 +226,8 @@ export async function batchExportToPng(
         },
         bucket,
         maxFileSize,
+        isPrivate,
+        r2Config,
       );
       results.push(result);
     } catch (error) {
