@@ -61,6 +61,17 @@ export interface PngExportResult extends UploadResult {
 }
 
 /**
+ * Per-item result of a batch PNG export.
+ *
+ * A discriminated union keyed on `status` so callers can tell, for every
+ * input expression, whether the export succeeded or failed — failures are
+ * never silently dropped from the returned array.
+ */
+export type BatchPngExportResult =
+  | { latex: string; status: 'ok'; result: PngExportResult }
+  | { latex: string; status: 'error'; error: string };
+
+/**
  * Result from a raw SVG → PNG conversion (no R2 upload).
  */
 export interface PngConversionResult {
@@ -193,8 +204,11 @@ export async function convertSvgToPng(
  * Batch export multiple LaTeX expressions to PNG.
  *
  * Expressions are processed sequentially to avoid overwhelming CPU time
- * limits in the Worker.  Failures for individual expressions are logged
- * and skipped; the returned array contains only successful results.
+ * limits in the Worker.  Every input expression yields exactly one entry in
+ * the returned array: a discriminated union that is either a success
+ * (`status: 'ok'`) or a failure (`status: 'error'`).  Failures are still
+ * logged but are no longer silently dropped, so callers can surface an
+ * accurate error count and distinguish partial failure from full success.
  *
  * @param expressions  - Array of LaTeX strings
  * @param userId       - Optional user ID for R2 key namespacing
@@ -203,7 +217,7 @@ export async function convertSvgToPng(
  * @param isPrivate    - True for user-scoped private exports
  * @param r2Config     - R2 S3 credentials for presigned URL generation
  * @param options      - Common export options applied to every expression
- * @returns Array of successful export results
+ * @returns One result per expression, each tagged ok or error
  */
 export async function batchExportToPng(
   expressions: string[],
@@ -213,8 +227,8 @@ export async function batchExportToPng(
   isPrivate: boolean,
   r2Config: R2S3Config | undefined,
   options?: PngExportRequest['options'],
-): Promise<PngExportResult[]> {
-  const results: PngExportResult[] = [];
+): Promise<BatchPngExportResult[]> {
+  const results: BatchPngExportResult[] = [];
 
   for (const latex of expressions) {
     try {
@@ -229,9 +243,14 @@ export async function batchExportToPng(
         isPrivate,
         r2Config,
       );
-      results.push(result);
+      results.push({ latex, status: 'ok', result });
     } catch (error) {
       console.error(`Failed to export expression "${latex}":`, error);
+      results.push({
+        latex,
+        status: 'error',
+        error: error instanceof Error ? error.message : String(error),
+      });
     }
   }
 

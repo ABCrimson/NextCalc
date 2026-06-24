@@ -39,6 +39,17 @@ export interface SvgExportResult extends UploadResult {
 }
 
 /**
+ * Per-item result of a batch SVG export.
+ *
+ * A discriminated union keyed on `status` so callers can tell, for every
+ * input expression, whether the export succeeded or failed — failures are
+ * never silently dropped from the returned array.
+ */
+export type BatchSvgExportResult =
+  | { latex: string; status: 'ok'; result: SvgExportResult }
+  | { latex: string; status: 'error'; error: string };
+
+/**
  * Converts LaTeX expression to SVG format
  *
  * Features:
@@ -135,13 +146,19 @@ function extractSvgDimensions(svg: string): { width: number; height: number } | 
 /**
  * Batch export multiple expressions to SVG
  *
+ * Every input expression yields exactly one entry in the returned array: a
+ * discriminated union that is either a success (`status: 'ok'`) or a failure
+ * (`status: 'error'`).  Failures are still logged but are no longer silently
+ * dropped, so callers can surface an accurate error count and distinguish
+ * partial failure from full success.
+ *
  * @param expressions - Array of LaTeX expressions
  * @param userId - User ID
  * @param bucket - R2 bucket
  * @param maxFileSize - Maximum file size per SVG
  * @param isPrivate   - True for user-scoped private exports
  * @param r2Config    - R2 S3 credentials for presigned URL generation
- * @returns Array of export results
+ * @returns One result per expression, each tagged ok or error
  */
 export async function batchExportToSvg(
   expressions: string[],
@@ -150,8 +167,8 @@ export async function batchExportToSvg(
   maxFileSize: number,
   isPrivate: boolean,
   r2Config: R2S3Config | undefined,
-): Promise<SvgExportResult[]> {
-  const results: SvgExportResult[] = [];
+): Promise<BatchSvgExportResult[]> {
+  const results: BatchSvgExportResult[] = [];
 
   for (const latex of expressions) {
     try {
@@ -162,10 +179,15 @@ export async function batchExportToSvg(
         isPrivate,
         r2Config,
       );
-      results.push(result);
+      results.push({ latex, status: 'ok', result });
     } catch (error) {
       // Log error but continue with other exports
       console.error(`Failed to export expression "${latex}":`, error);
+      results.push({
+        latex,
+        status: 'error',
+        error: error instanceof Error ? error.message : String(error),
+      });
     }
   }
 
