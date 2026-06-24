@@ -241,6 +241,8 @@
     "newPost": "Nueva publicación",
     "noDiscussions": "No se encontraron discusiones",
     "noDiscussionsHint": "Intenta ajustar tu búsqueda o filtro",
+    "loadError": "No se pudieron cargar las discusiones",
+    "loadErrorHint": "Por favor, comprueba tu conexión e inténtalo de nuevo",
     "popularTopics": "Temas populares",
     "communityGuidelines": "Normas de la comunidad",
     "topContributors": "Principales colaboradores",

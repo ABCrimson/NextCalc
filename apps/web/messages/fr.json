@@ -274,6 +274,8 @@
     "newPost": "Nouvelle publication",
     "noDiscussions": "Aucune discussion trouvée",
     "noDiscussionsHint": "Essayez d'ajuster votre recherche ou filtre",
+    "loadError": "Impossible de charger les discussions",
+    "loadErrorHint": "Veuillez vérifier votre connexion et réessayer",
     "popularTopics": "Sujets populaires",
     "communityGuidelines": "Règles de la communauté",
     "topContributors": "Meilleurs contributeurs",

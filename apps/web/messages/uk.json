@@ -241,6 +241,8 @@
     "newPost": "Нова тема",
     "noDiscussions": "Обговорень не знайдено",
     "noDiscussionsHint": "Спробуйте змінити пошук або фільтр",
+    "loadError": "Не вдалося завантажити обговорення",
+    "loadErrorHint": "Перевірте підключення та спробуйте ще раз",
     "popularTopics": "Популярні теми",
     "communityGuidelines": "Правила спільноти",
     "topContributors": "Найкращі учасники",

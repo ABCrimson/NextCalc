@@ -274,6 +274,8 @@
     "newPost": "发新帖",
     "noDiscussions": "未找到讨论",
     "noDiscussionsHint": "请尝试调整搜索或筛选条件",
+    "loadError": "无法加载讨论",
+    "loadErrorHint": "请检查您的连接并重试",
     "popularTopics": "热门话题",
     "communityGuidelines": "社区准则",
     "topContributors": "杰出贡献者",

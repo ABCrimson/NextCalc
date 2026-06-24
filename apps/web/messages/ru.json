@@ -241,6 +241,8 @@
     "newPost": "Новая запись",
     "noDiscussions": "Обсуждения не найдены",
     "noDiscussionsHint": "Попробуйте изменить поиск или фильтр",
+    "loadError": "Не удалось загрузить обсуждения",
+    "loadErrorHint": "Проверьте подключение и попробуйте снова",
     "popularTopics": "Популярные темы",
     "communityGuidelines": "Правила сообщества",
     "topContributors": "Лучшие участники",

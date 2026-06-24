@@ -25,16 +25,12 @@ import { useCallback, useState } from 'react';
 import { CommentThread } from '@/components/forum/comment-thread';
 import { ForumBackground } from '@/components/forum/forum-background';
 import {
-  buildMockPostDetail,
   type ForumPostDetail,
   formatDate,
   formatNumber,
   getInitials,
-  getMockPostById,
   getPostHue,
-  getStoredUpvotes,
   getTierFromRole,
-  setStoredUpvote,
   timeAgo,
 } from '@/components/forum/forum-shared';
 import { TagPill } from '@/components/forum/post-card';
@@ -73,8 +69,8 @@ function DetailSkeleton() {
         </div>
       </div>
       <div className="space-y-3">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div key={`skeleton-comment-${i}`} className="flex gap-3 py-3">
+        {(['sk-c-0', 'sk-c-1', 'sk-c-2'] as const).map((k) => (
+          <div key={k} className="flex gap-3 py-3">
             <Skeleton className="h-8 w-8 rounded-full shrink-0" />
             <div className="space-y-2 flex-1">
               <Skeleton className="h-3 w-24" />
@@ -111,32 +107,7 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
     },
   );
 
-  // Fall back to mock data when GraphQL is unavailable
-  const post: ForumPostDetail | null = (() => {
-    if (data?.forumPost) return data.forumPost;
-    if (error || (!loading && !data?.forumPost)) {
-      const mockPost = getMockPostById(id);
-      if (mockPost) {
-        const detail = buildMockPostDetail(mockPost);
-        // Apply stored upvote state
-        const stored = getStoredUpvotes();
-        if (stored[id] !== undefined) {
-          const wasOriginallyUpvoted = mockPost.hasUpvoted;
-          const isNowUpvoted = stored[id] === true;
-          if (wasOriginallyUpvoted !== isNowUpvoted) {
-            detail.hasUpvoted = isNowUpvoted;
-            detail.upvoteCount = isNowUpvoted
-              ? mockPost.upvotes + 1
-              : Math.max(0, mockPost.upvotes - 1);
-          }
-        }
-        return detail;
-      }
-    }
-    return null;
-  })();
-
-  const isMockMode = !data?.forumPost && post !== null;
+  const post: ForumPostDetail | null = data?.forumPost ?? null;
 
   // New comment form state
   const [commentContent, setCommentContent] = useState('');
@@ -196,8 +167,20 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
           {/* Loading */}
           {loading && !post && <DetailSkeleton />}
 
-          {/* Error — only show when we have no mock fallback */}
-          {error && !post && !getMockPostById(id) && (
+          {/* Post not found (loaded but null) */}
+          {!loading && !error && !post && (
+            <div className="rounded-2xl border border-destructive/30 p-6 bg-destructive/10 backdrop-blur-md text-center">
+              <AlertCircle className="h-10 w-10 mx-auto text-destructive mb-3" />
+              <p className="text-sm text-destructive">{t('postNotFound')}</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('postNotFoundHint')}</p>
+              <Button variant="outline" className="mt-4" onClick={() => router.push('/forum')}>
+                {t('backToForum')}
+              </Button>
+            </div>
+          )}
+
+          {/* Network / GraphQL error */}
+          {error && !post && (
             <div className="rounded-2xl border border-destructive/30 p-6 bg-destructive/10 backdrop-blur-md text-center">
               <AlertCircle className="h-10 w-10 mx-auto text-destructive mb-3" />
               <p className="text-sm text-destructive">{t('postNotFound')}</p>
@@ -269,12 +252,6 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
                       targetType="POST"
                       initialCount={post.upvoteCount}
                       initialUpvoted={post.hasUpvoted}
-                      {...(isMockMode
-                        ? {
-                            mock: true,
-                            onMockToggle: () => setStoredUpvote(post.id, !post.hasUpvoted),
-                          }
-                        : {})}
                     />
                   </div>
                 </div>
@@ -295,8 +272,7 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
                   <span className="flex items-center gap-1">
                     <MessageSquare className="h-3 w-3" />
                     {t('commentsCount', {
-                      count:
-                        (post as { commentCount?: number }).commentCount ?? post.comments.length,
+                      count: post.commentCount ?? post.comments.length,
                     })}
                   </span>
                   <span className="flex items-center gap-1">
@@ -362,7 +338,7 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
                 <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
                   <MessageSquare className="h-5 w-5 text-indigo-400" />
                   {t('commentsCount', {
-                    count: (post as { commentCount?: number }).commentCount ?? post.comments.length,
+                    count: post.commentCount ?? post.comments.length,
                   })}
                 </h2>
 

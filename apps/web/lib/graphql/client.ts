@@ -38,7 +38,7 @@ function offsetPaginationMerge(
   incoming: { nodes: unknown[]; pageInfo: unknown },
   { args }: { args: Record<string, unknown> | null },
 ) {
-  const offset = (args?.['offset'] as number) ?? 0;
+  const offset = (args?.offset as number) ?? 0;
 
   if (!existing || offset === 0) {
     return incoming;
@@ -81,25 +81,12 @@ export function makeClient() {
     };
   });
 
-  // Operations that gracefully fall back to mock data — silence network errors
-  const MOCK_FALLBACK_OPS = new Set([
-    'ForumPosts',
-    'ForumPost',
-    'CreateForumPost',
-    'ToggleUpvote',
-    'CreateComment',
-    'DeleteComment',
-    'UserProfile',
-    'ShareCalculation',
-    'SharedCalculation',
-  ]);
-
   // AC4 ErrorLink: uses CombinedGraphQLErrors.is() for type-safe
   // unified error discrimination (replaces AC3's separate graphqlErrors/networkError)
   const errorLink = new ErrorLink(({ error, operation }) => {
     if (CombinedGraphQLErrors.is(error)) {
       for (const gqlError of error.errors) {
-        const code = gqlError.extensions?.['code'];
+        const code = gqlError.extensions?.code;
         console.error(`[GraphQL Error] ${operation.operationName}: ${gqlError.message}`, {
           code,
           path: gqlError.path,
@@ -114,10 +101,8 @@ export function makeClient() {
         }
       }
     } else {
-      // Network or unknown error — suppress for mock-fallback operations
-      if (!MOCK_FALLBACK_OPS.has(operation.operationName ?? '')) {
-        console.error(`[Network Error] ${operation.operationName}:`, error.message);
-      }
+      // Network or unknown error — surface all errors so they reach logging/Sentry
+      console.error(`[Network Error] ${operation.operationName}:`, error.message);
     }
   });
 

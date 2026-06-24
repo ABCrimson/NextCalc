@@ -13,9 +13,7 @@ import { AlertCircle, ArrowLeft, Clock, Eye, MessageSquare, ThumbsUp } from 'luc
 import { useTranslations } from 'next-intl';
 import { ForumBackground } from '@/components/forum/forum-background';
 import {
-  buildMockUserProfile,
   formatNumber,
-  getMockUser,
   getPostHue,
   timeAgo,
   type UserProfileData,
@@ -46,8 +44,8 @@ function ProfileSkeleton() {
         </div>
       </div>
       <div className="space-y-3">
-        {Array.from({ length: 4 }).map((_, idx) => (
-          <Skeleton key={`skeleton-post-${idx}`} className="h-16 w-full rounded-xl" />
+        {(['sk-p-0', 'sk-p-1', 'sk-p-2', 'sk-p-3'] as const).map((k) => (
+          <Skeleton key={k} className="h-16 w-full rounded-xl" />
         ))}
       </div>
     </div>
@@ -72,15 +70,7 @@ export function UserProfileClient({ id }: UserProfileClientProps) {
     fetchPolicy: 'cache-and-network',
   });
 
-  // Fall back to mock data when GraphQL is unavailable
-  const user: UserProfileData | null = (() => {
-    if (data?.user) return data.user;
-    if (error || (!loading && !data?.user)) {
-      const mockUser = getMockUser(id);
-      if (mockUser) return buildMockUserProfile(mockUser);
-    }
-    return null;
-  })();
+  const user: UserProfileData | null = data?.user ?? null;
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-background">
@@ -112,8 +102,20 @@ export function UserProfileClient({ id }: UserProfileClientProps) {
           {/* Loading */}
           {loading && !user && <ProfileSkeleton />}
 
-          {/* Error — only show when no mock fallback */}
-          {error && !user && !getMockUser(id) && (
+          {/* User not found (loaded but null) */}
+          {!loading && !error && !user && (
+            <div className="rounded-2xl border border-destructive/30 p-6 bg-destructive/10 backdrop-blur-md text-center">
+              <AlertCircle className="h-10 w-10 mx-auto text-destructive mb-3" />
+              <p className="text-sm text-destructive">{t('userNotFound')}</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('userNotFoundHint')}</p>
+              <Button variant="outline" className="mt-4" onClick={() => router.push('/forum')}>
+                {t('backToForum')}
+              </Button>
+            </div>
+          )}
+
+          {/* Network / GraphQL error */}
+          {error && !user && (
             <div className="rounded-2xl border border-destructive/30 p-6 bg-destructive/10 backdrop-blur-md text-center">
               <AlertCircle className="h-10 w-10 mx-auto text-destructive mb-3" />
               <p className="text-sm text-destructive">{t('userNotFound')}</p>
