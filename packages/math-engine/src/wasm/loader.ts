@@ -3,8 +3,6 @@
  * Provides TypeScript bindings for the C++ WASM module
  */
 
-import { createMockWASM } from './mock';
-
 /**
  * WASM Module Interface
  */
@@ -294,27 +292,36 @@ export function getWASMManager(): MPFRWASMManager {
 }
 
 /**
- * Get high-precision arithmetic module, preferring WASM over mock.
+ * Get the high-precision (MPFR) arithmetic module backed by the compiled WASM.
  *
- * Resolution order:
- * 1. Check WebAssembly runtime availability
- * 2. Attempt to load the compiled MPFR WASM module
- * 3. Fall back to JavaScript BigInt-based mock on failure
+ * High precision requires the MPFR WASM module to be built and present. If
+ * WebAssembly is unavailable or the module is not built, this THROWS rather
+ * than silently returning reduced-precision results — callers must surface the
+ * unavailability instead of receiving f64 arithmetic disguised as 50-digit MPFR.
  *
- * @returns MPFRModule instance (real WASM or mock fallback)
+ * To enable high precision, build the module (requires Emscripten):
+ *   pnpm --filter @nextcalc/math-engine build:wasm
+ *
+ * The JS mock (`createMockWASM`) remains available for tests, but is no longer
+ * substituted silently in production.
+ *
+ * @throws Error if high-precision (MPFR) arithmetic is unavailable
+ * @returns The real MPFR WASM module
  */
 export async function getHighPrecision(): Promise<MPFRModule> {
   if (typeof WebAssembly === 'undefined') {
-    console.debug('[WASM] WebAssembly not available, using mock fallback');
-    return createMockWASM() as unknown as MPFRModule;
+    throw new Error(
+      'High-precision (MPFR) arithmetic is unavailable: WebAssembly is not supported in this environment.',
+    );
   }
 
   try {
-    const manager = getWASMManager();
-    const module = await manager.initialize();
-    return module;
+    return await getWASMManager().initialize();
   } catch (err) {
-    console.debug('[WASM] WASM load failed, using mock fallback:', err);
-    return createMockWASM() as unknown as MPFRModule;
+    throw new Error(
+      'High-precision (MPFR) arithmetic is unavailable: the MPFR WASM module is not built. ' +
+        'Run `pnpm --filter @nextcalc/math-engine build:wasm` (requires Emscripten) to enable it. ' +
+        `Underlying error: ${err instanceof Error ? err.message : String(err)}`,
+    );
   }
 }
