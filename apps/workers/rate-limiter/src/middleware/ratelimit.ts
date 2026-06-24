@@ -1,102 +1,94 @@
 /**
- * Rate limiting middleware for Hono applications
- * Integrates sliding window rate limiting into request pipeline
+ * Rate limiting middleware for Hono applications.
+ *
+ * Integrates sliding-window rate limiting into the Hono request pipeline via
+ * Durable Objects. Each identifier is routed to its own DO instance, which
+ * serialises concurrent requests and guarantees atomic counter updates.
  */
 
 import type { Context, Next } from 'hono';
-import { checkRateLimit, type RateLimitStatus, type UserTier } from '../utils/sliding-window.js';
+import type { RateLimiterDurableObject } from '../durable-objects/rate-limiter-do.js';
+import type { RateLimitStatus, UserTier } from '../utils/sliding-window.js';
 
-/**
- * Rate limit middleware options
- */
+// ---------------------------------------------------------------------------
+// Middleware options
+// ---------------------------------------------------------------------------
+
 export interface RateLimitOptions {
   /**
-   * Function to extract user identifier from request
+   * Function to extract user identifier from request.
    * Can use IP address, user ID, API key, etc.
    */
   getIdentifier: (c: Context) => string | Promise<string>;
 
   /**
-   * Function to determine user tier
+   * Function to determine user tier.
    * Can check authentication, subscription status, etc.
    */
   getTier: (c: Context) => UserTier | Promise<UserTier>;
 
   /**
-   * Custom response when rate limit is exceeded
+   * Custom response when rate limit is exceeded.
    */
   onRateLimitExceeded?: (c: Context, status: RateLimitStatus) => Response | Promise<Response>;
 
   /**
-   * Skip rate limiting for certain requests
+   * Skip rate limiting for certain requests.
    */
   skip?: (c: Context) => boolean | Promise<boolean>;
 }
 
+// ---------------------------------------------------------------------------
+// Core middleware factory
+// ---------------------------------------------------------------------------
+
 /**
- * Creates rate limiting middleware
+ * Creates rate limiting middleware backed by a Durable Object namespace.
  *
- * @param kv - Cloudflare KV namespace
- * @param options - Middleware options
- * @returns Hono middleware function
- *
- * @example
- * ```typescript
- * import { rateLimitMiddleware } from './middleware/ratelimit';
- *
- * app.use('*', rateLimitMiddleware(env.RATE_LIMITS, {
- *   getIdentifier: (c) => c.req.header('x-user-id') || c.env.ip,
- *   getTier: (c) => c.get('userTier') || 'free',
- * }));
- * ```
+ * @param doNamespace - DO namespace for the RateLimiterDurableObject.
+ * @param options     - Middleware options.
+ * @returns Hono middleware function.
  */
-export function rateLimitMiddleware(kv: KVNamespace, options: RateLimitOptions) {
+export function rateLimitMiddleware(
+  doNamespace: DurableObjectNamespace<RateLimiterDurableObject>,
+  options: RateLimitOptions,
+) {
   return async (c: Context, next: Next) => {
-    // Check if we should skip rate limiting
     if (options.skip && (await options.skip(c))) {
       return next();
     }
 
-    // Get user identifier
     const identifier = await options.getIdentifier(c);
 
     if (!identifier) {
       return c.json(
         {
           success: false,
-          error: {
-            message: 'Unable to identify request',
-            code: 'IDENTIFICATION_ERROR',
-          },
+          error: { message: 'Unable to identify request', code: 'IDENTIFICATION_ERROR' },
         },
         400,
       );
     }
 
-    // Get user tier
     const tier = await options.getTier(c);
 
-    // Check rate limit
-    const status = await checkRateLimit(kv, identifier, tier);
+    const stub = doNamespace.get(doNamespace.idFromName(identifier));
+    const status = await stub.check(tier);
 
-    // Add rate limit headers to response
     c.header('X-RateLimit-Limit', status.limit.toString());
     c.header('X-RateLimit-Remaining', status.remaining.toString());
     c.header('X-RateLimit-Reset', new Date(status.resetAt).toISOString());
     c.header('X-RateLimit-Tier', status.tier);
 
-    // If rate limit exceeded, return error
     if (!status.allowed) {
-      if (status.retryAfter) {
+      if (status.retryAfter !== undefined) {
         c.header('Retry-After', status.retryAfter.toString());
       }
 
-      // Use custom handler if provided
       if (options.onRateLimitExceeded) {
         return options.onRateLimitExceeded(c, status);
       }
 
-      // Default rate limit exceeded response
       return c.json(
         {
           success: false,
@@ -115,23 +107,24 @@ export function rateLimitMiddleware(kv: KVNamespace, options: RateLimitOptions) 
       );
     }
 
-    // Rate limit check passed, continue to next middleware
     return next();
   };
 }
 
+// ---------------------------------------------------------------------------
+// Convenience factories
+// ---------------------------------------------------------------------------
+
 /**
- * IP-based rate limiting middleware
- * Uses Cloudflare's CF-Connecting-IP header
- *
- * @param kv - KV namespace
- * @param tier - Default tier for IP-based limiting
- * @returns Middleware function
+ * IP-based rate limiting middleware.
+ * Uses Cloudflare's CF-Connecting-IP header.
  */
-export function ipRateLimitMiddleware(kv: KVNamespace, tier: UserTier = 'free') {
-  return rateLimitMiddleware(kv, {
+export function ipRateLimitMiddleware(
+  doNamespace: DurableObjectNamespace<RateLimiterDurableObject>,
+  tier: UserTier = 'free',
+) {
+  return rateLimitMiddleware(doNamespace, {
     getIdentifier: (c) => {
-      // Cloudflare provides the client IP in CF-Connecting-IP header
       return (
         c.req.header('CF-Connecting-IP') ||
         c.req.header('X-Forwarded-For')?.split(',')[0]?.trim() ||
@@ -143,54 +136,36 @@ export function ipRateLimitMiddleware(kv: KVNamespace, tier: UserTier = 'free') 
 }
 
 /**
- * API key-based rate limiting middleware
- * Extracts API key from Authorization header
- *
- * @param kv - KV namespace
- * @param getUserTier - Function to get tier from API key
- * @returns Middleware function
+ * API key-based rate limiting middleware.
+ * Extracts API key from the Authorization header.
  */
 export function apiKeyRateLimitMiddleware(
-  kv: KVNamespace,
+  doNamespace: DurableObjectNamespace<RateLimiterDurableObject>,
   getUserTier: (apiKey: string) => UserTier | Promise<UserTier>,
 ) {
-  return rateLimitMiddleware(kv, {
+  return rateLimitMiddleware(doNamespace, {
     getIdentifier: (c) => {
       const authHeader = c.req.header('Authorization');
-
-      if (!authHeader) {
-        return 'anonymous';
-      }
-
-      // Extract API key from "Bearer <key>" format
+      if (!authHeader) return 'anonymous';
       const match = authHeader.match(/^Bearer\s+(.+)$/i);
-      return match?.[1] || authHeader;
+      return match?.[1] ?? authHeader;
     },
     getTier: async (c) => {
       const authHeader = c.req.header('Authorization');
-
-      if (!authHeader) {
-        return 'free';
-      }
-
+      if (!authHeader) return 'free';
       const match = authHeader.match(/^Bearer\s+(.+)$/i);
-      const apiKey = match?.[1] || authHeader;
-
+      const apiKey = match?.[1] ?? authHeader;
       return getUserTier(apiKey);
     },
   });
 }
 
 /**
- * User ID-based rate limiting middleware
- * Assumes user ID is available in context (from auth middleware)
- *
- * @param kv - KV namespace
- * @param options - Additional options
- * @returns Middleware function
+ * User ID-based rate limiting middleware.
+ * Assumes user ID is available in Hono context (from auth middleware).
  */
 export function userRateLimitMiddleware(
-  kv: KVNamespace,
+  doNamespace: DurableObjectNamespace<RateLimiterDurableObject>,
   options: {
     userIdKey?: string;
     tierKey?: string;
@@ -199,88 +174,14 @@ export function userRateLimitMiddleware(
 ) {
   const { userIdKey = 'userId', tierKey = 'userTier', defaultTier = 'free' } = options;
 
-  return rateLimitMiddleware(kv, {
+  return rateLimitMiddleware(doNamespace, {
     getIdentifier: (c) => {
-      const userId = c.get(userIdKey);
-      return userId || 'anonymous';
+      const userId = c.get(userIdKey) as string | undefined;
+      return userId ?? 'anonymous';
     },
     getTier: (c) => {
-      const tier = c.get(tierKey);
-      return tier || defaultTier;
+      const tier = c.get(tierKey) as UserTier | undefined;
+      return tier ?? defaultTier;
     },
   });
-}
-
-/**
- * Combined rate limiting strategy
- * Checks both IP and user-based limits
- *
- * @param kv - KV namespace
- * @returns Middleware function
- */
-export function combinedRateLimitMiddleware(kv: KVNamespace) {
-  return async (c: Context, next: Next) => {
-    // First check IP-based rate limit
-    const ip =
-      c.req.header('CF-Connecting-IP') ||
-      c.req.header('X-Forwarded-For')?.split(',')[0]?.trim() ||
-      'unknown';
-
-    const ipStatus = await checkRateLimit(kv, `ip:${ip}`, 'free');
-
-    if (!ipStatus.allowed) {
-      c.header('X-RateLimit-Limit', ipStatus.limit.toString());
-      c.header('X-RateLimit-Remaining', '0');
-      c.header('X-RateLimit-Reset', new Date(ipStatus.resetAt).toISOString());
-
-      return c.json(
-        {
-          success: false,
-          error: {
-            message: 'IP rate limit exceeded',
-            code: 'IP_RATE_LIMIT_EXCEEDED',
-            details: {
-              retryAfter: ipStatus.retryAfter,
-            },
-          },
-        },
-        429,
-      );
-    }
-
-    // Then check user-based rate limit if authenticated
-    const userId = c.get('userId');
-
-    if (userId) {
-      const tier = c.get('userTier') || 'free';
-      const userStatus = await checkRateLimit(kv, `user:${userId}`, tier);
-
-      if (!userStatus.allowed) {
-        c.header('X-RateLimit-Limit', userStatus.limit.toString());
-        c.header('X-RateLimit-Remaining', '0');
-        c.header('X-RateLimit-Reset', new Date(userStatus.resetAt).toISOString());
-
-        return c.json(
-          {
-            success: false,
-            error: {
-              message: 'User rate limit exceeded',
-              code: 'USER_RATE_LIMIT_EXCEEDED',
-              details: {
-                retryAfter: userStatus.retryAfter,
-              },
-            },
-          },
-          429,
-        );
-      }
-
-      // Add user rate limit headers
-      c.header('X-RateLimit-Limit', userStatus.limit.toString());
-      c.header('X-RateLimit-Remaining', userStatus.remaining.toString());
-      c.header('X-RateLimit-Reset', new Date(userStatus.resetAt).toISOString());
-    }
-
-    return next();
-  };
 }

@@ -9,7 +9,21 @@ compatibility_flags = ["nodejs_compat"]
 [observability]
 enabled = true
 
-# KV namespace bindings for rate limit storage
+# Durable Object binding — one instance per rate-limited identifier.
+# The counter is always stored here; KV is used only as an identifier index.
+[[durable_objects.bindings]]
+name = "RATE_LIMITER"
+class_name = "RateLimiterDurableObject"
+
+# Migration: declare RateLimiterDurableObject as a SQLite-backed DO class.
+# The `new_sqlite_classes` key tells the runtime to provision a SQLite
+# storage database for each new instance of this class.
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["RateLimiterDurableObject"]
+
+# KV namespace retained for the identifier index only (used by /admin/keys).
+# Rate-limit counters are NOT stored here — the DO owns all state.
 [[kv_namespaces]]
 binding = "RATE_LIMITS"
 id = "65390e47b1ca4604bd58e5c4078e063b"
