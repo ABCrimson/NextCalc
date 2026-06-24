@@ -17,12 +17,9 @@ test.describe('Worksheet Page', () => {
     const editor = page
       .locator('[data-testid="worksheet-editor"], [role="textbox"], textarea, .worksheet-cell')
       .first();
-    // Give extra time since this is a dynamic import with ssr: false
-    await expect(editor)
-      .toBeVisible({ timeout: 15000 })
-      .catch(() => {
-        // Fallback: just verify the main container loaded
-      });
+    // Give extra time since this is a dynamic import with ssr: false. Either the
+    // editor itself becomes visible, or at minimum the worksheet main container does.
+    await expect(editor.or(page.locator('main'))).toBeVisible({ timeout: 15000 });
   });
 
   test('page has proper background elements', async ({ page }) => {

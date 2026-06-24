@@ -1,6 +1,9 @@
 /**
- * Integration tests for full calculator workflow
- * Tests complete user flows from input to history
+ * UI-isolation tests for the calculator component's user flow.
+ *
+ * The compute manager (and thus the real math engine) is mocked below, so these
+ * tests verify the component wiring — input handling, store updates and history
+ * rendering — rather than end-to-end evaluation correctness.
  */
 
 import { render, screen, waitFor } from '@testing-library/react';
@@ -59,7 +62,7 @@ vi.mock('@/lib/workers/compute-manager', () => ({
   }),
 }));
 
-describe('Calculator Integration Tests', () => {
+describe('Calculator UI flow (compute engine mocked)', () => {
   beforeEach(() => {
     localStorage.clear();
     // Reset Zustand store state

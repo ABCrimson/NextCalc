@@ -353,7 +353,6 @@ export function Plot2D({
     // We intentionally omit `config` from deps here: we want to create the
     // controller once per isReady/enableInteractions change (not on every
     // config re-render) and read config via the stable ref inside the handler.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReady, enableInteractions, config.type]);
 
   // --- Fix 1: Debounced auto-refresh when config changes ---

@@ -91,17 +91,19 @@ test.describe('Calculator - Advanced Features', () => {
   test('should toggle between plain and LaTeX display', async ({ page }) => {
     await page.goto('/');
 
-    // Look for tabs or toggle button
+    // Look for tabs or toggle button. The LaTeX display toggle is an optional
+    // feature that only appears once there is a result to render, so skip the
+    // test (rather than silently passing) when the control is not present.
     const latexTab = page
       .locator('text=LaTeX')
       .or(page.locator('button:has-text("LaTeX")'))
       .first();
 
-    if (await latexTab.isVisible()) {
-      await latexTab.click();
-      // Verify LaTeX content is displayed
-      await expect(page.locator('.katex, [class*="katex"]')).toBeVisible({ timeout: 3000 });
-    }
+    test.skip(!(await latexTab.isVisible()), 'LaTeX display toggle is not available on this page');
+
+    await latexTab.click();
+    // Verify LaTeX content is displayed
+    await expect(page.locator('.katex, [class*="katex"]')).toBeVisible({ timeout: 3000 });
   });
 });
 
@@ -205,15 +207,15 @@ test.describe('Responsive Design', () => {
   test('should have touch-friendly buttons', async ({ page }) => {
     await page.goto('/');
 
-    // Buttons should be at least 44x44 px (WCAG AAA)
-    const buttons = page.locator('button');
-    const firstButton = buttons.first();
+    // Buttons should be at least 44x44 px (WCAG AAA). The homepage always
+    // renders interactive buttons, so assert one is present and sized correctly.
+    const firstButton = page.locator('button').first();
+    await expect(firstButton).toBeVisible({ timeout: 10000 });
 
-    if (await firstButton.isVisible()) {
-      const box = await firstButton.boundingBox();
-      expect(box?.height).toBeGreaterThanOrEqual(44);
-      expect(box?.width).toBeGreaterThanOrEqual(44);
-    }
+    const box = await firstButton.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box?.height).toBeGreaterThanOrEqual(44);
+    expect(box?.width).toBeGreaterThanOrEqual(44);
   });
 });
 
@@ -221,19 +223,18 @@ test.describe('Theme', () => {
   test('should toggle dark/light mode', async ({ page }) => {
     await page.goto('/');
 
-    // Look for theme toggle
+    // Look for theme toggle (always present in the navigation bar)
     const themeToggle = page
       .locator('[aria-label*="theme" i], button:has-text("Dark"), button:has-text("Light")')
       .first();
+    await expect(themeToggle).toBeVisible({ timeout: 10000 });
 
-    if (await themeToggle.isVisible()) {
-      await themeToggle.click();
+    await themeToggle.click();
 
-      // Check theme changed
-      const html = page.locator('html');
-      const className = await html.getAttribute('class');
-      expect(className).toMatch(/dark|light/);
-    }
+    // Check theme changed
+    const html = page.locator('html');
+    const className = await html.getAttribute('class');
+    expect(className).toMatch(/dark|light/);
   });
 });
 

@@ -484,7 +484,9 @@ async function main() {
   ];
 
   for (const problemData of problems) {
-    const topicIds = problemData.topics.map((slug) => topicMap.get(slug)!).filter(Boolean);
+    const topicIds = problemData.topics
+      .map((slug) => topicMap.get(slug))
+      .filter((id): id is string => id !== undefined);
 
     // biome-ignore lint/suspicious/noExplicitAny: Prisma createData is built dynamically with conditional fields
     const createData: any = {

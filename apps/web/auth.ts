@@ -7,10 +7,20 @@
  */
 
 import { PrismaAdapter } from '@auth/prisma-adapter';
-import type { UserRole } from '@nextcalc/database';
+import { UserRole } from '@nextcalc/database';
 import NextAuth from 'next-auth';
+import type { JWT } from 'next-auth/jwt';
 import { prisma } from '@/lib/prisma';
 import { authConfig } from './auth.config';
+
+/**
+ * Type guard validating that an unknown value is a {@link UserRole}.
+ * Used to safely narrow the role carried on the authenticated user/profile
+ * without resorting to unchecked type assertions.
+ */
+function isUserRole(value: unknown): value is UserRole {
+  return typeof value === 'string' && (Object.values(UserRole) as string[]).includes(value);
+}
 
 export const {
   handlers: { GET, POST },
@@ -19,18 +29,17 @@ export const {
   signOut,
 } = NextAuth({
   ...authConfig,
-  // biome-ignore lint/suspicious/noExplicitAny: Generated PrismaClient type differs from @auth/prisma-adapter's expected type
-  adapter: PrismaAdapter(prisma as any),
+  adapter: PrismaAdapter(prisma as Parameters<typeof PrismaAdapter>[0]),
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
-    async jwt({ token, user, trigger, session }) {
+    async jwt({ token, user, trigger, session }): Promise<JWT | null> {
       // Initial sign in - add user data to token
       if (user) {
         token.id = user.id!;
-        token.role = ((user as unknown as { role?: string }).role || 'USER') as UserRole;
+        token.role = isUserRole(user.role) ? user.role : UserRole.USER;
         token.email = user.email!;
         token.name = user.name!;
         token.picture = user.image!;
@@ -47,7 +56,7 @@ export const {
 
           // Invalidate token if version doesn't match (user logged out all sessions)
           if (dbUser && dbUser.tokenVersion !== (token.version || 0)) {
-            return null as unknown as typeof token;
+            return null;
           }
 
           // Update role in token if changed

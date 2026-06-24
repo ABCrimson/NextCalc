@@ -101,7 +101,6 @@ export function Calculator() {
       });
     }
     // Run only on mount — searchParams identity is stable in the App Router
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleInput = (action: CalculatorAction) => {

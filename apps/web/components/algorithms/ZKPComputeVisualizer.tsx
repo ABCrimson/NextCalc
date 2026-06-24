@@ -192,7 +192,6 @@ export function ZKPComputeVisualizer({
   // Auto-build on mount
   useEffect(() => {
     buildRounds();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Run verification ───────────────────────────────────────────────────────

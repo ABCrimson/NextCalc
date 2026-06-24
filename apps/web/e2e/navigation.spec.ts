@@ -36,14 +36,14 @@ test.describe('Navigation', () => {
   });
 
   test('clicking a nav link navigates to the correct page', async ({ page }) => {
-    // Find and click a nav link to the plot page
+    // Find and click a nav link to the plot page (always present in the nav)
     const plotLink = page
       .locator('nav a[href="/plot"], [role="navigation"] a[href="/plot"]')
       .first();
-    if (await plotLink.isVisible()) {
-      await plotLink.click();
-      await expect(page).toHaveURL(/\/plot/);
-    }
+    await expect(plotLink).toBeVisible({ timeout: 10000 });
+
+    await plotLink.click();
+    await expect(page).toHaveURL(/\/plot/);
   });
 
   test('logo or brand link returns to home', async ({ page }) => {
@@ -51,11 +51,11 @@ test.describe('Navigation', () => {
     await page.goto('/plot');
     await page.waitForLoadState('domcontentloaded');
 
-    // Click the logo/brand to go home
+    // Click the logo/brand to go home (always present in the nav)
     const homeLink = page.locator('nav a[href="/"], [role="navigation"] a[href="/"]').first();
-    if (await homeLink.isVisible()) {
-      await homeLink.click();
-      await expect(page).toHaveURL(/^http:\/\/localhost:\d+\/?$/);
-    }
+    await expect(homeLink).toBeVisible({ timeout: 10000 });
+
+    await homeLink.click();
+    await expect(page).toHaveURL(/^http:\/\/localhost:\d+\/?$/);
   });
 });

@@ -30,9 +30,11 @@ import { useWorksheetCollab } from '@/lib/hooks/use-worksheet-collab';
 import {
   useCollabSession,
   useCollabStatus,
+  useCollabStore,
   useLocalPeer,
   useRemotePeers,
 } from '@/lib/stores/collab-store';
+import { useWorksheetStore } from '@/lib/stores/worksheet-store';
 import { cn } from '@/lib/utils';
 import { ShareDialog } from './share-dialog';
 
@@ -153,15 +155,22 @@ function AutoJoinEffect() {
     const collabId = params.get('collab');
     if (!collabId) return;
 
-    // Slight delay to let the worksheet store hydrate from localStorage first
-    const timer = setTimeout(() => {
+    // joinSession sends the local worksheet snapshot to other tabs, so it must
+    // run only after the worksheet store has rehydrated from localStorage.
+    // Wait on the real Zustand persist hydration signal instead of a guessed delay.
+    if (useWorksheetStore.persist.hasHydrated()) {
       joinSession(collabId);
-    }, 300);
+      return;
+    }
 
-    return () => clearTimeout(timer);
-    // We intentionally only run this once on mount.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const unsubscribe = useWorksheetStore.persist.onFinishHydration(() => {
+      // Skip if a session was started by some other path while we waited.
+      if (useCollabStore.getState().session) return;
+      joinSession(collabId);
+    });
+
+    return unsubscribe;
+  }, [session, joinSession]);
 
   return null;
 }

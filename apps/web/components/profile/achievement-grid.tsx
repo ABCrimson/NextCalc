@@ -114,7 +114,6 @@ export function AchievementGrid({ achievements }: AchievementGridProps) {
               aria-hidden="true"
             >
               {achievement.badgeUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={achievement.badgeUrl}
                   alt=""

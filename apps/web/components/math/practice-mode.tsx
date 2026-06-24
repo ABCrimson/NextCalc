@@ -159,8 +159,12 @@ export function PracticeMode({
     };
   }, [answers, score, streak, bestStreak]);
 
+  // Latest-handler ref so the question timer always calls the current
+  // handleSubmit (which closes over up-to-date answers/streak/score state)
+  // without recreating the interval on every render.
+  const handleSubmitRef = useRef<(isCorrect: boolean) => void>(() => {});
+
   // Timer effects
-  // biome-ignore lint/correctness/useExhaustiveDependencies: handleSubmit is stable; including it would cause timer restarts
   useEffect(() => {
     if (state === 'active') {
       timerRef.current = setInterval(() => {
@@ -172,7 +176,7 @@ export function PracticeMode({
           const newTime = prev + 1;
           // Auto-submit if time limit reached
           if (timeLimit > 0 && newTime >= timeLimit) {
-            handleSubmit(false);
+            handleSubmitRef.current(false);
           }
           return newTime;
         });
@@ -258,6 +262,9 @@ export function PracticeMode({
       score,
     ],
   );
+
+  // Keep the question timer interval pointed at the latest handleSubmit.
+  handleSubmitRef.current = handleSubmit;
 
   // Check answer
   const checkAnswer = useCallback(() => {

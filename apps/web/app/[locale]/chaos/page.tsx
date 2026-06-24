@@ -61,11 +61,19 @@ export default function ChaosTheoryPage() {
   const [isBifurcating, setIsBifurcating] = useState(false);
 
   // --- Lorenz simulation ---
-  const simulateLorenz = () => {
+  // Parameters are passed explicitly so callers can run a simulation with values
+  // that differ from the current React state (e.g. the "classic params" button)
+  // without waiting for a state update to flush. They default to current state.
+  const simulateLorenz = (
+    sigmaValue = sigma,
+    rhoValue = rho,
+    betaValue = beta,
+    stepsValue = timeSteps,
+  ) => {
     setIsAnimating(true);
     try {
-      const lorenz = new LorenzAttractor(sigma, rho, beta);
-      const result = lorenz.simulate(timeSteps, 0.01, { x: 1, y: 1, z: 1 });
+      const lorenz = new LorenzAttractor(sigmaValue, rhoValue, betaValue);
+      const result = lorenz.simulate(stepsValue, 0.01, { x: 1, y: 1, z: 1 });
       setLorenzData([...result]);
     } catch (err) {
       console.error('Lorenz simulation error:', err);
@@ -223,7 +231,7 @@ export default function ChaosTheoryPage() {
                   </div>
 
                   <Button
-                    onClick={simulateLorenz}
+                    onClick={() => simulateLorenz()}
                     disabled={isAnimating}
                     className="w-full"
                     size="lg"
@@ -235,10 +243,15 @@ export default function ChaosTheoryPage() {
                     variant="outline"
                     className="w-full"
                     onClick={() => {
-                      setSigma(10);
-                      setRho(28);
-                      setBeta(8 / 3);
-                      setTimeout(() => simulateLorenz(), 0);
+                      const classicSigma = 10;
+                      const classicRho = 28;
+                      const classicBeta = 8 / 3;
+                      setSigma(classicSigma);
+                      setRho(classicRho);
+                      setBeta(classicBeta);
+                      // Pass the classic values directly so the simulation does not
+                      // read stale React state before the setters above flush.
+                      simulateLorenz(classicSigma, classicRho, classicBeta, timeSteps);
                     }}
                   >
                     {t('classicParams')}

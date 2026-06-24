@@ -668,7 +668,6 @@ export function FrequencySpectrumRenderer({
       }
       webgpuActiveRef.current = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Update magnitude buffer when data changes

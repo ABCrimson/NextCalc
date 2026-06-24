@@ -358,7 +358,6 @@ export default function PracticePage() {
   }, [loadProblems, config, startSessionAction]);
 
   // Ready to wire to PracticeMode once it exposes an onAnswer prop
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- prepared for PracticeMode onAnswer callback
   const handleAnswer = useCallback(
     (problemId: string, isCorrect: boolean, timeSpentOnProblem: number) => {
       // Debounce 1.5s to avoid rapid-fire saves

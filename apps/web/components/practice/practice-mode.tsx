@@ -13,7 +13,7 @@ import {
   Trophy,
   XCircle,
 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -137,15 +137,19 @@ export function PracticeMode({
     };
   }, [results]);
 
+  // Latest-handler ref so the timer interval always calls the current
+  // handleTimeout (which closes over up-to-date results/streak state) without
+  // tearing down and recreating the interval on every render.
+  const handleTimeoutRef = useRef<() => void>(() => {});
+
   // Timer countdown
-  // biome-ignore lint/correctness/useExhaustiveDependencies: handleTimeout is stable; including it would cause timer restarts
   useEffect(() => {
     if (!isStarted || isPaused || mode === 'untimed') return;
 
     const interval = setInterval(() => {
       setTimeRemaining((prev) => {
         if (prev <= 1) {
-          handleTimeout();
+          handleTimeoutRef.current();
           return 0;
         }
         return prev - 1;
@@ -217,6 +221,9 @@ export function PracticeMode({
   const handleTimeout = useCallback(() => {
     handleAnswer(false);
   }, [handleAnswer]);
+
+  // Keep the timer interval pointed at the latest handleTimeout each render.
+  handleTimeoutRef.current = handleTimeout;
 
   // Skip problem
   const handleSkip = useCallback(() => {

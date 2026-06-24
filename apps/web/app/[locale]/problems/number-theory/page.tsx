@@ -1946,7 +1946,6 @@ function SieveCanvas({ cells, limit, currentPrime }: SieveCanvasProps) {
       gpuRef.current = null;
       webgpuActiveRef.current = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [limit]);
 
   // Render whenever cells/currentPrime changes
@@ -2053,7 +2052,6 @@ function SieveCanvas({ cells, limit, currentPrime }: SieveCanvasProps) {
         ctx.fillText(String(n), x + cellSize / 2, y + cellSize / 2);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cells, limit, currentPrime, cols, rows]);
 
   return (
@@ -2857,7 +2855,6 @@ function FibonacciCanvas({ terms }: { terms: bigint[] }) {
       gpuRef.current = null;
       webgpuActiveRef.current = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -3203,7 +3200,6 @@ function CollatzCanvas({ seq }: { seq: bigint[] }) {
       gpuRef.current = null;
       webgpuActiveRef.current = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

@@ -51,7 +51,7 @@ test.describe('Settings Page', () => {
       .first()
       .isVisible()
       .catch(() => false);
-    // Either a save button exists or auto-save feedback is shown, or settings controls work
-    expect(hasSave || hasAutoSave || true).toBeTruthy();
+    // The settings page must offer either an explicit save action or auto-save feedback.
+    expect(hasSave || hasAutoSave).toBe(true);
   });
 });

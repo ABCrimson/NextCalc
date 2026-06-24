@@ -627,7 +627,6 @@ export function TimeDomainRenderer({ signal, sampleRate = 1 }: TimeDomainRendere
       }
       webgpuActiveRef.current = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Update signal buffer when signal changes

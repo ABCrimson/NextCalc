@@ -126,7 +126,10 @@ vi.mock('@nextcalc/math-engine/stats', () => ({
   },
 }));
 
-describe('StatsPanel', () => {
+// These are UI-isolation tests: the @nextcalc/math-engine/stats module is mocked
+// above, so they exercise the StatsPanel component's rendering and interaction
+// wiring, not the real statistics engine.
+describe('StatsPanel (UI isolation, math engine mocked)', () => {
   // Clipboard mock is already set up in vitest.setup.ts
 
   describe('Rendering', () => {

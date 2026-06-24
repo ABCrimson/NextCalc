@@ -1747,7 +1747,6 @@ export default function GraphAlgorithmsPage() {
       observer.disconnect();
     };
     // nodes/edges are read via nodesRef/edgesRef which are updated on every render
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showParticles]);
 
   // -------------------------------------------------------------------------

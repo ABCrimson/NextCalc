@@ -593,7 +593,6 @@ export function LogisticMapRenderer({ data, title = 'x(n)' }: LogisticMapRendere
       }
       webgpuActiveRef.current = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // -------------------------------------------------------------------------

@@ -72,34 +72,6 @@ export async function evaluateExpression(
 }
 
 /**
- * Server Action to save calculation history
- * Can be extended to persist to a database
- */
-export async function saveCalculation(
-  expression: string,
-  result: string | number,
-): Promise<{ success: boolean; id?: string; error?: string }> {
-  try {
-    // Validate inputs
-    if (!expression || !result) {
-      return {
-        success: false,
-        error: 'Invalid calculation data',
-      };
-    }
-
-    // TODO: Implement actual database persistence via Prisma
-    // This action is a placeholder — callers should handle the error gracefully.
-    throw new Error('saveCalculation is not yet implemented. Database persistence pending.');
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to save calculation',
-    };
-  }
-}
-
-/**
  * Server Action to validate mathematical expression
  */
 export async function validateExpression(expression: string): Promise<{
