@@ -8,7 +8,8 @@ import { Link } from '@/i18n/navigation';
 // ---------------------------------------------------------------------------
 
 const SymbolicPanel = dynamic(
-  () => import('@/components/calculator/symbolic-panel').then((m) => ({ default: m.SymbolicPanel })),
+  () =>
+    import('@/components/calculator/symbolic-panel').then((m) => ({ default: m.SymbolicPanel })),
   {
     ssr: false,
     loading: () => (

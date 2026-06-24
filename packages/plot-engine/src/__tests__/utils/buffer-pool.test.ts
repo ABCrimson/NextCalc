@@ -1,6 +1,6 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { BufferPool } from '../../utils/buffer-pool';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { PooledBuffer } from '../../utils/buffer-pool';
+import { BufferPool } from '../../utils/buffer-pool';
 
 /**
  * Creates a mock WebGL2RenderingContext with the methods used by BufferPool.

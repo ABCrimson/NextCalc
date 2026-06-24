@@ -1,17 +1,17 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { GraphQLError } from 'graphql';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   AuthenticationError,
-  ForbiddenError,
-  NotFoundError,
-  ValidationError,
-  RateLimitError,
-  InternalServerError,
   ConflictError,
-  PaymentRequiredError,
-  ServiceUnavailableError,
+  ForbiddenError,
+  InternalServerError,
   isGraphQLError,
+  NotFoundError,
+  PaymentRequiredError,
+  RateLimitError,
+  ServiceUnavailableError,
   sanitizeError,
+  ValidationError,
 } from '../../lib/errors';
 
 // ---------------------------------------------------------------------------

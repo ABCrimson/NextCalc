@@ -1,6 +1,6 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { exportToSVG, downloadAsSVG } from '../../export/svg';
-import type { Point2D, ExportSVGOptions } from '../../types/index';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { downloadAsSVG, exportToSVG } from '../../export/svg';
+import type { ExportSVGOptions, Point2D } from '../../types/index';
 
 const defaultViewport = { xMin: 0, xMax: 10, yMin: 0, yMax: 10 };
 
@@ -103,7 +103,14 @@ describe('exportToSVG', () => {
   });
 
   it('should skip empty series (no path generated)', () => {
-    const points: Point2D[][] = [[], [{ x: 0, y: 0 }, { x: 5, y: 5 }], []];
+    const points: Point2D[][] = [
+      [],
+      [
+        { x: 0, y: 0 },
+        { x: 5, y: 5 },
+      ],
+      [],
+    ];
     const svg = exportToSVG(points, defaultViewport, defaultOptions);
 
     const pathMatches = svg.match(/<path/g);
@@ -164,7 +171,12 @@ describe('exportToSVG', () => {
   it('should scale correctly for non-square viewports', () => {
     const viewport = { xMin: -1, xMax: 1, yMin: -2, yMax: 2 };
     const options: ExportSVGOptions = { width: 400, height: 800 };
-    const points: Point2D[][] = [[{ x: 0, y: 0 }, { x: 1, y: 2 }]];
+    const points: Point2D[][] = [
+      [
+        { x: 0, y: 0 },
+        { x: 1, y: 2 },
+      ],
+    ];
 
     const svg = exportToSVG(points, viewport, options);
 
@@ -238,7 +250,12 @@ describe('exportToSVG', () => {
 
   it('should handle very small viewport (near-zero range)', () => {
     const viewport = { xMin: 0, xMax: 0.001, yMin: 0, yMax: 0.001 };
-    const points: Point2D[][] = [[{ x: 0, y: 0 }, { x: 0.0005, y: 0.0005 }]];
+    const points: Point2D[][] = [
+      [
+        { x: 0, y: 0 },
+        { x: 0.0005, y: 0.0005 },
+      ],
+    ];
 
     // Should not throw, and should produce valid SVG
     const svg = exportToSVG(points, viewport, defaultOptions);

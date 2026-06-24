@@ -180,7 +180,6 @@ Object.defineProperty(window, 'innerHeight', {
   value: 768,
 });
 
-
 // Mock Next.js navigation hooks (not available outside Next.js runtime)
 vi.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(),

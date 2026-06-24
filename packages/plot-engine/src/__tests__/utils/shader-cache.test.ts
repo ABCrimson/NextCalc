@@ -1,6 +1,6 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { CompiledShader, ShaderSource } from '../../utils/shader-cache';
 import { ShaderCache } from '../../utils/shader-cache';
-import type { ShaderSource, CompiledShader } from '../../utils/shader-cache';
 
 /**
  * Creates a mock WebGL2RenderingContext that tracks calls and returns

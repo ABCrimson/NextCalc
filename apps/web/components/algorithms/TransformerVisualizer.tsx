@@ -651,12 +651,16 @@ export function TransformerVisualizer({
   return (
     <div className={cn('w-full mx-auto space-y-4 sm:space-y-6', className)}>
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static CSS keyframes only */}
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         @keyframes transformer-pulse {
           0%, 100% { opacity: 0.35; }
           50% { opacity: 0.72; }
         }
-      `}} />
+      `,
+        }}
+      />
       {/* Header */}
       <Card>
         <CardHeader>

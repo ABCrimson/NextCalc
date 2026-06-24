@@ -12,18 +12,18 @@
  * - Error handling for missing objects and failed uploads
  */
 
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   deleteFromR2,
   generateExportKey,
   generateExportUrl,
   getMimeType,
   listR2Objects,
-  uploadToR2,
-  validateFileSize,
   type R2Bucket,
   type R2Object,
   type R2ObjectBody,
+  uploadToR2,
+  validateFileSize,
 } from '../utils/r2.js';
 
 // ---------------------------------------------------------------------------
@@ -132,9 +132,9 @@ describe('uploadToR2', () => {
       put: vi.fn().mockResolvedValue(null),
     });
 
-    await expect(
-      uploadToR2(failBucket, 'key.pdf', 'content', 'application/pdf'),
-    ).rejects.toThrow('Failed to upload to R2');
+    await expect(uploadToR2(failBucket, 'key.pdf', 'content', 'application/pdf')).rejects.toThrow(
+      'Failed to upload to R2',
+    );
   });
 
   it('returns a URL rooted at exports.nextcalc.pro', async () => {

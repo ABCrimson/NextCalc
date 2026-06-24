@@ -11,7 +11,7 @@
  * - Edge cases: empty windows, boundary values, tier changes
  */
 
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   checkRateLimit,
   checkRateLimitTokenBucket,
@@ -19,8 +19,8 @@ import {
   getRecommendedTier,
   listRateLimitKeys,
   RATE_LIMIT_CONFIGS,
-  resetRateLimit,
   type RateLimitStatus,
+  resetRateLimit,
   type SlidingWindowData,
   type UserTier,
 } from '../utils/sliding-window.js';
@@ -51,9 +51,7 @@ function createMockKV(initialData: Record<string, unknown> = {}): KVNamespace {
     }),
     list: vi.fn(async (options?: { prefix?: string; cursor?: string }) => {
       const prefix = options?.prefix ?? '';
-      const keys = [...store.keys()]
-        .filter((k) => k.startsWith(prefix))
-        .map((name) => ({ name }));
+      const keys = [...store.keys()].filter((k) => k.startsWith(prefix)).map((name) => ({ name }));
       return { keys, cursor: undefined, list_complete: true };
     }),
     getWithMetadata: vi.fn(),
@@ -93,9 +91,7 @@ describe('RATE_LIMIT_CONFIGS', () => {
   });
 
   it('has strictly increasing burstLimit across tiers', () => {
-    expect(RATE_LIMIT_CONFIGS.free.burstLimit).toBeLessThan(
-      RATE_LIMIT_CONFIGS.pro.burstLimit,
-    );
+    expect(RATE_LIMIT_CONFIGS.free.burstLimit).toBeLessThan(RATE_LIMIT_CONFIGS.pro.burstLimit);
     expect(RATE_LIMIT_CONFIGS.pro.burstLimit).toBeLessThan(
       RATE_LIMIT_CONFIGS.enterprise.burstLimit,
     );
@@ -222,10 +218,7 @@ describe('checkRateLimit', () => {
     const now = Date.now();
     const oneHourMs = 60 * 60 * 1000;
     // All timestamps are older than 1 hour
-    const staleTimestamps = Array.from(
-      { length: 50 },
-      (_, i) => now - oneHourMs - (i + 1) * 1000,
-    );
+    const staleTimestamps = Array.from({ length: 50 }, (_, i) => now - oneHourMs - (i + 1) * 1000);
 
     const staleKV = createMockKV({
       'ratelimit:stale-user': {

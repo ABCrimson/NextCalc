@@ -364,9 +364,7 @@ describe('createDataLoaders', () => {
 
   describe('upvoteCountByTargetId', () => {
     it('returns the upvote count for a single target', async () => {
-      prisma.upvote.groupBy.mockResolvedValueOnce([
-        { targetId: 't1', _count: { id: 5 } },
-      ]);
+      prisma.upvote.groupBy.mockResolvedValueOnce([{ targetId: 't1', _count: { id: 5 } }]);
 
       const result = await loaders.upvoteCountByTargetId.load('t1');
 
@@ -408,9 +406,7 @@ describe('createDataLoaders', () => {
 
   describe('commentCountByPostId', () => {
     it('returns the comment count for a single post', async () => {
-      prisma.comment.groupBy.mockResolvedValueOnce([
-        { postId: 'p1', _count: { id: 12 } },
-      ]);
+      prisma.comment.groupBy.mockResolvedValueOnce([{ postId: 'p1', _count: { id: 12 } }]);
 
       const result = await loaders.commentCountByPostId.load('p1');
 
@@ -418,9 +414,7 @@ describe('createDataLoaders', () => {
     });
 
     it('batches and returns 0 for posts with no comments', async () => {
-      prisma.comment.groupBy.mockResolvedValueOnce([
-        { postId: 'p1', _count: { id: 7 } },
-      ]);
+      prisma.comment.groupBy.mockResolvedValueOnce([{ postId: 'p1', _count: { id: 7 } }]);
 
       const [r1, r2] = await Promise.all([
         loaders.commentCountByPostId.load('p1'),
@@ -727,12 +721,12 @@ describe('createDataLoaders', () => {
       ]);
 
       const keys = [
-        'u1:p1:POST',     // exists
-        'u1:c1:COMMENT',  // not exists (u1 didn't upvote c1)
-        'u2:c1:COMMENT',  // exists
-        'u2:p1:POST',     // not exists (u2 didn't upvote p1)
-        'u3:p1:POST',     // exists
-        'u3:p2:POST',     // not exists (p2 not in results)
+        'u1:p1:POST', // exists
+        'u1:c1:COMMENT', // not exists (u1 didn't upvote c1)
+        'u2:c1:COMMENT', // exists
+        'u2:p1:POST', // not exists (u2 didn't upvote p1)
+        'u3:p1:POST', // exists
+        'u3:p2:POST', // not exists (p2 not in results)
       ];
 
       const results = await Promise.all(keys.map((k) => loaders.hasUpvoted.load(k)));

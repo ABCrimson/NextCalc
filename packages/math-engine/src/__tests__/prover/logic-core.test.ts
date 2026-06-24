@@ -1,56 +1,56 @@
 import { describe, expect, it } from 'vitest';
 import {
-  atom,
-  and,
-  or,
-  not,
-  implies,
-  iff,
-  forall,
-  exists,
-  variable,
-  constant,
-  func,
-  evaluate,
-  getAtoms,
-  getFreeVariables,
-  generateTruthTable,
-  isTautology,
-  isContradiction,
-  isSatisfiable,
-  isEquivalent,
-  toString,
-  parse,
-  LogicalOperator,
-  type Assignment,
-} from '../../prover/logic-core';
-import {
+  applyAnyRule,
+  ChainRule,
+  ConjunctionElimination,
+  ConjunctionIntroduction,
+  DisjunctionIntroduction,
+  DisjunctiveSyllogism,
+  findApplicableRules,
+  HypotheticalSyllogism,
+  INFERENCE_RULES,
   ModusPonens,
   ModusTollens,
-  HypotheticalSyllogism,
-  DisjunctiveSyllogism,
-  ConjunctionIntroduction,
-  ConjunctionElimination,
-  DisjunctionIntroduction,
   Resolution,
-  ChainRule,
-  INFERENCE_RULES,
-  applyAnyRule,
-  findApplicableRules,
 } from '../../prover/inference-rules';
 import {
-  forwardChaining,
-  backwardChaining,
-  resolutionProof,
-  iterativeDeepeningProof,
-  formulasEqual,
-} from '../../prover/proof-search';
+  type Assignment,
+  and,
+  atom,
+  constant,
+  evaluate,
+  exists,
+  forall,
+  func,
+  generateTruthTable,
+  getAtoms,
+  getFreeVariables,
+  iff,
+  implies,
+  isContradiction,
+  isEquivalent,
+  isSatisfiable,
+  isTautology,
+  LogicalOperator,
+  not,
+  or,
+  parse,
+  toString,
+  variable,
+} from '../../prover/logic-core';
 import {
+  formatNDProof,
   NDProofBuilder,
   NDRuleType,
-  formatNDProof,
   validateNDProof,
 } from '../../prover/natural-deduction';
+import {
+  backwardChaining,
+  formulasEqual,
+  forwardChaining,
+  iterativeDeepeningProof,
+  resolutionProof,
+} from '../../prover/proof-search';
 
 // ============================================================================
 // Formula Construction
@@ -207,34 +207,162 @@ describe('Evaluation', () => {
 
   it('evaluates AND correctly', () => {
     const f = and(atom('P'), atom('Q'));
-    expect(evaluate(f, new Map([['P', true], ['Q', true]]))).toBe(true);
-    expect(evaluate(f, new Map([['P', true], ['Q', false]]))).toBe(false);
-    expect(evaluate(f, new Map([['P', false], ['Q', true]]))).toBe(false);
-    expect(evaluate(f, new Map([['P', false], ['Q', false]]))).toBe(false);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', true],
+          ['Q', true],
+        ]),
+      ),
+    ).toBe(true);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', true],
+          ['Q', false],
+        ]),
+      ),
+    ).toBe(false);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', false],
+          ['Q', true],
+        ]),
+      ),
+    ).toBe(false);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', false],
+          ['Q', false],
+        ]),
+      ),
+    ).toBe(false);
   });
 
   it('evaluates OR correctly', () => {
     const f = or(atom('P'), atom('Q'));
-    expect(evaluate(f, new Map([['P', true], ['Q', true]]))).toBe(true);
-    expect(evaluate(f, new Map([['P', true], ['Q', false]]))).toBe(true);
-    expect(evaluate(f, new Map([['P', false], ['Q', true]]))).toBe(true);
-    expect(evaluate(f, new Map([['P', false], ['Q', false]]))).toBe(false);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', true],
+          ['Q', true],
+        ]),
+      ),
+    ).toBe(true);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', true],
+          ['Q', false],
+        ]),
+      ),
+    ).toBe(true);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', false],
+          ['Q', true],
+        ]),
+      ),
+    ).toBe(true);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', false],
+          ['Q', false],
+        ]),
+      ),
+    ).toBe(false);
   });
 
   it('evaluates IMPLIES correctly (material conditional)', () => {
     const f = implies(atom('P'), atom('Q'));
-    expect(evaluate(f, new Map([['P', true], ['Q', true]]))).toBe(true);
-    expect(evaluate(f, new Map([['P', true], ['Q', false]]))).toBe(false);
-    expect(evaluate(f, new Map([['P', false], ['Q', true]]))).toBe(true);
-    expect(evaluate(f, new Map([['P', false], ['Q', false]]))).toBe(true);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', true],
+          ['Q', true],
+        ]),
+      ),
+    ).toBe(true);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', true],
+          ['Q', false],
+        ]),
+      ),
+    ).toBe(false);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', false],
+          ['Q', true],
+        ]),
+      ),
+    ).toBe(true);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', false],
+          ['Q', false],
+        ]),
+      ),
+    ).toBe(true);
   });
 
   it('evaluates IFF correctly', () => {
     const f = iff(atom('P'), atom('Q'));
-    expect(evaluate(f, new Map([['P', true], ['Q', true]]))).toBe(true);
-    expect(evaluate(f, new Map([['P', true], ['Q', false]]))).toBe(false);
-    expect(evaluate(f, new Map([['P', false], ['Q', true]]))).toBe(false);
-    expect(evaluate(f, new Map([['P', false], ['Q', false]]))).toBe(true);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', true],
+          ['Q', true],
+        ]),
+      ),
+    ).toBe(true);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', true],
+          ['Q', false],
+        ]),
+      ),
+    ).toBe(false);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', false],
+          ['Q', true],
+        ]),
+      ),
+    ).toBe(false);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', false],
+          ['Q', false],
+        ]),
+      ),
+    ).toBe(true);
   });
 
   it('throws when evaluating quantified formulas', () => {

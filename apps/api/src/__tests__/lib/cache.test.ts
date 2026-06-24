@@ -138,9 +138,7 @@ describe('cache module (configured)', () => {
     });
 
     it('preserves special characters in id', () => {
-      expect(cacheModule.cacheKey('session', 'user@example.com')).toBe(
-        'session:user@example.com',
-      );
+      expect(cacheModule.cacheKey('session', 'user@example.com')).toBe('session:user@example.com');
     });
   });
 
@@ -240,9 +238,7 @@ describe('cache module (configured)', () => {
         mockSet.mockRejectedValue(new Error('Write failed'));
 
         // Should not throw
-        await expect(
-          cacheModule.queryCache.set('key', 'value'),
-        ).resolves.toBeUndefined();
+        await expect(cacheModule.queryCache.set('key', 'value')).resolves.toBeUndefined();
       });
     });
 
@@ -258,9 +254,7 @@ describe('cache module (configured)', () => {
       it('swallows errors from redis.del', async () => {
         mockDel.mockRejectedValue(new Error('Delete failed'));
 
-        await expect(
-          cacheModule.queryCache.invalidate('key'),
-        ).resolves.toBeUndefined();
+        await expect(cacheModule.queryCache.invalidate('key')).resolves.toBeUndefined();
       });
     });
 
@@ -297,9 +291,7 @@ describe('cache module (configured)', () => {
       it('swallows errors from scan', async () => {
         mockScan.mockRejectedValue(new Error('SCAN failed'));
 
-        await expect(
-          cacheModule.queryCache.invalidateByPrefix('broken'),
-        ).resolves.toBeUndefined();
+        await expect(cacheModule.queryCache.invalidateByPrefix('broken')).resolves.toBeUndefined();
       });
     });
   });
@@ -541,10 +533,7 @@ describe('cache module (configured)', () => {
 
       expect(mockPipeline).toHaveBeenCalled();
       expect(mockIncr).toHaveBeenCalledWith('upvote:target1');
-      expect(mockExpire).toHaveBeenCalledWith(
-        'upvote:target1',
-        cacheModule.CACHE_TTL.UPVOTE_COUNT,
-      );
+      expect(mockExpire).toHaveBeenCalledWith('upvote:target1', cacheModule.CACHE_TTL.UPVOTE_COUNT);
       expect(mockExec).toHaveBeenCalled();
     });
   });
@@ -557,10 +546,7 @@ describe('cache module (configured)', () => {
 
       expect(mockPipeline).toHaveBeenCalled();
       expect(mockDecr).toHaveBeenCalledWith('upvote:target1');
-      expect(mockExpire).toHaveBeenCalledWith(
-        'upvote:target1',
-        cacheModule.CACHE_TTL.UPVOTE_COUNT,
-      );
+      expect(mockExpire).toHaveBeenCalledWith('upvote:target1', cacheModule.CACHE_TTL.UPVOTE_COUNT);
       expect(mockExec).toHaveBeenCalled();
     });
   });

@@ -1,8 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import {
-  formatResultWithSeparators,
-  useSettingsStore,
-} from '@/lib/stores/settings-store';
+import { formatResultWithSeparators, useSettingsStore } from '@/lib/stores/settings-store';
 
 describe('settings-store', () => {
   beforeEach(() => {
