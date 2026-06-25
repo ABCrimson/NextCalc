@@ -4,6 +4,7 @@
   "globalDependencies": ["**/.env.*local"],
   "tasks": {
     "build": {
+      "description": "Build all workspaces in dependency order",
       "dependsOn": ["^build"],
       "env": [
         "DATABASE_URL",
@@ -37,22 +38,27 @@
       "outputLogs": "new-only"
     },
     "dev": {
+      "description": "Run dev servers (persistent, uncached)",
       "cache": false,
       "persistent": true
     },
     "test": {
+      "description": "Run unit tests across workspaces",
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"],
       "outputLogs": "new-only"
     },
     "lint": {
+      "description": "Lint with Biome",
       "outputs": [],
       "outputLogs": "new-only"
     },
     "clean": {
+      "description": "Remove build artifacts and caches",
       "cache": false
     },
     "typecheck": {
+      "description": "Type-check all workspaces with tsc",
       "dependsOn": ["^build"],
       "outputs": []
     }
