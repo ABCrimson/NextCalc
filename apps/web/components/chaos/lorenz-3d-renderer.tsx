@@ -4,17 +4,21 @@ import { createProceduralHDRCubeMap } from '@nextcalc/plot-engine';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { bloom } from 'three/examples/jsm/tsl/display/BloomNode.js';
-import { pass } from 'three/tsl';
-import * as THREE from 'three/webgpu';
-import { RenderPipeline, WebGPURenderer } from 'three/webgpu';
 import {
-  LORENZ_DEFAULTS,
-  LORENZ_PARAMS_SIZE,
-  LORENZ_PARTICLE_BYTES,
-  LORENZ_PARTICLE_STRIDE,
-  LORENZ_WORKGROUP_SIZE,
-  WGSL_LORENZ_COMPUTE,
-} from './lorenz-compute-shaders';
+  Fn,
+  float,
+  instancedArray,
+  instanceIndex,
+  length,
+  min,
+  pass,
+  uniform,
+  vec3,
+  vec4,
+} from 'three/tsl';
+import * as THREE from 'three/webgpu';
+import { PointsNodeMaterial, RenderPipeline, WebGPUBackend, WebGPURenderer } from 'three/webgpu';
+import { LORENZ_DEFAULTS } from './lorenz-compute-shaders';
 
 interface Point3D {
   x: number;
@@ -30,11 +34,17 @@ interface Lorenz3DRendererProps {
   showCage?: boolean;
 }
 
+/** Workgroup size for the TSL compute kernel — 256 threads per workgroup. */
+const TSL_WORKGROUP_SIZE = 256;
+
 /**
  * High-performance 3D renderer for Lorenz Attractor with HDR effects.
  * Uses WebGPURenderer (three/webgpu) which automatically falls back to
  * WebGL 2 when WebGPU is unavailable. Post-processing uses the TSL-native
  * RenderPipeline + BloomNode, compatible with both backends.
+ *
+ * GPU Particles (WebGPU only): uses TSL instancedArray + Fn compute idiom.
+ * Particles are fully GPU-resident — no CPU readback each frame.
  *
  * Features:
  * - ACESFilmic HDR tone mapping with TSL Bloom post-processing
@@ -62,7 +72,7 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
   const [skyboxVisible, setSkyboxVisible] = useState(false);
   const skyboxRef = useRef<THREE.CubeTexture | null>(null);
 
-  // --- GPU Particle System State ---
+  // --- TSL GPU Particle System State ---
   const [gpuParticlesEnabled, setGpuParticlesEnabled] = useState(false);
   const [particleCount, setParticleCount] = useState(50_000);
   const [gpuAvailable, setGpuAvailable] = useState(false);
@@ -70,22 +80,17 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
   // (e.g. setupGPUParticles) read the current state instead of a stale closure.
   const gpuEnabledRef = useRef(gpuParticlesEnabled);
   const gpuParticleRef = useRef<{
-    device: GPUDevice;
-    computePipeline: GPUComputePipeline;
-    bindGroup: GPUBindGroup;
-    particleBuffer: GPUBuffer;
-    stagingBuffer: GPUBuffer;
-    paramsBuffer: GPUBuffer;
-    pointsGeometry: THREE.BufferGeometry;
+    computeNode: import('three/webgpu').ComputeNode;
     pointsMesh: THREE.Points;
     count: number;
-    /** True when a stagingBuffer.mapAsync() is in flight — skip readback to avoid overlap. */
-    mappingInFlight: boolean;
-    /** Centroid offsets used to align GPU particles with the existing trail. */
-    centroid: { cx: number; cy: number; cz: number };
+    dtUniform: THREE.UniformNode<'float', number>;
+    sigmaUniform: THREE.UniformNode<'float', number>;
+    rhoUniform: THREE.UniformNode<'float', number>;
+    betaUniform: THREE.UniformNode<'float', number>;
+    centroidUniform: THREE.UniformNode<'vec3', THREE.Vector3>;
   } | null>(null);
   /** Ref holding the GPU particle reinitialisation function, set inside setup(). */
-  const reinitGpuParticlesRef = useRef<((count: number) => Promise<void>) | null>(null);
+  const reinitGpuParticlesRef = useRef<((count: number) => void) | null>(null);
 
   // Sync zoom level display with camera position
   const syncZoomDisplay = useCallback(() => {
@@ -170,9 +175,7 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
     if (!reinit || !gpuAvailable) return;
     // Only reinit if the count actually differs from the current buffer size
     if (gpuParticleRef.current && gpuParticleRef.current.count === particleCount) return;
-    reinit(particleCount).catch((err: unknown) => {
-      console.warn('Lorenz GPU Particles: reinit failed:', err);
-    });
+    reinit(particleCount);
   }, [particleCount, gpuAvailable]);
 
   useEffect(() => {
@@ -386,69 +389,39 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
       // Dispose cage geometry helpers (the LineSegments owns its own copy)
       cageGeom.dispose();
 
-      // --- GPU Particle System Setup ---
-      // Only available when the WebGPU backend is active (compute shaders).
-      // Access the raw GPUDevice from the Three.js WebGPURenderer backend.
-      const setupGPUParticles = async (count: number) => {
-        // Type-safe access to the renderer backend's device.
-        // WebGPURenderer stores the backend object which holds the GPUDevice after init().
-        interface WebGPUBackend {
-          device?: GPUDevice;
-        }
-        interface RendererWithBackend {
-          backend?: WebGPUBackend;
-        }
+      // --- TSL GPU Particle System ---
+      // Only available when the WebGPU backend is active — TSL compute requires
+      // WebGPU. Detected via instanceof WebGPUBackend (no unsafe casts needed).
+      const isWebGPU = renderer.backend instanceof WebGPUBackend;
 
-        const rendererInternal = renderer as unknown as RendererWithBackend;
-        const device = rendererInternal.backend?.device;
-        if (!device) {
-          // WebGL 2 fallback path — no compute shaders available
-          return;
-        }
+      if (isWebGPU) {
         setGpuAvailable(true);
+      }
 
-        // Tear down previous GPU particle resources if reinitialising
+      // Build and attach the TSL GPU particle system.
+      // Returns disposers for cleanup when count changes or component unmounts.
+      const setupGPUParticles = (count: number) => {
+        // Tear down previous TSL particle resources if reinitialising
         if (gpuParticleRef.current) {
-          gpuParticleRef.current.particleBuffer.destroy();
-          gpuParticleRef.current.stagingBuffer.destroy();
-          gpuParticleRef.current.paramsBuffer.destroy();
-          gpuParticleRef.current.pointsGeometry.dispose();
-          (gpuParticleRef.current.pointsMesh.material as THREE.Material).dispose();
+          gpuParticleRef.current.pointsMesh.geometry.dispose();
+          const prevMat = gpuParticleRef.current.pointsMesh.material;
+          if (!Array.isArray(prevMat)) prevMat.dispose();
           scene.remove(gpuParticleRef.current.pointsMesh);
           gpuParticleRef.current = null;
         }
 
-        const bufferSize = count * LORENZ_PARTICLE_BYTES;
-
-        // --- Create GPU buffers ---
-        const particleBuffer = device.createBuffer({
-          label: 'lorenz particle storage',
-          size: bufferSize,
-          usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST,
-        });
-
-        const stagingBuffer = device.createBuffer({
-          label: 'lorenz particle staging (readback)',
-          size: bufferSize,
-          usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST,
-        });
-
-        const paramsBuffer = device.createBuffer({
-          label: 'lorenz params uniform',
-          size: LORENZ_PARAMS_SIZE,
-          usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-        });
-
-        // --- Initialize particle positions along the attractor trajectory ---
-        const initData = new Float32Array(count * LORENZ_PARTICLE_STRIDE);
+        // --- Seed initial particle positions along the attractor trajectory ---
+        // The Float32Array is passed directly to instancedArray() so that
+        // StorageInstancedBufferAttribute picks it up as the initial GPU data.
+        // Layout: vec4 per particle → [x, y, z, speed]
+        const initData = new Float32Array(count * 4);
         const trajectoryLen = data.length;
         for (let i = 0; i < count; i++) {
-          const base = i * LORENZ_PARTICLE_STRIDE;
+          const base = i * 4;
           if (trajectoryLen > 0) {
-            // Sample evenly along the trajectory with small random offset
+            // Sample evenly along the trajectory with a small hash-based offset
             const idx = Math.floor((i / count) * trajectoryLen) % trajectoryLen;
             const point = data[idx];
-            // Hash-based deterministic offset so particles spread slightly
             const hash = Math.sin(i * 12.9898) * 43758.5453;
             const offset = hash - Math.floor(hash) - 0.5;
             initData[base] = (point?.x ?? 0) + offset * 2;
@@ -460,100 +433,131 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
             initData[base + 1] = (((Math.sin(i * 78.233) * 43758.5453) % 1) - 0.5) * 40;
             initData[base + 2] = ((Math.sin(i * 45.164) * 43758.5453) % 1) * 40 + 5;
           }
-          initData[base + 3] = ((Math.sin(i * 37.0) * 43758.5453) % 1) * 4.0; // staggered age
+          // Staggered initial speed (w component)
+          initData[base + 3] = ((Math.sin(i * 37.0) * 43758.5453) % 1) * 4.0;
         }
-        device.queue.writeBuffer(particleBuffer, 0, initData);
 
-        // --- Create compute pipeline ---
-        const shaderModule = device.createShaderModule({
-          label: 'lorenz compute shader',
-          code: WGSL_LORENZ_COMPUTE,
-        });
+        // Storage buffer: vec4 per particle [x, y, z, speed], GPU-resident.
+        // Passing the pre-filled Float32Array seeds initial values on upload.
+        const particleBuffer = instancedArray(initData, 'vec4');
 
-        const bindGroupLayout = device.createBindGroupLayout({
-          label: 'lorenz bgl',
-          entries: [
-            {
-              binding: 0,
-              // GPUShaderStage.COMPUTE = 0x4 (numeric literal for SSR safety)
-              visibility: 0x4,
-              buffer: { type: 'uniform' as GPUBufferBindingType },
-            },
-            {
-              binding: 1,
-              visibility: 0x4,
-              buffer: { type: 'storage' as GPUBufferBindingType },
-            },
-          ],
-        });
+        // --- TSL uniforms updated each frame from JS ---
+        const dtUniform = uniform(LORENZ_DEFAULTS.dt);
+        const sigmaUniform = uniform(LORENZ_DEFAULTS.sigma);
+        const rhoUniform = uniform(LORENZ_DEFAULTS.rho);
+        const betaUniform = uniform(LORENZ_DEFAULTS.beta);
+        // Centroid offset aligns GPU particles with the existing trail
+        const centroidUniform = uniform(new THREE.Vector3(cx, cy, cz));
 
-        const computePipeline = await device.createComputePipelineAsync({
-          label: 'lorenz compute pipeline',
-          layout: device.createPipelineLayout({
-            bindGroupLayouts: [bindGroupLayout],
-          }),
-          compute: {
-            module: shaderModule,
-            entryPoint: 'cs_lorenz',
-          },
-        });
+        // --- Compute kernel: RK4 Lorenz integration per particle ---
+        // Fn(() => void)() returns ShaderCallNodeInternal<void> (a Node),
+        // then .compute(count, [workgroupSize]) produces the ComputeNode.
+        const lorenzComputeNode = Fn(() => {
+          const particle = particleBuffer.element(instanceIndex).toVar();
+          const pos = particle.xyz.toVar();
 
-        const bindGroup = device.createBindGroup({
-          label: 'lorenz bind group',
-          layout: bindGroupLayout,
-          entries: [
-            { binding: 0, resource: { buffer: paramsBuffer } },
-            { binding: 1, resource: { buffer: particleBuffer } },
-          ],
-        });
+          const dt = dtUniform;
+          const sigma = sigmaUniform;
+          const rho = rhoUniform;
+          const beta = betaUniform;
 
-        // --- Create Three.js Points mesh for the GPU particles ---
-        const gpPointsGeometry = new THREE.BufferGeometry();
-        const gpPositions = new Float32Array(count * 3);
-        const gpColors = new Float32Array(count * 3);
-        // Initialise with 0 — first readback will populate actual positions
-        gpPointsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(gpPositions, 3));
-        gpPointsGeometry.setAttribute('color', new THREE.Float32BufferAttribute(gpColors, 3));
+          // Lorenz derivative: d/dt [x,y,z]
+          const lorenzDeriv = Fn(([p]: [THREE.Node<'vec3'>]) => {
+            return vec3(
+              sigma.mul(p.y.sub(p.x)),
+              p.x.mul(rho.sub(p.z)).sub(p.y),
+              p.x.mul(p.y).sub(beta.mul(p.z)),
+            );
+          });
 
-        const gpMaterial = new THREE.PointsMaterial({
-          size: 0.35,
-          vertexColors: true,
+          // RK4 integration
+          const k1 = lorenzDeriv(pos).toVar();
+          const k2 = lorenzDeriv(pos.add(k1.mul(dt.mul(0.5)))).toVar();
+          const k3 = lorenzDeriv(pos.add(k2.mul(dt.mul(0.5)))).toVar();
+          const k4 = lorenzDeriv(pos.add(k3.mul(dt))).toVar();
+
+          const newPos = pos.add(k1.add(k2.mul(2)).add(k3.mul(2)).add(k4).mul(dt.div(6.0))).toVar();
+
+          // Speed from instantaneous derivative magnitude for color mapping
+          const speed = length(k1).toVar();
+
+          // Write back position and speed
+          particleBuffer.element(instanceIndex).assign(vec4(newPos, speed));
+        })().compute(count, [TSL_WORKGROUP_SIZE]);
+
+        // --- Render material: PointsNodeMaterial reading from the storage buffer ---
+        // For a THREE.Points draw the per-point index is the VERTEX index, and a
+        // non-instanced draw has instanceIndex === 0 — so reading the storage
+        // buffer via .element(instanceIndex) in the render nodes would collapse
+        // every point onto particle 0. Bind the same storage buffer as a
+        // per-vertex attribute instead (the documented compute-points idiom);
+        // the GPU then fetches the correct vec4 per point. (instanceIndex stays
+        // correct inside the compute kernel, where it is the invocation index.)
+        const particleAttribute = particleBuffer.toAttribute();
+
+        // positionNode: read the vec4 attribute, subtract centroid to align with trail.
+        const positionNode = particleAttribute.xyz.sub(centroidUniform);
+
+        // colorNode: speed-based color (cool blue slow → hot red fast).
+        const speedNode = particleAttribute.w;
+        // t = min(speed / 50, 1) maps speed to [0,1]
+        const t = min(speedNode.div(50), float(1));
+        const colorNode = vec3(
+          t, // R: increases with speed
+          float(0.3).mul(float(1).sub(t)).add(float(0.1).mul(t)), // G: warm transition
+          float(1).sub(t), // B: decreases with speed
+        );
+
+        const gpMaterial = new PointsNodeMaterial({
           transparent: true,
           opacity: 0.4,
           blending: THREE.AdditiveBlending,
           sizeAttenuation: true,
           depthWrite: false,
         });
-        const gpMesh = new THREE.Points(gpPointsGeometry, gpMaterial);
-        // Read from the ref instead of the stale closure capture of
-        // gpuParticlesEnabled, which would always be `false` here because
-        // setupGPUParticles runs asynchronously after the initial render.
+        // positionNode and colorNode set after construction to avoid
+        // PointsNodeMaterialParameters typing constraints
+        gpMaterial.positionNode = positionNode;
+        gpMaterial.colorNode = colorNode;
+        // Preserve the original particle world-size (PointsNodeMaterial defaults
+        // to 1.0). NOTE: on the WebGPU backend point primitives may be clamped
+        // to 1px regardless of size — flagged as a visual-QA item.
+        gpMaterial.size = 0.35;
+
+        // BufferGeometry with a dummy position attribute sized to particle count.
+        // The actual vertex positions are overridden by positionNode at shader time,
+        // but the draw call count is derived from the position attribute's item count.
+        const gpGeometry = new THREE.BufferGeometry();
+        gpGeometry.setAttribute(
+          'position',
+          new THREE.Float32BufferAttribute(new Float32Array(count * 3), 3),
+        );
+
+        const gpMesh = new THREE.Points(gpGeometry, gpMaterial);
+        // Read from ref instead of stale closure capture of gpuParticlesEnabled
         gpMesh.visible = gpuEnabledRef.current;
         scene.add(gpMesh);
 
         gpuParticleRef.current = {
-          device,
-          computePipeline,
-          bindGroup,
-          particleBuffer,
-          stagingBuffer,
-          paramsBuffer,
-          pointsGeometry: gpPointsGeometry,
+          computeNode: lorenzComputeNode,
           pointsMesh: gpMesh,
           count,
-          mappingInFlight: false,
-          centroid: { cx, cy, cz },
+          dtUniform,
+          sigmaUniform,
+          rhoUniform,
+          betaUniform,
+          centroidUniform,
         };
       };
 
-      // Store the setup function in a ref so particleCount changes can reinitialise
-      // the GPU particle buffers without recreating the entire scene.
+      // Store in ref so particleCount changes can reinitialise without
+      // recreating the entire scene.
       reinitGpuParticlesRef.current = setupGPUParticles;
 
-      // Fire GPU particle setup (non-blocking — failures are logged, not thrown)
-      setupGPUParticles(particleCount).catch((err: unknown) => {
-        console.warn('Lorenz GPU Particles: setup failed:', err);
-      });
+      // Fire initial GPU particle setup only when WebGPU backend is active
+      if (isWebGPU) {
+        setupGPUParticles(particleCount);
+      }
 
       // --- 60fps locked animation loop ---
       const TARGET_FPS = 60;
@@ -569,100 +573,14 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
         lastTime = now - (delta % FRAME_INTERVAL);
         controls.update();
 
-        // --- GPU Particle Compute Dispatch ---
+        // --- TSL Compute Dispatch: step the Lorenz particle simulation ---
+        // renderer.computeAsync() dispatches the TSL compute kernel.
+        // Particles are fully GPU-resident — no CPU readback.
         if (gpuParticleRef.current?.pointsMesh.visible) {
           const gp = gpuParticleRef.current;
-
-          // Update params uniform buffer
-          const paramsData = new ArrayBuffer(LORENZ_PARAMS_SIZE);
-          const u32View = new Uint32Array(paramsData);
-          const f32View = new Float32Array(paramsData);
-          u32View[0] = gp.count;
-          f32View[1] = LORENZ_DEFAULTS.dt;
-          f32View[2] = LORENZ_DEFAULTS.sigma;
-          f32View[3] = LORENZ_DEFAULTS.rho;
-          f32View[4] = LORENZ_DEFAULTS.beta;
-          f32View[5] = now / 1000; // time in seconds
-          u32View[6] = 0; // _pad0
-          u32View[7] = 0; // _pad1
-          gp.device.queue.writeBuffer(gp.paramsBuffer, 0, paramsData);
-
-          // Encode compute pass
-          const commandEncoder = gp.device.createCommandEncoder({
-            label: 'lorenz compute encoder',
+          renderer.computeAsync(gp.computeNode).catch((err: unknown) => {
+            console.warn('Lorenz TSL Compute: dispatch failed:', err);
           });
-          const computePass = commandEncoder.beginComputePass({
-            label: 'lorenz compute pass',
-          });
-          computePass.setPipeline(gp.computePipeline);
-          computePass.setBindGroup(0, gp.bindGroup);
-          computePass.dispatchWorkgroups(Math.ceil(gp.count / LORENZ_WORKGROUP_SIZE));
-          computePass.end();
-
-          // Copy particle buffer to staging for CPU readback
-          commandEncoder.copyBufferToBuffer(
-            gp.particleBuffer,
-            0,
-            gp.stagingBuffer,
-            0,
-            gp.count * LORENZ_PARTICLE_BYTES,
-          );
-          gp.device.queue.submit([commandEncoder.finish()]);
-
-          // Async readback — one frame behind to avoid GPU stalls.
-          // Skip if a previous mapAsync is still in flight.
-          if (!gp.mappingInFlight) {
-            gp.mappingInFlight = true;
-            // GPUMapMode.READ = 1 — numeric literal for SSR safety
-            gp.stagingBuffer
-              .mapAsync(1)
-              .then(() => {
-                if (!gpuParticleRef.current) return; // destroyed while mapping
-                const mapped = new Float32Array(gp.stagingBuffer.getMappedRange());
-                const posAttr = gp.pointsGeometry.getAttribute('position') as THREE.BufferAttribute;
-                const colAttr = gp.pointsGeometry.getAttribute('color') as THREE.BufferAttribute;
-                const centroid = gp.centroid;
-
-                for (let i = 0; i < gp.count; i++) {
-                  const bx = mapped[i * 4];
-                  const by = mapped[i * 4 + 1];
-                  const bz = mapped[i * 4 + 2];
-                  const speed = mapped[i * 4 + 3];
-
-                  if (
-                    bx === undefined ||
-                    by === undefined ||
-                    bz === undefined ||
-                    speed === undefined
-                  )
-                    continue;
-
-                  // Map Lorenz (x, y, z) to scene-centred Three.js coords
-                  // The existing trail uses: p.x - cx, p.y - cy, p.z - cz
-                  posAttr.setXYZ(i, bx - centroid.cx, by - centroid.cy, bz - centroid.cz);
-
-                  // Color by velocity: cool blue (slow) -> hot red (fast)
-                  const t = Math.min(speed / 50, 1);
-                  colAttr.setXYZ(
-                    i,
-                    t, // R: increases with speed
-                    0.3 * (1 - t) + 0.1 * t, // G: warm transition
-                    1 - t, // B: decreases with speed
-                  );
-                }
-
-                posAttr.needsUpdate = true;
-                colAttr.needsUpdate = true;
-                gp.stagingBuffer.unmap();
-                gp.mappingInFlight = false;
-              })
-              .catch(() => {
-                // Mapping failed (buffer destroyed or device lost) — reset flag
-                if (gpuParticleRef.current) {
-                  gpuParticleRef.current.mappingInFlight = false;
-                }
-              });
-          }
         }
 
         // RenderPipeline.render() replaces composer.render()
@@ -705,11 +623,10 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
           skyboxRef.current = null;
         }
         if (gpuParticleRef.current) {
-          gpuParticleRef.current.particleBuffer.destroy();
-          gpuParticleRef.current.stagingBuffer.destroy();
-          gpuParticleRef.current.paramsBuffer.destroy();
-          gpuParticleRef.current.pointsGeometry.dispose();
-          (gpuParticleRef.current.pointsMesh.material as THREE.Material).dispose();
+          gpuParticleRef.current.pointsMesh.geometry.dispose();
+          const gpMat = gpuParticleRef.current.pointsMesh.material;
+          if (!Array.isArray(gpMat)) gpMat.dispose();
+          scene.remove(gpuParticleRef.current.pointsMesh);
           gpuParticleRef.current = null;
         }
         reinitGpuParticlesRef.current = null;
