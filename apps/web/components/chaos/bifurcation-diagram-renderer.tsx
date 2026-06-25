@@ -18,7 +18,7 @@ import {
   computeBifurcationGPU,
 } from './webgpu-bifurcation';
 
-export type { BifurcationPoint, BifurcationMapType };
+export type { BifurcationMapType, BifurcationPoint };
 
 interface BifurcationDiagramRendererProps {
   data: BifurcationPoint[];

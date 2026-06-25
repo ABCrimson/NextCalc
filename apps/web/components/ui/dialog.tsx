@@ -100,13 +100,13 @@ function DialogDescription({ className, ref, ...props }: DialogDescriptionProps)
 
 export {
   Dialog,
-  DialogPortal,
-  DialogOverlay,
   DialogClose,
-  DialogTrigger,
   DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
   DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogOverlay,
+  DialogPortal,
+  DialogTitle,
+  DialogTrigger,
 };

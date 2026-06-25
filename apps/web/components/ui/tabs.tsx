@@ -55,4 +55,4 @@ function TabsContent({ className, ref, ...props }: TabsContentProps) {
   );
 }
 
-export { Tabs, TabsList, TabsTrigger, TabsContent };
+export { Tabs, TabsContent, TabsList, TabsTrigger };

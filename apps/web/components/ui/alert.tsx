@@ -50,4 +50,4 @@ function AlertDescription({ className, ref, ...props }: AlertDescriptionProps) {
   return <div ref={ref} className={cn('text-sm [&_p]:leading-relaxed', className)} {...props} />;
 }
 
-export { Alert, AlertTitle, AlertDescription };
+export { Alert, AlertDescription, AlertTitle };
