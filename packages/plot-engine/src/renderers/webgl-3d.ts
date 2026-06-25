@@ -4,7 +4,7 @@
  * WebGL 2 when WebGPU is unavailable. Post-processing uses the TSL-native
  * RenderPipeline + node-based bloom, compatible with both backends.
  *
- * MODERNIZATION FEATURES (Three.js 0.183.0):
+ * MODERNIZATION FEATURES (Three.js 0.184.0):
  * - WebGPURenderer with automatic WebGL 2 fallback
  * - PBR materials (MeshStandardMaterial/MeshPhysicalMaterial)
  * - Node-based post-processing pipeline with RenderPipeline
@@ -15,7 +15,8 @@
  * - Sprite-based axis labels (canvas texture, no external font loader)
  * - Wireframe overlay using LineSegments with MeshBasicMaterial (lighting-immune)
  * - Procedural HDR environment cubemap for IBL (image-based lighting)
- * - SSAO post-processing via TSL node pipeline for depth cue on surfaces
+ * - SSAO post-processing via TSL GTAO node pipeline for depth cue on surfaces
+ *   (r184 GTAONode writes occlusion to the red channel only — blended via .r)
  *
  * @module renderers/webgl-3d
  */
@@ -1147,7 +1148,7 @@ export function createProceduralHDRCubeMap(
  * coordinateSystem to distinguish WebGPU from WebGL.
  */
 function detectBackend(renderer: WebGPURenderer): RenderBackend {
-  // THREE.WebGPUCoordinateSystem = 2 (Y-up, clip-space 0..1)
+  // THREE.WebGPUCoordinateSystem = 2001 (Y-up, clip-space 0..1)
   // THREE.WebGLCoordinateSystem = 2000 (Y-up, clip-space -1..1)
   // We use the renderer's reported coordinate system as a reliable signal.
   return renderer.backend.coordinateSystem === THREE.WebGPUCoordinateSystem ? 'webgpu' : 'webgl2';
@@ -1482,16 +1483,23 @@ export class WebGL3DRenderer implements IRenderer {
       aoPass.radius.value = this._ssaoRadius;
       aoPass.scale.value = this._ssaoIntensity;
 
-      // Get the AO texture and blend it with the scene color.
+      // Blend the AO factor with the scene colour.
+      // three r184 changed GTAONode to write the occlusion factor to the RED
+      // channel only (its render target now uses RedFormat), so we read `.r`
+      // and let the resulting scalar broadcast uniformly across the scene
+      // colour's RGB. (Pre-r184 the factor was replicated across channels, so
+      // multiplying by the full RGBA node "worked"; in r184 that would zero
+      // green/blue and red-tint the occluded regions.)
       // aoFactor is in [0, 1] where 1 = fully lit, 0 = fully occluded.
       // We mix between full brightness and the AO factor based on strength
       // to keep the effect subtle and not overpower the colormap.
-      const aoTexture = aoPass.getTextureNode();
+      const aoFactor = aoPass.getTextureNode().r;
       const radiusFactor = Math.min(this._ssaoRadius / 0.5, 2.0);
       const strength = Math.min(this._ssaoIntensity * 0.4 * radiusFactor, 0.7);
 
-      // aoMask = lerp(1.0, aoTexture, strength) = (1-strength) + strength * ao
-      const aoMask = mix(float(1.0), aoTexture, float(strength));
+      // aoMask = lerp(1.0, aoFactor, strength) = (1-strength) + strength * ao,
+      // a scalar node applied uniformly to every scene-colour channel.
+      const aoMask = mix(float(1.0), aoFactor, float(strength));
 
       const aoModulated = sceneColor.mul(aoMask);
       outputNode = aoModulated.add(bloomNode);
