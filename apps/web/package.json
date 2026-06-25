@@ -46,7 +46,7 @@
     "radix-ui": "1.6.0",
     "react": "19.3.0-canary-99e86060-20260623",
     "react-dom": "19.3.0-canary-99e86060-20260623",
-    "rxjs": "7.8.2",
+    "rxjs": "8.0.0-alpha.14",
     "tailwind-merge": "3.6.0",
     "tailwindcss": "4.2.1",
     "three": "0.183.2",

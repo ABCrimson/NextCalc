@@ -15,6 +15,13 @@ allowBuilds:
   workerd: true
 
 # Force a single React copy (deduplicate the 19.3 canary across all consumers).
+# rxjs: force 8 for @apollo/client (its runtime is rxjs-8-compatible; the <8 peer pin is cosmetic).
 overrides:
   react: '19.3.0-canary-99e86060-20260623'
   react-dom: '19.3.0-canary-99e86060-20260623'
+  rxjs: '8.0.0-alpha.14'
+
+# Silence @apollo/client's cosmetic rxjs <8 peer warning.
+peerDependencyRules:
+  allowedVersions:
+    rxjs: '8'
