@@ -69,7 +69,7 @@
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
     "@types/three": "0.183.1",
-    "@vitest/ui": "4.1.0-beta.5",
+    "@vitest/ui": "5.0.0-beta.5",
     "@webgpu/types": "0.1.71",
     "axe-core": "4.12.1",
     "gray-matter": "^4.0.3",
@@ -79,6 +79,6 @@
     "sharp": "0.35.2",
     "tsx": "4.22.4",
     "typescript": "6.0.0-dev.20260301",
-    "vitest": "4.1.0-beta.5"
+    "vitest": "5.0.0-beta.5"
   }
 }
