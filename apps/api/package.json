@@ -37,7 +37,7 @@
     "@upstash/ratelimit": "2.0.8",
     "@upstash/redis": "1.38.0",
     "dataloader": "2.2.3",
-    "graphql": "16.13.0",
+    "graphql": "17.0.1",
     "graphql-scalars": "1.25.0",
     "graphql-subscriptions": "3.0.0",
     "graphql-tag": "2.12.7",

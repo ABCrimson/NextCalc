@@ -20,8 +20,12 @@ overrides:
   react: '19.3.0-canary-99e86060-20260623'
   react-dom: '19.3.0-canary-99e86060-20260623'
   rxjs: '8.0.0-alpha.14'
+  # graphql 17: force across graphql-sse/@apollo/server/graphql-ws (all peer-pin <=16);
+  # their code uses graphql's public API, which is 17-compatible (no @defer in this app).
+  graphql: '17.0.1'
 
-# Silence @apollo/client's cosmetic rxjs <8 peer warning.
+# Silence the cosmetic peer-range warnings for the forced majors above.
 peerDependencyRules:
   allowedVersions:
     rxjs: '8'
+    graphql: '17'
