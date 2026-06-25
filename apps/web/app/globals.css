@@ -1,6 +1,12 @@
-/* Tailwind CSS 4.2 - Modern import syntax */
+/* Tailwind CSS 4.3 - Modern import syntax */
 @import 'tailwindcss';
 @import 'katex/dist/katex.min.css';
+
+/* Attribute-based dark mode: bind Tailwind's `dark:` variant to the
+   [data-theme="dark"] attribute the theme-toggle sets (v4 CSS-first idiom —
+   the darkMode config key no longer exists). Without this, `dark:` utilities
+   silently track prefers-color-scheme, decoupled from the in-app toggle. */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 /* ============================================
    OKLCH Color System - P3 Gamut, 2026 Standard

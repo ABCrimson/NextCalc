@@ -3,6 +3,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Metadata, Viewport } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import { cookies } from 'next/headers';
+import { getLocale } from 'next-intl/server';
 import type { ReactNode } from 'react';
 import './globals.css';
 
@@ -120,9 +121,16 @@ export default async function RootLayout({
   const themeCookie = cookieStore.get('theme')?.value;
   // Only use known valid values; fall back to inline script detection otherwise
   const serverTheme = themeCookie === 'light' || themeCookie === 'dark' ? themeCookie : undefined;
+  // Active locale → <html lang>. next-intl resolves it from the request;
+  // required for screen readers, hyphenation, translation tooling, and SEO.
+  const locale = await getLocale();
 
   return (
-    <html suppressHydrationWarning {...(serverTheme ? { 'data-theme': serverTheme } : {})}>
+    <html
+      lang={locale}
+      suppressHydrationWarning
+      {...(serverTheme ? { 'data-theme': serverTheme } : {})}
+    >
       <head>
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />

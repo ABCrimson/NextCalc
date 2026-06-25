@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
-import { NextIntlClientProvider } from 'next-intl';
-import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
+import { notFound } from 'next/navigation';
+import { hasLocale, NextIntlClientProvider } from 'next-intl';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { ReactNode } from 'react';
 import { Navigation } from '@/components/layout/navigation';
 import { ApolloWrapper } from '@/components/providers/apollo-provider';
@@ -149,13 +150,19 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  // Reject unknown locale segments with a 404 instead of rendering with a bad
+  // locale; hasLocale() also narrows `locale` to the Locale union (no cast).
+  if (!hasLocale(routing.locales, locale)) {
+    notFound();
+  }
   setRequestLocale(locale);
-  const messages = await getMessages();
   const t = await getTranslations('accessibility');
   const jsonLd = getJsonLd(locale);
 
+  // No `messages` prop: in next-intl v4 NextIntlClientProvider rendered by a
+  // Server Component auto-inherits messages/locale/formats from i18n/request.ts.
   return (
-    <NextIntlClientProvider messages={messages}>
+    <NextIntlClientProvider>
       {/* JSON-LD structured data for search engines */}
       <script
         type="application/ld+json"
