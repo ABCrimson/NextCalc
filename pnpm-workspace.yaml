@@ -13,3 +13,8 @@ allowBuilds:
   prisma: true
   sharp: true
   workerd: true
+
+# Force a single React copy (deduplicate the 19.3 canary across all consumers).
+overrides:
+  react: '19.3.0-canary-99e86060-20260623'
+  react-dom: '19.3.0-canary-99e86060-20260623'
