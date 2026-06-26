@@ -12,7 +12,7 @@
  * scaled to fit within the configured margins while preserving aspect ratio.
  */
 
-import { createPdf, PageSizes } from 'modern-pdf-lib';
+import { createPdf, initWasm, PageSizes } from 'modern-pdf-lib';
 import {
   generateExportKey,
   getMimeType,
@@ -40,6 +40,20 @@ const PAGE_SIZE_MAP = {
   a4: PageSizes.A4,
   legal: PageSizes.Legal,
 } as const;
+
+// ---------------------------------------------------------------------------
+// WASM acceleration (best-effort, optional)
+// ---------------------------------------------------------------------------
+// modern-pdf-lib 0.28 can use WASM to accelerate PNG decoding (~5x, used by
+// embedPng) and deflate compression (~2x, used by save). WASM is fully
+// optional — the library produces identical output via a pure-JS fallback if
+// it is unavailable — so we initialise it once, lazily, and swallow failures.
+// (Confirm actual WASM availability in the deployed Worker at deploy time.)
+let wasmInit: Promise<unknown> | null = null;
+function ensureWasm(): Promise<unknown> {
+  wasmInit ??= initWasm({ png: true, deflate: true }).catch(() => undefined);
+  return wasmInit;
+}
 
 // ---------------------------------------------------------------------------
 // Public interfaces
@@ -128,6 +142,7 @@ async function generatePdfFromLatex(
   // ------------------------------------------------------------------
   // Step 3: Create PDF document with metadata
   // ------------------------------------------------------------------
+  await ensureWasm();
   const doc = createPdf();
 
   if (includeMetadata) {
@@ -137,6 +152,8 @@ async function generatePdfFromLatex(
     doc.setCreator('NextCalc Export Service');
     doc.setProducer('modern-pdf-lib + @cf-wasm/resvg');
     doc.setCreationDate(new Date());
+    // Document language for tagged-PDF / screen-reader accessibility.
+    doc.setLanguage('en');
   }
 
   // ------------------------------------------------------------------
@@ -144,7 +161,7 @@ async function generatePdfFromLatex(
   // ------------------------------------------------------------------
   const pdfPage = doc.addPage(PAGE_SIZE_MAP[pageSize]);
 
-  const pngImage = doc.embedPng(png);
+  const pngImage = await doc.embedPng(png);
 
   // Available drawing area after margins
   const availableWidth = dims.width - marginPt * 2;
@@ -178,9 +195,10 @@ async function generatePdfFromLatex(
   });
 
   // ------------------------------------------------------------------
-  // Step 5: Serialise
+  // Step 5: Serialise — object streams (threshold 100) shrink output;
+  // useWasm engages WASM deflate when initialised (pure-JS fallback otherwise).
   // ------------------------------------------------------------------
-  return doc.save();
+  return doc.save({ objectStreamThreshold: 100, useWasm: true });
 }
 
 // ---------------------------------------------------------------------------
@@ -290,6 +308,7 @@ export async function batchExportToPdf(
   const marginPt = margin * 72;
   const dims = PAGE_DIMENSIONS[pageSize];
 
+  await ensureWasm();
   const doc = createPdf();
 
   if (includeMetadata) {
@@ -299,6 +318,8 @@ export async function batchExportToPdf(
     doc.setCreator('NextCalc Export Service');
     doc.setProducer('modern-pdf-lib + @cf-wasm/resvg');
     doc.setCreationDate(new Date());
+    // Document language for tagged-PDF / screen-reader accessibility.
+    doc.setLanguage('en');
   }
 
   // Available drawing area after margins
@@ -325,7 +346,7 @@ export async function batchExportToPdf(
 
     // Step 3: Add page, embed PNG, scale to fit
     const pdfPage = doc.addPage(PAGE_SIZE_MAP[pageSize]);
-    const pngImage = doc.embedPng(png);
+    const pngImage = await doc.embedPng(png);
 
     let drawWidth = imgWidth;
     let drawHeight = imgHeight;
@@ -353,7 +374,7 @@ export async function batchExportToPdf(
     });
   }
 
-  const pdfBytes = await doc.save();
+  const pdfBytes = await doc.save({ objectStreamThreshold: 100, useWasm: true });
 
   // Validate file size
   validateFileSize(pdfBytes.byteLength, maxFileSize);

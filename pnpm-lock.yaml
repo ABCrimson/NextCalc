@@ -382,8 +382,8 @@ importers:
         specifier: 0.17.0
         version: 0.17.0
       modern-pdf-lib:
-        specifier: 0.15.1
-        version: 0.15.1
+        specifier: 0.28.1
+        version: 0.28.1
       zod:
         specifier: 4.4.0-canary.20260125T215152
         version: 4.4.0-canary.20260125T215152
@@ -6493,6 +6493,9 @@ packages:
   fflate@0.8.2:
     resolution: {integrity: sha512-cPJU47OaAoCbg0pBvzsgpTPhmhqI5eJjh/JIu8tPj5q+T7iLvW/JAYUqmE7KOB4R1ZyEhzBaIQpQpardBF5z8A==}
 
+  fflate@0.8.3:
+    resolution: {integrity: sha512-tbZNuJrLwGUp3zshBtdy4W+ORxZuIh8a5ilyIEQDC5rY1f3U20JMry0Ll3WBzU58EZKsEuJFXhb5gwv8CsPvgA==}
+
   file-uri-to-path@1.0.0:
     resolution: {integrity: sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==}
 
@@ -7505,9 +7508,9 @@ packages:
   mocked-exports@0.1.1:
     resolution: {integrity: sha512-aF7yRQr/Q0O2/4pIXm6PZ5G+jAd7QS4Yu8m+WEeEHGnbo+7mE36CbLSDQiXYV8bVL3NfmdeqPJct0tUlnjVSnA==}
 
-  modern-pdf-lib@0.15.1:
-    resolution: {integrity: sha512-30KMaheZetFRavRG54n29omSEj3o/1g9bCUQH1OSaGWTu2IKtJwm3gst28W1lY4KLgAoamt/z4FfgPHNU4i9vQ==}
-    engines: {node: '>=25.7'}
+  modern-pdf-lib@0.28.1:
+    resolution: {integrity: sha512-PT2lElMbdO9NHEZsk5jQxChvVKuny8X4mI2w8eMR1CHPT/RylvDcz3W8KOmZx3XTIrK3GjvCVfrEzVacYxJ8Iw==}
+    engines: {node: '>=26.4'}
     hasBin: true
 
   modern-tar@0.7.6:
@@ -15653,6 +15656,8 @@ snapshots:
 
   fflate@0.8.2: {}
 
+  fflate@0.8.3: {}
+
   file-uri-to-path@1.0.0: {}
 
   fill-range@7.1.1:
@@ -16677,9 +16682,9 @@ snapshots:
 
   mocked-exports@0.1.1: {}
 
-  modern-pdf-lib@0.15.1:
+  modern-pdf-lib@0.28.1:
     dependencies:
-      fflate: 0.8.2
+      fflate: 0.8.3
 
   modern-tar@0.7.6: {}
 
