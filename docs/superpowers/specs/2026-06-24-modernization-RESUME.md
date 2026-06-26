@@ -33,7 +33,7 @@
 - **modern-pdf-lib → 0.28.1** done (`bdb3510`). Remaining optional enhancements for that file: tagged-PDF alt-text for the math image (the LaTeX source) via the structure-tree/marked-content API (bigger lift, not done); `deduplicateImages(doc)` in the batch path. And confirm the `initWasm` WASM path actually loads in the deployed Worker (deploy-time).
 
 ### Modernization follow-ups (from the idiom-research — genuine improvements, not done)
-- **#6 next-intl `useFormatter` sweep** — ~30 hardcoded `'en-US'` date/number formats across ~9 files (profile-overview, practice-history-table, analytics-charts, achievement-grid, forum-shared, level-utils, worksheets/page, activity-calendar, calculator/history) defeat i18n for the 7 non-English locales. Replace with `useFormatter()`/`getFormatter()` + optional shared `formats` in `i18n/request.ts`. Medium effort, gate-verifiable.
+- ~~#6 next-intl `useFormatter` sweep~~ ✅ DONE (`5c9654e`): ~30 hardcoded `'en-US'` formats across 13 files → `useFormatter()` (client) + optional `locale` param on pure utils (forum-shared `formatDate`, level-utils `formatXp`). vitest.setup global next-intl mock added. Gate 21/21, 266 tests.
 - **Lorenz visual/GPU QA** (see 3.2b) — needs a real WebGPU browser.
 - **three polish (visual QA):** `scenePass.setResolutionScale(0.5)` for half-res AO; lower GTAO `radius`/`scale` to compensate for r184's darker physically-correct AO.
 - **katex:** consolidate the duplicate `components/math/latex-renderer.tsx` into the cached `components/ui/math-renderer.tsx`.
