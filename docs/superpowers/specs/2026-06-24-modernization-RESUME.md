@@ -1,6 +1,6 @@
 # Modernization — RESUME / Handoff
 
-**Branch:** `modernization/foundation` · **Status:** in progress (Wave 3 nearly complete) · **Last updated:** 2026-06-24
+**Branch:** `modernization/foundation` · **Status:** in progress — **Wave 3 (push-to-newest) COMPLETE** · **Last updated:** 2026-06-26
 
 > **To resume:** read this + `git log --oneline main..HEAD` + the [design spec](./2026-06-24-modernization-design.md).
 > Order is **b → a → c**: fake-fix (DONE) → push-to-newest (Wave 3 nearly done) → warnings.
@@ -23,13 +23,14 @@
   - **next-intl v4 idioms:** `hasLocale()`+`notFound()` (request.ts + [locale]/layout.tsx, removes casts); dropped legacy `getMessages()`+`messages` prop; `<html lang={locale}>` via `getLocale()` in the root layout (verified under SSG). `2c62397`
 - **3.5** @biomejs/biome 2.4.4→**2.5.1** (root + web + 3 workers). ⚠️ **`biome migrate` emits `linter.rules.preset:'recommended'` which 2.5.1's own `check` REJECTS as unknown** (migrate tool ahead of schema) → kept valid `recommended:true`. 2.5.1 `organizeImports` assist now sorts `export {}` member lists → auto-fixed 8 ui/chaos files. `f6ec2df`
 - **3.4** serwist + @serwist/next 9.5.6→**10.0.0-preview.14** + **createSerwist idiom** — `sw.ts` migrated off the v10-deprecated `new Serwist(...)` to `createSerwist({precache:{entries,cleanupOutdatedCaches,concurrency},skipWaiting,clientsClaim,navigationPreload,disableDevLogs,extensions:[new RuntimeCache(defaultCache,{fallbacks})]})` + `addEventListeners()` (verified vs installed `serwist@10` .d.ts, not docs). **Verified:** `next build --webpack` regenerates `public/sw.js` with the precache manifest injected (66 KB, 395 revision entries, no bare `self.__SW_MANIFEST`). `c6bc839`
+- **modern-pdf-lib 0.15.1→0.28.1** (export-service) — **our own package's major release** (now a full WASM-accelerated PDF engine). Re-implemented `pdf.ts` against the installed 0.28.1 `.d.ts`: `embedPng` is now async (awaited, single + batch); `save({ objectStreamThreshold: 100, useWasm: true })` (size reduction via object streams + WASM deflate); `setLanguage('en')` (tagged-PDF a11y); best-effort `initWasm({ png, deflate })` lazily, swallowed on failure (identical pure-JS fallback). Updated both test mocks. `bdb3510` — ⚠️ the WASM runtime path needs a **deploy-time** check in the live Worker.
 
 ---
 
 ## ⏭️ Remaining
 
-### Wave 3 tail
-- **modern-pdf-lib 0.15.1 → 0.26.0** (export-service worker) — NOT DONE. ⚠️ **VENDORED** pkg (github.com/ABCrimson/modern-pdf-lib), 11 minor versions apart, no public changelog → **inspect the installed 0.26 `dist/index.d.mts` before bumping** (API may differ from 0.15). Then adopt idioms in `apps/workers/export-service/src/handlers/pdf.ts`: `doc.setLanguage('en')` in both metadata blocks; `doc.save({ objectStreamThreshold: 100 })`. Optional/validate-first: `initWasm({png,deflate}) + save({useWasm:true})`, `deduplicateImages(doc)` (batch path). Gate = worker typecheck/build.
+### Wave 3 tail — ✅ DONE
+- **modern-pdf-lib → 0.28.1** done (`bdb3510`). Remaining optional enhancements for that file: tagged-PDF alt-text for the math image (the LaTeX source) via the structure-tree/marked-content API (bigger lift, not done); `deduplicateImages(doc)` in the batch path. And confirm the `initWasm` WASM path actually loads in the deployed Worker (deploy-time).
 
 ### Modernization follow-ups (from the idiom-research — genuine improvements, not done)
 - **#6 next-intl `useFormatter` sweep** — ~30 hardcoded `'en-US'` date/number formats across ~9 files (profile-overview, practice-history-table, analytics-charts, achievement-grid, forum-shared, level-utils, worksheets/page, activity-calendar, calculator/history) defeat i18n for the 7 non-English locales. Replace with `useFormatter()`/`getFormatter()` + optional shared `formats` in `i18n/request.ts`. Medium effort, gate-verifiable.
