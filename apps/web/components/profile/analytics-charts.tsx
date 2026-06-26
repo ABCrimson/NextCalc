@@ -1,5 +1,6 @@
 'use client';
 
+import { useFormatter } from 'next-intl';
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -86,6 +87,8 @@ const CHART_HEIGHT = 160;
 const PADDING = { top: 12, right: 16, bottom: 32, left: 36 };
 
 function AccuracyTrendChart({ data }: { data: TrendPoint[] }) {
+  const format = useFormatter();
+
   const { points, pathD, fillD, xLabels, yTicks } = useMemo(() => {
     if (data.length < 2) return { points: [], pathD: '', fillD: '', xLabels: [], yTicks: [] };
 
@@ -118,7 +121,7 @@ function AccuracyTrendChart({ data }: { data: TrendPoint[] }) {
       .filter((_, i) => i % Math.max(1, Math.floor(data.length / 6)) === 0 || i === data.length - 1)
       .map((p) => ({
         x: p.x,
-        label: new Date(p.label).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        label: format.dateTime(new Date(p.label), { month: 'short', day: 'numeric' }),
       }));
 
     const yt = [0, 25, 50, 75, 100].map((v) => ({
@@ -127,7 +130,7 @@ function AccuracyTrendChart({ data }: { data: TrendPoint[] }) {
     }));
 
     return { points: pts, pathD: linePath, fillD: fillPath, xLabels: xl, yTicks: yt };
-  }, [data]);
+  }, [data, format]);
 
   if (data.length < 2) {
     return (

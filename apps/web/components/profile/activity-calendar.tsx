@@ -1,6 +1,6 @@
 'use client';
 
-import { useLocale } from 'next-intl';
+import { useFormatter } from 'next-intl';
 import { useMemo, useState } from 'react';
 
 interface ActivityCalendarProps {
@@ -48,7 +48,7 @@ function getActivityColor(count: number, max: number): string {
 }
 
 export function ActivityCalendar({ data }: ActivityCalendarProps) {
-  const locale = useLocale();
+  const format = useFormatter();
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
   const { grid, monthPositions, maxCount } = useMemo(() => {
@@ -100,8 +100,7 @@ export function ActivityCalendar({ data }: ActivityCalendarProps) {
   }, [data]);
 
   const formatDate = (dateStr: string): string => {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' });
+    return format.dateTime(new Date(dateStr), { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
   const svgWidth = LEFT_OFFSET + WEEKS * CELL_STRIDE;

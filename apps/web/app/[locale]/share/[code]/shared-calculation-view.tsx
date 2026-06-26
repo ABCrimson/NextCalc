@@ -9,6 +9,7 @@
 
 import { m } from 'framer-motion';
 import { Calculator, Check, Copy, Share2, User } from 'lucide-react';
+import { useFormatter } from 'next-intl';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { LaTeXRenderer } from '@/components/math/latex-renderer';
 import { Button } from '@/components/ui/button';
@@ -47,6 +48,7 @@ interface SharedCalculationViewProps {
 // ---------------------------------------------------------------------------
 
 export function SharedCalculationView({ shared }: SharedCalculationViewProps) {
+  const format = useFormatter();
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle');
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -73,7 +75,7 @@ export function SharedCalculationView({ shared }: SharedCalculationViewProps) {
     }
   }, [shared.shortCode]);
 
-  const formattedDate = new Date(shared.createdAt).toLocaleDateString(undefined, {
+  const formattedDate = format.dateTime(new Date(shared.createdAt), {
     year: 'numeric',
     month: 'long',
     day: 'numeric',

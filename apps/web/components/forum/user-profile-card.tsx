@@ -9,6 +9,7 @@
 
 import { m, useReducedMotion } from 'framer-motion';
 import { Calendar, Crown, FileText, MessageSquare, Shield, User } from 'lucide-react';
+import { useLocale } from 'next-intl';
 import { formatDate, getInitials, type UserProfileData } from '@/components/forum/forum-shared';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -37,6 +38,7 @@ const ROLE_CONFIG: Record<string, { label: string; icon: typeof Shield; classNam
 
 export function UserProfileCard({ user }: UserProfileCardProps) {
   const prefersReduced = useReducedMotion();
+  const locale = useLocale();
   const roleConfig = ROLE_CONFIG[user.role] ??
     ROLE_CONFIG['USER'] ?? {
       label: 'Member',
@@ -94,7 +96,7 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-muted-foreground pt-1">
             <span className="flex items-center gap-1">
               <Calendar className="h-3.5 w-3.5" />
-              Joined {formatDate(user.createdAt)}
+              Joined {formatDate(user.createdAt, locale)}
             </span>
           </div>
         </div>

@@ -19,7 +19,7 @@ import {
   SortDesc,
   Trash2,
 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
 import { AlertDialog } from 'radix-ui';
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
@@ -62,6 +62,7 @@ async function fetchWorksheets(): Promise<WorksheetSummary[]> {
 
 export default function WorksheetsPage() {
   const t = useTranslations('worksheets');
+  const format = useFormatter();
   const router = useRouter();
 
   const [worksheets, setWorksheets] = useState<WorksheetSummary[]>([]);
@@ -151,7 +152,7 @@ export default function WorksheetsPage() {
     if (hours < 24) return t('hoursAgo', { count: hours });
     const days = Math.floor(hours / 24);
     if (days < 30) return t('daysAgo', { count: days });
-    return new Date(date).toLocaleDateString();
+    return format.dateTime(new Date(date), { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
   return (

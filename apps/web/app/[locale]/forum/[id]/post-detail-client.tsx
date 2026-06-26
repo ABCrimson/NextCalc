@@ -20,7 +20,7 @@ import {
   Pin,
   Send,
 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useState } from 'react';
 import { CommentThread } from '@/components/forum/comment-thread';
 import { ForumBackground } from '@/components/forum/forum-background';
@@ -95,6 +95,7 @@ interface PostDetailClientProps {
 export function PostDetailClient({ id }: PostDetailClientProps) {
   const t = useTranslations('forum');
   const tAuth = useTranslations('auth');
+  const locale = useLocale();
   const prefersReduced = useReducedMotion();
   const router = useRouter();
   const { status: authStatus } = useSession();
@@ -326,7 +327,9 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
                         {post.user.bio && (
                           <span className="truncate max-w-48">{post.user.bio}</span>
                         )}
-                        <span>{t('joined', { date: formatDate(post.user.createdAt) })}</span>
+                        <span>
+                          {t('joined', { date: formatDate(post.user.createdAt, locale) })}
+                        </span>
                       </div>
                     </div>
                   </Link>

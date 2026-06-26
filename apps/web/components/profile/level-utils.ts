@@ -232,9 +232,15 @@ export function getLevelColor(level: number): string {
 // FORMAT HELPERS
 // ============================================================================
 
-/** Format XP with commas. */
-export function formatXp(xp: number): string {
-  return xp.toLocaleString('en-US');
+/**
+ * Format XP with locale-aware number grouping.
+ *
+ * Pass the active locale from `useLocale()` in client components so the
+ * separator style (comma, period, space) matches the user's locale.
+ * Omitting locale falls back to the runtime default.
+ */
+export function formatXp(xp: number, locale?: string): string {
+  return xp.toLocaleString(locale);
 }
 
 /** Short format: 1.2K, 3.4M, etc. */
