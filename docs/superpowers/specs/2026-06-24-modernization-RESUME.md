@@ -1,5 +1,7 @@
 # Modernization — RESUME / Handoff
 
+> ⚠️ **SUPERSEDED (2026-06-26)** — the canonical pickup doc is now [`2026-06-26-modernization-HANDOFF.md`](./2026-06-26-modernization-HANDOFF.md). Read that; this file is kept for history.
+
 **Branch:** `modernization/foundation` · **Status:** in progress — **Wave 3 (push-to-newest) COMPLETE** · **Last updated:** 2026-06-26
 
 > **To resume:** read this + `git log --oneline main..HEAD` + the [design spec](./2026-06-24-modernization-design.md).
