@@ -12,7 +12,13 @@
  * scaled to fit within the configured margins while preserving aspect ratio.
  */
 
-import { createPdf, initWasm, PageSizes } from 'modern-pdf-lib';
+import {
+  accessibilityPlugin,
+  createPdf,
+  deduplicateImages,
+  initWasm,
+  PageSizes,
+} from 'modern-pdf-lib';
 import {
   generateExportKey,
   getMimeType,
@@ -44,7 +50,7 @@ const PAGE_SIZE_MAP = {
 // ---------------------------------------------------------------------------
 // WASM acceleration (best-effort, optional)
 // ---------------------------------------------------------------------------
-// modern-pdf-lib 0.28 can use WASM to accelerate PNG decoding (~5x, used by
+// modern-pdf-lib 0.29 can use WASM to accelerate PNG decoding (~5x, used by
 // embedPng) and deflate compression (~2x, used by save). WASM is fully
 // optional — the library produces identical output via a pure-JS fallback if
 // it is unavailable — so we initialise it once, lazily, and swallow failures.
@@ -53,7 +59,7 @@ let wasmInit: Promise<unknown> | null = null;
 function ensureWasm(): Promise<unknown> {
   // Log the result once so the deployed Worker's observability surfaces whether
   // WASM acceleration is actually active. VERIFIED via `wrangler dev` (local
-  // workerd) on 2026-06-27: modern-pdf-lib 0.28.1 ships NO .wasm binaries, so
+  // workerd) on 2026-06-27: modern-pdf-lib 0.29.0 (and 0.28.1) ship NO .wasm binaries, so
   // `initWasm`'s filesystem load (readAll of `./wasm/.../*_bg.wasm`) fails in
   // every runtime (Node + workerd) and we fall back to pure-JS — which produces
   // valid PDFs end-to-end (POST /export/pdf → 1-page PDF). Enabling real
@@ -161,6 +167,10 @@ async function generatePdfFromLatex(
   // ------------------------------------------------------------------
   await ensureWasm();
   const doc = createPdf();
+  // Tagged-PDF accessibility: marks the document tagged (/MarkInfo /Marked) and
+  // sets the document language so assistive tech can navigate the structure tree.
+  // The plugin emits the StructTreeRoot + ParentTree at save time.
+  doc.use(accessibilityPlugin({ language: 'en' }));
 
   if (includeMetadata) {
     doc.setTitle(title);
@@ -204,12 +214,21 @@ async function generatePdfFromLatex(
   const x = marginPt + (availableWidth - drawWidth) / 2;
   const y = dims.height - marginPt - drawHeight;
 
+  // Tagged-PDF: wrap the math image in a Figure structure element whose
+  // alternate text is the LaTeX source, so screen readers announce the
+  // equation instead of skipping an unlabelled image.
+  const structureTree = doc.createStructureTree();
+  const figure = structureTree.addElement(null, 'Figure', { altText: latex });
+  const mcid = structureTree.assignMcid(figure, 0);
+
+  pdfPage.beginMarkedContent('Figure', mcid);
   pdfPage.drawImage(pngImage, {
     x,
     y,
     width: drawWidth,
     height: drawHeight,
   });
+  pdfPage.endMarkedContentSequence();
 
   // ------------------------------------------------------------------
   // Step 5: Serialise — object streams (threshold 100) shrink output;
@@ -327,6 +346,9 @@ export async function batchExportToPdf(
 
   await ensureWasm();
   const doc = createPdf();
+  // Tagged-PDF accessibility (see generatePdfFromLatex for rationale).
+  doc.use(accessibilityPlugin({ language: 'en' }));
+  const structureTree = doc.createStructureTree();
 
   if (includeMetadata) {
     doc.setTitle(title);
@@ -343,7 +365,7 @@ export async function batchExportToPdf(
   const availableWidth = dims.width - marginPt * 2;
   const availableHeight = dims.height - marginPt * 2;
 
-  for (const latex of expressions) {
+  for (const [pageIndex, latex] of expressions.entries()) {
     // Step 1: LaTeX -> SVG
     const svgOptions: SvgOptions = {
       fontSize: fontSize * 2,
@@ -383,13 +405,24 @@ export async function batchExportToPdf(
     const x = marginPt + (availableWidth - drawWidth) / 2;
     const y = dims.height - marginPt - drawHeight;
 
+    // Tagged figure with the LaTeX source as alternate text (one per page).
+    const figure = structureTree.addElement(null, 'Figure', { altText: latex });
+    const mcid = structureTree.assignMcid(figure, pageIndex);
+
+    pdfPage.beginMarkedContent('Figure', mcid);
     pdfPage.drawImage(pngImage, {
       x,
       y,
       width: drawWidth,
       height: drawHeight,
     });
+    pdfPage.endMarkedContentSequence();
   }
+
+  // Batch documents frequently embed byte-identical math images across pages
+  // (repeated symbols / duplicate expressions); collapse identical image
+  // XObjects into a single shared object to shrink the output.
+  deduplicateImages(doc);
 
   const pdfBytes = await doc.save({ objectStreamThreshold: 100, useWasm: true });
 
