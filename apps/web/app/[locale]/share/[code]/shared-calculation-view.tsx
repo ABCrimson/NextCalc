@@ -11,9 +11,9 @@ import { m } from 'framer-motion';
 import { Calculator, Check, Copy, Share2, User } from 'lucide-react';
 import { useFormatter } from 'next-intl';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { LaTeXRenderer } from '@/components/math/latex-renderer';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { MathRenderer } from '@/components/ui/math-renderer';
 import { Link } from '@/i18n/navigation';
 import { createPermalinkUrl } from '@/lib/share';
 import { cn } from '@/lib/utils';
@@ -135,7 +135,7 @@ export function SharedCalculationView({ shared }: SharedCalculationViewProps) {
                 role="math"
                 aria-label={`Math expression: ${shared.expression}`}
               >
-                <LaTeXRenderer expression={shared.latex} displayMode={true} className="text-2xl" />
+                <MathRenderer expression={shared.latex} displayMode={true} className="text-2xl" />
               </div>
             </div>
 

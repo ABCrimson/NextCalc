@@ -156,6 +156,16 @@
    Utility Layer
    ============================================ */
 @layer utilities {
+  /* Hide the scrollbar while preserving scroll behaviour. Used in compact
+     overflow areas (e.g. the calculator display's horizontally-scrolling
+     expression/result rows) where a visible scrollbar is distracting. */
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
   /* Modern Glassmorphism - using color-mix for dynamic opacity */
   .glass {
     background: color-mix(in oklch, var(--color-background) 15%, transparent);
