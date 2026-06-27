@@ -85,14 +85,20 @@ vi.mock('@cf-wasm/resvg/workerd', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Mock modern-pdf-lib — createPdf() returns a lightweight document mock
-// that supports the methods used by the PDF handler (setTitle, setAuthor,
-// setSubject, setCreator, setProducer, setCreationDate, addPage, embedPng,
-// save).
+// Mock modern-pdf-lib — createPdf() returns a lightweight document mock that
+// supports every method the PDF handler uses: metadata setters, addPage,
+// embedPng, save, plus the 0.29 tagged-PDF accessibility surface
+// (use(accessibilityPlugin(...)), createStructureTree() -> addElement/assignMcid,
+// and page beginMarkedContent/endMarkedContentSequence). deduplicateImages
+// (batch path) is a no-op. The mock interoperates with the resvg mock — embedPng
+// receives the mock PNG buffer — and save() returns a non-empty Uint8Array so
+// the downstream file-size check and R2 upload run.
 // ---------------------------------------------------------------------------
 vi.mock('modern-pdf-lib', () => {
   const mockPage = {
     drawImage: vi.fn(),
+    beginMarkedContent: vi.fn(),
+    endMarkedContentSequence: vi.fn(),
   };
 
   const mockImage = {
@@ -100,7 +106,13 @@ vi.mock('modern-pdf-lib', () => {
     height: 50,
   };
 
+  const mockStructureTree = {
+    addElement: vi.fn().mockReturnValue({ type: 'Figure' }),
+    assignMcid: vi.fn().mockReturnValue(0),
+  };
+
   const mockDoc = {
+    use: vi.fn(),
     setTitle: vi.fn(),
     setAuthor: vi.fn(),
     setSubject: vi.fn(),
@@ -108,6 +120,7 @@ vi.mock('modern-pdf-lib', () => {
     setProducer: vi.fn(),
     setCreationDate: vi.fn(),
     setLanguage: vi.fn(),
+    createStructureTree: vi.fn().mockReturnValue(mockStructureTree),
     addPage: vi.fn().mockReturnValue(mockPage),
     embedPng: vi.fn().mockResolvedValue(mockImage),
     save: vi.fn().mockResolvedValue(new Uint8Array(512)),
@@ -115,6 +128,8 @@ vi.mock('modern-pdf-lib', () => {
 
   return {
     createPdf: vi.fn().mockReturnValue(mockDoc),
+    accessibilityPlugin: vi.fn().mockReturnValue({ name: 'accessibility' }),
+    deduplicateImages: vi.fn(),
     initWasm: vi.fn().mockResolvedValue(undefined),
     PageSizes: {
       A4: [595.28, 841.89],
