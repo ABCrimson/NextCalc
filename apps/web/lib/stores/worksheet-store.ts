@@ -258,8 +258,8 @@ export const useWorksheetStore = create<WorksheetStore>()(
             const idx = cells.findIndex((c) => c.id === id);
             if (idx <= 0) return;
             const [cell] = cells.splice(idx, 1);
-            // cell is guaranteed to exist since idx >= 0 and we just spliced it
-            cells.splice(idx - 1, 0, cell!);
+            if (!cell) return;
+            cells.splice(idx - 1, 0, cell);
             touchWorksheet(draft.worksheet);
             draft.isDirty = true;
           });
@@ -271,7 +271,8 @@ export const useWorksheetStore = create<WorksheetStore>()(
             const idx = cells.findIndex((c) => c.id === id);
             if (idx === -1 || idx >= cells.length - 1) return;
             const [cell] = cells.splice(idx, 1);
-            cells.splice(idx + 1, 0, cell!);
+            if (!cell) return;
+            cells.splice(idx + 1, 0, cell);
             touchWorksheet(draft.worksheet);
             draft.isDirty = true;
           });

@@ -812,7 +812,11 @@ export function StatsPanel() {
         regression = statsModule.exponentialRegression(xData, yData);
       }
 
-      const predicted = statsModule.predict(regression!, xValue);
+      if (!regression) {
+        setError('Unable to compute a regression for this prediction');
+        return;
+      }
+      const predicted = statsModule.predict(regression, xValue);
       setPredictionResult(typeof predicted === 'number' ? predicted : (predicted[0] ?? null));
       setError(null);
     } catch (err) {

@@ -149,7 +149,7 @@ export const KEYBOARD_SHORTCUTS: Record<string, Omit<KeyboardShortcut, 'handler'
  */
 function matchesShortcut(event: KeyboardEvent, shortcut: string): boolean {
   const parts = shortcut.toLowerCase().split('+');
-  const key = parts[parts.length - 1]!;
+  const key = parts.at(-1) ?? '';
 
   const hasCtrl = parts.includes('ctrl') || parts.includes('control');
   const hasAlt = parts.includes('alt');

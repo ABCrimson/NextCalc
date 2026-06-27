@@ -107,14 +107,19 @@ function AccuracyTrendChart({ data }: { data: TrendPoint[] }) {
       .join(' ');
 
     const bottom = PADDING.top + plotH;
-    const firstPt = pts[0]!;
-    const lastPt = pts[pts.length - 1]!;
-    const fillPath = [
-      `M ${firstPt.x.toFixed(1)} ${bottom}`,
-      ...pts.map((p) => `L ${p.x.toFixed(1)} ${p.y.toFixed(1)}`),
-      `L ${lastPt.x.toFixed(1)} ${bottom}`,
-      'Z',
-    ].join(' ');
+    // data.length >= 2 is guaranteed above, so pts is non-empty; the guard
+    // narrows the type without a non-null assertion.
+    const firstPt = pts[0];
+    const lastPt = pts.at(-1);
+    const fillPath =
+      firstPt && lastPt
+        ? [
+            `M ${firstPt.x.toFixed(1)} ${bottom}`,
+            ...pts.map((p) => `L ${p.x.toFixed(1)} ${p.y.toFixed(1)}`),
+            `L ${lastPt.x.toFixed(1)} ${bottom}`,
+            'Z',
+          ].join(' ')
+        : '';
 
     // Every 5th label on x-axis
     const xl = pts

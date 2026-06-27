@@ -633,8 +633,9 @@ function identifyIntegrationRule(
       },
     };
 
-    if (isSimpleVar && fn in trigIntegrals) {
-      const info = trigIntegrals[fn]!;
+    const trigInfo = trigIntegrals[fn];
+    if (isSimpleVar && trigInfo) {
+      const info = trigInfo;
       const fnLatex = fn.length > 1 ? `\\${fn}` : fn;
       return {
         ruleName: `${fn} integral`,
@@ -684,8 +685,9 @@ function identifyIntegrationRule(
       },
     };
 
-    if (isSimpleVar && fn in invTrigIntegrals) {
-      const info = invTrigIntegrals[fn]!;
+    const invInfo = invTrigIntegrals[fn];
+    if (isSimpleVar && invInfo) {
+      const info = invInfo;
       return {
         ruleName: `${fn} integral`,
         description: `Inverse trig integral: \\u222B${fn}(${varName}) d${varName}`,

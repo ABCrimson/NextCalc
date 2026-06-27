@@ -333,7 +333,7 @@ function fuzzyScore(text: string, query: string): { score: number; matchIndices:
   else if (matchIndices[0] !== undefined && text[matchIndices[0] - 1] === ' ') startBonus = -5;
 
   return {
-    score: gapPenalty + startBonus + matchIndices[0]! * 0.1,
+    score: gapPenalty + startBonus + (matchIndices[0] ?? 0) * 0.1,
     matchIndices,
   };
 }
@@ -389,8 +389,7 @@ function HighlightedLabel({
   const parts: Array<{ text: string; highlighted: boolean }> = [];
   let current = { text: '', highlighted: false };
 
-  for (let i = 0; i < label.length; i++) {
-    const char = label[i]!;
+  for (const [i, char] of [...label].entries()) {
     const shouldHighlight = indexSet.has(i);
     if (shouldHighlight !== current.highlighted) {
       if (current.text) parts.push(current);
@@ -714,10 +713,8 @@ export function CommandPalette({ className }: CommandPaletteProps) {
   // Derived ARIA id for active descendant
   // ---------------------------------------------------------------------------
 
-  const activeItemId =
-    filteredItems[activeIndex] != null
-      ? `cmd-item-${filteredItems[activeIndex]!.item.id}`
-      : undefined;
+  const activeItem = filteredItems[activeIndex];
+  const activeItemId = activeItem != null ? `cmd-item-${activeItem.item.id}` : undefined;
 
   // ---------------------------------------------------------------------------
   // Animation variants

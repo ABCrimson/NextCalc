@@ -286,8 +286,9 @@ interface StepsPanelProps {
  * animated step cards, and a final-answer callout.
  */
 function StepsPanel({ steps, finalLatex, timeMs, copiedSteps, onCopyFinal }: StepsPanelProps) {
+  const lastStep = steps.at(-1);
   const [expandedSteps, setExpandedSteps] = useState<ReadonlySet<number>>(
-    new Set(steps.length > 0 ? [steps[steps.length - 1]!.stepNumber] : []),
+    new Set(lastStep ? [lastStep.stepNumber] : []),
   );
 
   const toggleStep = useCallback((stepNumber: number) => {

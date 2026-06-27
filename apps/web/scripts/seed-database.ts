@@ -49,37 +49,33 @@ async function seed() {
     // Create folders
     console.log('Creating folders...');
 
-    const mathFolder = await prisma.folder.upsert({
-      where: {
-        userId_name_parentId: {
-          userId: testUser.id,
+    // find-or-create: the compound-unique input types `parentId` as a
+    // non-null string, but these root folders have parentId = null. The plain
+    // `findFirst` filter accepts null, so we avoid the non-null assertion the
+    // upsert form would otherwise require.
+    const mathFolder =
+      (await prisma.folder.findFirst({
+        where: { userId: testUser.id, name: 'Mathematics', parentId: null },
+      })) ??
+      (await prisma.folder.create({
+        data: {
           name: 'Mathematics',
-          parentId: null!,
-        },
-      },
-      update: {},
-      create: {
-        name: 'Mathematics',
-        description: 'Math worksheets and calculations',
-        userId: testUser.id,
-      },
-    });
-
-    const physicsFolder = await prisma.folder.upsert({
-      where: {
-        userId_name_parentId: {
+          description: 'Math worksheets and calculations',
           userId: testUser.id,
-          name: 'Physics',
-          parentId: null!,
         },
-      },
-      update: {},
-      create: {
-        name: 'Physics',
-        description: 'Physics calculations and formulas',
-        userId: testUser.id,
-      },
-    });
+      }));
+
+    const physicsFolder =
+      (await prisma.folder.findFirst({
+        where: { userId: testUser.id, name: 'Physics', parentId: null },
+      })) ??
+      (await prisma.folder.create({
+        data: {
+          name: 'Physics',
+          description: 'Physics calculations and formulas',
+          userId: testUser.id,
+        },
+      }));
 
     console.log(`✅ Created folders: ${mathFolder.name}, ${physicsFolder.name}\n`);
 

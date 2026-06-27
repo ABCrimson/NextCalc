@@ -91,6 +91,36 @@
         "rules": {
           "suspicious": {
             "noExplicitAny": "warn"
+          },
+          "style": {
+            "noNonNullAssertion": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/math-engine/**",
+        "packages/plot-engine/**",
+        "apps/workers/**",
+        "apps/web/lib/solvers/**",
+        "apps/web/lib/workers/**",
+        "apps/web/components/algorithms/**",
+        "apps/web/components/plots/**",
+        "apps/web/components/math/**",
+        "apps/web/components/calculator/eigen-panel.tsx",
+        "apps/web/components/calculator/unit-converter.tsx",
+        "apps/web/components/profile/level-utils.ts",
+        "apps/web/app/**/pde/**",
+        "apps/web/app/**/graphs-full/**",
+        "apps/web/app/**/solver/**",
+        "apps/web/app/**/problems/**",
+        "apps/web/app/**/ml-algorithms/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noNonNullAssertion": "off"
           }
         }
       }

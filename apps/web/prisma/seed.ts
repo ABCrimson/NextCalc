@@ -221,13 +221,24 @@ async function main() {
     parentId?: string,
   ) {
     for (const topicData of topics) {
+      let category = topicData.category;
+      if (!category) {
+        if (!parentId) {
+          throw new Error(
+            `Seed topic "${topicData.slug}" has no category and no parent to inherit one from`,
+          );
+        }
+        const parent = await prisma.topic.findUnique({ where: { id: parentId } });
+        if (!parent) {
+          throw new Error(`Seed parent topic "${parentId}" not found for "${topicData.slug}"`);
+        }
+        category = parent.category;
+      }
       const topic = await prisma.topic.create({
         data: {
           name: topicData.name,
           slug: topicData.slug,
-          category:
-            topicData.category ||
-            (await prisma.topic.findUnique({ where: { id: parentId! } }))!.category,
+          category,
           ...(topicData.description !== undefined && { description: topicData.description }),
           ...(topicData.definition !== undefined && { definition: topicData.definition }),
           ...(parentId !== undefined && { parentId }),

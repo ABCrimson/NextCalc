@@ -38,11 +38,16 @@ export const {
     async jwt({ token, user, trigger, session }): Promise<JWT | null> {
       // Initial sign in - add user data to token
       if (user) {
-        token.id = user.id!;
+        // user.id is `string | undefined` on the base User type; it is always
+        // present for the AdapterUser at initial sign-in. Guard instead of
+        // asserting so a missing id can't silently become an empty token.id.
+        if (user.id) token.id = user.id;
         token.role = isUserRole(user.role) ? user.role : UserRole.USER;
-        token.email = user.email!;
-        token.name = user.name!;
-        token.picture = user.image!;
+        // email/name/image are legitimately nullable (OAuth profiles may omit
+        // them) and the JWT fields accept null | undefined — no assertion needed.
+        token.email = user.email;
+        token.name = user.name;
+        token.picture = user.image;
         token.version = 0;
       }
 
