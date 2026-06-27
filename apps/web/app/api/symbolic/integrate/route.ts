@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     const integralString = astToString(result);
 
     return NextResponse.json({
-      integral: integralString + ' + C',
+      integral: `${integralString} + C`,
       original: expression,
       variable,
       timestamp: Date.now(),

@@ -116,7 +116,7 @@ export class SchnorrProtocol {
         .toString(16)
         .padStart(2, '0'),
     ).join('');
-    return BigInt('0x' + randomHex) % max;
+    return BigInt(`0x${randomHex}`) % max;
   }
 }
 
@@ -235,7 +235,7 @@ export class PaillierEncryption {
         .toString(16)
         .padStart(2, '0'),
     ).join('');
-    return BigInt('0x' + randomHex) % max;
+    return BigInt(`0x${randomHex}`) % max;
   }
 }
 
@@ -345,7 +345,7 @@ export class ShamirSecretSharing {
         .toString(16)
         .padStart(2, '0'),
     ).join('');
-    return BigInt('0x' + randomHex) % max;
+    return BigInt(`0x${randomHex}`) % max;
   }
 }
 

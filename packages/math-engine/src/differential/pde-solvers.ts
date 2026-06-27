@@ -752,7 +752,7 @@ export function exportSolutionToString(solution: PDESolution): string {
 
   // Header
   if (solution.t) {
-    lines.push('t,' + solution.x.join(','));
+    lines.push(`t,${solution.x.join(',')}`);
 
     // Time-dependent solution
     for (let n = 0; n < solution.solution.length; n++) {
@@ -763,7 +763,7 @@ export function exportSolutionToString(solution: PDESolution): string {
     }
   } else {
     // Steady-state 2D solution
-    lines.push('y\\x,' + solution.x.join(','));
+    lines.push(`y\\x,${solution.x.join(',')}`);
 
     for (let j = 0; j < solution.solution.length; j++) {
       const row = solution.solution[j];

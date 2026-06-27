@@ -670,11 +670,8 @@ function TemplateCard({ template, accent, text, iconBg, animationDelay }: Templa
     if (state.result === null) return '';
     if (template.id === 'quadratic') {
       // re-derive roots from stored inputs
-      // biome-ignore lint/complexity/useLiteralKeys: noPropertyAccessFromIndexSignature requires bracket notation
       const a = parseFloat(state.inputs['a'] ?? '0');
-      // biome-ignore lint/complexity/useLiteralKeys: noPropertyAccessFromIndexSignature requires bracket notation
       const b = parseFloat(state.inputs['b'] ?? '0');
-      // biome-ignore lint/complexity/useLiteralKeys: noPropertyAccessFromIndexSignature requires bracket notation
       const c = parseFloat(state.inputs['c'] ?? '0');
       const disc = b * b - 4 * a * c;
       const x1 = (-b + Math.sqrt(disc)) / (2 * a);
