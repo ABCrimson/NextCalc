@@ -106,7 +106,9 @@ function computePageRank(graph: Graph, iterations: number = 20): Map<NodeId, Pag
   // PageRank iteration
   for (let iter = 0; iter < iterations; iter++) {
     // Reset new ranks
-    nodes.forEach((node) => newRanks.set(node.id, (1 - dampingFactor) / n));
+    nodes.forEach((node) => {
+      newRanks.set(node.id, (1 - dampingFactor) / n);
+    });
 
     // Distribute rank
     nodes.forEach((node) => {
@@ -403,7 +405,9 @@ export function PageRankExplorer({
 
       // Compute one iteration
       const newRanks = new Map<NodeId, number>();
-      graph.nodes.forEach((node) => newRanks.set(node.id, (1 - graph.dampingFactor) / n));
+      graph.nodes.forEach((node) => {
+        newRanks.set(node.id, (1 - graph.dampingFactor) / n);
+      });
 
       graph.nodes.forEach((node) => {
         const nodeRank = currentRanks.get(node.id) ?? 0;

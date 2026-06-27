@@ -430,7 +430,7 @@ describe('PageRank Algorithm', () => {
 
     it('should handle complete graph (all nodes link to all)', () => {
       const numNodes = 5;
-      const graph: Graph = Array.from({ length: numNodes }, (_, i) =>
+      const graph: Graph = Array.from({ length: numNodes }, (_, _i) =>
         Array.from({ length: numNodes }, (_, j) => j),
       );
 
@@ -447,8 +447,8 @@ describe('PageRank Algorithm', () => {
       const result = pageRank(graph);
 
       for (const rank of result.ranks) {
-        expect(isNaN(rank)).toBe(false);
-        expect(isFinite(rank)).toBe(true);
+        expect(Number.isNaN(rank)).toBe(false);
+        expect(Number.isFinite(rank)).toBe(true);
       }
     });
   });

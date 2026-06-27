@@ -128,7 +128,9 @@ export class Plot2DController implements IInteractionController {
     const handlers = this.eventListeners.get(type);
     if (handlers) {
       const event: ControlEvent = { type: type as ControlEvent['type'], data };
-      handlers.forEach((handler) => handler(event));
+      handlers.forEach((handler) => {
+        handler(event);
+      });
     }
   }
 

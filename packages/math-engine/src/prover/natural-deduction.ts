@@ -10,7 +10,7 @@
  */
 
 import type { Formula } from './logic-core';
-import { and, implies, not, or, toString } from './logic-core';
+import { and, toString as formulaToString, implies, not, or } from './logic-core';
 import { formulasEqual } from './proof-search';
 
 /**
@@ -394,7 +394,7 @@ export function formatNDProof(proof: NDProof, unicode = true): string {
   for (const line of proof.lines) {
     const indent = '  '.repeat(line.level);
     const lineNum = `${line.lineNumber}.`.padEnd(4);
-    const formula = toString(line.formula, unicode).padEnd(30);
+    const formula = formulaToString(line.formula, unicode).padEnd(30);
     const justification = line.justification;
 
     output += `${lineNum}${indent}${formula} ${justification}\n`;
@@ -462,7 +462,7 @@ export function ndProofToLatex(proof: NDProof): string {
 
   for (const line of proof.lines) {
     const indent = '  '.repeat(line.level);
-    const formula = `$${toString(line.formula, true)}$`;
+    const formula = `$${formulaToString(line.formula, true)}$`;
     const justification = line.justification;
 
     latex += `${indent}\\have{${line.lineNumber}}{${formula}}{${justification}}\n`;

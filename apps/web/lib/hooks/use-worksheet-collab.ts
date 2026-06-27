@@ -747,7 +747,7 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
 
     const unsub = useWorksheetStore.subscribe((state) => {
       const session = useCollabStore.getState().session;
-      if (!session || session.status !== 'live') return;
+      if (session?.status !== 'live') return;
 
       const newCells = state.worksheet.cells;
       const newTitle = state.worksheet.title;

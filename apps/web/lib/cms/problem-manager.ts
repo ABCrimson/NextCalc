@@ -72,11 +72,11 @@ export type ProblemFilters = z.infer<typeof ProblemFilterSchema>;
 // Problem Manager Class
 // ============================================================================
 
-export class ProblemManager {
+export const ProblemManager = {
   /**
    * Create a new problem with hints and test cases
    */
-  static async createProblem(data: ProblemCreateInput): Promise<Problem> {
+  async createProblem(data: ProblemCreateInput): Promise<Problem> {
     const validated = ProblemCreateSchema.parse(data);
 
     const problem = await prisma.problem.create({
@@ -127,12 +127,12 @@ export class ProblemManager {
     });
 
     return problem;
-  }
+  },
 
   /**
    * Update an existing problem
    */
-  static async updateProblem(id: string, data: ProblemUpdateInput): Promise<Problem> {
+  async updateProblem(id: string, data: ProblemUpdateInput): Promise<Problem> {
     const validated = ProblemUpdateSchema.parse(data);
 
     const updateData: Prisma.ProblemUpdateInput = {
@@ -164,31 +164,31 @@ export class ProblemManager {
         testCases: { orderBy: { order: 'asc' } },
       },
     });
-  }
+  },
 
   /**
    * Soft delete a problem
    */
-  static async deleteProblem(id: string): Promise<void> {
+  async deleteProblem(id: string): Promise<void> {
     await prisma.problem.update({
       where: { id },
       data: { deletedAt: new Date() },
     });
-  }
+  },
 
   /**
    * Hard delete a problem (admin only)
    */
-  static async hardDeleteProblem(id: string): Promise<void> {
+  async hardDeleteProblem(id: string): Promise<void> {
     await prisma.problem.delete({
       where: { id },
     });
-  }
+  },
 
   /**
    * Get problems with filtering, pagination, and sorting
    */
-  static async getProblems(filters: Partial<ProblemFilters> = {}) {
+  async getProblems(filters: Partial<ProblemFilters> = {}) {
     const validated = ProblemFilterSchema.parse(filters);
 
     const where: Prisma.ProblemWhereInput = {
@@ -253,12 +253,12 @@ export class ProblemManager {
       page: Math.floor(validated.offset / validated.limit) + 1,
       totalPages: Math.ceil(total / validated.limit),
     };
-  }
+  },
 
   /**
    * Get a single problem by slug
    */
-  static async getProblemBySlug(slug: string, includeHidden = false) {
+  async getProblemBySlug(slug: string, includeHidden = false) {
     const problem = await prisma.problem.findUnique({
       where: { slug },
       include: {
@@ -297,12 +297,12 @@ export class ProblemManager {
     });
 
     return problem;
-  }
+  },
 
   /**
    * Get a problem by ID
    */
-  static async getProblemById(id: string, includeHidden = false) {
+  async getProblemById(id: string, includeHidden = false) {
     const problem = await prisma.problem.findUnique({
       where: { id },
       include: {
@@ -329,7 +329,7 @@ export class ProblemManager {
     }
 
     return problem;
-  }
+  },
 
   /**
    * Import problems from markdown files
@@ -360,7 +360,7 @@ export class ProblemManager {
    * ]
    * ```
    */
-  static async importProblemsFromMarkdown(directory: string): Promise<Problem[]> {
+  async importProblemsFromMarkdown(directory: string): Promise<Problem[]> {
     const allowedRoot = path.resolve(process.cwd(), 'content');
     const resolvedDir = path.resolve(directory);
     if (!resolvedDir.startsWith(allowedRoot)) {
@@ -411,12 +411,12 @@ export class ProblemManager {
     }
 
     return problems;
-  }
+  },
 
   /**
    * Parse markdown sections
    */
-  private static parseMarkdownSections(markdown: string) {
+  parseMarkdownSections(markdown: string) {
     const sections: {
       problem?: string;
       solution?: string;
@@ -452,12 +452,12 @@ export class ProblemManager {
     }
 
     return sections;
-  }
+  },
 
   /**
    * Calculate success rate for a problem
    */
-  static async calculateSuccessRate(problemId: string): Promise<number> {
+  async calculateSuccessRate(problemId: string): Promise<number> {
     const attempts = await prisma.attempt.findMany({
       where: { problemId },
       select: { correct: true },
@@ -467,12 +467,12 @@ export class ProblemManager {
 
     const successful = attempts.filter((a) => a.correct).length;
     return (successful / attempts.length) * 100;
-  }
+  },
 
   /**
    * Update success rate for all problems
    */
-  static async updateAllSuccessRates(): Promise<void> {
+  async updateAllSuccessRates(): Promise<void> {
     const problems = await prisma.problem.findMany({
       where: { deletedAt: null },
       select: { id: true },
@@ -487,7 +487,7 @@ export class ProblemManager {
         });
       }),
     );
-  }
-}
+  },
+} as const;
 
 export default ProblemManager;

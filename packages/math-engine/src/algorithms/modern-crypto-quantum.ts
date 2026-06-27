@@ -463,21 +463,21 @@ export type QuantumState = ReadonlyArray<Complex>;
 /**
  * Basic quantum gates
  */
-export class QuantumGates {
+export const QuantumGates = {
   /**
    * Pauli-X gate (NOT gate)
    */
-  static X(): number[][] {
+  X(): number[][] {
     return [
       [0, 1],
       [1, 0],
     ];
-  }
+  },
 
   /**
    * Pauli-Y gate
    */
-  static Y(): Complex[][] {
+  Y(): Complex[][] {
     return [
       [
         { real: 0, imag: 0 },
@@ -488,45 +488,45 @@ export class QuantumGates {
         { real: 0, imag: 0 },
       ],
     ];
-  }
+  },
 
   /**
    * Pauli-Z gate
    */
-  static Z(): number[][] {
+  Z(): number[][] {
     return [
       [1, 0],
       [0, -1],
     ];
-  }
+  },
 
   /**
    * Hadamard gate
    */
-  static H(): number[][] {
+  H(): number[][] {
     const sqrt2 = 1 / Math.sqrt(2);
     return [
       [sqrt2, sqrt2],
       [sqrt2, -sqrt2],
     ];
-  }
+  },
 
   /**
    * CNOT gate (2-qubit)
    */
-  static CNOT(): number[][] {
+  CNOT(): number[][] {
     return [
       [1, 0, 0, 0],
       [0, 1, 0, 0],
       [0, 0, 0, 1],
       [0, 0, 1, 0],
     ];
-  }
+  },
 
   /**
    * Apply gate to quantum state
    */
-  static apply(gate: number[][], state: Complex[]): Complex[] {
+  apply(gate: number[][], state: Complex[]): Complex[] {
     const result: Complex[] = [];
 
     for (let i = 0; i < gate.length; i++) {
@@ -544,8 +544,8 @@ export class QuantumGates {
     }
 
     return result;
-  }
-}
+  },
+} as const;
 
 // ----------------------------------------------------------------------------
 // 6. Grover's Algorithm
@@ -608,11 +608,11 @@ export class GroverAlgorithm {
 /**
  * Quantum Fourier Transform
  */
-export class QuantumFourierTransform {
+export const QuantumFourierTransform = {
   /**
    * Apply QFT to quantum state
    */
-  static apply(state: Complex[]): Complex[] {
+  apply(state: Complex[]): Complex[] {
     const N = state.length;
     const result: Complex[] = Array(N).fill({ real: 0, imag: 0 });
 
@@ -635,8 +635,8 @@ export class QuantumFourierTransform {
     }
 
     return result;
-  }
-}
+  },
+} as const;
 
 // Export all algorithms
 export const ModernCryptoQuantumAlgorithms = {

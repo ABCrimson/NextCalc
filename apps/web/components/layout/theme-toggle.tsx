@@ -47,6 +47,7 @@ export function ThemeToggle() {
     setTheme(initialTheme);
 
     // Sync cookie with localStorage for server-side persistence
+    // biome-ignore lint/suspicious/noDocumentCookie: the async CookieStore API is unsupported in Firefox/Safari; sync document.cookie is required for SSR theme persistence
     document.cookie = `theme=${initialTheme};path=/;max-age=${60 * 60 * 24 * 365};SameSite=Lax`;
 
     // Tailwind 4.x: Set data-theme attribute instead of class
@@ -89,6 +90,7 @@ export function ThemeToggle() {
     localStorage.setItem('theme', newTheme);
 
     // Set cookie for server-side theme persistence (prevents flash on reload)
+    // biome-ignore lint/suspicious/noDocumentCookie: the async CookieStore API is unsupported in Firefox/Safari; sync document.cookie is required for SSR theme persistence
     document.cookie = `theme=${newTheme};path=/;max-age=${60 * 60 * 24 * 365};SameSite=Lax`;
 
     // Tailwind 4.x: Set data-theme attribute instead of class

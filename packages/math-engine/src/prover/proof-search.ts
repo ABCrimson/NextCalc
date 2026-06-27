@@ -380,7 +380,7 @@ export function backwardChaining(
     // --- Conjunction elimination: if goal is part of a known conjunction ---
     for (let i = 0; i < knownFacts.length; i++) {
       const fi = knownFacts[i];
-      if (!fi || fi.type !== 'binary' || fi.operator !== LogicalOperator.AND) continue;
+      if (fi?.type !== 'binary' || fi.operator !== LogicalOperator.AND) continue;
 
       if (formulasEqual(fi.left, currentGoal) || formulasEqual(fi.right, currentGoal)) {
         steps.push({
@@ -827,6 +827,12 @@ function pushNegations(f: Formula): Formula {
         case 'atomic':
         case 'quantified':
           // ¬atom or ¬quantified — already a literal, nothing to push
+          return { type: 'not', operand: inner };
+
+        default:
+          // inner.type is exhaustively handled above; this defensive default
+          // keeps the negation on the surface for any future Formula variant
+          // instead of falling through to the outer switch's next case.
           return { type: 'not', operand: inner };
       }
     }

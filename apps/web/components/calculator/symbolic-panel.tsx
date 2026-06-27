@@ -478,7 +478,7 @@ function toAstShape(node: unknown): AstNodeShape | null {
 
 function needsParens(node: unknown): boolean {
   const n = toAstShape(node);
-  if (!n || n.type !== 'OperatorNode') return false;
+  if (n?.type !== 'OperatorNode') return false;
   const op = String(n.op ?? '');
   return op === '+' || op === '-';
 }

@@ -47,7 +47,9 @@ async function testConnection() {
       console.log('');
     } else {
       console.log(`Found ${tables.length} tables:`);
-      tables.forEach((t: { tablename?: string }) => console.log(`   - ${t.tablename}`));
+      for (const t of tables) {
+        console.log(`   - ${t.tablename}`);
+      }
       console.log('');
     }
 

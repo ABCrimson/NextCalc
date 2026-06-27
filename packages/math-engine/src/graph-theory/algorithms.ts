@@ -470,7 +470,9 @@ export function tarjanSCC(graph: Graph): SCCResult {
   // Create component map
   const componentMap = new Map<number, number>();
   components.forEach((component, idx) => {
-    component.forEach((v) => componentMap.set(v, idx));
+    component.forEach((v) => {
+      componentMap.set(v, idx);
+    });
   });
 
   return {
@@ -550,7 +552,9 @@ export function kosarajuSCC(graph: Graph): SCCResult {
   // Create component map
   const componentMap = new Map<number, number>();
   components.forEach((component, idx) => {
-    component.forEach((v) => componentMap.set(v, idx));
+    component.forEach((v) => {
+      componentMap.set(v, idx);
+    });
   });
 
   return {

@@ -190,6 +190,7 @@ export function ZKPComputeVisualizer({
   }, [roundCount, injectFailures]);
 
   // Auto-build on mount
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional mount-only seed. buildRounds is a useCallback over [roundCount, injectFailures]; adding it would regenerate all rounds and wipe verification state whenever those props change, instead of only on first mount.
   useEffect(() => {
     buildRounds();
   }, []);
@@ -328,7 +329,8 @@ export function ZKPComputeVisualizer({
         setSelectedCell(next);
       }
     },
-    [selectedCell, cells.length, cols],
+    // cols is a module-invariant constant (8); excluded as it never changes.
+    [selectedCell, cells.length],
   );
 
   // ─── Render ───────────────────────────────────────────────────────────────

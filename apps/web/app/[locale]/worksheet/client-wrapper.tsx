@@ -45,6 +45,8 @@ export function WorksheetClientWrapper({
   const [saveState, saveAction] = useActionState(saveWorksheet, initialSaveState);
   const [loadState, loadAction] = useActionState(loadWorksheet, initialLoadState);
 
+  // Stable module-level Zustand store reference — never changes identity, so it is
+  // intentionally omitted from the effect/callback dependency lists below.
   const store = useWorksheetStore;
 
   // Load worksheet from DB if ID provided
@@ -67,14 +69,14 @@ export function WorksheetClientWrapper({
         version,
       });
     }
-  }, [loadState, store]);
+  }, [loadState]);
 
   // Track save responses to update version
   useEffect(() => {
     if (saveState.success && saveState.data && !saveState.data.conflict) {
       store.getState().markClean(saveState.data.version, saveState.data.worksheetId);
     }
-  }, [saveState, store]);
+  }, [saveState]);
 
   // Autosave: 1.5s debounce on store changes
   const doSave = useCallback(() => {
@@ -87,7 +89,7 @@ export function WorksheetClientWrapper({
     fd.set('cells', JSON.stringify(state.worksheet.cells));
     fd.set('expectedVersion', state.version.toString());
     saveAction(fd);
-  }, [store, saveAction]);
+  }, [saveAction]);
 
   useEffect(() => {
     const unsub = store.subscribe((state, prevState) => {
@@ -100,7 +102,7 @@ export function WorksheetClientWrapper({
       unsub();
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [store, doSave]);
+  }, [doSave]);
 
   return <WorksheetEditor />;
 }

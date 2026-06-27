@@ -1,5 +1,5 @@
 import { GraphQLError } from 'graphql';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   AuthenticationError,
   ConflictError,

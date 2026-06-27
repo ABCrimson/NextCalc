@@ -22,7 +22,6 @@ import {
   addQuantities,
   convertUnit,
   createQuantity,
-  DERIVED_UNITS,
   findUnit,
   findUnitByDimension,
   formatQuantity,
@@ -30,8 +29,6 @@ import {
   MASS_UNITS,
   multiplyQuantities,
   SI_UNITS,
-  TEMPERATURE_UNITS,
-  TIME_UNITS,
 } from './units';
 
 // ============================================================================

@@ -1365,7 +1365,7 @@ export function getProblemById(id: string): Problem | undefined {
  */
 export function getRelatedProblems(id: string): ReadonlyArray<Problem> {
   const problem = getProblem(id);
-  if (!problem || !problem.related) {
+  if (!problem?.related) {
     return [];
   }
 

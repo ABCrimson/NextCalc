@@ -703,6 +703,7 @@ export function GpuDirectionField({
   }, [gpuAvailable]);
 
   // ----- WebGPU render -----
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `gpuAvailable` is intentionally retained (not "unnecessary") — it is the only reactive signal that re-runs this render pass after the async GPU init (gated on gpuAvailable) populates gpuRef/gpuActiveRef. Removing it would drop the trigger that draws the first GPU frame.
   useEffect(() => {
     if (!visible) return;
     if (!gpuActiveRef.current || !gpuRef.current) return;

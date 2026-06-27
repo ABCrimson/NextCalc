@@ -181,7 +181,7 @@ function evalAt(expr: ExpressionNode, variable: string, x: number): number | nul
     const result = evaluate(expr, { variables: { [variable]: x } });
     if (!result.success) return null;
     const v = Number(result.value);
-    return isFinite(v) ? v : null;
+    return Number.isFinite(v) ? v : null;
   } catch {
     return null;
   }
@@ -577,7 +577,7 @@ export class StepSolver {
           noSol ? 'No solutions' : 'All real numbers are solutions',
           noSol
             ? `The coefficient of ${variable} is 0 and the constant ${b} ≠ 0, so there is no solution.`
-            : 'Both coefficients are 0, so every value of ${variable} is a solution.',
+            : `Both coefficients are 0, so every value of ${variable} is a solution.`,
           StepCategory.FinalAnswer,
           noSol ? '\\text{No solution}' : `${variable} \\in \\mathbb{R}`,
         ),
@@ -1361,7 +1361,7 @@ function formatCoeff(n: number): string {
 
 /** Compact decimal formatting — no trailing zeros */
 function formatDecimal(n: number): string {
-  if (!isFinite(n)) return String(n);
+  if (!Number.isFinite(n)) return String(n);
   if (Number.isInteger(n)) return String(n);
   return n.toFixed(6).replace(/\.?0+$/, '');
 }

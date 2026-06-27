@@ -11,7 +11,7 @@ import {
   Flame,
   Globe,
   Grid3x3,
-  Infinity,
+  Infinity as InfinityIcon,
   Library,
   LogIn,
   LogOut,
@@ -134,7 +134,7 @@ const toolLinks: NavLink[] = [
     href: '/complex',
     labelKey: 'nav.complex',
     descKey: 'nav.complexDescription',
-    icon: Infinity,
+    icon: InfinityIcon,
   },
   {
     href: '/formulas',

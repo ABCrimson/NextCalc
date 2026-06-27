@@ -303,9 +303,9 @@ vi.mock('framer-motion', () => {
     return filtered;
   };
 
-  // biome-ignore lint/suspicious/noExplicitAny: mock implementation — untyped by design
   const createMotionComponent =
     (tag: string) =>
+    // biome-ignore lint/suspicious/noExplicitAny: mock implementation — untyped by design
     ({ children, ref, ...props }: any) =>
       React.createElement(tag, { ...filterMotionProps(props), ref }, children);
 

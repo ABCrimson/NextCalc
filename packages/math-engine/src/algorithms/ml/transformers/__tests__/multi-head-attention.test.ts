@@ -395,8 +395,8 @@ describe('Multi-Head Attention', () => {
 
       // Check for NaN or Inf
       for (const val of result.output[0]!) {
-        expect(isNaN(val)).toBe(false);
-        expect(isFinite(val)).toBe(true);
+        expect(Number.isNaN(val)).toBe(false);
+        expect(Number.isFinite(val)).toBe(true);
       }
     });
 
@@ -463,7 +463,7 @@ describe('Multi-Head Attention', () => {
       // Should not produce NaN
       for (const row of result.output) {
         for (const val of row) {
-          expect(isNaN(val)).toBe(false);
+          expect(Number.isNaN(val)).toBe(false);
         }
       }
     });

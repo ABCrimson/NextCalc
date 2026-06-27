@@ -170,7 +170,9 @@ export class TemplateEngine {
    * Register multiple templates
    */
   registerMany(templates: ProblemTemplate[]): void {
-    templates.forEach((t) => this.register(t));
+    templates.forEach((t) => {
+      this.register(t);
+    });
   }
 
   /**

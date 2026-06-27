@@ -421,6 +421,7 @@ export function WebGLHeatmap({
 
       // Clear and render
       gl.clear(gl.COLOR_BUFFER_BIT);
+      // biome-ignore lint/correctness/useHookAtTopLevel: gl.useProgram is the WebGL API, not a React hook
       gl.useProgram(program);
 
       // Bind texture explicitly each frame (ensure correct state)

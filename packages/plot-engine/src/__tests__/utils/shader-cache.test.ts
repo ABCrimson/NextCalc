@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { CompiledShader, ShaderSource } from '../../utils/shader-cache';
+import type { ShaderSource } from '../../utils/shader-cache';
 import { ShaderCache } from '../../utils/shader-cache';
 
 /**
@@ -29,7 +29,7 @@ function createMockGL(overrides: Record<string, unknown> = {}) {
     createProgram: vi.fn(() => ({ __programId: ++programId })),
     attachShader: vi.fn(),
     linkProgram: vi.fn(),
-    getProgramParameter: vi.fn((program: unknown, pname: number) => {
+    getProgramParameter: vi.fn((_program: unknown, pname: number) => {
       if (pname === 0x8b82) return true; // LINK_STATUS
       if (pname === 0x8b89) return 1; // ACTIVE_ATTRIBUTES
       if (pname === 0x8b86) return 1; // ACTIVE_UNIFORMS

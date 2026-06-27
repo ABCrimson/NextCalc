@@ -564,6 +564,7 @@ export function FrequencySpectrumRenderer({
   // -------------------------------------------------------------------------
   // WebGPU initialisation
   // -------------------------------------------------------------------------
+  // biome-ignore lint/correctness/useExhaustiveDependencies: mount-only WebGPU device/pipeline init; `magnitudes`/`magnitudes.length` are read once to size the initial magnitude buffer. Re-running on data change would destroy and rebuild the GPU device/pipelines — a separate effect (below) keeps the buffer in sync via writeBuffer.
   useEffect(() => {
     if (!supportsWebGPU) {
       setRenderMode('canvas2d');

@@ -141,31 +141,34 @@ function extractMathBlocks(content: string): MathBlock[] {
 
   // Extract display math ($$...$$)
   const displayRegex = /\$\$([\s\S]*?)\$\$/g;
-  let match: RegExpExecArray | null;
+  let displayMatch = displayRegex.exec(content);
 
-  while ((match = displayRegex.exec(content)) !== null) {
-    if (match[1] !== undefined) {
+  while (displayMatch !== null) {
+    if (displayMatch[1] !== undefined) {
       blocks.push({
         type: 'display',
-        content: match[1].trim(),
-        position: match.index,
+        content: displayMatch[1].trim(),
+        position: displayMatch.index,
         id: `math-${idCounter++}`,
       });
     }
+    displayMatch = displayRegex.exec(content);
   }
 
   // Extract inline math ($...$)
   const inlineRegex = /(?<!\$)\$(?!\$)(.*?)(?<!\$)\$(?!\$)/g;
+  let inlineMatch = inlineRegex.exec(content);
 
-  while ((match = inlineRegex.exec(content)) !== null) {
-    if (match[1] !== undefined) {
+  while (inlineMatch !== null) {
+    if (inlineMatch[1] !== undefined) {
       blocks.push({
         type: 'inline',
-        content: match[1].trim(),
-        position: match.index,
+        content: inlineMatch[1].trim(),
+        position: inlineMatch.index,
         id: `math-${idCounter++}`,
       });
     }
+    inlineMatch = inlineRegex.exec(content);
   }
 
   return blocks.sort((a, b) => a.position - b.position);
@@ -310,9 +313,9 @@ function slugify(text: string): string {
 export function extractCodeBlocks(content: string): CodeBlock[] {
   const blocks: CodeBlock[] = [];
   const regex = /```(\w+)?\n([\s\S]*?)```/g;
-  let match: RegExpExecArray | null;
+  let match = regex.exec(content);
 
-  while ((match = regex.exec(content)) !== null) {
+  while (match !== null) {
     const code = match[2];
     if (code !== undefined) {
       blocks.push({
@@ -321,6 +324,7 @@ export function extractCodeBlocks(content: string): CodeBlock[] {
         position: match.index,
       });
     }
+    match = regex.exec(content);
   }
 
   return blocks;
@@ -341,9 +345,9 @@ export interface CodeBlock {
 export function extractLinks(content: string): Link[] {
   const links: Link[] = [];
   const regex = /\[([^\]]+)\]\(([^)]+)\)/g;
-  let match: RegExpExecArray | null;
+  let match = regex.exec(content);
 
-  while ((match = regex.exec(content)) !== null) {
+  while (match !== null) {
     if (match[1] && match[2]) {
       links.push({
         text: match[1],
@@ -351,6 +355,7 @@ export function extractLinks(content: string): Link[] {
         position: match.index,
       });
     }
+    match = regex.exec(content);
   }
 
   return links;
@@ -371,9 +376,9 @@ export interface Link {
 export function extractImages(content: string): Image[] {
   const images: Image[] = [];
   const regex = /!\[([^\]]*)\]\(([^)]+)\)/g;
-  let match: RegExpExecArray | null;
+  let match = regex.exec(content);
 
-  while ((match = regex.exec(content)) !== null) {
+  while (match !== null) {
     const alt = match[1];
     const url = match[2];
     if (alt !== undefined && url) {
@@ -383,6 +388,7 @@ export function extractImages(content: string): Image[] {
         position: match.index,
       });
     }
+    match = regex.exec(content);
   }
 
   return images;

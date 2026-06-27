@@ -1,7 +1,15 @@
 'use client';
 
 import { m } from 'framer-motion';
-import { Grid3x3, Infinity, Ruler, Sparkles, Square, TrendingUp, Variable } from 'lucide-react';
+import {
+  Grid3x3,
+  Infinity as InfinityIcon,
+  Ruler,
+  Sparkles,
+  Square,
+  TrendingUp,
+  Variable,
+} from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { type CSSProperties, Suspense } from 'react';
@@ -102,7 +110,7 @@ const featureCards: FeatureCard[] = [
   },
   {
     href: '/complex',
-    icon: Infinity,
+    icon: InfinityIcon,
     titleKey: 'home.feature.complexNumbers',
     subtitleKey: 'home.feature.complexNumbersSubtitle',
     accentClass: 'text-violet-300',

@@ -23,7 +23,7 @@ import { useFormatter, useTranslations } from 'next-intl';
 import { AlertDialog } from 'radix-ui';
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
-import { Link, useRouter } from '@/i18n/navigation';
+import { Link } from '@/i18n/navigation';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -63,7 +63,6 @@ async function fetchWorksheets(): Promise<WorksheetSummary[]> {
 export default function WorksheetsPage() {
   const t = useTranslations('worksheets');
   const format = useFormatter();
-  const router = useRouter();
 
   const [worksheets, setWorksheets] = useState<WorksheetSummary[]>([]);
   const [loading, setLoading] = useState(true);

@@ -124,6 +124,16 @@
           }
         }
       }
+    },
+    {
+      "includes": ["packages/math-engine/**", "packages/plot-engine/**", "apps/workers/**"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "useHookAtTopLevel": "off"
+          }
+        }
+      }
     }
   ]
 }

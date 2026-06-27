@@ -87,7 +87,7 @@ function parseHexColor(hex: string): RGBA {
  */
 function parseRGBColor(rgb: string): RGBA {
   const match = rgb.match(/rgba?\(([^)]+)\)/);
-  if (!match || !match[1]) {
+  if (!match?.[1]) {
     throw new Error(`Invalid RGB color: ${rgb}`);
   }
 

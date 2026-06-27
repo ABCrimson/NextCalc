@@ -1,7 +1,16 @@
 'use client';
 
 import { AnimatePresence, m } from 'framer-motion';
-import { AlertCircle, Calculator, Check, Grid3x3, Infinity, Pi, Sigma, Type } from 'lucide-react';
+import {
+  AlertCircle,
+  Calculator,
+  Check,
+  Grid3x3,
+  Infinity as InfinityIcon,
+  Pi,
+  Sigma,
+  Type,
+} from 'lucide-react';
 import type { KeyboardEvent } from 'react';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -34,7 +43,7 @@ const SYMBOL_CATEGORIES = {
   },
   special: {
     label: 'Special',
-    icon: Infinity,
+    icon: InfinityIcon,
     symbols: ['∞', '√', '∛', '∜', '|', '‖', '°', '′', '″'],
   },
   logic: {

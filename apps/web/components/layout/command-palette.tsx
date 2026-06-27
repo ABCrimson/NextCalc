@@ -603,6 +603,7 @@ export function CommandPalette({ className }: CommandPaletteProps) {
   }, [open]);
 
   // Reset activeIndex when results change
+  // biome-ignore lint/correctness/useExhaustiveDependencies: filteredItems.length is an intentional change-trigger, not a read value. The effect resets the highlighted index to 0 whenever the result count changes; it is deliberately retained even though the body does not read it, since removing it would make this a mount-only effect and break the reset-on-search behavior.
   useEffect(() => {
     setActiveIndex(0);
   }, [filteredItems.length]);
@@ -687,6 +688,7 @@ export function CommandPalette({ className }: CommandPaletteProps) {
   // Scroll active item into view
   // ---------------------------------------------------------------------------
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: activeIndex is an intentional change-trigger. The effect scrolls the newly-active item into view whenever the active index changes; it reads the active element via a ref (listRef) rather than reading activeIndex directly, so Biome sees it as unnecessary, but removing it would stop scroll-on-navigation from working.
   useEffect(() => {
     if (!listRef.current) return;
     const activeEl = listRef.current.querySelector('[data-active="true"]');

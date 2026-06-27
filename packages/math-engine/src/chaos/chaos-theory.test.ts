@@ -123,7 +123,6 @@ describe('Logistic Map', () => {
 
       expect(result.convergence.length).toBeGreaterThan(10);
       // Later values should be more stable
-      const early = result.convergence.slice(0, 5);
       const late = result.convergence.slice(-5);
       expect(late.length).toBeGreaterThan(0);
     });

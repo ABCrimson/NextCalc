@@ -23,10 +23,6 @@ import {
   integrateRomberg,
 } from './integrate-numerical';
 
-// Tolerance for numerical comparisons
-const TOL = 1e-8;
-const LOOSE_TOL = 1e-4; // For Monte Carlo
-
 describe('Numerical Integration - Known Integrals', () => {
   it('integrates polynomials correctly', () => {
     // ∫₀¹ x² dx = 1/3

@@ -5,13 +5,7 @@
 import { describe, expect, it } from 'vitest';
 import { createConstantNode, createOperatorNode, createSymbolNode } from '../parser/ast';
 import { parse } from '../parser/parser';
-import {
-  ComputerAlgebraSystem,
-  createCAS,
-  type Pattern,
-  type RewriteRule,
-  RuleCategory,
-} from './computer-algebra-system';
+import { createCAS, type RewriteRule, RuleCategory } from './computer-algebra-system';
 
 describe('ComputerAlgebraSystem', () => {
   describe('Pattern Matching', () => {

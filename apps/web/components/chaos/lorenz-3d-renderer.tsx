@@ -178,6 +178,7 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
     reinit(particleCount);
   }, [particleCount, gpuAvailable]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: full Three.js/WebGPU scene init; `cageVisible` and `particleCount` are read once to seed the initial cage visibility and particle buffer size. Dedicated effects above sync both reactively (cageRef.visible and reinitGpuParticlesRef) — adding them here would tear down and rebuild the entire renderer on every toggle/slider change.
   useEffect(() => {
     if (!containerRef.current || data.length === 0) return;
 

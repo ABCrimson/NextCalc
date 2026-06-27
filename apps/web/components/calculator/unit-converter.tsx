@@ -831,7 +831,6 @@ export function UnitConverter() {
     }
   }, [inputValue, fromDef, toDef]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: runConversion is stable per its deps
   useEffect(() => {
     runConversion();
   }, [runConversion]);

@@ -1074,10 +1074,10 @@ function formatConstantLatex(value: number | bigint | string): string {
   }
 
   // Handle special IEEE 754 values
-  if (!isFinite(value)) {
+  if (!Number.isFinite(value)) {
     return value > 0 ? '\\infty' : '-\\infty';
   }
-  if (isNaN(value)) {
+  if (Number.isNaN(value)) {
     return '\\text{NaN}';
   }
 

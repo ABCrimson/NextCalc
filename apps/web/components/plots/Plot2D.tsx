@@ -300,6 +300,7 @@ export function Plot2D({
   }, []);
 
   // Initialize Cartesian/Parametric interaction controller
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `config.viewport` is read once to seed the controller's initial viewport. The controller itself emits pan/zoom/reset events that update the viewport, so depending on it would disable/re-enable the controller on every interaction (losing drag state and looping). Live config is read via the stable `configRef` inside handleViewportChange.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !isReady || !enableInteractions) return;

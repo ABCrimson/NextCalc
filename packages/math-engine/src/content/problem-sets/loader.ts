@@ -201,7 +201,7 @@ function extractListItems(content: string, headingPattern: string): string[] {
 
   for (const line of listText.split('\n')) {
     const itemMatch = line.match(/^[-*]\s+(.+)$/);
-    if (itemMatch && itemMatch[1]) {
+    if (itemMatch?.[1]) {
       items.push(itemMatch[1].trim());
     }
   }

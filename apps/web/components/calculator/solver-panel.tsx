@@ -384,7 +384,7 @@ function astNodeToLatex(node: unknown): string {
 /** Return true if a node needs parentheses when used as a child of *, ^ */
 function needsParens(node: unknown): boolean {
   const n = toAstShape(node);
-  if (!n || n.type !== 'OperatorNode') return false;
+  if (n?.type !== 'OperatorNode') return false;
   const op = String(n.op ?? '');
   return op === '+' || op === '-';
 }

@@ -375,7 +375,7 @@ export function permutationToCycles(sigma: Permutation): CycleNotation {
  * console.log(cyclesToPermutation(cycles, 5)); // [1, 2, 0, 4, 3]
  */
 export function cyclesToPermutation(cycles: CycleNotation, n?: number): Permutation {
-  const maxElement = Math.max(...cycles.flatMap((cycle) => cycle), 0);
+  const maxElement = Math.max(...cycles.flat(), 0);
   const size = n ?? maxElement + 1;
   const permutation = Array.from({ length: size }, (_, i) => i);
 
@@ -639,7 +639,9 @@ export function allLeftCosets<T extends GroupElement>(
 
     const coset = leftCoset(group, subgroup, g);
     cosets.push([...coset]);
-    coset.forEach((element) => covered.add(element));
+    coset.forEach((element) => {
+      covered.add(element);
+    });
   }
 
   return cosets;

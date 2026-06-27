@@ -468,7 +468,6 @@ function Tier8({ level, size }: { level: number; size: number }) {
       />
       {/* Crown points */}
       {[0, 60, 120, 180, 240, 300].map((angle) => {
-        const [bx, by] = polarToXY(c, c, r, angle - 90);
         const [tx, ty] = polarToXY(c, c, r * 1.3, angle - 90);
         const [lx, ly] = polarToXY(c, c, r, angle - 90 - 12);
         const [rx, ry] = polarToXY(c, c, r, angle - 90 + 12);

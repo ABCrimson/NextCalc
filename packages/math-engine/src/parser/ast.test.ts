@@ -47,8 +47,8 @@ describe('AST Builders', () => {
     });
 
     it('creates a bigint constant node', () => {
-      const node = createConstantNode(BigInt(9007199254740993));
-      expect(node.value).toBe(BigInt(9007199254740993));
+      const node = createConstantNode(BigInt(9007199254740992));
+      expect(node.value).toBe(BigInt(9007199254740992));
     });
 
     it('creates a string constant node', () => {

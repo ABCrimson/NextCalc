@@ -850,7 +850,7 @@ function isEdgeHighlighted(edge: GraphEdge, result: GraphResult | null): boolean
 }
 
 function getSCCColor(nodeId: string, result: GraphResult | null): string | null {
-  if (!result || result.type !== 'scc' || !result.components) return null;
+  if (result?.type !== 'scc' || !result.components) return null;
   const colors = [
     'oklch(0.65 0.18 155)',
     'oklch(0.65 0.2 30)',

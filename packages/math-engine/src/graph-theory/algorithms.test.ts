@@ -23,7 +23,6 @@ import {
   isBipartite,
   kosarajuSCC,
   kruskal,
-  type MST,
   maxFlow,
   prim,
   tarjanSCC,

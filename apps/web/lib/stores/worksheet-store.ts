@@ -284,7 +284,7 @@ export const useWorksheetStore = create<WorksheetStore>()(
         updateMathInput: (id, input) => {
           set((draft) => {
             const cell = draft.worksheet.cells.find((c) => c.id === id);
-            if (!cell || cell.kind !== 'math') return;
+            if (cell?.kind !== 'math') return;
             cell.input = input;
             // Reset result when input changes
             cell.status = 'idle';
@@ -301,7 +301,7 @@ export const useWorksheetStore = create<WorksheetStore>()(
         updateTextContent: (id, content) => {
           set((draft) => {
             const cell = draft.worksheet.cells.find((c) => c.id === id);
-            if (!cell || cell.kind !== 'text') return;
+            if (cell?.kind !== 'text') return;
             cell.content = content;
             cell.updatedAt = Date.now();
             touchWorksheet(draft.worksheet);
@@ -312,7 +312,7 @@ export const useWorksheetStore = create<WorksheetStore>()(
         updatePlotExpressions: (id, expressions) => {
           set((draft) => {
             const cell = draft.worksheet.cells.find((c) => c.id === id);
-            if (!cell || cell.kind !== 'plot') return;
+            if (cell?.kind !== 'plot') return;
             cell.expressions = expressions;
             cell.status = 'idle';
             cell.errorMessage = null;
@@ -325,7 +325,7 @@ export const useWorksheetStore = create<WorksheetStore>()(
         updatePlotViewport: (id, viewport) => {
           set((draft) => {
             const cell = draft.worksheet.cells.find((c) => c.id === id);
-            if (!cell || cell.kind !== 'plot') return;
+            if (cell?.kind !== 'plot') return;
             cell.xMin = viewport.xMin;
             cell.xMax = viewport.xMax;
             cell.yMin = viewport.yMin;
@@ -342,7 +342,7 @@ export const useWorksheetStore = create<WorksheetStore>()(
         setMathPending: (id) => {
           set((draft) => {
             const cell = draft.worksheet.cells.find((c) => c.id === id);
-            if (!cell || cell.kind !== 'math') return;
+            if (cell?.kind !== 'math') return;
             cell.status = 'pending';
             cell.errorMessage = null;
           });
@@ -351,7 +351,7 @@ export const useWorksheetStore = create<WorksheetStore>()(
         setMathResult: (id, result, latex, variables) => {
           set((draft) => {
             const cell = draft.worksheet.cells.find((c) => c.id === id);
-            if (!cell || cell.kind !== 'math') return;
+            if (cell?.kind !== 'math') return;
             cell.result = result;
             cell.latex = latex;
             cell.variables = variables;
@@ -365,7 +365,7 @@ export const useWorksheetStore = create<WorksheetStore>()(
         setMathError: (id, message) => {
           set((draft) => {
             const cell = draft.worksheet.cells.find((c) => c.id === id);
-            if (!cell || cell.kind !== 'math') return;
+            if (cell?.kind !== 'math') return;
             cell.status = 'error';
             cell.errorMessage = message;
             cell.result = null;
@@ -379,7 +379,7 @@ export const useWorksheetStore = create<WorksheetStore>()(
         setPlotStatus: (id, status, errorMessage) => {
           set((draft) => {
             const cell = draft.worksheet.cells.find((c) => c.id === id);
-            if (!cell || cell.kind !== 'plot') return;
+            if (cell?.kind !== 'plot') return;
             cell.status = status;
             cell.errorMessage = errorMessage ?? null;
           });

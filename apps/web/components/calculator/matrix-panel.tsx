@@ -190,7 +190,7 @@ export function MatrixPanel() {
    * Copy result to matrix input
    */
   const copyResultToMatrix = (target: 'A' | 'B') => {
-    if (!result || result.type !== 'matrix') return;
+    if (result?.type !== 'matrix') return;
 
     const resultMatrix = result.value as number[][];
     const newRows = resultMatrix.length;

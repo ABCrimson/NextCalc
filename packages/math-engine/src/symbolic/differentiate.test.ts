@@ -340,7 +340,6 @@ describe('Chain Rule', () => {
 
 describe('Simplification', () => {
   it('simplifies 0 + x to x', () => {
-    const expr = parse('x');
     const derivative = differentiate(parse('0 + x'), 'x');
     const simplified = simplifyDerivative(derivative);
     const result = evaluate(simplified);

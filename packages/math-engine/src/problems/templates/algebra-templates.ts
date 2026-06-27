@@ -22,6 +22,7 @@ export const linearEquationTemplate = createTemplate({
   category: 'algebra',
   subcategory: 'linear-equations',
   difficulty: 1,
+  // biome-ignore lint/suspicious/noTemplateCurlyInString: literal placeholder substituted by the template engine, not a JS template literal
   template: 'Solve for $x$: ${{a}}x + {{b}} = {{c}}$',
   parameters: [
     { name: 'a', type: 'integer', min: 1, max: 10 },
@@ -80,6 +81,7 @@ export const quadraticEquationTemplate = createTemplate({
   category: 'algebra',
   subcategory: 'quadratic-equations',
   difficulty: 3,
+  // biome-ignore lint/suspicious/noTemplateCurlyInString: literal placeholder substituted by the template engine, not a JS template literal
   template: 'Solve for $x$ using the quadratic formula: ${{a}}x^2 + {{b}}x + {{c}} = 0$',
   parameters: [
     { name: 'a', type: 'integer', min: 1, max: 5 },
@@ -315,6 +317,7 @@ export const linearInequalityTemplate = createTemplate({
   category: 'algebra',
   subcategory: 'inequalities',
   difficulty: 2,
+  // biome-ignore lint/suspicious/noTemplateCurlyInString: literal placeholder substituted by the template engine, not a JS template literal
   template: 'Solve for $x$: ${{a}}x + {{b}} {{op}} {{c}}$',
   parameters: [
     { name: 'a', type: 'integer', min: 1, max: 10 },
@@ -457,7 +460,7 @@ export const radicalEquationTemplate = createTemplate({
           expression: `x = ${x}`,
         },
         {
-          description: 'Check: $\\sqrt{${x} + ${a}} = \\sqrt{${x + a}} = ${b}$ ✓',
+          description: `Check: $\\sqrt{${x} + ${a}} = \\sqrt{${x + a}} = ${b}$ ✓`,
           expression: 'Solution is valid',
         },
       ],

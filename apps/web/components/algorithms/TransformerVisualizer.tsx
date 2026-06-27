@@ -650,8 +650,8 @@ export function TransformerVisualizer({
 
   return (
     <div className={cn('w-full mx-auto space-y-4 sm:space-y-6', className)}>
-      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static CSS keyframes only */}
       <style
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: static CSS keyframes only
         dangerouslySetInnerHTML={{
           __html: `
         @keyframes transformer-pulse {

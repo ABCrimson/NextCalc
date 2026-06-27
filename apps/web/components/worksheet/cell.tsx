@@ -162,6 +162,7 @@ function MathCellContent({ cell, cellIndex, getVariablesUpTo }: MathCellContentP
   const [isPending, startTransition] = useTransition();
 
   // Auto-resize textarea
+  // biome-ignore lint/correctness/useExhaustiveDependencies: cell.input is an intentional change-trigger. The effect recomputes the textarea height every time the input text changes; it reads the live element via a ref rather than reading cell.input directly, so Biome flags it as unnecessary, but removing it would stop the textarea from growing/shrinking as the user types.
   useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
@@ -379,6 +380,7 @@ function TextCellContent({ cell, cellIndex }: TextCellContentProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Auto-resize
+  // biome-ignore lint/correctness/useExhaustiveDependencies: cell.content is an intentional change-trigger. The effect recomputes the textarea height whenever the markdown content changes (and when isEditing toggles, which it does read); it reads the live element via a ref rather than reading cell.content directly, so Biome flags it as unnecessary, but removing it would stop the editor from resizing as the user types.
   useEffect(() => {
     const el = textareaRef.current;
     if (!el || !isEditing) return;

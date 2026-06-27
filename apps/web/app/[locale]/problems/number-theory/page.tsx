@@ -10,7 +10,7 @@ import {
   GitBranch,
   Grid,
   Hash,
-  Infinity,
+  Infinity as InfinityIcon,
   Layers,
   Pause,
   Play,
@@ -1898,7 +1898,8 @@ function SieveCanvas({ cells, limit, currentPrime }: SieveCanvasProps) {
     return Math.max(Math.min(Math.floor(containerW / cols), 28), 4);
   }
 
-  // WebGPU render init — done once, or when limit changes
+  // WebGPU render init — done once, or when limit changes.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: cols/rows are derived purely from `limit`, and getCellSize reads the live container width (canvas.parentElement.clientWidth) each call — re-running this effect on their identity would needlessly destroy and recreate GPU resources on every render. limit is the sole intentional trigger.
   useEffect(() => {
     if (!supportsWebGPU) return;
     const canvas = canvasRef.current;
@@ -1948,7 +1949,8 @@ function SieveCanvas({ cells, limit, currentPrime }: SieveCanvasProps) {
     };
   }, [limit]);
 
-  // Render whenever cells/currentPrime changes
+  // Render whenever cells/currentPrime changes.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: getCellSize reads live container width each call, so it is intentionally not a dependency (its identity changes every render); and `currentPrime` is intentionally retained to force a re-render of the grid when the highlighted prime changes, even though it is consumed via the `cells` snapshot rather than read directly here.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -3025,7 +3027,7 @@ function FibLucasPanel() {
   return (
     <div className="space-y-6">
       <SectionHeader
-        icon={Infinity}
+        icon={InfinityIcon}
         title="Fibonacci & Lucas Sequences"
         description="Explore the golden ratio and recurrence relations. GPU-accelerated bar chart."
         gradient="bg-gradient-to-br from-amber-500 to-orange-600"
@@ -3522,7 +3524,7 @@ const TABS = [
   { id: 'modular', label: 'Modular', icon: Layers, component: ModularPanel },
   { id: 'sieve', label: 'Sieve', icon: Grid, component: SievePanel },
   { id: 'totient', label: "Euler's φ", icon: Circle, component: TotientPanel },
-  { id: 'fibonacci', label: 'Fibonacci', icon: Infinity, component: FibLucasPanel },
+  { id: 'fibonacci', label: 'Fibonacci', icon: InfinityIcon, component: FibLucasPanel },
   { id: 'collatz', label: 'Collatz', icon: Shuffle, component: CollatzPanel },
 ] as const;
 

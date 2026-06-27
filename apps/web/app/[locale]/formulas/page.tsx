@@ -9,7 +9,7 @@ import {
   Copy,
   FunctionSquare,
   Grid3x3,
-  Infinity,
+  Infinity as InfinityIcon,
   Search,
   Triangle,
   X,
@@ -791,7 +791,7 @@ const CATEGORY_META: Record<FormulaCategory, CategoryMeta> = {
   },
   calculus: {
     label: 'Calculus',
-    icon: Infinity,
+    icon: InfinityIcon,
     gradient: 'from-emerald-950/40 to-emerald-900/40',
     border: 'border-emerald-500/40 hover:border-emerald-400/60',
     chip: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',

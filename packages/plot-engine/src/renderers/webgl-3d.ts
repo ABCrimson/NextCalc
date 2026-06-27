@@ -318,6 +318,7 @@ export function createProceduralHDRCubeMap(
       b += bright * 1.0;
     }
     // Secondary star layer — different hash seed via offset
+    // biome-ignore lint/suspicious/noApproximativeNumericConstant: 2.302 is an arbitrary decorrelation seed for the procedural star hash, not Math.LN10
     const star2 = starHash(nx * 1.618 + 0.414, ny * 2.302 - 0.577, nz * 1.732 + 1.0);
     if (star2 > 0.983) {
       const bright2 = (star2 - 0.983) * 18.0;
@@ -1017,6 +1018,7 @@ export function createProceduralHDRCubeMap(
       b += bright * 0.88;
     }
     // Second star hash for even more density in the core
+    // biome-ignore lint/suspicious/noApproximativeNumericConstant: 0.707 and 3.142 are arbitrary decorrelation seeds for the procedural star hash, not Math.SQRT1_2 / Math.PI
     const star2 = starHash(nx * 2.414 + 0.707, ny * 1.618 - 1.0, nz * 3.142 + 0.577);
     if (star2 > Math.max(0, 0.985 - proxSC * 0.35)) {
       const t2 = 1.0 - Math.max(0, 0.985 - proxSC * 0.35);
@@ -1666,7 +1668,9 @@ export class WebGL3DRenderer implements IRenderer {
         this.scene.remove(this.currentMesh);
         this.currentMesh.geometry.dispose();
         if (Array.isArray(this.currentMesh.material)) {
-          this.currentMesh.material.forEach((m) => m.dispose());
+          this.currentMesh.material.forEach((m) => {
+            m.dispose();
+          });
         } else {
           this.currentMesh.material.dispose();
         }
@@ -1678,7 +1682,9 @@ export class WebGL3DRenderer implements IRenderer {
         this.scene.remove(this.currentWireframe);
         this.currentWireframe.geometry.dispose();
         if (Array.isArray(this.currentWireframe.material)) {
-          this.currentWireframe.material.forEach((m) => m.dispose());
+          this.currentWireframe.material.forEach((m) => {
+            m.dispose();
+          });
         } else {
           this.currentWireframe.material.dispose();
         }
@@ -1897,7 +1903,9 @@ export class WebGL3DRenderer implements IRenderer {
         this.scene.remove(this.currentWireframe);
         this.currentWireframe.geometry.dispose();
         if (Array.isArray(this.currentWireframe.material)) {
-          this.currentWireframe.material.forEach((m) => m.dispose());
+          this.currentWireframe.material.forEach((m) => {
+            m.dispose();
+          });
         } else {
           this.currentWireframe.material.dispose();
         }
@@ -2135,7 +2143,9 @@ export class WebGL3DRenderer implements IRenderer {
         this.scene.remove(this.currentMesh);
         this.currentMesh.geometry.dispose();
         if (Array.isArray(this.currentMesh.material)) {
-          this.currentMesh.material.forEach((m) => m.dispose());
+          this.currentMesh.material.forEach((m) => {
+            m.dispose();
+          });
         } else {
           this.currentMesh.material.dispose();
         }
@@ -2162,7 +2172,9 @@ export class WebGL3DRenderer implements IRenderer {
         this.scene.remove(this.currentMesh);
         this.currentMesh.geometry.dispose();
         if (Array.isArray(this.currentMesh.material)) {
-          this.currentMesh.material.forEach((m) => m.dispose());
+          this.currentMesh.material.forEach((m) => {
+            m.dispose();
+          });
         } else {
           this.currentMesh.material.dispose();
         }
@@ -2224,7 +2236,9 @@ export class WebGL3DRenderer implements IRenderer {
       this.currentMesh.geometry.dispose();
       const mat = this.currentMesh.material;
       if (Array.isArray(mat)) {
-        mat.forEach((m) => m.dispose());
+        mat.forEach((m) => {
+          m.dispose();
+        });
       } else {
         mat.dispose();
       }
@@ -2235,7 +2249,9 @@ export class WebGL3DRenderer implements IRenderer {
       this.scene?.remove(this.currentWireframe);
       this.currentWireframe.geometry.dispose();
       if (Array.isArray(this.currentWireframe.material)) {
-        this.currentWireframe.material.forEach((m) => m.dispose());
+        this.currentWireframe.material.forEach((m) => {
+          m.dispose();
+        });
       } else {
         this.currentWireframe.material.dispose();
       }
@@ -2286,7 +2302,9 @@ export class WebGL3DRenderer implements IRenderer {
     }
 
     // Dispose cached axis label textures
-    this.axisLabelTextureCache.forEach((tex) => tex.dispose());
+    this.axisLabelTextureCache.forEach((tex) => {
+      tex.dispose();
+    });
     this.axisLabelTextureCache.clear();
 
     // Dispose procedural environment cubemap

@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import type { ContourSegment } from '../../utils/marching-squares';
 import { marchingSquares } from '../../utils/marching-squares';
 
 /**
