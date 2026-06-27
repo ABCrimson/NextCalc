@@ -51,7 +51,24 @@ const PAGE_SIZE_MAP = {
 // (Confirm actual WASM availability in the deployed Worker at deploy time.)
 let wasmInit: Promise<unknown> | null = null;
 function ensureWasm(): Promise<unknown> {
-  wasmInit ??= initWasm({ png: true, deflate: true }).catch(() => undefined);
+  // Log the result once so the deployed Worker's observability surfaces whether
+  // WASM acceleration is actually active. VERIFIED via `wrangler dev` (local
+  // workerd) on 2026-06-27: modern-pdf-lib 0.28.1 ships NO .wasm binaries, so
+  // `initWasm`'s filesystem load (readAll of `./wasm/.../*_bg.wasm`) fails in
+  // every runtime (Node + workerd) and we fall back to pure-JS — which produces
+  // valid PDFs end-to-end (POST /export/pdf → 1-page PDF). Enabling real
+  // acceleration requires modern-pdf-lib to ship/expose its WASM so we can pass
+  // `pngWasm` / `deflateWasm` bytes here.
+  wasmInit ??= initWasm({ png: true, deflate: true })
+    .then(() => {
+      console.info('[export-service] modern-pdf-lib WASM acceleration enabled');
+    })
+    .catch((err: unknown) => {
+      console.warn(
+        '[export-service] modern-pdf-lib WASM unavailable; using pure-JS fallback:',
+        err instanceof Error ? err.message : String(err),
+      );
+    });
   return wasmInit;
 }
 
