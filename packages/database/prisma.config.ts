@@ -7,8 +7,8 @@
  * @see https://pris.ly/d/config-datasource
  */
 
-import dotenv from 'dotenv';
 import path from 'node:path';
+import dotenv from 'dotenv';
 import { defineConfig } from 'prisma/config';
 
 // Load env from multiple locations (first match wins for each var)

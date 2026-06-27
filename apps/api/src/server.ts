@@ -120,8 +120,8 @@ if (process.env.NODE_ENV === 'production') {
   process.on('SIGINT', shutdown);
 }
 
-/** Re-exports for SSE/subscription consumers */
-export { createDataLoaders };
-export type { GraphQLContext };
 export { rateLimit } from './lib/cache';
 export { RateLimitError } from './lib/errors';
+export type { GraphQLContext };
+/** Re-exports for SSE/subscription consumers */
+export { createDataLoaders };
