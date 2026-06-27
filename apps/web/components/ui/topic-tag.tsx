@@ -207,7 +207,10 @@ export function TopicTagGroup({
   className?: string;
 }) {
   return (
-    <div className={cn('flex flex-wrap gap-2', className)} role="group" aria-label="Topic tags">
+    <fieldset
+      className={cn('flex flex-wrap gap-2 border-0 p-0 m-0', className)}
+      aria-label="Topic tags"
+    >
       {topics.map((topic) => (
         <TopicTag
           key={topic}
@@ -217,7 +220,7 @@ export function TopicTagGroup({
           size={size}
         />
       ))}
-    </div>
+    </fieldset>
   );
 }
 

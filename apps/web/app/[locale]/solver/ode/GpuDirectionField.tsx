@@ -905,6 +905,7 @@ export function GpuDirectionField({
       className="absolute inset-0 w-full h-full rounded-lg pointer-events-none"
       style={{ mixBlendMode: 'screen' }}
       aria-hidden="true"
+      tabIndex={-1}
       suppressHydrationWarning
     />
   );
@@ -919,8 +920,8 @@ export function GpuDirectionField({
  */
 export function DirectionFieldLegend() {
   return (
-    <div
-      className="flex items-center gap-2 text-xs text-muted-foreground"
+    <fieldset
+      className="flex items-center gap-2 border-0 p-0 m-0 text-xs text-muted-foreground"
       aria-label="Direction field speed color legend"
     >
       <span>Slow</span>
@@ -932,6 +933,6 @@ export function DirectionFieldLegend() {
         aria-hidden="true"
       />
       <span>Fast</span>
-    </div>
+    </fieldset>
   );
 }

@@ -132,7 +132,7 @@ export function ActivityCalendar({ data }: ActivityCalendarProps) {
         {DAY_LABELS.map((label, dayIndex) =>
           label ? (
             <text
-              key={`day-${dayIndex}`}
+              key={label}
               x={LEFT_OFFSET - 4}
               y={TOP_OFFSET + dayIndex * CELL_STRIDE + CELL_SIZE - 2}
               fontSize={9}
@@ -148,8 +148,9 @@ export function ActivityCalendar({ data }: ActivityCalendarProps) {
         {/* Contribution cells */}
         {grid.map((week, weekIndex) =>
           week.map((cell, dayIndex) => (
+            // biome-ignore lint/a11y/noStaticElementInteractions: <rect> is inside a role="img" SVG; all children are presentational; hover is a tooltip-only progressive enhancement
             <rect
-              key={`${weekIndex}-${dayIndex}`}
+              key={cell.dateStr}
               x={LEFT_OFFSET + weekIndex * CELL_STRIDE}
               y={TOP_OFFSET + dayIndex * CELL_STRIDE}
               width={CELL_SIZE}
@@ -207,9 +208,9 @@ export function ActivityCalendar({ data }: ActivityCalendarProps) {
           'oklch(0.45 0.15 264)',
           'oklch(0.55 0.20 264)',
           'oklch(0.65 0.25 264)',
-        ].map((color, i) => (
+        ].map((color) => (
           <span
-            key={i}
+            key={color}
             className="inline-block h-3 w-3 rounded-sm"
             style={{ backgroundColor: color }}
             aria-hidden="true"

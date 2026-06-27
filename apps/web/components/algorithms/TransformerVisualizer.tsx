@@ -364,7 +364,7 @@ export function TransformerVisualizer({
     for (let i = 0; i < seqLen; i++) {
       const y = paddingV + i * rowH + rowH / 2;
       const tok = tokens[i] ?? '';
-      const truncated = tok.length > 7 ? tok.slice(0, 6) + '…' : tok;
+      const truncated = tok.length > 7 ? `${tok.slice(0, 6)}…` : tok;
 
       // Query side (left)
       ctx.fillStyle = 'rgba(160,140,255,0.85)';
@@ -539,7 +539,7 @@ export function TransformerVisualizer({
       ctx.textAlign = 'center';
 
       tokens.forEach((token, i) => {
-        const display = token.length > 7 ? token.slice(0, 6) + '…' : token;
+        const display = token.length > 7 ? `${token.slice(0, 6)}…` : token;
         ctx.fillStyle = 'rgba(190,180,255,0.90)';
         ctx.fillText(display, padding + i * cellSize + cellSize / 2, padding - 12);
         ctx.save();
@@ -728,18 +728,17 @@ export function TransformerVisualizer({
             </Button>
           </div>
           {/* Token preview chips */}
-          <div className="flex flex-wrap gap-1.5 mt-3" aria-label="Current tokens" role="list">
+          <ul className="flex flex-wrap gap-1.5 mt-3" aria-label="Current tokens">
             {tokens.map((token, i) => (
-              <span
+              <li
                 key={i}
-                role="listitem"
                 className="px-2 py-0.5 text-xs font-mono rounded-full border border-border/50 bg-muted/40 text-muted-foreground max-w-[6rem] truncate"
                 title={token}
               >
                 {token}
-              </span>
+              </li>
             ))}
-          </div>
+          </ul>
         </CardContent>
       </Card>
 
@@ -772,7 +771,7 @@ export function TransformerVisualizer({
               </div>
             </CardHeader>
             <CardContent>
-              <canvas ref={canvasRef} className="hidden" aria-hidden="true" />
+              <canvas ref={canvasRef} className="hidden" aria-hidden="true" tabIndex={-1} />
 
               <div className="space-y-4">
                 {/* Head Selector */}
@@ -808,6 +807,7 @@ export function TransformerVisualizer({
                     ref={flowCanvasRef}
                     className="w-full h-56 sm:h-72 lg:h-80 block"
                     aria-hidden="true"
+                    tabIndex={-1}
                   />
                   <div
                     className="absolute top-2.5 right-2.5 px-2.5 py-1 text-[0.68rem] font-semibold rounded-full"
@@ -837,7 +837,7 @@ export function TransformerVisualizer({
 
                 {/* Heatmap Display */}
                 <div className="overflow-x-auto -mx-2 sm:mx-0">
-                  <div
+                  <table
                     className="inline-grid gap-0.5 sm:gap-1 p-3 sm:p-4 rounded-xl relative"
                     style={{
                       gridTemplateColumns: `6rem repeat(${config.sequenceLength}, minmax(3.5rem, 4.5rem))`,
@@ -848,7 +848,6 @@ export function TransformerVisualizer({
                       boxShadow:
                         '0 8px 32px rgba(0,0,0,0.32), inset 0 1px 1px rgba(255,255,255,0.06)',
                     }}
-                    role="table"
                     aria-label="Attention scores heatmap"
                   >
                     {/* Column headers */}
@@ -980,7 +979,7 @@ export function TransformerVisualizer({
                         })}
                       </Fragment>
                     ))}
-                  </div>
+                  </table>
                 </div>
 
                 {/* Color scale legend */}

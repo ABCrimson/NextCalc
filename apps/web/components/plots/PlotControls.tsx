@@ -542,6 +542,7 @@ export function PlotControls({
               <div className="flex items-center justify-between gap-2">
                 <span>{exportError}</span>
                 <button
+                  type="button"
                   onClick={() => setExportError(null)}
                   className="text-destructive hover:text-destructive/80 font-medium shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded"
                   aria-label="Dismiss error"
@@ -573,6 +574,7 @@ export function PlotControls({
               <div className="flex items-center justify-between mb-2">
                 <h4 className="text-sm font-semibold text-foreground">Keyboard Shortcuts</h4>
                 <button
+                  type="button"
                   onClick={() => setShowKeyboardHints(false)}
                   className="text-muted-foreground hover:text-foreground"
                   aria-label="Close shortcuts"

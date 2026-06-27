@@ -59,6 +59,7 @@ function AuthorAvatar({ name, image }: { name: string | null; image: string | nu
       )}
     >
       {image ? (
+        // biome-ignore lint/performance/noImgElement: external OAuth avatar URL not in next/image remotePatterns
         <img src={image} alt={name ?? 'User'} className="h-full w-full rounded-full object-cover" />
       ) : (
         <span className="text-muted-foreground">{initials}</span>

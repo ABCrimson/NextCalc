@@ -142,6 +142,7 @@ export default async function RootLayout({
             suppressHydrationWarning avoids browser-extension-induced mismatch. */}
         <script
           suppressHydrationWarning
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: static hardcoded theme-init IIFE; no user input involved
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);document.cookie='theme='+t+';path=/;max-age=31536000;SameSite=Lax'}catch(e){}})()`,
           }}

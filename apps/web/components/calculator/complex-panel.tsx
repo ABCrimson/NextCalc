@@ -602,6 +602,7 @@ function ArgandDiagram({ points, width = 420, height = 340 }: ArgandDiagramProps
               fill={p.glowColor}
               style={{ transition: 'r 0.15s ease' }}
             />
+            {/* biome-ignore lint/a11y/useSemanticElements: SVG <circle> cannot be replaced with <button>; role="button" is valid SVG-ARIA */}
             <circle
               cx={px}
               cy={py}
@@ -610,6 +611,9 @@ function ArgandDiagram({ points, width = 420, height = 340 }: ArgandDiagramProps
               stroke="oklch(0.14 0.015 250)"
               strokeWidth="1.5"
               style={{ transition: 'r 0.15s ease' }}
+              role="button"
+              tabIndex={0}
+              aria-label={p.label}
               onMouseEnter={() => setHoveredPoint(p.label)}
               onMouseLeave={() => setHoveredPoint(null)}
               className="cursor-pointer"

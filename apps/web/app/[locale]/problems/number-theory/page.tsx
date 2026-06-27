@@ -909,7 +909,7 @@ function StepList({ steps }: { steps: Array<{ label: string; latex: string; note
     <ol className="space-y-3">
       {steps.map((step, i) => (
         <m.li
-          key={i}
+          key={step.latex}
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: i * 0.06 }}
@@ -1515,7 +1515,7 @@ function GCDPanel() {
                 <div className="space-y-2">
                   {result.steps.map((step, i) => (
                     <m.div
-                      key={i}
+                      key={`${String(step.a)}-${String(step.b)}`}
                       initial={{ opacity: 0, x: -8 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.07 }}
@@ -3107,15 +3107,18 @@ function FibLucasPanel() {
               <CardContent>
                 <FibonacciCanvas terms={terms} />
                 <div className="mt-2 flex flex-wrap gap-1 max-h-20 overflow-y-auto">
-                  {terms.slice(0, 30).map((t, i) => (
-                    <Badge
-                      key={i}
-                      variant={i === result.n ? 'default' : 'outline'}
-                      className="font-mono text-xs"
-                    >
-                      {String(t)}
-                    </Badge>
-                  ))}
+                  {terms.slice(0, 30).map((t, n) => {
+                    const fibKey = `F(${n})`;
+                    return (
+                      <Badge
+                        key={fibKey}
+                        variant={n === result.n ? 'default' : 'outline'}
+                        className="font-mono text-xs"
+                      >
+                        {String(t)}
+                      </Badge>
+                    );
+                  })}
                   {terms.length > 30 && (
                     <Badge variant="outline" className="text-xs">
                       +{terms.length - 30} more
@@ -3478,14 +3481,17 @@ function CollatzPanel() {
                 <CollatzCanvas seq={result.seq} />
                 {result.seq.length <= 50 && (
                   <div className="mt-3 flex flex-wrap gap-1 text-xs">
-                    {result.seq.map((v, i) => (
-                      <span key={i} className="font-mono">
-                        {String(v)}
-                        {i < result.seq.length - 1 ? (
-                          <ArrowRight className="w-3 h-3 inline mx-0.5" />
-                        ) : null}
-                      </span>
-                    ))}
+                    {result.seq.map((v, seqPos) => {
+                      const collatzKey = `collatz-${seqPos}`;
+                      return (
+                        <span key={collatzKey} className="font-mono">
+                          {String(v)}
+                          {seqPos < result.seq.length - 1 ? (
+                            <ArrowRight className="w-3 h-3 inline mx-0.5" />
+                          ) : null}
+                        </span>
+                      );
+                    })}
                   </div>
                 )}
               </CardContent>
@@ -3575,6 +3581,7 @@ export default function NumberTheoryPage() {
         <div className="flex flex-wrap gap-2">
           {TABS.map(({ id, label, icon: Icon }) => (
             <button
+              type="button"
               key={id}
               onClick={() => setActiveTab(id)}
               className={cn(

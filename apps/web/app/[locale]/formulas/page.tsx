@@ -1151,6 +1151,7 @@ export default function FormulasPage() {
                 <h2 className="text-base font-semibold">Filters</h2>
                 {hasActiveFilters && (
                   <button
+                    type="button"
                     onClick={clearFilters}
                     className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                     aria-label="Clear all filters"
@@ -1187,6 +1188,7 @@ export default function FormulasPage() {
                   />
                   {searchQuery && (
                     <button
+                      type="button"
                       onClick={() => setSearchQuery('')}
                       className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-2 focus-visible:outline-ring rounded"
                       aria-label="Clear search"
@@ -1210,6 +1212,7 @@ export default function FormulasPage() {
                     const count = countByCategory[cat] ?? 0;
                     return (
                       <button
+                        type="button"
                         key={cat}
                         onClick={() => toggleCategory(cat)}
                         aria-pressed={isActive}
@@ -1320,6 +1323,7 @@ export default function FormulasPage() {
                   Try a different search term or clear the category filters to see all formulas.
                 </p>
                 <button
+                  type="button"
                   onClick={clearFilters}
                   className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 >

@@ -1595,6 +1595,7 @@ export function UnifiedGraphRenderer({
       <canvas
         ref={particleCanvasRef}
         aria-hidden="true"
+        tabIndex={-1}
         className="absolute inset-0 w-full h-full pointer-events-none"
         style={{ mixBlendMode: 'screen' }}
       />

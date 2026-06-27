@@ -319,6 +319,7 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
           ry="5"
         />
         {/* Invisible hit target for box body (IQR hover) */}
+        {/* biome-ignore lint/a11y/useSemanticElements: SVG <rect> cannot be replaced with <button>; role="button" is valid SVG-ARIA */}
         <rect
           x={scale(q1)}
           y={midY - 18}
@@ -326,6 +327,9 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
           height={36}
           fill="transparent"
           className="cursor-pointer"
+          role="button"
+          tabIndex={0}
+          aria-label={`IQR: ${formatNumber(iqr)}`}
           onMouseEnter={handleMouseEnter('IQR', iqr)}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
@@ -342,6 +346,7 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
           strokeLinecap="round"
         />
         {/* Invisible hit target for median */}
+        {/* biome-ignore lint/a11y/useSemanticElements: SVG <line> cannot be replaced with <button>; role="button" is valid SVG-ARIA */}
         <line
           x1={scale(q2)}
           y1={midY - 18}
@@ -350,6 +355,9 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
           stroke="transparent"
           strokeWidth={hitTargetWidth}
           className="cursor-pointer"
+          role="button"
+          tabIndex={0}
+          aria-label={`Median: ${formatNumber(q2)}`}
           onMouseEnter={handleMouseEnter('Median (Q2)', q2)}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
@@ -366,6 +374,7 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
           strokeLinecap="round"
         />
         {/* Invisible hit target for min cap */}
+        {/* biome-ignore lint/a11y/useSemanticElements: SVG <line> cannot be replaced with <button>; role="button" is valid SVG-ARIA */}
         <line
           x1={scale(min)}
           y1={midY - 15}
@@ -374,6 +383,9 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
           stroke="transparent"
           strokeWidth={hitTargetWidth}
           className="cursor-pointer"
+          role="button"
+          tabIndex={0}
+          aria-label={`Min: ${formatNumber(min)}`}
           onMouseEnter={handleMouseEnter('Min', min)}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
@@ -390,6 +402,7 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
           strokeLinecap="round"
         />
         {/* Invisible hit target for max cap */}
+        {/* biome-ignore lint/a11y/useSemanticElements: SVG <line> cannot be replaced with <button>; role="button" is valid SVG-ARIA */}
         <line
           x1={scale(max)}
           y1={midY - 15}
@@ -398,12 +411,16 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
           stroke="transparent"
           strokeWidth={hitTargetWidth}
           className="cursor-pointer"
+          role="button"
+          tabIndex={0}
+          aria-label={`Max: ${formatNumber(max)}`}
           onMouseEnter={handleMouseEnter('Max', max)}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         />
 
         {/* Q1 edge — invisible hit target on left edge of box */}
+        {/* biome-ignore lint/a11y/useSemanticElements: SVG <line> cannot be replaced with <button>; role="button" is valid SVG-ARIA */}
         <line
           x1={scale(q1)}
           y1={midY - 18}
@@ -412,12 +429,16 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
           stroke="transparent"
           strokeWidth={hitTargetWidth}
           className="cursor-pointer"
+          role="button"
+          tabIndex={0}
+          aria-label={`Q1 (25th percentile): ${formatNumber(q1)}`}
           onMouseEnter={handleMouseEnter('Q1 (25th percentile)', q1)}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         />
 
         {/* Q3 edge — invisible hit target on right edge of box */}
+        {/* biome-ignore lint/a11y/useSemanticElements: SVG <line> cannot be replaced with <button>; role="button" is valid SVG-ARIA */}
         <line
           x1={scale(q3)}
           y1={midY - 18}
@@ -426,6 +447,9 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
           stroke="transparent"
           strokeWidth={hitTargetWidth}
           className="cursor-pointer"
+          role="button"
+          tabIndex={0}
+          aria-label={`Q3 (75th percentile): ${formatNumber(q3)}`}
           onMouseEnter={handleMouseEnter('Q3 (75th percentile)', q3)}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
@@ -540,6 +564,7 @@ function R2Badge({ r2, quality }: R2BadgeProps) {
         borderColor: style.border,
         color: style.color,
       }}
+      role="status"
       aria-label={`R-squared value ${formatNumber(r2)}, quality: ${quality}`}
     >
       <span>R&sup2; = {formatNumber(r2)}</span>
@@ -1395,7 +1420,6 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
                       background: 'oklch(0.63 0.20 300 / 0.08)',
                       border: '1px solid oklch(0.63 0.20 300 / 0.20)',
                     }}
-                    aria-label={`Regression equation: ${regressionResult.equation}`}
                   >
                     {regressionResult.equation}
                   </div>
@@ -1407,8 +1431,8 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
                       Coefficients
                     </p>
                     <div className="space-y-1">
-                      {regressionResult.coefficients.map((coeff, i) => (
-                        <p key={i} className="text-sm font-mono text-foreground">
+                      {regressionResult.coefficients.map((coeff) => (
+                        <p key={coeff} className="text-sm font-mono text-foreground">
                           {coeff}
                         </p>
                       ))}

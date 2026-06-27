@@ -161,19 +161,19 @@ function KeyBadge({ label }: { label: string }) {
   );
 }
 
-/** Row in the keyboard shortcuts reference card. */
+/** Row in the keyboard shortcuts reference card (rendered inside a &lt;dl&gt;). */
 function ShortcutRow({ keys, description }: KeyboardShortcut) {
   return (
     <div className="flex items-center justify-between gap-4 py-2 border-b border-border/40 last:border-0">
-      <span className="text-sm text-muted-foreground">{description}</span>
-      <span className="flex items-center gap-1 shrink-0">
+      <dt className="text-sm text-muted-foreground">{description}</dt>
+      <dd className="flex items-center gap-1 shrink-0 m-0">
         {keys.map((k, i) => (
           <span key={k} className="flex items-center gap-1">
             {i > 0 && <span className="text-muted-foreground/50 text-xs select-none">+</span>}
             <KeyBadge label={k} />
           </span>
         ))}
-      </span>
+      </dd>
     </div>
   );
 }
@@ -462,11 +462,7 @@ export default function SettingsPage() {
                   <legend className="text-sm font-medium text-foreground mb-3">
                     {t('colorTheme')}
                   </legend>
-                  <div
-                    className="grid grid-cols-3 gap-3"
-                    role="group"
-                    aria-label="Color theme selection"
-                  >
+                  <div className="grid grid-cols-3 gap-3">
                     <ThemeOption
                       value="light"
                       current={settings.theme}
@@ -668,15 +664,14 @@ export default function SettingsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div
+                <dl
                   className="rounded-lg border border-border/50 bg-background/40 px-4"
-                  role="table"
                   aria-label="Keyboard shortcuts reference"
                 >
                   {KEYBOARD_SHORTCUTS.map((shortcut) => (
                     <ShortcutRow key={shortcut.description} {...shortcut} />
                   ))}
-                </div>
+                </dl>
                 <p className="mt-3 text-xs text-muted-foreground">
                   All shortcuts work globally unless a text input is focused.
                 </p>

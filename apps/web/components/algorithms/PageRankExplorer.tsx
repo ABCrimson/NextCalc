@@ -287,7 +287,7 @@ export function PageRankExplorer({
     // Default: 'web' preset laid out on a 800x600 canvas
     const defaultWidth = 800;
     const defaultHeight = 600;
-    const preset = PRESET_GRAPHS['web'];
+    const preset = PRESET_GRAPHS.web;
 
     // Guard: preset must exist (it always does, but the Record type is wide)
     if (!preset) {
@@ -765,7 +765,12 @@ export function PageRankExplorer({
                   />
                 ) : (
                   /* SVG fallback renderer with improved aesthetics */
-                  <svg className="w-full h-full" style={{ overflow: 'visible' }}>
+                  <svg
+                    className="w-full h-full"
+                    style={{ overflow: 'visible' }}
+                    role="img"
+                    aria-label="PageRank graph visualization"
+                  >
                     <defs>
                       {graph.nodes.map((node) => {
                         const rank = (ranks.get(node.id) as number) ?? 0;
@@ -853,9 +858,20 @@ export function PageRankExplorer({
                       const hue = Math.round(230 + nr * 90);
 
                       return (
+                        // biome-ignore lint/a11y/useSemanticElements: SVG <g> cannot be replaced by HTML <button>; role="button" is the correct ARIA pattern for interactive SVG group elements
                         <g
                           key={node.id}
+                          role="button"
+                          tabIndex={0}
                           onClick={() => setSelectedNode(node.id)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              setSelectedNode(node.id);
+                            }
+                          }}
+                          aria-label={`Select node ${node.label}`}
+                          aria-pressed={selectedNode === node.id}
                           className="cursor-pointer"
                         >
                           {isSelected && (
@@ -1100,12 +1116,12 @@ export function PageRankExplorer({
                     </CardHeader>
                     <CardContent>
                       <div className="h-32 flex items-end gap-1">
-                        {convergenceHistory.map((point, i) => {
+                        {convergenceHistory.map((point) => {
                           const maxChange = Math.max(...convergenceHistory.map((p) => p.change));
                           const height = maxChange > 0 ? (point.change / maxChange) * 100 : 0;
                           return (
                             <m.div
-                              key={i}
+                              key={point.iteration}
                               className="flex-1 bg-primary rounded-t"
                               initial={{ height: 0 }}
                               animate={{ height: `${height}%` }}

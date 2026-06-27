@@ -147,6 +147,7 @@ export function AlgorithmPage({
 
           {/* Share button */}
           <button
+            type="button"
             onClick={handleShare}
             className="p-2.5 sm:p-3 rounded-lg border border-border bg-card hover:bg-accent transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring shrink-0"
             aria-label={t('shareAlgorithm')}
@@ -220,9 +221,9 @@ export function AlgorithmPage({
               {t('realWorldApplications')}
             </h2>
             <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
-              {applications.map((app, index) => (
+              {applications.map((app) => (
                 <li
-                  key={index}
+                  key={app}
                   className="flex items-start gap-2 text-xs sm:text-sm text-muted-foreground min-w-0"
                 >
                   <span className="text-primary mt-1 shrink-0">•</span>
@@ -244,8 +245,8 @@ export function AlgorithmPage({
             >
               <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">{t('references')}</h2>
               <ul className="space-y-2 sm:space-y-3">
-                {references.map((ref, index) => (
-                  <li key={index} className="text-xs sm:text-sm">
+                {references.map((ref) => (
+                  <li key={ref.url} className="text-xs sm:text-sm">
                     <a
                       href={ref.url}
                       target="_blank"

@@ -282,6 +282,7 @@ export function MathInput({
                 <div className="text-xs text-muted-foreground mb-1 px-2">Suggestions</div>
                 {filteredSuggestions.map((suggestion) => (
                   <button
+                    type="button"
                     key={suggestion}
                     onMouseDown={(e) => {
                       e.preventDefault();

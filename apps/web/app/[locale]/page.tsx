@@ -34,6 +34,7 @@ const Calculator = dynamic(
           <div className="h-32 bg-muted rounded-xl" />
           <div className="grid grid-cols-5 gap-3">
             {Array.from({ length: 25 }).map((_, i) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length skeleton grid; positional index is the stable identity
               <div key={i} className="aspect-square bg-muted rounded-2xl" />
             ))}
           </div>
@@ -244,6 +245,7 @@ export default function Home() {
                 <div className="h-32 bg-muted rounded-xl" />
                 <div className="grid grid-cols-5 gap-3">
                   {Array.from({ length: 25 }).map((_, i) => (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length skeleton grid; positional index is the stable identity
                     <div key={i} className="aspect-square bg-muted rounded-2xl" />
                   ))}
                 </div>

@@ -199,6 +199,7 @@ export function AnnotationToolbar({
         {annotationCount > 0 && (
           <span
             className="ml-auto text-[10px] font-mono text-muted-foreground tabular-nums"
+            role="status"
             aria-live="polite"
             aria-label={`${annotationCount} annotation${annotationCount === 1 ? '' : 's'}`}
           >

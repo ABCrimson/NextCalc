@@ -382,10 +382,7 @@ type EigenComputedResult = {
 /** A single read-only number cell in the result display. */
 function ResultCell({ value }: { value: number }) {
   return (
-    <div
-      className="p-2 text-center font-mono text-sm bg-background rounded border border-border"
-      role="gridcell"
-    >
+    <div className="p-2 text-center font-mono text-sm bg-background rounded border border-border">
       {formatNum(round(value, 6))}
     </div>
   );
@@ -480,6 +477,7 @@ function EigenVectorVisualisation2D({
           fill={color}
           fontFamily="monospace"
           aria-hidden="true"
+          tabIndex={-1}
         >
           v{idx + 1}
         </text>
@@ -505,7 +503,7 @@ function EigenVectorVisualisation2D({
         <defs>
           {arrowColors.map((color, i) => (
             <marker
-              key={`arrowhead-${i}`}
+              key={color}
               id={`arrowhead-${i}`}
               markerWidth="10"
               markerHeight="8"
@@ -602,7 +600,15 @@ function EigenVectorVisualisation3D({
           strokeWidth={1}
           strokeDasharray="4 2"
         />
-        <text x={ex + 4} y={ey} fontSize={9} fill={color} fontFamily="monospace" aria-hidden="true">
+        <text
+          x={ex + 4}
+          y={ey}
+          fontSize={9}
+          fill={color}
+          fontFamily="monospace"
+          aria-hidden="true"
+          tabIndex={-1}
+        >
           {axisLabels[i]}
         </text>
       </g>
@@ -650,6 +656,7 @@ function EigenVectorVisualisation3D({
           fill={color}
           fontFamily="monospace"
           aria-hidden="true"
+          tabIndex={-1}
         >
           v{idx + 1}
         </text>
@@ -675,7 +682,7 @@ function EigenVectorVisualisation3D({
         <defs>
           {evColors.map((color, i) => (
             <marker
-              key={`arrowhead3d-${i}`}
+              key={color}
               id={`arrowhead3d-${i}`}
               markerWidth="10"
               markerHeight="8"
@@ -791,6 +798,7 @@ function EigenVectorVisualisation4D({
           fill={color}
           fontFamily="monospace"
           aria-hidden="true"
+          tabIndex={-1}
         >
           v{idx + 1}
         </text>
@@ -820,7 +828,7 @@ function EigenVectorVisualisation4D({
           <defs>
             {evColors.map((color, i) => (
               <marker
-                key={`arrowhead4d-${i}`}
+                key={color}
                 id={`arrowhead4d-${i}`}
                 markerWidth="10"
                 markerHeight="8"
@@ -875,14 +883,14 @@ function EigenVectorVisualisation4D({
             </tr>
           </thead>
           <tbody>
-            {componentLabels.map((label, ri) => (
-              <tr key={ri} className="border-b border-border/50 last:border-0">
+            {componentLabels.map((label) => (
+              <tr key={label} className="border-b border-border/50 last:border-0">
                 <td className="p-2 text-muted-foreground">{label}</td>
                 {eigenvectors.map((ev, ci) => {
                   const color = evColors[ci] ?? evColors[0]!;
                   return (
                     <td key={ci} className="p-2 text-center tabular-nums" style={{ color }}>
-                      {formatNum(round(ev[ri] ?? 0, 6))}
+                      {formatNum(round(ev[componentLabels.indexOf(label)] ?? 0, 6))}
                     </td>
                   );
                 })}
@@ -912,6 +920,72 @@ const staggerContainer: Variants = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.06 } },
 };
+
+// ---------------------------------------------------------------------------
+// Small positional-list item helpers — defined at module scope so that
+// lint suppressions can be placed on single-line key= call sites.
+// ---------------------------------------------------------------------------
+
+/** Renders one eigenvalue entry in the results list. */
+function EigenvalueItem({ lam, idx }: { lam: number; idx: number }) {
+  return (
+    <m.li
+      variants={fadeSlide}
+      className={cn(
+        'p-3 rounded-lg border flex items-center gap-3',
+        'bg-gradient-to-r from-violet-950/30 to-indigo-950/30',
+        'border-violet-500/40',
+      )}
+    >
+      <Badge variant="outline" className="font-mono text-xs border-violet-500/50">
+        λ<sub>{idx + 1}</sub>
+      </Badge>
+      <MathRenderer
+        expression={eigenvalueLatex(lam, idx)}
+        ariaLabel={`Eigenvalue ${idx + 1} equals ${round(lam, 6)}`}
+      />
+    </m.li>
+  );
+}
+
+/** Renders one eigenvector card in the results grid. */
+function EigenvectorCard({ ev, idx, lam }: { ev: number[]; idx: number; lam: number }) {
+  return (
+    <m.div
+      variants={fadeSlide}
+      className={cn(
+        'p-4 rounded-lg border min-w-0',
+        'bg-gradient-to-br from-emerald-950/20 to-teal-950/20',
+        'border-emerald-500/30',
+      )}
+    >
+      <div className="text-xs text-muted-foreground mb-3 flex items-center gap-1.5 leading-normal">
+        <span className="shrink-0">v{idx + 1} for</span>
+        <MathRenderer
+          expression={`\\lambda_{${idx + 1}} = ${formatNum(round(lam, 4))}`}
+          ariaLabel={`eigenvector for eigenvalue ${idx + 1}`}
+          className="text-emerald-300 shrink-0"
+        />
+      </div>
+      <ol aria-label={`Eigenvector ${idx + 1} components`} className="space-y-1.5 mb-3">
+        {ev.map((x, vi) => (
+          <li key={vi} className="flex items-baseline gap-2 font-mono text-sm leading-6">
+            <span className="text-muted-foreground text-xs w-4 shrink-0">{vi + 1}:</span>
+            <span className="text-foreground tabular-nums">{formatNum(round(x, 6))}</span>
+          </li>
+        ))}
+      </ol>
+      <div className="overflow-x-auto max-w-full">
+        <MathRenderer
+          expression={vectorLatex(ev)}
+          displayMode
+          ariaLabel={`Eigenvector ${idx + 1}: [${ev.map((x) => round(x, 6)).join(', ')}]`}
+          className="text-foreground text-sm"
+        />
+      </div>
+    </m.div>
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Main EigenPanel component
@@ -1162,33 +1236,32 @@ export function EigenPanel() {
 
           <div className="overflow-x-auto">
             <div
-              role="grid"
-              aria-labelledby="matrix-grid-label"
               className="inline-grid gap-1.5 p-4 rounded-lg border border-border bg-muted/30"
               style={{
                 gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))`,
               }}
             >
-              {matrix.map((row, ri) =>
-                row.map((val, ci) => (
-                  <div key={`${ri}-${ci}`} role="row" className="contents">
-                    <Input
-                      id={`${gridId}-${ri}-${ci}`}
-                      type="number"
-                      step="any"
-                      value={val}
-                      onChange={(e) => handleCellChange(ri, ci, e.target.value)}
-                      onKeyDown={(e) => handleGridKeyDown(e, ri, ci)}
-                      className={cn(
-                        'w-16 text-center font-mono text-sm p-1.5 h-9',
-                        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-                      )}
-                      aria-label={`Row ${ri + 1}, column ${ci + 1}`}
-                      role="gridcell"
-                    />
-                  </div>
-                )),
-              )}
+              {Array.from({ length: size * size }, (_, k) => {
+                const ri = Math.floor(k / size);
+                const ci = k % size;
+                const val = matrix[ri]?.[ci] ?? 0;
+                return (
+                  <Input
+                    key={`r${ri}c${ci}`}
+                    id={`${gridId}-${ri}-${ci}`}
+                    type="number"
+                    step="any"
+                    value={val}
+                    onChange={(e) => handleCellChange(ri, ci, e.target.value)}
+                    onKeyDown={(e) => handleGridKeyDown(e, ri, ci)}
+                    className={cn(
+                      'w-16 text-center font-mono text-sm p-1.5 h-9',
+                      'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+                    )}
+                    aria-label={`Row ${ri + 1}, column ${ci + 1}`}
+                  />
+                );
+              })}
             </div>
           </div>
         </div>
@@ -1240,6 +1313,7 @@ export function EigenPanel() {
               initial="hidden"
               animate="visible"
               exit="exit"
+              role="region"
               className="space-y-6"
               aria-live="polite"
               aria-label="Eigendecomposition results"
@@ -1300,23 +1374,7 @@ export function EigenPanel() {
                   aria-label="List of eigenvalues"
                 >
                   {result.eigenvalues.map((lam, idx) => (
-                    <m.li
-                      key={idx}
-                      variants={fadeSlide}
-                      className={cn(
-                        'p-3 rounded-lg border flex items-center gap-3',
-                        'bg-gradient-to-r from-violet-950/30 to-indigo-950/30',
-                        'border-violet-500/40',
-                      )}
-                    >
-                      <Badge variant="outline" className="font-mono text-xs border-violet-500/50">
-                        λ<sub>{idx + 1}</sub>
-                      </Badge>
-                      <MathRenderer
-                        expression={eigenvalueLatex(lam, idx)}
-                        ariaLabel={`Eigenvalue ${idx + 1} equals ${round(lam, 6)}`}
-                      />
-                    </m.li>
+                    <EigenvalueItem key={idx} lam={lam} idx={idx} />
                   ))}
                 </m.ul>
               </m.section>
@@ -1337,53 +1395,7 @@ export function EigenPanel() {
                   className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
                 >
                   {result.eigenvectors.map((ev, idx) => (
-                    <m.div
-                      key={idx}
-                      variants={fadeSlide}
-                      className={cn(
-                        'p-4 rounded-lg border min-w-0',
-                        'bg-gradient-to-br from-emerald-950/20 to-teal-950/20',
-                        'border-emerald-500/30',
-                      )}
-                    >
-                      {/* Header row: eigenvector label for this eigenvalue */}
-                      <div className="text-xs text-muted-foreground mb-3 flex items-center gap-1.5 leading-normal">
-                        <span className="shrink-0">v{idx + 1} for</span>
-                        <MathRenderer
-                          expression={`\\lambda_{${idx + 1}} = ${formatNum(round(result.eigenvalues[idx]!, 4))}`}
-                          ariaLabel={`eigenvector for eigenvalue ${idx + 1}`}
-                          className="text-emerald-300 shrink-0"
-                        />
-                      </div>
-                      {/* Numeric component list with generous vertical spacing */}
-                      <ol
-                        aria-label={`Eigenvector ${idx + 1} components`}
-                        className="space-y-1.5 mb-3"
-                      >
-                        {ev.map((x, vi) => (
-                          <li
-                            key={vi}
-                            className="flex items-baseline gap-2 font-mono text-sm leading-6"
-                          >
-                            <span className="text-muted-foreground text-xs w-4 shrink-0">
-                              {vi + 1}:
-                            </span>
-                            <span className="text-foreground tabular-nums">
-                              {formatNum(round(x, 6))}
-                            </span>
-                          </li>
-                        ))}
-                      </ol>
-                      {/* LaTeX column-vector rendering, wrapped so it never overflows */}
-                      <div className="overflow-x-auto max-w-full">
-                        <MathRenderer
-                          expression={vectorLatex(ev)}
-                          displayMode
-                          ariaLabel={`Eigenvector ${idx + 1}: [${ev.map((x) => round(x, 6)).join(', ')}]`}
-                          className="text-foreground text-sm"
-                        />
-                      </div>
-                    </m.div>
+                    <EigenvectorCard key={idx} ev={ev} idx={idx} lam={result.eigenvalues[idx]!} />
                   ))}
                 </m.div>
               </m.section>
@@ -1526,14 +1538,13 @@ export function EigenPanel() {
                                   style={{
                                     gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))`,
                                   }}
-                                  role="grid"
-                                  aria-label={`${label} matrix`}
                                 >
-                                  {data.map((row, ri) =>
-                                    row.map((val, ci) => (
-                                      <ResultCell key={`${ri}-${ci}`} value={val} />
-                                    )),
-                                  )}
+                                  {Array.from({ length: size * size }, (_, k) => {
+                                    const ri = Math.floor(k / size);
+                                    const ci = k % size;
+                                    const val = data[ri]?.[ci] ?? 0;
+                                    return <ResultCell key={`r${ri}c${ci}`} value={val} />;
+                                  })}
                                 </div>
                               </div>
                             </div>

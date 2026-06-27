@@ -198,6 +198,7 @@ export function StepVisualizer({
           <div className="space-y-2">
             {steps.map((step, index) => (
               <button
+                type="button"
                 key={step.stepNumber}
                 onClick={() => onStepChange?.(index)}
                 className={cn(
@@ -312,16 +313,16 @@ export function AlgorithmVisualizer({
           </CardHeader>
           <CardContent>
             <div className="bg-muted/50 rounded-lg p-4 font-mono text-sm overflow-x-auto">
-              {codeLines.map((line, index) => (
+              {Array.from(codeLines.entries()).map(([lineNum, line]) => (
                 <div
-                  key={index}
+                  key={`line-${lineNum}`}
                   className={cn(
                     'px-2 py-1 -mx-2 transition-colors',
-                    currentStepData.line === index + 1 &&
+                    currentStepData.line === lineNum + 1 &&
                       'bg-primary/20 border-l-4 border-l-primary',
                   )}
                 >
-                  <span className="text-muted-foreground mr-4">{index + 1}</span>
+                  <span className="text-muted-foreground mr-4">{lineNum + 1}</span>
                   <span>{line}</span>
                 </div>
               ))}

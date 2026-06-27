@@ -1567,8 +1567,11 @@ function SolutionTable({ points, odeType, maxRows = 20 }: SolutionTableProps) {
           </tr>
         </thead>
         <tbody>
-          {rows.map((pt, i) => (
-            <tr key={i} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+          {rows.map((pt) => (
+            <tr
+              key={pt.t}
+              className="border-b border-border/50 hover:bg-muted/30 transition-colors"
+            >
               <td className="px-4 py-1.5 text-foreground/80">
                 {(pt as SolutionPoint).t !== undefined ? (pt as SolutionPoint).t.toFixed(4) : ''}
               </td>

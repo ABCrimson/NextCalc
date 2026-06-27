@@ -422,9 +422,10 @@ export function PracticeMode({
                         const height = (time / maxTime) * 100;
                         const answer = answers[index];
                         if (!answer) return null;
+                        const barKey = `${index}-${answer.time}-${String(answer.correct)}`;
                         return (
                           <m.div
-                            key={index}
+                            key={barKey}
                             initial={{ height: 0 }}
                             animate={{ height: `${height}%` }}
                             transition={{ duration: 0.3, delay: 0.4 + index * 0.05 }}
@@ -481,7 +482,7 @@ export function PracticeMode({
 
   // Active/Paused view
   return (
-    <div className="max-w-4xl mx-auto space-y-6" role="main" aria-label="Practice Mode">
+    <section className="max-w-4xl mx-auto space-y-6" aria-label="Practice Mode">
       {/* Header with stats */}
       <Card>
         <CardContent className="pt-6">
@@ -597,7 +598,6 @@ export function PracticeMode({
                       }}
                       className="w-full px-4 py-3 rounded-lg border bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                       placeholder="Enter your answer..."
-                      autoFocus
                       aria-label="Answer input"
                     />
                   </div>
@@ -624,7 +624,7 @@ export function PracticeMode({
           </Card>
         </m.div>
       </AnimatePresence>
-    </div>
+    </section>
   );
 }
 

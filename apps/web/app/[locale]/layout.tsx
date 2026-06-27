@@ -166,6 +166,7 @@ export default async function LocaleLayout({
       {/* JSON-LD structured data for search engines */}
       <script
         type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: static JSON-LD; server-generated typed object, never user input
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <a

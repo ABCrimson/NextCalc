@@ -662,7 +662,10 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
       <div ref={containerRef} className="w-full h-full" style={{ touchAction: 'none' }} />
 
       {/* Zoom controls - top left */}
-      <div className="absolute top-3 left-3 flex flex-col gap-1" aria-label="Zoom controls">
+      <fieldset
+        className="absolute top-3 left-3 flex flex-col gap-1 border-0 p-0 m-0"
+        aria-label="Zoom controls"
+      >
         <button
           type="button"
           onClick={handleZoomIn}
@@ -678,6 +681,7 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
         <div
           className="w-8 h-6 flex items-center justify-center rounded text-[10px]
             font-mono text-white/50 bg-black/40 border border-white/5"
+          role="status"
           aria-live="polite"
           aria-label={`Current zoom: ${zoomLevel}%`}
         >
@@ -695,7 +699,7 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
         >
           −
         </button>
-      </div>
+      </fieldset>
 
       {/* Cage toggle — top right, interactive */}
       <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">

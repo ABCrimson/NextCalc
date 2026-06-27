@@ -201,6 +201,7 @@ export function AlgorithmCard({
           <div className="flex flex-col items-end gap-2 shrink-0 min-w-0">
             {/* Difficulty badge */}
             <span
+              role="img"
               className={cn(
                 'px-2 py-1 text-xs font-medium rounded-md border whitespace-nowrap',
                 difficultyColors[difficulty],
@@ -213,6 +214,7 @@ export function AlgorithmCard({
             {/* Time complexity badge */}
             {timeComplexity && (
               <span
+                role="img"
                 className="px-2 py-1 text-xs font-mono bg-muted/20 text-foreground/80 rounded-md border border-border whitespace-nowrap"
                 aria-label={`Time complexity: ${timeComplexity}`}
               >

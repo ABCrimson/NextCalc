@@ -404,10 +404,12 @@ function HighlightedLabel({
     <span>
       {parts.map((part, i) =>
         part.highlighted ? (
+          // biome-ignore lint/suspicious/noArrayIndexKey: text highlight fragments — the same substring can appear multiple times; fragment position is the stable identity
           <mark key={i} className="bg-transparent text-primary font-semibold not-italic">
             {part.text}
           </mark>
         ) : (
+          // biome-ignore lint/suspicious/noArrayIndexKey: text highlight fragments — the same substring can appear multiple times; fragment position is the stable identity
           <span key={i}>{part.text}</span>
         ),
       )}
@@ -452,7 +454,7 @@ export function CommandPalette({ className }: CommandPaletteProps) {
   const prefersReducedMotion = useReducedMotion();
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const listRef = useRef<HTMLUListElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // ---------------------------------------------------------------------------
@@ -776,6 +778,7 @@ export function CommandPalette({ className }: CommandPaletteProps) {
         <kbd
           className="hidden lg:inline-flex items-center gap-0.5 rounded border border-border/70 bg-background px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
           aria-hidden="true"
+          tabIndex={-1}
         >
           <span className="text-[11px]">⌘</span>K
         </kbd>
@@ -894,7 +897,7 @@ export function CommandPalette({ className }: CommandPaletteProps) {
                       </p>
                     </div>
                   ) : (
-                    <ul
+                    <div
                       id="cmd-listbox"
                       ref={listRef}
                       role="listbox"
@@ -903,7 +906,7 @@ export function CommandPalette({ className }: CommandPaletteProps) {
                     >
                       {Array.from(groupedItems.entries()).map(([section, items]) => {
                         return (
-                          <li key={section} role="presentation">
+                          <div key={section} role="presentation">
                             {/* Section header */}
                             <div className="px-4 pb-1 pt-3 first:pt-1" role="presentation">
                               <span
@@ -915,7 +918,7 @@ export function CommandPalette({ className }: CommandPaletteProps) {
                             </div>
 
                             {/* Section items */}
-                            <ul role="presentation">
+                            <div role="presentation">
                               {items.map((matched) => {
                                 // Resolve the flat index for keyboard navigation
                                 const flatIndex = filteredItems.indexOf(matched);
@@ -924,10 +927,11 @@ export function CommandPalette({ className }: CommandPaletteProps) {
                                 const Icon = matched.item.icon;
 
                                 return (
-                                  <li
+                                  <div
                                     key={matched.item.id}
                                     id={itemId}
                                     role="option"
+                                    tabIndex={-1}
                                     aria-selected={isActive}
                                     data-active={isActive ? 'true' : undefined}
                                     className={cn(
@@ -938,6 +942,12 @@ export function CommandPalette({ className }: CommandPaletteProps) {
                                         : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground',
                                     )}
                                     onClick={() => activateItem(matched)}
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        activateItem(matched);
+                                      }
+                                    }}
                                     onMouseEnter={() => setActiveIndex(flatIndex)}
                                   >
                                     {/* Icon */}
@@ -972,18 +982,19 @@ export function CommandPalette({ className }: CommandPaletteProps) {
                                       <kbd
                                         className="hidden shrink-0 rounded border border-border/60 bg-background px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground sm:inline-flex"
                                         aria-hidden="true"
+                                        tabIndex={-1}
                                       >
                                         Enter
                                       </kbd>
                                     )}
-                                  </li>
+                                  </div>
                                 );
                               })}
-                            </ul>
-                          </li>
+                            </div>
+                          </div>
                         );
                       })}
-                    </ul>
+                    </div>
                   )}
                 </div>
 

@@ -89,6 +89,7 @@ function Tier1({ level, size }: { level: number; size: number }) {
       height={size}
       viewBox={`0 0 ${size} ${size}`}
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
     >
       <defs>
         <linearGradient id={uid(level, 'g1')} x1="0%" y1="0%" x2="100%" y2="100%">
@@ -129,6 +130,7 @@ function Tier2({ level, size }: { level: number; size: number }) {
       height={size}
       viewBox={`0 0 ${size} ${size}`}
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
     >
       <defs>
         <linearGradient id={uid(level, 'g2o')} x1="0%" y1="0%" x2="100%" y2="100%">
@@ -168,6 +170,7 @@ function Tier3({ level, size }: { level: number; size: number }) {
       height={size}
       viewBox={`0 0 ${size} ${size}`}
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
     >
       <defs>
         <radialGradient id={uid(level, 'glow')}>
@@ -227,6 +230,7 @@ function Tier4({ level, size }: { level: number; size: number }) {
       height={size}
       viewBox={`0 0 ${size} ${size}`}
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
     >
       <defs>
         <linearGradient id={uid(level, 'g4')} x1="0%" y1="0%" x2="100%" y2="100%">
@@ -263,6 +267,7 @@ function Tier5({ level, size }: { level: number; size: number }) {
       height={size}
       viewBox={`0 0 ${size} ${size}`}
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
     >
       <defs>
         <radialGradient id={uid(level, 'ring')}>
@@ -315,6 +320,7 @@ function Tier6({ level, size }: { level: number; size: number }) {
       height={size}
       viewBox={`0 0 ${size} ${size}`}
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
     >
       <defs>
         <linearGradient id={uid(level, 'g6')} x1="0%" y1="0%" x2="100%" y2="100%">
@@ -368,6 +374,7 @@ function Tier7({ level, size }: { level: number; size: number }) {
       height={size}
       viewBox={`0 0 ${size} ${size}`}
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
     >
       <defs>
         <linearGradient id={uid(level, 'g7')} x1="0%" y1="0%" x2="100%" y2="100%">
@@ -434,6 +441,7 @@ function Tier8({ level, size }: { level: number; size: number }) {
       height={size}
       viewBox={`0 0 ${size} ${size}`}
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
     >
       <defs>
         <linearGradient id={uid(level, 'g8')} x1="0%" y1="0%" x2="100%" y2="100%">
@@ -448,6 +456,7 @@ function Tier8({ level, size }: { level: number; size: number }) {
         const [x2, y2] = polarToXY(c, c, r * 1.6, angle);
         return (
           <line
+            // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length positional light-ray geometry; index is stable identity
             key={i}
             x1={x1}
             y1={y1}
@@ -501,6 +510,7 @@ function Tier9({ level, size }: { level: number; size: number }) {
       height={size}
       viewBox={`0 0 ${size} ${size}`}
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
     >
       <defs>
         <linearGradient id={uid(level, 'g9')} x1="0%" y1="100%" x2="100%" y2="0%">
@@ -530,6 +540,7 @@ function Tier9({ level, size }: { level: number; size: number }) {
         const pr = size * (0.01 + (i % 2) * 0.008);
         return (
           <circle
+            // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length positional particle geometry; index is stable identity
             key={i}
             cx={px}
             cy={py}
@@ -567,6 +578,7 @@ function Tier10({ level, size }: { level: number; size: number }) {
       height={size}
       viewBox={`0 0 ${size} ${size}`}
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
     >
       <defs>
         <linearGradient id={animId} x1="0%" y1="0%" x2="100%" y2="100%">
@@ -609,6 +621,7 @@ function Tier10({ level, size }: { level: number; size: number }) {
         const [x2, y2] = polarToXY(c, c, r * 1.5, angle);
         return (
           <line
+            // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length positional light-ray geometry; index is stable identity
             key={i}
             x1={x1}
             y1={y1}
@@ -640,6 +653,7 @@ function Tier10({ level, size }: { level: number; size: number }) {
         const [px, py] = polarToXY(c, c, dist, angle);
         return (
           <circle
+            // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length positional sparkle geometry; index is stable identity
             key={i}
             cx={px}
             cy={py}
@@ -668,6 +682,7 @@ function Icon101PrismaticCrown({ size }: { size: number }) {
       height={size}
       viewBox={`0 0 ${size} ${size}`}
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
     >
       <defs>
         <linearGradient id="i101-crown-grad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -711,6 +726,7 @@ function Icon101PrismaticCrown({ size }: { size: number }) {
         const [px, py] = polarToXY(c, c, r * 1.6, angle);
         return (
           <circle
+            // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length positional sparkle geometry; index is stable identity
             key={i}
             cx={px}
             cy={py}
@@ -742,6 +758,7 @@ function Icon101CosmicNexus({ size }: { size: number }) {
       height={size}
       viewBox={`0 0 ${size} ${size}`}
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
     >
       <defs>
         <radialGradient id="i101-galaxy">
@@ -770,6 +787,7 @@ function Icon101CosmicNexus({ size }: { size: number }) {
         const [x2, y2] = polarToXY(c, c, r * 1.2, angle + 30);
         return (
           <line
+            // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length positional spiral-arm geometry; index is stable identity
             key={i}
             x1={x1}
             y1={y1}
@@ -800,6 +818,7 @@ function Icon101CosmicNexus({ size }: { size: number }) {
         const [px, py] = polarToXY(c, c, dist, angle);
         return (
           <circle
+            // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length positional star-field geometry; index is stable identity
             key={i}
             cx={px}
             cy={py}
@@ -831,6 +850,7 @@ function Icon101PhoenixCrystal({ size }: { size: number }) {
       height={size}
       viewBox={`0 0 ${size} ${size}`}
       xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
     >
       <defs>
         <linearGradient id="i101-phoenix-grad" x1="50%" y1="100%" x2="50%" y2="0%">
@@ -882,6 +902,7 @@ function Icon101PhoenixCrystal({ size }: { size: number }) {
         const pr = size * (0.008 + (i % 3) * 0.005);
         return (
           <circle
+            // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length positional particle geometry; index is stable identity
             key={i}
             cx={x}
             cy={y}

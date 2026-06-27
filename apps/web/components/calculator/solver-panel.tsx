@@ -804,7 +804,7 @@ function StepCard({ step, index, isExpanded, onToggle, isFinal }: StepCardProps)
             <CategoryBadge category={step.category} />
           </div>
           {/* LaTeX preview of step result — always visible */}
-          <div className="mt-1.5 overflow-x-auto" aria-label={`Step ${step.stepNumber} expression`}>
+          <div className="mt-1.5 overflow-x-auto">
             <MathRenderer expression={step.latex} displayMode={false} className="text-base" />
           </div>
         </div>
@@ -833,10 +833,7 @@ function StepCard({ step, index, isExpanded, onToggle, isFinal }: StepCardProps)
                 {step.explanation}
               </p>
               {/* Display-mode math for expanded state */}
-              <div
-                className="mt-3 rounded-md bg-muted/50 px-4 py-3 overflow-x-auto"
-                aria-label={`Step ${step.stepNumber} expression, display mode`}
-              >
+              <div className="mt-3 rounded-md bg-muted/50 px-4 py-3 overflow-x-auto">
                 <MathRenderer expression={step.latex} displayMode={true} className="text-base" />
               </div>
               <p className="mt-2 text-xs text-muted-foreground/70 font-mono">
@@ -1002,6 +999,7 @@ function ResultsPanel({ solution, onCopyAnswer, copied }: ResultsPanelProps) {
                         viewBox="0 0 8 5"
                         fill="none"
                         className="text-border"
+                        aria-hidden="true"
                       >
                         <path d="M0 0L4 5L8 0" fill="currentColor" />
                       </svg>
@@ -1015,9 +1013,8 @@ function ResultsPanel({ solution, onCopyAnswer, copied }: ResultsPanelProps) {
       </ol>
 
       {/* Final answer callout */}
-      <div
+      <section
         className="rounded-xl border border-primary/30 bg-primary/5 p-4"
-        role="region"
         aria-label="Final answer"
       >
         <div className="flex items-start justify-between gap-3">
@@ -1066,7 +1063,7 @@ function ResultsPanel({ solution, onCopyAnswer, copied }: ResultsPanelProps) {
             </AnimatePresence>
           </Button>
         </div>
-      </div>
+      </section>
     </m.div>
   );
 }
@@ -1562,6 +1559,6 @@ function sanitizeErrorMessage(raw: string): string {
     return `Invalid equation format. Make sure to include an "=" sign (e.g. x^2 = 4).`;
   }
   // Trim long messages
-  if (raw.length > 200) return raw.slice(0, 200) + '…';
+  if (raw.length > 200) return `${raw.slice(0, 200)}…`;
   return raw;
 }

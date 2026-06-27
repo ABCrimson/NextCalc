@@ -188,11 +188,12 @@ export function CodeBlock({
 
       {/* Code content */}
       <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight }}>
-        <pre className="p-4 text-sm font-mono" role="region" aria-label="Code block">
+        <pre className="p-4 text-sm font-mono">
           <code className="block">
             {lines.map((line, index) => {
               const lineNumber = index + 1;
               const isHighlighted = highlightLines.includes(lineNumber);
+              const highlighted = highlightCode(line, language) || '&nbsp;';
 
               return (
                 <div
@@ -207,12 +208,8 @@ export function CodeBlock({
                       {lineNumber}
                     </span>
                   )}
-                  <span
-                    className="flex-1"
-                    dangerouslySetInnerHTML={{
-                      __html: highlightCode(line, language) || '&nbsp;',
-                    }}
-                  />
+                  {/* biome-ignore lint/security/noDangerouslySetInnerHtml: highlightCode first HTML-escapes &<> then only wraps tokens in <span class="..."> with hardcoded Tailwind class names — no user-controlled HTML */}
+                  <span className="flex-1" dangerouslySetInnerHTML={{ __html: highlighted }} />
                 </div>
               );
             })}
@@ -224,7 +221,7 @@ export function CodeBlock({
       {language && (
         <div
           className="absolute top-2 right-2 px-2 py-1 text-xs font-mono rounded bg-muted text-muted-foreground"
-          aria-label={`Language: ${language}`}
+          aria-hidden="true"
         >
           {language}
         </div>

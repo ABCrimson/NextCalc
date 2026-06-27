@@ -109,6 +109,7 @@ export function AchievementGrid({ achievements }: AchievementGridProps) {
               aria-hidden="true"
             >
               {achievement.badgeUrl ? (
+                // biome-ignore lint/performance/noImgElement: external badge URL not in next/image remotePatterns
                 <img
                   src={achievement.badgeUrl}
                   alt=""

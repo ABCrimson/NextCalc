@@ -515,7 +515,7 @@ export function PolarAnalysisPanel({
   if (analyses.length === 0) return null;
 
   return (
-    <div
+    <section
       className={[
         'rounded-xl overflow-hidden',
         'bg-gradient-to-br from-background/60 via-card/50 to-background/60',
@@ -637,6 +637,6 @@ export function PolarAnalysisPanel({
           </m.div>
         )}
       </AnimatePresence>
-    </div>
+    </section>
   );
 }

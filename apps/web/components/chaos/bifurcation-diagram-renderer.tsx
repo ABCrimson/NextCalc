@@ -1044,9 +1044,9 @@ export function BifurcationDiagramRenderer({
             <div className="px-4 py-3 space-y-4">
               {/* Map type selector */}
               <div className="space-y-1.5">
-                <label className="text-[10px] font-mono text-white/50 uppercase tracking-wider">
+                <span className="text-[10px] font-mono text-white/50 uppercase tracking-wider">
                   Map Function
-                </label>
+                </span>
                 <div className="flex gap-1.5 flex-wrap">
                   {MAP_TYPES.map((m) => (
                     <button
@@ -1224,7 +1224,10 @@ export function BifurcationDiagramRenderer({
       </AnimatePresence>
 
       {/* Zoom controls */}
-      <div className="absolute top-3 right-3 flex flex-col gap-1" aria-label="Zoom controls">
+      <fieldset
+        className="absolute top-3 right-3 flex flex-col gap-1 border-0 p-0 m-0"
+        aria-label="Zoom controls"
+      >
         <button
           type="button"
           onClick={() => zoomBy(1.3)}
@@ -1240,6 +1243,7 @@ export function BifurcationDiagramRenderer({
         <div
           className="w-8 h-6 flex items-center justify-center rounded text-[10px]
             font-mono text-white/50 bg-black/40 border border-white/5"
+          role="status"
           aria-live="polite"
           aria-label={`Zoom ${zoom.x.toFixed(1)}x`}
         >
@@ -1257,7 +1261,7 @@ export function BifurcationDiagramRenderer({
         >
           −
         </button>
-      </div>
+      </fieldset>
 
       {/* Hover tooltip */}
       <AnimatePresence>

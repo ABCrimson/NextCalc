@@ -21,6 +21,7 @@ export default async function MatrixPage() {
 
         {/* Noise texture overlay using SVG feTurbulence */}
         <svg
+          aria-hidden="true"
           className="absolute inset-0 w-full h-full opacity-[0.025] pointer-events-none"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -244,7 +245,7 @@ export default async function MatrixPage() {
                 </span>
                 {lines.map(({ prefix, value }, i) => (
                   <div
-                    key={i}
+                    key={prefix}
                     className="font-mono text-sm text-foreground/80 overflow-x-auto whitespace-nowrap"
                     style={{ marginTop: i > 0 ? '0.25rem' : undefined }}
                   >

@@ -184,6 +184,7 @@ export default function MLAlgorithmsPage() {
 
         {/* Noise texture overlay via SVG feTurbulence */}
         <svg
+          aria-hidden="true"
           className="absolute inset-0 w-full h-full opacity-[0.025] pointer-events-none"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -397,7 +398,7 @@ export default function MLAlgorithmsPage() {
                             gridTemplateColumns: `repeat(${batchSize}, minmax(2rem, 1fr))`,
                           }}
                         >
-                          {contrastiveResult.similarities.map((row, i) =>
+                          {contrastiveResult.similarities.flatMap((row, i) =>
                             row.map((sim, j) => {
                               // Map similarity from [-1, 1] to [0, 1]
                               const intensity = (sim + 1) / 2;
@@ -410,10 +411,12 @@ export default function MLAlgorithmsPage() {
                                 i === j
                                   ? 'oklch(0.15 0 0)' // Dark text on green
                                   : textColorForValue(intensity);
+                              // Use cell address as stable key; batchSize is fixed at render time
+                              const cellKey = `sim-${i * 1000 + j}`;
 
                               return (
                                 <div
-                                  key={`${i}-${j}`}
+                                  key={cellKey}
                                   style={{
                                     backgroundColor: bgColor,
                                     color: fgColor,
@@ -575,13 +578,15 @@ export default function MLAlgorithmsPage() {
                             gridTemplateColumns: `repeat(${seqLength}, minmax(1.5rem, 1fr))`,
                           }}
                         >
-                          {attentionResult.scores.slice(0, seqLength).map((row, i) =>
+                          {attentionResult.scores.slice(0, seqLength).flatMap((row, i) =>
                             row.slice(0, seqLength).map((score, j) => {
+                              // Use cell address as stable key; seqLength is fixed at render time
+                              const cellKey = `attn-${i * 1000 + j}`;
                               // Causal mask: only attend to previous positions
                               if (j > i) {
                                 return (
                                   <div
-                                    key={`${i}-${j}`}
+                                    key={cellKey}
                                     className="bg-muted opacity-30 rounded"
                                     style={{ aspectRatio: '1/1' }}
                                   />
@@ -593,7 +598,7 @@ export default function MLAlgorithmsPage() {
 
                               return (
                                 <div
-                                  key={`${i}-${j}`}
+                                  key={cellKey}
                                   style={{
                                     backgroundColor: color,
                                     color: textColor,

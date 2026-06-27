@@ -273,6 +273,7 @@ export function FunctionInput({
 
               {/* Remove button */}
               <button
+                type="button"
                 onClick={() => handleRemove(fn.id)}
                 className="flex-shrink-0 p-1 rounded hover:bg-muted text-muted-foreground hover:text-red-400 transition-colors"
                 aria-label={`Remove ${fn.label}`}

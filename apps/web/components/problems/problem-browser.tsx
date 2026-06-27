@@ -212,7 +212,7 @@ export function ProblemBrowser({
     showOnlyFavorites;
 
   return (
-    <div className={cn('space-y-6', className)} role="region" aria-label="Problem browser">
+    <section className={cn('space-y-6', className)} aria-label="Problem browser">
       {/* Search and View Controls */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative flex-1 max-w-md">
@@ -320,14 +320,14 @@ export function ProblemBrowser({
 
         {/* Active Filters */}
         {hasActiveFilters && (
-          <div className="flex flex-wrap gap-2" role="group" aria-label="Active filters">
+          <fieldset className="flex flex-wrap gap-2 border-0 p-0 m-0" aria-label="Active filters">
             {selectedTopics.map((topic) => (
               <TopicTag key={topic} topic={topic} removable onRemove={() => toggleTopic(topic)} />
             ))}
             {selectedDifficulties.map((difficulty) => (
               <DifficultyBadge key={difficulty} level={difficulty} className="cursor-pointer" />
             ))}
-          </div>
+          </fieldset>
         )}
       </div>
 
@@ -381,11 +381,7 @@ export function ProblemBrowser({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div
-          className="flex items-center justify-center gap-2"
-          role="navigation"
-          aria-label="Pagination"
-        >
+        <nav className="flex items-center justify-center gap-2" aria-label="Pagination">
           <Button
             variant="outline"
             size="sm"
@@ -433,9 +429,9 @@ export function ProblemBrowser({
           >
             <ChevronRight className="h-4 w-4" aria-hidden="true" />
           </Button>
-        </div>
+        </nav>
       )}
-    </div>
+    </section>
   );
 }
 

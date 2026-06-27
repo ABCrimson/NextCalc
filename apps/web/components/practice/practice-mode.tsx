@@ -425,7 +425,7 @@ export function PracticeMode({
 
   // Active practice screen
   return (
-    <div className={cn('space-y-6', className)} role="region" aria-label="Practice session">
+    <section className={cn('space-y-6', className)} aria-label="Practice session">
       {/* Header with stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* Progress */}
@@ -568,6 +568,6 @@ export function PracticeMode({
           </m.div>
         )}
       </AnimatePresence>
-    </div>
+    </section>
   );
 }

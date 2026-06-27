@@ -47,9 +47,9 @@ function TopicMasteryChart({ data }: { data: TopicMastery[] }) {
   const sorted = [...data].sort((a, b) => b.mastery - a.mastery);
 
   return (
-    <div className="space-y-3" role="list" aria-label="Topic mastery levels">
+    <ul className="space-y-3" aria-label="Topic mastery levels">
       {sorted.map((item) => (
-        <div key={item.topic} role="listitem" className="group">
+        <li key={item.topic} className="group">
           <div className="mb-1 flex items-center justify-between text-sm">
             <span className="font-medium text-foreground">{item.topic}</span>
             <span className="tabular-nums text-muted-foreground">
@@ -72,9 +72,9 @@ function TopicMasteryChart({ data }: { data: TopicMastery[] }) {
               }}
             />
           </div>
-        </div>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
 
@@ -202,9 +202,9 @@ function AccuracyTrendChart({ data }: { data: TrendPoint[] }) {
       />
 
       {/* Data points */}
-      {points.map((p, i) => (
+      {points.map((p) => (
         <circle
-          key={i}
+          key={p.label}
           cx={p.x}
           cy={p.y}
           r={3}
@@ -318,9 +318,9 @@ function StreakHistoryChart({ data }: { data: StreakPoint[] }) {
       ))}
 
       {/* Bars */}
-      {bars.map((bar, i) => (
+      {bars.map((bar) => (
         <rect
-          key={i}
+          key={bar.date}
           x={bar.x}
           y={bar.y}
           width={bar.width}

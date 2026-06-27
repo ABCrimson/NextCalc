@@ -71,6 +71,7 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
           )}
         >
           {user.image ? (
+            // biome-ignore lint/performance/noImgElement: external OAuth avatar URL not in next/image remotePatterns
             <img
               src={user.image}
               alt={user.name ?? 'User'}

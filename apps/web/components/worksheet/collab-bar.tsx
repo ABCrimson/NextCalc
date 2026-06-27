@@ -114,6 +114,7 @@ function AvatarStack({ maxVisible = 4 }: AvatarStackProps) {
                   'cursor-default select-none',
                 )}
                 style={{ backgroundColor: peer.color }}
+                role="img"
                 aria-label={`${peer.name}${peer.isLocal ? ' (you)' : ''}`}
                 title={`${peer.name}${peer.isLocal ? ' (you)' : ''}`}
               >
@@ -127,6 +128,7 @@ function AvatarStack({ maxVisible = 4 }: AvatarStackProps) {
           <m.li layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="ml-1">
             <span
               className="flex items-center justify-center h-7 w-7 rounded-full bg-muted border border-border/60 text-xs font-medium text-muted-foreground ring-2 ring-background cursor-default select-none"
+              role="img"
               aria-label={`${overflow} more collaborator${overflow !== 1 ? 's' : ''}`}
               title={`${overflow} more`}
             >
@@ -200,7 +202,7 @@ export function CollabBar() {
       <AutoJoinEffect />
 
       {/* Collab section in toolbar */}
-      <div className="flex items-center gap-2" role="group" aria-label="Collaboration controls">
+      <div className="flex items-center gap-2" role="toolbar" aria-label="Collaboration controls">
         {/* Live indicator */}
         <AnimatePresence>{isLive && <LiveIndicator key="live" />}</AnimatePresence>
 

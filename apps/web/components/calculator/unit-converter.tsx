@@ -890,11 +890,7 @@ export function UnitConverter() {
         {/* Category grid */}
         <fieldset>
           <legend className="text-sm font-semibold text-foreground mb-2">Category</legend>
-          <div
-            className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-12 gap-1.5"
-            role="group"
-            aria-label="Unit categories"
-          >
+          <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-12 gap-1.5">
             {CATEGORY_ORDER.map((key) => (
               <CategoryChip
                 key={key}
@@ -981,9 +977,8 @@ export function UnitConverter() {
 
         {/* Result */}
         {result !== null && !error && (
-          <div
+          <section
             className="rounded-lg border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 p-5"
-            role="region"
             aria-label="Conversion result"
             aria-live="polite"
           >
@@ -1007,7 +1002,7 @@ export function UnitConverter() {
                 {formula}
               </Badge>
             </div>
-          </div>
+          </section>
         )}
 
         {/* Common conversions */}
@@ -1042,8 +1037,8 @@ export function UnitConverter() {
               Recent
             </p>
             <ul className="space-y-0.5" aria-label="Recent conversions">
-              {recentConversions.map((item, idx) => (
-                <li key={idx}>
+              {recentConversions.map((item) => (
+                <li key={`${item.fromLabel}-${item.toLabel}-${item.timestamp}`}>
                   <button
                     type="button"
                     onClick={() => applyRecent(item)}

@@ -91,7 +91,6 @@ export function ProgressRing({
       aria-valuemin={0}
       aria-valuemax={100}
       aria-label={`Progress: ${Math.round(clampedValue)}%`}
-      tabIndex={0}
     >
       <svg width={size} height={size} className="transform -rotate-90" aria-hidden="true">
         {/* Background circle */}
@@ -169,6 +168,7 @@ export function ProgressRingStack({
       {rings.map((ring, index) => {
         const ringSize = size - index * (strokeWidth + 4);
         return (
+          // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length concentric ring stack; index is the stable positional identity
           <div key={index} className="absolute inset-0 flex items-center justify-center">
             <ProgressRing
               value={ring.value}

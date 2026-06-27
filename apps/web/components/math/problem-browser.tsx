@@ -234,7 +234,7 @@ export function ProblemBrowser({
   );
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6" role="region" aria-label="Problem Browser">
+    <section className="flex flex-col lg:flex-row gap-6" aria-label="Problem Browser">
       {/* Filter Sidebar */}
       <aside
         className={cn(
@@ -536,7 +536,7 @@ export function ProblemBrowser({
           </div>
         )}
       </main>
-    </div>
+    </section>
   );
 }
 

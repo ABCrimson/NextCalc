@@ -453,8 +453,8 @@ export function MSTVisualizer() {
                   }}
                 >
                   <TabsList className="grid w-full grid-cols-3">
-                    {PRESET_GRAPHS.map((_, i) => (
-                      <TabsTrigger key={i} value={i.toString()}>
+                    {PRESET_GRAPHS.map((graph, i) => (
+                      <TabsTrigger key={graph.name} value={i.toString()}>
                         {i + 1}
                       </TabsTrigger>
                     ))}

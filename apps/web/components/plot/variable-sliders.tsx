@@ -332,6 +332,7 @@ function SliderRow({ name, config, onValueChange, onMinChange, onMaxChange }: Sl
       {/* Current value readout */}
       <span
         className="flex-shrink-0 w-14 text-right text-xs font-mono font-semibold text-foreground tabular-nums"
+        role="status"
         aria-live="polite"
         aria-atomic="true"
         aria-label={`${name} equals ${formatValue(clampedValue)}`}
@@ -479,6 +480,7 @@ export function VariableSliders({ expressions, onChange, className = '' }: Varia
             <span className="text-xs font-semibold text-foreground">Parameters</span>
             <span
               className="inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-bold"
+              role="img"
               aria-label={`${paramNames.length} parameter${paramNames.length === 1 ? '' : 's'} detected`}
             >
               {paramNames.length}

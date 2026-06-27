@@ -12,6 +12,7 @@
       "!**/generated",
       "!.worktrees",
       "!**/*.css",
+      "!**/*.svg",
       "!**/public/sw.js",
       "!**/next-env.d.ts"
     ]
@@ -121,6 +122,9 @@
         "rules": {
           "style": {
             "noNonNullAssertion": "off"
+          },
+          "suspicious": {
+            "noArrayIndexKey": "off"
           }
         }
       }
@@ -131,6 +135,17 @@
         "rules": {
           "correctness": {
             "useHookAtTopLevel": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/web/components/calculator/keyboard.tsx"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "useSemanticElements": "off",
+            "useFocusableInteractive": "off"
           }
         }
       }

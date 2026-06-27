@@ -838,14 +838,17 @@ export function LogisticMapRenderer({ data, title = 'x(n)' }: LogisticMapRendere
             border: `1px solid ${renderMode === 'webgpu' ? 'rgba(16,185,129,0.4)' : 'rgba(99,102,241,0.3)'}`,
             color: renderMode === 'webgpu' ? '#10b981' : '#818cf8',
           }}
-          aria-label={`Rendering with ${renderMode}`}
+          aria-hidden="true"
         >
           {renderMode === 'webgpu' ? 'WebGPU' : 'Canvas 2D'}
         </div>
       )}
 
       {/* Zoom controls */}
-      <div className="absolute top-3 right-3 flex flex-col gap-1" aria-label="Zoom controls">
+      <fieldset
+        className="absolute top-3 right-3 flex flex-col gap-1 border-0 p-0 m-0"
+        aria-label="Zoom controls"
+      >
         <button
           type="button"
           onClick={() => zoomBy(1.3)}
@@ -861,6 +864,7 @@ export function LogisticMapRenderer({ data, title = 'x(n)' }: LogisticMapRendere
         <div
           className="w-8 h-6 flex items-center justify-center rounded text-[10px]
             font-mono text-white/50 bg-black/40 border border-white/5"
+          role="status"
           aria-live="polite"
           aria-label={`Zoom ${zoom.toFixed(1)}x`}
         >
@@ -878,7 +882,7 @@ export function LogisticMapRenderer({ data, title = 'x(n)' }: LogisticMapRendere
         >
           −
         </button>
-      </div>
+      </fieldset>
 
       {/* Tooltip */}
       <AnimatePresence>

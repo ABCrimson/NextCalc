@@ -133,11 +133,7 @@ function UrlPreview({ url, isLoading }: { url: string; isLoading: boolean }) {
           <p className="text-xs font-mono text-muted-foreground">Generating permalink...</p>
         </div>
       ) : (
-        <p
-          className="text-xs font-mono text-muted-foreground truncate select-all"
-          title={url}
-          aria-label="Shareable URL"
-        >
+        <p className="text-xs font-mono text-muted-foreground truncate select-all" title={url}>
           {url}
         </p>
       )}
@@ -388,7 +384,6 @@ export function ShareButton({ expression, result, mode, angle, className }: Shar
                     type="button"
                     onClick={handleCopy}
                     disabled={copyStatus === 'copying' || isCreating}
-                    autoFocus
                     className={cn(
                       'flex items-center justify-center gap-2 w-full rounded-xl px-3 py-2.5',
                       'text-sm font-semibold transition-all duration-200',

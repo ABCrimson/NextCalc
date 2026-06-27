@@ -230,33 +230,33 @@ function QuickActions({ locale }: { locale?: string }) {
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3" role="list" aria-label="Quick actions">
+    <ul className="grid grid-cols-1 gap-3 sm:grid-cols-3" aria-label="Quick actions">
       {actions.map((action) => (
-        <Link
-          key={action.href}
-          href={action.href}
-          role="listitem"
-          className={[
-            'flex items-center gap-3 rounded-xl border border-border bg-gradient-to-br p-4',
-            'transition-all duration-200 hover:-translate-y-0.5 hover:border-border/80 hover:shadow-md',
-            'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-            action.gradient,
-          ].join(' ')}
-          aria-label={action.label}
-        >
-          <span
-            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-background/70 text-xl shadow-sm"
-            aria-hidden="true"
+        <li key={action.href}>
+          <Link
+            href={action.href}
+            className={[
+              'flex items-center gap-3 rounded-xl border border-border bg-gradient-to-br p-4',
+              'transition-all duration-200 hover:-translate-y-0.5 hover:border-border/80 hover:shadow-md',
+              'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+              action.gradient,
+            ].join(' ')}
+            aria-label={action.label}
           >
-            {action.icon}
-          </span>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-foreground">{action.label}</p>
-            <p className="text-xs text-muted-foreground">{action.description}</p>
-          </div>
-        </Link>
+            <span
+              className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-background/70 text-xl shadow-sm"
+              aria-hidden="true"
+            >
+              {action.icon}
+            </span>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-foreground">{action.label}</p>
+              <p className="text-xs text-muted-foreground">{action.description}</p>
+            </div>
+          </Link>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
 
@@ -639,11 +639,8 @@ function HeroAvatar({
           <LevelIcon level={level} size={112} />
         </div>
       )}
-      {/* Level badge */}
-      <div
-        className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-primary text-xs font-bold text-primary-foreground"
-        aria-label={`Level ${level}`}
-      >
+      {/* Level badge — inside aria-hidden parent; no aria-label needed */}
+      <div className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-primary text-xs font-bold text-primary-foreground">
         {level}
       </div>
     </div>

@@ -109,16 +109,13 @@ export function History({ entries, onSelect }: HistoryProps) {
         <div
           ref={parentRef}
           className="h-56 overflow-auto pr-4 scrollbar-thin scrollbar-thumb-muted scrollbar-track-background"
-          aria-label="Calculation history"
-          role="list"
         >
-          {/* Virtual list container with absolute positioning */}
-          <div
-            style={{
-              height: `${virtualizer.getTotalSize()}px`,
-              width: '100%',
-              position: 'relative',
-            }}
+          {/* The <ul> spacer sizes to the full virtual height so it can directly
+              contain the <li> items (axe requires <ul> children to be <li>). */}
+          <ul
+            className="relative m-0 w-full list-none p-0"
+            style={{ height: `${virtualizer.getTotalSize()}px` }}
+            aria-label="Calculation history"
           >
             {/* Only render visible items + overscan */}
             <AnimatePresence initial={false}>
@@ -126,7 +123,7 @@ export function History({ entries, onSelect }: HistoryProps) {
                 const entry = deferredEntries[virtualItem.index];
                 if (!entry) return null;
                 return (
-                  <div
+                  <li
                     key={entry.id}
                     style={{
                       position: 'absolute',
@@ -135,7 +132,6 @@ export function History({ entries, onSelect }: HistoryProps) {
                       width: '100%',
                       transform: `translateY(${virtualItem.start}px)`,
                     }}
-                    role="listitem"
                   >
                     <HistoryItem
                       entry={entry}
@@ -143,11 +139,11 @@ export function History({ entries, onSelect }: HistoryProps) {
                       thousandsSeparator={thousandsSeparator}
                       {...(onSelect ? { onSelect } : {})}
                     />
-                  </div>
+                  </li>
                 );
               })}
             </AnimatePresence>
-          </div>
+          </ul>
         </div>
       </Card>
     </m.div>

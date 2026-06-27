@@ -232,9 +232,9 @@ export default function ProblemsPageClient({ problems, stats }: ProblemsPageClie
             </p>
 
             {/* Quick stats badges — populated from real DB data */}
-            <div className="flex flex-wrap gap-2" aria-label="Library statistics">
+            <ul className="flex flex-wrap gap-2 list-none p-0 m-0" aria-label="Library statistics">
               {quickStats.map(({ label, color }) => (
-                <span
+                <li
                   key={label}
                   className="inline-flex items-center text-sm font-medium px-4 py-1.5 rounded-full border"
                   style={{
@@ -244,9 +244,9 @@ export default function ProblemsPageClient({ problems, stats }: ProblemsPageClie
                   }}
                 >
                   {label}
-                </span>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         </m.div>
 

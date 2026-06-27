@@ -755,7 +755,7 @@ export function TimeDomainRenderer({ signal, sampleRate = 1 }: TimeDomainRendere
             border: `1px solid ${renderMode === 'webgpu' ? 'rgba(16,185,129,0.4)' : 'rgba(99,102,241,0.3)'}`,
             color: renderMode === 'webgpu' ? '#10b981' : '#818cf8',
           }}
-          aria-label={`Rendering with ${renderMode}`}
+          aria-hidden="true"
         >
           {renderMode === 'webgpu' ? 'WebGPU' : 'Canvas 2D'}
         </div>

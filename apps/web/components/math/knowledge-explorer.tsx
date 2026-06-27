@@ -98,7 +98,7 @@ export function KnowledgeExplorer({
   );
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6" role="region" aria-label="Knowledge Explorer">
+    <section className="max-w-6xl mx-auto space-y-6" aria-label="Knowledge Explorer">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
@@ -191,7 +191,7 @@ export function KnowledgeExplorer({
           </AnimatePresence>
         )}
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -237,6 +237,7 @@ function DefinitionCard({
         <CardHeader>
           <div className="flex items-start justify-between gap-4">
             <button
+              type="button"
               onClick={onToggleExpand}
               className="flex-1 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded-lg"
               aria-expanded={isExpanded}
@@ -313,8 +314,8 @@ function DefinitionCard({
                   <div>
                     <h4 className="text-sm font-semibold mb-2">Examples</h4>
                     <ul className="space-y-1">
-                      {definition.examples.map((example, i) => (
-                        <li key={i} className="text-sm flex items-start gap-2">
+                      {definition.examples.map((example) => (
+                        <li key={example} className="text-sm flex items-start gap-2">
                           <ChevronRight className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                           <code className="flex-1 bg-muted/50 px-2 py-1 rounded">{example}</code>
                         </li>

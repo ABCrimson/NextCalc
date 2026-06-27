@@ -411,6 +411,7 @@ export function ZKPComputeVisualizer({
       {/* Main grid + detail pane */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6">
         {/* Commitment cell grid */}
+        {/* biome-ignore lint/a11y/useSemanticElements: role="grid" is a keyboard-navigable interactive grid widget (arrow-key navigation), distinct from a static data table; <table> does not carry this interaction model */}
         <div
           className={`rounded-2xl p-5 ${GLASS_CARD}`}
           role="grid"
@@ -479,7 +480,10 @@ export function ZKPComputeVisualizer({
           </div>
 
           {/* Legend */}
-          <div className="flex items-center gap-4 mt-4 flex-wrap" aria-label="Cell state legend">
+          <section
+            className="flex items-center gap-4 mt-4 flex-wrap"
+            aria-label="Cell state legend"
+          >
             {(
               [
                 { state: 'idle' as CellState, label: 'Idle' },
@@ -496,13 +500,13 @@ export function ZKPComputeVisualizer({
                 <span className="text-[11px] text-muted-foreground">{label}</span>
               </div>
             ))}
-          </div>
+          </section>
         </div>
 
         {/* Right column: stats + cell detail */}
         <div className="space-y-4">
           {/* Progress stats */}
-          <div
+          <section
             className={`rounded-2xl p-4 ${GLASS_CARD}`}
             aria-live="polite"
             aria-label="Verification progress"
@@ -537,7 +541,7 @@ export function ZKPComputeVisualizer({
                 />
               </div>
             )}
-          </div>
+          </section>
 
           {/* Timing comparison */}
           <AnimatePresence>
