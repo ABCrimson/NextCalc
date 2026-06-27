@@ -100,6 +100,7 @@
     "rebuild": "pnpm clean && pnpm build",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
+    "typecheck:fast": "tsgo --noEmit",
     "docs": "typedoc",
     "lint": "biome check .",
     "lint:fix": "biome check --write ."

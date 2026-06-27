@@ -131,6 +131,43 @@ jobs:
         run: pnpm turbo run typecheck
 
   # ---------------------------------------------------------------------------
+  # Typecheck (advisory) — TypeScript 7 native preview (tsgo). Non-blocking
+  # (continue-on-error); runs side-by-side with the tsc gate to surface
+  # TS7-forward issues early without blocking merges.
+  # ---------------------------------------------------------------------------
+  typecheck-fast:
+    name: Typecheck (TS7 tsgo, advisory)
+    needs: install
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.0.0-alpha.11
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Restore node_modules cache
+        uses: actions/cache/restore@v5
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            apps/workers/*/node_modules
+            packages/*/node_modules
+            packages/database/src/generated
+          key: nm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          fail-on-cache-miss: true
+
+      - name: Run tsgo (advisory)
+        run: pnpm turbo run typecheck:fast
+
+  # ---------------------------------------------------------------------------
   # Test (Vitest across math-engine, plot-engine, web, api)
   # ---------------------------------------------------------------------------
   test:

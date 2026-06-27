@@ -12,6 +12,7 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "typecheck": "tsc --noEmit --project tsconfig.typecheck.json",
+    "typecheck:fast": "tsgo --noEmit --project tsconfig.typecheck.json",
     "db:test": "tsx scripts/test-database-connection.ts",
     "db:setup": "tsx scripts/setup-database.ts"
   },

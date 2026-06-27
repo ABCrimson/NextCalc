@@ -61,6 +61,11 @@
       "description": "Type-check all workspaces with tsc",
       "dependsOn": ["^build"],
       "outputs": []
+    },
+    "typecheck:fast": {
+      "description": "Advisory type-check with TypeScript 7 (tsgo) — non-blocking, NOT part of the gate",
+      "dependsOn": ["^build"],
+      "outputs": []
     }
   }
 }

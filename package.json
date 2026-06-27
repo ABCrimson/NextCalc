@@ -7,6 +7,7 @@
     "build": "turbo run build",
     "test": "turbo run test",
     "lint": "turbo run lint",
+    "typecheck:fast": "turbo run typecheck:fast",
     "clean": "turbo run clean && rm -rf node_modules",
     "deploy:workers": "pnpm --filter './apps/workers/*' run deploy"
   },
@@ -15,6 +16,7 @@
     "@biomejs/biome": "2.5.1",
     "@graphql-tools/merge": "9.1.7",
     "@graphql-tools/schema": "10.0.31",
+    "@typescript/native-preview": "7.0.0-dev.20260626.1",
     "chrome-launcher": "^1.2.1",
     "graphql": "17.0.1",
     "graphql-tag": "2.12.7",
