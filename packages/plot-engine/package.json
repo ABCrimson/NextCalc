@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@types/d3": "7.4.3",
-    "@types/node": "25.3.3",
+    "@types/node": "26.0.1",
     "@types/three": "0.184.1",
     "@webgpu/types": "0.1.71",
     "fast-check": "4.8.0",
