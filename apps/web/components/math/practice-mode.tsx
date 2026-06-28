@@ -32,12 +32,8 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 
-/**
- * Branded type for practice mode state
- */
-type PracticeModeState = ('setup' | 'active' | 'paused' | 'completed') & {
-  __brand: 'PracticeModeState';
-};
+/** Practice mode state */
+type PracticeModeState = 'setup' | 'active' | 'paused' | 'completed';
 
 /**
  * Performance metrics for a practice session
@@ -125,7 +121,7 @@ export function PracticeMode({
   const { timeLimit = 0, questionCount = 10, topic, adaptiveDifficulty = false } = config;
 
   // State
-  const [state, setState] = useState<PracticeModeState>('setup' as PracticeModeState);
+  const [state, setState] = useState<PracticeModeState>('setup');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userAnswer, setUserAnswer] = useState('');
   const [answers, setAnswers] = useState<Array<{ correct: boolean; time: number }>>([]);
@@ -191,20 +187,20 @@ export function PracticeMode({
 
   // Start session
   const handleStart = useCallback(() => {
-    setState('active' as PracticeModeState);
+    setState('active');
     setTimer(0);
     setQuestionTimer(0);
   }, []);
 
   // Pause session
   const handlePause = useCallback(() => {
-    setState('paused' as PracticeModeState);
+    setState('paused');
     onPause?.();
   }, [onPause]);
 
   // Resume session
   const handleResume = useCallback(() => {
-    setState('active' as PracticeModeState);
+    setState('active');
     onResume?.();
   }, [onResume]);
 
@@ -233,7 +229,7 @@ export function PracticeMode({
 
       // Move to next question or complete
       if (isLastQuestion) {
-        setState('completed' as PracticeModeState);
+        setState('completed');
         onComplete?.({
           totalQuestions: newAnswers.length,
           correctAnswers: newAnswers.filter((a) => a.correct).length,

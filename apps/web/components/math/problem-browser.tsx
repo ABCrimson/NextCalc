@@ -33,15 +33,16 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 
-/**
- * Branded type for view mode
- */
-type ViewMode = ('grid' | 'list') & { __brand: 'ViewMode' };
+/** Grid/list view mode */
+type ViewMode = 'grid' | 'list';
 
-/**
- * Branded type for sort option
- */
-type SortOption = ('difficulty' | 'date' | 'popularity' | 'title') & { __brand: 'SortOption' };
+/** Problem sort option */
+const SORT_OPTIONS = ['difficulty', 'date', 'popularity', 'title'] as const;
+type SortOption = (typeof SORT_OPTIONS)[number];
+
+function isSortOption(value: string): value is SortOption {
+  return (SORT_OPTIONS as readonly string[]).includes(value);
+}
 
 /**
  * Props for ProblemBrowser component
@@ -123,12 +124,12 @@ export function ProblemBrowser({
   isLoading = false,
 }: ProblemBrowserProps) {
   // State management
-  const [viewMode, setViewMode] = useState<ViewMode>('grid' as ViewMode);
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTopics, setSelectedTopics] = useState<Set<MathTopic>>(new Set());
   const [selectedDifficulties, setSelectedDifficulties] = useState<Set<DifficultyLevel>>(new Set());
   const [selectedTypes, setSelectedTypes] = useState<Set<ProblemType>>(new Set());
-  const [sortBy, setSortBy] = useState<SortOption>('difficulty' as SortOption);
+  const [sortBy, setSortBy] = useState<SortOption>('difficulty');
   const [showFilters, setShowFilters] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const problemsPerPage = 12;
@@ -401,7 +402,7 @@ export function ProblemBrowser({
             <Button
               variant={viewMode === 'grid' ? 'default' : 'outline'}
               size="icon"
-              onClick={() => setViewMode('grid' as ViewMode)}
+              onClick={() => setViewMode('grid')}
               aria-label="Grid view"
               aria-pressed={viewMode === 'grid'}
             >
@@ -410,7 +411,7 @@ export function ProblemBrowser({
             <Button
               variant={viewMode === 'list' ? 'default' : 'outline'}
               size="icon"
-              onClick={() => setViewMode('list' as ViewMode)}
+              onClick={() => setViewMode('list')}
               aria-label="List view"
               aria-pressed={viewMode === 'list'}
             >
@@ -421,7 +422,11 @@ export function ProblemBrowser({
           {/* Sort */}
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as SortOption)}
+            onChange={(e) => {
+              if (isSortOption(e.target.value)) {
+                setSortBy(e.target.value);
+              }
+            }}
             className="px-4 py-2 rounded-md border bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             aria-label="Sort problems"
           >

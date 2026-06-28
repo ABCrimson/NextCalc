@@ -170,15 +170,17 @@ export const createSubscriptionContext = async (
     connectionParams.Authorization ||
     connectionParams.authToken) as string | undefined;
 
-  // Validate token and load user
-  const user = await verifyAuthToken(token);
+  // Validate the token, then load the full user record so the context carries a
+  // real `User` (the JWT only yields id/email/role).
+  const tokenUser = await verifyAuthToken(token);
+  const user = tokenUser ? await prisma.user.findUnique({ where: { id: tokenUser.id } }) : null;
 
   if (user) {
     logger.debug('Subscription authenticated', { userId: user.id });
   }
 
   return {
-    user: user as GraphQLContext['user'],
+    user,
     prisma,
     loaders: createDataLoaders(prisma),
     req: {

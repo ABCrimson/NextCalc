@@ -1,7 +1,7 @@
 /**
- * NextAuth.js v5 (next-auth@5.0.0-beta.30) Main Configuration
+ * NextAuth.js v5 (next-auth@5.0.0-beta.31) Main Configuration
  *
- * Integrates with Prisma 7.5.0-dev.33 adapter and extends session with custom user data.
+ * Integrates with the Prisma 7 adapter and extends session with custom user data.
  *
  * @see https://authjs.dev/getting-started/session-management
  */
@@ -29,6 +29,10 @@ export const {
   signOut,
 } = NextAuth({
   ...authConfig,
+  // @auth/prisma-adapter is typed against its own bundled @prisma/client; our Prisma 7
+  // client (@nextcalc/database) is structurally identical but a distinct nominal type, so
+  // we cast to the adapter's exact expected parameter type (not `any`). Upstream type-only
+  // incompatibility — safe at runtime.
   adapter: PrismaAdapter(prisma as Parameters<typeof PrismaAdapter>[0]),
   session: {
     strategy: 'jwt',
@@ -55,7 +59,7 @@ export const {
       if (token.id) {
         try {
           const dbUser = await prisma.user.findUnique({
-            where: { id: token.id as string },
+            where: { id: token.id },
             select: { tokenVersion: true, role: true },
           });
 
@@ -83,11 +87,11 @@ export const {
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as UserRole;
-        session.user.email = token.email as string;
-        session.user.name = token.name as string;
-        session.user.image = token.picture as string;
+        session.user.id = token.id;
+        session.user.role = token.role;
+        session.user.email = token.email ?? '';
+        session.user.name = token.name ?? '';
+        session.user.image = token.picture ?? '';
       }
       return session;
     },
@@ -141,10 +145,10 @@ export const {
         try {
           await prisma.auditLog.create({
             data: {
-              userId: token.id as string,
+              userId: token.id,
               action: 'signout',
               entity: 'user',
-              entityId: token.id as string,
+              entityId: token.id,
             },
           });
         } catch (error) {

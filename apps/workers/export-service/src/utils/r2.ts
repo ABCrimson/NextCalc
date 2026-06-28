@@ -223,9 +223,8 @@ export async function uploadToR2(
 
   let url: string;
 
-  if (isPrivate) {
-    // r2Config is guaranteed non-undefined here (checked above)
-    url = await buildPresignedGetUrl(r2Config as R2S3Config, object.key, expirySeconds);
+  if (isPrivate && r2Config) {
+    url = await buildPresignedGetUrl(r2Config, object.key, expirySeconds);
   } else {
     // Public bucket — plain URL, no signing needed
     const publicBase = r2Config?.publicBaseUrl ?? 'https://exports.nextcalc.pro';
@@ -284,8 +283,8 @@ export async function generateExportUrl(
     throw new Error('Object not found');
   }
 
-  if (isPrivate) {
-    return buildPresignedGetUrl(r2Config as R2S3Config, key, expirySeconds);
+  if (isPrivate && r2Config) {
+    return buildPresignedGetUrl(r2Config, key, expirySeconds);
   }
 
   // Public export — plain URL

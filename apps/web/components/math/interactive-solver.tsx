@@ -25,10 +25,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 
-/**
- * Branded type for solution reveal state
- */
-type RevealState = ('hidden' | 'partial' | 'full') & { __brand: 'RevealState' };
+/** Solution reveal state */
+type RevealState = 'hidden' | 'partial' | 'full';
 
 /**
  * Props for InteractiveSolver component
@@ -104,7 +102,7 @@ export function InteractiveSolver({
 }: InteractiveSolverProps) {
   // State
   const [answer, setAnswer] = useState(userAnswer);
-  const [revealState, setRevealState] = useState<RevealState>('hidden' as RevealState);
+  const [revealState, setRevealState] = useState<RevealState>('hidden');
   const [expandedSteps, setExpandedSteps] = useState<Set<number>>(new Set());
   const [activeMethodIndex, setActiveMethodIndex] = useState(0);
 
@@ -160,13 +158,11 @@ export function InteractiveSolver({
       // Ctrl+S: Toggle solution
       if (e.ctrlKey && e.key === 's') {
         e.preventDefault();
-        setRevealState((prev) =>
-          prev === 'hidden' ? ('full' as RevealState) : ('hidden' as RevealState),
-        );
+        setRevealState((prev) => (prev === 'hidden' ? 'full' : 'hidden'));
       }
       // Escape: Hide solution
       if (e.key === 'Escape') {
-        setRevealState('hidden' as RevealState);
+        setRevealState('hidden');
       }
     };
 
@@ -327,9 +323,7 @@ export function InteractiveSolver({
                     variant="outline"
                     size="sm"
                     onClick={() =>
-                      setRevealState((prev) =>
-                        prev === 'hidden' ? ('full' as RevealState) : ('hidden' as RevealState),
-                      )
+                      setRevealState((prev) => (prev === 'hidden' ? 'full' : 'hidden'))
                     }
                     aria-label={revealState === 'hidden' ? 'Show solution' : 'Hide solution'}
                   >

@@ -32,13 +32,12 @@ import {
 import { Progress } from '../ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
-// Branded type for export format to ensure type safety
 type ExportFormat = 'png' | 'svg' | 'csv';
 type ExportState = {
   isExporting: boolean;
   format: ExportFormat | null;
   progress: number;
-} & { readonly __brand: 'ExportState' };
+};
 
 export interface PlotControlsProps {
   canvasRef: RefObject<HTMLCanvasElement>;
@@ -81,7 +80,7 @@ export function PlotControls({
     isExporting: false,
     format: null,
     progress: 0,
-  } as ExportState);
+  });
 
   const [showKeyboardHints, setShowKeyboardHints] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
@@ -125,17 +124,14 @@ export function PlotControls({
     setExportError(null);
 
     try {
-      setExportState({ isExporting: true, format: 'png', progress: 0 } as ExportState);
+      setExportState({ isExporting: true, format: 'png', progress: 0 });
 
       // Simulate progress for better UX (real export is fast)
       const progressInterval = setInterval(() => {
-        setExportState(
-          (prev) =>
-            ({
-              ...prev,
-              progress: Math.min(prev.progress + 10, 90),
-            }) as ExportState,
-        );
+        setExportState((prev) => ({
+          ...prev,
+          progress: Math.min(prev.progress + 10, 90),
+        }));
       }, 50);
 
       await downloadAsPNG(canvas, 'plot', {
@@ -147,16 +143,16 @@ export function PlotControls({
       });
 
       clearInterval(progressInterval);
-      setExportState((prev) => ({ ...prev, progress: 100 }) as ExportState);
+      setExportState((prev) => ({ ...prev, progress: 100 }));
 
       // Reset after showing 100%
       setTimeout(() => {
-        setExportState({ isExporting: false, format: null, progress: 0 } as ExportState);
+        setExportState({ isExporting: false, format: null, progress: 0 });
       }, 500);
     } catch (error) {
       console.debug('PNG export failed:', error);
       setExportError('Failed to export PNG. Please try again.');
-      setExportState({ isExporting: false, format: null, progress: 0 } as ExportState);
+      setExportState({ isExporting: false, format: null, progress: 0 });
     }
   }, [canvasRef]);
 
@@ -168,16 +164,13 @@ export function PlotControls({
     }
 
     try {
-      setExportState({ isExporting: true, format: 'svg', progress: 0 } as ExportState);
+      setExportState({ isExporting: true, format: 'svg', progress: 0 });
 
       const progressInterval = setInterval(() => {
-        setExportState(
-          (prev) =>
-            ({
-              ...prev,
-              progress: Math.min(prev.progress + 10, 90),
-            }) as ExportState,
-        );
+        setExportState((prev) => ({
+          ...prev,
+          progress: Math.min(prev.progress + 10, 90),
+        }));
       }, 50);
 
       await downloadAsSVG([plotData], viewport, 'plot', {
@@ -187,15 +180,15 @@ export function PlotControls({
       });
 
       clearInterval(progressInterval);
-      setExportState((prev) => ({ ...prev, progress: 100 }) as ExportState);
+      setExportState((prev) => ({ ...prev, progress: 100 }));
 
       setTimeout(() => {
-        setExportState({ isExporting: false, format: null, progress: 0 } as ExportState);
+        setExportState({ isExporting: false, format: null, progress: 0 });
       }, 500);
     } catch (error) {
       console.debug('SVG export failed:', error);
       setExportError('Failed to export SVG. Please try again.');
-      setExportState({ isExporting: false, format: null, progress: 0 } as ExportState);
+      setExportState({ isExporting: false, format: null, progress: 0 });
     }
   }, [plotData, viewport, plotType]);
 
@@ -207,16 +200,13 @@ export function PlotControls({
     }
 
     try {
-      setExportState({ isExporting: true, format: 'csv', progress: 0 } as ExportState);
+      setExportState({ isExporting: true, format: 'csv', progress: 0 });
 
       const progressInterval = setInterval(() => {
-        setExportState(
-          (prev) =>
-            ({
-              ...prev,
-              progress: Math.min(prev.progress + 10, 90),
-            }) as ExportState,
-        );
+        setExportState((prev) => ({
+          ...prev,
+          progress: Math.min(prev.progress + 10, 90),
+        }));
       }, 50);
 
       await downloadAsCSV2D(plotData, 'plot-data', {
@@ -226,15 +216,15 @@ export function PlotControls({
       });
 
       clearInterval(progressInterval);
-      setExportState((prev) => ({ ...prev, progress: 100 }) as ExportState);
+      setExportState((prev) => ({ ...prev, progress: 100 }));
 
       setTimeout(() => {
-        setExportState({ isExporting: false, format: null, progress: 0 } as ExportState);
+        setExportState({ isExporting: false, format: null, progress: 0 });
       }, 500);
     } catch (error) {
       console.debug('CSV export failed:', error);
       setExportError('Failed to export CSV. Please try again.');
-      setExportState({ isExporting: false, format: null, progress: 0 } as ExportState);
+      setExportState({ isExporting: false, format: null, progress: 0 });
     }
   }, [plotData, plotType]);
 
