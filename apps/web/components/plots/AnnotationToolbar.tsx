@@ -102,7 +102,7 @@ function ToolbarButton({
   const style = isDestructive
     ? 'text-red-400 border-red-800/60 bg-red-950/40 hover:bg-red-900/60 hover:border-red-700'
     : isActive
-      ? 'text-cyan-200 border-cyan-500/70 bg-cyan-950/60 shadow-[0_0_8px_rgba(6,182,212,0.25)]'
+      ? 'text-cyan-200 border-cyan-500/70 bg-cyan-950/60 shadow-[0_0_8px_oklch(0.7148_0.1257_215.22_/_0.25)]'
       : 'text-muted-foreground border-border bg-background/50 hover:bg-background/80 hover:text-foreground hover:border-border';
 
   return (

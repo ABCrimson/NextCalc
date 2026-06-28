@@ -40,7 +40,7 @@ interface Point3D {
 const GLASS_CARD =
   'bg-gradient-to-br from-background/60 via-card/50 to-background/60 ' +
   'backdrop-blur-md border border-border ' +
-  'shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]';
+  'shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]';
 
 export default function ChaosTheoryPage() {
   const t = useTranslations('chaos');
@@ -444,12 +444,12 @@ export default function ChaosTheoryPage() {
           <h2 className="text-2xl font-semibold text-foreground">{t('aboutTitle')}</h2>
 
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="group relative p-6 rounded-xl bg-gradient-to-br from-cyan-950/40 to-cyan-900/30 border border-cyan-500/30 hover:border-cyan-400/60 transition-all duration-300 shadow-[0_4px_24px_rgba(0,0,0,0.3)]">
+            <div className="group relative p-6 rounded-xl bg-gradient-to-br from-cyan-950/40 to-cyan-900/30 border border-cyan-500/30 hover:border-cyan-400/60 transition-all duration-300 shadow-[0_4px_24px_oklch(0_0_0_/_0.3)]">
               <h3 className="text-lg font-semibold mb-2 text-cyan-300">{t('lorenz')}</h3>
               <p className="text-sm text-cyan-200/75 leading-relaxed">{t('lorenzAbout')}</p>
             </div>
 
-            <div className="group relative p-6 rounded-xl bg-gradient-to-br from-purple-950/40 to-purple-900/30 border border-purple-500/30 hover:border-purple-400/60 transition-all duration-300 shadow-[0_4px_24px_rgba(0,0,0,0.3)]">
+            <div className="group relative p-6 rounded-xl bg-gradient-to-br from-purple-950/40 to-purple-900/30 border border-purple-500/30 hover:border-purple-400/60 transition-all duration-300 shadow-[0_4px_24px_oklch(0_0_0_/_0.3)]">
               <h3 className="text-lg font-semibold mb-2 text-purple-300">
                 {t('strangeAttractors')}
               </h3>
@@ -458,12 +458,12 @@ export default function ChaosTheoryPage() {
               </p>
             </div>
 
-            <div className="group relative p-6 rounded-xl bg-gradient-to-br from-emerald-950/40 to-emerald-900/30 border border-emerald-500/30 hover:border-emerald-400/60 transition-all duration-300 shadow-[0_4px_24px_rgba(0,0,0,0.3)]">
+            <div className="group relative p-6 rounded-xl bg-gradient-to-br from-emerald-950/40 to-emerald-900/30 border border-emerald-500/30 hover:border-emerald-400/60 transition-all duration-300 shadow-[0_4px_24px_oklch(0_0_0_/_0.3)]">
               <h3 className="text-lg font-semibold mb-2 text-emerald-300">{t('logistic')}</h3>
               <p className="text-sm text-emerald-200/75 leading-relaxed">{t('logisticAbout')}</p>
             </div>
 
-            <div className="group relative p-6 rounded-xl bg-gradient-to-br from-rose-950/40 to-rose-900/30 border border-rose-500/30 hover:border-rose-400/60 transition-all duration-300 shadow-[0_4px_24px_rgba(0,0,0,0.3)]">
+            <div className="group relative p-6 rounded-xl bg-gradient-to-br from-rose-950/40 to-rose-900/30 border border-rose-500/30 hover:border-rose-400/60 transition-all duration-300 shadow-[0_4px_24px_oklch(0_0_0_/_0.3)]">
               <h3 className="text-lg font-semibold mb-2 text-rose-300">{t('applicationsTitle')}</h3>
               <p className="text-sm text-rose-200/75 leading-relaxed">{t('applicationsAbout')}</p>
             </div>

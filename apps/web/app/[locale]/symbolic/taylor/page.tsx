@@ -30,7 +30,7 @@ export default async function TaylorSeriesPage() {
 
           {/* General formula card */}
           <div
-            className="p-6 rounded-xl border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]
+            className="p-6 rounded-xl border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]
               bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md"
           >
             <p className="text-sm text-muted-foreground mb-4">{t('taylorFormulaDesc')}</p>
@@ -117,9 +117,9 @@ export default async function TaylorSeriesPage() {
             ].map((item) => (
               <div
                 key={item.name}
-                className="p-4 rounded-xl border border-border shadow-[0_4px_16px_0_rgba(0,0,0,0.22)]
+                className="p-4 rounded-xl border border-border shadow-[0_4px_16px_0_oklch(0_0_0_/_0.22)]
                   bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md
-                  hover:shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] transition-shadow duration-300"
+                  hover:shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)] transition-shadow duration-300"
               >
                 <h3 className="font-semibold mb-2 font-mono text-sm" style={{ color: item.color }}>
                   {item.name}

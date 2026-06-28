@@ -90,7 +90,7 @@ function PlotSkeleton() {
         relative rounded-xl p-6
         bg-gradient-to-br from-background/60 via-card/50 to-background/60
         backdrop-blur-md border border-border
-        shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]
+        shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]
         overflow-hidden
       "
       role="status"
@@ -147,7 +147,7 @@ function PlotError({ error, onRetry }: { error: string; onRetry?: () => void }) 
         relative rounded-xl p-8
         bg-gradient-to-br from-red-950/40 via-red-900/30 to-red-950/40
         backdrop-blur-md border border-red-800/50
-        shadow-[0_8px_32px_0_rgba(220,38,38,0.2)]
+        shadow-[0_8px_32px_0_oklch(0.5771_0.2152_27.33_/_0.2)]
         overflow-hidden
       "
       role="alert"
@@ -276,7 +276,7 @@ export function PlotContainer({
               relative p-4 rounded-xl
               bg-gradient-to-br from-background/40 via-card/30 to-background/40
               backdrop-blur-sm border border-border
-              shadow-[0_4px_16px_0_rgba(0,0,0,0.2)]
+              shadow-[0_4px_16px_0_oklch(0_0_0_/_0.2)]
             "
           >
             {/* Subtle gradient overlay */}
@@ -335,7 +335,7 @@ export function PlotContainer({
                       relative rounded-xl
                       bg-gradient-to-br from-background/60 via-card/50 to-background/60
                       backdrop-blur-md border border-border
-                      shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]
+                      shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]
                       overflow-hidden
                     "
                   >

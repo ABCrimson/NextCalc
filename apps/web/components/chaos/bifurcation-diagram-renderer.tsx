@@ -972,7 +972,7 @@ export function BifurcationDiagramRenderer({
               transition={{ duration: 0.15 }}
               className="absolute bottom-full left-0 mb-2 w-64 max-h-72 overflow-y-auto rounded-xl
                 bg-black/85 backdrop-blur-md border border-white/10
-                shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
+                shadow-[0_8px_32px_oklch(0_0_0_/_0.6)]"
               role="listbox"
               aria-label="Bifurcation presets"
             >
@@ -1032,7 +1032,7 @@ export function BifurcationDiagramRenderer({
             transition={{ duration: 0.18 }}
             className="absolute bottom-24 right-3 w-72 rounded-xl overflow-hidden
               bg-black/80 backdrop-blur-md border border-white/10
-              shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
+              shadow-[0_8px_32px_oklch(0_0_0_/_0.6)]"
             role="region"
             aria-label="Bifurcation diagram controls"
           >
@@ -1278,7 +1278,8 @@ export function BifurcationDiagramRenderer({
               background: 'linear-gradient(135deg,rgba(10,18,40,0.97),rgba(16,26,50,0.97))',
               backdropFilter: 'blur(12px)',
               border: '1px solid rgba(52,211,153,0.3)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.5),0 0 0 1px rgba(52,211,153,0.12)',
+              boxShadow:
+                '0 8px 32px oklch(0 0 0 / 0.5),0 0 0 1px oklch(0.7729 0.1535 163.22 / 0.12)',
             }}
           >
             <div className="text-xs font-mono space-y-0.5">
@@ -1305,7 +1306,7 @@ export function BifurcationDiagramRenderer({
               backdropFilter: 'blur(8px)',
               border: '1px solid rgba(52,211,153,0.35)',
               color: '#34d399',
-              boxShadow: '0 4px 16px rgba(52,211,153,0.12)',
+              boxShadow: '0 4px 16px oklch(0.7729 0.1535 163.22 / 0.12)',
             }}
             aria-label="Reset view"
           >

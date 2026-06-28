@@ -472,7 +472,7 @@ export function Plot2D({
               px-3 py-2 rounded-xl
               bg-background/80 backdrop-blur-md
               border border-border
-              shadow-[0_4px_16px_rgba(0,0,0,0.4)]
+              shadow-[0_4px_16px_oklch(0_0_0_/_0.4)]
             "
             >
               <AnnotationToolbar
@@ -490,7 +490,7 @@ export function Plot2D({
         ref={canvasRef}
         width={canvasSize.width}
         height={canvasSize.height}
-        className="absolute inset-0 w-full h-full border border-border rounded-lg shadow-[0_0_20px_rgba(6,182,212,0.15)]"
+        className="absolute inset-0 w-full h-full border border-border rounded-lg shadow-[0_0_20px_oklch(0.7148_0.1257_215.22_/_0.15)]"
         style={{
           width: '100%',
           height: '100%',

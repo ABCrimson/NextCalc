@@ -106,7 +106,7 @@ export default async function OGImage() {
             borderRadius: '22px',
             background: 'linear-gradient(135deg, #2563EB 0%, #7C3AED 100%)',
             marginBottom: '32px',
-            boxShadow: '0 8px 32px rgba(37, 99, 235, 0.4), 0 0 0 1px rgba(255,255,255,0.1)',
+            boxShadow: '0 8px 32px oklch(0.5461 0.2152 262.88 / 0.4), 0 0 0 1px oklch(1 0 0 / 0.1)',
           }}
         >
           <div

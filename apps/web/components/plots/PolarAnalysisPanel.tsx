@@ -491,7 +491,7 @@ function SymmetryBadges({ symmetry, color }: { symmetry: SymmetryInfo; color: st
           style={badge.active ? { borderLeftColor: color, borderLeftWidth: 2 } : undefined}
         >
           {badge.active && (
-            <span className="w-1.5 h-1.5 rounded-full mr-1.5 bg-purple-400 shadow-[0_0_6px_rgba(168,85,247,0.5)]" />
+            <span className="w-1.5 h-1.5 rounded-full mr-1.5 bg-purple-400 shadow-[0_0_6px_oklch(0.6268_0.2325_303.9_/_0.5)]" />
           )}
           {badge.label}
         </span>
@@ -520,7 +520,7 @@ export function PolarAnalysisPanel({
         'rounded-xl overflow-hidden',
         'bg-gradient-to-br from-background/60 via-card/50 to-background/60',
         'backdrop-blur-md border border-border',
-        'shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]',
+        'shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]',
         className,
       ].join(' ')}
       aria-label="Polar analysis panel"

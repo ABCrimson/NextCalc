@@ -1444,7 +1444,7 @@ function ContextMenu({ target, onDeleteNode, onDeleteEdge, onClose }: ContextMen
       exit={{ opacity: 0, scale: 0.92 }}
       transition={{ duration: 0.12 }}
       style={{ left: target.x, top: target.y }}
-      className="absolute z-50 min-w-36 rounded-lg border border-border bg-popover/95 backdrop-blur-md shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] overflow-hidden"
+      className="absolute z-50 min-w-36 rounded-lg border border-border bg-popover/95 backdrop-blur-md shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)] overflow-hidden"
     >
       <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground border-b border-border">
         {target.kind === 'node' ? `Node ${target.id}` : 'Edge'}
@@ -2108,7 +2108,7 @@ export default function GraphAlgorithmsPage() {
   // RENDER
   // -------------------------------------------------------------------------
   const glassPanel =
-    'bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]';
+    'bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]';
 
   return (
     <main className="min-h-screen py-10 px-4 relative">

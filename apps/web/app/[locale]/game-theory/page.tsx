@@ -736,7 +736,7 @@ export default function GameTheoryPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ type: 'spring', stiffness: 260, damping: 28, delay: 0.1 }}
           >
-            <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] h-full">
+            <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)] h-full">
               <CardHeader className="pb-4">
                 <CardTitle className="text-foreground text-lg">{t('gameSetup')}</CardTitle>
                 <CardDescription>{t('gameSetupDesc')}</CardDescription>
@@ -807,7 +807,7 @@ export default function GameTheoryPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ type: 'spring', stiffness: 260, damping: 28, delay: 0.15 }}
           >
-            <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+            <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -946,7 +946,7 @@ export default function GameTheoryPage() {
               className="grid gap-6 lg:grid-cols-2 mt-6"
             >
               {/* Nash Equilibria */}
-              <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+              <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <div className="w-2 h-2 rounded-full bg-primary shrink-0" aria-hidden="true" />
@@ -1038,7 +1038,7 @@ export default function GameTheoryPage() {
               </Card>
 
               {/* Dominated Strategies */}
-              <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+              <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <div
@@ -1172,8 +1172,8 @@ export default function GameTheoryPage() {
                   accentTo,
                   borderColor,
                   hoverBorder,
-                  'backdrop-blur-sm shadow-[0_4px_16px_0_rgba(0,0,0,0.12)]',
-                  'hover:shadow-[0_8px_24px_0_rgba(0,0,0,0.2)]',
+                  'backdrop-blur-sm shadow-[0_4px_16px_0_oklch(0_0_0_/_0.12)]',
+                  'hover:shadow-[0_8px_24px_0_oklch(0_0_0_/_0.2)]',
                 ].join(' ')}
               >
                 <h3 className={`text-base font-semibold mb-2 ${titleColor}`}>{title}</h3>

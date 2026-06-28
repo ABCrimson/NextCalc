@@ -232,7 +232,7 @@ function GateBox({
         background: isActive ? p.bg : isExecuted ? 'rgba(25,22,50,0.7)' : `${p.bg}28`,
         border: `2px solid ${isActive ? p.border : isExecuted ? '#2a2a40' : `${p.border}66`}`,
         color: isActive ? p.text : isExecuted ? '#445' : p.text,
-        boxShadow: isActive ? `0 0 18px ${p.glow}, 0 4px 12px rgba(0,0,0,0.5)` : 'none',
+        boxShadow: isActive ? `0 0 18px ${p.glow}, 0 4px 12px oklch(0 0 0 / 0.5)` : 'none',
       }}
       initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: 1, opacity: isExecuted ? 0.45 : 1 }}
@@ -265,7 +265,7 @@ function WireSegment({ executed, active }: { executed: boolean; active: boolean 
       className="h-0.5 flex-1 min-w-2 transition-all duration-300"
       style={{
         background: active ? '#6d5ae0' : executed ? '#1e1e30' : '#242238',
-        boxShadow: active ? '0 0 6px rgba(109,90,224,0.65)' : 'none',
+        boxShadow: active ? '0 0 6px oklch(0.5599 0.1956 284.6 / 0.65)' : 'none',
       }}
     />
   );
@@ -720,7 +720,9 @@ export function QuantumSimulator({
                               : isExecuted
                                 ? '#1e1e30'
                                 : 'rgba(80,60,160,0.4)',
-                            boxShadow: isActive ? '0 0 8px rgba(61,201,138,0.65)' : 'none',
+                            boxShadow: isActive
+                              ? '0 0 8px oklch(0.7461 0.1504 159.35 / 0.65)'
+                              : 'none',
                             transition: 'background 0.3s',
                             zIndex: 0,
                           }}
@@ -985,7 +987,7 @@ export function QuantumSimulator({
                     'linear-gradient(135deg, rgba(10,8,28,0.55) 0%, rgba(18,14,42,0.55) 100%)',
                   backdropFilter: 'blur(12px)',
                   border: '1px solid rgba(90,70,180,0.25)',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.28), inset 0 1px 1px rgba(255,255,255,0.06)',
+                  boxShadow: '0 4px 16px oklch(0 0 0 / 0.28), inset 0 1px 1px oklch(1 0 0 / 0.06)',
                 }}
               >
                 <TabsTrigger

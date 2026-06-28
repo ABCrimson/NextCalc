@@ -72,7 +72,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
                 border: '1px solid #27272a',
                 borderRadius: '0.5rem',
                 padding: '2rem',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                boxShadow: '0 10px 15px -3px oklch(0 0 0 / 0.1)',
               }}
             >
               {/* Error Icon */}

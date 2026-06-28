@@ -189,7 +189,7 @@ export function PolarAxisLabels({
         variants={centerPointVariants}
         initial="hidden"
         animate="visible"
-        className="absolute w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.6)]"
+        className="absolute w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_12px_oklch(0.7148_0.1257_215.22_/_0.6)]"
         style={{
           left: `${centerX}px`,
           top: `${centerY}px`,
@@ -227,7 +227,7 @@ export function PolarAxisLabels({
             text-foreground bg-background/80 backdrop-blur-sm
             px-2 py-1 rounded-md
             border border-cyan-500/40
-            shadow-[0_2px_8px_0_rgba(6,182,212,0.15)]
+            shadow-[0_2px_8px_0_oklch(0.7148_0.1257_215.22_/_0.15)]
           "
           style={{
             left: `${centerX + tick.radius}px`,
@@ -254,7 +254,7 @@ export function PolarAxisLabels({
           className={`
             absolute text-xs font-mono px-2 py-1 rounded-md
             backdrop-blur-sm
-            shadow-[0_2px_8px_0_rgba(6,182,212,0.15)]
+            shadow-[0_2px_8px_0_oklch(0.7148_0.1257_215.22_/_0.15)]
             ${
               tick.isCardinal
                 ? 'text-cyan-100 bg-gradient-to-br from-cyan-900/90 to-cyan-800/90 border-2 border-cyan-400/60 font-semibold'
@@ -284,7 +284,7 @@ export function PolarAxisLabels({
           text-cyan-100 bg-gradient-to-br from-background/90 to-card/90
           backdrop-blur-md px-3 py-1.5 rounded-lg
           border border-cyan-500/40
-          shadow-[0_4px_16px_0_rgba(6,182,212,0.2)]
+          shadow-[0_4px_16px_0_oklch(0.7148_0.1257_215.22_/_0.2)]
         "
         style={{
           left: '12px',
@@ -307,7 +307,7 @@ export function PolarAxisLabels({
           text-foreground/80 bg-background/80 backdrop-blur-sm
           px-3 py-1.5 rounded-lg
           border border-border
-          shadow-[0_2px_8px_0_rgba(0,0,0,0.2)]
+          shadow-[0_2px_8px_0_oklch(0_0_0_/_0.2)]
         "
         style={{
           right: '12px',

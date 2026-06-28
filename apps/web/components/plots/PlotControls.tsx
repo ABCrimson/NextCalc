@@ -236,7 +236,7 @@ export function PlotControls({
           relative flex items-center gap-2 p-2 rounded-xl
           bg-gradient-to-br from-background/60 via-card/50 to-background/60
           backdrop-blur-md border border-border
-          shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]
+          shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]
           ${className}
         `}
         initial={{ opacity: 0, y: -10 }}
@@ -420,7 +420,7 @@ export function PlotControls({
               align="end"
               className="
                 bg-card/95 border-border backdrop-blur-md
-                shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]
+                shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]
               "
             >
               <DropdownMenuItem
@@ -555,7 +555,7 @@ export function PlotControls({
               className="
                 absolute top-full right-0 mt-2 p-3 rounded-lg
                 bg-card/95 border border-border backdrop-blur-md
-                shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]
+                shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]
                 min-w-[250px] z-50
               "
               role="dialog"

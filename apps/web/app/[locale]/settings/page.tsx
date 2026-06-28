@@ -153,7 +153,7 @@ function KeyBadge({ label }: { label: string }) {
         'inline-flex items-center justify-center rounded px-2 py-0.5',
         'text-xs font-mono font-medium',
         'bg-muted border border-border text-muted-foreground',
-        'shadow-[inset_0_-1px_0_rgba(0,0,0,0.2)]',
+        'shadow-[inset_0_-1px_0_oklch(0_0_0_/_0.2)]',
       )}
     >
       {label}
@@ -386,7 +386,7 @@ export default function SettingsPage() {
           {/* Profile */}
           {/* ------------------------------------------------------------------ */}
           <SettingsSection delay={0.08}>
-            <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+            <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-2.5">
                   <div className="p-1.5 rounded-lg bg-gradient-to-br from-sky-500/15 to-blue-500/15 border border-sky-500/25">
@@ -443,7 +443,7 @@ export default function SettingsPage() {
           {/* Appearance */}
           {/* ------------------------------------------------------------------ */}
           <SettingsSection delay={0.14}>
-            <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+            <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-2.5">
                   <div className="p-1.5 rounded-lg bg-gradient-to-br from-violet-500/15 to-purple-500/15 border border-violet-500/25">
@@ -494,7 +494,7 @@ export default function SettingsPage() {
           {/* Calculator defaults */}
           {/* ------------------------------------------------------------------ */}
           <SettingsSection delay={0.2}>
-            <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+            <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-2.5">
                   <div className="p-1.5 rounded-lg bg-gradient-to-br from-emerald-500/15 to-teal-500/15 border border-emerald-500/25">
@@ -586,7 +586,7 @@ export default function SettingsPage() {
           {/* Data */}
           {/* ------------------------------------------------------------------ */}
           <SettingsSection delay={0.26}>
-            <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+            <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-2.5">
                   <div className="p-1.5 rounded-lg bg-gradient-to-br from-amber-500/15 to-orange-500/15 border border-amber-500/25">
@@ -649,7 +649,7 @@ export default function SettingsPage() {
           {/* Keyboard shortcuts */}
           {/* ------------------------------------------------------------------ */}
           <SettingsSection delay={0.32}>
-            <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+            <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-2.5">
                   <div className="p-1.5 rounded-lg bg-gradient-to-br from-rose-500/15 to-pink-500/15 border border-rose-500/25">
@@ -683,7 +683,7 @@ export default function SettingsPage() {
           {/* Save bar */}
           {/* ------------------------------------------------------------------ */}
           <SettingsSection delay={0.38}>
-            <div className="flex items-center justify-between gap-4 rounded-xl px-5 py-4 bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+            <div className="flex items-center justify-between gap-4 rounded-xl px-5 py-4 bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
               {/* Status feedback */}
               <div aria-live="polite" aria-atomic="true">
                 {saveStatus.type === 'saved' && (

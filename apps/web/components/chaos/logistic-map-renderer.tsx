@@ -899,7 +899,8 @@ export function LogisticMapRenderer({ data, title = 'x(n)' }: LogisticMapRendere
               background: 'linear-gradient(135deg,rgba(12,20,44,0.96),rgba(20,30,58,0.96))',
               backdropFilter: 'blur(12px)',
               border: '1px solid rgba(129,140,248,0.3)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.5),0 0 0 1px rgba(129,140,248,0.15)',
+              boxShadow:
+                '0 8px 32px oklch(0 0 0 / 0.5),0 0 0 1px oklch(0.6801 0.1583 276.93 / 0.15)',
             }}
           >
             <div className="text-xs font-mono space-y-0.5">
@@ -926,7 +927,7 @@ export function LogisticMapRenderer({ data, title = 'x(n)' }: LogisticMapRendere
               backdropFilter: 'blur(8px)',
               border: '1px solid rgba(6,182,212,0.38)',
               color: '#06b6d4',
-              boxShadow: '0 4px 16px rgba(6,182,212,0.15)',
+              boxShadow: '0 4px 16px oklch(0.7148 0.1257 215.22 / 0.15)',
             }}
             aria-label="Reset view"
           >

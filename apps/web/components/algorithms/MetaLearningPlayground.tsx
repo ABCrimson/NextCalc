@@ -1237,7 +1237,7 @@ export function MetaLearningPlayground({
                     'linear-gradient(135deg, rgba(10,8,28,0.55) 0%, rgba(18,14,42,0.55) 100%)',
                   backdropFilter: 'blur(12px)',
                   border: '1px solid rgba(90,70,180,0.25)',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.28), inset 0 1px 1px rgba(255,255,255,0.06)',
+                  boxShadow: '0 4px 16px oklch(0 0 0 / 0.28), inset 0 1px 1px oklch(1 0 0 / 0.06)',
                 }}
               >
                 <TabsTrigger

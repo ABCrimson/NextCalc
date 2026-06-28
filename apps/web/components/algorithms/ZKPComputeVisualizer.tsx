@@ -64,7 +64,7 @@ const DEMO_G = 5;
 const GLASS_CARD =
   'bg-gradient-to-br from-background/60 via-card/50 to-background/60 ' +
   'backdrop-blur-md border border-border ' +
-  'shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]';
+  'shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -286,9 +286,9 @@ export function ZKPComputeVisualizer({
   const cellColor = (state: CellState): string => {
     switch (state) {
       case 'verified':
-        return 'bg-emerald-500/20 border-emerald-500/60 shadow-[0_0_10px_rgba(52,211,153,0.35)]';
+        return 'bg-emerald-500/20 border-emerald-500/60 shadow-[0_0_10px_oklch(0.7729_0.1535_163.22_/_0.35)]';
       case 'failed':
-        return 'bg-red-500/20 border-red-500/60 shadow-[0_0_10px_rgba(239,68,68,0.35)]';
+        return 'bg-red-500/20 border-red-500/60 shadow-[0_0_10px_oklch(0.6368_0.2078_25.33_/_0.35)]';
       case 'verifying':
         return 'bg-indigo-500/10 border-indigo-400/40';
       default:
@@ -394,7 +394,7 @@ export function ZKPComputeVisualizer({
               className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold
                 bg-indigo-600 hover:bg-indigo-500 text-white border border-indigo-500/40
                 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring
-                disabled:opacity-40 transition-colors shadow-[0_4px_14px_rgba(99,102,241,0.3)]"
+                disabled:opacity-40 transition-colors shadow-[0_4px_14px_oklch(0.5854_0.2041_277.12_/_0.3)]"
               aria-label="Run batch verification"
             >
               <Play className="w-3.5 h-3.5" aria-hidden="true" />

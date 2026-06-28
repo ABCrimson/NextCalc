@@ -260,8 +260,8 @@ vi.mock('@tanstack/react-virtual', () => ({
 }));
 
 // Mock framer-motion to avoid animation issues in tests
-vi.mock('framer-motion', () => {
-  const React = require('react');
+vi.mock('framer-motion', async () => {
+  const { createElement } = await import('react');
 
   // Filter out framer-motion specific props that React doesn't recognize
   // biome-ignore lint/suspicious/noExplicitAny: mock implementation — untyped by design
@@ -307,7 +307,7 @@ vi.mock('framer-motion', () => {
     (tag: string) =>
     // biome-ignore lint/suspicious/noExplicitAny: mock implementation — untyped by design
     ({ children, ref, ...props }: any) =>
-      React.createElement(tag, { ...filterMotionProps(props), ref }, children);
+      createElement(tag, { ...filterMotionProps(props), ref }, children);
 
   const motionProxy = {
     div: createMotionComponent('div'),

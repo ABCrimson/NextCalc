@@ -58,56 +58,64 @@ const categoryStyles: Record<
   'machine-learning': {
     gradient: 'from-blue-950/40 to-blue-900/40',
     border: 'border-blue-500/40 hover:border-blue-400/70',
-    shadow: 'shadow-[0_0_15px_rgba(59,130,246,0.2)] hover:shadow-[0_0_25px_rgba(59,130,246,0.35)]',
+    shadow:
+      'shadow-[0_0_15px_oklch(0.6231_0.188_259.81_/_0.2)] hover:shadow-[0_0_25px_oklch(0.6231_0.188_259.81_/_0.35)]',
     text: 'text-blue-200',
     iconBg: 'bg-blue-500/10',
   },
   cryptography: {
     gradient: 'from-purple-950/40 to-purple-900/40',
     border: 'border-purple-500/40 hover:border-purple-400/70',
-    shadow: 'shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:shadow-[0_0_25px_rgba(168,85,247,0.35)]',
+    shadow:
+      'shadow-[0_0_15px_oklch(0.6268_0.2325_303.9_/_0.2)] hover:shadow-[0_0_25px_oklch(0.6268_0.2325_303.9_/_0.35)]',
     text: 'text-purple-200',
     iconBg: 'bg-purple-500/10',
   },
   quantum: {
     gradient: 'from-emerald-950/40 to-emerald-900/40',
     border: 'border-emerald-500/40 hover:border-emerald-400/70',
-    shadow: 'shadow-[0_0_15px_rgba(16,185,129,0.2)] hover:shadow-[0_0_25px_rgba(16,185,129,0.35)]',
+    shadow:
+      'shadow-[0_0_15px_oklch(0.6959_0.1491_162.48_/_0.2)] hover:shadow-[0_0_25px_oklch(0.6959_0.1491_162.48_/_0.35)]',
     text: 'text-emerald-200',
     iconBg: 'bg-emerald-500/10',
   },
   'graph-theory': {
     gradient: 'from-amber-950/40 to-amber-900/40',
     border: 'border-amber-500/40 hover:border-amber-400/70',
-    shadow: 'shadow-[0_0_15px_rgba(245,158,11,0.2)] hover:shadow-[0_0_25px_rgba(245,158,11,0.35)]',
+    shadow:
+      'shadow-[0_0_15px_oklch(0.7686_0.1647_70.08_/_0.2)] hover:shadow-[0_0_25px_oklch(0.7686_0.1647_70.08_/_0.35)]',
     text: 'text-amber-200',
     iconBg: 'bg-amber-500/10',
   },
   'signal-processing': {
     gradient: 'from-cyan-950/40 to-cyan-900/40',
     border: 'border-cyan-500/40 hover:border-cyan-400/70',
-    shadow: 'shadow-[0_0_15px_rgba(6,182,212,0.2)] hover:shadow-[0_0_25px_rgba(6,182,212,0.35)]',
+    shadow:
+      'shadow-[0_0_15px_oklch(0.7148_0.1257_215.22_/_0.2)] hover:shadow-[0_0_25px_oklch(0.7148_0.1257_215.22_/_0.35)]',
     text: 'text-cyan-200',
     iconBg: 'bg-cyan-500/10',
   },
   'game-theory': {
     gradient: 'from-rose-950/40 to-rose-900/40',
     border: 'border-rose-500/40 hover:border-rose-400/70',
-    shadow: 'shadow-[0_0_15px_rgba(244,63,94,0.2)] hover:shadow-[0_0_25px_rgba(244,63,94,0.35)]',
+    shadow:
+      'shadow-[0_0_15px_oklch(0.645_0.2154_16.44_/_0.2)] hover:shadow-[0_0_25px_oklch(0.645_0.2154_16.44_/_0.35)]',
     text: 'text-rose-200',
     iconBg: 'bg-rose-500/10',
   },
   'dynamical-systems': {
     gradient: 'from-indigo-950/40 to-indigo-900/40',
     border: 'border-indigo-500/40 hover:border-indigo-400/70',
-    shadow: 'shadow-[0_0_15px_rgba(99,102,241,0.2)] hover:shadow-[0_0_25px_rgba(99,102,241,0.35)]',
+    shadow:
+      'shadow-[0_0_15px_oklch(0.5854_0.2041_277.12_/_0.2)] hover:shadow-[0_0_25px_oklch(0.5854_0.2041_277.12_/_0.35)]',
     text: 'text-indigo-200',
     iconBg: 'bg-indigo-500/10',
   },
   'numerical-analysis': {
     gradient: 'from-orange-950/40 to-orange-900/40',
     border: 'border-orange-500/40 hover:border-orange-400/70',
-    shadow: 'shadow-[0_0_15px_rgba(249,115,22,0.2)] hover:shadow-[0_0_25px_rgba(249,115,22,0.35)]',
+    shadow:
+      'shadow-[0_0_15px_oklch(0.7049_0.1867_47.6_/_0.2)] hover:shadow-[0_0_25px_oklch(0.7049_0.1867_47.6_/_0.35)]',
     text: 'text-orange-200',
     iconBg: 'bg-orange-500/10',
   },

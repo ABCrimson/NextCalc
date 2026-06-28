@@ -426,7 +426,7 @@ function PresetChip({ label, onClick, accentGradient, isActive = false }: Preset
               'bg-background/40 hover:bg-background/70',
               'border border-border hover:border-transparent',
               // On hover we create a gradient border by using outline + inner shadow
-              'hover:shadow-[0_0_0_1.5px_rgba(139,92,246,0.5),0_0_12px_rgba(139,92,246,0.15)]',
+              'hover:shadow-[0_0_0_1.5px_oklch(0.6056_0.2189_292.72_/_0.5),0_0_12px_oklch(0.6056_0.2189_292.72_/_0.15)]',
               accentGradient,
             ].join(' '),
       ].join(' ')}
@@ -788,28 +788,28 @@ export default function PlotsExamplesPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.4 }}
           >
-            <TabsList className="mb-8 p-1.5 rounded-xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+            <TabsList className="mb-8 p-1.5 rounded-xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
               <TabsTrigger
                 value="2d-cartesian"
-                className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-cyan-900/50 data-[state=active]:to-blue-900/50 data-[state=active]:text-cyan-100 data-[state=active]:border data-[state=active]:border-cyan-500/50 data-[state=active]:shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all duration-200"
+                className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-cyan-900/50 data-[state=active]:to-blue-900/50 data-[state=active]:text-cyan-100 data-[state=active]:border data-[state=active]:border-cyan-500/50 data-[state=active]:shadow-[0_0_15px_oklch(0.7148_0.1257_215.22_/_0.3)] transition-all duration-200"
               >
                 {t('tab.2dCartesian')}
               </TabsTrigger>
               <TabsTrigger
                 value="2d-polar"
-                className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-900/50 data-[state=active]:to-pink-900/50 data-[state=active]:text-purple-100 data-[state=active]:border data-[state=active]:border-purple-500/50 data-[state=active]:shadow-[0_0_15px_rgba(168,85,247,0.3)] transition-all duration-200"
+                className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-900/50 data-[state=active]:to-pink-900/50 data-[state=active]:text-purple-100 data-[state=active]:border data-[state=active]:border-purple-500/50 data-[state=active]:shadow-[0_0_15px_oklch(0.6268_0.2325_303.9_/_0.3)] transition-all duration-200"
               >
                 {t('tab.2dPolar')}
               </TabsTrigger>
               <TabsTrigger
                 value="2d-parametric"
-                className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-900/50 data-[state=active]:to-teal-900/50 data-[state=active]:text-green-100 data-[state=active]:border data-[state=active]:border-green-500/50 data-[state=active]:shadow-[0_0_15px_rgba(5,150,105,0.3)] transition-all duration-200"
+                className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-900/50 data-[state=active]:to-teal-900/50 data-[state=active]:text-green-100 data-[state=active]:border data-[state=active]:border-green-500/50 data-[state=active]:shadow-[0_0_15px_oklch(0.596_0.1274_163.23_/_0.3)] transition-all duration-200"
               >
                 {t('tab.2dParametric')}
               </TabsTrigger>
               <TabsTrigger
                 value="3d-surface"
-                className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-orange-900/50 data-[state=active]:to-red-900/50 data-[state=active]:text-orange-100 data-[state=active]:border data-[state=active]:border-orange-500/50 data-[state=active]:shadow-[0_0_15px_rgba(251,146,60,0.3)] transition-all duration-200"
+                className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-orange-900/50 data-[state=active]:to-red-900/50 data-[state=active]:text-orange-100 data-[state=active]:border data-[state=active]:border-orange-500/50 data-[state=active]:shadow-[0_0_15px_oklch(0.7576_0.159_55.93_/_0.3)] transition-all duration-200"
               >
                 {t('tab.3dSurface')}
               </TabsTrigger>
@@ -830,7 +830,7 @@ export default function PlotsExamplesPage() {
               <div className="lg:col-span-1">
                 <div className="sticky top-24 space-y-4">
                   {/* Preset chips card */}
-                  <div className="relative p-5 rounded-xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+                  <div className="relative p-5 rounded-xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
                     <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-500/5 to-blue-500/5 pointer-events-none" />
                     <div className="relative">
                       <PresetGroup label="Cartesian Presets">
@@ -839,7 +839,7 @@ export default function PlotsExamplesPage() {
                             key={preset.label}
                             label={preset.label}
                             onClick={() => handleCartesianPreset(preset)}
-                            accentGradient="hover:shadow-[0_0_0_1.5px_rgba(6,182,212,0.6),0_0_14px_rgba(6,182,212,0.2)]"
+                            accentGradient="hover:shadow-[0_0_0_1.5px_oklch(0.7148_0.1257_215.22_/_0.6),0_0_14px_oklch(0.7148_0.1257_215.22_/_0.2)]"
                             isActive={activeCartesian === preset.label}
                           />
                         ))}
@@ -848,7 +848,7 @@ export default function PlotsExamplesPage() {
                   </div>
 
                   {/* Function input card */}
-                  <div className="relative p-5 rounded-xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+                  <div className="relative p-5 rounded-xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
                     <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-500/5 to-blue-500/5 pointer-events-none" />
                     <div className="relative">
                       <FunctionInput
@@ -939,7 +939,7 @@ const config = {
               <div className="lg:col-span-1">
                 <div className="sticky top-24 space-y-4">
                   {/* Preset chips card */}
-                  <div className="relative p-5 rounded-xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+                  <div className="relative p-5 rounded-xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
                     <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/5 to-pink-500/5 pointer-events-none" />
                     <div className="relative">
                       <PresetGroup label="Polar Presets">
@@ -948,7 +948,7 @@ const config = {
                             key={preset.label}
                             label={preset.label}
                             onClick={() => handlePolarPreset(preset)}
-                            accentGradient="hover:shadow-[0_0_0_1.5px_rgba(168,85,247,0.6),0_0_14px_rgba(168,85,247,0.2)]"
+                            accentGradient="hover:shadow-[0_0_0_1.5px_oklch(0.6268_0.2325_303.9_/_0.6),0_0_14px_oklch(0.6268_0.2325_303.9_/_0.2)]"
                             isActive={activePolar === preset.label}
                           />
                         ))}
@@ -957,7 +957,7 @@ const config = {
                   </div>
 
                   {/* Function input card */}
-                  <div className="relative p-5 rounded-xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+                  <div className="relative p-5 rounded-xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
                     <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/5 to-pink-500/5 pointer-events-none" />
                     <div className="relative">
                       <FunctionInput
@@ -1033,7 +1033,7 @@ const config = {
               {/* Sidebar */}
               <div className="lg:col-span-1 space-y-4">
                 {/* Preset chips card */}
-                <div className="relative p-5 rounded-xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+                <div className="relative p-5 rounded-xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
                   <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-green-500/5 to-teal-500/5 pointer-events-none" />
                   <div className="relative">
                     <PresetGroup label="Parametric Presets">
@@ -1042,7 +1042,7 @@ const config = {
                           key={preset.label}
                           label={preset.label}
                           onClick={() => handleParametricPreset(preset)}
-                          accentGradient="hover:shadow-[0_0_0_1.5px_rgba(5,150,105,0.6),0_0_14px_rgba(5,150,105,0.2)]"
+                          accentGradient="hover:shadow-[0_0_0_1.5px_oklch(0.596_0.1274_163.23_/_0.6),0_0_14px_oklch(0.596_0.1274_163.23_/_0.2)]"
                           isActive={activeParametric === preset.label}
                         />
                       ))}
@@ -1052,11 +1052,11 @@ const config = {
 
                 {/* x(t) */}
                 <div className="sticky top-24 space-y-4">
-                  <div className="relative p-5 rounded-xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+                  <div className="relative p-5 rounded-xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
                     <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-green-500/5 to-teal-500/5 pointer-events-none" />
                     <div className="relative">
                       <h3 className="text-sm font-semibold text-green-100 mb-3 flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-400 shadow-[0_0_8px_rgba(5,150,105,0.6)]" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-400 shadow-[0_0_8px_oklch(0.596_0.1274_163.23_/_0.6)]" />
                         x(t) Function
                       </h3>
                       <FunctionInput
@@ -1072,11 +1072,11 @@ const config = {
                   </div>
 
                   {/* y(t) */}
-                  <div className="relative p-5 rounded-xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+                  <div className="relative p-5 rounded-xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
                     <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-teal-500/5 to-cyan-500/5 pointer-events-none" />
                     <div className="relative">
                       <h3 className="text-sm font-semibold text-teal-100 mb-3 flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-teal-400 shadow-[0_0_8px_rgba(20,184,166,0.6)]" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-teal-400 shadow-[0_0_8px_oklch(0.7038_0.123_182.5_/_0.6)]" />
                         y(t) Function
                       </h3>
                       <FunctionInput
@@ -1187,7 +1187,7 @@ const config = {
           <TabsContent value="3d-surface" className="space-y-4">
             <SurfaceEditor3D initialPreset="sinc" width={800} height={600} />
 
-            <div className="relative group p-4 rounded-lg bg-gradient-to-br from-background/80 to-card/80 border border-border shadow-[0_0_15px_rgba(148,163,184,0.15)] hover:shadow-[0_0_25px_rgba(148,163,184,0.25)] transition-all duration-300">
+            <div className="relative group p-4 rounded-lg bg-gradient-to-br from-background/80 to-card/80 border border-border shadow-[0_0_15px_oklch(0.7107_0.0351_256.79_/_0.15)] hover:shadow-[0_0_25px_oklch(0.7107_0.0351_256.79_/_0.25)] transition-all duration-300">
               <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-muted/5 to-muted/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <p className="text-sm text-foreground/80 relative">
                 <strong className="text-foreground">Features:</strong> 10 preset shapes (Sphere,
@@ -1221,7 +1221,7 @@ const config = {
           <m.div
             whileHover={{ y: -8, scale: 1.02 }}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-            className="group relative p-6 rounded-xl overflow-hidden bg-gradient-to-br from-blue-950/40 to-blue-900/40 border border-blue-500/40 hover:border-blue-400/70 shadow-[0_0_20px_rgba(59,130,246,0.2)] hover:shadow-[0_0_35px_rgba(59,130,246,0.4)] transition-all duration-300"
+            className="group relative p-6 rounded-xl overflow-hidden bg-gradient-to-br from-blue-950/40 to-blue-900/40 border border-blue-500/40 hover:border-blue-400/70 shadow-[0_0_20px_oklch(0.6231_0.188_259.81_/_0.2)] hover:shadow-[0_0_35px_oklch(0.6231_0.188_259.81_/_0.4)] transition-all duration-300"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="relative">
@@ -1250,7 +1250,7 @@ const config = {
           <m.div
             whileHover={{ y: -8, scale: 1.02 }}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-            className="group relative p-6 rounded-xl overflow-hidden bg-gradient-to-br from-emerald-950/40 to-emerald-900/40 border border-emerald-500/40 hover:border-emerald-400/70 shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:shadow-[0_0_35px_rgba(16,185,129,0.4)] transition-all duration-300"
+            className="group relative p-6 rounded-xl overflow-hidden bg-gradient-to-br from-emerald-950/40 to-emerald-900/40 border border-emerald-500/40 hover:border-emerald-400/70 shadow-[0_0_20px_oklch(0.6959_0.1491_162.48_/_0.2)] hover:shadow-[0_0_35px_oklch(0.6959_0.1491_162.48_/_0.4)] transition-all duration-300"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-emerald-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="relative">
@@ -1279,7 +1279,7 @@ const config = {
           <m.div
             whileHover={{ y: -8, scale: 1.02 }}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-            className="group relative p-6 rounded-xl overflow-hidden bg-gradient-to-br from-purple-950/40 to-purple-900/40 border border-purple-500/40 hover:border-purple-400/70 shadow-[0_0_20px_rgba(168,85,247,0.2)] hover:shadow-[0_0_35px_rgba(168,85,247,0.4)] transition-all duration-300"
+            className="group relative p-6 rounded-xl overflow-hidden bg-gradient-to-br from-purple-950/40 to-purple-900/40 border border-purple-500/40 hover:border-purple-400/70 shadow-[0_0_20px_oklch(0.6268_0.2325_303.9_/_0.2)] hover:shadow-[0_0_35px_oklch(0.6268_0.2325_303.9_/_0.4)] transition-all duration-300"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-purple-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="relative">

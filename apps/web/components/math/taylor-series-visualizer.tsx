@@ -1297,7 +1297,7 @@ function GlassCard({ children, className }: GlassCardProps) {
   return (
     <div
       className={cn(
-        'rounded-xl border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]',
+        'rounded-xl border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]',
         'bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md',
         className,
       )}

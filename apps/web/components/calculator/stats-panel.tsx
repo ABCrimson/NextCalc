@@ -170,8 +170,8 @@ function StatCard({ label, value, accent, onCopy, copied }: StatCardProps) {
         'border border-border',
         'bg-gradient-to-br from-background/60 via-card/50 to-background/60',
         'backdrop-blur-md',
-        'shadow-[0_2px_8px_0_rgba(0,0,0,0.08)]',
-        'hover:shadow-[0_4px_16px_0_rgba(0,0,0,0.12)]',
+        'shadow-[0_2px_8px_0_oklch(0_0_0_/_0.08)]',
+        'hover:shadow-[0_4px_16px_0_oklch(0_0_0_/_0.12)]',
         'hover:border-primary/30',
         'transition-all duration-300',
       )}
@@ -615,7 +615,7 @@ function GlassPanel({ children, className, accent = 'primary' }: GlassPanelProps
         'border border-border',
         'bg-gradient-to-br from-background/60 via-card/50 to-background/60',
         'backdrop-blur-md',
-        'shadow-[0_8px_32px_0_rgba(0,0,0,0.10)]',
+        'shadow-[0_8px_32px_0_oklch(0_0_0_/_0.10)]',
         className,
       )}
     >
@@ -931,7 +931,7 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
 
   if (!statsModule) {
     return (
-      <Card className="w-full max-w-4xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.10)]">
+      <Card className="w-full max-w-4xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.10)]">
         <CardContent className="p-8">
           <div className="flex flex-col items-center justify-center gap-3 text-muted-foreground py-8">
             <div
@@ -952,7 +952,7 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
         'bg-gradient-to-br from-background/60 via-card/50 to-background/60',
         'backdrop-blur-md',
         'border border-border',
-        'shadow-[0_8px_32px_0_rgba(0,0,0,0.10)]',
+        'shadow-[0_8px_32px_0_oklch(0_0_0_/_0.10)]',
         'relative overflow-hidden',
       )}
     >

@@ -647,7 +647,7 @@ export function PlotAnalysisPanel({
         'rounded-xl overflow-hidden',
         'bg-gradient-to-br from-background/60 via-card/50 to-background/60',
         'backdrop-blur-md border border-border',
-        'shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]',
+        'shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]',
         className,
       ].join(' ')}
       aria-label="Function analysis panel"

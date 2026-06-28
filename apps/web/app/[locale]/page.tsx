@@ -186,7 +186,7 @@ export default function Home() {
           transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
         >
           <div className="inline-block mb-4 relative">
-            <h1 className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-primary via-calculator-operator to-calculator-equals bg-clip-text text-transparent animate-gradient bg-[length:200%_auto] drop-shadow-[0_0_30px_rgba(59,130,246,0.3)]">
+            <h1 className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-primary via-calculator-operator to-calculator-equals bg-clip-text text-transparent animate-gradient bg-[length:200%_auto] drop-shadow-[0_0_30px_oklch(0.6231_0.188_259.81_/_0.3)]">
               {t('home.hero.title' as Parameters<typeof t>[0])}
             </h1>
             <div className="h-1.5 w-full bg-gradient-to-r from-primary via-calculator-operator to-calculator-equals rounded-full mt-3 shadow-lg shadow-primary/50 animate-pulse" />
