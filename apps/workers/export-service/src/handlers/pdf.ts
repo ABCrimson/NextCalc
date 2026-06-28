@@ -18,6 +18,7 @@ import {
   deduplicateImages,
   initWasm,
   PageSizes,
+  tagFigure,
 } from 'modern-pdf-lib';
 import {
   generateExportKey,
@@ -50,21 +51,18 @@ const PAGE_SIZE_MAP = {
 // ---------------------------------------------------------------------------
 // WASM acceleration (best-effort, optional)
 // ---------------------------------------------------------------------------
-// modern-pdf-lib 0.29 can use WASM to accelerate PNG decoding (~5x, used by
-// embedPng) and deflate compression (~2x, used by save). WASM is fully
-// optional — the library produces identical output via a pure-JS fallback if
-// it is unavailable — so we initialise it once, lazily, and swallow failures.
-// (Confirm actual WASM availability in the deployed Worker at deploy time.)
+// modern-pdf-lib can use WASM to accelerate PNG decoding (embedPng) and deflate
+// compression (save). It is fully optional — the library emits identical output
+// via a pure-JS fallback — so we initialise it once, lazily, and swallow failures.
 let wasmInit: Promise<unknown> | null = null;
 function ensureWasm(): Promise<unknown> {
-  // Log the result once so the deployed Worker's observability surfaces whether
-  // WASM acceleration is actually active. VERIFIED via `wrangler dev` (local
-  // workerd) on 2026-06-27: modern-pdf-lib 0.29.0 (and 0.28.1) ship NO .wasm binaries, so
-  // `initWasm`'s filesystem load (readAll of `./wasm/.../*_bg.wasm`) fails in
-  // every runtime (Node + workerd) and we fall back to pure-JS — which produces
-  // valid PDFs end-to-end (POST /export/pdf → 1-page PDF). Enabling real
-  // acceleration requires modern-pdf-lib to ship/expose its WASM so we can pass
-  // `pngWasm` / `deflateWasm` bytes here.
+  // Observability: log once whether acceleration actually engaged.
+  // VERIFIED 2026-06-28 against modern-pdf-lib 0.40.2: the published package still
+  // ships NO .wasm binaries (its `dist/wasm/**` is declared in `files` but empty)
+  // and bundles no inline WASM (`hasInlineWasmData()` === false), so `initWasm`
+  // ENOENTs on `dist/wasm/libdeflate/modern_pdf_deflate_bg.wasm` and we fall back
+  // to pure-JS — which still produces valid, fully-compressed PDFs. The day
+  // modern-pdf-lib ships/inlines its .wasm, this call upgrades to WASM for free.
   wasmInit ??= initWasm({ png: true, deflate: true })
     .then(() => {
       console.info('[export-service] modern-pdf-lib WASM acceleration enabled');
@@ -170,7 +168,7 @@ async function generatePdfFromLatex(
   // Tagged-PDF accessibility: marks the document tagged (/MarkInfo /Marked) and
   // sets the document language so assistive tech can navigate the structure tree.
   // The plugin emits the StructTreeRoot + ParentTree at save time.
-  doc.use(accessibilityPlugin({ language: 'en' }));
+  doc.use(accessibilityPlugin({ language: 'en', markAsTagged: true }));
 
   if (includeMetadata) {
     doc.setTitle(title);
@@ -218,7 +216,7 @@ async function generatePdfFromLatex(
   // alternate text is the LaTeX source, so screen readers announce the
   // equation instead of skipping an unlabelled image.
   const structureTree = doc.createStructureTree();
-  const figure = structureTree.addElement(null, 'Figure', { altText: latex });
+  const figure = tagFigure(structureTree, null, latex);
   const mcid = structureTree.assignMcid(figure, 0);
 
   pdfPage.beginMarkedContent('Figure', mcid);
@@ -231,10 +229,11 @@ async function generatePdfFromLatex(
   pdfPage.endMarkedContentSequence();
 
   // ------------------------------------------------------------------
-  // Step 5: Serialise — object streams (threshold 100) shrink output;
-  // useWasm engages WASM deflate when initialised (pure-JS fallback otherwise).
+  // Step 5: Serialise — object streams (threshold 100) + maximum FlateDecode
+  // (compressionLevel 9) shrink the output; useWasm engages WASM deflate when
+  // initialised (pure-JS fallback otherwise — see ensureWasm).
   // ------------------------------------------------------------------
-  return doc.save({ objectStreamThreshold: 100, useWasm: true });
+  return doc.save({ objectStreamThreshold: 100, compressionLevel: 9, useWasm: true });
 }
 
 // ---------------------------------------------------------------------------
@@ -347,7 +346,7 @@ export async function batchExportToPdf(
   await ensureWasm();
   const doc = createPdf();
   // Tagged-PDF accessibility (see generatePdfFromLatex for rationale).
-  doc.use(accessibilityPlugin({ language: 'en' }));
+  doc.use(accessibilityPlugin({ language: 'en', markAsTagged: true }));
   const structureTree = doc.createStructureTree();
 
   if (includeMetadata) {
@@ -406,7 +405,7 @@ export async function batchExportToPdf(
     const y = dims.height - marginPt - drawHeight;
 
     // Tagged figure with the LaTeX source as alternate text (one per page).
-    const figure = structureTree.addElement(null, 'Figure', { altText: latex });
+    const figure = tagFigure(structureTree, null, latex);
     const mcid = structureTree.assignMcid(figure, pageIndex);
 
     pdfPage.beginMarkedContent('Figure', mcid);
@@ -421,10 +420,20 @@ export async function batchExportToPdf(
 
   // Batch documents frequently embed byte-identical math images across pages
   // (repeated symbols / duplicate expressions); collapse identical image
-  // XObjects into a single shared object to shrink the output.
-  deduplicateImages(doc);
+  // XObjects into a single shared object to shrink the output. The returned
+  // report is surfaced for the deployed Worker's observability.
+  const dedupeReport = deduplicateImages(doc);
+  if (dedupeReport.duplicatesRemoved > 0) {
+    console.info(
+      `[export-service] deduplicateImages: collapsed ${dedupeReport.duplicatesRemoved} of ${dedupeReport.totalImages} images (${dedupeReport.bytesSaved} bytes saved)`,
+    );
+  }
 
-  const pdfBytes = await doc.save({ objectStreamThreshold: 100, useWasm: true });
+  const pdfBytes = await doc.save({
+    objectStreamThreshold: 100,
+    compressionLevel: 9,
+    useWasm: true,
+  });
 
   // Validate file size
   validateFileSize(pdfBytes.byteLength, maxFileSize);

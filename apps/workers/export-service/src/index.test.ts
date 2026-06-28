@@ -85,14 +85,14 @@ vi.mock('@cf-wasm/resvg/workerd', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Mock modern-pdf-lib — createPdf() returns a lightweight document mock that
-// supports every method the PDF handler uses: metadata setters, addPage,
-// embedPng, save, plus the 0.29 tagged-PDF accessibility surface
-// (use(accessibilityPlugin(...)), createStructureTree() -> addElement/assignMcid,
-// and page beginMarkedContent/endMarkedContentSequence). deduplicateImages
-// (batch path) is a no-op. The mock interoperates with the resvg mock — embedPng
-// receives the mock PNG buffer — and save() returns a non-empty Uint8Array so
-// the downstream file-size check and R2 upload run.
+// Mock modern-pdf-lib (0.40.2) — createPdf() returns a lightweight document mock
+// supporting every method the PDF handler uses: metadata setters, addPage,
+// embedPng, save, the tagged-PDF accessibility surface (use(accessibilityPlugin),
+// createStructureTree() + the standalone tagFigure() helper, assignMcid, and page
+// beginMarkedContent/endMarkedContentSequence), and deduplicateImages() which
+// returns a DeduplicationReport. The mock interoperates with the resvg mock —
+// embedPng receives the mock PNG buffer — and save() returns a non-empty
+// Uint8Array so the downstream file-size check and R2 upload run.
 // ---------------------------------------------------------------------------
 vi.mock('modern-pdf-lib', () => {
   const mockPage = {
@@ -129,7 +129,10 @@ vi.mock('modern-pdf-lib', () => {
   return {
     createPdf: vi.fn().mockReturnValue(mockDoc),
     accessibilityPlugin: vi.fn().mockReturnValue({ name: 'accessibility' }),
-    deduplicateImages: vi.fn(),
+    tagFigure: vi.fn().mockReturnValue({ type: 'Figure' }),
+    deduplicateImages: vi
+      .fn()
+      .mockReturnValue({ totalImages: 0, uniqueImages: 0, duplicatesRemoved: 0, bytesSaved: 0 }),
     initWasm: vi.fn().mockResolvedValue(undefined),
     PageSizes: {
       A4: [595.28, 841.89],

@@ -18,7 +18,7 @@
     "aws4fetch": "1.0.20",
     "hono": "4.12.27",
     "katex": "0.17.0",
-    "modern-pdf-lib": "0.29.0",
+    "modern-pdf-lib": "0.40.2",
     "zod": "4.4.0-canary.20260125T215152"
   },
   "devDependencies": {
