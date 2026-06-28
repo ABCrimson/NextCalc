@@ -19,7 +19,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { type ElementType, useCallback, useEffect, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -873,7 +873,7 @@ function SectionHeader({
   description,
   gradient,
 }: {
-  icon: React.ElementType;
+  icon: ElementType;
   title: string;
   description: string;
   gradient: string;
