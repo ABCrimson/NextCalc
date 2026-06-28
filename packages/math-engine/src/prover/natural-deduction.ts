@@ -16,40 +16,41 @@ import { formulasEqual } from './proof-search';
 /**
  * Natural deduction rule types
  */
-export enum NDRuleType {
+export const NDRuleType = {
   // Assumptions
-  ASSUME = 'Assume',
+  ASSUME: 'Assume',
 
   // Conjunction
-  AND_INTRO = '∧-Intro',
-  AND_ELIM_LEFT = '∧-Elim-L',
-  AND_ELIM_RIGHT = '∧-Elim-R',
+  AND_INTRO: '∧-Intro',
+  AND_ELIM_LEFT: '∧-Elim-L',
+  AND_ELIM_RIGHT: '∧-Elim-R',
 
   // Disjunction
-  OR_INTRO_LEFT = '∨-Intro-L',
-  OR_INTRO_RIGHT = '∨-Intro-R',
-  OR_ELIM = '∨-Elim',
+  OR_INTRO_LEFT: '∨-Intro-L',
+  OR_INTRO_RIGHT: '∨-Intro-R',
+  OR_ELIM: '∨-Elim',
 
   // Implication
-  IMPLIES_INTRO = '→-Intro',
-  IMPLIES_ELIM = '→-Elim',
+  IMPLIES_INTRO: '→-Intro',
+  IMPLIES_ELIM: '→-Elim',
 
   // Negation
-  NOT_INTRO = '¬-Intro',
-  NOT_ELIM = '¬-Elim',
+  NOT_INTRO: '¬-Intro',
+  NOT_ELIM: '¬-Elim',
 
   // Biconditional
-  IFF_INTRO = '↔-Intro',
-  IFF_ELIM_LEFT = '↔-Elim-L',
-  IFF_ELIM_RIGHT = '↔-Elim-R',
+  IFF_INTRO: '↔-Intro',
+  IFF_ELIM_LEFT: '↔-Elim-L',
+  IFF_ELIM_RIGHT: '↔-Elim-R',
 
   // Classical logic
-  LEM = 'LEM', // Law of Excluded Middle
-  RAA = 'RAA', // Reductio ad Absurdum
+  LEM: 'LEM', // Law of Excluded Middle
+  RAA: 'RAA', // Reductio ad Absurdum
 
   // Copy/Reiteration
-  REIT = 'Reiteration',
-}
+  REIT: 'Reiteration',
+} as const;
+export type NDRuleType = (typeof NDRuleType)[keyof typeof NDRuleType];
 
 /**
  * Natural deduction proof line

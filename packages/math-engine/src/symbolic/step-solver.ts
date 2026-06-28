@@ -57,21 +57,22 @@ export interface SolutionStep {
 /**
  * Step category — drives the badge colour in the UI
  */
-export enum StepCategory {
-  Identification = 'Identification',
-  Simplification = 'Simplification',
-  Expansion = 'Expansion',
-  Factorization = 'Factorization',
-  Substitution = 'Substitution',
-  Rearrangement = 'Rearrangement',
-  Isolation = 'Isolation',
-  Differentiation = 'Differentiation',
-  Integration = 'Integration',
-  Evaluation = 'Evaluation',
-  Identity = 'Identity',
-  Formula = 'Formula',
-  FinalAnswer = 'FinalAnswer',
-}
+export const StepCategory = {
+  Identification: 'Identification',
+  Simplification: 'Simplification',
+  Expansion: 'Expansion',
+  Factorization: 'Factorization',
+  Substitution: 'Substitution',
+  Rearrangement: 'Rearrangement',
+  Isolation: 'Isolation',
+  Differentiation: 'Differentiation',
+  Integration: 'Integration',
+  Evaluation: 'Evaluation',
+  Identity: 'Identity',
+  Formula: 'Formula',
+  FinalAnswer: 'FinalAnswer',
+} as const;
+export type StepCategory = (typeof StepCategory)[keyof typeof StepCategory];
 
 /**
  * Complete solution with steps
@@ -92,15 +93,16 @@ export interface StepSolution {
 /**
  * Problem type classification
  */
-export enum ProblemType {
-  Simplification = 'Simplification',
-  Equation = 'Equation',
-  Derivative = 'Derivative',
-  Integral = 'Integral',
-  Limit = 'Limit',
-  Expansion = 'Expansion',
-  Factorization = 'Factorization',
-}
+export const ProblemType = {
+  Simplification: 'Simplification',
+  Equation: 'Equation',
+  Derivative: 'Derivative',
+  Integral: 'Integral',
+  Limit: 'Limit',
+  Expansion: 'Expansion',
+  Factorization: 'Factorization',
+} as const;
+export type ProblemType = (typeof ProblemType)[keyof typeof ProblemType];
 
 // ============================================================================
 // EQUATION TYPE DETECTION

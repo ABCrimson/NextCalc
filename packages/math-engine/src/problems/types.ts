@@ -14,6 +14,8 @@ import type { MathTopic } from '../knowledge/definitions';
 /**
  * Problem difficulty level
  */
+// Numeric enum retained: difficulty is an ordinal level used in numeric range
+// filters (min/max), which a strict `1|2|3|4|5` union does not model cleanly.
 export enum DifficultyLevel {
   Beginner = 1,
   Intermediate = 2,
@@ -25,13 +27,14 @@ export enum DifficultyLevel {
 /**
  * Problem type
  */
-export enum ProblemType {
-  Computation = 'Computation',
-  Proof = 'Proof',
-  Application = 'Application',
-  Conceptual = 'Conceptual',
-  MultiStep = 'Multi-Step',
-}
+export const ProblemType = {
+  Computation: 'Computation',
+  Proof: 'Proof',
+  Application: 'Application',
+  Conceptual: 'Conceptual',
+  MultiStep: 'Multi-Step',
+} as const;
+export type ProblemType = (typeof ProblemType)[keyof typeof ProblemType];
 
 /**
  * Mathematical problem

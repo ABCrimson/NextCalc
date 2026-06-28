@@ -98,15 +98,16 @@ export interface RewriteRule {
 /**
  * Rule categories for organization
  */
-export enum RuleCategory {
-  Algebraic = 'algebraic',
-  Trigonometric = 'trigonometric',
-  Exponential = 'exponential',
-  Logarithmic = 'logarithmic',
-  Complex = 'complex',
-  Rational = 'rational',
-  Polynomial = 'polynomial',
-}
+export const RuleCategory = {
+  Algebraic: 'algebraic',
+  Trigonometric: 'trigonometric',
+  Exponential: 'exponential',
+  Logarithmic: 'logarithmic',
+  Complex: 'complex',
+  Rational: 'rational',
+  Polynomial: 'polynomial',
+} as const;
+export type RuleCategory = (typeof RuleCategory)[keyof typeof RuleCategory];
 
 /**
  * Simplification result with metadata
