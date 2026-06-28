@@ -1,5 +1,5 @@
 /**
- * Prisma 7.5.0-dev.33 Client Singleton with Neon Serverless Adapter
+ * Prisma 7 Client Singleton with Neon Serverless Adapter
  *
  * Shared database client for the NextCalc Pro monorepo.
  * Uses singleton pattern to prevent multiple instances during development HMR.

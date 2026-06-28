@@ -2,9 +2,9 @@ import { resolve } from 'node:path';
 import { defineConfig } from 'vitest/config';
 
 /**
- * Vitest 4.0 Configuration
+ * Vitest 5 Configuration
  *
- * New features in Vitest 4.0:
+ * Notable features:
  * - Improved browser mode
  * - Better TypeScript integration
  * - Enhanced coverage reporting

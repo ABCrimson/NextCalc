@@ -75,9 +75,9 @@ export async function exportToSvg(
   const { latex, userId, options = {} } = request;
 
   // Default options
-  const fontSize = options.fontSize || 16;
-  const color = options.color || '#000000';
-  const backgroundColor = options.backgroundColor || 'transparent';
+  const fontSize = options.fontSize ?? 16;
+  const color = options.color ?? '#000000';
+  const backgroundColor = options.backgroundColor ?? 'transparent';
   const inline = options.inline ?? false;
 
   // Generate SVG content
@@ -109,7 +109,7 @@ export async function exportToSvg(
     {
       latex,
       createdAt: new Date().toISOString(),
-      userId: userId || 'anonymous',
+      userId: userId ?? 'anonymous',
     },
   );
 

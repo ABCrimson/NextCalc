@@ -76,7 +76,7 @@ export function makeClient() {
     return {
       headers: {
         ...headers,
-        'x-apollo-client': '4.2.0-alpha.0',
+        'x-apollo-client': '4.3.0-alpha.1',
       },
     };
   });

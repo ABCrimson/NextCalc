@@ -1,5 +1,5 @@
 /**
- * Prisma 7.5.0-dev.33 Configuration File
+ * Prisma 7 Configuration File
  *
  * Shared database package for the NextCalc Pro monorepo.
  * Loads credentials from apps/web/.env.local or root .env.

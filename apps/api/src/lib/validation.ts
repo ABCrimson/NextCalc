@@ -215,7 +215,7 @@ export type PaginationInput = z.infer<typeof paginationSchema>;
  * @returns Validated and parsed input
  * @throws Error if validation fails
  */
-export function validate<T>(schema: z.ZodSchema<T>, input: unknown): T {
+export function validate<T>(schema: z.ZodType<T>, input: unknown): T {
   const result = schema.safeParse(input);
 
   if (!result.success) {
