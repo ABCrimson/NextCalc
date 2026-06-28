@@ -6,6 +6,7 @@ import type { ReactNode } from 'react';
 import { Navigation } from '@/components/layout/navigation';
 import { ApolloWrapper } from '@/components/providers/apollo-provider';
 import { MotionProvider } from '@/components/providers/motion-provider';
+import { AuthSessionProvider } from '@/components/providers/session-provider';
 import { routing } from '@/i18n/routing';
 
 const APP_URL = process.env['NEXT_PUBLIC_APP_URL'] || 'https://nextcalc.dev';
@@ -177,10 +178,12 @@ export default async function LocaleLayout({
       </a>
       <MotionProvider>
         <ApolloWrapper>
-          <Navigation />
-          <main id="main-content" className="vt-main-content">
-            {children}
-          </main>
+          <AuthSessionProvider>
+            <Navigation />
+            <main id="main-content" className="vt-main-content">
+              {children}
+            </main>
+          </AuthSessionProvider>
         </ApolloWrapper>
       </MotionProvider>
     </NextIntlClientProvider>
