@@ -411,19 +411,7 @@ export function ZKPComputeVisualizer({
       {/* Main grid + detail pane */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6">
         {/* Commitment cell grid */}
-        {/* biome-ignore lint/a11y/useSemanticElements: role="grid" is a keyboard-navigable interactive grid widget (arrow-key navigation), distinct from a static data table; <table> does not carry this interaction model */}
-        <div
-          className={`rounded-2xl p-5 ${GLASS_CARD}`}
-          role="grid"
-          aria-label={`${roundCount} ZKP commitment cells`}
-          aria-rowcount={Math.ceil(roundCount / cols)}
-          aria-colcount={cols}
-          tabIndex={cells.length > 0 && selectedCell === null ? 0 : -1}
-          onFocus={() => {
-            if (selectedCell === null && cells.length > 0) setSelectedCell(0);
-          }}
-          onKeyDown={handleKeyDown}
-        >
+        <div className={`rounded-2xl p-5 ${GLASS_CARD}`}>
           <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
             <Lock className="w-4 h-4 text-indigo-400" aria-hidden="true" />
             Commitment Cells
@@ -432,50 +420,73 @@ export function ZKPComputeVisualizer({
             </span>
           </h4>
 
+          {/* biome-ignore lint/a11y/useSemanticElements: role="grid" is a keyboard-navigable interactive grid widget (arrow-key navigation), distinct from a static data table; <table> does not carry this interaction model */}
           <div
             className="grid gap-1.5"
             style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+            role="grid"
+            aria-label={`${roundCount} ZKP commitment cells`}
+            aria-rowcount={Math.ceil(roundCount / cols)}
+            aria-colcount={cols}
+            tabIndex={cells.length > 0 && selectedCell === null ? 0 : -1}
+            onFocus={() => {
+              if (selectedCell === null && cells.length > 0) setSelectedCell(0);
+            }}
+            onKeyDown={handleKeyDown}
           >
-            {cells.map((cell) => (
-              <m.button
-                key={cell.index}
-                type="button"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{
-                  opacity: 1,
-                  scale: cell.state === 'verifying' ? [1, 1.06, 1] : 1,
-                }}
-                transition={{
-                  opacity: { duration: 0.2, delay: cell.index * 0.004 },
-                  scale:
-                    cell.state === 'verifying'
-                      ? { duration: 0.8, repeat: Infinity, ease: 'easeInOut' }
-                      : { duration: 0.18 },
-                }}
-                onClick={() => setSelectedCell((prev) => (prev === cell.index ? null : cell.index))}
-                className={`relative aspect-square rounded-md border text-[9px] font-mono
+            {Array.from({ length: Math.ceil(cells.length / cols) }, (_, rowIdx) => (
+              // biome-ignore lint/a11y/useFocusableInteractive: per the WAI-ARIA grid pattern, role="row" is a structural grouping — focus is managed at the grid container (roving tabIndex + arrow-key navigation), never on individual rows, so rows must not be focusable
+              // biome-ignore lint/a11y/useSemanticElements: this is an interactive grid widget (role="grid"), not a static data table; the suggested <tr> requires a <table>/<tbody> ancestor and would break the CSS-grid layout that style={{ display: 'contents' }} preserves
+              <div
+                key={`row-${rowIdx}`}
+                role="row"
+                aria-rowindex={rowIdx + 1}
+                style={{ display: 'contents' }}
+              >
+                {cells.slice(rowIdx * cols, rowIdx * cols + cols).map((cell) => (
+                  <m.button
+                    key={cell.index}
+                    type="button"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{
+                      opacity: 1,
+                      scale: cell.state === 'verifying' ? [1, 1.06, 1] : 1,
+                    }}
+                    transition={{
+                      opacity: { duration: 0.2, delay: cell.index * 0.004 },
+                      scale:
+                        cell.state === 'verifying'
+                          ? { duration: 0.8, repeat: Infinity, ease: 'easeInOut' }
+                          : { duration: 0.18 },
+                    }}
+                    onClick={() =>
+                      setSelectedCell((prev) => (prev === cell.index ? null : cell.index))
+                    }
+                    className={`relative aspect-square rounded-md border text-[9px] font-mono
                   flex flex-col items-center justify-center gap-0.5 cursor-pointer
                   transition-shadow duration-200 focus-visible:outline-2
                   focus-visible:outline-offset-2 focus-visible:outline-ring
                   ${cellColor(cell.state)}
                   ${selectedCell === cell.index ? 'ring-2 ring-white/30' : ''}
                 `}
-                aria-label={`Round ${cell.index + 1}: ${cell.state}${cell.state === 'verified' ? ' — proof accepted' : cell.state === 'failed' ? ' — proof rejected' : ''}`}
-                aria-selected={selectedCell === cell.index}
-                role="gridcell"
-              >
-                {cell.state === 'verified' && (
-                  <ShieldCheck className="w-3 h-3 text-emerald-400" aria-hidden="true" />
-                )}
-                {cell.state === 'failed' && (
-                  <X className="w-3 h-3 text-red-400" aria-hidden="true" />
-                )}
-                {(cell.state === 'idle' || cell.state === 'verifying') && (
-                  <span className={`text-[8px] ${cellTextColor(cell.state)}`}>
-                    {String(cell.index + 1).padStart(2, '0')}
-                  </span>
-                )}
-              </m.button>
+                    aria-label={`Round ${cell.index + 1}: ${cell.state}${cell.state === 'verified' ? ' — proof accepted' : cell.state === 'failed' ? ' — proof rejected' : ''}`}
+                    aria-selected={selectedCell === cell.index}
+                    role="gridcell"
+                  >
+                    {cell.state === 'verified' && (
+                      <ShieldCheck className="w-3 h-3 text-emerald-400" aria-hidden="true" />
+                    )}
+                    {cell.state === 'failed' && (
+                      <X className="w-3 h-3 text-red-400" aria-hidden="true" />
+                    )}
+                    {(cell.state === 'idle' || cell.state === 'verifying') && (
+                      <span className={`text-[8px] ${cellTextColor(cell.state)}`}>
+                        {String(cell.index + 1).padStart(2, '0')}
+                      </span>
+                    )}
+                  </m.button>
+                ))}
+              </div>
             ))}
           </div>
 
