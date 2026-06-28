@@ -1,11 +1,11 @@
 import { Tabs as TabsPrimitive } from 'radix-ui';
-import type { ComponentPropsWithoutRef, ElementRef, Ref } from 'react';
+import type { ComponentPropsWithoutRef, ComponentRef, Ref } from 'react';
 import { cn } from '@/lib/utils';
 
 const Tabs = TabsPrimitive.Root;
 
 interface TabsListProps extends ComponentPropsWithoutRef<typeof TabsPrimitive.List> {
-  ref?: Ref<ElementRef<typeof TabsPrimitive.List>>;
+  ref?: Ref<ComponentRef<typeof TabsPrimitive.List>>;
 }
 
 function TabsList({ className, ref, ...props }: TabsListProps) {
@@ -22,7 +22,7 @@ function TabsList({ className, ref, ...props }: TabsListProps) {
 }
 
 interface TabsTriggerProps extends ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger> {
-  ref?: Ref<ElementRef<typeof TabsPrimitive.Trigger>>;
+  ref?: Ref<ComponentRef<typeof TabsPrimitive.Trigger>>;
 }
 
 function TabsTrigger({ className, ref, ...props }: TabsTriggerProps) {
@@ -39,7 +39,7 @@ function TabsTrigger({ className, ref, ...props }: TabsTriggerProps) {
 }
 
 interface TabsContentProps extends ComponentPropsWithoutRef<typeof TabsPrimitive.Content> {
-  ref?: Ref<ElementRef<typeof TabsPrimitive.Content>>;
+  ref?: Ref<ComponentRef<typeof TabsPrimitive.Content>>;
 }
 
 function TabsContent({ className, ref, ...props }: TabsContentProps) {

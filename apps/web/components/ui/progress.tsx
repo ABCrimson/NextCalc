@@ -1,9 +1,9 @@
 import { Progress as ProgressPrimitive } from 'radix-ui';
-import type { ComponentPropsWithoutRef, ElementRef, Ref } from 'react';
+import type { ComponentPropsWithoutRef, ComponentRef, Ref } from 'react';
 import { cn } from '@/lib/utils';
 
 interface ProgressProps extends ComponentPropsWithoutRef<typeof ProgressPrimitive.Root> {
-  ref?: Ref<ElementRef<typeof ProgressPrimitive.Root>>;
+  ref?: Ref<ComponentRef<typeof ProgressPrimitive.Root>>;
   /**
    * The progress value (0-100)
    */

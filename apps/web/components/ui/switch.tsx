@@ -1,9 +1,9 @@
 import { Switch as SwitchPrimitives } from 'radix-ui';
-import type { ComponentPropsWithoutRef, ElementRef, Ref } from 'react';
+import type { ComponentPropsWithoutRef, ComponentRef, Ref } from 'react';
 import { cn } from '@/lib/utils';
 
 interface SwitchProps extends ComponentPropsWithoutRef<typeof SwitchPrimitives.Root> {
-  ref?: Ref<ElementRef<typeof SwitchPrimitives.Root>>;
+  ref?: Ref<ComponentRef<typeof SwitchPrimitives.Root>>;
 }
 
 function Switch({ className, ref, ...props }: SwitchProps) {

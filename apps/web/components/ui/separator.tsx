@@ -1,9 +1,9 @@
 import { Separator as SeparatorPrimitive } from 'radix-ui';
-import type { ComponentPropsWithoutRef, ElementRef, Ref } from 'react';
+import type { ComponentPropsWithoutRef, ComponentRef, Ref } from 'react';
 import { cn } from '@/lib/utils';
 
 interface SeparatorProps extends ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root> {
-  ref?: Ref<ElementRef<typeof SeparatorPrimitive.Root>>;
+  ref?: Ref<ComponentRef<typeof SeparatorPrimitive.Root>>;
 }
 
 function Separator({

@@ -1,6 +1,6 @@
 import { Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { Select as SelectPrimitive } from 'radix-ui';
-import type { ComponentPropsWithoutRef, ElementRef, Ref } from 'react';
+import type { ComponentPropsWithoutRef, ComponentRef, Ref } from 'react';
 import { cn } from '@/lib/utils';
 
 const Select = SelectPrimitive.Root;
@@ -10,7 +10,7 @@ const SelectGroup = SelectPrimitive.Group;
 const SelectValue = SelectPrimitive.Value;
 
 interface SelectTriggerProps extends ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> {
-  ref?: Ref<ElementRef<typeof SelectPrimitive.Trigger>>;
+  ref?: Ref<ComponentRef<typeof SelectPrimitive.Trigger>>;
 }
 
 function SelectTrigger({ className, children, ref, ...props }: SelectTriggerProps) {
@@ -33,7 +33,7 @@ function SelectTrigger({ className, children, ref, ...props }: SelectTriggerProp
 
 interface SelectScrollUpButtonProps
   extends ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollUpButton> {
-  ref?: Ref<ElementRef<typeof SelectPrimitive.ScrollUpButton>>;
+  ref?: Ref<ComponentRef<typeof SelectPrimitive.ScrollUpButton>>;
 }
 
 function SelectScrollUpButton({ className, ref, ...props }: SelectScrollUpButtonProps) {
@@ -50,7 +50,7 @@ function SelectScrollUpButton({ className, ref, ...props }: SelectScrollUpButton
 
 interface SelectScrollDownButtonProps
   extends ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollDownButton> {
-  ref?: Ref<ElementRef<typeof SelectPrimitive.ScrollDownButton>>;
+  ref?: Ref<ComponentRef<typeof SelectPrimitive.ScrollDownButton>>;
 }
 
 function SelectScrollDownButton({ className, ref, ...props }: SelectScrollDownButtonProps) {
@@ -66,7 +66,7 @@ function SelectScrollDownButton({ className, ref, ...props }: SelectScrollDownBu
 }
 
 interface SelectContentProps extends ComponentPropsWithoutRef<typeof SelectPrimitive.Content> {
-  ref?: Ref<ElementRef<typeof SelectPrimitive.Content>>;
+  ref?: Ref<ComponentRef<typeof SelectPrimitive.Content>>;
 }
 
 function SelectContent({
@@ -106,7 +106,7 @@ function SelectContent({
 }
 
 interface SelectLabelProps extends ComponentPropsWithoutRef<typeof SelectPrimitive.Label> {
-  ref?: Ref<ElementRef<typeof SelectPrimitive.Label>>;
+  ref?: Ref<ComponentRef<typeof SelectPrimitive.Label>>;
 }
 
 function SelectLabel({ className, ref, ...props }: SelectLabelProps) {
@@ -120,7 +120,7 @@ function SelectLabel({ className, ref, ...props }: SelectLabelProps) {
 }
 
 interface SelectItemProps extends ComponentPropsWithoutRef<typeof SelectPrimitive.Item> {
-  ref?: Ref<ElementRef<typeof SelectPrimitive.Item>>;
+  ref?: Ref<ComponentRef<typeof SelectPrimitive.Item>>;
 }
 
 function SelectItem({ className, children, ref, ...props }: SelectItemProps) {
@@ -145,7 +145,7 @@ function SelectItem({ className, children, ref, ...props }: SelectItemProps) {
 }
 
 interface SelectSeparatorProps extends ComponentPropsWithoutRef<typeof SelectPrimitive.Separator> {
-  ref?: Ref<ElementRef<typeof SelectPrimitive.Separator>>;
+  ref?: Ref<ComponentRef<typeof SelectPrimitive.Separator>>;
 }
 
 function SelectSeparator({ className, ref, ...props }: SelectSeparatorProps) {

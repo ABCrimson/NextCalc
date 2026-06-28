@@ -1,6 +1,6 @@
 import { X } from 'lucide-react';
 import { Dialog as DialogPrimitive } from 'radix-ui';
-import type { ComponentPropsWithoutRef, ElementRef, HTMLAttributes, Ref } from 'react';
+import type { ComponentPropsWithoutRef, ComponentRef, HTMLAttributes, Ref } from 'react';
 import { cn } from '@/lib/utils';
 
 const Dialog = DialogPrimitive.Root;
@@ -12,7 +12,7 @@ const DialogPortal = DialogPrimitive.Portal;
 const DialogClose = DialogPrimitive.Close;
 
 interface DialogOverlayProps extends ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay> {
-  ref?: Ref<ElementRef<typeof DialogPrimitive.Overlay>>;
+  ref?: Ref<ComponentRef<typeof DialogPrimitive.Overlay>>;
 }
 
 function DialogOverlay({ className, ref, ...props }: DialogOverlayProps) {
@@ -29,7 +29,7 @@ function DialogOverlay({ className, ref, ...props }: DialogOverlayProps) {
 }
 
 interface DialogContentProps extends ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {
-  ref?: Ref<ElementRef<typeof DialogPrimitive.Content>>;
+  ref?: Ref<ComponentRef<typeof DialogPrimitive.Content>>;
 }
 
 function DialogContent({ className, children, ref, ...props }: DialogContentProps) {
@@ -70,7 +70,7 @@ const DialogFooter = ({ className, ...props }: DialogFooterProps) => (
 );
 
 interface DialogTitleProps extends ComponentPropsWithoutRef<typeof DialogPrimitive.Title> {
-  ref?: Ref<ElementRef<typeof DialogPrimitive.Title>>;
+  ref?: Ref<ComponentRef<typeof DialogPrimitive.Title>>;
 }
 
 function DialogTitle({ className, ref, ...props }: DialogTitleProps) {
@@ -85,7 +85,7 @@ function DialogTitle({ className, ref, ...props }: DialogTitleProps) {
 
 interface DialogDescriptionProps
   extends ComponentPropsWithoutRef<typeof DialogPrimitive.Description> {
-  ref?: Ref<ElementRef<typeof DialogPrimitive.Description>>;
+  ref?: Ref<ComponentRef<typeof DialogPrimitive.Description>>;
 }
 
 function DialogDescription({ className, ref, ...props }: DialogDescriptionProps) {

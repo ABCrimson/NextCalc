@@ -1,9 +1,9 @@
 import { Slider as SliderPrimitive } from 'radix-ui';
-import type { ComponentPropsWithoutRef, ElementRef, Ref } from 'react';
+import type { ComponentPropsWithoutRef, ComponentRef, Ref } from 'react';
 import { cn } from '@/lib/utils';
 
 interface SliderProps extends ComponentPropsWithoutRef<typeof SliderPrimitive.Root> {
-  ref?: Ref<ElementRef<typeof SliderPrimitive.Root>>;
+  ref?: Ref<ComponentRef<typeof SliderPrimitive.Root>>;
 }
 
 function Slider({ className, ref, ...props }: SliderProps) {
