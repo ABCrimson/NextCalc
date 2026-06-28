@@ -19,12 +19,12 @@ Everything planned is done, gate-green at every commit, and shipped to **PR #50*
 - **Lint sweep P0–P5: 2,222 warnings + 221 infos → 0 warnings + 1 unavoidable info.** noNonNull 1612→0 (decision-#21a hybrid: scoped override for numeric hot-paths + 22 real masker fixes); all correctness / a11y / array-keys / perf-security real-fixed or principled-override; `!**/*.svg` excluded; `useLiteralKeys` disabled (conflicts with `noPropertyAccessFromIndexSignature`).
 - **Wave 4** — `@types/node` → 26.0.1 + CI Node 24→26 (engines.node stays ≥24 for Vercel); **TS7 `tsgo` advisory `typecheck:fast`** (non-blocking CI job, 12/12 GREEN — the repo is already TS7-forward-compatible); gate compiler `tsc 6.0.0-dev → 6.0.3 GA`.
 - **Polish** — katex renderer dedup (→ cached `ui/math-renderer`); real `.scrollbar-none` utility. SKIPPED with rationale: tailwind scrollbar-util migration (no plugin; the repo already uses standard `html{scrollbar-color/width}`), tabular-nums (calculator displays are already `font-mono`), three half-res AO (`scenePass.setResolutionScale(0.5)` halves the WHOLE pass, not just AO — needs a separate downsampled pass; deferred to visual QA).
-- **Dogfood** — **command palette → modern-cmdk 1.1.5** ✅ (Playwright-verified in a real browser: opens, fuzzy-filters, glass styling, zero errors); **export-service tagged-PDF alt-text + `deduplicateImages`** via **modern-pdf-lib 0.29.0** ✅ (verified the output carries `/MarkInfo` `/StructTreeRoot` `/Figure` `/Alt`).
+- **Dogfood** — **command palette → modern-cmdk 1.1.5** ✅ (Playwright-verified in a real browser: opens, fuzzy-filters, glass styling, zero errors); **export-service tagged-PDF alt-text + `deduplicateImages`** via **modern-pdf-lib 0.40.2** ✅ (uses the new `tagFigure()` helper + `compressionLevel: 9`; runtime-verified the output carries `/MarkInfo` `/Marked true` `/StructTreeRoot` `/Figure` `/Alt` `/Lang`).
 - Recurring theme: **adversarial verification caught real regressions the gate alone would have shipped** (an autofix rewriting procedural star-field seeds to `Math.PI`/`LN10`; a dropped `.map` index still used for animation delay; agent a11y fixes that satisfied biome but broke axe-core `role=grid`/`ul>li`). Keep doing that.
 
 **⚠️ TWO of our own packages are BROKEN AS PUBLISHED (upstream blockers, not our code — §6):**
 - **modern-xlsx 1.0.0 + 1.0.0-rc.1** — ship NO wasm-bindgen glue (`dist/../wasm/modern_xlsx_wasm.js` is missing; only the raw `.wasm`); they fail to import in Node AND fail to bundle in Turbopack via every entry (`.`/`./lite`/`./browser`). The XLSX-export dogfood is wired-correct but **REMOVED** until fixed. ACTION: ship the wasm-bindgen `.js` glue (or an all-JS build).
-- **modern-pdf-lib 0.29.0 + 0.28.1** — ship NO `.wasm`, so `initWasm` always falls back to pure-JS (valid output, no acceleration). ACTION: ship/expose the `.wasm` so consumers can pass `pngWasm`/`deflateWasm` bytes.
+- **modern-pdf-lib (through 0.40.2)** — still ships NO `.wasm` and no inline WASM (`hasInlineWasmData()` === false), so `initWasm` ENOENTs and always falls back to pure-JS (valid output, no acceleration). ACTION: ship/inline the `.wasm` (e.g. `dist/wasm/libdeflate/modern_pdf_deflate_bg.wasm`) — our lazy `initWasm({png,deflate})` then upgrades for free.
 
 ---
 
@@ -136,7 +136,7 @@ Query the registry before any bump: `node -e 'fetch("https://registry.npmjs.org/
 
 **Landed (Wave 3, 2026-06-26):** lucide-react 1.21.0 · three 0.184.0 / @types/three 0.184.1 / @webgpu/types 0.1.71 · turbo 2.10.0 · wrangler 4.104.0 (@cloudflare/workers-types 4.20260624.1) · katex 0.17.0 (@types/katex 0.16.8) · next-intl 4.13.0 · tailwindcss + @tailwindcss/postcss 4.3.1 · serwist + @serwist/next 10.0.0-preview.14 · @biomejs/biome 2.5.1 · modern-pdf-lib 0.28.1.
 
-**Landed (Wave 4 + dogfood, 2026-06-27):** @types/node 26.0.1 (all workspaces) · Node 26 in CI · @typescript/native-preview 7.0.0-dev.20260626.1 (advisory `tsgo`) · typescript 6.0.3 (gate) · modern-pdf-lib 0.28.1→**0.29.0** (export-service) · **modern-cmdk 1.1.5** (command palette). NOT adopted: **modern-xlsx 1.0.0/rc.1** (broken dist — §0).
+**Landed (Wave 4 + dogfood, 2026-06-27):** @types/node 26.0.1 (all workspaces) · Node 26 in CI · @typescript/native-preview 7.0.0-dev.20260626.1 (advisory `tsgo`) · typescript 6.0.3 (gate) · modern-pdf-lib →**0.40.2** (export-service; `tagFigure`/`compressionLevel:9`) · **modern-cmdk 1.1.5** (command palette). NOT adopted: **modern-xlsx 1.0.0/rc.1** (broken dist — §0).
 
 **Wave-4 targets (re-verify):** @types/node 26.0.1 · Node 26 · @typescript/native-preview 7.0.0-dev.20260624.1 · typescript (gate stays 6.x; GA 6.0.3 / rc 7.0.1-rc exist).
 

@@ -6,11 +6,11 @@ A push-to-newest dependency modernization plus a full Biome lint sweep (2,222 wa
 
 ### Done
 - [x] Every dependency pushed to its absolute-newest published version (Next 16.3-preview, React 19.3 canary, TypeScript 6.0.3, GraphQL 17, Apollo 5.5, Prisma 7.9-dev, Three 0.184, Biome 2.5, Turbo 2.10, Vitest 5, Wrangler 4.104, …)
-- [x] Code rewritten to each version's newest idioms (TSL-compute Lorenz particles, GTAO SSAO, next-intl `useFormatter`, serwist 10 `createSerwist`, tagged-PDF export via modern-pdf-lib 0.29)
+- [x] Code rewritten to each version's newest idioms (TSL-compute Lorenz particles, GTAO SSAO, next-intl `useFormatter`, serwist 10 `createSerwist`, tagged-PDF export via modern-pdf-lib 0.40)
 - [x] Biome lint sweep → 0 warnings (real fixes; only documented, principled overrides)
 - [x] Wave 4 — `@types/node` 26 + CI Node 26; TS7 `tsgo` advisory (non-blocking) typecheck
 - [x] Dogfood — `modern-cmdk` adopted for the command palette
-- [x] CI Test job green (export-service `modern-pdf-lib` mock realigned with the 0.29 API)
+- [x] CI Test job green (export-service `modern-pdf-lib` mock realigned with the 0.40.2 API)
 
 ### Remaining — browser/deploy QA (not verifiable headlessly)
 - [ ] Lorenz GPU particles — verified in a sandbox WebGPU browser; confirm on the deployed site

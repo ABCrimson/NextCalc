@@ -96,7 +96,7 @@ curl -X POST https://cas.nextcalc.io/solve \
 - Cloudflare R2 for file storage (with aws4fetch for S3-compatible presigning)
 - KaTeX (server-side `renderToString`) for LaTeX → SVG
 - @cf-wasm/resvg 0.3.4 for SVG → PNG rasterization
-- modern-pdf-lib 0.29.0 for PDF generation
+- modern-pdf-lib 0.40.2 for PDF generation
 - Zod for validation
 
 **Example Usage:**

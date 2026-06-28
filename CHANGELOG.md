@@ -23,7 +23,7 @@ All notable changes to NextCalc Pro are documented in this file.
 | jose / @upstash/redis | 6.1.3 / 1.37 | 6.2.3 / 1.38.0 |
 | turbo / @biomejs/biome / vitest | 2.8-canary / 2.4.4 / 4.1-beta | 2.10.0 / 2.5.1 / 5.0.0-beta.5 |
 | wrangler / hono | 4.69.0 / 4.12.3 | 4.104.0 / 4.12.27 |
-| modern-pdf-lib / modern-cmdk | 0.28.1 / — | 0.29.0 / 1.1.5 (adopted) |
+| modern-pdf-lib / modern-cmdk | 0.28.1 / — | 0.40.2 / 1.1.5 (adopted) |
 | @types/node / Node (CI) | 25 / 24 | 26.0.1 / **26** (engines floor stays ≥24 for Vercel) |
 
 ### Security
@@ -35,7 +35,7 @@ All notable changes to NextCalc Pro are documented in this file.
 - **next-intl 4.13**: ~30 hardcoded `'en-US'` date/number formats → `useFormatter()`; adopted `hasLocale`/`notFound`.
 - **katex 0.17 / tailwind 4.3**: fixed dark-variant wiring + katex output mode.
 - **serwist 10**: migrated to `createSerwist` (preview).
-- **modern-pdf-lib 0.29**: export-service now emits tagged-PDF accessibility (Figure structure element with the LaTeX as `/Alt`, marked content) + `deduplicateImages` in the batch path.
+- **modern-pdf-lib 0.40.2**: export-service emits tagged-PDF accessibility — the math image is wrapped in a `Figure` structure element via the new high-level `tagFigure()` helper, carrying the LaTeX as `/Alt`; plus `deduplicateImages` (now returning a logged `DeduplicationReport`) and max-FlateDecode (`compressionLevel: 9`) in the save path.
 - **modern-cmdk 1.1.5**: replaced the ~820-line hand-rolled command palette with the library's compound `Command.Dialog` components.
 - **lucide-react 1.x**: inline GitHub/Google marks for the removed brand icons.
 
@@ -47,7 +47,7 @@ All notable changes to NextCalc Pro are documented in this file.
 - Gate compiler moved to `tsc` 6.0.3 GA.
 
 ### Fixed
-- `export-service`: aligned the `modern-pdf-lib` test mock with the 0.29 tagged-PDF API (`accessibilityPlugin`/`createStructureTree`/marked-content/`deduplicateImages`) — unblocks the CI Test job.
+- `export-service`: aligned the `modern-pdf-lib` test mock with its tagged-PDF API (`accessibilityPlugin`/`tagFigure`/marked-content/`deduplicateImages`) — unblocks the CI Test job.
 
 ### Notes
 - **modern-xlsx** was evaluated for an XLSX export path but **not adopted** — the published 1.0.0/rc.1 dist ships without its wasm-bindgen JS glue and fails to import/bundle. Tracked in [docs/ROADMAP.md](docs/ROADMAP.md).

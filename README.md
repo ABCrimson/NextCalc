@@ -23,7 +23,7 @@
 | Category | Improvements |
 |:---------|:-------------|
 | **Dependencies** | Next.js 16.3-preview, React 19.3 canary, TypeScript 6.0.3, GraphQL 17, Apollo 5.5, Prisma 7.9-dev, Three.js 0.184, Biome 2.5, Turbo 2.10, Vitest 5, Wrangler 4.104 |
-| **Newest idioms** | TSL-compute Lorenz particles, GTAO SSAO, next-intl `useFormatter`, serwist 10, tagged-PDF export (modern-pdf-lib 0.29), modern-cmdk command palette |
+| **Newest idioms** | TSL-compute Lorenz particles, GTAO SSAO, next-intl `useFormatter`, serwist 10, tagged-PDF export (modern-pdf-lib 0.40), modern-cmdk command palette |
 | **Lint sweep** | Biome 2.5.1 — 2,222 warnings + 221 infos → 0 warnings (real fixes; only documented, principled overrides) |
 | **CI/CD** | Node 26, non-blocking TS7 `tsgo` typecheck, gate green |
 
