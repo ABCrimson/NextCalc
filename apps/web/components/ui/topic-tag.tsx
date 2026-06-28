@@ -63,76 +63,71 @@ export interface TopicTagProps {
   className?: string;
 }
 
+// Colors are driven by semantic oklch category tokens defined in globals.css
+// (--color-topic-{name}-{bg,fg,border}). The tokens carry their own
+// [data-theme='dark'] overrides, so no dark: variants are needed here and the
+// values are identical to the previous Tailwind-palette utilities.
 const topicConfig: Record<MathTopic, { label: string; color: string }> = {
   calculus: {
     label: 'Calculus',
-    color:
-      'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border-blue-300 dark:border-blue-700',
+    color: 'bg-topic-calculus-bg text-topic-calculus-fg border-topic-calculus-border',
   },
   algebra: {
     label: 'Algebra',
-    color:
-      'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 border-purple-300 dark:border-purple-700',
+    color: 'bg-topic-algebra-bg text-topic-algebra-fg border-topic-algebra-border',
   },
   geometry: {
     label: 'Geometry',
-    color:
-      'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border-green-300 dark:border-green-700',
+    color: 'bg-topic-geometry-bg text-topic-geometry-fg border-topic-geometry-border',
   },
   topology: {
     label: 'Topology',
-    color:
-      'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400 border-pink-300 dark:border-pink-700',
+    color: 'bg-topic-topology-bg text-topic-topology-fg border-topic-topology-border',
   },
   'number-theory': {
     label: 'Number Theory',
     color:
-      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 border-yellow-300 dark:border-yellow-700',
+      'bg-topic-number-theory-bg text-topic-number-theory-fg border-topic-number-theory-border',
   },
   combinatorics: {
     label: 'Combinatorics',
     color:
-      'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400 border-orange-300 dark:border-orange-700',
+      'bg-topic-combinatorics-bg text-topic-combinatorics-fg border-topic-combinatorics-border',
   },
   'linear-algebra': {
     label: 'Linear Algebra',
     color:
-      'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400 border-indigo-300 dark:border-indigo-700',
+      'bg-topic-linear-algebra-bg text-topic-linear-algebra-fg border-topic-linear-algebra-border',
   },
   'differential-equations': {
     label: 'Differential Equations',
     color:
-      'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-red-300 dark:border-red-700',
+      'bg-topic-differential-equations-bg text-topic-differential-equations-fg border-topic-differential-equations-border',
   },
   'complex-analysis': {
     label: 'Complex Analysis',
     color:
-      'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-400 border-cyan-300 dark:border-cyan-700',
+      'bg-topic-complex-analysis-bg text-topic-complex-analysis-fg border-topic-complex-analysis-border',
   },
   probability: {
     label: 'Probability',
-    color:
-      'bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-400 border-teal-300 dark:border-teal-700',
+    color: 'bg-topic-probability-bg text-topic-probability-fg border-topic-probability-border',
   },
   statistics: {
     label: 'Statistics',
-    color:
-      'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 border-emerald-300 dark:border-emerald-700',
+    color: 'bg-topic-statistics-bg text-topic-statistics-fg border-topic-statistics-border',
   },
   logic: {
     label: 'Logic',
-    color:
-      'bg-muted/50 text-muted-foreground dark:bg-background/30 dark:text-muted-foreground border-border dark:border-border',
+    color: 'bg-topic-logic-bg text-topic-logic-fg border-topic-logic-border',
   },
   'set-theory': {
     label: 'Set Theory',
-    color:
-      'bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-400 border-violet-300 dark:border-violet-700',
+    color: 'bg-topic-set-theory-bg text-topic-set-theory-fg border-topic-set-theory-border',
   },
   'graph-theory': {
     label: 'Graph Theory',
-    color:
-      'bg-fuchsia-100 text-fuchsia-800 dark:bg-fuchsia-900/30 dark:text-fuchsia-400 border-fuchsia-300 dark:border-fuchsia-700',
+    color: 'bg-topic-graph-theory-bg text-topic-graph-theory-fg border-topic-graph-theory-border',
   },
 };
 

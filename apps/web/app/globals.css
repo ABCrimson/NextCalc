@@ -55,6 +55,57 @@
   --color-glow-primary: oklch(0.55 0.27 264 / 0.4);
   --color-glow-success: oklch(0.65 0.20 155 / 0.4);
   --color-glow-purple: oklch(0.58 0.22 300 / 0.4);
+
+  /* ============================================
+     Topic category colors — semantic oklch tokens for ui/topic-tag.tsx.
+     Light values are the exact oklch of the prior Tailwind palette steps
+     (bg = -100, fg = -800, border = -300); dark overrides live in
+     [data-theme='dark'] (bg = -900/30, fg = -400, border = -700), so the
+     same utilities adapt across themes with no dark: variants. Zero visual
+     change vs. the previous bg-blue-100/text-blue-800/… utilities.
+     ============================================ */
+  --color-topic-calculus-bg: oklch(93.2% 0.032 255.585);
+  --color-topic-calculus-fg: oklch(42.4% 0.199 265.638);
+  --color-topic-calculus-border: oklch(80.9% 0.105 251.813);
+  --color-topic-algebra-bg: oklch(94.6% 0.033 307.174);
+  --color-topic-algebra-fg: oklch(43.8% 0.218 303.724);
+  --color-topic-algebra-border: oklch(82.7% 0.119 306.383);
+  --color-topic-geometry-bg: oklch(96.2% 0.044 156.743);
+  --color-topic-geometry-fg: oklch(44.8% 0.119 151.328);
+  --color-topic-geometry-border: oklch(87.1% 0.15 154.449);
+  --color-topic-topology-bg: oklch(94.8% 0.028 342.258);
+  --color-topic-topology-fg: oklch(45.9% 0.187 3.815);
+  --color-topic-topology-border: oklch(82.3% 0.12 346.018);
+  --color-topic-number-theory-bg: oklch(97.3% 0.071 103.193);
+  --color-topic-number-theory-fg: oklch(47.6% 0.114 61.907);
+  --color-topic-number-theory-border: oklch(90.5% 0.182 98.111);
+  --color-topic-combinatorics-bg: oklch(95.4% 0.038 75.164);
+  --color-topic-combinatorics-fg: oklch(47% 0.157 37.304);
+  --color-topic-combinatorics-border: oklch(83.7% 0.128 66.29);
+  --color-topic-linear-algebra-bg: oklch(93% 0.034 272.788);
+  --color-topic-linear-algebra-fg: oklch(39.8% 0.195 277.366);
+  --color-topic-linear-algebra-border: oklch(78.5% 0.115 274.713);
+  --color-topic-differential-equations-bg: oklch(93.6% 0.032 17.717);
+  --color-topic-differential-equations-fg: oklch(44.4% 0.177 26.899);
+  --color-topic-differential-equations-border: oklch(80.8% 0.114 19.571);
+  --color-topic-complex-analysis-bg: oklch(95.6% 0.045 203.388);
+  --color-topic-complex-analysis-fg: oklch(45% 0.085 224.283);
+  --color-topic-complex-analysis-border: oklch(86.5% 0.127 207.078);
+  --color-topic-probability-bg: oklch(95.3% 0.051 180.801);
+  --color-topic-probability-fg: oklch(43.7% 0.078 188.216);
+  --color-topic-probability-border: oklch(85.5% 0.138 181.071);
+  --color-topic-statistics-bg: oklch(95% 0.052 163.051);
+  --color-topic-statistics-fg: oklch(43.2% 0.095 166.913);
+  --color-topic-statistics-border: oklch(84.5% 0.143 164.978);
+  --color-topic-logic-bg: color-mix(in oklab, var(--color-muted) 50%, transparent);
+  --color-topic-logic-fg: var(--color-muted-foreground);
+  --color-topic-logic-border: var(--color-border);
+  --color-topic-set-theory-bg: oklch(94.3% 0.029 294.588);
+  --color-topic-set-theory-fg: oklch(43.2% 0.232 292.759);
+  --color-topic-set-theory-border: oklch(81.1% 0.111 293.571);
+  --color-topic-graph-theory-bg: oklch(95.2% 0.037 318.852);
+  --color-topic-graph-theory-fg: oklch(45.2% 0.211 324.591);
+  --color-topic-graph-theory-border: oklch(83.3% 0.145 321.434);
 }
 
 /* ============================================
@@ -97,6 +148,50 @@
   --color-glow-primary: oklch(0.65 0.22 264 / 0.5);
   --color-glow-success: oklch(0.65 0.18 155 / 0.5);
   --color-glow-purple: oklch(0.63 0.20 300 / 0.5);
+
+  /* Topic category colors — dark overrides (bg = -900 at 30% over transparent,
+     fg = -400, border = -700). logic's fg/border intentionally inherit the
+     already-dark-overridden semantic tokens; only its bg shifts to background/30. */
+  --color-topic-calculus-bg: color-mix(in oklab, oklch(37.9% 0.146 265.522) 30%, transparent);
+  --color-topic-calculus-fg: oklch(70.7% 0.165 254.624);
+  --color-topic-calculus-border: oklch(48.8% 0.243 264.376);
+  --color-topic-algebra-bg: color-mix(in oklab, oklch(38.1% 0.176 304.987) 30%, transparent);
+  --color-topic-algebra-fg: oklch(71.4% 0.203 305.504);
+  --color-topic-algebra-border: oklch(49.6% 0.265 301.924);
+  --color-topic-geometry-bg: color-mix(in oklab, oklch(39.3% 0.095 152.535) 30%, transparent);
+  --color-topic-geometry-fg: oklch(79.2% 0.209 151.711);
+  --color-topic-geometry-border: oklch(52.7% 0.154 150.069);
+  --color-topic-topology-bg: color-mix(in oklab, oklch(40.8% 0.153 2.432) 30%, transparent);
+  --color-topic-topology-fg: oklch(71.8% 0.202 349.761);
+  --color-topic-topology-border: oklch(52.5% 0.223 3.958);
+  --color-topic-number-theory-bg: color-mix(in oklab, oklch(42.1% 0.095 57.708) 30%, transparent);
+  --color-topic-number-theory-fg: oklch(85.2% 0.199 91.936);
+  --color-topic-number-theory-border: oklch(55.4% 0.135 66.442);
+  --color-topic-combinatorics-bg: color-mix(in oklab, oklch(40.8% 0.123 38.172) 30%, transparent);
+  --color-topic-combinatorics-fg: oklch(75% 0.183 55.934);
+  --color-topic-combinatorics-border: oklch(55.3% 0.195 38.402);
+  --color-topic-linear-algebra-bg: color-mix(in oklab, oklch(35.9% 0.144 278.697) 30%, transparent);
+  --color-topic-linear-algebra-fg: oklch(67.3% 0.182 276.935);
+  --color-topic-linear-algebra-border: oklch(45.7% 0.24 277.023);
+  --color-topic-differential-equations-bg: color-mix(in oklab, oklch(39.6% 0.141 25.723) 30%, transparent);
+  --color-topic-differential-equations-fg: oklch(70.4% 0.191 22.216);
+  --color-topic-differential-equations-border: oklch(50.5% 0.213 27.518);
+  --color-topic-complex-analysis-bg: color-mix(in oklab, oklch(39.8% 0.07 227.392) 30%, transparent);
+  --color-topic-complex-analysis-fg: oklch(78.9% 0.154 211.53);
+  --color-topic-complex-analysis-border: oklch(52% 0.105 223.128);
+  --color-topic-probability-bg: color-mix(in oklab, oklch(38.6% 0.063 188.416) 30%, transparent);
+  --color-topic-probability-fg: oklch(77.7% 0.152 181.912);
+  --color-topic-probability-border: oklch(51.1% 0.096 186.391);
+  --color-topic-statistics-bg: color-mix(in oklab, oklch(37.8% 0.077 168.94) 30%, transparent);
+  --color-topic-statistics-fg: oklch(76.5% 0.177 163.223);
+  --color-topic-statistics-border: oklch(50.8% 0.118 165.612);
+  --color-topic-logic-bg: color-mix(in oklab, var(--color-background) 30%, transparent);
+  --color-topic-set-theory-bg: color-mix(in oklab, oklch(38% 0.189 293.745) 30%, transparent);
+  --color-topic-set-theory-fg: oklch(70.2% 0.183 293.541);
+  --color-topic-set-theory-border: oklch(49.1% 0.27 292.581);
+  --color-topic-graph-theory-bg: color-mix(in oklab, oklch(40.1% 0.17 325.612) 30%, transparent);
+  --color-topic-graph-theory-fg: oklch(74% 0.238 322.16);
+  --color-topic-graph-theory-border: oklch(51.8% 0.253 323.949);
 }
 
 /* ============================================
