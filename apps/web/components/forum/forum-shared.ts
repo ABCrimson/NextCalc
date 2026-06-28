@@ -214,25 +214,27 @@ export function getPostHue(postId: string): number {
 // FORMATTING UTILITIES
 // ============================================================================
 
-export function timeAgo(date: Date | string): string {
+export function timeAgo(date: Date | string, locale?: string): string {
   const d = typeof date === 'string' ? new Date(date) : date;
-  const seconds = Math.floor((Date.now() - d.getTime()) / 1000);
-  if (seconds < 60) return `${seconds}s ago`;
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 30) return `${days}d ago`;
-  const months = Math.floor(days / 30);
-  if (months < 12) return `${months}mo ago`;
-  const years = Math.floor(days / 365);
-  return `${years}y ago`;
+  const seconds = Math.round((Date.now() - d.getTime()) / 1000);
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'always', style: 'narrow' });
+  const units: Array<[Intl.RelativeTimeFormatUnit, number]> = [
+    ['year', 31536000],
+    ['month', 2592000],
+    ['day', 86400],
+    ['hour', 3600],
+    ['minute', 60],
+  ];
+  for (const [unit, secs] of units) {
+    if (seconds >= secs) {
+      return rtf.format(-Math.floor(seconds / secs), unit);
+    }
+  }
+  return rtf.format(-seconds, 'second');
 }
 
-export function formatNumber(n: number): string {
-  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
-  return String(n);
+export function formatNumber(n: number, locale?: string): string {
+  return new Intl.NumberFormat(locale, { notation: 'compact', maximumFractionDigits: 1 }).format(n);
 }
 
 /**

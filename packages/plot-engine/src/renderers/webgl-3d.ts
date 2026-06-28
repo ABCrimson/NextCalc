@@ -1315,7 +1315,7 @@ export class WebGL3DRenderer implements IRenderer {
       this.renderer.shadowMap.type = PCFSoftShadowMap;
 
       // HDR tone mapping
-      this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      this.renderer.toneMapping = THREE.AgXToneMapping;
       this.renderer.toneMappingExposure = 1.2;
 
       // Add modern PBR lighting

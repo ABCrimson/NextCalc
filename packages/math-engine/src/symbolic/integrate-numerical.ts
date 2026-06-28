@@ -77,11 +77,9 @@ export interface IntegrationResult {
  */
 export class IntegrationError extends Error {
   override readonly name = 'IntegrationError';
-  override readonly cause?: unknown;
 
   constructor(message: string, cause?: unknown) {
-    super(message);
-    this.cause = cause;
+    super(message, { cause });
   }
 }
 
