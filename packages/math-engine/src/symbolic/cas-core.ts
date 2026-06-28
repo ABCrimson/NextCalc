@@ -25,7 +25,7 @@ import {
   getVariables,
 } from './expression-tree';
 import { integrate, integrateDefinite } from './integrate';
-import { expand, factor, simplify, substitute } from './simplify';
+import { astEquals, expand, factor, simplify, substitute } from './simplify';
 
 /**
  * CAS computation result
@@ -414,48 +414,6 @@ function getDefaultRules(): ReadonlyArray<TransformationRule> {
 // ============================================================================
 // UTILITY FUNCTIONS
 // ============================================================================
-
-/**
- * Check if two AST nodes are structurally equal
- */
-function astEquals(a: ExpressionNode, b: ExpressionNode): boolean {
-  if (a.type !== b.type) return false;
-
-  if (isConstantNode(a) && isConstantNode(b)) {
-    return a.value === b.value;
-  }
-
-  if (isSymbolNode(a) && isSymbolNode(b)) {
-    return a.name === b.name;
-  }
-
-  if (isOperatorNode(a) && isOperatorNode(b)) {
-    const aArg0 = a.args[0];
-    const aArg1 = a.args[1];
-    const bArg0 = b.args[0];
-    const bArg1 = b.args[1];
-
-    return (
-      a.op === b.op &&
-      aArg0 !== undefined &&
-      aArg1 !== undefined &&
-      bArg0 !== undefined &&
-      bArg1 !== undefined &&
-      astEquals(aArg0, bArg0) &&
-      astEquals(aArg1, bArg1)
-    );
-  }
-
-  if (isFunctionNode(a) && isFunctionNode(b)) {
-    if (a.fn !== b.fn || a.args.length !== b.args.length) return false;
-    return a.args.every((arg, i) => {
-      const bArg = b.args[i];
-      return bArg && astEquals(arg, bArg);
-    });
-  }
-
-  return false;
-}
 
 /**
  * Create a default CAS instance

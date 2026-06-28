@@ -30,7 +30,7 @@ import { Complex, type Solution, solve } from '../solver/solve';
 import { differentiate } from './differentiate';
 import { analyzeExpression } from './expression-tree';
 import { astToString } from './integrate';
-import { expand, simplify } from './simplify';
+import { astEquals, expand, simplify } from './simplify';
 
 /**
  * Solution step
@@ -1336,23 +1336,6 @@ export class StepSolver {
 // ============================================================================
 // PRIVATE UTILITY FUNCTIONS
 // ============================================================================
-
-function astEquals(a: ExpressionNode, b: ExpressionNode): boolean {
-  if (a.type !== b.type) return false;
-  if (isConstantNode(a) && isConstantNode(b)) return a.value === b.value;
-  if (isSymbolNode(a) && isSymbolNode(b)) return a.name === b.name;
-  if (isOperatorNode(a) && isOperatorNode(b)) {
-    return a.op === b.op && astEquals(a.args[0], b.args[0]) && astEquals(a.args[1], b.args[1]);
-  }
-  if (isFunctionNode(a) && isFunctionNode(b)) {
-    if (a.fn !== b.fn || a.args.length !== b.args.length) return false;
-    return a.args.every((arg, i) => {
-      const bArg = b.args[i];
-      return bArg !== undefined && astEquals(arg, bArg);
-    });
-  }
-  return false;
-}
 
 /** Format a coefficient for LaTeX: omit 1, show −1 as − */
 function formatCoeff(n: number): string {
