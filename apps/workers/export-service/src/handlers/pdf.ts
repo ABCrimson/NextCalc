@@ -521,13 +521,13 @@ export function validateLatexSyntax(latex: string): boolean {
   const checks = [
     // Check for balanced braces
     () => {
-      const openBraces = (latex.match(/\{/g) || []).length;
-      const closeBraces = (latex.match(/\}/g) || []).length;
+      const openBraces = (latex.match(/\{/g) ?? []).length;
+      const closeBraces = (latex.match(/\}/g) ?? []).length;
       return openBraces === closeBraces;
     },
     // Check for balanced math delimiters
     () => {
-      const dollarSigns = (latex.match(/\$/g) || []).length;
+      const dollarSigns = (latex.match(/\$/g) ?? []).length;
       return dollarSigns % 2 === 0;
     },
     // Check for common LaTeX commands

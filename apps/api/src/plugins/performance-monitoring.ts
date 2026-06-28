@@ -1,5 +1,5 @@
 /**
- * Apollo Server 5.4.0 Plugin Collection
+ * Apollo Server 5.5.1 Plugin Collection
  *
  * Custom plugins using AS5 plugin lifecycle hooks:
  * - requestDidStart → didResolveOperation → executionDidStart → willResolveField

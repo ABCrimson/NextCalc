@@ -1,5 +1,5 @@
 /**
- * Apollo Server 5.4.0 Configuration
+ * Apollo Server 5.5.1 Configuration
  *
  * Production-ready GraphQL server with:
  * - unwrapResolverError for proper error formatting (AS5 best practice)

@@ -194,7 +194,7 @@ export default function Home() {
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             {t.rich('home.hero.subtitle' as Parameters<typeof t>[0], {
               react: () => <span className="font-semibold text-foreground">React 19.3.0</span>,
-              nextjs: () => <span className="font-semibold text-foreground">Next.js 16.2.0</span>,
+              nextjs: () => <span className="font-semibold text-foreground">Next.js 16.3.0</span>,
             })}
           </p>
 
@@ -225,7 +225,7 @@ export default function Home() {
               className="group relative px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg shadow-purple-500/40 hover:shadow-xl hover:shadow-purple-500/60 transition-all duration-300 hover:scale-105 overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
-              <span className="relative z-10">Tailwind 4.2.0</span>
+              <span className="relative z-10">Tailwind 4.3.0</span>
             </m.div>
             <m.div
               variants={badgeVariants}

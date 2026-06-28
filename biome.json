@@ -67,8 +67,7 @@
       },
       "security": {
         "noDangerouslySetInnerHtml": "warn"
-      },
-      "nursery": {}
+      }
     }
   },
   "formatter": {

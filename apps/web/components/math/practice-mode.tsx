@@ -131,8 +131,8 @@ export function PracticeMode({
   const [bestStreak, setBestStreak] = useState(0);
   const [score, setScore] = useState(0);
 
-  const timerRef = useRef<NodeJS.Timeout | undefined>(undefined);
-  const questionTimerRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const timerRef = useRef<ReturnType<typeof globalThis.setInterval> | undefined>(undefined);
+  const questionTimerRef = useRef<ReturnType<typeof globalThis.setInterval> | undefined>(undefined);
 
   // Get current problem
   const currentProblem = problems[currentIndex];

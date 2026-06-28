@@ -1,5 +1,5 @@
 /**
- * Apollo Server 5.4.0 — Next.js Route Handler
+ * Apollo Server 5.5.1 — Next.js Route Handler
  *
  * Provides a createHandler() factory that accepts an auth function,
  * enabling the real NextAuth auth() to be injected at runtime from
@@ -8,8 +8,8 @@
  * Dependencies:
  * - @apollo/server 5.4.0
  * - @as-integrations/next 4.1.0
- * - graphql 16.12.0
- * - Prisma 7.5.0-dev.33
+ * - graphql 17.0.1
+ * - Prisma 7
  */
 
 import { startServerAndCreateNextHandler } from '@as-integrations/next';

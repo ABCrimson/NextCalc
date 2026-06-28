@@ -108,7 +108,7 @@ export function PolarAxisLabels({
 
   // Adaptive angular steps based on viewport size
   const angularSteps = useMemo(
-    () => providedAngularSteps || calculateAdaptiveAngularSteps(maxRadius),
+    () => providedAngularSteps ?? calculateAdaptiveAngularSteps(maxRadius),
     [providedAngularSteps, maxRadius],
   );
 
