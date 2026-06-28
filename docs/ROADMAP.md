@@ -1,5 +1,30 @@
 # NextCalc Pro - Roadmap
 
+## Modernization (Unreleased — branch `modernization/foundation`, PR #50)
+
+A push-to-newest dependency modernization plus a full Biome lint sweep (2,222 warnings → 0). The complete per-package version delta and idiom rewrites live in [CHANGELOG.md](../CHANGELOG.md) under **[Unreleased]**.
+
+### Done
+- [x] Every dependency pushed to its absolute-newest published version (Next 16.3-preview, React 19.3 canary, TypeScript 6.0.3, GraphQL 17, Apollo 5.5, Prisma 7.9-dev, Three 0.184, Biome 2.5, Turbo 2.10, Vitest 5, Wrangler 4.104, …)
+- [x] Code rewritten to each version's newest idioms (TSL-compute Lorenz particles, GTAO SSAO, next-intl `useFormatter`, serwist 10 `createSerwist`, tagged-PDF export via modern-pdf-lib 0.29)
+- [x] Biome lint sweep → 0 warnings (real fixes; only documented, principled overrides)
+- [x] Wave 4 — `@types/node` 26 + CI Node 26; TS7 `tsgo` advisory (non-blocking) typecheck
+- [x] Dogfood — `modern-cmdk` adopted for the command palette
+- [x] CI Test job green (export-service `modern-pdf-lib` mock realigned with the 0.29 API)
+
+### Remaining — browser/deploy QA (not verifiable headlessly)
+- [ ] Lorenz GPU particles — verified in a sandbox WebGPU browser; confirm on the deployed site
+- [ ] serwist 10 PWA — service-worker registration verified; the **offline-nav fallback still needs a deployed-site smoke test**
+- [ ] modern-pdf-lib WASM — confirm `initWasm` in the deployed export-service Worker (auto-falls back to pure-JS; valid PDFs either way)
+
+### Remaining — provisioning & upstream packages
+- [ ] Verify Cloudflare R2 bucket provisioning + S3 secrets for export-service (`apps/workers/export-service/wrangler.toml` still carries a create-buckets TODO)
+- [ ] MPFR/Emscripten WASM build for math-engine arbitrary precision (currently a JS mock fallback)
+- [ ] Complete i18n placeholder translations — locales are not all at full key parity (en 1,278; others 1,224–1,275)
+- [ ] Upstream: ship `modern-xlsx` wasm-bindgen JS glue (currently broken → XLSX export deferred); expose `modern-pdf-lib` `.wasm` so consumers can pass `pngWasm`/`deflateWasm`
+
+---
+
 ## Completed Features (verified in codebase)
 
 ### Core Calculator (`apps/web/app/[locale]/page.tsx`)
@@ -37,7 +62,7 @@
 - [x] SSAO post-processing (GTAONode)
 - [x] Interactive controls (pan, zoom, rotate)
 - [x] Export (PNG, SVG, CSV)
-- [x] 5 colormaps (viridis, inferno, coolwarm, cividis, magma, spectral)
+- [x] 9 colormaps (viridis, inferno, magma, plasma, cividis, coolwarm, spectral, turbo, rainbow)
 
 ### Web App Pages (all in `apps/web/app/[locale]/`)
 - [x] Calculator home page (`/`)
@@ -65,7 +90,7 @@
 - [x] Sign-in page (`/auth/signin`)
 
 ### Backend Infrastructure
-- [x] GraphQL API with Apollo Server 5.4 + jose 6.1 JWT verification (`apps/api/`)
+- [x] GraphQL API with Apollo Server 5.5 + jose 6.2 JWT verification (`apps/api/`)
 - [x] Prisma 7 shared database package (`packages/database/`)
 - [x] NextAuth v5 with Google + GitHub OAuth
 - [x] Upstash Redis integration (caching + rate limiting)
@@ -81,8 +106,8 @@
 
 ### Cloudflare Workers (`apps/workers/`)
 - [x] CAS Service -- symbolic math on the edge (Hono + mathjs)
-- [x] Export Service -- LaTeX to PDF/PNG/SVG (Hono + MathJax)
-- [x] Rate Limiter -- sliding window via Cloudflare KV
+- [x] Export Service -- LaTeX to PDF/PNG/SVG (Hono + KaTeX + resvg + modern-pdf-lib)
+- [x] Rate Limiter -- sliding window via a SQLite-backed Durable Object (KV used only as an identifier index)
 
 ### WebGPU Features
 - [x] GPU compute PDE solver (heat/wave/Laplace FTCS stencils, ping-pong buffers)
@@ -100,7 +125,7 @@
 - [x] Sentry stub configs (activate with DSN + @sentry/nextjs)
 - [x] Content Security Policy (CSP) headers -- Nosecone with nonces, HSTS, permissions policy
 - [x] Rate limiter wired to GraphQL SSE stream endpoint
-- [x] `next-intl` configured with 1274 translation keys across 40+ pages (en, ru, es, uk, de, fr, ja, zh)
+- [x] `next-intl` configured with ~1,278 translation keys (en) across 48 page routes — 8 locales (en, ru, es, uk, de, fr, ja, zh; not all at full key parity)
 - [x] Vercel Analytics + Speed Insights
 - [x] Dependabot for dependency vulnerability scanning
 - [x] Bookmarks store (Zustand + localStorage persistence)
@@ -167,7 +192,7 @@
 - [x] Set up Neon production database -- schema pushed to ep-cool-dew-aex6zq7t (US East 2)
 - [x] Configure production environment variables on Vercel -- DATABASE_URL, OAuth, Redis, AUTH_SECRET, NEXTAUTH_URL
 - [x] Deploy web app to Vercel -- live at https://nextcalc.io
-- [x] Create Cloudflare R2 buckets -- 4 buckets (public/private + dev) in ENAM region
+- [x] Create Cloudflare R2 buckets -- 4 buckets (public/private + dev) in ENAM region _(verify provisioning — `apps/workers/export-service/wrangler.toml` still carries a create-buckets TODO; see Modernization → Remaining)_
 - [x] Register workers.dev subdomain (albert-r-badalov.workers.dev)
 - [x] Set ADMIN_KEY secret via `wrangler secret put ADMIN_KEY`
 - [x] Deploy 3 Cloudflare Workers to production -- cas.nextcalc.io, ratelimit.nextcalc.io, export.nextcalc.io

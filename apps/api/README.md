@@ -4,13 +4,13 @@ Backend GraphQL API for NextCalc Pro, built with Apollo Server, Prisma, and Next
 
 ## Tech Stack
 
-- **Database:** Neon PostgreSQL with Prisma 7.5.0-dev.33
-- **API:** GraphQL with Apollo Server 5.4.0
-- **Authentication:** Auth.js v5 (NextAuth 5.0-beta.30) with OAuth + jose 6.1.3 JWT verification
+- **Database:** Neon PostgreSQL with Prisma 7 (via the shared `@nextcalc/database` package)
+- **API:** GraphQL (graphql 17.0.1) with Apollo Server 5.5.1
+- **Authentication:** Auth.js v5 (NextAuth 5.0.0-beta.31) with OAuth + jose 6.2.3 JWT verification
 - **Caching:** Upstash Redis
 - **Rate Limiting:** Upstash Rate Limit
 - **Connection Pooling:** Neon Serverless Driver
-- **Linting/Formatting:** Biome 2.4
+- **Linting/Formatting:** Biome 2.5
 
 ## Prerequisites
 
@@ -77,6 +77,8 @@ apps/api/
 │   │       ├── folder.ts      # Folder organization
 │   │       ├── calculation.ts # Calculation history
 │   │       ├── forum.ts       # Forum posts
+│   │       ├── comment.ts     # Post comments
+│   │       ├── upvote.ts      # Post/comment voting
 │   │       ├── profile.ts     # User profile + analytics
 │   │       └── shared-calculation.ts  # Shared calculations
 │   ├── lib/
@@ -155,34 +157,34 @@ query Me {
   }
 }
 
-# List worksheets
-query Worksheets($cursor: String, $limit: Int) {
-  worksheets(cursor: $cursor, limit: $limit) {
-    items {
+# List worksheets (offset-based pagination -> WorksheetConnection)
+query Worksheets($limit: Int, $offset: Int) {
+  worksheets(limit: $limit, offset: $offset) {
+    nodes {
       id
       title
       description
       updatedAt
     }
     pageInfo {
-      hasMore
-      nextCursor
+      totalCount
+      currentPage
+      totalPages
+      hasNextPage
     }
   }
 }
 
-# Search forum posts
-query SearchPosts($query: String!, $tags: [String!]) {
-  searchForumPosts(query: $query, tags: $tags) {
-    items {
-      id
-      title
-      content
-      author {
-        name
-      }
-      upvoteCount
+# List forum posts
+query ForumPosts($limit: Int, $offset: Int) {
+  forumPosts(limit: $limit, offset: $offset) {
+    id
+    title
+    content
+    author {
+      name
     }
+    upvoteCount
   }
 }
 ```

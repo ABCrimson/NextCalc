@@ -64,6 +64,7 @@ Add environment variables:
 
 ```bash
 vercel env add DATABASE_URL production
+vercel env add AUTH_SECRET production
 vercel env add NEXTAUTH_SECRET production
 vercel env add NEXTAUTH_URL production
 # ... repeat for all variables
@@ -94,7 +95,7 @@ wrangler login
 
 ```bash
 # For rate-limiter: create KV namespace
-wrangler kv:namespace create "RATE_LIMITS"
+wrangler kv namespace create "RATE_LIMITS"
 # Copy the namespace ID to apps/workers/rate-limiter/wrangler.toml
 
 # For export-service: create R2 bucket
@@ -107,15 +108,15 @@ wrangler r2 bucket create nextcalc-exports-public
 ```bash
 # CAS Service (symbolic math)
 cd apps/workers/cas-service
-pnpm deploy
+pnpm run deploy
 
 # Export Service (LaTeX conversion)
 cd apps/workers/export-service
-pnpm deploy
+pnpm run deploy
 
 # Rate Limiter (API quotas)
 cd apps/workers/rate-limiter
-pnpm deploy
+pnpm run deploy
 ```
 
 ### Worker Configuration
@@ -215,7 +216,7 @@ Redis is used for:
 |----------|-------------|---------|
 | `DATABASE_URL` | Neon PostgreSQL connection string | `postgresql://user:pass@host.neon.tech/db?sslmode=require` |
 | `NEXTAUTH_URL` | Production URL of your app | `https://nextcalc.io` |
-| `NEXTAUTH_SECRET` | Encryption secret (32+ chars) | Generate with `openssl rand -base64 32` |
+| `AUTH_SECRET` | Auth encryption secret (32+ chars); the build-time secret (NextAuth v5). `NEXTAUTH_SECRET` is accepted as a v4-compat alias | Generate with `openssl rand -base64 32` |
 
 ### OAuth (Required for Authentication)
 
@@ -223,8 +224,8 @@ Redis is used for:
 |----------|-------------|
 | `GOOGLE_CLIENT_ID` | Google OAuth client ID |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth secret |
-| `GITHUB_ID` | GitHub OAuth client ID |
-| `GITHUB_SECRET` | GitHub OAuth secret |
+| `GITHUB_CLIENT_ID` | GitHub OAuth client ID (`GITHUB_ID` accepted as fallback) |
+| `GITHUB_CLIENT_SECRET` | GitHub OAuth secret (`GITHUB_SECRET` accepted as fallback) |
 
 > **Important:** Only include OAuth providers whose credentials you have configured. Empty credentials cause NextAuth `Configuration` errors.
 
@@ -250,19 +251,20 @@ Create **separate** OAuth apps for production:
 
 ### GitHub Actions CI Pipeline
 
-The CI pipeline (`.github/workflows/ci.yml`) runs 5 parallel jobs on every push to `main` and on pull requests:
+The CI pipeline (`.github/workflows/ci.yml`) runs 6 jobs on every push to `main` and on pull requests:
 
 | Job | What It Does | Timeout |
 |-----|-------------|---------|
 | **Install** | `pnpm install --frozen-lockfile` + Prisma generate + cache `node_modules` | 10 min |
-| **Lint** | `pnpm turbo run lint` (Biome 2.4) | 10 min |
+| **Lint** | `pnpm turbo run lint` (Biome 2.5) | 10 min |
 | **Typecheck** | `pnpm turbo run typecheck` (TypeScript 6.0) | 15 min |
+| **Typecheck (fast, advisory)** | `pnpm turbo run typecheck:fast` (TS7 `tsgo`, non-blocking via `continue-on-error`) | 10 min |
 | **Build** | `pnpm turbo run build` (requires `AUTH_SECRET` env var) | 20 min |
 | **Test** | `pnpm turbo run test` (Vitest, with 300s timeout) | 10 min |
 
 **Key details:**
-- Actions: `actions/checkout@v6`, `actions/setup-node@v6`, `pnpm/action-setup@v4`
-- Node 24, pnpm 11 with `--frozen-lockfile`
+- Actions: `actions/checkout@v6`, `actions/setup-node@v6`, `pnpm/action-setup@v6`
+- Node 26 (the `engines.node` floor stays `>=24` for Vercel's cap), pnpm 11 with `--frozen-lockfile`
 - `AUTH_SECRET: ci-build-placeholder` must be set in the Build step (NextAuth requires it at build time)
 - Turbo remote caching via `TURBO_TOKEN` / `TURBO_TEAM` secrets
 - Test step handles Vitest cleanup timeout (exit code 124 treated as success)
@@ -342,7 +344,7 @@ routes = [
 | Database connection fails | Check `DATABASE_URL`, ensure `?sslmode=require`, wake Neon project |
 | OAuth redirect mismatch | Verify `NEXTAUTH_URL` matches deployment URL exactly |
 | 404 on API routes | Check root directory setting in Vercel |
-| KV namespace not found | Create with `wrangler kv:namespace create` and update IDs |
+| KV namespace not found | Create with `wrangler kv namespace create` and update IDs |
 | R2 bucket not found | Create with `wrangler r2 bucket create` |
 
 ### Security Checklist

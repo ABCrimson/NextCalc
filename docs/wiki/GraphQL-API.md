@@ -1,6 +1,6 @@
 # GraphQL API Reference
 
-The API is served at `/api/graphql` via Apollo Server 5.4 integrated into the Next.js app.
+The API is served at `/api/graphql` via Apollo Server 5.5 integrated into the Next.js app.
 
 **Playground**: `http://localhost:3005/api/graphql` (dev) or `https://nextcalc.io/api/graphql`
 
@@ -16,7 +16,7 @@ The API is served at `/api/graphql` via Apollo Server 5.4 integrated into the Ne
 
 ---
 
-## Queries (33)
+## Queries (22)
 
 ### User & Profile
 
@@ -72,7 +72,7 @@ The API is served at `/api/graphql` via Apollo Server 5.4 integrated into the Ne
 
 ---
 
-## Mutations (24)
+## Mutations (20)
 
 ### Profile
 | Mutation | Args | Returns |

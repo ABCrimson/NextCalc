@@ -1,7 +1,7 @@
 # NextCalc Modernization — HANDOFF / PICKUP
 
-**Branch:** `modernization/foundation` · **Updated:** 2026-06-27 · **State:** clean tree, **44 commits ahead of `main`**, **pushed → PR #50 OPEN** (https://github.com/ABCrimson/NextCalc/pull/50).
-**This is the canonical resume doc — it supersedes `2026-06-24-modernization-RESUME.md`.**
+**Branch:** `modernization/foundation` · **Updated:** 2026-06-27 · **State:** clean tree, **ahead of `main`**, **pushed → PR #50 OPEN** (https://github.com/ABCrimson/NextCalc/pull/50).
+**This is the active resume doc for PR #50.** The modernization narrative + per-package version delta now live canonically in [`CHANGELOG.md`](../../../CHANGELOG.md) (**[Unreleased]**) and the remaining QA/provisioning in [`docs/ROADMAP.md`](../../ROADMAP.md); the earlier working specs (RESUME / design / baseline) and `VERSION-AUDIT` were consolidated into those and removed. Delete this file when PR #50 merges.
 
 > ## ▶ HOW TO RESUME (do these first, in order)
 > 1. Read this whole file.
@@ -159,7 +159,7 @@ Query the registry before any bump: `node -e 'fetch("https://registry.npmjs.org/
 ## 10. ARCHITECTURE MAP (where things live)
 
 - `apps/web` — Next 16 frontend. i18n: 8 locales (`i18n/routing.ts`, `proxy.ts`); `app/[locale]/layout.tsx` (locale layout), `app/layout.tsx` (root `<html lang>`). Tailwind v4 CSS-first OKLCH tokens in `app/globals.css`. PWA: `app/sw.ts` + `next.config.ts` `withSerwistInit`.
-- `apps/api` — Apollo Server 5.4 GraphQL (`src/graphql/`, `src/lib/`).
+- `apps/api` — Apollo Server 5.5 GraphQL (`src/graphql/`, `src/lib/`).
 - `apps/workers/*` — 3 CF Workers; `export-service/src/handlers/pdf.ts` uses **modern-pdf-lib**; `wrangler.toml` per worker.
 - `packages/plot-engine` — Three.js (WebGPU/TSL) renderers; `src/renderers/webgl-3d.ts` (surface/3D + SSAO), `webgpu-2d.ts`.
 - `packages/math-engine`, `packages/database` (Prisma 7, `@nextcalc/database`), `packages/types`.
@@ -175,6 +175,5 @@ Query the registry before any bump: `node -e 'fetch("https://registry.npmjs.org/
 ---
 
 ## 12. NOT YET DONE / EXPLICITLY DEFERRED
-- The branch is **not pushed**; no PR. (User to decide: push / PR / keep local.)
-- Lorenz/serwist/pdf-lib runtime QA (§6).
-- Everything in §7.
+- **Deferred to a deploy/merge:** the serwist offline-fallback smoke test (§6.2), the modern-xlsx / modern-pdf-lib upstream WASM fixes (§0), and the provisioning items (§11). The full remaining list is §7 — also mirrored in [`docs/ROADMAP.md`](../../ROADMAP.md).
+- **Merge PR #50** after CI + review.

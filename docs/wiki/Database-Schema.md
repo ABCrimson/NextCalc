@@ -1,6 +1,6 @@
 # Database Schema
 
-Prisma 7.5.0-dev.33 with Neon PostgreSQL serverless adapter. Schema: `packages/database/prisma/schema.prisma`.
+Prisma 7 with Neon PostgreSQL serverless adapter. Schema: `packages/database/prisma/schema.prisma`.
 
 ---
 
@@ -54,7 +54,7 @@ Prisma 7.5.0-dev.33 with Neon PostgreSQL serverless adapter. Schema: `packages/d
 | **Topic** | name, slug (unique), category, parentId (hierarchy) |
 | **ProblemTopic** | problemId, topicId (junction) |
 | **Theorem** | name, statement, proof, topicId |
-| **Resource** | title, url, type (VIDEO/ARTICLE/BOOK/PAPER), topicId |
+| **Resource** | title, url, type (VIDEO/ARTICLE/BOOK/PAPER/INTERACTIVE/COURSE), topicId |
 
 ### Algorithms
 
@@ -85,12 +85,15 @@ Prisma 7.5.0-dev.33 with Neon PostgreSQL serverless adapter. Schema: `packages/d
 | `WorksheetVisibility` | PRIVATE, UNLISTED, PUBLIC |
 | `SharePermission` | VIEW, EDIT |
 | `CellType` | CALCULATION, TEXT, HEADING, IMAGE, PLOT |
-| `UpvoteTargetType` | POST, COMMENT |
+| `UpvoteTarget` | POST, COMMENT |
 | `Difficulty` | BEGINNER, INTERMEDIATE, ADVANCED, MASTER |
 | `Category` | CALCULUS, ALGEBRA, TOPOLOGY, ANALYSIS, GEOMETRY, NUMBER_THEORY, ALGORITHMS, GAME_THEORY, CHAOS_THEORY, CRYPTOGRAPHY, QUANTUM, OPTIMIZATION, PROBABILITY, STATISTICS |
 | `AlgorithmCategory` | SORTING, SEARCHING, GRAPH, DYNAMIC_PROGRAMMING, GREEDY, DIVIDE_CONQUER, ML_OPTIMIZATION, CRYPTOGRAPHIC, QUANTUM, NUMERICAL, STRING |
 | `AchievementType` | PROBLEM_SOLVING, STREAK, MASTERY, SPEED, EXPLORATION, SOCIAL |
 | `FavoriteType` | PROBLEM, DEFINITION |
+| `ResourceType` | VIDEO, ARTICLE, BOOK, PAPER, INTERACTIVE, COURSE |
+
+> A `ProgrammingLanguage` enum (10 values) also exists for algorithm implementations.
 
 ---
 

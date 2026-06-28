@@ -9,7 +9,7 @@ graph TB
     end
     subgraph Vercel["Vercel Edge Network"]
         B["App Router + SSR"]
-        C["GraphQL API (Apollo 5.4)"]
+        C["GraphQL API (Apollo 5.5)"]
     end
     subgraph CF["Cloudflare Workers"]
         D["CAS Service"]
@@ -20,7 +20,7 @@ graph TB
         G[("Neon PostgreSQL")]
         H[("Upstash Redis")]
         I[("R2 Bucket")]
-        J[("KV Store")]
+        J[("Durable Object")]
     end
     A --> B
     A --> D
@@ -46,8 +46,8 @@ graph TB
   └── @nextcalc/types
 
 @nextcalc/cas-service     (standalone, uses mathjs directly)
-@nextcalc/export-service  (standalone, uses mathjax)
-@nextcalc/rate-limiter    (standalone, uses Cloudflare KV)
+@nextcalc/export-service  (standalone, uses KaTeX + resvg + modern-pdf-lib)
+@nextcalc/rate-limiter    (standalone, uses a SQLite-backed Durable Object)
 ```
 
 Build order enforced by Turborepo:
@@ -74,7 +74,10 @@ Core mathematical computation library with subpath exports.
 | `stats/` | Statistical functions | `mean()`, `stdev()`, `regression()` |
 | `units/` | Unit conversion engine | `convert()`, unit definitions |
 | `complex/` | Complex number arithmetic | `Complex` class, operations |
-| `algorithms/` | Algorithm implementations | graph theory, game theory |
+| `algorithms/` | Algorithm implementations | sorting, searching, crypto, ML, quantum |
+| `graph-theory/` | Graph algorithms | MST, SCC, max-flow, coloring, TSP |
+| `game-theory/` | Game theory | Nash equilibrium, dominant strategies |
+| `chaos/` | Chaos theory | Lorenz, bifurcation maps |
 | `fourier/` | FFT, spectral analysis, Fourier series | `fft()`, `ifft()`, `fourierSeries()` |
 | `calculus/` | Calculus operations | Taylor series, limits |
 | `cas/` | Computer algebra system core | expression simplification |
@@ -85,7 +88,7 @@ Core mathematical computation library with subpath exports.
 | `content/` | Educational content | lessons, explanations |
 | `wasm/` | WASM arbitrary precision (scaffolded) | `getWASMManager()` (mock fallback) |
 
-**Tech:** Math.js 15.2, TypeScript 6.0, Vitest
+**Tech:** Math.js 15.2, TypeScript 6.0.3, Vitest 5
 
 ### @nextcalc/plot-engine
 
@@ -99,7 +102,7 @@ GPU-accelerated mathematical visualization engine.
 | `export/` | PNG, SVG, CSV export |
 | `types/` | Plot configuration types |
 
-**Tech:** Three.js 0.183.2, D3 7.9.0, WebGL 2, WebGPU (progressive enhancement)
+**Tech:** Three.js 0.184.0, D3 7.9.0, WebGL 2, WebGPU (progressive enhancement)
 
 ### @nextcalc/database
 
@@ -112,7 +115,7 @@ Shared Prisma 7 database package.
 
 **Tables:** users, accounts, sessions, worksheets, folders, forum_posts, comments, upvotes, audit_logs
 
-**Tech:** Prisma 7.5.0-dev.33, @neondatabase/serverless 1.0.2, @prisma/adapter-neon
+**Tech:** Prisma 7.9.0-dev.13, @neondatabase/serverless 1.1.0, @prisma/adapter-neon 7.9.0-dev.13
 
 ### @nextcalc/api
 
@@ -130,7 +133,7 @@ GraphQL API integrated into the Next.js app via route handler.
 - Upstash Redis caching in `src/lib/cache.ts` with `invalidateByPrefix` via SCAN
 - API package exports source `.ts` files (not dist/) for monorepo dev
 
-**Tech:** Apollo Server 5.4.0, GraphQL 16.13.0, DataLoader 2.2.3, Zod
+**Tech:** Apollo Server 5.5.1, GraphQL 17.0.1, DataLoader 2.2.3, Zod
 
 ### @nextcalc/types
 
@@ -146,9 +149,9 @@ Three edge microservices deployed to Cloudflare's global network:
 |--------|---------|-----------|----------|
 | cas-service | Symbolic math (solve, differentiate, integrate) | 8787 | -- |
 | export-service | LaTeX to PDF/PNG/SVG conversion | 8788 | R2 bucket |
-| rate-limiter | API quota enforcement (sliding window) | 8789 | KV namespace |
+| rate-limiter | API quota enforcement (sliding window) | 8789 | Durable Object (+ KV id index) |
 
-**Tech:** Hono 4.12.3, Wrangler 4.69.0, Zod
+**Tech:** Hono 4.12.27, Wrangler 4.104.0, Zod
 
 ## Data Flow
 
@@ -233,7 +236,7 @@ Colors are defined in `apps/web/app/globals.css` using the OKLCH color space (P3
 ### Component Library
 
 - **shadcn/ui** -- CLI-installed components (not npm package), stored in `apps/web/components/ui/`
-- **Radix UI** -- Unified `radix-ui@1.4.4-rc` package (replaces individual `@radix-ui/*` packages)
+- **Radix UI** -- Unified `radix-ui@1.6` package (replaces individual `@radix-ui/*` packages)
 - **Framer Motion** -- Layout animations, `prefers-reduced-motion` support
 
 ### Favicon & PWA Icons
@@ -252,7 +255,7 @@ Theme colors: `#3B47FF` (primary), `#0F1629` (background) -- derived from `oklch
 
 ## State Management
 
-- **Zustand 5.0.11** -- Global state with immer middleware for calculator, worksheets, collaboration
+- **Zustand 5.0.14** -- Global state with immer middleware for calculator, worksheets, collaboration
 - **React 19 cache** -- Server-side caching for data fetching
 - **Apollo Client** -- GraphQL cache for server data
 
@@ -330,14 +333,14 @@ Each DataLoader is created fresh per request (via the Apollo Server context fact
 
 - **Library:** `next-intl` with App Router integration
 - **Locales:** en, ru, es, uk, de, fr, ja, zh (8 languages)
-- **Translation files:** `apps/web/messages/{locale}.json` (1200+ keys per locale)
+- **Translation files:** `apps/web/messages/{locale}.json` (1,200+ keys per locale; not all locales at full parity)
 - **Routing:** `[locale]` dynamic segment (e.g., `/en/plot`, `/ru/matrix`)
-- **Middleware:** Locale detection + redirect in `apps/web/middleware.ts`
+- **Proxy:** Locale detection + redirect in `apps/web/proxy.ts` (Next.js 16 renamed `middleware.ts` → `proxy.ts`)
 
 ### Adding a Language
 
 1. Create `apps/web/messages/{code}.json` (copy from `en.json`)
-2. Add locale to `apps/web/i18n/config.ts`
+2. Add the locale to `apps/web/i18n/routing.ts` (`defineRouting({ locales: [...] })`)
 3. Translate all keys
 
 ## Performance Targets

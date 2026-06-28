@@ -4,13 +4,15 @@ Comprehensive, interactive UI components for visualizing advanced algorithms in 
 
 ## Overview
 
-This module provides five production-ready algorithm visualization components:
+This module documents the five flagship interactive demos (plus supporting graph visualizers and UI components — see `index.ts` for the full export list):
 
 1. **TransformerVisualizer** - Multi-head self-attention visualization
 2. **ZKPDemo** - Zero-knowledge proof (Schnorr protocol) demonstration
 3. **QuantumSimulator** - Quantum circuit simulator with state visualization
 4. **PageRankExplorer** - Interactive graph builder with PageRank computation
 5. **MetaLearningPlayground** - MAML algorithm visualization
+
+Beyond these flagship demos, the module also exports `ZKPComputeVisualizer`, graph visualizers (`AStarVisualizer`, `DijkstraVisualizer`, `GraphTraversalVisualizer`, `MSTVisualizer`), and the shared UI components `AlgorithmCard`, `AlgorithmBreadcrumb`, `AlgorithmMetadata`, `AlgorithmPage`, and `CategoryFilter`.
 
 ## Features
 
@@ -403,17 +405,7 @@ Components use Tailwind CSS and respect the application theme:
 
 ## Dependencies
 
-Required packages (already in package.json):
-
-```json
-{
-  "dependencies": {
-    "framer-motion": "12.34.2",
-    "lucide-react": "0.575.0",
-    "radix-ui": "1.4.4-rc.1766004502650"
-  }
-}
-```
+Dependency versions are defined in `apps/web/package.json`.
 
 ## Browser Support
 

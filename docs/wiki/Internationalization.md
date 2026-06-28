@@ -38,9 +38,9 @@ All pages are under `app/[locale]/`, so URLs look like:
 - `/ru/matrix` -- Russian matrix page
 - `/ja/algorithms` -- Japanese algorithms page
 
-### Middleware
+### Proxy
 
-`apps/web/middleware.ts` detects the user's preferred locale and redirects accordingly.
+`apps/web/proxy.ts` (Next.js 16 renamed `middleware` to `proxy`) detects the user's preferred locale and redirects accordingly.
 
 ### Using Translations
 
@@ -76,7 +76,7 @@ Keys are nested by namespace:
 
 1. Create `apps/web/messages/{code}.json` (copy structure from `en.json`)
 2. Translate all 1200+ keys
-3. Add the locale code to `apps/web/i18n/config.ts`
+3. Add the locale code to `apps/web/i18n/routing.ts` (locales are defined via `defineRouting`)
 4. Test: `pnpm dev` and navigate to `/{code}/`
 
 ## Key Namespaces

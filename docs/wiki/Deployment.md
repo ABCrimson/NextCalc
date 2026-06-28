@@ -49,9 +49,9 @@ Set in Vercel Dashboard > Project > Settings > Environment Variables:
 Deploy individually:
 
 ```bash
-cd apps/workers/cas-service && pnpm deploy
-cd apps/workers/export-service && pnpm deploy
-cd apps/workers/rate-limiter && pnpm deploy
+cd apps/workers/cas-service && pnpm run deploy
+cd apps/workers/export-service && pnpm run deploy
+cd apps/workers/rate-limiter && pnpm run deploy
 ```
 
 Or via GitHub Actions: `.github/workflows/deploy-workers.yml` triggers on changes to `apps/workers/` and `pnpm-lock.yaml`, and supports `workflow_dispatch` for manual runs. Requires `CLOUDFLARE_API_TOKEN` GitHub secret. Each worker deploys independently (`fail-fast: false`). Uses `actions/checkout@v6` and `actions/setup-node@v6`.
@@ -71,8 +71,8 @@ Or via GitHub Actions: `.github/workflows/deploy-workers.yml` triggers on change
 `.github/workflows/ci.yml` runs on every push (5 jobs, all passing as of v1.2.1):
 
 1. **Install** -- pnpm install + dependency caching
-2. **Lint** -- Biome 2.4
-3. **Typecheck** -- TypeScript 6.0
+2. **Lint** -- Biome 2.5
+3. **Typecheck** -- TypeScript 6.0.3
 4. **Build** -- Turborepo (all packages). Requires `AUTH_SECRET` env var for NextAuth.
 5. **Test** -- Vitest
 

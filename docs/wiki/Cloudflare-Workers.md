@@ -8,9 +8,9 @@ Three edge microservices deployed to Cloudflare's global network for sub-50ms re
 |:-------|:----|:--------|:---------|
 | CAS Service | `cas.nextcalc.io` | Symbolic math (solve, diff, integrate) | -- |
 | Export Service | `export.nextcalc.io` | LaTeX to PDF/PNG/SVG | R2 bucket |
-| Rate Limiter | `ratelimit.nextcalc.io` | API quota enforcement | KV namespace |
+| Rate Limiter | `ratelimit.nextcalc.io` | API quota enforcement | Durable Object (+ KV index) |
 
-**Tech**: Hono 4.12.3, Wrangler 4.69.0, Zod, TypeScript strict mode
+**Tech**: Hono 4.12, Wrangler 4.104, Zod, TypeScript strict mode
 
 ---
 
@@ -61,7 +61,10 @@ curl -X POST https://export.nextcalc.io/export/svg \
 - `GET /status/:identifier` -- Current status
 - `DELETE /reset/:identifier` -- Reset (admin only)
 - `GET /configs` -- Tier configurations
+- `POST /admin/keys` -- Manage API keys (admin only)
 - `GET /health` -- Health check
+
+**Storage:** Per-client counters are tracked in a SQLite-backed `RateLimiterDurableObject` (the primary store). The `RATE_LIMITS` KV namespace is only an identifier index.
 
 **Tiers:**
 | Tier | Requests/Hour | Burst |

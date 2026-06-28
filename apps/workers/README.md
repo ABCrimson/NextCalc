@@ -22,10 +22,11 @@ NextCalc Pro uses a microservices architecture deployed to Cloudflare's global e
     └───────────────┘ └───────┬───────┘ └───────┬───────┘
                               │                 │
                               ▼                 ▼
-                        ┌──────────┐      ┌──────────┐
-                        │ R2 Bucket│      │ KV Store │
-                        │ (Files)  │      │ (Limits) │
-                        └──────────┘      └──────────┘
+                        ┌──────────┐    ┌──────────────────┐
+                        │ R2 Bucket│    │ Durable Object   │
+                        │ (Files)  │    │ (SQLite counters)│
+                        └──────────┘    │  + KV id index   │
+                                        └──────────────────┘
 ```
 
 ## Services
@@ -92,8 +93,10 @@ curl -X POST https://cas.nextcalc.io/solve \
 
 **Technology Stack:**
 - Hono web framework
-- Cloudflare R2 for file storage
-- MathJax (placeholder for production)
+- Cloudflare R2 for file storage (with aws4fetch for S3-compatible presigning)
+- KaTeX (server-side `renderToString`) for LaTeX → SVG
+- @cf-wasm/resvg 0.3.4 for SVG → PNG rasterization
+- modern-pdf-lib 0.29.0 for PDF generation
 - Zod for validation
 
 **Example Usage:**
@@ -141,11 +144,13 @@ curl -X POST https://export.nextcalc.io/export/svg \
 - `DELETE /reset/:identifier` - Reset limits (admin)
 - `GET /configs` - Get tier configurations
 - `GET /recommend/:requestsPerHour` - Get tier recommendation
+- `GET /admin/keys` - List registered identifier keys (admin)
 - `GET /health` - Health check
 
 **Technology Stack:**
 - Hono web framework
-- Cloudflare KV for distributed state
+- Durable Object (SQLite-backed `RateLimiterDurableObject`) as the primary state store for counters
+- Cloudflare KV (`RATE_LIMITS`) used only as an identifier index, not for counting
 - Sliding window algorithm
 - Multi-tier support
 
@@ -193,7 +198,7 @@ X-RateLimit-Tier: pro
 - Node.js 22+ (26 recommended)
 - pnpm 11+
 - Cloudflare account
-- Wrangler CLI (4.69+)
+- Wrangler CLI (4.104.0)
 
 ### Setup
 
@@ -378,7 +383,7 @@ Error: KV namespace binding RATE_LIMITS not found
 
 Solution: Create KV namespace and update `wrangler.toml`:
 ```bash
-wrangler kv:namespace create "RATE_LIMITS"
+wrangler kv namespace create "RATE_LIMITS"
 # Copy the ID to wrangler.toml
 ```
 
@@ -432,8 +437,8 @@ Typical performance metrics:
 - PDF generation: 200-1000ms (with external service)
 
 **Rate Limiter:**
-- Check operation: 1-5ms (KV read/write)
-- Status check: 1-3ms (KV read only)
+- Check operation: 1-5ms (Durable Object SQLite read/write)
+- Status check: 1-3ms (Durable Object SQLite read only)
 
 ### Optimization Tips
 
@@ -477,7 +482,7 @@ Typical performance metrics:
 ### Code Style
 
 - TypeScript strict mode required
-- Biome 2.4.4 for linting and formatting
+- Biome 2.5.1 for linting and formatting
 - Single quotes, 2-space indent, trailing commas
 - JSDoc comments for all public functions
 

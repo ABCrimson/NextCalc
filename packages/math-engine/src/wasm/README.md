@@ -1,5 +1,7 @@
 # MPFR/GMP WebAssembly Module
 
+> **Status: scaffolding only** — no compiled WASM artifacts are built yet; the runtime uses a pure-JS mock fallback (`src/wasm/mock.ts`). The MPFR/Emscripten build described below is the target, not the current state.
+
 This directory contains the WebAssembly module for arbitrary precision arithmetic using MPFR (Multiple Precision Floating-Point Reliable Library) and GMP (GNU Multiple Precision Arithmetic Library).
 
 ## Prerequisites
@@ -77,7 +79,7 @@ The build produces two files in `packages/math-engine/src/wasm/`:
 ## Usage
 
 ```typescript
-import { getWASMManager } from '@nextcalc/math-engine/wasm/loader';
+import { getWASMManager } from '@nextcalc/math-engine/wasm';
 
 // Initialize WASM module
 const manager = getWASMManager();
@@ -113,7 +115,7 @@ The WASM module is designed to run in a Web Worker:
 
 ```typescript
 // apps/web/lib/workers/compute.worker.ts
-import { getWASMManager } from '@nextcalc/math-engine/wasm/loader';
+import { getWASMManager } from '@nextcalc/math-engine/wasm';
 
 const manager = getWASMManager();
 

@@ -3,7 +3,7 @@
  *
  * Converts LaTeX math expressions to PDF format via a three-stage pipeline:
  *
- *   1. LaTeX  -> SVG   (MathJax 4.x, see svg-internal.ts)
+ *   1. LaTeX  -> SVG   (KaTeX, see svg-internal.ts)
  *   2. SVG    -> PNG   (@cf-wasm/resvg, see png.ts)
  *   3. PNG    -> PDF   (modern-pdf-lib, embedded raster image)
  *

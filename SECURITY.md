@@ -115,4 +115,4 @@ With your permission, we will credit you in the security advisory and in our
 ---
 
 *This policy is based on industry best practices and is subject to revision.
-Last updated: March 2026.*
+Last updated: June 2026.*

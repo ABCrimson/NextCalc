@@ -2,7 +2,7 @@
 
 **Scientific Calculator & Mathematical Visualization Platform**
 
-> **Current Release: v1.2.1** (March 3, 2026) — [Release Notes](https://github.com/ABCrimson/NextCalc/releases/tag/v1.2.1)
+> **Current Release: v1.2.2** (March 3, 2026) — [Release Notes](https://github.com/ABCrimson/NextCalc/releases/tag/v1.2.2)
 
 [Live Demo](https://nextcalc.io) | [GitHub Repository](https://github.com/ABCrimson/NextCalc) | [Releases](https://github.com/ABCrimson/NextCalc/releases)
 
@@ -16,10 +16,10 @@ NextCalc Pro is a comprehensive scientific calculator and mathematical visualiza
 
 - **47** page routes
 - **8** languages (en, ru, es, uk, de, fr, ja, zh)
-- **18** math engine modules
+- **20** math engine modules
 - **3** Cloudflare Workers
-- **33** GraphQL queries + **24** mutations
-- **6** colormaps + **5** HDR cubemap themes
+- **22** GraphQL queries + **20** mutations + **2** subscriptions
+- **9** colormaps + **5** HDR cubemap themes
 
 ---
 
@@ -43,7 +43,7 @@ NextCalc Pro is a comprehensive scientific calculator and mathematical visualiza
 |:------|:------------|
 | [[Getting Started]] | Install, configure, and run locally |
 | [[Architecture]] | System design, data flow, and design decisions |
-| [[Math Engine]] | 18 computation modules with usage examples |
+| [[Math Engine]] | 20 computation modules with usage examples |
 | [[Plot Engine]] | GPU rendering pipeline and colormaps |
 | [[GraphQL API]] | Full API reference (queries, mutations, types) |
 | [[Cloudflare Workers]] | Edge microservices (CAS, export, rate limiter) |
@@ -58,14 +58,14 @@ NextCalc Pro is a comprehensive scientific calculator and mathematical visualiza
 
 | Category | Technology |
 |:---------|:-----------|
-| Framework | Next.js 16.2 + React 19.3 |
+| Framework | Next.js 16.3 + React 19.3 |
 | Language | TypeScript 6.0 |
-| Styling | Tailwind CSS 4.2 (OKLCH) |
+| Styling | Tailwind CSS 4.3 (OKLCH) |
 | State | Zustand 5.0 |
-| 3D | Three.js 0.183 |
-| ORM | Prisma 7.5 |
-| GraphQL | Apollo Server 5.4 / Client 4.2 |
+| 3D | Three.js 0.184 |
+| ORM | Prisma 7 |
+| GraphQL | Apollo Server 5.5 / Client 4.3 |
 | Cache | Upstash Redis |
 | Workers | Hono 4.12 on Cloudflare |
-| Build | Turborepo 2.8 |
-| Linting | Biome 2.4 |
+| Build | Turborepo 2.10 |
+| Linting | Biome 2.5 |

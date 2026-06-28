@@ -104,8 +104,8 @@ NEXTAUTH_SECRET="generate-with-openssl-rand-base64-32"
 GOOGLE_CLIENT_ID="xxxxx.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET="GOCSPX-xxxxx"
 
-GITHUB_ID="xxxxx"
-GITHUB_SECRET="xxxxx"
+GITHUB_CLIENT_ID="xxxxx"        # GITHUB_ID is accepted as a fallback
+GITHUB_CLIENT_SECRET="xxxxx"    # GITHUB_SECRET is accepted as a fallback
 ```
 
 Generate `NEXTAUTH_SECRET`:
@@ -142,8 +142,8 @@ Create **separate** OAuth apps for production:
 | `NEXTAUTH_SECRET` | NextAuth encryption secret |
 | `GOOGLE_CLIENT_ID` | Google OAuth client ID |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth secret |
-| `GITHUB_ID` | GitHub OAuth client ID |
-| `GITHUB_SECRET` | GitHub OAuth secret |
+| `GITHUB_CLIENT_ID` | GitHub OAuth client ID (`GITHUB_ID` accepted as fallback) |
+| `GITHUB_CLIENT_SECRET` | GitHub OAuth secret (`GITHUB_SECRET` accepted as fallback) |
 
 ### Optional
 
@@ -178,21 +178,9 @@ Create **separate** OAuth apps for production:
 
 ---
 
-## Stack Versions (as of March 2026)
+## Stack Versions
 
-| Package | Version |
-|---------|---------|
-| Next.js | 16.2.0-canary.69 |
-| React | 19.3.0-canary |
-| TypeScript | 6.0.0-dev.20260301 |
-| Prisma | 7.5.0-dev.33 |
-| Apollo Server | 5.4.0 |
-| Biome | 2.4.4 |
-| Turborepo | 2.8.13-canary.8 |
-| Tailwind CSS | 4.2.1 |
-| Hono (workers) | 4.12.3 |
-| Wrangler | 4.69.0 |
-| Vitest | 4.1.0-beta.5 |
+Exact dependency versions live in each package's `package.json`; see the Tech Stack table in the root [README](../README.md).
 
 ## Next Steps
 

@@ -1,6 +1,6 @@
 /**
  * SVG export handler
- * Converts LaTeX math expressions to SVG format using MathJax
+ * Converts LaTeX math expressions to SVG format using KaTeX
  */
 
 import type { R2Bucket, R2S3Config } from '../utils/r2.js';
@@ -81,7 +81,7 @@ export async function exportToSvg(
   const inline = options.inline ?? false;
 
   // Generate SVG content
-  // In production, use MathJax or similar library for accurate LaTeX rendering
+  // Uses KaTeX server-side rendering for accurate LaTeX rendering
   const svg = await generateSvgInternal(latex, {
     fontSize,
     color,

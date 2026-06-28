@@ -22,7 +22,7 @@ const renderer = await createBest2DRenderer(canvas);
 ## Features
 
 - **WebGL 2D Renderer** -- Lightweight (<15KB), GLSL shaders
-- **Three.js 3D Renderer** -- Surface plots, parametric curves (lazy-loaded, 563KB)
+- **Three.js 0.184 3D Renderer** -- Surface plots, parametric curves (lazy-loaded, 563KB)
 - **Canvas 2D Fallback** -- Cartesian, polar, parametric for legacy browsers
 - **Adaptive Sampling** -- Recursive subdivision for smooth curves
 - **Interactive Controls** -- Pan, zoom, rotate (mouse, touch, keyboard)
@@ -30,7 +30,7 @@ const renderer = await createBest2DRenderer(canvas);
 
 ## Colormaps
 
-6 built-in colormaps for 3D surfaces:
+9 built-in colormaps for 3D surfaces:
 
 | Colormap | Description |
 |:---------|:------------|
@@ -39,7 +39,10 @@ const renderer = await createBest2DRenderer(canvas);
 | `coolwarm` | Diverging blue-white-red |
 | `cividis` | Colorblind-friendly blue-yellow |
 | `magma` | Black-purple-orange-yellow |
+| `plasma` | Purple-pink-yellow |
 | `spectral` | Full rainbow spectrum |
+| `turbo` | High-contrast rainbow (improved jet) |
+| `rainbow` | Classic rainbow spectrum |
 
 ## HDR Cubemap Themes
 

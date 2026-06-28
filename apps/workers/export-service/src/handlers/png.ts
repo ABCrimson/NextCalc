@@ -3,7 +3,7 @@
  *
  * Converts LaTeX math expressions to PNG format via a two-stage pipeline:
  *
- *   1. LaTeX → SVG   (MathJax 4.x, see svg-internal.ts)
+ *   1. LaTeX → SVG   (KaTeX, see svg-internal.ts)
  *   2. SVG   → PNG   (@cf-wasm/resvg, WebAssembly running inside Workers)
  *
  * The @cf-wasm/resvg package provides a Cloudflare-Workers-compatible WASM
@@ -91,7 +91,7 @@ export interface PngConversionResult {
  * Converts a LaTeX expression to PNG and uploads it to R2.
  *
  * Pipeline:
- *   1. Render LaTeX → SVG  via MathJax (generateSvgFromLatex)
+ *   1. Render LaTeX → SVG  via KaTeX (generateSvgFromLatex)
  *   2. Rasterise SVG → PNG via resvg WASM
  *   3. Extract pixel dimensions from the rendered image
  *   4. Validate file size against the caller-supplied limit

@@ -7,9 +7,9 @@
  * Mocking strategy:
  * - The R2 bucket methods (put, get, head, list, delete) are mocked with
  *   vi.fn() so tests never touch actual Cloudflare infrastructure.
- * - The SVG handler's internal MathJax rendering (`generateSvgFromLatex`)
- *   is vi.mock()ed because MathJax 4.x uses a Windows-incompatible absolute
- *   path loader at test time (c:/ protocol not supported by Node ESM).
+ * - The SVG handler's internal KaTeX rendering (`generateSvgFromLatex`)
+ *   is vi.mock()ed so the routing, validation, and R2 upload paths are
+ *   exercised without invoking the real KaTeX → SVG render.
  *   The mock returns a minimal but structurally valid SVG string.
  * - `@cf-wasm/resvg/workerd` is mocked because the WASM binary cannot be
  *   instantiated inside a vitest environment.  The mock's `Resvg.async()`
@@ -45,11 +45,11 @@ vi.mock('aws4fetch', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Mock MathJax internals BEFORE importing app so the module graph resolves
-// with the stub already in place.  The svg-internal module is the only one
-// that calls MathJax; by replacing generateSvgFromLatex with a stub we avoid
-// the Windows ESM path protocol error while still exercising the full Hono
-// routing, Zod validation, R2 upload and response-shaping code paths.
+// Mock the svg-internal renderer BEFORE importing app so the module graph
+// resolves with the stub already in place. svg-internal is the only module that
+// runs the KaTeX -> SVG render; stubbing generateSvgFromLatex keeps the tests
+// deterministic and fast while still exercising the full Hono routing, Zod
+// validation, R2 upload and response-shaping code paths.
 // ---------------------------------------------------------------------------
 vi.mock('./handlers/svg-internal.js', () => ({
   generateSvgFromLatex: vi
