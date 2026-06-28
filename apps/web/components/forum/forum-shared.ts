@@ -192,9 +192,9 @@ const DEFAULT_TIER: TierConfig = {
 };
 
 export function getTierFromRole(role: string): TierConfig {
-  if (role === 'ADMIN') return TIER_CONFIG.legend ?? DEFAULT_TIER;
-  if (role === 'MODERATOR') return TIER_CONFIG.expert ?? DEFAULT_TIER;
-  return TIER_CONFIG.contributor ?? DEFAULT_TIER;
+  if (role === 'ADMIN') return TIER_CONFIG['legend'] ?? DEFAULT_TIER;
+  if (role === 'MODERATOR') return TIER_CONFIG['expert'] ?? DEFAULT_TIER;
+  return TIER_CONFIG['contributor'] ?? DEFAULT_TIER;
 }
 
 // ============================================================================

@@ -287,7 +287,7 @@ export function PageRankExplorer({
     // Default: 'web' preset laid out on a 800x600 canvas
     const defaultWidth = 800;
     const defaultHeight = 600;
-    const preset = PRESET_GRAPHS.web;
+    const preset = PRESET_GRAPHS['web'];
 
     // Guard: preset must exist (it always does, but the Record type is wide)
     if (!preset) {

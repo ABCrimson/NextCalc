@@ -53,8 +53,8 @@ const formatError = (
   // In production, mask internal server errors to avoid leaking implementation details
   if (
     !isDevelopment &&
-    (formattedError.extensions?.code === 'INTERNAL_SERVER_ERROR' ||
-      !formattedError.extensions?.code)
+    (formattedError.extensions?.['code'] === 'INTERNAL_SERVER_ERROR' ||
+      !formattedError.extensions?.['code'])
   ) {
     return {
       message: 'An internal error occurred',
@@ -83,7 +83,9 @@ export function createApolloServer(httpServer?: import('node:http').Server) {
             includeCookies: true,
           })
         : ApolloServerPluginLandingPageProductionDefault({
-            ...(process.env.APOLLO_GRAPH_REF ? { graphRef: process.env.APOLLO_GRAPH_REF } : {}),
+            ...(process.env['APOLLO_GRAPH_REF']
+              ? { graphRef: process.env['APOLLO_GRAPH_REF'] }
+              : {}),
             footer: false,
           }),
 

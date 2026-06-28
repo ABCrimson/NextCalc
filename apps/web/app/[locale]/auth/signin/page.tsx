@@ -104,7 +104,7 @@ const AUTH_ERROR_KEYS: Record<string, string> = {
 
 function resolveErrorKey(errorCode: string | null): string | null {
   if (!errorCode) return null;
-  return AUTH_ERROR_KEYS[errorCode] ?? AUTH_ERROR_KEYS.Default ?? null;
+  return AUTH_ERROR_KEYS[errorCode] ?? AUTH_ERROR_KEYS['Default'] ?? null;
 }
 
 export default function SignInPage() {

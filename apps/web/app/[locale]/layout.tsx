@@ -8,7 +8,7 @@ import { ApolloWrapper } from '@/components/providers/apollo-provider';
 import { MotionProvider } from '@/components/providers/motion-provider';
 import { routing } from '@/i18n/routing';
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://nextcalc.dev';
+const APP_URL = process.env['NEXT_PUBLIC_APP_URL'] || 'https://nextcalc.dev';
 
 /**
  * Locale → og:locale mapping for Open Graph metadata.

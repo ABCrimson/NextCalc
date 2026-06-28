@@ -666,7 +666,7 @@ describe('validate()', () => {
     } catch (error) {
       expect(error).toBeInstanceOf(ValidationError);
       const ve = error as InstanceType<typeof ValidationError>;
-      expect(ve.extensions?.code).toBe('BAD_USER_INPUT');
+      expect(ve.extensions?.['code']).toBe('BAD_USER_INPUT');
     }
   });
 
@@ -687,7 +687,7 @@ describe('validate()', () => {
     } catch (error) {
       expect(error).toBeInstanceOf(ValidationError);
       const ve = error as InstanceType<typeof ValidationError>;
-      const fieldErrors = ve.extensions?.validationErrors as Record<string, string[]>;
+      const fieldErrors = ve.extensions?.['validationErrors'] as Record<string, string[]>;
 
       // title too short => "title" key
       expect(fieldErrors).toHaveProperty('title');
@@ -710,7 +710,7 @@ describe('validate()', () => {
     } catch (error) {
       expect(error).toBeInstanceOf(ValidationError);
       const ve = error as InstanceType<typeof ValidationError>;
-      const fieldErrors = ve.extensions?.validationErrors as Record<string, string[]>;
+      const fieldErrors = ve.extensions?.['validationErrors'] as Record<string, string[]>;
       expect(fieldErrors).toHaveProperty('_root');
     }
   });
@@ -726,7 +726,7 @@ describe('validate()', () => {
     } catch (error) {
       expect(error).toBeInstanceOf(ValidationError);
       const ve = error as InstanceType<typeof ValidationError>;
-      const fieldErrors = ve.extensions?.validationErrors as Record<string, string[]>;
+      const fieldErrors = ve.extensions?.['validationErrors'] as Record<string, string[]>;
       // Should have paths like "content.cells.0.type" or "content.cells.0.content"
       const paths = Object.keys(fieldErrors);
       const hasNestedPath = paths.some((p) => p.includes('.'));

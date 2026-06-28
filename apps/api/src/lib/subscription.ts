@@ -119,7 +119,7 @@ async function verifyAuthToken(token: string | undefined): Promise<TokenUser | n
     const cleanToken = token.startsWith('Bearer ') ? token.slice(7) : token;
 
     // Verify JWT signature using the same secret as NextAuth
-    const secret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET;
+    const secret = process.env['NEXTAUTH_SECRET'] || process.env['AUTH_SECRET'];
     if (!secret) {
       logger.error('NEXTAUTH_SECRET not set — WebSocket auth unavailable');
       return null;
@@ -131,12 +131,12 @@ async function verifyAuthToken(token: string | undefined): Promise<TokenUser | n
       const secretKey = new TextEncoder().encode(secret);
       const { payload } = await jwtVerify(cleanToken, secretKey);
 
-      if (payload.sub || payload.userId || payload.id) {
+      if (payload.sub || payload['userId'] || payload['id']) {
         return {
-          id: (payload.sub || payload.userId || payload.id) as string,
-          email: (payload.email as string) || '',
-          name: (payload.name as string) || null,
-          role: (payload.role as string) || 'USER',
+          id: (payload.sub || payload['userId'] || payload['id']) as string,
+          email: (payload['email'] as string) || '',
+          name: (payload['name'] as string) || null,
+          role: (payload['role'] as string) || 'USER',
         };
       }
     }
@@ -166,9 +166,9 @@ export const createSubscriptionContext = async (
 ): Promise<GraphQLContext> => {
   // Extract auth token from connection params
   const connectionParams = ctx.connectionParams || {};
-  const token = (connectionParams.authorization ||
-    connectionParams.Authorization ||
-    connectionParams.authToken) as string | undefined;
+  const token = (connectionParams['authorization'] ||
+    connectionParams['Authorization'] ||
+    connectionParams['authToken']) as string | undefined;
 
   // Validate the token, then load the full user record so the context carries a
   // real `User` (the JWT only yields id/email/role).
@@ -184,7 +184,7 @@ export const createSubscriptionContext = async (
     prisma,
     loaders: createDataLoaders(prisma),
     req: {
-      headers: (connectionParams.headers as Record<string, string>) || {},
+      headers: (connectionParams['headers'] as Record<string, string>) || {},
       ...(ctx.extra?.request?.socket?.remoteAddress
         ? { ip: ctx.extra.request.socket.remoteAddress }
         : {}),
@@ -200,9 +200,9 @@ export const getWebSocketServerOptions = () => ({
   onConnect: async (ctx: { connectionParams?: Record<string, unknown> }) => {
     const connectionParams = ctx.connectionParams || {};
     const hasAuth = !!(
-      connectionParams.authorization ||
-      connectionParams.Authorization ||
-      connectionParams.authToken
+      connectionParams['authorization'] ||
+      connectionParams['Authorization'] ||
+      connectionParams['authToken']
     );
 
     logger.info('WebSocket client connected', {

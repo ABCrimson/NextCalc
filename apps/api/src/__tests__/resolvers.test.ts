@@ -242,7 +242,7 @@ function createMockPrisma() {
     },
   };
   // $transaction passes the mock prisma as the tx argument to the callback
-  (prisma as Record<string, unknown>).$transaction = vi
+  (prisma as Record<string, unknown>)['$transaction'] = vi
     .fn()
     .mockImplementation(async (fn: (tx: typeof prisma) => Promise<unknown>) => fn(prisma));
   return prisma;
@@ -283,13 +283,6 @@ const userContext = (prisma?: ReturnType<typeof createMockPrisma>) =>
   makeContext({ user: mockUser, prisma: prisma as unknown as GraphQLContext['prisma'] });
 const adminContext = (prisma?: ReturnType<typeof createMockPrisma>) =>
   makeContext({ user: mockAdmin, prisma: prisma as unknown as GraphQLContext['prisma'] });
-
-// ---------------------------------------------------------------------------
-// Helper to pull mock functions from a context's prisma
-// ---------------------------------------------------------------------------
-function _prismaOf(ctx: GraphQLContext) {
-  return ctx.prisma as unknown as ReturnType<typeof createMockPrisma>;
-}
 
 // ===========================================================================
 // USER RESOLVERS
@@ -453,8 +446,6 @@ describe('Worksheet Resolvers', () => {
     it('returns a PUBLIC worksheet to unauthenticated users', async () => {
       const prisma = createMockPrisma();
       prisma.worksheet.findUnique.mockResolvedValue({ ...mockWorksheet, visibility: 'PUBLIC' });
-      const _ctx = anonContext();
-      // Replace the prisma in the anon context
       const fullCtx = makeContext({
         user: null,
         prisma: prisma as unknown as GraphQLContext['prisma'],

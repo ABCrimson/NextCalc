@@ -17,7 +17,9 @@ import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import { logger } from './logger';
 
-const isConfigured = !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
+const isConfigured = !!(
+  process.env['UPSTASH_REDIS_REST_URL'] && process.env['UPSTASH_REDIS_REST_TOKEN']
+);
 const isDev = process.env.NODE_ENV !== 'production';
 
 if (!isConfigured) {

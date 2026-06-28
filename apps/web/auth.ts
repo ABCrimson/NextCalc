@@ -48,10 +48,11 @@ export const {
         if (user.id) token.id = user.id;
         token.role = isUserRole(user.role) ? user.role : UserRole.USER;
         // email/name/image are legitimately nullable (OAuth profiles may omit
-        // them) and the JWT fields accept null | undefined — no assertion needed.
-        token.email = user.email;
-        token.name = user.name;
-        token.picture = user.image;
+        // them); the JWT fields are typed `string | null`, so coalesce any
+        // `undefined` to `null` to match the declared field type exactly.
+        token.email = user.email ?? null;
+        token.name = user.name ?? null;
+        token.picture = user.image ?? null;
         token.version = 0;
       }
 
@@ -103,13 +104,13 @@ export const {
           // Sync name and image from the latest OAuth provider profile
           if (!isNewUser && profile) {
             const providerName = profile.name as string | undefined;
-            const providerImage = (profile.picture ?? profile.avatar_url) as string | undefined;
+            const providerImage = (profile.picture ?? profile['avatar_url']) as string | undefined;
             const updates: Record<string, string> = {};
             if (providerName && providerName !== user.name) {
-              updates.name = providerName;
+              updates['name'] = providerName;
             }
             if (providerImage && providerImage !== user.image) {
-              updates.image = providerImage;
+              updates['image'] = providerImage;
             }
             if (Object.keys(updates).length > 0) {
               await prisma.user.update({

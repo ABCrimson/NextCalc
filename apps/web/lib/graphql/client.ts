@@ -38,7 +38,7 @@ function offsetPaginationMerge(
   incoming: { nodes: unknown[]; pageInfo: unknown },
   { args }: { args: Record<string, unknown> | null },
 ) {
-  const offset = (args?.offset as number) ?? 0;
+  const offset = (args?.['offset'] as number) ?? 0;
 
   if (!existing || offset === 0) {
     return incoming;
@@ -86,7 +86,7 @@ export function makeClient() {
   const errorLink = new ErrorLink(({ error, operation }) => {
     if (CombinedGraphQLErrors.is(error)) {
       for (const gqlError of error.errors) {
-        const code = gqlError.extensions?.code;
+        const code = gqlError.extensions?.['code'];
         console.error(`[GraphQL Error] ${operation.operationName}: ${gqlError.message}`, {
           code,
           path: gqlError.path,

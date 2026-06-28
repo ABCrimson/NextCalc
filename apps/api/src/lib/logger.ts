@@ -33,14 +33,14 @@ const LOG_LEVELS: Record<LogLevel, number> = {
 };
 
 const currentLevel: LogLevel = (() => {
-  const envLevel = process.env.LOG_LEVEL;
+  const envLevel = process.env['LOG_LEVEL'];
   if (envLevel && envLevel in LOG_LEVELS) {
     return envLevel as LogLevel;
   }
   return process.env.NODE_ENV === 'production' ? 'info' : 'debug';
 })();
 
-const SERVICE_NAME = process.env.SERVICE_NAME ?? 'nextcalc-api';
+const SERVICE_NAME = process.env['SERVICE_NAME'] ?? 'nextcalc-api';
 
 function log(level: LogLevel, message: string, meta?: Record<string, unknown>): void {
   if (LOG_LEVELS[level] < LOG_LEVELS[currentLevel]) return;

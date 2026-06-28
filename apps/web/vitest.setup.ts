@@ -297,8 +297,8 @@ vi.mock('framer-motion', () => {
       }
     }
     // Restore style if it's valid CSS
-    if (props.style && typeof props.style === 'object') {
-      filtered.style = props.style;
+    if (props['style'] && typeof props['style'] === 'object') {
+      filtered['style'] = props['style'];
     }
     return filtered;
   };

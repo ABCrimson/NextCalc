@@ -203,7 +203,7 @@ export const isGraphQLError = (error: unknown): error is BaseGraphQLError => {
 export const sanitizeError = (error: GraphQLError): GraphQLError => {
   // In production, mask internal server errors
   if (process.env.NODE_ENV === 'production') {
-    if (error.extensions?.code === 'INTERNAL_SERVER_ERROR' || !error.extensions?.code) {
+    if (error.extensions?.['code'] === 'INTERNAL_SERVER_ERROR' || !error.extensions?.['code']) {
       return new InternalServerError();
     }
   }

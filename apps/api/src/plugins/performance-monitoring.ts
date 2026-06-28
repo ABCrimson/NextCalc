@@ -150,9 +150,14 @@ export const responseCachingPlugin = (): ApolloServerPlugin<GraphQLContext> => (
 function countSelections(
   selections: readonly {
     readonly kind: string;
-    readonly selectionSet?: {
-      readonly selections: readonly { readonly kind: string; readonly selectionSet?: unknown }[];
-    };
+    readonly selectionSet?:
+      | {
+          readonly selections: readonly {
+            readonly kind: string;
+            readonly selectionSet?: unknown;
+          }[];
+        }
+      | undefined;
   }[],
   depthFactor: number,
 ): number {
@@ -228,7 +233,7 @@ export const errorTrackingPlugin = (): ApolloServerPlugin<GraphQLContext> => ({
           logger.error('GraphQL resolver error', {
             message: error.message,
             path: error.path?.join('.'),
-            code: error.extensions?.code as string | undefined,
+            code: error.extensions?.['code'] as string | undefined,
             operationName: requestContext.operationName ?? 'anonymous',
           });
 

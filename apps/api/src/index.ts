@@ -95,8 +95,8 @@ async function createContext(req: NextRequest): Promise<GraphQLContext> {
  * Defaults: 1000 req/min authenticated, 100 req/min anonymous.
  * Fails open if Redis is unavailable.
  */
-const authRateLimit = parseInt(process.env.RATE_LIMIT_AUTH ?? '1000', 10);
-const anonRateLimit = parseInt(process.env.RATE_LIMIT_ANON ?? '100', 10);
+const authRateLimit = parseInt(process.env['RATE_LIMIT_AUTH'] ?? '1000', 10);
+const anonRateLimit = parseInt(process.env['RATE_LIMIT_ANON'] ?? '100', 10);
 
 async function rateLimitMiddleware(_req: NextRequest, context: GraphQLContext): Promise<void> {
   const identifier = context.user?.id || context.req.ip || 'anonymous';
