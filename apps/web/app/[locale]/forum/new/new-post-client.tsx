@@ -7,7 +7,7 @@
  * with the standard forum background.
  */
 
-import { m, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'motion/react';
 import { ArrowLeft, PenLine } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ForumBackground } from '@/components/forum/forum-background';

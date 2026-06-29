@@ -8,7 +8,7 @@
  */
 
 import { useMutation, useQuery } from '@apollo/client/react';
-import { m, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'motion/react';
 import {
   AlertCircle,
   ArrowLeft,

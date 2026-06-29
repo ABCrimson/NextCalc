@@ -13,7 +13,7 @@
  * @module app/pde/3d/pde-3d-client
  */
 
-import { m, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'motion/react';
 import {
   Box,
   Flame,

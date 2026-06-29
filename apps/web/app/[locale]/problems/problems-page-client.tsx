@@ -1,6 +1,6 @@
 'use client';
 
-import { m, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import { useActionState } from 'react';
 import type { ActionResult, ToggleFavoriteResult } from '@/app/actions/problems';

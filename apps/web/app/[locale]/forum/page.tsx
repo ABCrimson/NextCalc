@@ -11,7 +11,7 @@
  */
 
 import { useQuery } from '@apollo/client/react';
-import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'motion/react';
 import {
   AlertCircle,
   ArrowUpRight,

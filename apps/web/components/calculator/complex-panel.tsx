@@ -1,7 +1,7 @@
 'use client';
 
 import { Complex } from '@nextcalc/math-engine/complex';
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import { AlertCircle, ArrowLeftRight, Check, Copy, RefreshCw, Zap } from 'lucide-react';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';

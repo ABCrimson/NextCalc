@@ -1,7 +1,7 @@
 'use client';
 
 import { type ShorResult, shorAlgorithm } from '@nextcalc/math-engine';
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import { Activity, ChevronRight, Cpu, Info, Pause, Play, RotateCcw, X, Zap } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert } from '@/components/ui/alert';

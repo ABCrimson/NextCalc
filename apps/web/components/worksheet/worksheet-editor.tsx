@@ -19,7 +19,7 @@
  *     under the key "worksheet-storage" after every mutation.
  */
 
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import {
   AlignLeft,
   BookOpen,

@@ -14,7 +14,7 @@
  * @module components/plots/Annotations
  */
 
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import { X } from 'lucide-react';
 import { useCallback, useId, useMemo } from 'react';
 

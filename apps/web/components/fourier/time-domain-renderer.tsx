@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import { type MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 interface TimeDomainRendererProps {

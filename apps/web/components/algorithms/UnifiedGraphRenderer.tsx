@@ -14,7 +14,7 @@
  * canvas sits on top regardless.
  */
 
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import { Hand, Maximize2, ZoomIn, ZoomOut } from 'lucide-react';
 import {
   type MouseEvent,

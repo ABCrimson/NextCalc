@@ -8,7 +8,7 @@
  */
 
 import { useMutation } from '@apollo/client/react';
-import { m, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'motion/react';
 import { AlertCircle, Hash, Loader2, Send } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';

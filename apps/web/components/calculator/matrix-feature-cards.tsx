@@ -1,6 +1,6 @@
 'use client';
 
-import { m } from 'framer-motion';
+import { m } from 'motion/react';
 
 interface FeatureCard {
   symbol: string;

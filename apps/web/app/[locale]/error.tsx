@@ -1,6 +1,6 @@
 'use client';
 
-import { m } from 'framer-motion';
+import { m } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';

@@ -22,7 +22,7 @@
  *   - Live pulse respects prefers-reduced-motion (Framer Motion built-in)
  */
 
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import { Share2, Users } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';

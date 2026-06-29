@@ -7,7 +7,7 @@
  * @module components/plots/PlotContainer
  */
 
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import { AlertTriangle, Loader2, RefreshCw, TrendingUp } from 'lucide-react';
 import type { ErrorInfo, ReactNode } from 'react';
 import { Component, Suspense } from 'react';

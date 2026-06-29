@@ -8,7 +8,7 @@
  */
 
 import { useMutation } from '@apollo/client/react';
-import { m, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'motion/react';
 import { ThumbsUp } from 'lucide-react';
 import { useCallback, useOptimistic, useTransition } from 'react';
 import { formatNumber } from '@/components/forum/forum-shared';

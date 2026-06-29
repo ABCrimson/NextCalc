@@ -1,7 +1,7 @@
 'use client';
 
 import type { SolutionStep } from '@nextcalc/math-engine/problems';
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import { Activity, Code, Pause, Play, RotateCcw, SkipForward, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';

@@ -70,7 +70,7 @@ const nextConfig: NextConfig = {
     // Optimize package imports (expanded for better bundle size)
     optimizePackageImports: [
       'lucide-react',
-      'framer-motion',
+      'motion/react',
       'radix-ui',
       'katex',
       'three',

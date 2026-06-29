@@ -7,7 +7,7 @@ import {
   getProblemsByTopic,
   type Problem,
 } from '@nextcalc/math-engine/problems';
-import { m, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'motion/react';
 import { Play, Settings, Target, Timer, TrendingUp, Zap } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { CSSProperties } from 'react';

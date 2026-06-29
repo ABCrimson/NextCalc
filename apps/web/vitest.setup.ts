@@ -260,7 +260,7 @@ vi.mock('@tanstack/react-virtual', () => ({
 }));
 
 // Mock framer-motion to avoid animation issues in tests
-vi.mock('framer-motion', async () => {
+vi.mock('motion/react', async () => {
   const { createElement } = await import('react');
 
   // Filter out framer-motion specific props that React doesn't recognize

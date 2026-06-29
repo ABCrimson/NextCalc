@@ -1,7 +1,7 @@
 'use client';
 
-import type { Variants } from 'framer-motion';
-import { m } from 'framer-motion';
+import type { Variants } from 'motion/react';
+import { m } from 'motion/react';
 
 interface CategoryCard {
   icon: string;

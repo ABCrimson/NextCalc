@@ -1,7 +1,7 @@
 'use client';
 
 import type { Hint, Problem, SolutionStep } from '@nextcalc/math-engine/problems';
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import {
   ArrowRight,
   BookOpen,

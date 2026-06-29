@@ -1,7 +1,7 @@
 'use client';
 
 import { NormalFormGame } from '@nextcalc/math-engine/game-theory/game-theory';
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import { Brain, ChevronRight, Target, TrendingUp, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';

@@ -1,7 +1,7 @@
 'use client';
 
 import type { Definition, MathTopic } from '@nextcalc/math-engine/knowledge';
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import {
   Bookmark,
   BookmarkPlus,

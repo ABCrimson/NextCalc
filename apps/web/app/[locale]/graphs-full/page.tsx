@@ -1,7 +1,7 @@
 'use client';
 
 import { kruskal, prim } from '@nextcalc/math-engine/graph-theory';
-import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'motion/react';
 import {
   BookOpen,
   Info,

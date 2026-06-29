@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation } from '@apollo/client/react';
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import Link from 'next/link';
 import { useFormatter, useLocale, useTranslations } from 'next-intl';
 import type { FormEvent } from 'react';

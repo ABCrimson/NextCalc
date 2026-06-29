@@ -1,7 +1,7 @@
 'use client';
 
 import type { AngleMode, CalculatorAction } from '@nextcalc/types';
-import { m } from 'framer-motion';
+import { m } from 'motion/react';
 import { useCallback, useEffect, useRef } from 'react';
 
 // ---------------------------------------------------------------------------

@@ -20,7 +20,7 @@
  */
 
 import { extractVariables } from '@nextcalc/math-engine';
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import { ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
 import type { ChangeEvent, KeyboardEvent } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';

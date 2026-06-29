@@ -8,7 +8,7 @@
  */
 
 import { useQuery } from '@apollo/client/react';
-import { m, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'motion/react';
 import { AlertCircle, ArrowLeft, Clock, Eye, MessageSquare, ThumbsUp } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ForumBackground } from '@/components/forum/forum-background';

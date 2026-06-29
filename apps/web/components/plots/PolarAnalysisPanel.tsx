@@ -13,7 +13,7 @@
  * @module components/plots/PolarAnalysisPanel
  */
 
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import {
   ChevronDown,
   ChevronRight,

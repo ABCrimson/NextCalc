@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import { ChevronLeft, ChevronRight, Filter, Grid3x3, Heart, List, Search } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';

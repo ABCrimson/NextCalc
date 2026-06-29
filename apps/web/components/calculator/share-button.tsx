@@ -21,7 +21,7 @@
  */
 
 import { useMutation } from '@apollo/client/react';
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import { Check, Copy, ExternalLink, Loader2, Share2 } from 'lucide-react';
 import { Popover as PopoverPrimitive } from 'radix-ui';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';

@@ -2,7 +2,7 @@
 
 import type { MathTopic } from '@nextcalc/math-engine/knowledge';
 import type { Problem } from '@nextcalc/math-engine/problems';
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import {
   ArrowRight,
   Award,

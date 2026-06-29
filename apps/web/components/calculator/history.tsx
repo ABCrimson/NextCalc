@@ -2,7 +2,7 @@
 
 import type { HistoryEntry } from '@nextcalc/types';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import { useFormatter } from 'next-intl';
 import { memo, useDeferredValue, useMemo, useRef } from 'react';
 import { Card } from '@/components/ui/card';

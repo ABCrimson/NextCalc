@@ -17,7 +17,7 @@
  * ```
  */
 
-import { m } from 'framer-motion';
+import { m } from 'motion/react';
 import { Info, Pause, Play, RotateCcw, SkipForward, Zap } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';

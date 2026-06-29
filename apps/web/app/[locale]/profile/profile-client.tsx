@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@apollo/client/react';
-import { m } from 'framer-motion';
+import { m } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import { AchievementGrid } from '@/components/profile/achievement-grid';
 import { AnalyticsCharts } from '@/components/profile/analytics-charts';

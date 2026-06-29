@@ -1,7 +1,7 @@
 'use client';
 
 import { RangeProof } from '@nextcalc/math-engine/algorithms';
-import { AnimatePresence, m, useReducedMotion, type Variants } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion, type Variants } from 'motion/react';
 // import { Progress } from '@/components/ui/progress'; // Unused
 import {
   AlertTriangle,

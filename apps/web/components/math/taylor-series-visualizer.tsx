@@ -22,7 +22,7 @@
  * - TypeScript 6.0 strict + exactOptionalPropertyTypes
  */
 
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import {
   ChevronRight,
   Pause,

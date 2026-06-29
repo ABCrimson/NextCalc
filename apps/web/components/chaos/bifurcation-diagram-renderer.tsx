@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import { ChevronDown, Cpu, Zap } from 'lucide-react';
 import {
   type MouseEvent,

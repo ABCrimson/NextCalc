@@ -8,7 +8,7 @@
  * Uses the GraphQL ForumPostNode shape only.
  */
 
-import { m, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'motion/react';
 import { ChevronRight, Clock, Eye, Hash, MessageSquare, Pin } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';

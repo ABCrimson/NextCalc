@@ -22,7 +22,7 @@
  */
 
 import { evaluate as evaluateExpr } from '@nextcalc/math-engine';
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import {
   AlertCircle,
   AlignLeft,

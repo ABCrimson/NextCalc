@@ -5,7 +5,7 @@ import {
   initializeMultiHeadWeights,
   maskedMultiHeadAttention,
 } from '@nextcalc/math-engine/algorithms';
-import { m } from 'framer-motion';
+import { m } from 'motion/react';
 import { Brain, Eye, Zap } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';

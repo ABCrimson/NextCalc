@@ -5,7 +5,7 @@
  * and management actions (open, delete, create new).
  */
 
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import {
   Clock,
   Eye,

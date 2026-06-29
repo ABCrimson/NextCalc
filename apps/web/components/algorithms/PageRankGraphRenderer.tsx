@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'motion/react';
 import {
   type PointerEvent,
   useCallback,

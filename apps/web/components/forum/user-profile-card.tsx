@@ -7,7 +7,7 @@
  * Displays avatar, name, role badge, bio, join date, and stats.
  */
 
-import { m, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'motion/react';
 import { Calendar, Crown, FileText, MessageSquare, Shield, User } from 'lucide-react';
 import { useLocale } from 'next-intl';
 import { formatDate, getInitials, type UserProfileData } from '@/components/forum/forum-shared';

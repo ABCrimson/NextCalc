@@ -7,7 +7,7 @@
  * an "Open in Calculator" button that loads the expression into the calculator.
  */
 
-import { m } from 'framer-motion';
+import { m } from 'motion/react';
 import { Calculator, Check, Copy, Share2, User } from 'lucide-react';
 import { useFormatter } from 'next-intl';
 import { useCallback, useEffect, useRef, useState } from 'react';

@@ -3,7 +3,7 @@
 import type { MathTopic } from '@nextcalc/math-engine/knowledge';
 import type { DifficultyLevel, Problem, ProblemFilter } from '@nextcalc/math-engine/problems';
 import { ProblemType } from '@nextcalc/math-engine/problems';
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import {
   Bookmark,
   BookmarkPlus,

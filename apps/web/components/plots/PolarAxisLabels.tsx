@@ -7,7 +7,7 @@
  * @module components/plots/PolarAxisLabels
  */
 
-import { m } from 'framer-motion';
+import { m } from 'motion/react';
 import { useMemo } from 'react';
 
 export interface PolarAxisLabelsProps {

@@ -8,7 +8,7 @@
  */
 
 import { useMutation } from '@apollo/client/react';
-import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m, useReducedMotion } from 'motion/react';
 import { ChevronDown, ChevronUp, Loader2, MessageSquare, Reply, Trash2 } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import {

@@ -1,6 +1,6 @@
 'use client';
 
-import { m } from 'framer-motion';
+import { m } from 'motion/react';
 import { ArrowRight, type LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';

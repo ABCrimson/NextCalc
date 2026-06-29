@@ -8,7 +8,7 @@
  */
 
 import { downloadAsCSV2D, downloadAsPNG, downloadAsSVG, type Point2D } from '@nextcalc/plot-engine';
-import { AnimatePresence, m } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import {
   Download,
   FileImage,

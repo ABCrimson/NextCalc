@@ -1,6 +1,6 @@
 'use client';
 
-import { m } from 'framer-motion';
+import { m } from 'motion/react';
 import { useFormatter } from 'next-intl';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
