@@ -144,7 +144,7 @@ export interface ApiResponse<T> {
  * @returns Validated and typed data
  * @throws ZodError if validation fails
  */
-export function validateRequest<T>(data: unknown, schema: z.ZodSchema<T>): T {
+export function validateRequest<T>(data: unknown, schema: z.ZodType<T>): T {
   return schema.parse(data);
 }
 

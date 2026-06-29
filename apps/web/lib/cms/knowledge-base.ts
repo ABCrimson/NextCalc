@@ -52,7 +52,7 @@ export const TheoremCreateSchema = z.object({
 export const ResourceCreateSchema = z.object({
   title: z.string().min(2).max(255),
   description: z.string().optional(),
-  url: z.string().url(),
+  url: z.url(),
   type: z.enum(['VIDEO', 'ARTICLE', 'BOOK', 'PAPER', 'INTERACTIVE', 'COURSE']),
   topicId: z.string(),
 });

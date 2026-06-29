@@ -62,9 +62,6 @@ const nextConfig: NextConfig = {
     // 182x faster incremental builds without CSS changes
     turbopackFileSystemCacheForDev: true,
 
-    // Use React 19's taint API for security
-    taint: true,
-
     // Enable the 'use cache' directive for server-side data fetching functions.
     // This allows per-function opt-in caching without conflicting with
     // 'export const dynamic' / 'export const runtime' in API routes.
