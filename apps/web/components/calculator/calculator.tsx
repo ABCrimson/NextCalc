@@ -4,7 +4,7 @@ import type { CalculatorAction } from '@nextcalc/types';
 import { BarChart3, Sigma } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useOptimistic, useRef, useTransition } from 'react';
+import { useEffect, useEffectEvent, useOptimistic, useRef, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { parseShareParams } from '@/lib/share';
 import {
@@ -46,8 +46,11 @@ export function Calculator() {
   const searchParams = useSearchParams();
   const hasRestoredRef = useRef(false);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional mount-only restore. We read the initial URL's searchParams exactly once (guarded by hasRestoredRef); adding `searchParams` would re-trigger restoration on later URL changes, and `dispatch` is a stable Zustand store reference — neither belongs in the dependency list for this one-shot effect.
-  useEffect(() => {
+  // React 19.3 Effect Event: the share-param restore reads `searchParams` and
+  // `dispatch` non-reactively, so the mount Effect below keeps a genuinely empty
+  // dependency list with no suppression. Reading the initial URL once is exactly
+  // an "effect event" — latest values, not a reactive trigger.
+  const restoreFromShareParams = useEffectEvent(() => {
     // Only restore once per mount (guard against React 19 Strict Mode double-invoke)
     if (hasRestoredRef.current) return;
     hasRestoredRef.current = true;
@@ -101,7 +104,11 @@ export function Calculator() {
         }
       });
     }
-    // Run only on mount — searchParams identity is stable in the App Router
+  });
+
+  // Run only on mount — the restore itself reads the (then-current) initial URL.
+  useEffect(() => {
+    restoreFromShareParams();
   }, []);
 
   const handleInput = (action: CalculatorAction) => {

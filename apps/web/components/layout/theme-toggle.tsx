@@ -2,7 +2,7 @@
 
 import { AnimatePresence, m } from 'motion/react';
 import { Moon, Sun } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useEffectEvent, useState } from 'react';
 import { Button } from '@/components/ui/button';
 
 /**
@@ -70,21 +70,27 @@ export function ThemeToggle() {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  // Keyboard shortcut: Alt+T
-  // biome-ignore lint/correctness/useExhaustiveDependencies: Re-register handler when theme changes so toggleTheme has current state
+  // Effect Event (React 19.3): always sees the current theme without making the
+  // keydown listener reactive, so we register it once instead of re-binding on
+  // every theme change.
+  const onShortcut = useEffectEvent(() => {
+    toggleTheme();
+  });
+
+  // Keyboard shortcut: Alt+T — listener registered once on mount.
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.altKey && e.key === 't') {
         e.preventDefault();
-        toggleTheme();
+        onShortcut();
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [theme]);
+  }, []);
 
-  const toggleTheme = () => {
+  function toggleTheme() {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
@@ -95,7 +101,7 @@ export function ThemeToggle() {
 
     // Tailwind 4.x: Set data-theme attribute instead of class
     document.documentElement.setAttribute('data-theme', newTheme);
-  };
+  }
 
   // Prevent flash during SSR
   if (!mounted) {
