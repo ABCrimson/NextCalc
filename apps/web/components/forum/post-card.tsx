@@ -10,16 +10,15 @@
 
 import { m, useReducedMotion } from 'motion/react';
 import { ChevronRight, Clock, Eye, Hash, MessageSquare, Pin } from 'lucide-react';
+import { useFormatter } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback } from 'react';
 import {
   type ForumPostNode,
-  formatNumber,
   getInitials,
   getPostHue,
   getTagStyle,
-  timeAgo,
 } from '@/components/forum/forum-shared';
 import { UpvoteButton } from '@/components/forum/upvote-button';
 import { Badge } from '@/components/ui/badge';
@@ -79,6 +78,7 @@ interface PostCardProps {
 
 export function PostCard({ post, index }: PostCardProps) {
   const prefersReduced = useReducedMotion();
+  const format = useFormatter();
   const router = useRouter();
   const hue = getPostHue(post.id);
   const commentCount = post.commentCount ?? post.comments?.length ?? 0;
@@ -182,7 +182,7 @@ export function PostCard({ post, index }: PostCardProps) {
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <Eye className="size-3" />
-              {formatNumber(post.views)}
+              {format.number(post.views, { notation: 'compact', maximumFractionDigits: 1 })}
             </span>
             <span className="flex items-center gap-1">
               <MessageSquare className="size-3" />
@@ -190,7 +190,7 @@ export function PostCard({ post, index }: PostCardProps) {
             </span>
             <span className="flex items-center gap-1">
               <Clock className="size-3" />
-              {timeAgo(post.createdAt)}
+              {format.relativeTime(new Date(post.createdAt), { style: 'narrow' })}
             </span>
           </div>
         </div>

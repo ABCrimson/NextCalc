@@ -10,12 +10,12 @@
 import { useMutation } from '@apollo/client/react';
 import { AnimatePresence, m, useReducedMotion } from 'motion/react';
 import { ChevronDown, ChevronUp, Loader2, MessageSquare, Reply, Trash2 } from 'lucide-react';
+import { useFormatter } from 'next-intl';
 import { useCallback, useState } from 'react';
 import {
   type CommentNode,
   type CommentReply,
   getInitials,
-  timeAgo,
 } from '@/components/forum/forum-shared';
 import { UpvoteButton } from '@/components/forum/upvote-button';
 import { Button } from '@/components/ui/button';
@@ -44,6 +44,7 @@ function SingleComment({
   onCommentAdded,
 }: SingleCommentProps) {
   const prefersReduced = useReducedMotion();
+  const format = useFormatter();
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [replyContent, setReplyContent] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -114,7 +115,9 @@ function SingleComment({
             <span className="text-xs font-semibold text-foreground">
               {comment.user.name ?? 'Anonymous'}
             </span>
-            <span className="text-[10px] text-muted-foreground">{timeAgo(comment.createdAt)}</span>
+            <span className="text-[10px] text-muted-foreground">
+              {format.relativeTime(new Date(comment.createdAt), { style: 'narrow' })}
+            </span>
           </div>
 
           <p className="text-sm text-foreground/90 whitespace-pre-wrap break-words">

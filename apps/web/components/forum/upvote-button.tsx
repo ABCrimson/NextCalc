@@ -10,8 +10,8 @@
 import { useMutation } from '@apollo/client/react';
 import { m, useReducedMotion } from 'motion/react';
 import { ThumbsUp } from 'lucide-react';
+import { useFormatter } from 'next-intl';
 import { useCallback, useOptimistic, useTransition } from 'react';
-import { formatNumber } from '@/components/forum/forum-shared';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useSession } from '@/lib/auth/hooks';
 import { TOGGLE_UPVOTE_MUTATION } from '@/lib/graphql/forum-operations';
@@ -39,6 +39,7 @@ export function UpvoteButton({
   initialUpvoted,
 }: UpvoteButtonProps) {
   const prefersReduced = useReducedMotion();
+  const format = useFormatter();
   const { status } = useSession();
   const isAuthenticated = status === 'authenticated';
   const [, startTransition] = useTransition();
@@ -113,7 +114,9 @@ export function UpvoteButton({
           className={cn('size-4 transition-transform', optimistic.upvoted && 'scale-110')}
         />
       </m.div>
-      <span className="text-xs font-bold tabular-nums">{formatNumber(optimistic.count)}</span>
+      <span className="text-xs font-bold tabular-nums">
+        {format.number(optimistic.count, { notation: 'compact', maximumFractionDigits: 1 })}
+      </span>
     </m.button>
   );
 

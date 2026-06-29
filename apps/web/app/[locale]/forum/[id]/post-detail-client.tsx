@@ -20,18 +20,15 @@ import {
   Pin,
   Send,
 } from 'lucide-react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
 import { useCallback, useState } from 'react';
 import { CommentThread } from '@/components/forum/comment-thread';
 import { ForumBackground } from '@/components/forum/forum-background';
 import {
   type ForumPostDetail,
-  formatDate,
-  formatNumber,
   getInitials,
   getPostHue,
   getTierFromRole,
-  timeAgo,
 } from '@/components/forum/forum-shared';
 import { TagPill } from '@/components/forum/post-card';
 import { UpvoteButton } from '@/components/forum/upvote-button';
@@ -95,7 +92,7 @@ interface PostDetailClientProps {
 export function PostDetailClient({ id }: PostDetailClientProps) {
   const t = useTranslations('forum');
   const tAuth = useTranslations('auth');
-  const locale = useLocale();
+  const format = useFormatter();
   const prefersReduced = useReducedMotion();
   const router = useRouter();
   const { status: authStatus } = useSession();
@@ -268,7 +265,12 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Eye className="size-3" />
-                    {t('viewsCount', { count: formatNumber(post.views) })}
+                    {t('viewsCount', {
+                      count: format.number(post.views, {
+                        notation: 'compact',
+                        maximumFractionDigits: 1,
+                      }),
+                    })}
                   </span>
                   <span className="flex items-center gap-1">
                     <MessageSquare className="size-3" />
@@ -278,7 +280,7 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock className="size-3" />
-                    {timeAgo(post.createdAt)}
+                    {format.relativeTime(new Date(post.createdAt), { style: 'narrow' })}
                   </span>
                 </div>
 
@@ -328,7 +330,13 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
                           <span className="truncate max-w-48">{post.user.bio}</span>
                         )}
                         <span>
-                          {t('joined', { date: formatDate(post.user.createdAt, locale) })}
+                          {t('joined', {
+                            date: format.dateTime(new Date(post.user.createdAt), {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                            }),
+                          })}
                         </span>
                       </div>
                     </div>

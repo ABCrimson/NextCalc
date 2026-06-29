@@ -10,14 +10,9 @@
 import { useQuery } from '@apollo/client/react';
 import { m, useReducedMotion } from 'motion/react';
 import { AlertCircle, ArrowLeft, Clock, Eye, MessageSquare, ThumbsUp } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
 import { ForumBackground } from '@/components/forum/forum-background';
-import {
-  formatNumber,
-  getPostHue,
-  timeAgo,
-  type UserProfileData,
-} from '@/components/forum/forum-shared';
+import { getPostHue, type UserProfileData } from '@/components/forum/forum-shared';
 import { TagPill } from '@/components/forum/post-card';
 import { UserProfileCard } from '@/components/forum/user-profile-card';
 import { Button } from '@/components/ui/button';
@@ -62,6 +57,7 @@ interface UserProfileClientProps {
 
 export function UserProfileClient({ id }: UserProfileClientProps) {
   const t = useTranslations('forum');
+  const format = useFormatter();
   const prefersReduced = useReducedMotion();
   const router = useRouter();
 
@@ -202,15 +198,21 @@ export function UserProfileClient({ id }: UserProfileClientProps) {
                               <div className="flex items-center gap-3 ml-auto text-[10px] text-muted-foreground">
                                 <span className="flex items-center gap-1">
                                   <ThumbsUp className="size-3" />
-                                  {formatNumber(post.upvoteCount)}
+                                  {format.number(post.upvoteCount, {
+                                    notation: 'compact',
+                                    maximumFractionDigits: 1,
+                                  })}
                                 </span>
                                 <span className="flex items-center gap-1">
                                   <Eye className="size-3" />
-                                  {formatNumber(post.views)}
+                                  {format.number(post.views, {
+                                    notation: 'compact',
+                                    maximumFractionDigits: 1,
+                                  })}
                                 </span>
                                 <span className="flex items-center gap-1">
                                   <Clock className="size-3" />
-                                  {timeAgo(post.createdAt)}
+                                  {format.relativeTime(new Date(post.createdAt), { style: 'narrow' })}
                                 </span>
                               </div>
                             </div>

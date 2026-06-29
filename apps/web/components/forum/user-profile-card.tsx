@@ -9,8 +9,8 @@
 
 import { m, useReducedMotion } from 'motion/react';
 import { Calendar, Crown, FileText, MessageSquare, Shield, User } from 'lucide-react';
-import { useLocale } from 'next-intl';
-import { formatDate, getInitials, type UserProfileData } from '@/components/forum/forum-shared';
+import { useFormatter } from 'next-intl';
+import { getInitials, type UserProfileData } from '@/components/forum/forum-shared';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
@@ -38,7 +38,7 @@ const ROLE_CONFIG: Record<string, { label: string; icon: typeof Shield; classNam
 
 export function UserProfileCard({ user }: UserProfileCardProps) {
   const prefersReduced = useReducedMotion();
-  const locale = useLocale();
+  const format = useFormatter();
   const roleConfig = ROLE_CONFIG[user.role] ??
     ROLE_CONFIG['USER'] ?? {
       label: 'Member',
@@ -97,7 +97,12 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-muted-foreground pt-1">
             <span className="flex items-center gap-1">
               <Calendar className="size-3.5" />
-              Joined {formatDate(user.createdAt, locale)}
+              Joined{' '}
+              {format.dateTime(new Date(user.createdAt), {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
             </span>
           </div>
         </div>

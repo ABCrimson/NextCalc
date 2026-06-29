@@ -214,44 +214,12 @@ export function getPostHue(postId: string): number {
 // FORMATTING UTILITIES
 // ============================================================================
 
-export function timeAgo(date: Date | string, locale?: string): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
-  const seconds = Math.round((Date.now() - d.getTime()) / 1000);
-  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'always', style: 'narrow' });
-  const units: Array<[Intl.RelativeTimeFormatUnit, number]> = [
-    ['year', 31536000],
-    ['month', 2592000],
-    ['day', 86400],
-    ['hour', 3600],
-    ['minute', 60],
-  ];
-  for (const [unit, secs] of units) {
-    if (seconds >= secs) {
-      return rtf.format(-Math.floor(seconds / secs), unit);
-    }
-  }
-  return rtf.format(-seconds, 'second');
-}
-
-export function formatNumber(n: number, locale?: string): string {
-  return new Intl.NumberFormat(locale, { notation: 'compact', maximumFractionDigits: 1 }).format(n);
-}
-
-/**
- * Format a date for display.
- *
- * Pass the active locale from `useLocale()` in client components so the
- * date renders in the user's locale. Omitting locale falls back to the
- * runtime default rather than hard-coding 'en-US'.
- */
-export function formatDate(date: Date | string, locale?: string): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
-  return d.toLocaleDateString(locale, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
+// Locale-aware date / number / relative-time formatting is handled directly in
+// the forum client components via next-intl's `useFormatter()`, which binds the
+// active request locale automatically — see post-card, comment-thread,
+// user-profile-card and the *-client views. Hand-rolling `Intl.*` here invited
+// callers to forget the locale argument (rendering in the runtime default), so
+// those helpers were removed in favour of the framework formatter.
 
 /** Get initials from a name string */
 export function getInitials(name: string | null | undefined): string {
