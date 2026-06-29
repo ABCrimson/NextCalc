@@ -174,6 +174,69 @@ class ConsoleAnalytics implements AnalyticsService {
 }
 
 // ============================================================================
+// Sentry Implementation (production)
+// ============================================================================
+
+/**
+ * The subset of the Sentry SDK this adapter uses. Typed via `typeof import()`
+ * so error-tracking.ts gains full Sentry type-safety with NO runtime import —
+ * keeping @sentry/nextjs code-split out of DSN-less builds. Pass the (lazily
+ * loaded) Sentry module from instrumentation-client.ts / instrumentation.ts.
+ */
+type SentrySdk = Pick<
+  typeof import('@sentry/nextjs'),
+  'captureException' | 'captureMessage' | 'setUser' | 'addBreadcrumb'
+>;
+
+function toSentryLevel(level: ErrorContext['level']): 'fatal' | 'error' | 'warning' | 'info' {
+  switch (level) {
+    case 'fatal':
+      return 'fatal';
+    case 'warning':
+      return 'warning';
+    case 'info':
+      return 'info';
+    default:
+      return 'error';
+  }
+}
+
+/**
+ * Adapt a loaded Sentry module to the ErrorTrackingService interface so manual
+ * captureError/captureMessage/setUser/addBreadcrumb calls reach Sentry instead
+ * of only the console. Wire it via {@link configureErrorTracking} once Sentry
+ * has initialised (DSN present).
+ */
+export function createSentryErrorTracking(sentry: SentrySdk): ErrorTrackingService {
+  return {
+    async captureError(error: Error, context?: ErrorContext): Promise<void> {
+      sentry.captureException(error, {
+        level: toSentryLevel(context?.level),
+        ...(context?.tags ? { tags: context.tags } : {}),
+        ...(context?.userId ? { user: { id: context.userId } } : {}),
+        extra: {
+          ...(context?.component ? { component: context.component } : {}),
+          ...(context?.digest ? { digest: context.digest } : {}),
+          ...(context?.metadata ?? {}),
+        },
+      });
+    },
+
+    async captureMessage(message: string, context?: ErrorContext): Promise<void> {
+      sentry.captureMessage(message, toSentryLevel(context?.level));
+    },
+
+    setUser(userId: string, userData?: Record<string, unknown>): void {
+      sentry.setUser({ id: userId, ...(userData ?? {}) });
+    },
+
+    addBreadcrumb(message: string, data?: Record<string, unknown>): void {
+      sentry.addBreadcrumb({ message, ...(data ? { data } : {}) });
+    },
+  };
+}
+
+// ============================================================================
 // Singleton Instances
 // ============================================================================
 

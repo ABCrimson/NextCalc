@@ -4,6 +4,7 @@ import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Component, type ComponentType, type ErrorInfo, type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { captureError } from '@/lib/monitoring/error-tracking';
 
 interface ErrorBoundaryProps {
   readonly children: ReactNode;
@@ -60,8 +61,14 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     // Call optional error handler
     this.props.onError?.(error, errorInfo);
 
-    // In production, you would send this to an error reporting service
-    // Example: Sentry.captureException(error, { contexts: { react: errorInfo } });
+    // Report to the error-tracking service. This routes to Sentry when a DSN is
+    // configured (see instrumentation-client.ts), and to the structured-log
+    // console fallback otherwise.
+    void captureError(error, {
+      component: 'ErrorBoundary',
+      level: 'error',
+      ...(errorInfo.componentStack ? { metadata: { componentStack: errorInfo.componentStack } } : {}),
+    });
   }
 
   reset = (): void => {

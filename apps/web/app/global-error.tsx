@@ -23,7 +23,8 @@ interface RootGlobalErrorProps {
  *
  * Sentry Integration:
  * - Automatically captures errors when Sentry SDK is initialized
- * - Works alongside sentry.client.config.ts and instrumentation.ts
+ * - Works alongside instrumentation-client.ts and instrumentation.ts
+ * - captureError() routes here to Sentry (DSN set) via the error-tracking bridge
  * - Reports to Sentry with 'fatal' severity level
  *
  * Error Flow:

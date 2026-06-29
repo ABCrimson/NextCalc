@@ -12,6 +12,15 @@
  * @see https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation
  */
 
+import {
+  configureErrorTracking,
+  createSentryErrorTracking,
+} from '@/lib/monitoring/error-tracking';
+
+// Holds the loaded Sentry module (Node runtime, DSN present) so onRequestError
+// can forward server errors synchronously without re-importing.
+let sentryServer: typeof import('@sentry/nextjs') | null = null;
+
 export async function register() {
   if (process.env['NEXT_RUNTIME'] === 'nodejs') {
     // ---------------------------------------------------------------
@@ -47,6 +56,9 @@ export async function register() {
           tracesSampleRate: parseFloat(process.env['SENTRY_TRACES_SAMPLE_RATE'] ?? '0.1'),
           environment: process.env['NODE_ENV'] ?? 'development',
         });
+        sentryServer = Sentry;
+        // Route manual captureError/captureMessage/setUser/addBreadcrumb to Sentry.
+        configureErrorTracking(createSentryErrorTracking(Sentry));
         console.log(
           JSON.stringify({
             level: 'info',
@@ -147,4 +159,9 @@ export function onRequestError(
   };
 
   console.error(JSON.stringify(logEntry));
+
+  // Forward to Sentry when the server SDK is active (Node runtime, DSN set).
+  // Sentry's captureRequestError consumes the exact (error, request, context)
+  // shape Next.js passes here, attaching the full request/route metadata.
+  sentryServer?.captureRequestError(error, request, context);
 }
