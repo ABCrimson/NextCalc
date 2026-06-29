@@ -262,7 +262,7 @@ export function AlgorithmVisualizer({
                   onClick={handleReset}
                   aria-label="Reset to beginning"
                 >
-                  <RotateCcw className="h-4 w-4" aria-hidden="true" />
+                  <RotateCcw className="size-4" aria-hidden="true" />
                 </Button>
                 <Button
                   variant="outline"
@@ -271,7 +271,7 @@ export function AlgorithmVisualizer({
                   disabled={currentStep === 0}
                   aria-label="Step backward"
                 >
-                  <SkipBack className="h-4 w-4" aria-hidden="true" />
+                  <SkipBack className="size-4" aria-hidden="true" />
                 </Button>
                 <Button
                   size="lg"
@@ -279,9 +279,9 @@ export function AlgorithmVisualizer({
                   aria-label={isPlaying ? 'Pause' : 'Play'}
                 >
                   {isPlaying ? (
-                    <Pause className="h-5 w-5" aria-hidden="true" />
+                    <Pause className="size-5" aria-hidden="true" />
                   ) : (
-                    <Play className="h-5 w-5" aria-hidden="true" />
+                    <Play className="size-5" aria-hidden="true" />
                   )}
                 </Button>
                 <Button
@@ -291,7 +291,7 @@ export function AlgorithmVisualizer({
                   disabled={currentStep === steps.length - 1}
                   aria-label="Step forward"
                 >
-                  <SkipForward className="h-4 w-4" aria-hidden="true" />
+                  <SkipForward className="size-4" aria-hidden="true" />
                 </Button>
               </div>
 
@@ -425,7 +425,7 @@ function VisualizationRenderer({
         aria-label="Array visualization"
       >
         {/* SVG Filters for advanced effects */}
-        <svg className="absolute w-0 h-0" aria-hidden="true">
+        <svg className="absolute size-0" aria-hidden="true">
           <defs>
             <filter id="glow">
               <feGaussianBlur stdDeviation="4" result="coloredBlur" />
@@ -461,7 +461,7 @@ function VisualizationRenderer({
               }}
               whileHover={{ scale: 1.15, transition: { duration: 0.2 } }}
               className={cn(
-                'relative flex items-center justify-center w-20 h-20 rounded-xl font-bold text-xl transition-all duration-300 cursor-pointer',
+                'relative flex items-center justify-center size-20 rounded-xl font-bold text-xl transition-all duration-300 cursor-pointer',
                 'shadow-lg',
               )}
               style={{
@@ -532,7 +532,7 @@ function VisualizationRenderer({
 
     return (
       <div className="inline-block p-6" role="img" aria-label="Matrix visualization">
-        <svg className="absolute w-0 h-0" aria-hidden="true">
+        <svg className="absolute size-0" aria-hidden="true">
           <defs>
             <filter id="matrix-glow">
               <feGaussianBlur stdDeviation="3" result="coloredBlur" />
@@ -561,7 +561,7 @@ function VisualizationRenderer({
                     default: { delay: flatIndex * 0.02, duration: 0.3 },
                   }}
                   whileHover={{ scale: 1.1, transition: { duration: 0.15 } }}
-                  className="flex items-center justify-center w-14 h-14 rounded-lg font-mono text-sm font-semibold cursor-pointer"
+                  className="flex items-center justify-center size-14 rounded-lg font-mono text-sm font-semibold cursor-pointer"
                   style={{
                     background: isHighlighted
                       ? 'linear-gradient(135deg, rgb(99, 102, 241) 0%, rgb(139, 92, 246) 100%)'

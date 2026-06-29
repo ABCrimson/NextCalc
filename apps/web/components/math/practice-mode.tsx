@@ -283,7 +283,7 @@ export function PracticeMode({
         <Card>
           <CardHeader>
             <CardTitle className="text-2xl flex items-center gap-2">
-              <Target className="h-6 w-6 text-primary" />
+              <Target className="size-6 text-primary" />
               Practice Session Setup
             </CardTitle>
             <CardDescription>
@@ -310,7 +310,7 @@ export function PracticeMode({
 
             {adaptiveDifficulty && (
               <div className="flex items-center gap-2 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
-                <Zap className="h-5 w-5 text-blue-500" />
+                <Zap className="size-5 text-blue-500" />
                 <p className="text-sm">
                   Adaptive difficulty enabled - questions will adjust based on your performance
                 </p>
@@ -319,7 +319,7 @@ export function PracticeMode({
           </CardContent>
           <CardFooter>
             <Button onClick={handleStart} size="lg" className="w-full">
-              <Play className="h-5 w-5 mr-2" />
+              <Play className="size-5 mr-2" />
               Start Practice Session
             </Button>
           </CardFooter>
@@ -345,7 +345,7 @@ export function PracticeMode({
                 transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
                 className="mx-auto mb-4"
               >
-                <Trophy className="h-16 w-16 text-yellow-500" />
+                <Trophy className="size-16 text-yellow-500" />
               </m.div>
               <CardTitle className="text-3xl">Session Complete!</CardTitle>
               <CardDescription className="text-lg">
@@ -356,25 +356,25 @@ export function PracticeMode({
               {/* Key Metrics */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <MetricCard
-                  icon={<Target className="h-5 w-5" />}
+                  icon={<Target className="size-5" />}
                   label="Accuracy"
                   value={`${Math.round(metrics.accuracy)}%`}
                   color="text-blue-500"
                 />
                 <MetricCard
-                  icon={<Trophy className="h-5 w-5" />}
+                  icon={<Trophy className="size-5" />}
                   label="Score"
                   value={metrics.score.toString()}
                   color="text-yellow-500"
                 />
                 <MetricCard
-                  icon={<Flame className="h-5 w-5" />}
+                  icon={<Flame className="size-5" />}
                   label="Best Streak"
                   value={metrics.bestStreak.toString()}
                   color="text-orange-500"
                 />
                 <MetricCard
-                  icon={<Timer className="h-5 w-5" />}
+                  icon={<Timer className="size-5" />}
                   label="Avg Time"
                   value={`${Math.round(metrics.averageTime)}s`}
                   color="text-green-500"
@@ -386,7 +386,7 @@ export function PracticeMode({
               {/* Detailed Stats */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
+                  <BarChart3 className="size-5" />
                   Detailed Statistics
                 </h3>
 
@@ -404,7 +404,7 @@ export function PracticeMode({
                         initial={{ width: 0 }}
                         animate={{ width: `${metrics.accuracy}%` }}
                         transition={{ duration: 1, delay: 0.3 }}
-                        className="h-full bg-gradient-to-r from-green-500 to-emerald-500"
+                        className="h-full bg-linear-to-r/oklab from-green-500 to-emerald-500"
                       />
                     </div>
                   </div>
@@ -444,10 +444,10 @@ export function PracticeMode({
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 }}
-                  className="p-4 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 rounded-lg"
+                  className="p-4 bg-linear-to-r/oklab from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 rounded-lg"
                 >
                   <div className="flex items-center gap-3">
-                    <Award className="h-8 w-8 text-yellow-500" />
+                    <Award className="size-8 text-yellow-500" />
                     <div>
                       <h4 className="font-semibold">Achievement Unlocked!</h4>
                       <p className="text-sm text-muted-foreground">
@@ -460,12 +460,12 @@ export function PracticeMode({
             </CardContent>
             <CardFooter className="flex gap-3">
               <Button variant="outline" className="flex-1" onClick={() => window.location.reload()}>
-                <RotateCcw className="h-4 w-4 mr-2" />
+                <RotateCcw className="size-4 mr-2" />
                 Try Again
               </Button>
               <Button className="flex-1" asChild>
                 <a href="/practice">
-                  <ArrowRight className="h-4 w-4 mr-2" />
+                  <ArrowRight className="size-4 mr-2" />
                   New Session
                 </a>
               </Button>
@@ -502,7 +502,7 @@ export function PracticeMode({
             <div className="text-center">
               <div className="text-sm text-muted-foreground mb-1">Streak</div>
               <div className="text-2xl font-bold flex items-center justify-center gap-1">
-                {streak > 0 && <Flame className="h-5 w-5 text-orange-500" />}
+                {streak > 0 && <Flame className="size-5 text-orange-500" />}
                 {streak}
               </div>
             </div>
@@ -522,7 +522,7 @@ export function PracticeMode({
             <m.div
               initial={{ width: 0 }}
               animate={{ width: `${((currentIndex + 1) / totalQuestions) * 100}%` }}
-              className="h-full bg-gradient-to-r from-primary to-primary/60"
+              className="h-full bg-linear-to-r/oklab from-primary to-primary/60"
               transition={{ duration: 0.3 }}
             />
           </div>
@@ -558,12 +558,12 @@ export function PracticeMode({
                 >
                   {state === 'active' ? (
                     <>
-                      <Pause className="h-4 w-4 mr-2" />
+                      <Pause className="size-4 mr-2" />
                       Pause
                     </>
                   ) : (
                     <>
-                      <Play className="h-4 w-4 mr-2" />
+                      <Play className="size-4 mr-2" />
                       Resume
                     </>
                   )}
@@ -600,7 +600,7 @@ export function PracticeMode({
                 </>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
-                  <Pause className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <Pause className="size-12 mx-auto mb-4 opacity-50" />
                   <p>Session Paused</p>
                   <p className="text-sm mt-2">Click Resume to continue</p>
                 </div>
@@ -613,7 +613,7 @@ export function PracticeMode({
                 className="flex-1"
                 size="lg"
               >
-                <CheckCircle2 className="h-5 w-5 mr-2" />
+                <CheckCircle2 className="size-5 mr-2" />
                 Submit Answer
               </Button>
             </CardFooter>

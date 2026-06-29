@@ -231,7 +231,7 @@ export function AxisLabels({ viewport, width, height, xAxisConfig, yAxisConfig }
           animate="visible"
           className="
             absolute text-sm font-semibold
-            text-cyan-100 bg-gradient-to-br from-background/90 to-card/90
+            text-cyan-100 bg-linear-to-br/oklab from-background/90 to-card/90
             backdrop-blur-md px-3 py-1.5 rounded-lg
             border border-cyan-500/40
             shadow-[0_4px_16px_0_oklch(0.7148_0.1257_215.22_/_0.2)]
@@ -256,7 +256,7 @@ export function AxisLabels({ viewport, width, height, xAxisConfig, yAxisConfig }
           animate="visible"
           className="
             absolute text-sm font-semibold
-            text-cyan-100 bg-gradient-to-br from-background/90 to-card/90
+            text-cyan-100 bg-linear-to-br/oklab from-background/90 to-card/90
             backdrop-blur-md px-3 py-1.5 rounded-lg
             border border-cyan-500/40
             shadow-[0_4px_16px_0_oklch(0.7148_0.1257_215.22_/_0.2)]

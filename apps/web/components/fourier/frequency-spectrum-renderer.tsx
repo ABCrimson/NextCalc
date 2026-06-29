@@ -778,10 +778,10 @@ export function FrequencySpectrumRenderer({
   }, [handleWheel]);
 
   return (
-    <div ref={containerRef} className="relative w-full h-full group">
+    <div ref={containerRef} className="relative size-full group">
       <canvas
         ref={canvasRef}
-        className="w-full h-full transition-transform duration-200 ease-out"
+        className="size-full transition-transform duration-200 ease-out"
         style={{ cursor: isPanning ? 'grabbing' : 'grab', willChange: 'transform' }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}

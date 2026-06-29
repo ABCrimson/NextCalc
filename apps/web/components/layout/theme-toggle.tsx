@@ -107,7 +107,7 @@ export function ThemeToggle() {
         disabled
         aria-label="Loading theme toggle"
       >
-        <div className="h-5 w-5 animate-pulse bg-muted rounded" />
+        <div className="size-5 animate-pulse bg-muted rounded" />
       </Button>
     );
   }
@@ -136,7 +136,7 @@ export function ThemeToggle() {
               exit={{ rotate: 90, scale: 0 }}
               transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
             >
-              <Moon className="h-5 w-5 text-blue-300" aria-hidden="true" />
+              <Moon className="size-5 text-blue-300" aria-hidden="true" />
             </m.div>
           ) : (
             <m.div
@@ -146,7 +146,7 @@ export function ThemeToggle() {
               exit={{ rotate: 90, scale: 0 }}
               transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
             >
-              <Sun className="h-5 w-5 text-amber-500" aria-hidden="true" />
+              <Sun className="size-5 text-amber-500" aria-hidden="true" />
             </m.div>
           )}
         </AnimatePresence>

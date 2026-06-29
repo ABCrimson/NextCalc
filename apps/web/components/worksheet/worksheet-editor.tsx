@@ -134,7 +134,7 @@ function Toolbar({ titleInputId }: ToolbarProps) {
       <nav className="flex items-center gap-2 flex-wrap" aria-label="Worksheet actions">
         {/* Auto-save indicator */}
         <span className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground/70 mr-2">
-          <Save className="h-3 w-3" aria-hidden="true" />
+          <Save className="size-3" aria-hidden="true" />
           Auto-saved
         </span>
 
@@ -145,7 +145,7 @@ function Toolbar({ titleInputId }: ToolbarProps) {
           onClick={handleExport}
           aria-label="Export worksheet as JSON"
         >
-          <Download className="h-3.5 w-3.5" aria-hidden="true" />
+          <Download className="size-3.5" aria-hidden="true" />
           <span className="hidden sm:inline">Export</span>
         </Button>
 
@@ -156,7 +156,7 @@ function Toolbar({ titleInputId }: ToolbarProps) {
           onClick={() => fileInputRef.current?.click()}
           aria-label="Import worksheet from JSON file"
         >
-          <Upload className="h-3.5 w-3.5" aria-hidden="true" />
+          <Upload className="size-3.5" aria-hidden="true" />
           <span className="hidden sm:inline">Import</span>
         </Button>
         {/* Hidden file input for import */}
@@ -199,7 +199,7 @@ function Toolbar({ titleInputId }: ToolbarProps) {
             onClick={() => setShowResetConfirm(true)}
             aria-label="Reset worksheet — clears all cells"
           >
-            <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+            <RotateCcw className="size-3.5" aria-hidden="true" />
             <span className="hidden sm:inline">Reset</span>
           </Button>
         )}
@@ -226,17 +226,17 @@ function AddCellStrip({ afterId, label }: AddCellStripProps) {
   const kinds: Array<{ kind: CellKind; icon: ReactNode; label: string }> = [
     {
       kind: 'math',
-      icon: <Code2 className="h-3.5 w-3.5" aria-hidden="true" />,
+      icon: <Code2 className="size-3.5" aria-hidden="true" />,
       label: 'Add math cell',
     },
     {
       kind: 'text',
-      icon: <AlignLeft className="h-3.5 w-3.5" aria-hidden="true" />,
+      icon: <AlignLeft className="size-3.5" aria-hidden="true" />,
       label: 'Add text cell',
     },
     {
       kind: 'plot',
-      icon: <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />,
+      icon: <TrendingUp className="size-3.5" aria-hidden="true" />,
       label: 'Add plot cell',
     },
   ];
@@ -309,16 +309,16 @@ function VariablesSidebar({ cells }: { cells: readonly WorksheetCell[] }) {
         aria-controls="variables-list"
       >
         <div className="flex items-center gap-2">
-          <Variable className="h-4 w-4 text-blue-400" aria-hidden="true" />
+          <Variable className="size-4 text-blue-400" aria-hidden="true" />
           <span>Variables</span>
           <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">
             {allBindings.length}
           </span>
         </div>
         {expanded ? (
-          <ChevronDown className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+          <ChevronDown className="size-4 text-muted-foreground" aria-hidden="true" />
         ) : (
-          <ChevronRight className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+          <ChevronRight className="size-4 text-muted-foreground" aria-hidden="true" />
         )}
       </button>
 
@@ -353,7 +353,7 @@ function EmptyState({ onAdd }: { onAdd: (kind: CellKind) => void }) {
       animate={{ opacity: 1, y: 0 }}
       className="flex flex-col items-center justify-center py-16 text-center"
     >
-      <BookOpen className="h-12 w-12 text-muted-foreground/30 mb-4" aria-hidden="true" />
+      <BookOpen className="size-12 text-muted-foreground/30 mb-4" aria-hidden="true" />
       <h2 className="text-lg font-semibold mb-1 text-muted-foreground">Your worksheet is empty</h2>
       <p className="text-sm text-muted-foreground/70 mb-6 max-w-xs">
         Add cells to start computing. Math cells evaluate expressions and share variables with
@@ -382,7 +382,7 @@ function EmptyState({ onAdd }: { onAdd: (kind: CellKind) => void }) {
             onClick={() => onAdd(kind)}
             aria-label={`Add a ${kind} cell`}
           >
-            <Icon className={cn('h-4 w-4', color)} aria-hidden="true" />
+            <Icon className={cn('size-4', color)} aria-hidden="true" />
             {label}
           </Button>
         ))}
@@ -457,19 +457,19 @@ function AddCellFAB() {
   const items: Array<{ kind: CellKind; icon: ReactNode; label: string; color: string }> = [
     {
       kind: 'math',
-      icon: <Code2 className="h-4 w-4" aria-hidden="true" />,
+      icon: <Code2 className="size-4" aria-hidden="true" />,
       label: 'Add Math',
       color: 'bg-blue-600 hover:bg-blue-500',
     },
     {
       kind: 'text',
-      icon: <AlignLeft className="h-4 w-4" aria-hidden="true" />,
+      icon: <AlignLeft className="size-4" aria-hidden="true" />,
       label: 'Add Text',
       color: 'bg-emerald-600 hover:bg-emerald-500',
     },
     {
       kind: 'plot',
-      icon: <TrendingUp className="h-4 w-4" aria-hidden="true" />,
+      icon: <TrendingUp className="size-4" aria-hidden="true" />,
       label: 'Add Plot',
       color: 'bg-purple-600 hover:bg-purple-500',
     },
@@ -514,7 +514,7 @@ function AddCellFAB() {
       <button
         type="button"
         className={cn(
-          'flex items-center justify-center h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-xl',
+          'flex items-center justify-center size-12 rounded-full bg-primary text-primary-foreground shadow-xl',
           'hover:bg-primary/90 active:scale-95 transition-all duration-200',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         )}
@@ -527,7 +527,7 @@ function AddCellFAB() {
           animate={{ rotate: open ? 45 : 0 }}
           transition={{ type: 'spring', stiffness: 400, damping: 28 }}
         >
-          <Plus className="h-6 w-6" aria-hidden="true" />
+          <Plus className="size-6" aria-hidden="true" />
         </m.div>
       </button>
     </div>

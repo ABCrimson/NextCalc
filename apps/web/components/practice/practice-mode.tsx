@@ -293,7 +293,7 @@ export function PracticeMode({
           <CardContent className="space-y-6">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <div className="flex items-center gap-3 p-4 border rounded-lg">
-                <Target className="h-8 w-8 text-primary" aria-hidden="true" />
+                <Target className="size-8 text-primary" aria-hidden="true" />
                 <div>
                   <div className="text-2xl font-bold">{targetCount}</div>
                   <div className="text-sm text-muted-foreground">Problems</div>
@@ -302,7 +302,7 @@ export function PracticeMode({
 
               {mode === 'timed' && (
                 <div className="flex items-center gap-3 p-4 border rounded-lg">
-                  <Timer className="h-8 w-8 text-primary" aria-hidden="true" />
+                  <Timer className="size-8 text-primary" aria-hidden="true" />
                   <div>
                     <div className="text-2xl font-bold">{formatTime(timeLimit)}</div>
                     <div className="text-sm text-muted-foreground">Per Problem</div>
@@ -312,7 +312,7 @@ export function PracticeMode({
 
               {adaptiveDifficulty && (
                 <div className="flex items-center gap-3 p-4 border rounded-lg">
-                  <Trophy className="h-8 w-8 text-primary" aria-hidden="true" />
+                  <Trophy className="size-8 text-primary" aria-hidden="true" />
                   <div>
                     <div className="text-sm font-medium">Adaptive</div>
                     <div className="text-sm text-muted-foreground">Difficulty</div>
@@ -322,7 +322,7 @@ export function PracticeMode({
             </div>
 
             <Button onClick={handleStart} size="lg" className="w-full">
-              <Play className="h-5 w-5 mr-2" aria-hidden="true" />
+              <Play className="size-5 mr-2" aria-hidden="true" />
               Start Practice
             </Button>
           </CardContent>
@@ -343,7 +343,7 @@ export function PracticeMode({
           <Card className="text-center">
             <CardHeader>
               <div className="flex justify-center mb-4">
-                <Trophy className="h-16 w-16 text-yellow-500" aria-hidden="true" />
+                <Trophy className="size-16 text-yellow-500" aria-hidden="true" />
               </div>
               <CardTitle className="text-2xl">Practice Complete!</CardTitle>
               <CardDescription>Here's how you performed</CardDescription>
@@ -394,19 +394,19 @@ export function PracticeMode({
                 <div className="flex flex-wrap justify-center gap-2">
                   {maxStreak >= 5 && (
                     <Badge variant="outline" className="gap-2">
-                      <Flame className="h-4 w-4 text-orange-500" aria-hidden="true" />
+                      <Flame className="size-4 text-orange-500" aria-hidden="true" />
                       Hot Streak
                     </Badge>
                   )}
                   {stats.accuracy >= 90 && (
                     <Badge variant="outline" className="gap-2">
-                      <Award className="h-4 w-4 text-yellow-500" aria-hidden="true" />
+                      <Award className="size-4 text-yellow-500" aria-hidden="true" />
                       Ace
                     </Badge>
                   )}
                   {stats.accuracy === 100 && (
                     <Badge variant="outline" className="gap-2">
-                      <Trophy className="h-4 w-4 text-yellow-500" aria-hidden="true" />
+                      <Trophy className="size-4 text-yellow-500" aria-hidden="true" />
                       Perfect Score
                     </Badge>
                   )}
@@ -432,7 +432,7 @@ export function PracticeMode({
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <Target className="h-8 w-8 text-primary" aria-hidden="true" />
+              <Target className="size-8 text-primary" aria-hidden="true" />
               <div className="flex-1">
                 <div className="text-2xl font-bold">
                   {currentProblemIndex + 1}/{Math.min(targetCount, problems.length)}
@@ -454,7 +454,7 @@ export function PracticeMode({
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
                 <Timer
-                  className={cn('h-8 w-8', {
+                  className={cn('size-8', {
                     'text-primary': getTimerColor() === 'primary',
                     'text-yellow-500': getTimerColor() === 'warning',
                     'text-destructive': getTimerColor() === 'destructive',
@@ -476,7 +476,7 @@ export function PracticeMode({
             <div className="flex items-center gap-3">
               <Flame
                 className={cn(
-                  'h-8 w-8',
+                  'size-8',
                   currentStreak >= 3 ? 'text-orange-500' : 'text-muted-foreground',
                 )}
                 aria-hidden="true"
@@ -493,7 +493,7 @@ export function PracticeMode({
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <Trophy className="h-8 w-8 text-primary" aria-hidden="true" />
+              <Trophy className="size-8 text-primary" aria-hidden="true" />
               <div className="flex-1">
                 <div className="text-2xl font-bold">{Math.round(stats.accuracy)}%</div>
                 <div className="text-sm text-muted-foreground">Accuracy</div>
@@ -526,7 +526,7 @@ export function PracticeMode({
                     onClick={() => setIsPaused(!isPaused)}
                     aria-label={isPaused ? 'Resume practice' : 'Pause practice'}
                   >
-                    {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+                    {isPaused ? <Play className="size-4" /> : <Pause className="size-4" />}
                   </Button>
                 </div>
                 <CardTitle className="text-xl mt-4">{currentProblem.title}</CardTitle>
@@ -544,7 +544,7 @@ export function PracticeMode({
                     variant="outline"
                     className="h-20 text-lg"
                   >
-                    <CheckCircle2 className="h-6 w-6 mr-2 text-green-500" aria-hidden="true" />
+                    <CheckCircle2 className="size-6 mr-2 text-green-500" aria-hidden="true" />
                     Mark Correct
                   </Button>
                   <Button
@@ -554,13 +554,13 @@ export function PracticeMode({
                     variant="outline"
                     className="h-20 text-lg"
                   >
-                    <XCircle className="h-6 w-6 mr-2 text-red-500" aria-hidden="true" />
+                    <XCircle className="size-6 mr-2 text-red-500" aria-hidden="true" />
                     Mark Incorrect
                   </Button>
                 </div>
 
                 <Button onClick={handleSkip} disabled={isPaused} variant="ghost" className="w-full">
-                  <SkipForward className="h-4 w-4 mr-2" aria-hidden="true" />
+                  <SkipForward className="size-4 mr-2" aria-hidden="true" />
                   Skip Problem
                 </Button>
               </CardContent>

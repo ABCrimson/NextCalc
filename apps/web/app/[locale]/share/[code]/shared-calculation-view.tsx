@@ -112,7 +112,7 @@ export function SharedCalculationView({ shared }: SharedCalculationViewProps) {
           className="text-center mb-8"
         >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-4">
-            <Share2 className="h-4 w-4 text-primary" aria-hidden="true" />
+            <Share2 className="size-4 text-primary" aria-hidden="true" />
             <span className="text-sm font-medium text-primary">Shared Calculation</span>
           </div>
           {shared.title && <h1 className="text-3xl font-bold text-foreground">{shared.title}</h1>}
@@ -144,7 +144,7 @@ export function SharedCalculationView({ shared }: SharedCalculationViewProps) {
               <div className="text-center mb-6">
                 <div className="inline-flex items-center gap-3">
                   <span className="text-2xl text-muted-foreground">=</span>
-                  <span className="text-4xl font-bold font-mono bg-gradient-to-br from-sky-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">
+                  <span className="text-4xl font-bold font-mono bg-linear-to-br/oklab from-sky-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent">
                     {shared.result}
                   </span>
                 </div>
@@ -164,12 +164,12 @@ export function SharedCalculationView({ shared }: SharedCalculationViewProps) {
               <Link href={calculatorUrl} className="flex-1">
                 <Button
                   className={cn(
-                    'w-full bg-gradient-to-r from-primary via-calculator-operator to-calculator-equals',
+                    'w-full bg-linear-to-r/oklab from-primary via-calculator-operator to-calculator-equals',
                     'hover:opacity-90 transition-opacity shadow-lg shadow-primary/25',
                   )}
                   size="lg"
                 >
-                  <Calculator className="h-5 w-5 mr-2" aria-hidden="true" />
+                  <Calculator className="size-5 mr-2" aria-hidden="true" />
                   Open in Calculator
                 </Button>
               </Link>
@@ -182,12 +182,12 @@ export function SharedCalculationView({ shared }: SharedCalculationViewProps) {
               >
                 {copyStatus === 'copied' ? (
                   <>
-                    <Check className="h-4 w-4 mr-2 text-calculator-equals" aria-hidden="true" />
+                    <Check className="size-4 mr-2 text-calculator-equals" aria-hidden="true" />
                     Copied!
                   </>
                 ) : (
                   <>
-                    <Copy className="h-4 w-4 mr-2" aria-hidden="true" />
+                    <Copy className="size-4 mr-2" aria-hidden="true" />
                     Copy Link
                   </>
                 )}
@@ -206,7 +206,7 @@ export function SharedCalculationView({ shared }: SharedCalculationViewProps) {
           <div className="flex items-center gap-2">
             {shared.user && (
               <>
-                <User className="h-3.5 w-3.5" aria-hidden="true" />
+                <User className="size-3.5" aria-hidden="true" />
                 <span>Shared by {shared.user.name || 'Anonymous'}</span>
               </>
             )}

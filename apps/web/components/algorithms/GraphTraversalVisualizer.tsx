@@ -373,7 +373,7 @@ export function GraphTraversalVisualizer() {
       >
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
+            <h2 className="text-3xl font-bold bg-linear-to-r/oklab from-green-600 to-teal-600 bg-clip-text text-transparent">
               Graph Traversal: BFS vs DFS
             </h2>
             <p className="text-muted-foreground mt-2">
@@ -385,12 +385,12 @@ export function GraphTraversalVisualizer() {
             <Badge variant="outline" className="bg-green-500/10 text-green-700 dark:text-green-300">
               {traversalType === 'bfs' ? (
                 <>
-                  <Layers className="h-3 w-3 mr-1" />
+                  <Layers className="size-3 mr-1" />
                   BFS
                 </>
               ) : (
                 <>
-                  <TrendingDown className="h-3 w-3 mr-1" />
+                  <TrendingDown className="size-3 mr-1" />
                   DFS
                 </>
               )}
@@ -414,7 +414,7 @@ export function GraphTraversalVisualizer() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="w-full h-[600px] rounded-lg border bg-gradient-to-br from-green-50 to-teal-50 dark:from-green-950 dark:to-teal-950">
+            <div className="w-full h-[600px] rounded-lg border bg-linear-to-br/oklab from-green-50 to-teal-50 dark:from-green-950 dark:to-teal-950">
               <UnifiedGraphRenderer
                 nodes={visualNodes}
                 edges={visualEdges}
@@ -449,11 +449,11 @@ export function GraphTraversalVisualizer() {
                 >
                   <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="bfs">
-                      <Layers className="h-4 w-4 mr-2" />
+                      <Layers className="size-4 mr-2" />
                       BFS
                     </TabsTrigger>
                     <TabsTrigger value="dfs">
-                      <TrendingDown className="h-4 w-4 mr-2" />
+                      <TrendingDown className="size-4 mr-2" />
                       DFS
                     </TabsTrigger>
                   </TabsList>
@@ -494,23 +494,23 @@ export function GraphTraversalVisualizer() {
                   >
                     {isPlaying ? (
                       <>
-                        <Pause className="h-4 w-4 mr-2" />
+                        <Pause className="size-4 mr-2" />
                         Pause
                       </>
                     ) : (
                       <>
-                        <Play className="h-4 w-4 mr-2" />
+                        <Play className="size-4 mr-2" />
                         Play
                       </>
                     )}
                   </Button>
 
                   <Button onClick={handleStepForward} variant="outline" size="icon">
-                    <SkipForward className="h-4 w-4" />
+                    <SkipForward className="size-4" />
                   </Button>
 
                   <Button onClick={handleReset} variant="outline" size="icon">
-                    <RotateCcw className="h-4 w-4" />
+                    <RotateCcw className="size-4" />
                   </Button>
                 </div>
 
@@ -553,7 +553,7 @@ export function GraphTraversalVisualizer() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Info className="h-5 w-5" />
+                <Info className="size-5" />
                 Statistics
               </CardTitle>
             </CardHeader>
@@ -608,14 +608,14 @@ export function GraphTraversalVisualizer() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <GitBranch className="h-5 w-5" />
+                <GitBranch className="size-5" />
                 BFS vs DFS
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="space-y-2">
                 <div className="flex items-start gap-2">
-                  <Layers className="h-4 w-4 mt-1 text-green-600" />
+                  <Layers className="size-4 mt-1 text-green-600" />
                   <div>
                     <p className="font-medium text-sm">BFS (Breadth-First)</p>
                     <p className="text-xs text-muted-foreground">
@@ -625,7 +625,7 @@ export function GraphTraversalVisualizer() {
                 </div>
 
                 <div className="flex items-start gap-2">
-                  <TrendingDown className="h-4 w-4 mt-1 text-teal-600" />
+                  <TrendingDown className="size-4 mt-1 text-teal-600" />
                   <div>
                     <p className="font-medium text-sm">DFS (Depth-First)</p>
                     <p className="text-xs text-muted-foreground">

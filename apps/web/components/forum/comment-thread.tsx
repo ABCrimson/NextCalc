@@ -95,13 +95,13 @@ function SingleComment({
     >
       <div className="flex gap-3 py-3">
         {/* Avatar */}
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold bg-gradient-to-br from-muted/60 to-muted/30 border border-border">
+        <div className="flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold bg-linear-to-br/oklab from-muted/60 to-muted/30 border border-border">
           {comment.user.image ? (
             // biome-ignore lint/performance/noImgElement: external OAuth avatar URL not in next/image remotePatterns
             <img
               src={comment.user.image}
               alt={comment.user.name ?? 'User'}
-              className="h-full w-full rounded-full object-cover"
+              className="size-full rounded-full object-cover"
             />
           ) : (
             <span className="text-muted-foreground">{getInitials(comment.user.name)}</span>
@@ -136,7 +136,7 @@ function SingleComment({
                 onClick={() => setShowReplyForm(!showReplyForm)}
                 className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded px-1"
               >
-                <Reply className="h-3 w-3" />
+                <Reply className="size-3" />
                 Reply
               </button>
             )}
@@ -149,9 +149,9 @@ function SingleComment({
                 className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded px-1"
               >
                 {deleting ? (
-                  <Loader2 className="h-3 w-3 animate-spin" />
+                  <Loader2 className="size-3 animate-spin" />
                 ) : (
-                  <Trash2 className="h-3 w-3" />
+                  <Trash2 className="size-3" />
                 )}
                 Delete
               </button>
@@ -164,7 +164,7 @@ function SingleComment({
                   disabled={deleting}
                   className="text-destructive hover:text-destructive/80 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded px-1"
                 >
-                  {deleting ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Confirm Delete'}
+                  {deleting ? <Loader2 className="size-3 animate-spin" /> : 'Confirm Delete'}
                 </button>
                 <button
                   type="button"
@@ -198,12 +198,12 @@ function SingleComment({
                     size="sm"
                     onClick={handleSubmitReply}
                     disabled={!replyContent.trim() || submitting}
-                    className="gap-1 bg-gradient-to-r from-primary to-calculator-special hover:from-primary/90 hover:to-calculator-special/90 text-white"
+                    className="gap-1 bg-linear-to-r/oklab from-primary to-calculator-special hover:from-primary/90 hover:to-calculator-special/90 text-white"
                   >
                     {submitting ? (
-                      <Loader2 className="h-3 w-3 animate-spin" />
+                      <Loader2 className="size-3 animate-spin" />
                     ) : (
-                      <Reply className="h-3 w-3" />
+                      <Reply className="size-3" />
                     )}
                     Reply
                   </Button>
@@ -247,7 +247,7 @@ export function CommentThread({ comments, postId, onCommentAdded }: CommentThrea
   if (topLevel.length === 0) {
     return (
       <div className="text-center py-8">
-        <MessageSquare className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
+        <MessageSquare className="size-10 mx-auto text-muted-foreground/30 mb-3" />
         <p className="text-sm text-muted-foreground">
           No comments yet. Be the first to share your thoughts!
         </p>
@@ -321,12 +321,12 @@ function CommentWithReplies({
         >
           {expanded ? (
             <>
-              <ChevronUp className="h-3 w-3" />
+              <ChevronUp className="size-3" />
               Hide {replies.length - COLLAPSE_THRESHOLD} replies
             </>
           ) : (
             <>
-              <ChevronDown className="h-3 w-3" />
+              <ChevronDown className="size-3" />
               Show {replies.length - COLLAPSE_THRESHOLD} more replies
             </>
           )}

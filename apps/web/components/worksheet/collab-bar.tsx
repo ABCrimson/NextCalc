@@ -55,9 +55,9 @@ function LiveIndicator() {
       aria-live="polite"
     >
       {/* Animated pulse dot */}
-      <span className="relative flex h-2 w-2" aria-hidden="true">
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+      <span className="relative flex size-2" aria-hidden="true">
+        <span className="animate-ping absolute inline-flex size-full rounded-full bg-emerald-400 opacity-75" />
+        <span className="relative inline-flex rounded-full size-2 bg-emerald-500" />
       </span>
       Live
     </m.span>
@@ -107,7 +107,7 @@ function AvatarStack({ maxVisible = 4 }: AvatarStackProps) {
             >
               <span
                 className={cn(
-                  'flex items-center justify-center h-7 w-7 rounded-full',
+                  'flex items-center justify-center size-7 rounded-full',
                   'text-xs font-bold text-background',
                   'ring-2 ring-background',
                   peer.isLocal && 'ring-primary/40',
@@ -127,7 +127,7 @@ function AvatarStack({ maxVisible = 4 }: AvatarStackProps) {
         {overflow > 0 && (
           <m.li layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="ml-1">
             <span
-              className="flex items-center justify-center h-7 w-7 rounded-full bg-muted border border-border/60 text-xs font-medium text-muted-foreground ring-2 ring-background cursor-default select-none"
+              className="flex items-center justify-center size-7 rounded-full bg-muted border border-border/60 text-xs font-medium text-muted-foreground ring-2 ring-background cursor-default select-none"
               role="img"
               aria-label={`${overflow} more collaborator${overflow !== 1 ? 's' : ''}`}
               title={`${overflow} more`}
@@ -241,15 +241,15 @@ export function CollabBar() {
           aria-haspopup="dialog"
         >
           {hasSession ? (
-            <Users className="h-3.5 w-3.5" aria-hidden="true" />
+            <Users className="size-3.5" aria-hidden="true" />
           ) : (
-            <Share2 className="h-3.5 w-3.5" aria-hidden="true" />
+            <Share2 className="size-3.5" aria-hidden="true" />
           )}
           <span className="hidden sm:inline">{hasSession ? 'Collaborating' : 'Share'}</span>
           {hasSession && peerCount > 0 && (
             <span
               className={cn(
-                'inline-flex items-center justify-center h-4 w-4 rounded-full text-[10px] font-bold',
+                'inline-flex items-center justify-center size-4 rounded-full text-[10px] font-bold',
                 isLive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-muted text-muted-foreground',
               )}
               aria-hidden="true"

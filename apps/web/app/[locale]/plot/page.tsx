@@ -712,14 +712,14 @@ export default function PlotsExamplesPage() {
     <div className="relative min-h-screen">
       {/* Animated gradient background */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background" />
+        <div className="absolute inset-0 bg-linear-to-br/oklab from-background via-background/95 to-background" />
         <m.div
-          className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-cyan-500/10 to-blue-500/10 blur-3xl"
+          className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-linear-to-br/oklab from-cyan-500/10 to-blue-500/10 blur-3xl"
           animate={{ x: [0, 100, 0], y: [0, 50, 0], scale: [1, 1.2, 1] }}
           transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
         />
         <m.div
-          className="absolute bottom-0 left-0 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-purple-500/10 to-pink-500/10 blur-3xl"
+          className="absolute bottom-0 left-0 w-[600px] h-[600px] rounded-full bg-linear-to-br/oklab from-purple-500/10 to-pink-500/10 blur-3xl"
           animate={{ x: [0, -100, 0], y: [0, -50, 0], scale: [1, 1.1, 1] }}
           transition={{ duration: 25, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
         />
@@ -745,10 +745,10 @@ export default function PlotsExamplesPage() {
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 rounded-lg bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/30">
-                    <Layers className="h-6 w-6 text-cyan-400" />
+                  <div className="p-2 rounded-lg bg-linear-to-br/oklab from-cyan-500/20 to-blue-500/20 border border-cyan-500/30">
+                    <Layers className="size-6 text-cyan-400" />
                   </div>
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-300 via-blue-300 to-purple-300 bg-clip-text text-transparent">
+                  <h1 className="text-3xl font-bold bg-linear-to-r/oklab from-cyan-300 via-blue-300 to-purple-300 bg-clip-text text-transparent">
                     {t('pageTitle')}
                   </h1>
                 </div>
@@ -759,21 +759,21 @@ export default function PlotsExamplesPage() {
                   variant="outline"
                   className="border-cyan-500/30 text-cyan-300 bg-cyan-500/10"
                 >
-                  <Zap className="h-3 w-3 mr-1" />
+                  <Zap className="size-3 mr-1" />
                   {t('badge.fps')}
                 </Badge>
                 <Badge
                   variant="outline"
                   className="border-purple-500/30 text-purple-300 bg-purple-500/10"
                 >
-                  <Activity className="h-3 w-3 mr-1" />
+                  <Activity className="size-3 mr-1" />
                   {t('badge.interactive')}
                 </Badge>
                 <Badge
                   variant="outline"
                   className="border-blue-500/30 text-blue-300 bg-blue-500/10"
                 >
-                  <Maximize2 className="h-3 w-3 mr-1" />
+                  <Maximize2 className="size-3 mr-1" />
                   {t('badge.responsive')}
                 </Badge>
               </div>
@@ -788,28 +788,28 @@ export default function PlotsExamplesPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.4 }}
           >
-            <TabsList className="mb-8 p-1.5 rounded-xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
+            <TabsList className="mb-8 p-1.5 rounded-xl bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
               <TabsTrigger
                 value="2d-cartesian"
-                className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-cyan-900/50 data-[state=active]:to-blue-900/50 data-[state=active]:text-cyan-100 data-[state=active]:border data-[state=active]:border-cyan-500/50 data-[state=active]:shadow-[0_0_15px_oklch(0.7148_0.1257_215.22_/_0.3)] transition-all duration-200"
+                className="data-[state=active]:bg-linear-to-br/oklab data-[state=active]:from-cyan-900/50 data-[state=active]:to-blue-900/50 data-[state=active]:text-cyan-100 data-[state=active]:border data-[state=active]:border-cyan-500/50 data-[state=active]:shadow-[0_0_15px_oklch(0.7148_0.1257_215.22_/_0.3)] transition-all duration-200"
               >
                 {t('tab.2dCartesian')}
               </TabsTrigger>
               <TabsTrigger
                 value="2d-polar"
-                className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-900/50 data-[state=active]:to-pink-900/50 data-[state=active]:text-purple-100 data-[state=active]:border data-[state=active]:border-purple-500/50 data-[state=active]:shadow-[0_0_15px_oklch(0.6268_0.2325_303.9_/_0.3)] transition-all duration-200"
+                className="data-[state=active]:bg-linear-to-br/oklab data-[state=active]:from-purple-900/50 data-[state=active]:to-pink-900/50 data-[state=active]:text-purple-100 data-[state=active]:border data-[state=active]:border-purple-500/50 data-[state=active]:shadow-[0_0_15px_oklch(0.6268_0.2325_303.9_/_0.3)] transition-all duration-200"
               >
                 {t('tab.2dPolar')}
               </TabsTrigger>
               <TabsTrigger
                 value="2d-parametric"
-                className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-900/50 data-[state=active]:to-teal-900/50 data-[state=active]:text-green-100 data-[state=active]:border data-[state=active]:border-green-500/50 data-[state=active]:shadow-[0_0_15px_oklch(0.596_0.1274_163.23_/_0.3)] transition-all duration-200"
+                className="data-[state=active]:bg-linear-to-br/oklab data-[state=active]:from-green-900/50 data-[state=active]:to-teal-900/50 data-[state=active]:text-green-100 data-[state=active]:border data-[state=active]:border-green-500/50 data-[state=active]:shadow-[0_0_15px_oklch(0.596_0.1274_163.23_/_0.3)] transition-all duration-200"
               >
                 {t('tab.2dParametric')}
               </TabsTrigger>
               <TabsTrigger
                 value="3d-surface"
-                className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-orange-900/50 data-[state=active]:to-red-900/50 data-[state=active]:text-orange-100 data-[state=active]:border data-[state=active]:border-orange-500/50 data-[state=active]:shadow-[0_0_15px_oklch(0.7576_0.159_55.93_/_0.3)] transition-all duration-200"
+                className="data-[state=active]:bg-linear-to-br/oklab data-[state=active]:from-orange-900/50 data-[state=active]:to-red-900/50 data-[state=active]:text-orange-100 data-[state=active]:border data-[state=active]:border-orange-500/50 data-[state=active]:shadow-[0_0_15px_oklch(0.7576_0.159_55.93_/_0.3)] transition-all duration-200"
               >
                 {t('tab.3dSurface')}
               </TabsTrigger>
@@ -830,8 +830,8 @@ export default function PlotsExamplesPage() {
               <div className="lg:col-span-1">
                 <div className="sticky top-24 space-y-4">
                   {/* Preset chips card */}
-                  <div className="relative p-5 rounded-xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-500/5 to-blue-500/5 pointer-events-none" />
+                  <div className="relative p-5 rounded-xl bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
+                    <div className="absolute inset-0 rounded-xl bg-linear-to-br/oklab from-cyan-500/5 to-blue-500/5 pointer-events-none" />
                     <div className="relative">
                       <PresetGroup label="Cartesian Presets">
                         {CARTESIAN_PRESETS.map((preset) => (
@@ -848,8 +848,8 @@ export default function PlotsExamplesPage() {
                   </div>
 
                   {/* Function input card */}
-                  <div className="relative p-5 rounded-xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-500/5 to-blue-500/5 pointer-events-none" />
+                  <div className="relative p-5 rounded-xl bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
+                    <div className="absolute inset-0 rounded-xl bg-linear-to-br/oklab from-cyan-500/5 to-blue-500/5 pointer-events-none" />
                     <div className="relative">
                       <FunctionInput
                         functions={customFunctions}
@@ -906,7 +906,7 @@ export default function PlotsExamplesPage() {
               </div>
             </m.div>
 
-            <div className="bg-gradient-to-br from-background/80 to-card/80 p-4 rounded-lg border border-border">
+            <div className="bg-linear-to-br/oklab from-background/80 to-card/80 p-4 rounded-lg border border-border">
               <h3 className="font-semibold text-foreground mb-2">Example Code</h3>
               <pre className="text-xs bg-background/80 text-foreground/80 p-3 rounded overflow-x-auto border border-border">
                 {`import { Plot2D } from '@nextcalc/web/components/plots';
@@ -939,8 +939,8 @@ const config = {
               <div className="lg:col-span-1">
                 <div className="sticky top-24 space-y-4">
                   {/* Preset chips card */}
-                  <div className="relative p-5 rounded-xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/5 to-pink-500/5 pointer-events-none" />
+                  <div className="relative p-5 rounded-xl bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
+                    <div className="absolute inset-0 rounded-xl bg-linear-to-br/oklab from-purple-500/5 to-pink-500/5 pointer-events-none" />
                     <div className="relative">
                       <PresetGroup label="Polar Presets">
                         {POLAR_PRESETS.map((preset) => (
@@ -957,8 +957,8 @@ const config = {
                   </div>
 
                   {/* Function input card */}
-                  <div className="relative p-5 rounded-xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/5 to-pink-500/5 pointer-events-none" />
+                  <div className="relative p-5 rounded-xl bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
+                    <div className="absolute inset-0 rounded-xl bg-linear-to-br/oklab from-purple-500/5 to-pink-500/5 pointer-events-none" />
                     <div className="relative">
                       <FunctionInput
                         functions={polarFunctions}
@@ -1005,7 +1005,7 @@ const config = {
               </div>
             </m.div>
 
-            <div className="bg-gradient-to-br from-background/80 to-card/80 p-4 rounded-lg border border-border">
+            <div className="bg-linear-to-br/oklab from-background/80 to-card/80 p-4 rounded-lg border border-border">
               <h3 className="font-semibold text-foreground mb-2">Example Code</h3>
               <pre className="text-xs bg-background/80 text-foreground/80 p-3 rounded overflow-x-auto border border-border">
                 {`const config = {
@@ -1033,8 +1033,8 @@ const config = {
               {/* Sidebar */}
               <div className="lg:col-span-1 space-y-4">
                 {/* Preset chips card */}
-                <div className="relative p-5 rounded-xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-green-500/5 to-teal-500/5 pointer-events-none" />
+                <div className="relative p-5 rounded-xl bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
+                  <div className="absolute inset-0 rounded-xl bg-linear-to-br/oklab from-green-500/5 to-teal-500/5 pointer-events-none" />
                   <div className="relative">
                     <PresetGroup label="Parametric Presets">
                       {PARAMETRIC_PRESETS.map((preset) => (
@@ -1052,11 +1052,11 @@ const config = {
 
                 {/* x(t) */}
                 <div className="sticky top-24 space-y-4">
-                  <div className="relative p-5 rounded-xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-green-500/5 to-teal-500/5 pointer-events-none" />
+                  <div className="relative p-5 rounded-xl bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
+                    <div className="absolute inset-0 rounded-xl bg-linear-to-br/oklab from-green-500/5 to-teal-500/5 pointer-events-none" />
                     <div className="relative">
                       <h3 className="text-sm font-semibold text-green-100 mb-3 flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-400 shadow-[0_0_8px_oklch(0.596_0.1274_163.23_/_0.6)]" />
+                        <span className="size-1.5 rounded-full bg-green-400 shadow-[0_0_8px_oklch(0.596_0.1274_163.23_/_0.6)]" />
                         x(t) Function
                       </h3>
                       <FunctionInput
@@ -1072,11 +1072,11 @@ const config = {
                   </div>
 
                   {/* y(t) */}
-                  <div className="relative p-5 rounded-xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-teal-500/5 to-cyan-500/5 pointer-events-none" />
+                  <div className="relative p-5 rounded-xl bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
+                    <div className="absolute inset-0 rounded-xl bg-linear-to-br/oklab from-teal-500/5 to-cyan-500/5 pointer-events-none" />
                     <div className="relative">
                       <h3 className="text-sm font-semibold text-teal-100 mb-3 flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-teal-400 shadow-[0_0_8px_oklch(0.7038_0.123_182.5_/_0.6)]" />
+                        <span className="size-1.5 rounded-full bg-teal-400 shadow-[0_0_8px_oklch(0.7038_0.123_182.5_/_0.6)]" />
                         y(t) Function
                       </h3>
                       <FunctionInput
@@ -1166,7 +1166,7 @@ const config = {
               </div>
             </m.div>
 
-            <div className="bg-gradient-to-br from-background/80 to-card/80 p-4 rounded-lg border border-border">
+            <div className="bg-linear-to-br/oklab from-background/80 to-card/80 p-4 rounded-lg border border-border">
               <h3 className="font-semibold text-foreground mb-2">Example Code</h3>
               <pre className="text-xs bg-background/80 text-foreground/80 p-3 rounded overflow-x-auto border border-border">
                 {`const config = {
@@ -1187,8 +1187,8 @@ const config = {
           <TabsContent value="3d-surface" className="space-y-4">
             <SurfaceEditor3D initialPreset="sinc" width={800} height={600} />
 
-            <div className="relative group p-4 rounded-lg bg-gradient-to-br from-background/80 to-card/80 border border-border shadow-[0_0_15px_oklch(0.7107_0.0351_256.79_/_0.15)] hover:shadow-[0_0_25px_oklch(0.7107_0.0351_256.79_/_0.25)] transition-all duration-300">
-              <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-muted/5 to-muted/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="relative group p-4 rounded-lg bg-linear-to-br/oklab from-background/80 to-card/80 border border-border shadow-[0_0_15px_oklch(0.7107_0.0351_256.79_/_0.15)] hover:shadow-[0_0_25px_oklch(0.7107_0.0351_256.79_/_0.25)] transition-all duration-300">
+              <div className="absolute inset-0 rounded-lg bg-linear-to-br/oklab from-muted/5 to-muted/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <p className="text-sm text-foreground/80 relative">
                 <strong className="text-foreground">Features:</strong> 10 preset shapes (Sphere,
                 Sinc, Ripple, Saddle, Egg Carton, Monkey Saddle, Peaks, Gaussian, Torus, Helix) +
@@ -1196,7 +1196,7 @@ const config = {
               </p>
             </div>
 
-            <div className="bg-gradient-to-br from-background/80 to-card/80 p-4 rounded-lg border border-border">
+            <div className="bg-linear-to-br/oklab from-background/80 to-card/80 p-4 rounded-lg border border-border">
               <h3 className="font-semibold text-foreground mb-2">Example Code</h3>
               <pre className="text-xs bg-background/80 text-foreground/80 p-3 rounded overflow-x-auto border border-border">
                 {`import { SurfaceEditor3D } from '@/components/plots';
@@ -1221,13 +1221,13 @@ const config = {
           <m.div
             whileHover={{ y: -8, scale: 1.02 }}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-            className="group relative p-6 rounded-xl overflow-hidden bg-gradient-to-br from-blue-950/40 to-blue-900/40 border border-blue-500/40 hover:border-blue-400/70 shadow-[0_0_20px_oklch(0.6231_0.188_259.81_/_0.2)] hover:shadow-[0_0_35px_oklch(0.6231_0.188_259.81_/_0.4)] transition-all duration-300"
+            className="group relative p-6 rounded-xl overflow-hidden bg-linear-to-br/oklab from-blue-950/40 to-blue-900/40 border border-blue-500/40 hover:border-blue-400/70 shadow-[0_0_20px_oklch(0.6231_0.188_259.81_/_0.2)] hover:shadow-[0_0_35px_oklch(0.6231_0.188_259.81_/_0.4)] transition-all duration-300"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-linear-to-br/oklab from-blue-500/5 to-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="relative">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 rounded-lg bg-blue-500/20 border border-blue-500/40">
-                  <Zap className="h-5 w-5 text-blue-300" />
+                  <Zap className="size-5 text-blue-300" />
                 </div>
                 <h3 className="font-semibold text-blue-300">Performance</h3>
               </div>
@@ -1239,7 +1239,7 @@ const config = {
                   'GPU-accelerated rendering',
                 ].map((t) => (
                   <li key={t} className="flex items-center gap-2">
-                    <span className="w-1 h-1 rounded-full bg-blue-400" />
+                    <span className="size-1 rounded-full bg-blue-400" />
                     {t}
                   </li>
                 ))}
@@ -1250,13 +1250,13 @@ const config = {
           <m.div
             whileHover={{ y: -8, scale: 1.02 }}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-            className="group relative p-6 rounded-xl overflow-hidden bg-gradient-to-br from-emerald-950/40 to-emerald-900/40 border border-emerald-500/40 hover:border-emerald-400/70 shadow-[0_0_20px_oklch(0.6959_0.1491_162.48_/_0.2)] hover:shadow-[0_0_35px_oklch(0.6959_0.1491_162.48_/_0.4)] transition-all duration-300"
+            className="group relative p-6 rounded-xl overflow-hidden bg-linear-to-br/oklab from-emerald-950/40 to-emerald-900/40 border border-emerald-500/40 hover:border-emerald-400/70 shadow-[0_0_20px_oklch(0.6959_0.1491_162.48_/_0.2)] hover:shadow-[0_0_35px_oklch(0.6959_0.1491_162.48_/_0.4)] transition-all duration-300"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-emerald-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-linear-to-br/oklab from-emerald-500/5 to-emerald-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="relative">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 rounded-lg bg-emerald-500/20 border border-emerald-500/40">
-                  <Activity className="h-5 w-5 text-emerald-300" />
+                  <Activity className="size-5 text-emerald-300" />
                 </div>
                 <h3 className="font-semibold text-emerald-300">Features</h3>
               </div>
@@ -1268,7 +1268,7 @@ const config = {
                   'Touch support',
                 ].map((t) => (
                   <li key={t} className="flex items-center gap-2">
-                    <span className="w-1 h-1 rounded-full bg-emerald-400" />
+                    <span className="size-1 rounded-full bg-emerald-400" />
                     {t}
                   </li>
                 ))}
@@ -1279,13 +1279,13 @@ const config = {
           <m.div
             whileHover={{ y: -8, scale: 1.02 }}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-            className="group relative p-6 rounded-xl overflow-hidden bg-gradient-to-br from-purple-950/40 to-purple-900/40 border border-purple-500/40 hover:border-purple-400/70 shadow-[0_0_20px_oklch(0.6268_0.2325_303.9_/_0.2)] hover:shadow-[0_0_35px_oklch(0.6268_0.2325_303.9_/_0.4)] transition-all duration-300"
+            className="group relative p-6 rounded-xl overflow-hidden bg-linear-to-br/oklab from-purple-950/40 to-purple-900/40 border border-purple-500/40 hover:border-purple-400/70 shadow-[0_0_20px_oklch(0.6268_0.2325_303.9_/_0.2)] hover:shadow-[0_0_35px_oklch(0.6268_0.2325_303.9_/_0.4)] transition-all duration-300"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-purple-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-linear-to-br/oklab from-purple-500/5 to-purple-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="relative">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 rounded-lg bg-purple-500/20 border border-purple-500/40">
-                  <Layers className="h-5 w-5 text-purple-300" />
+                  <Layers className="size-5 text-purple-300" />
                 </div>
                 <h3 className="font-semibold text-purple-300">Coordinates</h3>
               </div>
@@ -1297,7 +1297,7 @@ const config = {
                   '3D Surface (x, y, z)',
                 ].map((t) => (
                   <li key={t} className="flex items-center gap-2">
-                    <span className="w-1 h-1 rounded-full bg-purple-400" />
+                    <span className="size-1 rounded-full bg-purple-400" />
                     {t}
                   </li>
                 ))}

@@ -255,7 +255,7 @@ export function ProblemBrowser({
                 className="lg:hidden"
                 aria-label={showFilters ? 'Hide filters' : 'Show filters'}
               >
-                <SlidersHorizontal className="h-4 w-4" />
+                <SlidersHorizontal className="size-4" />
               </Button>
             </div>
           </CardHeader>
@@ -386,7 +386,7 @@ export function ProblemBrowser({
         <div className="flex flex-col sm:flex-row gap-4">
           {/* Search */}
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Search problems..."
@@ -406,7 +406,7 @@ export function ProblemBrowser({
               aria-label="Grid view"
               aria-pressed={viewMode === 'grid'}
             >
-              <Grid3x3 className="h-4 w-4" />
+              <Grid3x3 className="size-4" />
             </Button>
             <Button
               variant={viewMode === 'list' ? 'default' : 'outline'}
@@ -415,7 +415,7 @@ export function ProblemBrowser({
               aria-label="List view"
               aria-pressed={viewMode === 'list'}
             >
-              <List className="h-4 w-4" />
+              <List className="size-4" />
             </Button>
           </div>
 
@@ -444,7 +444,7 @@ export function ProblemBrowser({
             className="lg:hidden"
             aria-label={showFilters ? 'Hide filters' : 'Show filters'}
           >
-            <SlidersHorizontal className="h-4 w-4" />
+            <SlidersHorizontal className="size-4" />
           </Button>
         </div>
 
@@ -524,7 +524,7 @@ export function ProblemBrowser({
               disabled={currentPage === 1}
               aria-label="Previous page"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="size-4" />
             </Button>
             <span className="text-sm text-muted-foreground">
               Page {currentPage} of {totalPages}
@@ -536,7 +536,7 @@ export function ProblemBrowser({
               disabled={currentPage === totalPages}
               aria-label="Next page"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="size-4" />
             </Button>
           </div>
         )}
@@ -594,7 +594,7 @@ function ProblemCard({
         <div
           className={cn(
             'absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300',
-            'bg-gradient-to-br',
+            'bg-linear-to-br/oklab',
             topicColor,
             'blur-xl -z-10',
           )}
@@ -606,7 +606,7 @@ function ProblemCard({
             <m.div
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
-              className={cn('h-full bg-gradient-to-r', topicColor)}
+              className={cn('h-full bg-linear-to-r/oklab', topicColor)}
             />
           </div>
         )}
@@ -624,7 +624,7 @@ function ProblemCard({
                 <span className="mx-2 text-muted-foreground">•</span>
                 <span
                   className={cn(
-                    'font-medium bg-gradient-to-r bg-clip-text text-transparent',
+                    'font-medium bg-linear-to-r/oklab bg-clip-text text-transparent',
                     topicColor,
                   )}
                 >
@@ -643,9 +643,9 @@ function ProblemCard({
               className="shrink-0"
             >
               {isBookmarked ? (
-                <Bookmark className="h-4 w-4 fill-current text-primary" />
+                <Bookmark className="size-4 fill-current text-primary" />
               ) : (
-                <BookmarkPlus className="h-4 w-4" />
+                <BookmarkPlus className="size-4" />
               )}
             </Button>
           </div>
@@ -682,11 +682,11 @@ function ProblemCard({
               className="flex items-center gap-1"
               title={`Estimated time: ${problem.estimatedTime} minutes`}
             >
-              <Clock className="h-3 w-3" />
+              <Clock className="size-3" />
               <span>{problem.estimatedTime}m</span>
             </div>
             <div className="flex items-center gap-1" title={`Points: ${problem.points}`}>
-              <Trophy className="h-3 w-3" />
+              <Trophy className="size-3" />
               <span>{problem.points}</span>
             </div>
           </div>

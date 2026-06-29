@@ -38,7 +38,7 @@ export default function ErrorPage({
   }, [error]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4 bg-gradient-to-br from-background via-background/95 to-background">
+    <div className="flex min-h-screen items-center justify-center p-4 bg-linear-to-br/oklab from-background via-background/95 to-background">
       <m.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -50,7 +50,7 @@ export default function ErrorPage({
             <div className="flex justify-center">
               <div className="rounded-full bg-red-500/20 p-4">
                 <svg
-                  className="w-12 h-12 text-red-400"
+                  className="size-12 text-red-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -104,7 +104,7 @@ export default function ErrorPage({
             <div className="flex gap-3 justify-center">
               <Button
                 onClick={reset}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                className="bg-linear-to-r/oklab from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
               >
                 {t('error.tryAgain' as Parameters<typeof t>[0])}
               </Button>

@@ -135,10 +135,10 @@ export function Calculator() {
         <Link href="/plot" className="flex-1 max-w-xs">
           <Button
             variant="outline"
-            className="w-full bg-gradient-to-r from-blue-600/10 to-indigo-600/10 hover:from-blue-600/20 hover:to-indigo-600/20 border-blue-500/30 hover:border-blue-500/50 transition-all"
+            className="w-full bg-linear-to-r/oklab from-blue-600/10 to-indigo-600/10 hover:from-blue-600/20 hover:to-indigo-600/20 border-blue-500/30 hover:border-blue-500/50 transition-all"
             size="lg"
           >
-            <BarChart3 className="h-5 w-5 mr-2" />
+            <BarChart3 className="size-5 mr-2" />
             <span className="font-semibold">Plot Functions</span>
           </Button>
         </Link>
@@ -146,10 +146,10 @@ export function Calculator() {
         <Link href="/symbolic" className="flex-1 max-w-xs">
           <Button
             variant="outline"
-            className="w-full bg-gradient-to-r from-purple-600/10 to-pink-600/10 hover:from-purple-600/20 hover:to-pink-600/20 border-purple-500/30 hover:border-purple-500/50 transition-all"
+            className="w-full bg-linear-to-r/oklab from-purple-600/10 to-pink-600/10 hover:from-purple-600/20 hover:to-pink-600/20 border-purple-500/30 hover:border-purple-500/50 transition-all"
             size="lg"
           >
-            <Sigma className="h-5 w-5 mr-2" />
+            <Sigma className="size-5 mr-2" />
             <span className="font-semibold">Symbolic Math</span>
           </Button>
         </Link>

@@ -172,12 +172,12 @@ export function CodeBlock({
             >
               {copied ? (
                 <>
-                  <Check className="h-4 w-4" aria-hidden="true" />
+                  <Check className="size-4" aria-hidden="true" />
                   <span className="text-xs">Copied!</span>
                 </>
               ) : (
                 <>
-                  <Copy className="h-4 w-4" aria-hidden="true" />
+                  <Copy className="size-4" aria-hidden="true" />
                   <span className="text-xs">Copy</span>
                 </>
               )}

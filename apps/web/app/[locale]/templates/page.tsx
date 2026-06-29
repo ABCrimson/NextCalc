@@ -701,7 +701,7 @@ function TemplateCard({ template, accent, text, iconBg, animationDelay }: Templa
       <div className="px-5 pt-5 pb-4 border-b border-border">
         <div className="flex items-start gap-3">
           <div className={`p-2 rounded-lg ${iconBg} shrink-0`} aria-hidden="true">
-            <Calculator className={`h-4 w-4 ${text}`} />
+            <Calculator className={`size-4 ${text}`} />
           </div>
           <div className="flex-1 min-w-0">
             <h3 className={`text-sm font-semibold ${text} leading-tight`}>{template.title}</h3>
@@ -792,7 +792,7 @@ function TemplateCard({ template, accent, text, iconBg, animationDelay }: Templa
             ].join(' ')}
             aria-label={`Calculate ${template.title}`}
           >
-            <Calculator className="h-3.5 w-3.5" aria-hidden="true" />
+            <Calculator className="size-3.5" aria-hidden="true" />
             Calculate
           </button>
           {state.computed && (
@@ -821,7 +821,7 @@ function TemplateCard({ template, accent, text, iconBg, animationDelay }: Templa
               aria-live="assertive"
             >
               <AlertCircle
-                className="h-4 w-4 text-destructive shrink-0 mt-0.5"
+                className="size-4 text-destructive shrink-0 mt-0.5"
                 aria-hidden="true"
               />
               <p className="text-xs text-destructive leading-snug">{state.error}</p>
@@ -840,7 +840,7 @@ function TemplateCard({ template, accent, text, iconBg, animationDelay }: Templa
               aria-live="polite"
               aria-label={`Result: ${template.resultLabel} = ${resultStr}${template.resultUnit ? ` ${template.resultUnit}` : ''}`}
             >
-              <CheckCircle2 className={`h-4 w-4 ${text} shrink-0`} aria-hidden="true" />
+              <CheckCircle2 className={`size-4 ${text} shrink-0`} aria-hidden="true" />
               <div className="flex-1 min-w-0">
                 <span className="text-xs text-muted-foreground">{template.resultLabel}: </span>
                 <span className={`text-sm font-semibold font-mono ${text}`}>{resultStr}</span>
@@ -878,10 +878,10 @@ function CategorySection({ category, baseDelay }: CategorySectionProps) {
       {/* Category heading row */}
       <div className="flex items-center gap-3 mb-5">
         <div
-          className={`p-2.5 rounded-xl bg-gradient-to-br ${category.gradient} border ${category.border.split(' ')[0]}`}
+          className={`p-2.5 rounded-xl bg-linear-to-br/oklab ${category.gradient} border ${category.border.split(' ')[0]}`}
           aria-hidden="true"
         >
-          <Icon className={`h-5 w-5 ${category.text}`} />
+          <Icon className={`size-5 ${category.text}`} />
         </div>
         <h2 id={`cat-heading-${category.id}`} className={`text-xl font-bold ${category.text}`}>
           {category.label}
@@ -934,7 +934,7 @@ function CategoryTab({ category, isSelected, onClick }: CategoryTabProps) {
           : 'text-muted-foreground border-border bg-transparent hover:text-foreground hover:border-border/80 hover:bg-muted/30',
       ].join(' ')}
     >
-      <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+      <Icon className="size-3.5" aria-hidden="true" />
       {category.label}
     </button>
   );
@@ -1021,11 +1021,11 @@ export default function TemplatesPage() {
           >
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary border border-primary/20 mb-6 text-sm font-medium">
-              <Calculator className="h-4 w-4" aria-hidden="true" />
+              <Calculator className="size-4" aria-hidden="true" />
               {t('badge')}
             </div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-5 bg-gradient-to-r from-emerald-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-5 bg-linear-to-r/oklab from-emerald-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
               {t('heroTitle')}
             </h1>
 
@@ -1039,13 +1039,13 @@ export default function TemplatesPage() {
                 const Icon = cat.icon;
                 return (
                   <div key={cat.id} className="flex items-center gap-1.5">
-                    <Icon className={`h-4 w-4 ${cat.text}`} aria-hidden="true" />
+                    <Icon className={`size-4 ${cat.text}`} aria-hidden="true" />
                     <span>{cat.label}</span>
                   </div>
                 );
               })}
               <div className="flex items-center gap-1.5">
-                <ChevronRight className="h-4 w-4 text-primary" aria-hidden="true" />
+                <ChevronRight className="size-4 text-primary" aria-hidden="true" />
                 <span>{totalTemplates} templates</span>
               </div>
             </div>
@@ -1125,11 +1125,11 @@ export default function TemplatesPage() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.4 }}
-          className="p-6 rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-purple-500/5"
+          className="p-6 rounded-2xl border border-primary/20 bg-linear-to-br/oklab from-primary/5 to-purple-500/5"
         >
           <div className="flex items-start gap-4">
             <div className="p-2.5 rounded-xl bg-primary/10 shrink-0" aria-hidden="true">
-              <Calculator className="h-5 w-5 text-primary" />
+              <Calculator className="size-5 text-primary" />
             </div>
             <div>
               <h2 id="how-to-heading" className="text-base font-semibold mb-1">

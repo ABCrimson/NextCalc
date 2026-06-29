@@ -684,7 +684,7 @@ export function TransformerVisualizer({
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-            <Send className="h-4 w-4 shrink-0" />
+            <Send className="size-4 shrink-0" />
             Custom Sentence Input
           </CardTitle>
           <CardDescription className="text-xs sm:text-sm">
@@ -723,7 +723,7 @@ export function TransformerVisualizer({
               aria-label="Apply sentence as tokens"
               className="shrink-0"
             >
-              <Send className="h-4 w-4 mr-2" />
+              <Send className="size-4 mr-2" />
               Tokenize
             </Button>
           </div>
@@ -757,7 +757,7 @@ export function TransformerVisualizer({
                     onClick={animateThroughHeads}
                     aria-label={isAnimating ? 'Pause animation' : 'Play animation'}
                   >
-                    {isAnimating ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                    {isAnimating ? <Pause className="size-4" /> : <Play className="size-4" />}
                   </Button>
                   <Button
                     variant="outline"
@@ -765,7 +765,7 @@ export function TransformerVisualizer({
                     onClick={() => exportAttentionPattern('png')}
                     aria-label="Export attention pattern as PNG"
                   >
-                    <Download className="h-4 w-4" />
+                    <Download className="size-4" />
                   </Button>
                 </div>
               </div>
@@ -1006,7 +1006,7 @@ export function TransformerVisualizer({
                       exit={{ opacity: 0, y: -8 }}
                     >
                       <Alert>
-                        <Info className="h-4 w-4 shrink-0" />
+                        <Info className="size-4 shrink-0" />
                         <div className="ml-2 min-w-0 overflow-hidden">
                           <strong>Attention Flow:</strong>{' '}
                           <span className="font-mono text-xs break-all">
@@ -1146,7 +1146,7 @@ export function TransformerVisualizer({
                   onClick={resetConfig}
                   disabled={isAnimating}
                 >
-                  <RotateCcw className="h-4 w-4 mr-2" />
+                  <RotateCcw className="size-4 mr-2" />
                   Reset to Default
                 </Button>
               </div>
@@ -1197,7 +1197,7 @@ export function TransformerVisualizer({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 flex-wrap">
-              <Info className="h-5 w-5 shrink-0" />
+              <Info className="size-5 shrink-0" />
               <span>How Self-Attention Works</span>
             </CardTitle>
           </CardHeader>
@@ -1302,7 +1302,7 @@ export function TransformerVisualizer({
                   <li>Export the pattern to PNG for offline analysis</li>
                 </ul>
                 <Alert className="mt-4">
-                  <Info className="h-4 w-4 shrink-0" />
+                  <Info className="size-4 shrink-0" />
                   <p className="ml-2 text-xs break-words min-w-0">
                     <strong>Keyboard shortcut:</strong> Press Enter in the sentence field to
                     tokenize. Hover any heatmap cell to highlight that query&apos;s attention arcs

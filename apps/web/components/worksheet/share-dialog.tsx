@@ -79,7 +79,7 @@ function StatusPill({ status }: StatusPillProps) {
     >
       <span
         className={cn(
-          'inline-block h-2 w-2 rounded-full',
+          'inline-block size-2 rounded-full',
           dot,
           status === 'live' && 'animate-pulse',
           status === 'connecting' && 'animate-ping',
@@ -105,7 +105,7 @@ function TransportBadge({ transport }: TransportBadgeProps) {
 
   return (
     <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground border border-border/50 rounded-full px-2.5 py-1">
-      <Icon className="h-3 w-3" aria-hidden="true" />
+      <Icon className="size-3" aria-hidden="true" />
       {label}
     </span>
   );
@@ -134,7 +134,7 @@ function CopyButton({ value, label }: CopyButtonProps) {
       type="button"
       onClick={handleCopy}
       className={cn(
-        'shrink-0 flex items-center justify-center h-9 w-9 rounded-md transition-colors',
+        'shrink-0 flex items-center justify-center size-9 rounded-md transition-colors',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         copied
           ? 'bg-emerald-500/15 text-emerald-400'
@@ -151,7 +151,7 @@ function CopyButton({ value, label }: CopyButtonProps) {
             exit={{ scale: 0.6, opacity: 0 }}
             transition={{ duration: 0.15 }}
           >
-            <Check className="h-4 w-4" aria-hidden="true" />
+            <Check className="size-4" aria-hidden="true" />
           </m.span>
         ) : (
           <m.span
@@ -161,7 +161,7 @@ function CopyButton({ value, label }: CopyButtonProps) {
             exit={{ scale: 0.6, opacity: 0 }}
             transition={{ duration: 0.15 }}
           >
-            <Copy className="h-4 w-4" aria-hidden="true" />
+            <Copy className="size-4" aria-hidden="true" />
           </m.span>
         )}
       </AnimatePresence>
@@ -189,7 +189,7 @@ function CollaboratorAvatarRow({ peers, localName, localColor }: CollaboratorAva
       {/* Local peer */}
       <li className="flex items-center gap-2">
         <span
-          className="flex items-center justify-center h-8 w-8 rounded-full text-xs font-bold text-background ring-2 ring-background"
+          className="flex items-center justify-center size-8 rounded-full text-xs font-bold text-background ring-2 ring-background"
           style={{ backgroundColor: localColor }}
           role="img"
           aria-label={`${localName} (you)`}
@@ -204,7 +204,7 @@ function CollaboratorAvatarRow({ peers, localName, localColor }: CollaboratorAva
       {peers.map((peer) => (
         <li key={peer.id} className="flex items-center gap-2">
           <span
-            className="flex items-center justify-center h-8 w-8 rounded-full text-xs font-bold text-background ring-2 ring-background"
+            className="flex items-center justify-center size-8 rounded-full text-xs font-bold text-background ring-2 ring-background"
             style={{ backgroundColor: peer.color }}
             role="img"
             aria-label={peer.name}
@@ -297,7 +297,7 @@ function ShareDialogContent({ onClose }: ShareDialogContentProps) {
           htmlFor={nameInputId}
           className="text-sm font-medium text-foreground flex items-center gap-1.5"
         >
-          <UserCircle2 className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+          <UserCircle2 className="size-3.5 text-muted-foreground" aria-hidden="true" />
           Your display name
         </label>
         <Input
@@ -321,7 +321,7 @@ function ShareDialogContent({ onClose }: ShareDialogContentProps) {
       {isActive && (
         <section aria-label="Active collaborators" className="space-y-2">
           <h3 className="text-sm font-medium flex items-center gap-1.5 text-foreground">
-            <Users className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+            <Users className="size-3.5 text-muted-foreground" aria-hidden="true" />
             Collaborators
             <span className="text-xs text-muted-foreground/70 font-normal bg-muted px-1.5 py-0.5 rounded-full">
               {remotePeers.length + 1}
@@ -366,21 +366,21 @@ function ShareDialogContent({ onClose }: ShareDialogContentProps) {
           <p className="font-medium text-foreground text-sm">How collaboration works</p>
           <ul className="space-y-1.5 list-none">
             <li className="flex items-start gap-2">
-              <Radio className="h-3.5 w-3.5 mt-0.5 text-blue-400 shrink-0" aria-hidden="true" />
+              <Radio className="size-3.5 mt-0.5 text-blue-400 shrink-0" aria-hidden="true" />
               <span>
                 <strong className="text-foreground font-medium">Same device:</strong> Multiple
                 browser tabs sync instantly via BroadcastChannel — works offline.
               </span>
             </li>
             <li className="flex items-start gap-2">
-              <Globe className="h-3.5 w-3.5 mt-0.5 text-emerald-400 shrink-0" aria-hidden="true" />
+              <Globe className="size-3.5 mt-0.5 text-emerald-400 shrink-0" aria-hidden="true" />
               <span>
                 <strong className="text-foreground font-medium">Cross-device:</strong> WebSocket
                 subscription is used when the API server is reachable.
               </span>
             </li>
             <li className="flex items-start gap-2">
-              <Wifi className="h-3.5 w-3.5 mt-0.5 text-amber-400 shrink-0" aria-hidden="true" />
+              <Wifi className="size-3.5 mt-0.5 text-amber-400 shrink-0" aria-hidden="true" />
               <span>
                 <strong className="text-foreground font-medium">Conflict resolution:</strong>{' '}
                 Last-write-wins per cell using cell timestamps.
@@ -401,7 +401,7 @@ function ShareDialogContent({ onClose }: ShareDialogContentProps) {
               onClick={handleStopCollab}
               aria-label="Disconnect from collaboration session and return to solo mode"
             >
-              <ZapOff className="h-3.5 w-3.5" aria-hidden="true" />
+              <ZapOff className="size-3.5" aria-hidden="true" />
               Disconnect
             </Button>
             <div className="flex-1" />
@@ -412,7 +412,7 @@ function ShareDialogContent({ onClose }: ShareDialogContentProps) {
               onClick={onClose}
               aria-label="Close the collaboration panel"
             >
-              <X className="h-3.5 w-3.5" aria-hidden="true" />
+              <X className="size-3.5" aria-hidden="true" />
               Close
             </Button>
           </>
@@ -432,7 +432,7 @@ function ShareDialogContent({ onClose }: ShareDialogContentProps) {
               onClick={handleStartCollab}
               aria-label="Start a collaborative session for this worksheet"
             >
-              <Share2 className="h-3.5 w-3.5" aria-hidden="true" />
+              <Share2 className="size-3.5" aria-hidden="true" />
               Start Collaborating
             </Button>
           </>
@@ -457,7 +457,7 @@ export function ShareDialog({ open, onOpenChange }: ShareDialogProps) {
       <DialogContent className="max-w-md" aria-label="Share and collaborate on this worksheet">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Share2 className="h-4 w-4 text-primary" aria-hidden="true" />
+            <Share2 className="size-4 text-primary" aria-hidden="true" />
             Share &amp; Collaborate
           </DialogTitle>
           <DialogDescription>

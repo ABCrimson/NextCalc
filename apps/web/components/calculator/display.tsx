@@ -97,13 +97,13 @@ export function Display({ expression, result, isPending = false, mode, angle }: 
             <TabsList className="bg-black/20 backdrop-blur-md p-1.5 rounded-xl border border-white/5">
               <TabsTrigger
                 value="plain"
-                className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-calculator-special data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 data-[state=active]:text-white rounded-lg transition-all duration-200 font-medium text-muted-foreground hover:text-foreground px-4 py-2"
+                className="data-[state=active]:bg-linear-to-br/oklab data-[state=active]:from-primary data-[state=active]:to-calculator-special data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 data-[state=active]:text-white rounded-lg transition-all duration-200 font-medium text-muted-foreground hover:text-foreground px-4 py-2"
               >
                 Plain
               </TabsTrigger>
               <TabsTrigger
                 value="latex"
-                className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-calculator-special data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 data-[state=active]:text-white rounded-lg transition-all duration-200 font-medium text-muted-foreground hover:text-foreground px-4 py-2"
+                className="data-[state=active]:bg-linear-to-br/oklab data-[state=active]:from-primary data-[state=active]:to-calculator-special data-[state=active]:shadow-lg data-[state=active]:shadow-primary/30 data-[state=active]:text-white rounded-lg transition-all duration-200 font-medium text-muted-foreground hover:text-foreground px-4 py-2"
               >
                 LaTeX
               </TabsTrigger>
@@ -121,7 +121,7 @@ export function Display({ expression, result, isPending = false, mode, angle }: 
                 <m.div
                   key={String(displayResult)}
                   {...resultVariants}
-                  className="text-5xl font-bold font-mono min-h-[3.5rem] bg-gradient-to-br from-sky-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent overflow-x-auto whitespace-nowrap scrollbar-none"
+                  className="text-5xl font-bold font-mono min-h-[3.5rem] bg-linear-to-br/oklab from-sky-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent overflow-x-auto whitespace-nowrap scrollbar-none"
                   role="status"
                   aria-label={displayResult !== null ? `Result: ${formattedResult}` : 'No result'}
                   aria-busy={isPending}
@@ -146,7 +146,7 @@ export function Display({ expression, result, isPending = false, mode, angle }: 
                   <m.div
                     key={String(displayResult)}
                     {...resultVariants}
-                    className="text-5xl font-bold font-mono bg-gradient-to-br from-sky-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent overflow-x-auto whitespace-nowrap scrollbar-none"
+                    className="text-5xl font-bold font-mono bg-linear-to-br/oklab from-sky-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent overflow-x-auto whitespace-nowrap scrollbar-none"
                     role="status"
                     aria-label={`Result: ${formattedResult}`}
                     aria-busy={isPending}

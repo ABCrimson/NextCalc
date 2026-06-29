@@ -180,12 +180,12 @@ export default function MLAlgorithmsPage() {
       {/* ── Animated background layer ── */}
       <div className="fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
         {/* Base gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background" />
+        <div className="absolute inset-0 bg-linear-to-br/oklab from-background via-background/95 to-background" />
 
         {/* Noise texture overlay via SVG feTurbulence */}
         <svg
           aria-hidden="true"
-          className="absolute inset-0 w-full h-full opacity-[0.025] pointer-events-none"
+          className="absolute inset-0 size-full opacity-[0.025] pointer-events-none"
           xmlns="http://www.w3.org/2000/svg"
         >
           <filter id="ml-noise">
@@ -255,16 +255,16 @@ export default function MLAlgorithmsPage() {
                 borderColor: 'oklch(0.65 0.20 290 / 0.35)',
               }}
             >
-              <Brain className="w-8 h-8" style={{ color: 'oklch(0.75 0.20 290)' }} />
+              <Brain className="size-8" style={{ color: 'oklch(0.75 0.20 290)' }} />
             </div>
-            <h1 className="text-4xl font-bold min-w-0 break-words bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold min-w-0 break-words bg-linear-to-r/oklab from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
               {t('title')}
             </h1>
           </div>
           <p className="text-lg text-muted-foreground">{t('subtitle')}</p>
           <div className="flex flex-wrap gap-2 mt-4">
             <Badge variant="outline" className="border-blue-500/50 text-blue-400 bg-blue-500/10">
-              <Zap className="w-3 h-3 mr-1" />
+              <Zap className="size-3 mr-1" />
               {t('simclr')}
             </Badge>
             <Badge
@@ -283,16 +283,16 @@ export default function MLAlgorithmsPage() {
           <TabsList className="grid w-full grid-cols-2 bg-card/50 backdrop-blur-md border border-border">
             <TabsTrigger
               value="simclr"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500/20 data-[state=active]:to-purple-500/20 data-[state=active]:text-foreground data-[state=active]:border-blue-500/30"
+              className="data-[state=active]:bg-linear-to-r/oklab data-[state=active]:from-blue-500/20 data-[state=active]:to-purple-500/20 data-[state=active]:text-foreground data-[state=active]:border-blue-500/30"
             >
-              <Zap className="w-4 h-4 mr-2" />
+              <Zap className="size-4 mr-2" />
               {t('simclr')}
             </TabsTrigger>
             <TabsTrigger
               value="alibi"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 data-[state=active]:text-foreground data-[state=active]:border-purple-500/30"
+              className="data-[state=active]:bg-linear-to-r/oklab data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 data-[state=active]:text-foreground data-[state=active]:border-purple-500/30"
             >
-              <Eye className="w-4 h-4 mr-2" />
+              <Eye className="size-4 mr-2" />
               {t('alibiAttention')}
             </TabsTrigger>
           </TabsList>
@@ -362,14 +362,14 @@ export default function MLAlgorithmsPage() {
 
                   <Button
                     onClick={runSimCLR}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white border-0"
+                    className="w-full bg-linear-to-r/oklab from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white border-0"
                     size="lg"
                   >
                     {t('runSimCLR')}
                   </Button>
 
                   {contrastiveResult && (
-                    <div className="p-4 bg-gradient-to-br from-blue-950/40 to-purple-900/40 border border-blue-500/40 rounded-lg backdrop-blur-sm">
+                    <div className="p-4 bg-linear-to-br/oklab from-blue-950/40 to-purple-900/40 border border-blue-500/40 rounded-lg backdrop-blur-sm">
                       <div className="font-semibold text-blue-300 mb-2">Loss Value</div>
                       <div className="text-3xl font-mono font-bold text-purple-200">
                         {contrastiveResult.loss.toFixed(4)}
@@ -435,11 +435,11 @@ export default function MLAlgorithmsPage() {
 
                       <div className="grid grid-cols-2 gap-2 text-xs">
                         <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 bg-emerald-500 rounded" />
+                          <div className="size-4 bg-emerald-500 rounded" />
                           <span className="text-muted-foreground">Positive Pairs (diagonal)</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 bg-muted rounded" />
+                          <div className="size-4 bg-muted rounded" />
                           <span className="text-muted-foreground">Negative Pairs</span>
                         </div>
                       </div>
@@ -528,7 +528,7 @@ export default function MLAlgorithmsPage() {
 
                   <Button
                     onClick={runAliBI}
-                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white border-0"
+                    className="w-full bg-linear-to-r/oklab from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white border-0"
                     size="lg"
                   >
                     {t('runAliBI')}
@@ -536,7 +536,7 @@ export default function MLAlgorithmsPage() {
 
                   {attentionResult && (
                     <div className="space-y-3">
-                      <div className="p-4 bg-gradient-to-br from-purple-950/40 to-pink-900/40 border border-purple-500/40 rounded-lg backdrop-blur-sm">
+                      <div className="p-4 bg-linear-to-br/oklab from-purple-950/40 to-pink-900/40 border border-purple-500/40 rounded-lg backdrop-blur-sm">
                         <div className="font-semibold text-purple-300 mb-2">
                           Attention Statistics
                         </div>
@@ -665,7 +665,7 @@ export default function MLAlgorithmsPage() {
         <section className="mt-12 space-y-6" aria-labelledby="ml-innovations-heading">
           <h2
             id="ml-innovations-heading"
-            className="text-2xl font-semibold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent"
+            className="text-2xl font-semibold bg-linear-to-r/oklab from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent"
           >
             {t('aboutTitle')}
           </h2>
@@ -687,7 +687,7 @@ export default function MLAlgorithmsPage() {
                 }}
               />
               <div
-                className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20"
+                className="absolute top-0 right-0 size-24 rounded-bl-full opacity-20"
                 style={{
                   background:
                     'radial-gradient(circle at top right, oklch(0.65 0.22 264 / 0.4), transparent)',
@@ -696,7 +696,7 @@ export default function MLAlgorithmsPage() {
               <div className="relative">
                 <div className="flex items-center gap-2 mb-3">
                   <div
-                    className="w-2 h-2 rounded-full"
+                    className="size-2 rounded-full"
                     style={{
                       background: 'oklch(0.65 0.22 264)',
                       boxShadow: '0 0 8px oklch(0.65 0.22 264 / 0.8)',
@@ -734,7 +734,7 @@ export default function MLAlgorithmsPage() {
                 }}
               />
               <div
-                className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20"
+                className="absolute top-0 right-0 size-24 rounded-bl-full opacity-20"
                 style={{
                   background:
                     'radial-gradient(circle at top right, oklch(0.63 0.20 300 / 0.4), transparent)',
@@ -743,7 +743,7 @@ export default function MLAlgorithmsPage() {
               <div className="relative">
                 <div className="flex items-center gap-2 mb-3">
                   <div
-                    className="w-2 h-2 rounded-full"
+                    className="size-2 rounded-full"
                     style={{
                       background: 'oklch(0.63 0.20 300)',
                       boxShadow: '0 0 8px oklch(0.63 0.20 300 / 0.8)',
@@ -780,7 +780,7 @@ export default function MLAlgorithmsPage() {
                 }}
               />
               <div
-                className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20"
+                className="absolute top-0 right-0 size-24 rounded-bl-full opacity-20"
                 style={{
                   background:
                     'radial-gradient(circle at top right, oklch(0.65 0.18 155 / 0.4), transparent)',
@@ -789,7 +789,7 @@ export default function MLAlgorithmsPage() {
               <div className="relative">
                 <div className="flex items-center gap-2 mb-3">
                   <div
-                    className="w-2 h-2 rounded-full"
+                    className="size-2 rounded-full"
                     style={{
                       background: 'oklch(0.65 0.18 155)',
                       boxShadow: '0 0 8px oklch(0.65 0.18 155 / 0.8)',
@@ -826,7 +826,7 @@ export default function MLAlgorithmsPage() {
                 }}
               />
               <div
-                className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20"
+                className="absolute top-0 right-0 size-24 rounded-bl-full opacity-20"
                 style={{
                   background:
                     'radial-gradient(circle at top right, oklch(0.65 0.20 355 / 0.4), transparent)',
@@ -835,7 +835,7 @@ export default function MLAlgorithmsPage() {
               <div className="relative">
                 <div className="flex items-center gap-2 mb-3">
                   <div
-                    className="w-2 h-2 rounded-full"
+                    className="size-2 rounded-full"
                     style={{
                       background: 'oklch(0.65 0.20 355)',
                       boxShadow: '0 0 8px oklch(0.65 0.20 355 / 0.8)',

@@ -723,7 +723,7 @@ function UnitSelect({
       </Label>
       <div className="relative">
         <Search
-          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground"
+          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground"
           aria-hidden="true"
         />
         <Input
@@ -940,9 +940,9 @@ export function UnitConverter() {
               onClick={handleSwap}
               aria-label="Swap from and to units"
               title="Swap units"
-              className="h-9 w-9 self-center"
+              className="size-9 self-center"
             >
-              <ArrowLeftRight className="h-4 w-4" />
+              <ArrowLeftRight className="size-4" />
             </Button>
             <Button
               variant="ghost"
@@ -950,9 +950,9 @@ export function UnitConverter() {
               onClick={handleReset}
               aria-label="Reset to defaults"
               title="Reset"
-              className="h-9 w-9 self-center text-muted-foreground"
+              className="size-9 self-center text-muted-foreground"
             >
-              <RotateCcw className="h-3.5 w-3.5" />
+              <RotateCcw className="size-3.5" />
             </Button>
           </div>
 
@@ -970,7 +970,7 @@ export function UnitConverter() {
         {/* Error */}
         {error && (
           <Alert variant="destructive" role="alert" aria-live="assertive">
-            <AlertCircle className="h-4 w-4" />
+            <AlertCircle className="size-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
@@ -978,7 +978,7 @@ export function UnitConverter() {
         {/* Result */}
         {result !== null && !error && (
           <section
-            className="rounded-lg border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 p-5"
+            className="rounded-lg border-2 border-primary/20 bg-linear-to-br/oklab from-primary/5 to-primary/10 p-5"
             aria-label="Conversion result"
             aria-live="polite"
           >
@@ -1009,7 +1009,7 @@ export function UnitConverter() {
         {categoryDef.commonConversions.length > 0 && (
           <div className="space-y-2">
             <p className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
-              <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />
+              <TrendingUp className="size-3.5" aria-hidden="true" />
               Common Conversions
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
@@ -1033,7 +1033,7 @@ export function UnitConverter() {
         {recentConversions.length > 0 && (
           <div className="space-y-2">
             <p className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
-              <History className="h-3.5 w-3.5" aria-hidden="true" />
+              <History className="size-3.5" aria-hidden="true" />
               Recent
             </p>
             <ul className="space-y-0.5" aria-label="Recent conversions">

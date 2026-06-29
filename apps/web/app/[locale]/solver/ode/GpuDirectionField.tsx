@@ -902,7 +902,7 @@ export function GpuDirectionField({
       ref={canvasRef}
       width={size}
       height={size}
-      className="absolute inset-0 w-full h-full rounded-lg pointer-events-none"
+      className="absolute inset-0 size-full rounded-lg pointer-events-none"
       style={{ mixBlendMode: 'screen' }}
       aria-hidden="true"
       tabIndex={-1}

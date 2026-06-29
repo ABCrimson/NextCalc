@@ -165,7 +165,7 @@ function StatCard({ label, value, icon, accent = false, description }: StatCardP
       <CardContent className="flex items-start gap-3 p-4">
         <div
           className={[
-            'flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-lg',
+            'flex size-9 flex-shrink-0 items-center justify-center rounded-lg text-lg',
             accent ? 'bg-primary/15' : 'bg-muted',
           ].join(' ')}
           aria-hidden="true"
@@ -236,7 +236,7 @@ function QuickActions({ locale }: { locale?: string }) {
           <Link
             href={action.href}
             className={[
-              'flex items-center gap-3 rounded-xl border border-border bg-gradient-to-br p-4',
+              'flex items-center gap-3 rounded-xl border border-border bg-linear-to-br/oklab p-4',
               'transition-all duration-200 hover:-translate-y-0.5 hover:border-border/80 hover:shadow-md',
               'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
               action.gradient,
@@ -244,7 +244,7 @@ function QuickActions({ locale }: { locale?: string }) {
             aria-label={action.label}
           >
             <span
-              className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-background/70 text-xl shadow-sm"
+              className="flex size-10 flex-shrink-0 items-center justify-center rounded-lg bg-background/70 text-xl shadow-sm"
               aria-hidden="true"
             >
               {action.icon}
@@ -349,7 +349,7 @@ function RecentActivityFeed({ calculations, worksheets, locale }: RecentActivity
           {/* Icon */}
           <div
             className={[
-              'mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md text-base',
+              'mt-0.5 flex size-8 flex-shrink-0 items-center justify-center rounded-md text-base',
               entry.kind === 'calculation'
                 ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400'
                 : 'bg-violet-500/10 text-violet-600 dark:text-violet-400',
@@ -626,13 +626,13 @@ function HeroAvatar({
         <img
           src={image}
           alt={name ?? 'User avatar'}
-          className="h-24 w-24 rounded-full border-2 border-border object-cover sm:h-28 sm:w-28"
+          className="size-24 rounded-full border-2 border-border object-cover sm:size-28"
           referrerPolicy="no-referrer"
           onError={() => setImgError(true)}
         />
       ) : (
         <div
-          className="flex h-24 w-24 items-center justify-center rounded-full border-2 border-border overflow-hidden sm:h-28 sm:w-28"
+          className="flex size-24 items-center justify-center rounded-full border-2 border-border overflow-hidden sm:size-28"
           role="img"
           aria-label={`Avatar for ${name ?? 'user'}`}
         >
@@ -640,7 +640,7 @@ function HeroAvatar({
         </div>
       )}
       {/* Level badge — inside aria-hidden parent; no aria-label needed */}
-      <div className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-primary text-xs font-bold text-primary-foreground">
+      <div className="absolute -bottom-1 -right-1 flex size-7 items-center justify-center rounded-full border-2 border-background bg-primary text-xs font-bold text-primary-foreground">
         {level}
       </div>
     </div>

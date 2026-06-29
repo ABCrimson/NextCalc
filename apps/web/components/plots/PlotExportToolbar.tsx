@@ -390,12 +390,12 @@ export function PlotExportToolbar({
             "
           >
             {isExporting ? (
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
             ) : (
-              <Download className="h-4 w-4" aria-hidden="true" />
+              <Download className="size-4" aria-hidden="true" />
             )}
             <span>Export</span>
-            <ChevronDown className="h-3 w-3 opacity-60" aria-hidden="true" />
+            <ChevronDown className="size-3 opacity-60" aria-hidden="true" />
           </Button>
         </DropdownMenuTrigger>
 
@@ -420,7 +420,7 @@ export function PlotExportToolbar({
               aria-disabled={pngDisabled}
               className="gap-2"
             >
-              <Image className="h-4 w-4 text-cyan-400" aria-hidden="true" />
+              <Image className="size-4 text-cyan-400" aria-hidden="true" />
               <span>PNG image</span>
               {pngDisabled && (
                 <span className="ml-auto text-xs text-muted-foreground/60">(loading)</span>
@@ -468,13 +468,13 @@ export function PlotExportToolbar({
 
           {/* SVG export */}
           <DropdownMenuItem onSelect={handleExportSVG} className="gap-2 cursor-pointer">
-            <FileCode className="h-4 w-4 text-purple-400" aria-hidden="true" />
+            <FileCode className="size-4 text-purple-400" aria-hidden="true" />
             SVG vector
           </DropdownMenuItem>
 
           {/* CSV export */}
           <DropdownMenuItem onSelect={handleExportCSV} className="gap-2 cursor-pointer">
-            <FileText className="h-4 w-4 text-emerald-400" aria-hidden="true" />
+            <FileText className="size-4 text-emerald-400" aria-hidden="true" />
             CSV data points
           </DropdownMenuItem>
         </DropdownMenuContent>

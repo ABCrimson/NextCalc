@@ -684,7 +684,7 @@ export function MetaLearningPlayground({
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <CardTitle className="text-3xl font-bold flex items-center gap-2">
-                <Brain className="h-8 w-8 text-primary" />
+                <Brain className="size-8 text-primary" />
                 Meta-Learning Playground
               </CardTitle>
               <CardDescription>
@@ -712,7 +712,7 @@ export function MetaLearningPlayground({
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5" />
+                  <Target className="size-5" />
                   Task Adaptation
                 </CardTitle>
                 {selectedTask && adaptedModel && (
@@ -738,7 +738,7 @@ export function MetaLearningPlayground({
                     border: '2px dashed rgba(80,60,160,0.35)',
                   }}
                 >
-                  <Target className="h-12 w-12 mb-3 opacity-30 text-primary" />
+                  <Target className="size-12 mb-3 opacity-30 text-primary" />
                   <p className="text-sm">Select a task below to visualize model adaptation</p>
                 </div>
               ) : (
@@ -749,11 +749,11 @@ export function MetaLearningPlayground({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-7 w-7 p-0"
+                        className="size-7 p-0"
                         onClick={() => setCanvasZoom((z) => Math.max(0.5, z - 0.25))}
                         aria-label="Zoom out"
                       >
-                        <ZoomOut className="h-3.5 w-3.5" />
+                        <ZoomOut className="size-3.5" />
                       </Button>
                       <span className="w-10 text-center font-mono">
                         {Math.round(canvasZoom * 100)}%
@@ -761,20 +761,20 @@ export function MetaLearningPlayground({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-7 w-7 p-0"
+                        className="size-7 p-0"
                         onClick={() => setCanvasZoom((z) => Math.min(2.0, z + 0.25))}
                         aria-label="Zoom in"
                       >
-                        <ZoomIn className="h-3.5 w-3.5" />
+                        <ZoomIn className="size-3.5" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-7 w-7 p-0"
+                        className="size-7 p-0"
                         onClick={() => setCanvasZoom(1.0)}
                         aria-label="Reset zoom"
                       >
-                        <Maximize2 className="h-3.5 w-3.5" />
+                        <Maximize2 className="size-3.5" />
                       </Button>
                     </div>
                     <div className="text-xs text-muted-foreground truncate max-w-[60%]">
@@ -800,7 +800,7 @@ export function MetaLearningPlayground({
                   >
                     <canvas
                       ref={canvasRef}
-                      className="w-full h-full block"
+                      className="size-full block"
                       style={{ display: 'block' }}
                       aria-label={`Task adaptation visualization for ${selectedTask.name}`}
                     />
@@ -829,7 +829,7 @@ export function MetaLearningPlayground({
                     </div>
                     <div className="flex items-center gap-2">
                       <div
-                        className="w-2.5 h-2.5 rounded-full"
+                        className="size-2.5 rounded-full"
                         style={{ background: '#3b82f6', border: '1px solid #fff' }}
                       />
                       <span>Data points</span>
@@ -844,7 +844,7 @@ export function MetaLearningPlayground({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <TrendingDown className="h-5 w-5" />
+                <TrendingDown className="size-5" />
                 Training Progress
               </CardTitle>
             </CardHeader>
@@ -855,7 +855,7 @@ export function MetaLearningPlayground({
                   animate={{ opacity: 1, y: 0 }}
                   className="text-center py-12"
                 >
-                  <TrendingDown className="h-12 w-12 mx-auto mb-3 opacity-30 text-muted-foreground" />
+                  <TrendingDown className="size-12 mx-auto mb-3 opacity-30 text-muted-foreground" />
                   <p className="text-muted-foreground">Start training to see loss history</p>
                 </m.div>
               ) : (
@@ -1078,12 +1078,12 @@ export function MetaLearningPlayground({
               >
                 {isTraining ? (
                   <>
-                    <Pause className="h-4 w-4 mr-2" />
+                    <Pause className="size-4 mr-2" />
                     Pause
                   </>
                 ) : (
                   <>
-                    <Play className="h-4 w-4 mr-2" />
+                    <Play className="size-4 mr-2" />
                     Start Training
                   </>
                 )}
@@ -1095,14 +1095,14 @@ export function MetaLearningPlayground({
                 onClick={runOuterStep}
                 disabled={isTraining || currentOuterStep >= mamlState.outerSteps}
               >
-                <Zap className="h-4 w-4 mr-2" />
+                <Zap className="size-4 mr-2" />
                 Single Outer Step
               </Button>
 
               <Separator />
 
               <Button variant="outline" className="w-full" onClick={reset}>
-                <RotateCcw className="h-4 w-4 mr-2" />
+                <RotateCcw className="size-4 mr-2" />
                 Reset Training
               </Button>
             </CardContent>
@@ -1224,7 +1224,7 @@ export function MetaLearningPlayground({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Info className="h-5 w-5" />
+              <Info className="size-5" />
               Understanding Meta-Learning (MAML)
             </CardTitle>
           </CardHeader>

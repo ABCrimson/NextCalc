@@ -63,9 +63,9 @@ const PDE3DRenderer = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex items-center justify-center w-full h-full min-h-[400px]">
+      <div className="flex items-center justify-center size-full min-h-[400px]">
         <div className="text-center space-y-4">
-          <div className="w-14 h-14 border-4 border-violet-500/30 border-t-violet-500 rounded-full animate-spin mx-auto" />
+          <div className="size-14 border-4 border-violet-500/30 border-t-violet-500 rounded-full animate-spin mx-auto" />
           <p className="text-sm text-muted-foreground">Loading 3D renderer...</p>
         </div>
       </div>
@@ -286,11 +286,11 @@ export function PDE3DClient() {
         {/* Header */}
         <header className="mb-6">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-violet-500/20 to-cyan-500/20 border border-violet-500/30">
-              <Box className="w-7 h-7 text-violet-400" aria-hidden="true" />
+            <div className="p-2 rounded-xl bg-linear-to-br/oklab from-violet-500/20 to-cyan-500/20 border border-violet-500/30">
+              <Box className="size-7 text-violet-400" aria-hidden="true" />
             </div>
             <div>
-              <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-violet-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
+              <h1 className="text-3xl sm:text-4xl font-bold bg-linear-to-r/oklab from-violet-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
                 PDE Solver 3D
               </h1>
               <p className="text-sm text-muted-foreground mt-0.5">
@@ -301,7 +301,7 @@ export function PDE3DClient() {
 
           <div className="flex flex-wrap gap-2 mt-3">
             <Badge variant="outline" className="gap-1 backdrop-blur-sm bg-muted/50 border-border">
-              <Box className="w-3 h-3 text-violet-400" aria-hidden="true" />
+              <Box className="size-3 text-violet-400" aria-hidden="true" />
               {gridSize}^3 Grid
             </Badge>
             <Badge variant="outline" className="backdrop-blur-sm bg-muted/50 border-border">
@@ -312,7 +312,7 @@ export function PDE3DClient() {
                 variant="outline"
                 className="gap-1 backdrop-blur-sm bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
               >
-                <Timer className="w-3 h-3" aria-hidden="true" />
+                <Timer className="size-3" aria-hidden="true" />
                 {msPerStep.toFixed(1)} ms/step
               </Badge>
             )}
@@ -327,7 +327,7 @@ export function PDE3DClient() {
             <Card className="backdrop-blur-xl bg-card/40 border-border/50">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-violet-400" aria-hidden="true" />
+                  <Sparkles className="size-4 text-violet-400" aria-hidden="true" />
                   Equation
                 </CardTitle>
               </CardHeader>
@@ -338,11 +338,11 @@ export function PDE3DClient() {
                 >
                   <TabsList className="grid w-full grid-cols-2 bg-muted/50">
                     <TabsTrigger value="heat" className="gap-1.5">
-                      <Flame className="w-3.5 h-3.5" aria-hidden="true" />
+                      <Flame className="size-3.5" aria-hidden="true" />
                       Heat
                     </TabsTrigger>
                     <TabsTrigger value="wave" className="gap-1.5">
-                      <Radio className="w-3.5 h-3.5" aria-hidden="true" />
+                      <Radio className="size-3.5" aria-hidden="true" />
                       Wave
                     </TabsTrigger>
                   </TabsList>
@@ -444,15 +444,15 @@ export function PDE3DClient() {
                 <Tabs value={renderMode} onValueChange={(v) => setRenderMode(v as RenderMode)}>
                   <TabsList className="grid w-full grid-cols-3 bg-muted/50">
                     <TabsTrigger value="isosurface" className="text-xs gap-1">
-                      <Box className="w-3 h-3" aria-hidden="true" />
+                      <Box className="size-3" aria-hidden="true" />
                       Iso
                     </TabsTrigger>
                     <TabsTrigger value="slices" className="text-xs gap-1">
-                      <Layers className="w-3 h-3" aria-hidden="true" />
+                      <Layers className="size-3" aria-hidden="true" />
                       Slices
                     </TabsTrigger>
                     <TabsTrigger value="pointcloud" className="text-xs gap-1">
-                      <Sparkles className="w-3 h-3" aria-hidden="true" />
+                      <Sparkles className="size-3" aria-hidden="true" />
                       Points
                     </TabsTrigger>
                   </TabsList>
@@ -553,12 +553,12 @@ export function PDE3DClient() {
                   >
                     {playing ? (
                       <>
-                        <Pause className="w-4 h-4 mr-1.5" aria-hidden="true" />
+                        <Pause className="size-4 mr-1.5" aria-hidden="true" />
                         Pause
                       </>
                     ) : (
                       <>
-                        <Play className="w-4 h-4 mr-1.5" aria-hidden="true" />
+                        <Play className="size-4 mr-1.5" aria-hidden="true" />
                         Play
                       </>
                     )}
@@ -571,7 +571,7 @@ export function PDE3DClient() {
                     aria-label="Step forward"
                     disabled={playing}
                   >
-                    <SkipForward className="w-4 h-4" aria-hidden="true" />
+                    <SkipForward className="size-4" aria-hidden="true" />
                   </Button>
                   <Button
                     variant="outline"
@@ -580,7 +580,7 @@ export function PDE3DClient() {
                     onClick={resetSimulation}
                     aria-label="Reset simulation"
                   >
-                    <RotateCcw className="w-4 h-4" aria-hidden="true" />
+                    <RotateCcw className="size-4" aria-hidden="true" />
                   </Button>
                 </div>
 

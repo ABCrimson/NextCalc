@@ -77,12 +77,12 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
       // Default fallback UI
       return (
-        <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-background via-background/95 to-background">
+        <div className="min-h-screen flex items-center justify-center p-6 bg-linear-to-br/oklab from-background via-background/95 to-background">
           <Card className="max-w-2xl w-full p-8 bg-card backdrop-blur-sm border-red-500/20">
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0">
-                <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center">
-                  <AlertTriangle className="h-6 w-6 text-red-500" />
+                <div className="size-12 rounded-full bg-red-500/10 flex items-center justify-center">
+                  <AlertTriangle className="size-6 text-red-500" />
                 </div>
               </div>
 
@@ -116,9 +116,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 <div className="flex gap-3 pt-2">
                   <Button
                     onClick={this.reset}
-                    className="bg-gradient-to-r from-primary to-calculator-equals"
+                    className="bg-linear-to-r/oklab from-primary to-calculator-equals"
                   >
-                    <RefreshCw className="h-4 w-4 mr-2" />
+                    <RefreshCw className="size-4 mr-2" />
                     Try Again
                   </Button>
 

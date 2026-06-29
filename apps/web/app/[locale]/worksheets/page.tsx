@@ -166,7 +166,7 @@ export default function WorksheetsPage() {
           href="/worksheet"
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="size-4" />
           {t('newWorksheet')}
         </Link>
       </div>
@@ -174,7 +174,7 @@ export default function WorksheetsPage() {
       {/* Search & Controls */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
           <input
             type="text"
             placeholder={t('searchPlaceholder')}
@@ -193,9 +193,9 @@ export default function WorksheetsPage() {
             title={t('sortDirection')}
           >
             {sortDir === 'desc' ? (
-              <SortDesc className="h-4 w-4" />
+              <SortDesc className="size-4" />
             ) : (
-              <SortAsc className="h-4 w-4" />
+              <SortAsc className="size-4" />
             )}
           </button>
 
@@ -222,7 +222,7 @@ export default function WorksheetsPage() {
               }`}
               aria-label={t('gridView')}
             >
-              <Grid3X3 className="h-4 w-4" />
+              <Grid3X3 className="size-4" />
             </button>
             <button
               type="button"
@@ -234,7 +234,7 @@ export default function WorksheetsPage() {
               }`}
               aria-label={t('listView')}
             >
-              <List className="h-4 w-4" />
+              <List className="size-4" />
             </button>
           </div>
         </div>
@@ -243,21 +243,21 @@ export default function WorksheetsPage() {
       {/* Loading */}
       {loading && (
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <Loader2 className="size-8 animate-spin text-muted-foreground" />
         </div>
       )}
 
       {/* Empty state */}
       {!loading && worksheets.length === 0 && (
         <div className="text-center py-20">
-          <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+          <FileText className="size-12 text-muted-foreground mx-auto mb-4 opacity-50" />
           <h2 className="text-lg font-medium text-foreground mb-2">{t('emptyTitle')}</h2>
           <p className="text-muted-foreground text-sm mb-6">{t('emptyDescription')}</p>
           <Link
             href="/worksheet"
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="size-4" />
             {t('createFirst')}
           </Link>
         </div>
@@ -266,7 +266,7 @@ export default function WorksheetsPage() {
       {/* No results */}
       {!loading && worksheets.length > 0 && filtered.length === 0 && (
         <div className="text-center py-12">
-          <Search className="h-8 w-8 text-muted-foreground mx-auto mb-3 opacity-50" />
+          <Search className="size-8 text-muted-foreground mx-auto mb-3 opacity-50" />
           <p className="text-muted-foreground text-sm">{t('noResults')}</p>
         </div>
       )}
@@ -296,15 +296,15 @@ export default function WorksheetsPage() {
                     )}
                     <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
-                        <Clock className="h-3.5 w-3.5" />
+                        <Clock className="size-3.5" />
                         {relativeTime(ws.updatedAt)}
                       </span>
                       <span className="flex items-center gap-1">
-                        <Eye className="h-3.5 w-3.5" />
+                        <Eye className="size-3.5" />
                         {ws.views}
                       </span>
                       <span className="flex items-center gap-1">
-                        <FileText className="h-3.5 w-3.5" />
+                        <FileText className="size-3.5" />
                         {t('cellCount', { count: ws.cellCount })}
                       </span>
                     </div>
@@ -317,9 +317,9 @@ export default function WorksheetsPage() {
                     aria-label={t('delete')}
                   >
                     {deletingId === ws.id ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <Loader2 className="size-4 animate-spin" />
                     ) : (
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="size-4" />
                     )}
                   </button>
                 </div>
@@ -347,7 +347,7 @@ export default function WorksheetsPage() {
                 >
                   <Link href={`/worksheet?id=${ws.id}`} className="flex-1 min-w-0">
                     <div className="flex items-center gap-3">
-                      <FileText className="h-5 w-5 text-muted-foreground shrink-0" />
+                      <FileText className="size-5 text-muted-foreground shrink-0" />
                       <div className="min-w-0">
                         <h3 className="font-medium text-foreground truncate group-hover:text-primary transition-colors">
                           {ws.title}
@@ -367,9 +367,9 @@ export default function WorksheetsPage() {
                     aria-label={t('delete')}
                   >
                     {deletingId === ws.id ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <Loader2 className="size-4 animate-spin" />
                     ) : (
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="size-4" />
                     )}
                   </button>
                 </div>

@@ -64,8 +64,8 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
         {/* Large avatar */}
         <div
           className={cn(
-            'flex h-20 w-20 shrink-0 items-center justify-center rounded-full text-xl font-bold',
-            'bg-gradient-to-br from-indigo-500/30 via-purple-500/30 to-pink-500/30',
+            'flex size-20 shrink-0 items-center justify-center rounded-full text-xl font-bold',
+            'bg-linear-to-br/oklab from-indigo-500/30 via-purple-500/30 to-pink-500/30',
             'border-2 border-indigo-500/40',
             'shadow-[0_0_24px_oklch(0.55_0.27_264/0.2)]',
           )}
@@ -75,7 +75,7 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
             <img
               src={user.image}
               alt={user.name ?? 'User'}
-              className="h-full w-full rounded-full object-cover"
+              className="size-full rounded-full object-cover"
             />
           ) : (
             <span className="text-indigo-300">{getInitials(user.name)}</span>
@@ -87,7 +87,7 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-2">
             <h2 className="text-2xl font-bold text-foreground">{user.name ?? 'Anonymous User'}</h2>
             <Badge variant="outline" className={cn('gap-1 text-xs', roleConfig.className)}>
-              <RoleIcon className="h-3 w-3" />
+              <RoleIcon className="size-3" />
               {roleConfig.label}
             </Badge>
           </div>
@@ -96,7 +96,7 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
 
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-muted-foreground pt-1">
             <span className="flex items-center gap-1">
-              <Calendar className="h-3.5 w-3.5" />
+              <Calendar className="size-3.5" />
               Joined {formatDate(user.createdAt, locale)}
             </span>
           </div>
@@ -108,7 +108,7 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
         <div className="text-center">
           <div className="text-xl font-bold text-foreground">{user.forumPosts.length}</div>
           <div className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">
-            <MessageSquare className="h-3 w-3" />
+            <MessageSquare className="size-3" />
             Posts
           </div>
         </div>
@@ -119,7 +119,7 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
         <div className="text-center">
           <div className="text-xl font-bold text-foreground">{user.worksheetCount}</div>
           <div className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">
-            <FileText className="h-3 w-3" />
+            <FileText className="size-3" />
             Worksheets
           </div>
         </div>

@@ -73,7 +73,7 @@ const Plot2D = dynamic(
     ssr: false,
     loading: () => (
       <div className="flex items-center justify-center h-64 text-muted-foreground text-sm">
-        <Loader2 className="h-5 w-5 animate-spin mr-2" aria-hidden="true" />
+        <Loader2 className="size-5 animate-spin mr-2" aria-hidden="true" />
         Loading plot renderer...
       </div>
     ),
@@ -130,16 +130,16 @@ const kindMeta = {
 function StatusIcon({ status, errorMessage }: { status: string; errorMessage: string | null }) {
   if (status === 'pending') {
     return (
-      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" aria-label="Evaluating" />
+      <Loader2 className="size-4 animate-spin text-muted-foreground" aria-label="Evaluating" />
     );
   }
   if (status === 'success') {
-    return <CheckCircle2 className="h-4 w-4 text-emerald-500" aria-label="Success" />;
+    return <CheckCircle2 className="size-4 text-emerald-500" aria-label="Success" />;
   }
   if (status === 'error') {
     return (
       <AlertCircle
-        className="h-4 w-4 text-destructive"
+        className="size-4 text-destructive"
         aria-label={`Error: ${errorMessage ?? 'Unknown error'}`}
       />
     );
@@ -288,9 +288,9 @@ function MathCellContent({ cell, cellIndex, getVariablesUpTo }: MathCellContentP
         aria-label={`Run cell ${cellIndex + 1}`}
       >
         {isPending || cell.status === 'pending' ? (
-          <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+          <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
         ) : (
-          <Play className="h-3.5 w-3.5" aria-hidden="true" />
+          <Play className="size-3.5" aria-hidden="true" />
         )}
         Run
       </Button>
@@ -357,7 +357,7 @@ function MathCellContent({ cell, cellIndex, getVariablesUpTo }: MathCellContentP
             role="alert"
             aria-live="assertive"
           >
-            <AlertCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" aria-hidden="true" />
+            <AlertCircle className="size-4 text-destructive shrink-0 mt-0.5" aria-hidden="true" />
             <span className="text-sm text-destructive font-mono">{cell.errorMessage}</span>
           </m.div>
         )}
@@ -817,7 +817,7 @@ function PlotCellContent({ cell, cellIndex }: PlotCellContentProps) {
         {cell.status === 'error' && cell.errorMessage && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/80">
             <div className="flex items-center gap-2 text-destructive text-sm">
-              <AlertCircle className="h-4 w-4" aria-hidden="true" />
+              <AlertCircle className="size-4" aria-hidden="true" />
               {cell.errorMessage}
             </div>
           </div>
@@ -906,7 +906,7 @@ export const WorksheetCell = memo(function WorksheetCell({
               {editingPeers.map((peer) => (
                 <span key={peer.id} className="inline-flex items-center gap-1">
                   <span
-                    className="flex items-center justify-center h-4 w-4 rounded-full text-[9px] font-bold text-background"
+                    className="flex items-center justify-center size-4 rounded-full text-[9px] font-bold text-background"
                     style={{ backgroundColor: peer.color }}
                     aria-hidden="true"
                   >
@@ -926,10 +926,10 @@ export const WorksheetCell = memo(function WorksheetCell({
         <div className="flex items-center gap-2.5">
           {/* Drag handle (visual only; keyboard reorder via buttons) */}
           <GripVertical
-            className="h-4 w-4 text-muted-foreground/40 cursor-grab select-none"
+            className="size-4 text-muted-foreground/40 cursor-grab select-none"
             aria-hidden="true"
           />
-          <Icon className={cn('h-3.5 w-3.5', meta.color)} aria-hidden="true" />
+          <Icon className={cn('size-3.5', meta.color)} aria-hidden="true" />
           <span className={cn('text-xs font-medium', meta.color)}>{meta.label}</span>
           <span className="text-xs text-muted-foreground/50 font-mono">[{cellIndex + 1}]</span>
         </div>
@@ -956,34 +956,34 @@ export const WorksheetCell = memo(function WorksheetCell({
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7"
+            className="size-7"
             onClick={() => moveCellUp(cell.id)}
             disabled={isFirst}
             aria-label={`Move ${cellLabel} up`}
           >
-            <ChevronUp className="h-3.5 w-3.5" aria-hidden="true" />
+            <ChevronUp className="size-3.5" aria-hidden="true" />
           </Button>
 
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7"
+            className="size-7"
             onClick={() => moveCellDown(cell.id)}
             disabled={isLast}
             aria-label={`Move ${cellLabel} down`}
           >
-            <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
+            <ChevronDown className="size-3.5" aria-hidden="true" />
           </Button>
 
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7 hover:text-destructive hover:bg-destructive/10"
+            className="size-7 hover:text-destructive hover:bg-destructive/10"
             onClick={() => deleteCell(cell.id)}
             disabled={totalCells <= 1}
             aria-label={`Delete ${cellLabel}`}
           >
-            <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+            <Trash2 className="size-3.5" aria-hidden="true" />
           </Button>
         </div>
       </header>

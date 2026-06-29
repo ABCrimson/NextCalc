@@ -224,12 +224,12 @@ export function Plot3D({
   }, [canvasSize.width, canvasSize.height, isReady, config]);
 
   return (
-    <div ref={containerRef} className={`relative w-full h-full ${className}`}>
+    <div ref={containerRef} className={`relative size-full ${className}`}>
       <canvas
         ref={canvasRef}
         width={canvasSize.width}
         height={canvasSize.height}
-        className="absolute inset-0 w-full h-full border border-border rounded-lg shadow-[0_0_20px_oklch(0.6268_0.2325_303.9_/_0.15)]"
+        className="absolute inset-0 size-full border border-border rounded-lg shadow-[0_0_20px_oklch(0.6268_0.2325_303.9_/_0.15)]"
         style={{ width: '100%', height: '100%' }}
         aria-label={
           config.type === '3d-surface' && config.title ? config.title : '3D mathematical plot'
@@ -249,7 +249,7 @@ export function Plot3D({
       {!isReady && !error && (
         <div className="absolute inset-0 flex items-center justify-center bg-background/90 rounded-lg border border-border">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400 mx-auto" />
+            <div className="animate-spin rounded-full size-8 border-b-2 border-cyan-400 mx-auto" />
             <p className="text-sm text-foreground/80 mt-2">Loading 3D renderer...</p>
           </div>
         </div>

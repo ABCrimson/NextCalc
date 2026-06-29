@@ -933,7 +933,7 @@ function EigenvalueItem({ lam, idx }: { lam: number; idx: number }) {
       variants={fadeSlide}
       className={cn(
         'p-3 rounded-lg border flex items-center gap-3',
-        'bg-gradient-to-r from-violet-950/30 to-indigo-950/30',
+        'bg-linear-to-r/oklab from-violet-950/30 to-indigo-950/30',
         'border-violet-500/40',
       )}
     >
@@ -955,7 +955,7 @@ function EigenvectorCard({ ev, idx, lam }: { ev: number[]; idx: number; lam: num
       variants={fadeSlide}
       className={cn(
         'p-4 rounded-lg border min-w-0',
-        'bg-gradient-to-br from-emerald-950/20 to-teal-950/20',
+        'bg-linear-to-br/oklab from-emerald-950/20 to-teal-950/20',
         'border-emerald-500/30',
       )}
     >
@@ -1272,7 +1272,7 @@ export function EigenPanel() {
           disabled={isPending}
           className={cn(
             'w-full sm:w-auto',
-            'bg-gradient-to-r from-violet-600 to-indigo-600',
+            'bg-linear-to-r/oklab from-violet-600 to-indigo-600',
             'hover:from-violet-500 hover:to-indigo-500',
             'text-white shadow-[0_0_12px_oklch(0.55_0.27_264/0.4)]',
             'hover:shadow-[0_0_20px_oklch(0.55_0.27_264/0.6)]',
@@ -1283,7 +1283,7 @@ export function EigenPanel() {
         >
           {isPending ? (
             <>
-              <RefreshCw className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />
+              <RefreshCw className="size-4 mr-2 animate-spin" aria-hidden="true" />
               Computing…
             </>
           ) : (
@@ -1296,7 +1296,7 @@ export function EigenPanel() {
           {error && (
             <m.div key="error" variants={fadeSlide} initial="hidden" animate="visible" exit="exit">
               <Alert variant="destructive" role="alert" aria-live="assertive">
-                <AlertCircle className="h-4 w-4" aria-hidden="true" />
+                <AlertCircle className="size-4" aria-hidden="true" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             </m.div>
@@ -1331,9 +1331,9 @@ export function EigenPanel() {
                   aria-expanded={showCharPoly}
                 >
                   {showCharPoly ? (
-                    <ChevronUp className="h-4 w-4" aria-hidden="true" />
+                    <ChevronUp className="size-4" aria-hidden="true" />
                   ) : (
-                    <ChevronDown className="h-4 w-4" aria-hidden="true" />
+                    <ChevronDown className="size-4" aria-hidden="true" />
                   )}
                   Characteristic Polynomial
                 </button>
@@ -1361,7 +1361,7 @@ export function EigenPanel() {
               <m.section variants={fadeSlide} className="space-y-3">
                 <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <span
-                    className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-violet-600 text-white text-xs"
+                    className="inline-flex items-center justify-center size-5 rounded-full bg-violet-600 text-white text-xs"
                     aria-hidden="true"
                   >
                     λ
@@ -1383,7 +1383,7 @@ export function EigenPanel() {
               <m.section variants={fadeSlide} className="space-y-3">
                 <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <span
-                    className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-emerald-600 text-white text-xs"
+                    className="inline-flex items-center justify-center size-5 rounded-full bg-emerald-600 text-white text-xs"
                     aria-hidden="true"
                   >
                     v
@@ -1449,9 +1449,9 @@ export function EigenPanel() {
                   }
                 >
                   {showDiag ? (
-                    <ChevronUp className="h-4 w-4" aria-hidden="true" />
+                    <ChevronUp className="size-4" aria-hidden="true" />
                   ) : (
-                    <ChevronDown className="h-4 w-4" aria-hidden="true" />
+                    <ChevronDown className="size-4" aria-hidden="true" />
                   )}
                   Diagonalisation A = P D P⁻¹
                   {result.isDiagonalisable ? (

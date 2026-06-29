@@ -120,7 +120,7 @@ export function MatrixFeatureCards() {
 
           {/* Corner accent radial */}
           <div
-            className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20 pointer-events-none"
+            className="absolute top-0 right-0 size-24 rounded-bl-full opacity-20 pointer-events-none"
             style={{
               background: `radial-gradient(circle at top right, oklch(0.65 0.20 ${card.hue} / 0.5), transparent)`,
             }}
@@ -131,7 +131,7 @@ export function MatrixFeatureCards() {
             {/* Glowing dot + title */}
             <div className="flex items-center gap-2.5 mb-3">
               <div
-                className="w-2 h-2 rounded-full shrink-0"
+                className="size-2 rounded-full shrink-0"
                 style={{
                   background: `oklch(0.65 0.20 ${card.hue})`,
                   boxShadow: `0 0 8px oklch(0.65 0.20 ${card.hue} / 0.8)`,

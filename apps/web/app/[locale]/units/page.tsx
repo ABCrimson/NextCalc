@@ -231,7 +231,7 @@ export default async function UnitsPage() {
             </div>
 
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold bg-linear-to-r/oklab from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
                 {t('pageTitle')}
               </h1>
               <p className="text-base text-muted-foreground mt-1">{t('pageSubtitle')}</p>
@@ -346,7 +346,7 @@ export default async function UnitsPage() {
             />
             {/* Corner accent */}
             <div
-              className="absolute top-0 right-0 w-28 h-28 rounded-bl-full opacity-20"
+              className="absolute top-0 right-0 size-28 rounded-bl-full opacity-20"
               style={{
                 background:
                   'radial-gradient(circle at top right, oklch(0.65 0.22 264 / 0.4), transparent)',

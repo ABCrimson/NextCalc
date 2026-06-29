@@ -216,9 +216,9 @@ export default function AlgorithmsPage() {
       <section className="relative overflow-hidden py-16 px-4">
         {/* Background decorations */}
         <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute top-20 left-10 size-72 bg-blue-500/5 rounded-full blur-3xl animate-pulse" />
           <div
-            className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl animate-pulse"
+            className="absolute bottom-20 right-10 size-96 bg-purple-500/5 rounded-full blur-3xl animate-pulse"
             style={{ animationDelay: '1s' }}
           />
         </div>
@@ -230,11 +230,11 @@ export default function AlgorithmsPage() {
             transition={{ duration: 0.5 }}
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary border border-primary/20 mb-6">
-              <BookOpen className="h-4 w-4" aria-hidden="true" />
+              <BookOpen className="size-4" aria-hidden="true" />
               <span className="text-sm font-medium">{t('interactiveLearning')}</span>
             </div>
 
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-linear-to-r/oklab from-blue-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">
               {t('heroTitle')}
             </h1>
 
@@ -244,19 +244,19 @@ export default function AlgorithmsPage() {
 
             <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
               <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20">
-                <Brain className="h-4 w-4" aria-hidden="true" />
+                <Brain className="size-4" aria-hidden="true" />
                 <span>{t('category.machineLearning')}</span>
               </div>
               <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20">
-                <Shield className="h-4 w-4" aria-hidden="true" />
+                <Shield className="size-4" aria-hidden="true" />
                 <span>{t('category.cryptography')}</span>
               </div>
               <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
-                <Atom className="h-4 w-4" aria-hidden="true" />
+                <Atom className="size-4" aria-hidden="true" />
                 <span>{t('category.quantumComputing')}</span>
               </div>
               <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20">
-                <Network className="h-4 w-4" aria-hidden="true" />
+                <Network className="size-4" aria-hidden="true" />
                 <span>{t('category.graphTheory')}</span>
               </div>
             </div>
@@ -330,7 +330,7 @@ export default function AlgorithmsPage() {
                 className="text-center py-16"
               >
                 <TrendingUp
-                  className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4"
+                  className="size-16 text-muted-foreground/50 mx-auto mb-4"
                   aria-hidden="true"
                 />
                 <h3 className="text-xl font-semibold mb-2">{t('noAlgorithmsFound')}</h3>
@@ -359,11 +359,11 @@ export default function AlgorithmsPage() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="p-8 rounded-xl bg-gradient-to-br from-primary/10 to-purple-500/10 border border-primary/20"
+          className="p-8 rounded-xl bg-linear-to-br/oklab from-primary/10 to-purple-500/10 border border-primary/20"
         >
           <div className="flex items-start gap-4">
             <div className="p-3 rounded-lg bg-primary/20">
-              <BookOpen className="h-6 w-6 text-primary" aria-hidden="true" />
+              <BookOpen className="size-6 text-primary" aria-hidden="true" />
             </div>
             <div className="flex-1">
               <h3 className="text-xl font-semibold mb-2">{t('learningTitle')}</h3>

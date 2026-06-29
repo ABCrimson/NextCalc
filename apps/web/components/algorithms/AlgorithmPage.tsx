@@ -131,7 +131,7 @@ export function AlgorithmPage({
         <div className="flex flex-col sm:flex-row items-start justify-between gap-4 sm:gap-6 mb-4 sm:mb-6">
           <div className="flex items-start gap-3 sm:gap-4 flex-1 w-full min-w-0">
             <div className="p-3 sm:p-4 rounded-xl bg-primary/10 border border-primary/20 shrink-0">
-              <Icon className="h-6 w-6 sm:h-8 sm:w-8 text-primary" aria-hidden="true" />
+              <Icon className="size-6 sm:size-8 text-primary" aria-hidden="true" />
             </div>
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2 sm:mb-4 break-words">
@@ -150,7 +150,7 @@ export function AlgorithmPage({
             className="p-2.5 sm:p-3 rounded-lg border border-border bg-card hover:bg-accent transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring shrink-0"
             aria-label={t('shareAlgorithm')}
           >
-            <Share2 className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden="true" />
+            <Share2 className="size-4 sm:size-5" aria-hidden="true" />
           </button>
         </div>
       </m.header>

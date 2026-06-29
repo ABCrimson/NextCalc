@@ -235,7 +235,7 @@ function UserAvatar({ name, image, level }: { name?: string; image?: string; lev
       <img
         src={image}
         alt={name || 'User avatar'}
-        className="h-7 w-7 rounded-full ring-2 ring-border/50"
+        className="size-7 rounded-full ring-2 ring-border/50"
         referrerPolicy="no-referrer"
         onError={() => setImgError(true)}
       />
@@ -245,7 +245,7 @@ function UserAvatar({ name, image, level }: { name?: string; image?: string; lev
   // Level icon fallback when available
   if (level && level > 0) {
     return (
-      <span className="flex h-7 w-7 items-center justify-center rounded-full ring-2 ring-border/50 overflow-hidden">
+      <span className="flex size-7 items-center justify-center rounded-full ring-2 ring-border/50 overflow-hidden">
         <LevelIcon level={level} size={28} />
       </span>
     );
@@ -261,7 +261,7 @@ function UserAvatar({ name, image, level }: { name?: string; image?: string; lev
     : '?';
 
   return (
-    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground ring-2 ring-border/50">
+    <div className="flex size-7 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground ring-2 ring-border/50">
       {initials}
     </div>
   );
@@ -286,7 +286,7 @@ function LanguageSwitcher() {
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           aria-label={`Language: ${LOCALE_NAMES[locale]}`}
         >
-          <Globe className="h-4 w-4 shrink-0" aria-hidden="true" />
+          <Globe className="size-4 shrink-0" aria-hidden="true" />
           <span className="hidden sm:inline font-medium">{LOCALE_NAMES[locale]}</span>
         </button>
       </DropdownMenuTrigger>
@@ -301,7 +301,7 @@ function LanguageSwitcher() {
               {LOCALE_NAMES[loc]}
             </span>
             {loc === locale && (
-              <Check className="h-3.5 w-3.5 text-primary shrink-0" aria-hidden="true" />
+              <Check className="size-3.5 text-primary shrink-0" aria-hidden="true" />
             )}
           </DropdownMenuItem>
         ))}
@@ -330,7 +330,7 @@ export function Navigation() {
       aria-label={t('accessibility.mainNavigation' as Parameters<typeof t>[0])}
     >
       {/* Subtle gradient border at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r/oklab from-transparent via-primary/30 to-transparent" />
 
       <div className="container flex h-14 items-center min-w-0">
         {/* Logo */}
@@ -352,7 +352,7 @@ export function Navigation() {
               />
               <div className="absolute -inset-1 bg-primary/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </div>
-            <span className="hidden font-bold sm:inline-block bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent bg-[length:200%_auto] transition-all duration-500 group-hover:bg-[position:100%_50%]">
+            <span className="hidden font-bold sm:inline-block bg-linear-to-r/oklab from-foreground via-foreground to-primary bg-clip-text text-transparent bg-[length:200%_auto] transition-all duration-500 group-hover:bg-[position:100%_50%]">
               NextCalc Pro
             </span>
           </Link>
@@ -374,7 +374,7 @@ export function Navigation() {
                 className={cn(
                   'flex shrink-0 items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all duration-200 relative group whitespace-nowrap text-[13px]',
                   isActive
-                    ? 'text-primary-foreground bg-gradient-to-r from-primary to-primary/80 shadow-md shadow-primary/20'
+                    ? 'text-primary-foreground bg-linear-to-r/oklab from-primary to-primary/80 shadow-md shadow-primary/20'
                     : 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
                 )}
                 aria-label={`${label} - ${description}`}
@@ -382,7 +382,7 @@ export function Navigation() {
               >
                 <Icon
                   className={cn(
-                    'h-3.5 w-3.5 transition-transform duration-200',
+                    'size-3.5 transition-transform duration-200',
                     !isActive && 'group-hover:scale-110',
                   )}
                   aria-hidden="true"
@@ -401,14 +401,14 @@ export function Navigation() {
                   'flex shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-200 relative group whitespace-nowrap text-[13px]',
                   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
                   isToolActive
-                    ? 'text-primary-foreground bg-gradient-to-r from-primary to-primary/80 shadow-md shadow-primary/20'
+                    ? 'text-primary-foreground bg-linear-to-r/oklab from-primary to-primary/80 shadow-md shadow-primary/20'
                     : 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
                 )}
                 aria-label={t('nav.toolsMenu' as Parameters<typeof t>[0])}
               >
                 <Grid3x3
                   className={cn(
-                    'h-3.5 w-3.5 transition-transform duration-200',
+                    'size-3.5 transition-transform duration-200',
                     !isToolActive && 'group-hover:scale-110',
                   )}
                   aria-hidden="true"
@@ -433,7 +433,7 @@ export function Navigation() {
                       )}
                       aria-current={isActive ? 'page' : undefined}
                     >
-                      <Icon className="h-4 w-4" aria-hidden="true" />
+                      <Icon className="size-4" aria-hidden="true" />
                       <div className="flex flex-col">
                         <span className="font-medium">{label}</span>
                         <span className="text-xs text-muted-foreground">{description}</span>
@@ -454,14 +454,14 @@ export function Navigation() {
                   'flex shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-200 relative group whitespace-nowrap text-[13px]',
                   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
                   isAlgorithmActive
-                    ? 'text-primary-foreground bg-gradient-to-r from-calculator-special to-primary shadow-md shadow-primary/20'
+                    ? 'text-primary-foreground bg-linear-to-r/oklab from-calculator-special to-primary shadow-md shadow-primary/20'
                     : 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
                 )}
                 aria-label={t('nav.algorithmsMenu' as Parameters<typeof t>[0])}
               >
                 <Sparkles
                   className={cn(
-                    'h-3.5 w-3.5 transition-transform duration-200',
+                    'size-3.5 transition-transform duration-200',
                     !isAlgorithmActive && 'group-hover:scale-110 group-hover:rotate-12',
                   )}
                   aria-hidden="true"
@@ -478,7 +478,7 @@ export function Navigation() {
                     pathname === '/algorithms' && 'bg-primary/10 text-primary',
                   )}
                 >
-                  <Sparkles className="h-4 w-4" aria-hidden="true" />
+                  <Sparkles className="size-4" aria-hidden="true" />
                   <div className="flex flex-col">
                     <span className="font-medium">
                       {t('nav.algorithmsAll' as Parameters<typeof t>[0])}
@@ -508,7 +508,7 @@ export function Navigation() {
                         )}
                         aria-current={isActive ? 'page' : undefined}
                       >
-                        <Icon className="h-4 w-4" aria-hidden="true" />
+                        <Icon className="size-4" aria-hidden="true" />
                         <div className="flex flex-col">
                           <span className="font-medium">{label}</span>
                           <span className="text-xs text-muted-foreground">{description}</span>
@@ -534,7 +534,7 @@ export function Navigation() {
                 className={cn(
                   'flex shrink-0 items-center gap-1.5 px-2 py-1.5 rounded-lg transition-all duration-200 relative group whitespace-nowrap text-[13px]',
                   isActive
-                    ? 'text-primary-foreground bg-gradient-to-r from-primary to-primary/80 shadow-md shadow-primary/20'
+                    ? 'text-primary-foreground bg-linear-to-r/oklab from-primary to-primary/80 shadow-md shadow-primary/20'
                     : 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
                 )}
                 aria-label={`${label} - ${description}`}
@@ -542,7 +542,7 @@ export function Navigation() {
               >
                 <Icon
                   className={cn(
-                    'h-3.5 w-3.5 transition-transform duration-200',
+                    'size-3.5 transition-transform duration-200',
                     !isActive && 'group-hover:scale-110',
                   )}
                   aria-hidden="true"
@@ -562,7 +562,7 @@ export function Navigation() {
                 size="icon"
                 aria-label={t('nav.openMenu' as Parameters<typeof t>[0])}
               >
-                <Menu className="h-5 w-5" aria-hidden="true" />
+                <Menu className="size-5" aria-hidden="true" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -585,7 +585,7 @@ export function Navigation() {
                       )}
                       aria-current={isActive ? 'page' : undefined}
                     >
-                      <Icon className="h-4 w-4" aria-hidden="true" />
+                      <Icon className="size-4" aria-hidden="true" />
                       <div className="flex flex-col">
                         <span className="font-medium">{label}</span>
                         <span className="text-xs text-muted-foreground">{description}</span>
@@ -596,7 +596,7 @@ export function Navigation() {
               })}
 
               {/* Algorithms section */}
-              <div className="my-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+              <div className="my-1 h-px bg-linear-to-r/oklab from-transparent via-border to-transparent" />
               <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider">
                 {t('nav.algorithms' as Parameters<typeof t>[0])}
               </div>
@@ -617,7 +617,7 @@ export function Navigation() {
                       )}
                       aria-current={isActive ? 'page' : undefined}
                     >
-                      <Icon className="h-4 w-4" aria-hidden="true" />
+                      <Icon className="size-4" aria-hidden="true" />
                       <div className="flex flex-col">
                         <span className="font-medium">{label}</span>
                         <span className="text-xs text-muted-foreground">{description}</span>
@@ -628,7 +628,7 @@ export function Navigation() {
               })}
 
               {/* Settings link in mobile menu */}
-              <div className="my-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+              <div className="my-1 h-px bg-linear-to-r/oklab from-transparent via-border to-transparent" />
               <DropdownMenuItem asChild>
                 <Link
                   href="/settings"
@@ -638,7 +638,7 @@ export function Navigation() {
                   )}
                   aria-current={pathname === '/settings' ? 'page' : undefined}
                 >
-                  <Settings className="h-4 w-4" aria-hidden="true" />
+                  <Settings className="size-4" aria-hidden="true" />
                   <div className="flex flex-col">
                     <span className="font-medium">
                       {t('nav.settings' as Parameters<typeof t>[0])}
@@ -663,7 +663,7 @@ export function Navigation() {
 
           {/* Auth state */}
           {status === 'loading' ? (
-            <div className="h-7 w-7 rounded-full bg-muted animate-pulse" />
+            <div className="size-7 rounded-full bg-muted animate-pulse" />
           ) : status === 'authenticated' && session ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -686,13 +686,13 @@ export function Navigation() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href="/profile" className="flex items-center gap-2">
-                    <User className="h-4 w-4" aria-hidden="true" />
+                    <User className="size-4" aria-hidden="true" />
                     {t('nav.profile' as Parameters<typeof t>[0])}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/settings" className="flex items-center gap-2">
-                    <Settings className="h-4 w-4" aria-hidden="true" />
+                    <Settings className="size-4" aria-hidden="true" />
                     {t('nav.settings' as Parameters<typeof t>[0])}
                   </Link>
                 </DropdownMenuItem>
@@ -703,7 +703,7 @@ export function Navigation() {
                     className="flex w-full items-center gap-2 text-destructive"
                     onClick={() => signOut('/')}
                   >
-                    <LogOut className="h-4 w-4" aria-hidden="true" />
+                    <LogOut className="size-4" aria-hidden="true" />
                     {t('nav.signOut' as Parameters<typeof t>[0])}
                   </button>
                 </DropdownMenuItem>
@@ -719,7 +719,7 @@ export function Navigation() {
                 className="text-muted-foreground hover:text-foreground"
               >
                 <Link href="/settings">
-                  <Settings className="h-4 w-4" aria-hidden="true" />
+                  <Settings className="size-4" aria-hidden="true" />
                 </Link>
               </Button>
               <Button
@@ -728,7 +728,7 @@ export function Navigation() {
                 className="gap-1.5 text-muted-foreground hover:text-foreground"
                 onClick={() => signIn()}
               >
-                <LogIn className="h-4 w-4" aria-hidden="true" />
+                <LogIn className="size-4" aria-hidden="true" />
                 <span className="hidden sm:inline">
                   {t('nav.signIn' as Parameters<typeof t>[0])}
                 </span>

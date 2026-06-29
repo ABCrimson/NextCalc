@@ -38,7 +38,7 @@ interface Point3D {
 
 /** Glass-morphism card class applied consistently across all panels. */
 const GLASS_CARD =
-  'bg-gradient-to-br from-background/60 via-card/50 to-background/60 ' +
+  'bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 ' +
   'backdrop-blur-md border border-border ' +
   'shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]';
 
@@ -139,7 +139,7 @@ export default function ChaosTheoryPage() {
         {/* Header */}
         <header className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <Wind className="w-10 h-10 text-cyan-500" />
+            <Wind className="size-10 text-cyan-500" />
             <h1 className="text-4xl font-bold text-foreground">{t('title')}</h1>
           </div>
           <p className="text-lg text-muted-foreground">{t('subtitle')}</p>
@@ -263,7 +263,7 @@ export default function ChaosTheoryPage() {
               <Card className={GLASS_CARD}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-foreground">
-                    <Zap className="w-5 h-5 text-cyan-400" />
+                    <Zap className="size-5 text-cyan-400" />
                     {t('trajectory3d')}
                   </CardTitle>
                   <CardDescription>{t('trajectory3dDesc')}</CardDescription>
@@ -385,7 +385,7 @@ export default function ChaosTheoryPage() {
             <Card className={GLASS_CARD}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-foreground">
-                  <GitBranch className="w-5 h-5 text-emerald-400" />
+                  <GitBranch className="size-5 text-emerald-400" />
                   {t('bifurcation')}
                 </CardTitle>
                 <CardDescription>{t('bifurcationDesc')}</CardDescription>
@@ -444,12 +444,12 @@ export default function ChaosTheoryPage() {
           <h2 className="text-2xl font-semibold text-foreground">{t('aboutTitle')}</h2>
 
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="group relative p-6 rounded-xl bg-gradient-to-br from-cyan-950/40 to-cyan-900/30 border border-cyan-500/30 hover:border-cyan-400/60 transition-all duration-300 shadow-[0_4px_24px_oklch(0_0_0_/_0.3)]">
+            <div className="group relative p-6 rounded-xl bg-linear-to-br/oklab from-cyan-950/40 to-cyan-900/30 border border-cyan-500/30 hover:border-cyan-400/60 transition-all duration-300 shadow-[0_4px_24px_oklch(0_0_0_/_0.3)]">
               <h3 className="text-lg font-semibold mb-2 text-cyan-300">{t('lorenz')}</h3>
               <p className="text-sm text-cyan-200/75 leading-relaxed">{t('lorenzAbout')}</p>
             </div>
 
-            <div className="group relative p-6 rounded-xl bg-gradient-to-br from-purple-950/40 to-purple-900/30 border border-purple-500/30 hover:border-purple-400/60 transition-all duration-300 shadow-[0_4px_24px_oklch(0_0_0_/_0.3)]">
+            <div className="group relative p-6 rounded-xl bg-linear-to-br/oklab from-purple-950/40 to-purple-900/30 border border-purple-500/30 hover:border-purple-400/60 transition-all duration-300 shadow-[0_4px_24px_oklch(0_0_0_/_0.3)]">
               <h3 className="text-lg font-semibold mb-2 text-purple-300">
                 {t('strangeAttractors')}
               </h3>
@@ -458,12 +458,12 @@ export default function ChaosTheoryPage() {
               </p>
             </div>
 
-            <div className="group relative p-6 rounded-xl bg-gradient-to-br from-emerald-950/40 to-emerald-900/30 border border-emerald-500/30 hover:border-emerald-400/60 transition-all duration-300 shadow-[0_4px_24px_oklch(0_0_0_/_0.3)]">
+            <div className="group relative p-6 rounded-xl bg-linear-to-br/oklab from-emerald-950/40 to-emerald-900/30 border border-emerald-500/30 hover:border-emerald-400/60 transition-all duration-300 shadow-[0_4px_24px_oklch(0_0_0_/_0.3)]">
               <h3 className="text-lg font-semibold mb-2 text-emerald-300">{t('logistic')}</h3>
               <p className="text-sm text-emerald-200/75 leading-relaxed">{t('logisticAbout')}</p>
             </div>
 
-            <div className="group relative p-6 rounded-xl bg-gradient-to-br from-rose-950/40 to-rose-900/30 border border-rose-500/30 hover:border-rose-400/60 transition-all duration-300 shadow-[0_4px_24px_oklch(0_0_0_/_0.3)]">
+            <div className="group relative p-6 rounded-xl bg-linear-to-br/oklab from-rose-950/40 to-rose-900/30 border border-rose-500/30 hover:border-rose-400/60 transition-all duration-300 shadow-[0_4px_24px_oklch(0_0_0_/_0.3)]">
               <h3 className="text-lg font-semibold mb-2 text-rose-300">{t('applicationsTitle')}</h3>
               <p className="text-sm text-rose-200/75 leading-relaxed">{t('applicationsAbout')}</p>
             </div>

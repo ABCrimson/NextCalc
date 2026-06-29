@@ -558,7 +558,7 @@ export function MatrixPanel() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" aria-label={`Matrix ${label} preset options`}>
-              <Plus className="h-4 w-4 mr-1" />
+              <Plus className="size-4 mr-1" />
               Preset
             </Button>
           </DropdownMenuTrigger>
@@ -629,9 +629,9 @@ export function MatrixPanel() {
             aria-label="Copy result to clipboard"
           >
             {copiedResult ? (
-              <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
+              <Check className="size-4 text-green-600 dark:text-green-400" />
             ) : (
-              <Copy className="h-4 w-4" />
+              <Copy className="size-4" />
             )}
           </Button>
         </section>
@@ -647,7 +647,7 @@ export function MatrixPanel() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" aria-label="Result options">
-                  <MoreVertical className="h-4 w-4" />
+                  <MoreVertical className="size-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -661,7 +661,7 @@ export function MatrixPanel() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={copyToClipboard}>
-                  <Copy className="h-4 w-4 mr-2" />
+                  <Copy className="size-4 mr-2" />
                   Copy to Clipboard
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -720,7 +720,7 @@ export function MatrixPanel() {
       <CardContent className="space-y-6">
         {/* Info banner */}
         <Alert>
-          <Info className="h-4 w-4" />
+          <Info className="size-4" />
           <AlertDescription>
             All operations use Gauss-Jordan elimination for maximum numerical stability. Matrices up
             to 10×10 supported.
@@ -1016,7 +1016,7 @@ export function MatrixPanel() {
         {/* Error display */}
         {error && (
           <Alert variant="destructive" role="alert" aria-live="assertive">
-            <AlertCircle className="h-4 w-4" />
+            <AlertCircle className="size-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}

@@ -106,7 +106,7 @@ export default function ProblemsPageClient({ problems, stats }: ProblemsPageClie
       ---------------------------------------------------------------- */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none" aria-hidden="true">
         {/* Base dark-to-transparent gradient so orbs sit on the page bg */}
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background" />
+        <div className="absolute inset-0 bg-linear-to-br/oklab from-background via-background/95 to-background" />
 
         {/* Orb 1 — indigo, top-right quadrant */}
         <m.div
@@ -167,7 +167,7 @@ export default function ProblemsPageClient({ problems, stats }: ProblemsPageClie
 
         {/* SVG noise texture overlay at 3% opacity */}
         <svg
-          className="absolute inset-0 w-full h-full"
+          className="absolute inset-0 size-full"
           style={{ opacity: 0.03, mixBlendMode: 'overlay' }}
           xmlns="http://www.w3.org/2000/svg"
           aria-hidden="true"

@@ -1579,10 +1579,10 @@ export function UnifiedGraphRenderer({
   }, []);
 
   return (
-    <div ref={containerRef} className={cn('relative w-full h-full', className)}>
+    <div ref={containerRef} className={cn('relative size-full', className)}>
       <canvas
         ref={canvasRef}
-        className="w-full h-full cursor-grab active:cursor-grabbing"
+        className="size-full cursor-grab active:cursor-grabbing"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -1596,7 +1596,7 @@ export function UnifiedGraphRenderer({
         ref={particleCanvasRef}
         aria-hidden="true"
         tabIndex={-1}
-        className="absolute inset-0 w-full h-full pointer-events-none"
+        className="absolute inset-0 size-full pointer-events-none"
         style={{ mixBlendMode: 'screen' }}
       />
 
@@ -1629,7 +1629,7 @@ export function UnifiedGraphRenderer({
           title="Zoom in"
           aria-label="Zoom in"
         >
-          <ZoomIn className="h-4 w-4" />
+          <ZoomIn className="size-4" />
         </Button>
         <Button
           variant="ghost"
@@ -1639,7 +1639,7 @@ export function UnifiedGraphRenderer({
           title="Zoom out"
           aria-label="Zoom out"
         >
-          <ZoomOut className="h-4 w-4" />
+          <ZoomOut className="size-4" />
         </Button>
         <Button
           variant="ghost"
@@ -1649,7 +1649,7 @@ export function UnifiedGraphRenderer({
           title="Reset view"
           aria-label="Reset view"
         >
-          <Maximize2 className="h-4 w-4" />
+          <Maximize2 className="size-4" />
         </Button>
       </m.div>
 
@@ -1674,7 +1674,7 @@ export function UnifiedGraphRenderer({
             transition={{ duration: 0.2 }}
           >
             <div className="flex items-center gap-2">
-              <Hand className="h-4 w-4" />
+              <Hand className="size-4" />
               <span>Drag to move node • Click to select</span>
             </div>
           </m.div>

@@ -679,7 +679,7 @@ export function PageRankExplorer({
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <CardTitle className="text-3xl font-bold flex items-center gap-2">
-                <Network className="h-8 w-8 text-primary" />
+                <Network className="size-8 text-primary" />
                 PageRank Explorer
               </CardTitle>
               <CardDescription>
@@ -703,7 +703,7 @@ export function PageRankExplorer({
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
+                  <TrendingUp className="size-5" />
                   Graph Visualization
                 </CardTitle>
                 <div className="flex items-center gap-2">
@@ -716,7 +716,7 @@ export function PageRankExplorer({
                     onClick={() => setUseWebGLRenderer(!useWebGLRenderer)}
                     title={`Switch to ${useWebGLRenderer ? 'SVG' : 'WebGL'} renderer`}
                   >
-                    <Maximize2 className="h-4 w-4" />
+                    <Maximize2 className="size-4" />
                   </Button>
                 </div>
               </div>
@@ -736,7 +736,7 @@ export function PageRankExplorer({
                 {graph.nodes.length === 0 ? (
                   <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
                     <div className="text-center">
-                      <Network className="h-16 w-16 mx-auto mb-4 opacity-30" />
+                      <Network className="size-16 mx-auto mb-4 opacity-30" />
                       <p className="text-sm">No nodes in graph. Add nodes or load a preset.</p>
                     </div>
                   </div>
@@ -761,12 +761,12 @@ export function PageRankExplorer({
                     }}
                     onInteraction={handleGraphInteraction}
                     onNodePositionUpdate={handleNodePositionUpdate}
-                    className="w-full h-full"
+                    className="size-full"
                   />
                 ) : (
                   /* SVG fallback renderer with improved aesthetics */
                   <svg
-                    className="w-full h-full"
+                    className="size-full"
                     style={{ overflow: 'visible' }}
                     role="img"
                     aria-label="PageRank graph visualization"
@@ -983,7 +983,7 @@ export function PageRankExplorer({
                       <div className="flex-1">
                         <div className="relative h-8 bg-muted rounded overflow-hidden">
                           <m.div
-                            className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary/80 to-primary"
+                            className="absolute inset-y-0 left-0 bg-linear-to-r/oklab from-primary/80 to-primary"
                             initial={{ width: 0 }}
                             animate={{ width: `${barWidth}%` }}
                             transition={{ duration: 0.5 }}
@@ -999,9 +999,9 @@ export function PageRankExplorer({
                         variant="ghost"
                         size="sm"
                         onClick={() => removeNode(node.id)}
-                        className="h-8 w-8 p-0"
+                        className="size-8 p-0"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="size-4" />
                       </Button>
                     </m.div>
                   );
@@ -1024,7 +1024,7 @@ export function PageRankExplorer({
             </CardHeader>
             <CardContent className="space-y-3">
               <Button className="w-full" onClick={addNode}>
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="size-4 mr-2" />
                 Add Node
               </Button>
 
@@ -1081,12 +1081,12 @@ export function PageRankExplorer({
                   >
                     {isAnimating ? (
                       <>
-                        <Pause className="h-4 w-4 mr-2" />
+                        <Pause className="size-4 mr-2" />
                         Stop
                       </>
                     ) : (
                       <>
-                        <Play className="h-4 w-4 mr-2" />
+                        <Play className="size-4 mr-2" />
                         Animate
                       </>
                     )}
@@ -1096,7 +1096,7 @@ export function PageRankExplorer({
                     onClick={computeRanks}
                     disabled={isAnimating || graph.nodes.length === 0}
                   >
-                    <RotateCcw className="h-4 w-4" />
+                    <RotateCcw className="size-4" />
                   </Button>
                 </div>
                 {isAnimating && (
@@ -1144,7 +1144,7 @@ export function PageRankExplorer({
               <Separator />
 
               <Button variant="outline" className="w-full" onClick={reset}>
-                <RotateCcw className="h-4 w-4 mr-2" />
+                <RotateCcw className="size-4 mr-2" />
                 Clear Graph
               </Button>
             </CardContent>
@@ -1172,7 +1172,7 @@ export function PageRankExplorer({
                     className="w-full justify-start"
                     onClick={() => loadPreset(key)}
                   >
-                    <ChevronRight className="h-4 w-4 mr-2" />
+                    <ChevronRight className="size-4 mr-2" />
                     {displayName}
                     {isLarge && (
                       <Badge variant="secondary" className="ml-auto text-xs">
@@ -1225,7 +1225,7 @@ export function PageRankExplorer({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Info className="h-5 w-5" />
+              <Info className="size-5" />
               Understanding PageRank
             </CardTitle>
           </CardHeader>

@@ -813,10 +813,10 @@ export function LogisticMapRenderer({ data, title = 'x(n)' }: LogisticMapRendere
   }, [handleWheel]);
 
   return (
-    <div ref={containerRef} className="relative w-full h-full">
+    <div ref={containerRef} className="relative size-full">
       <canvas
         ref={canvasRef}
-        className="w-full h-full"
+        className="size-full"
         style={{ cursor: isPanning ? 'grabbing' : 'grab', touchAction: 'none' }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -852,7 +852,7 @@ export function LogisticMapRenderer({ data, title = 'x(n)' }: LogisticMapRendere
         <button
           type="button"
           onClick={() => zoomBy(1.3)}
-          className="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-bold
+          className="size-8 flex items-center justify-center rounded-lg text-sm font-bold
             bg-black/60 backdrop-blur-sm border border-white/10 text-white/80
             hover:bg-white/10 hover:text-white hover:border-white/25
             focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring
@@ -873,7 +873,7 @@ export function LogisticMapRenderer({ data, title = 'x(n)' }: LogisticMapRendere
         <button
           type="button"
           onClick={() => zoomBy(1 / 1.3)}
-          className="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-bold
+          className="size-8 flex items-center justify-center rounded-lg text-sm font-bold
             bg-black/60 backdrop-blur-sm border border-white/10 text-white/80
             hover:bg-white/10 hover:text-white hover:border-white/25
             focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring

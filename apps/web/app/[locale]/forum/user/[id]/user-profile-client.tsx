@@ -35,7 +35,7 @@ function ProfileSkeleton() {
     <div className="space-y-6">
       <div className="rounded-2xl border border-border p-6 backdrop-blur-md bg-card/30">
         <div className="flex items-center gap-5">
-          <Skeleton className="h-20 w-20 rounded-full" />
+          <Skeleton className="size-20 rounded-full" />
           <div className="space-y-3 flex-1">
             <Skeleton className="h-7 w-48" />
             <Skeleton className="h-4 w-64" />
@@ -94,7 +94,7 @@ export function UserProfileClient({ id }: UserProfileClientProps) {
               onClick={() => router.push('/forum')}
               className="gap-2 text-muted-foreground hover:text-foreground"
             >
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="size-4" />
               {t('backToForum')}
             </Button>
           </m.div>
@@ -105,7 +105,7 @@ export function UserProfileClient({ id }: UserProfileClientProps) {
           {/* User not found (loaded but null) */}
           {!loading && !error && !user && (
             <div className="rounded-2xl border border-destructive/30 p-6 bg-destructive/10 backdrop-blur-md text-center">
-              <AlertCircle className="h-10 w-10 mx-auto text-destructive mb-3" />
+              <AlertCircle className="size-10 mx-auto text-destructive mb-3" />
               <p className="text-sm text-destructive">{t('userNotFound')}</p>
               <p className="text-xs text-muted-foreground mt-1">{t('userNotFoundHint')}</p>
               <Button variant="outline" className="mt-4" onClick={() => router.push('/forum')}>
@@ -117,7 +117,7 @@ export function UserProfileClient({ id }: UserProfileClientProps) {
           {/* Network / GraphQL error */}
           {error && !user && (
             <div className="rounded-2xl border border-destructive/30 p-6 bg-destructive/10 backdrop-blur-md text-center">
-              <AlertCircle className="h-10 w-10 mx-auto text-destructive mb-3" />
+              <AlertCircle className="size-10 mx-auto text-destructive mb-3" />
               <p className="text-sm text-destructive">{t('userNotFound')}</p>
               <p className="text-xs text-muted-foreground mt-1">{t('userNotFoundHint')}</p>
               <Button variant="outline" className="mt-4" onClick={() => router.push('/forum')}>
@@ -145,11 +145,11 @@ export function UserProfileClient({ id }: UserProfileClientProps) {
               <Tabs defaultValue="posts" className="w-full">
                 <TabsList className="backdrop-blur-sm bg-muted/30 border border-border w-full justify-start">
                   <TabsTrigger value="posts" className="gap-1.5">
-                    <MessageSquare className="h-3.5 w-3.5" />
+                    <MessageSquare className="size-3.5" />
                     {t('postsCount', { count: user.forumPosts.length })}
                   </TabsTrigger>
                   <TabsTrigger value="activity" className="gap-1.5">
-                    <Clock className="h-3.5 w-3.5" />
+                    <Clock className="size-3.5" />
                     {t('activityTab')}
                   </TabsTrigger>
                 </TabsList>
@@ -157,7 +157,7 @@ export function UserProfileClient({ id }: UserProfileClientProps) {
                 <TabsContent value="posts" className="space-y-3 mt-4">
                   {user.forumPosts.length === 0 ? (
                     <div className="text-center py-12">
-                      <MessageSquare className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
+                      <MessageSquare className="size-10 mx-auto text-muted-foreground/30 mb-3" />
                       <p className="text-sm text-muted-foreground">{t('noPostsYet')}</p>
                     </div>
                   ) : (
@@ -201,15 +201,15 @@ export function UserProfileClient({ id }: UserProfileClientProps) {
 
                               <div className="flex items-center gap-3 ml-auto text-[10px] text-muted-foreground">
                                 <span className="flex items-center gap-1">
-                                  <ThumbsUp className="h-3 w-3" />
+                                  <ThumbsUp className="size-3" />
                                   {formatNumber(post.upvoteCount)}
                                 </span>
                                 <span className="flex items-center gap-1">
-                                  <Eye className="h-3 w-3" />
+                                  <Eye className="size-3" />
                                   {formatNumber(post.views)}
                                 </span>
                                 <span className="flex items-center gap-1">
-                                  <Clock className="h-3 w-3" />
+                                  <Clock className="size-3" />
                                   {timeAgo(post.createdAt)}
                                 </span>
                               </div>
@@ -223,7 +223,7 @@ export function UserProfileClient({ id }: UserProfileClientProps) {
 
                 <TabsContent value="activity" className="mt-4">
                   <div className="rounded-2xl border border-border p-6 backdrop-blur-md bg-card/50 text-center">
-                    <Clock className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
+                    <Clock className="size-10 mx-auto text-muted-foreground/30 mb-3" />
                     <p className="text-sm text-muted-foreground">{t('activityComingSoon')}</p>
                     <p className="text-xs text-muted-foreground/60 mt-1">
                       {t('activityComingSoonHint')}

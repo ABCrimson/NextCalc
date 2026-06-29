@@ -54,7 +54,7 @@ export default async function StatsPage() {
                 }}
                 aria-hidden="true"
               >
-                <BarChart3 className="h-8 w-8" style={{ color: 'oklch(0.65 0.22 264)' }} />
+                <BarChart3 className="size-8" style={{ color: 'oklch(0.65 0.22 264)' }} />
               </div>
             </div>
 
@@ -112,7 +112,7 @@ export default async function StatsPage() {
 
           {/* Gradient separator */}
           <div
-            className="h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"
+            className="h-px bg-linear-to-r/oklab from-transparent via-primary/30 to-transparent"
             aria-hidden="true"
           />
 
@@ -122,7 +122,7 @@ export default async function StatsPage() {
           {/* Footer note */}
           <footer>
             <div
-              className="h-px bg-gradient-to-r from-transparent via-primary/25 to-transparent mb-5"
+              className="h-px bg-linear-to-r/oklab from-transparent via-primary/25 to-transparent mb-5"
               aria-hidden="true"
             />
             <p className="text-center text-xs text-muted-foreground">{t('footerNote')}</p>

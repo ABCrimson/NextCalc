@@ -206,7 +206,7 @@ function StepCard({ step, index, isExpanded, onToggle, isFinal }: StepCardProps)
         {/* Step number bubble */}
         <span
           className={cn(
-            'flex-none mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold shrink-0',
+            'flex-none mt-0.5 inline-flex size-6 items-center justify-center rounded-full text-xs font-bold shrink-0',
             isFinal ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground',
           )}
           aria-hidden="true"
@@ -230,7 +230,7 @@ function StepCard({ step, index, isExpanded, onToggle, isFinal }: StepCardProps)
 
         {/* Expand/collapse chevron */}
         <span className="flex-none mt-0.5 text-muted-foreground" aria-hidden="true">
-          {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          {isExpanded ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
         </span>
       </button>
 
@@ -337,12 +337,12 @@ function StepsPanel({ steps, finalLatex, timeMs, copiedSteps, onCopyFinal }: Ste
         >
           {allExpanded ? (
             <>
-              <ChevronUp className="h-3 w-3 mr-1" aria-hidden="true" />
+              <ChevronUp className="size-3 mr-1" aria-hidden="true" />
               Collapse all
             </>
           ) : (
             <>
-              <ChevronDown className="h-3 w-3 mr-1" aria-hidden="true" />
+              <ChevronDown className="size-3 mr-1" aria-hidden="true" />
               Expand all
             </>
           )}
@@ -417,7 +417,7 @@ function StepsPanel({ steps, finalLatex, timeMs, copiedSteps, onCopyFinal }: Ste
             size="icon"
             onClick={onCopyFinal}
             aria-label="Copy final answer to clipboard"
-            className="flex-none h-8 w-8 text-muted-foreground hover:text-foreground"
+            className="flex-none size-8 text-muted-foreground hover:text-foreground"
           >
             <AnimatePresence mode="wait" initial={false}>
               {copiedSteps ? (
@@ -428,7 +428,7 @@ function StepsPanel({ steps, finalLatex, timeMs, copiedSteps, onCopyFinal }: Ste
                   exit={{ scale: 0.7, opacity: 0 }}
                   transition={{ duration: 0.15 }}
                 >
-                  <Check className="h-4 w-4 text-green-500" aria-hidden="true" />
+                  <Check className="size-4 text-green-500" aria-hidden="true" />
                 </m.span>
               ) : (
                 <m.span
@@ -438,7 +438,7 @@ function StepsPanel({ steps, finalLatex, timeMs, copiedSteps, onCopyFinal }: Ste
                   exit={{ scale: 0.7, opacity: 0 }}
                   transition={{ duration: 0.15 }}
                 >
-                  <Copy className="h-4 w-4" aria-hidden="true" />
+                  <Copy className="size-4" aria-hidden="true" />
                 </m.span>
               )}
             </AnimatePresence>
@@ -811,7 +811,7 @@ export function SymbolicPanel() {
       aria-controls="symbolic-steps-panel"
       className="gap-2"
     >
-      <ListOrdered className="h-4 w-4" aria-hidden="true" />
+      <ListOrdered className="size-4" aria-hidden="true" />
       {showSteps ? 'Hide Steps' : 'Show Steps'}
     </Button>
   );
@@ -856,7 +856,7 @@ export function SymbolicPanel() {
         <TabsContent value="differentiate" className="space-y-6">
           {/* Info banner */}
           <Alert>
-            <Info className="h-4 w-4" />
+            <Info className="size-4" />
             <AlertDescription>
               Symbolic differentiation with chain, product, and quotient rules. After computing, the
               analysis panel below will show intercepts and critical points.
@@ -917,7 +917,7 @@ export function SymbolicPanel() {
           {/* Error display */}
           {error && (
             <Alert variant="destructive" role="alert" aria-live="assertive">
-              <AlertCircle className="h-4 w-4" />
+              <AlertCircle className="size-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
@@ -1018,7 +1018,7 @@ export function SymbolicPanel() {
         <TabsContent value="integrate" className="space-y-6">
           {/* Info banner */}
           <Alert>
-            <Info className="h-4 w-4" />
+            <Info className="size-4" />
             <AlertDescription>
               Symbolic integration supports power rule, exponential, logarithmic, trigonometric, and
               integration by parts. Special functions Si(x) and Ci(x) are returned for sin(x)/x and
@@ -1080,7 +1080,7 @@ export function SymbolicPanel() {
           {/* Error display */}
           {error && (
             <Alert variant="destructive" role="alert" aria-live="assertive">
-              <AlertCircle className="h-4 w-4" />
+              <AlertCircle className="size-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}

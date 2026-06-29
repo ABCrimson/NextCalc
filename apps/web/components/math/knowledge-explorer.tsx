@@ -103,7 +103,7 @@ export function KnowledgeExplorer({
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
-            <BookOpen className="h-8 w-8 text-primary" />
+            <BookOpen className="size-8 text-primary" />
             Knowledge Base
           </h1>
           <p className="text-muted-foreground mt-1">
@@ -120,7 +120,7 @@ export function KnowledgeExplorer({
         <CardContent className="pt-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder="Search definitions..."
@@ -261,9 +261,9 @@ function DefinitionCard({
               aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}
             >
               {isBookmarked ? (
-                <Bookmark className="h-4 w-4 fill-current text-primary" />
+                <Bookmark className="size-4 fill-current text-primary" />
               ) : (
-                <BookmarkPlus className="h-4 w-4" />
+                <BookmarkPlus className="size-4" />
               )}
             </Button>
           </div>
@@ -281,7 +281,7 @@ function DefinitionCard({
                 {/* Formal Definition */}
                 <div className="pt-4">
                   <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                    <Lightbulb className="h-4 w-4 text-primary" />
+                    <Lightbulb className="size-4 text-primary" />
                     Formal Definition
                   </h4>
                   <p className="text-sm text-muted-foreground italic">{definition.formal}</p>
@@ -316,7 +316,7 @@ function DefinitionCard({
                     <ul className="space-y-1">
                       {definition.examples.map((example) => (
                         <li key={example} className="text-sm flex items-start gap-2">
-                          <ChevronRight className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                          <ChevronRight className="size-4 text-primary mt-0.5 shrink-0" />
                           <code className="flex-1 bg-muted/50 px-2 py-1 rounded">{example}</code>
                         </li>
                       ))}
@@ -342,7 +342,7 @@ function DefinitionCard({
                 {definition.related.length > 0 && (
                   <div>
                     <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                      <Network className="h-4 w-4" />
+                      <Network className="size-4" />
                       Related Concepts
                     </h4>
                     <div className="flex flex-wrap gap-2">
@@ -356,7 +356,7 @@ function DefinitionCard({
                         >
                           <a href={`#${related}`}>
                             {related}
-                            <ExternalLink className="h-3 w-3 ml-1" />
+                            <ExternalLink className="size-3 ml-1" />
                           </a>
                         </Button>
                       ))}

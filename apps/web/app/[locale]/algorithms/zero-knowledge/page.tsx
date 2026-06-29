@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 /** Glass-morphism card style used across NextCalc chaos/algorithm pages. */
 const GLASS_CARD =
-  'bg-gradient-to-br from-background/60 via-card/50 to-background/60 ' +
+  'bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 ' +
   'backdrop-blur-md border border-border ' +
   'shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]';
 
@@ -27,7 +27,7 @@ function ZeroKnowledgeContent() {
         aria-label={t('webgpuAvailable')}
       >
         <div className="p-2 rounded-lg bg-indigo-500/15 border border-indigo-500/25 shrink-0">
-          <Zap className="w-4 h-4 text-indigo-400" aria-hidden="true" />
+          <Zap className="size-4 text-indigo-400" aria-hidden="true" />
         </div>
         <div className="min-w-0">
           <p className="text-sm font-semibold text-foreground">{t('webgpuAvailable')}</p>
@@ -52,14 +52,14 @@ function ZeroKnowledgeContent() {
             value="interactive"
             className="flex items-center gap-1.5 py-2.5 text-xs sm:text-sm rounded-lg data-[state=active]:bg-white/10 data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=inactive]:text-muted-foreground"
           >
-            <Shield className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+            <Shield className="size-3.5 shrink-0" aria-hidden="true" />
             {t('interactiveProtocols')}
           </TabsTrigger>
           <TabsTrigger
             value="gpu"
             className="flex items-center gap-1.5 py-2.5 text-xs sm:text-sm rounded-lg data-[state=active]:bg-white/10 data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=inactive]:text-muted-foreground"
           >
-            <Zap className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+            <Zap className="size-3.5 shrink-0" aria-hidden="true" />
             {t('gpuAcceleration')}
           </TabsTrigger>
         </TabsList>
@@ -78,7 +78,7 @@ function ZeroKnowledgeContent() {
               aria-label="GPU backend description"
             >
               <div className="flex items-center gap-2 mb-2">
-                <Zap className="w-4 h-4 text-emerald-400" aria-hidden="true" />
+                <Zap className="size-4 text-emerald-400" aria-hidden="true" />
                 <span className="text-sm font-semibold text-foreground">{t('webgpuPrimary')}</span>
               </div>
               <ul className="space-y-1 text-xs text-muted-foreground list-none">
@@ -110,7 +110,7 @@ function ZeroKnowledgeContent() {
               aria-label="CPU fallback description"
             >
               <div className="flex items-center gap-2 mb-2">
-                <Cpu className="w-4 h-4 text-amber-400" aria-hidden="true" />
+                <Cpu className="size-4 text-amber-400" aria-hidden="true" />
                 <span className="text-sm font-semibold text-foreground">{t('cpuFallback')}</span>
               </div>
               <ul className="space-y-1 text-xs text-muted-foreground list-none">

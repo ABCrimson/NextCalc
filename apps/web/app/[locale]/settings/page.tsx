@@ -206,7 +206,7 @@ function ThemeOption({
           : 'border-border bg-background/50 text-muted-foreground hover:border-border/80 hover:bg-accent/30 hover:text-foreground',
       )}
     >
-      <Icon className="h-5 w-5" aria-hidden="true" />
+      <Icon className="size-5" aria-hidden="true" />
       <span className="text-xs font-medium">{label}</span>
     </button>
   );
@@ -340,14 +340,14 @@ export default function SettingsPage() {
     <div className="relative min-h-screen">
       {/* Animated gradient background */}
       <div className="fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background" />
+        <div className="absolute inset-0 bg-linear-to-br/oklab from-background via-background/95 to-background" />
         <m.div
-          className="absolute top-[-10%] right-[-5%] w-[480px] h-[480px] rounded-full bg-gradient-to-br from-violet-500/10 to-indigo-500/10 blur-3xl"
+          className="absolute top-[-10%] right-[-5%] w-[480px] h-[480px] rounded-full bg-linear-to-br/oklab from-violet-500/10 to-indigo-500/10 blur-3xl"
           animate={{ x: [0, 60, 0], y: [0, 40, 0], scale: [1, 1.15, 1] }}
           transition={{ duration: 22, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
         />
         <m.div
-          className="absolute bottom-[-10%] left-[-5%] w-[560px] h-[560px] rounded-full bg-gradient-to-br from-sky-500/10 to-cyan-500/10 blur-3xl"
+          className="absolute bottom-[-10%] left-[-5%] w-[560px] h-[560px] rounded-full bg-linear-to-br/oklab from-sky-500/10 to-cyan-500/10 blur-3xl"
           animate={{ x: [0, -60, 0], y: [0, -40, 0], scale: [1, 1.1, 1] }}
           transition={{ duration: 28, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
         />
@@ -371,10 +371,10 @@ export default function SettingsPage() {
           className="mb-10"
         >
           <div className="flex items-center gap-3 mb-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-violet-500/20 to-indigo-500/20 border border-violet-500/30">
-              <Settings className="h-6 w-6 text-violet-400" aria-hidden="true" />
+            <div className="p-2.5 rounded-xl bg-linear-to-br/oklab from-violet-500/20 to-indigo-500/20 border border-violet-500/30">
+              <Settings className="size-6 text-violet-400" aria-hidden="true" />
             </div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-300 via-indigo-300 to-sky-300 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold bg-linear-to-r/oklab from-violet-300 via-indigo-300 to-sky-300 bg-clip-text text-transparent">
               {t('title')}
             </h1>
           </div>
@@ -386,11 +386,11 @@ export default function SettingsPage() {
           {/* Profile */}
           {/* ------------------------------------------------------------------ */}
           <SettingsSection delay={0.08}>
-            <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
+            <Card className="bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-1.5 rounded-lg bg-gradient-to-br from-sky-500/15 to-blue-500/15 border border-sky-500/25">
-                    <User className="h-4 w-4 text-sky-400" aria-hidden="true" />
+                  <div className="p-1.5 rounded-lg bg-linear-to-br/oklab from-sky-500/15 to-blue-500/15 border border-sky-500/25">
+                    <User className="size-4 text-sky-400" aria-hidden="true" />
                   </div>
                   <CardTitle className="text-base font-semibold text-foreground">
                     {t('profile')}
@@ -443,11 +443,11 @@ export default function SettingsPage() {
           {/* Appearance */}
           {/* ------------------------------------------------------------------ */}
           <SettingsSection delay={0.14}>
-            <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
+            <Card className="bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-1.5 rounded-lg bg-gradient-to-br from-violet-500/15 to-purple-500/15 border border-violet-500/25">
-                    <Palette className="h-4 w-4 text-violet-400" aria-hidden="true" />
+                  <div className="p-1.5 rounded-lg bg-linear-to-br/oklab from-violet-500/15 to-purple-500/15 border border-violet-500/25">
+                    <Palette className="size-4 text-violet-400" aria-hidden="true" />
                   </div>
                   <CardTitle className="text-base font-semibold text-foreground">
                     {t('appearance')}
@@ -494,11 +494,11 @@ export default function SettingsPage() {
           {/* Calculator defaults */}
           {/* ------------------------------------------------------------------ */}
           <SettingsSection delay={0.2}>
-            <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
+            <Card className="bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-1.5 rounded-lg bg-gradient-to-br from-emerald-500/15 to-teal-500/15 border border-emerald-500/25">
-                    <Calculator className="h-4 w-4 text-emerald-400" aria-hidden="true" />
+                  <div className="p-1.5 rounded-lg bg-linear-to-br/oklab from-emerald-500/15 to-teal-500/15 border border-emerald-500/25">
+                    <Calculator className="size-4 text-emerald-400" aria-hidden="true" />
                   </div>
                   <CardTitle className="text-base font-semibold text-foreground">
                     {t('calculatorDefaults')}
@@ -586,11 +586,11 @@ export default function SettingsPage() {
           {/* Data */}
           {/* ------------------------------------------------------------------ */}
           <SettingsSection delay={0.26}>
-            <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
+            <Card className="bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-1.5 rounded-lg bg-gradient-to-br from-amber-500/15 to-orange-500/15 border border-amber-500/25">
-                    <Download className="h-4 w-4 text-amber-400" aria-hidden="true" />
+                  <div className="p-1.5 rounded-lg bg-linear-to-br/oklab from-amber-500/15 to-orange-500/15 border border-amber-500/25">
+                    <Download className="size-4 text-amber-400" aria-hidden="true" />
                   </div>
                   <CardTitle className="text-base font-semibold text-foreground">
                     {t('data')}
@@ -614,7 +614,7 @@ export default function SettingsPage() {
                     className="flex-1 gap-2"
                     aria-label="Export calculation history as JSON file"
                   >
-                    <Download className="h-4 w-4" aria-hidden="true" />
+                    <Download className="size-4" aria-hidden="true" />
                     {t('exportHistory')}
                   </Button>
 
@@ -633,7 +633,7 @@ export default function SettingsPage() {
                     }
                     aria-live="polite"
                   >
-                    <Trash2 className="h-4 w-4" aria-hidden="true" />
+                    <Trash2 className="size-4" aria-hidden="true" />
                     {clearConfirm ? t('confirmClear') : t('clearHistory')}
                   </Button>
                 </div>
@@ -649,11 +649,11 @@ export default function SettingsPage() {
           {/* Keyboard shortcuts */}
           {/* ------------------------------------------------------------------ */}
           <SettingsSection delay={0.32}>
-            <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
+            <Card className="bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-1.5 rounded-lg bg-gradient-to-br from-rose-500/15 to-pink-500/15 border border-rose-500/25">
-                    <Keyboard className="h-4 w-4 text-rose-400" aria-hidden="true" />
+                  <div className="p-1.5 rounded-lg bg-linear-to-br/oklab from-rose-500/15 to-pink-500/15 border border-rose-500/25">
+                    <Keyboard className="size-4 text-rose-400" aria-hidden="true" />
                   </div>
                   <CardTitle className="text-base font-semibold text-foreground">
                     {t('keyboardShortcuts')}
@@ -683,7 +683,7 @@ export default function SettingsPage() {
           {/* Save bar */}
           {/* ------------------------------------------------------------------ */}
           <SettingsSection delay={0.38}>
-            <div className="flex items-center justify-between gap-4 rounded-xl px-5 py-4 bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
+            <div className="flex items-center justify-between gap-4 rounded-xl px-5 py-4 bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
               {/* Status feedback */}
               <div aria-live="polite" aria-atomic="true">
                 {saveStatus.type === 'saved' && (
@@ -692,7 +692,7 @@ export default function SettingsPage() {
                     animate={{ opacity: 1, x: 0 }}
                     className="flex items-center gap-1.5 text-sm text-emerald-400 font-medium"
                   >
-                    <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                    <CheckCircle2 className="size-4" aria-hidden="true" />
                     {t('saved')}
                   </m.span>
                 )}
@@ -702,7 +702,7 @@ export default function SettingsPage() {
                     animate={{ opacity: 1, x: 0 }}
                     className="flex items-center gap-1.5 text-sm text-destructive font-medium"
                   >
-                    <AlertCircle className="h-4 w-4" aria-hidden="true" />
+                    <AlertCircle className="size-4" aria-hidden="true" />
                     {t('saveFailed')}
                   </m.span>
                 )}
@@ -713,10 +713,10 @@ export default function SettingsPage() {
 
               <Button
                 onClick={handleSave}
-                className="shrink-0 gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white border-0"
+                className="shrink-0 gap-2 bg-linear-to-r/oklab from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white border-0"
                 aria-label="Save all settings"
               >
-                <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                <CheckCircle2 className="size-4" aria-hidden="true" />
                 {t('saveAll')}
               </Button>
             </div>

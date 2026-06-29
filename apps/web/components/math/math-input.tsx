@@ -308,7 +308,7 @@ export function MathInput({
             className="mt-2 flex items-center gap-2 text-sm text-destructive"
             role="alert"
           >
-            <AlertCircle className="h-4 w-4" />
+            <AlertCircle className="size-4" />
             {validationResult.error}
           </m.div>
         )}
@@ -320,7 +320,7 @@ export function MathInput({
             animate={{ opacity: 1, y: 0 }}
             className="mt-2 flex items-center gap-2 text-sm text-calculator-equals"
           >
-            <Check className="h-4 w-4" />
+            <Check className="size-4" />
             Valid expression
           </m.div>
         )}
@@ -365,7 +365,7 @@ export function MathInput({
                   onClick={() => setSelectedCategory(key as keyof typeof SYMBOL_CATEGORIES)}
                   className="flex items-center gap-2"
                 >
-                  <category.icon className="h-3 w-3" />
+                  <category.icon className="size-3" />
                   {category.label}
                 </Button>
               ))}

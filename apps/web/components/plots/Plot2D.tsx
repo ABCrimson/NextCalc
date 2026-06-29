@@ -460,7 +460,7 @@ export function Plot2D({
         };
 
   return (
-    <div ref={containerRef} className={`relative w-full h-full min-h-[400px] ${className}`}>
+    <div ref={containerRef} className={`relative size-full min-h-[400px] ${className}`}>
       {/* ------------------------------------------------------------------ */}
       {/* Annotation toolbar — rendered above the canvas, inside the wrapper  */}
       {/* ------------------------------------------------------------------ */}
@@ -490,7 +490,7 @@ export function Plot2D({
         ref={canvasRef}
         width={canvasSize.width}
         height={canvasSize.height}
-        className="absolute inset-0 w-full h-full border border-border rounded-lg shadow-[0_0_20px_oklch(0.7148_0.1257_215.22_/_0.15)]"
+        className="absolute inset-0 size-full border border-border rounded-lg shadow-[0_0_20px_oklch(0.7148_0.1257_215.22_/_0.15)]"
         style={{
           width: '100%',
           height: '100%',
@@ -556,7 +556,7 @@ export function Plot2D({
       {!isReady && !error && (
         <div className="absolute inset-0 flex items-center justify-center bg-background/90 rounded-lg border border-border">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400 mx-auto" />
+            <div className="animate-spin rounded-full size-8 border-b-2 border-cyan-400 mx-auto" />
             <p className="text-sm text-foreground/80 mt-2">Initializing renderer...</p>
           </div>
         </div>

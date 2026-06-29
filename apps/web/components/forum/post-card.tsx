@@ -35,11 +35,11 @@ export function TagPill({ name }: { name: string }) {
     <span
       className={cn(
         'inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold',
-        'bg-gradient-to-r border backdrop-blur-sm',
+        'bg-linear-to-r/oklab border backdrop-blur-sm',
         style,
       )}
     >
-      <Hash className="h-2.5 w-2.5" />
+      <Hash className="size-2.5" />
       {name}
     </span>
   );
@@ -54,13 +54,13 @@ function AuthorAvatar({ name, image }: { name: string | null; image: string | nu
   return (
     <div
       className={cn(
-        'flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-bold text-sm',
-        'bg-gradient-to-br from-muted/60 to-muted/30 border border-border',
+        'flex size-10 shrink-0 items-center justify-center rounded-full font-bold text-sm',
+        'bg-linear-to-br/oklab from-muted/60 to-muted/30 border border-border',
       )}
     >
       {image ? (
         // biome-ignore lint/performance/noImgElement: external OAuth avatar URL not in next/image remotePatterns
-        <img src={image} alt={name ?? 'User'} className="h-full w-full rounded-full object-cover" />
+        <img src={image} alt={name ?? 'User'} className="size-full rounded-full object-cover" />
       ) : (
         <span className="text-muted-foreground">{initials}</span>
       )}
@@ -114,7 +114,7 @@ export function PostCard({ post, index }: PostCardProps) {
 
       {/* Pinned indicator override */}
       {post.isPinned && (
-        <div className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full bg-gradient-to-b from-amber-400 to-orange-500" />
+        <div className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full bg-linear-to-b/oklab from-amber-400 to-orange-500" />
       )}
 
       {/* Upvote column */}
@@ -138,7 +138,7 @@ export function PostCard({ post, index }: PostCardProps) {
                   variant="outline"
                   className="gap-1 text-[10px] py-0 h-5 bg-amber-500/10 border-amber-500/30 text-amber-400"
                 >
-                  <Pin className="h-2.5 w-2.5" />
+                  <Pin className="size-2.5" />
                   Pinned
                 </Badge>
               )}
@@ -154,7 +154,7 @@ export function PostCard({ post, index }: PostCardProps) {
             </div>
             <p className="text-sm text-muted-foreground line-clamp-1">{post.content}</p>
           </div>
-          <ChevronRight className="h-5 w-5 text-muted-foreground/40 group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all shrink-0 mt-1" />
+          <ChevronRight className="size-5 text-muted-foreground/40 group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all shrink-0 mt-1" />
         </div>
 
         {/* Tags */}
@@ -181,15 +181,15 @@ export function PostCard({ post, index }: PostCardProps) {
 
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
-              <Eye className="h-3 w-3" />
+              <Eye className="size-3" />
               {formatNumber(post.views)}
             </span>
             <span className="flex items-center gap-1">
-              <MessageSquare className="h-3 w-3" />
+              <MessageSquare className="size-3" />
               {commentCount}
             </span>
             <span className="flex items-center gap-1">
-              <Clock className="h-3 w-3" />
+              <Clock className="size-3" />
               {timeAgo(post.createdAt)}
             </span>
           </div>

@@ -105,7 +105,7 @@ export function AchievementGrid({ achievements }: AchievementGridProps) {
           <Card className="group relative flex h-full flex-col items-center overflow-hidden p-4 text-center transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/10">
             {/* Badge image or icon fallback */}
             <div
-              className="mb-3 flex h-16 w-16 items-center justify-center rounded-full border-2 border-border bg-muted text-3xl"
+              className="mb-3 flex size-16 items-center justify-center rounded-full border-2 border-border bg-muted text-3xl"
               aria-hidden="true"
             >
               {achievement.badgeUrl ? (
@@ -113,7 +113,7 @@ export function AchievementGrid({ achievements }: AchievementGridProps) {
                 <img
                   src={achievement.badgeUrl}
                   alt=""
-                  className="h-12 w-12 rounded-full object-cover"
+                  className="size-12 rounded-full object-cover"
                 />
               ) : (
                 <span>{achievement.icon}</span>

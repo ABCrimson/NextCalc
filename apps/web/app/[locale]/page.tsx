@@ -186,10 +186,10 @@ export default function Home() {
           transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
         >
           <div className="inline-block mb-4 relative">
-            <h1 className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-primary via-calculator-operator to-calculator-equals bg-clip-text text-transparent animate-gradient bg-[length:200%_auto] drop-shadow-[0_0_30px_oklch(0.6231_0.188_259.81_/_0.3)]">
+            <h1 className="text-6xl md:text-7xl font-bold bg-linear-to-r/oklab from-primary via-calculator-operator to-calculator-equals bg-clip-text text-transparent animate-gradient bg-[length:200%_auto] drop-shadow-[0_0_30px_oklch(0.6231_0.188_259.81_/_0.3)]">
               {t('home.hero.title' as Parameters<typeof t>[0])}
             </h1>
-            <div className="h-1.5 w-full bg-gradient-to-r from-primary via-calculator-operator to-calculator-equals rounded-full mt-3 shadow-lg shadow-primary/50 animate-pulse" />
+            <div className="h-1.5 w-full bg-linear-to-r/oklab from-primary via-calculator-operator to-calculator-equals rounded-full mt-3 shadow-lg shadow-primary/50 animate-pulse" />
           </div>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             {t.rich('home.hero.subtitle' as Parameters<typeof t>[0], {
@@ -207,31 +207,31 @@ export default function Home() {
           >
             <m.div
               variants={badgeVariants}
-              className="group relative flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg shadow-green-500/40 hover:shadow-xl hover:shadow-green-500/60 transition-all duration-300 hover:scale-105 overflow-hidden"
+              className="group relative flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r/oklab from-green-500 to-emerald-600 text-white shadow-lg shadow-green-500/40 hover:shadow-xl hover:shadow-green-500/60 transition-all duration-300 hover:scale-105 overflow-hidden"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
-              <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+              <div className="absolute inset-0 bg-linear-to-r/oklab from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
+              <div className="size-2 bg-white rounded-full animate-pulse" />
               <span className="relative z-10">{t('common.live' as Parameters<typeof t>[0])}</span>
             </m.div>
             <m.div
               variants={badgeVariants}
-              className="group relative px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/40 hover:shadow-xl hover:shadow-blue-500/60 transition-all duration-300 hover:scale-105 overflow-hidden"
+              className="group relative px-4 py-2 rounded-full bg-linear-to-r/oklab from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/40 hover:shadow-xl hover:shadow-blue-500/60 transition-all duration-300 hover:scale-105 overflow-hidden"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
+              <div className="absolute inset-0 bg-linear-to-r/oklab from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
               <span className="relative z-10">TypeScript 6.0</span>
             </m.div>
             <m.div
               variants={badgeVariants}
-              className="group relative px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg shadow-purple-500/40 hover:shadow-xl hover:shadow-purple-500/60 transition-all duration-300 hover:scale-105 overflow-hidden"
+              className="group relative px-4 py-2 rounded-full bg-linear-to-r/oklab from-purple-500 to-pink-600 text-white shadow-lg shadow-purple-500/40 hover:shadow-xl hover:shadow-purple-500/60 transition-all duration-300 hover:scale-105 overflow-hidden"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
+              <div className="absolute inset-0 bg-linear-to-r/oklab from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
               <span className="relative z-10">Tailwind 4.3.0</span>
             </m.div>
             <m.div
               variants={badgeVariants}
-              className="group relative px-4 py-2 rounded-full bg-gradient-to-r from-rose-500 to-orange-600 text-white shadow-lg shadow-rose-500/40 hover:shadow-xl hover:shadow-rose-500/60 transition-all duration-300 hover:scale-105 overflow-hidden"
+              className="group relative px-4 py-2 rounded-full bg-linear-to-r/oklab from-rose-500 to-orange-600 text-white shadow-lg shadow-rose-500/40 hover:shadow-xl hover:shadow-rose-500/60 transition-all duration-300 hover:scale-105 overflow-hidden"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
+              <div className="absolute inset-0 bg-linear-to-r/oklab from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
               <span className="relative z-10">Turbopack</span>
             </m.div>
           </m.div>
@@ -313,7 +313,7 @@ export default function Home() {
                         className={`p-3 rounded-xl ${card.iconBg} transition-colors duration-300`}
                       >
                         <Icon
-                          className={`h-6 w-6 ${card.accentClass} group-hover:scale-110 transition-transform duration-300`}
+                          className={`size-6 ${card.accentClass} group-hover:scale-110 transition-transform duration-300`}
                         />
                       </div>
                       <div className="flex flex-col items-start">
@@ -336,7 +336,7 @@ export default function Home() {
 
         {/* Modern minimal footer with gradient divider */}
         <footer className="mt-16">
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-primary/40 to-transparent mb-6" />
+          <div className="h-px w-full bg-linear-to-r/oklab from-transparent via-primary/40 to-transparent mb-6" />
           <p className="text-center text-sm text-muted-foreground">
             {t('app.footer' as Parameters<typeof t>[0])}
           </p>

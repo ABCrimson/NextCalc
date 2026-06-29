@@ -129,7 +129,7 @@ function UrlPreview({ url, isLoading }: { url: string; isLoading: boolean }) {
     <div className="rounded-lg bg-muted/60 border border-border px-3 py-2">
       {isLoading ? (
         <div className="flex items-center gap-2">
-          <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" aria-hidden="true" />
+          <Loader2 className="size-3 animate-spin text-muted-foreground" aria-hidden="true" />
           <p className="text-xs font-mono text-muted-foreground">Generating permalink...</p>
         </div>
       ) : (
@@ -317,7 +317,7 @@ export function ShareButton({ expression, result, mode, angle, className }: Shar
             className,
           )}
         >
-          <Share2 className="h-4 w-4" aria-hidden="true" />
+          <Share2 className="size-4" aria-hidden="true" />
           <span>Share</span>
         </Button>
       </PopoverPrimitive.Trigger>
@@ -411,7 +411,7 @@ export function ShareButton({ expression, result, mode, angle, className }: Shar
                           transition={{ duration: prefersReducedMotion ? 0 : 0.15 }}
                           className="flex items-center gap-2"
                         >
-                          <Check className="h-4 w-4" aria-hidden="true" />
+                          <Check className="size-4" aria-hidden="true" />
                           Copied!
                         </m.span>
                       ) : isCreating ? (
@@ -423,7 +423,7 @@ export function ShareButton({ expression, result, mode, angle, className }: Shar
                           transition={{ duration: prefersReducedMotion ? 0 : 0.12 }}
                           className="flex items-center gap-2"
                         >
-                          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                          <Loader2 className="size-4 animate-spin" aria-hidden="true" />
                           Creating...
                         </m.span>
                       ) : (
@@ -435,7 +435,7 @@ export function ShareButton({ expression, result, mode, angle, className }: Shar
                           transition={{ duration: prefersReducedMotion ? 0 : 0.12 }}
                           className="flex items-center gap-2"
                         >
-                          <Copy className="h-4 w-4" aria-hidden="true" />
+                          <Copy className="size-4" aria-hidden="true" />
                           Copy Link
                         </m.span>
                       )}
@@ -459,7 +459,7 @@ export function ShareButton({ expression, result, mode, angle, className }: Shar
                       )}
                       aria-label="Share via system share sheet"
                     >
-                      <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                      <ExternalLink className="size-4" aria-hidden="true" />
                       Share via...
                     </button>
                   )}

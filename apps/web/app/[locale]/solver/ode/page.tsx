@@ -1012,12 +1012,12 @@ function DirectionFieldCanvas({
   const gpuFieldF = useCallback((_x: number, _y: number, _t: number) => 1, []);
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative size-full">
       <canvas
         ref={canvasRef}
         width={SIZE}
         height={SIZE}
-        className="w-full h-full rounded-lg cursor-crosshair"
+        className="size-full rounded-lg cursor-crosshair"
         onClick={handleClick}
         title="Click to add a trajectory from this initial condition"
       />
@@ -1276,12 +1276,12 @@ function PhasePlaneCanvas({
   );
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative size-full">
       <canvas
         ref={canvasRef}
         width={SIZE}
         height={SIZE}
-        className="w-full h-full rounded-lg cursor-crosshair"
+        className="size-full rounded-lg cursor-crosshair"
         onClick={handleClick}
         title="Click to add a trajectory from this initial condition"
       />
@@ -1823,16 +1823,16 @@ export default function ODESolverPage() {
   const csvData = buildCSV(currentPoints, odeType);
 
   return (
-    <main className="min-h-screen py-12 px-4 bg-gradient-to-br from-background via-background/95 to-background">
+    <main className="min-h-screen py-12 px-4 bg-linear-to-br/oklab from-background via-background/95 to-background">
       <div className="container mx-auto max-w-7xl">
         {/* Header */}
         <header className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-violet-500/20 to-blue-500/20 border border-violet-500/30">
-              <Activity className="w-8 h-8 text-violet-400" />
+            <div className="p-2 rounded-xl bg-linear-to-br/oklab from-violet-500/20 to-blue-500/20 border border-violet-500/30">
+              <Activity className="size-8 text-violet-400" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-violet-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold bg-linear-to-r/oklab from-violet-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
                 {t('odeTitle')}
               </h1>
               <p className="text-sm text-muted-foreground mt-1">{t('odeSubtitle')}</p>
@@ -1840,7 +1840,7 @@ export default function ODESolverPage() {
           </div>
           <div className="flex flex-wrap gap-2 mt-4">
             <Badge variant="outline" className="gap-1 backdrop-blur-sm bg-muted/50 border-border">
-              <Zap className="w-3 h-3 text-yellow-400" />
+              <Zap className="size-3 text-yellow-400" />
               {t('ode.rk4Euler')}
             </Badge>
             <Badge variant="outline" className="backdrop-blur-sm bg-muted/50 border-border">
@@ -1857,7 +1857,7 @@ export default function ODESolverPage() {
                 variant="outline"
                 className="gap-1 backdrop-blur-sm bg-violet-500/10 border-violet-500/40 text-violet-300"
               >
-                <Zap className="w-3 h-3" />
+                <Zap className="size-3" />
                 WebGPU
               </Badge>
             )}
@@ -1871,7 +1871,7 @@ export default function ODESolverPage() {
             <Card className="backdrop-blur-md bg-card/50 border-border">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-yellow-400" />
+                  <Zap className="size-4 text-yellow-400" />
                   Quick Presets
                 </CardTitle>
               </CardHeader>
@@ -1902,7 +1902,7 @@ export default function ODESolverPage() {
             <Card className="backdrop-blur-md bg-card/50 border-border">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-base">
-                  <Settings className="w-4 h-4 text-blue-400" />
+                  <Settings className="size-4 text-blue-400" />
                   Configuration
                 </CardTitle>
               </CardHeader>
@@ -2088,7 +2088,7 @@ export default function ODESolverPage() {
                     className="flex-1 bg-violet-600 hover:bg-violet-500 text-white border-0"
                     disabled={hasParseError}
                   >
-                    <Play className="w-4 h-4 mr-2" />
+                    <Play className="size-4 mr-2" />
                     Solve
                   </Button>
                   <Button
@@ -2096,7 +2096,7 @@ export default function ODESolverPage() {
                     onClick={clearTrajectories}
                     className="backdrop-blur-sm bg-muted/30 border-border"
                   >
-                    <RotateCcw className="w-4 h-4" />
+                    <RotateCcw className="size-4" />
                   </Button>
                 </div>
 
@@ -2139,7 +2139,7 @@ export default function ODESolverPage() {
             <Card className="backdrop-blur-md bg-card/50 border-border">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-emerald-400" />
+                  <Layers className="size-4 text-emerald-400" />
                   Direction Field
                 </CardTitle>
               </CardHeader>
@@ -2156,7 +2156,7 @@ export default function ODESolverPage() {
                     }`}
                   >
                     <span
-                      className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${
+                      className={`inline-block size-3.5 transform rounded-full bg-white shadow transition-transform ${
                         showDirectionField ? 'translate-x-4' : 'translate-x-1'
                       }`}
                     />
@@ -2207,7 +2207,7 @@ export default function ODESolverPage() {
                         <div key={traj.id} className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
                             <div
-                              className="w-3 h-3 rounded-full shrink-0"
+                              className="size-3 rounded-full shrink-0"
                               style={{ background: traj.color }}
                             />
                             <span className="text-xs font-mono text-foreground/80">
@@ -2222,7 +2222,7 @@ export default function ODESolverPage() {
                             className="text-muted-foreground hover:text-foreground transition-colors"
                             aria-label="Remove trajectory"
                           >
-                            <Trash2 className="w-3 h-3" />
+                            <Trash2 className="size-3" />
                           </button>
                         </div>
                       ))
@@ -2230,7 +2230,7 @@ export default function ODESolverPage() {
                         <div key={traj.id} className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
                             <div
-                              className="w-3 h-3 rounded-full shrink-0"
+                              className="size-3 rounded-full shrink-0"
                               style={{ background: traj.color }}
                             />
                             <span className="text-xs font-mono text-foreground/80">
@@ -2245,7 +2245,7 @@ export default function ODESolverPage() {
                             className="text-muted-foreground hover:text-foreground transition-colors"
                             aria-label="Remove trajectory"
                           >
-                            <Trash2 className="w-3 h-3" />
+                            <Trash2 className="size-3" />
                           </button>
                         </div>
                       ))}
@@ -2255,7 +2255,7 @@ export default function ODESolverPage() {
                     onClick={clearTrajectories}
                     className="w-full mt-2 text-xs"
                   >
-                    <Trash2 className="w-3 h-3 mr-1" />
+                    <Trash2 className="size-3 mr-1" />
                     Clear All
                   </Button>
                 </CardContent>
@@ -2270,7 +2270,7 @@ export default function ODESolverPage() {
                 <CardHeader className="pb-0">
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2">
-                      <Activity className="w-5 h-5 text-violet-400" />
+                      <Activity className="size-5 text-violet-400" />
                       {odeType === 'system'
                         ? 'Phase Plane'
                         : odeType === 'first-order'
@@ -2285,7 +2285,7 @@ export default function ODESolverPage() {
                         className="text-xs backdrop-blur-sm bg-muted/50 border-border"
                         disabled={hasParseError}
                       >
-                        <Plus className="w-3 h-3 mr-1" />
+                        <Plus className="size-3 mr-1" />
                         Add Trajectory
                       </Button>
                       {currentPoints.length > 0 && (
@@ -2295,7 +2295,7 @@ export default function ODESolverPage() {
                           onClick={() => downloadCSV(csvData, `ode-solution-${Date.now()}.csv`)}
                           className="text-xs backdrop-blur-sm bg-muted/50 border-border"
                         >
-                          <Download className="w-3 h-3 mr-1" />
+                          <Download className="size-3 mr-1" />
                           CSV
                         </Button>
                       )}
@@ -2322,7 +2322,7 @@ export default function ODESolverPage() {
                 <CardContent className="pt-4">
                   {/* VISUALIZATION TAB */}
                   <TabsContent value="visualization" className="mt-0">
-                    <div className="relative bg-gradient-to-br from-background to-card rounded-lg p-2 border border-border">
+                    <div className="relative bg-linear-to-br/oklab from-background to-card rounded-lg p-2 border border-border">
                       <div className="relative w-full" style={{ aspectRatio: '1/1' }}>
                         {odeType === 'system' ? (
                           <PhasePlaneCanvas
@@ -2377,7 +2377,7 @@ export default function ODESolverPage() {
 
                   {/* TIME SERIES TAB */}
                   <TabsContent value="time-series" className="mt-0">
-                    <div className="bg-gradient-to-br from-background to-card rounded-lg p-2 border border-border">
+                    <div className="bg-linear-to-br/oklab from-background to-card rounded-lg p-2 border border-border">
                       <SolutionCurveCanvas
                         trajectories={trajectories}
                         systemTrajectories={systemTrajectories}
@@ -2410,7 +2410,7 @@ export default function ODESolverPage() {
                           onClick={() => downloadCSV(csvData, `ode-solution-${Date.now()}.csv`)}
                           className="w-full text-xs backdrop-blur-sm bg-muted/50 border-border"
                         >
-                          <Download className="w-4 h-4 mr-2" />
+                          <Download className="size-4 mr-2" />
                           Download Full CSV ({currentPoints.length} rows)
                         </Button>
                       </div>
@@ -2429,12 +2429,12 @@ export default function ODESolverPage() {
         {/* EDUCATIONAL CONTENT */}
         <section className="mt-12 space-y-6">
           <div className="flex items-center gap-2 mb-4">
-            <Info className="w-5 h-5 text-blue-400" />
+            <Info className="size-5 text-blue-400" />
             <h2 className="text-2xl font-semibold">{t('ode.aboutTitle')}</h2>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <div className="group p-5 rounded-lg bg-gradient-to-br from-blue-950/40 to-blue-900/40 border border-blue-500/40 hover:border-blue-400/70 transition-all duration-300 backdrop-blur-sm">
+            <div className="group p-5 rounded-lg bg-linear-to-br/oklab from-blue-950/40 to-blue-900/40 border border-blue-500/40 hover:border-blue-400/70 transition-all duration-300 backdrop-blur-sm">
               <h3 className="text-base font-semibold mb-2 text-blue-300">Euler Method</h3>
               <p className="text-xs text-blue-200/80 font-mono mb-2">yₙ₊₁ = yₙ + h·f(xₙ,yₙ)</p>
               <p className="text-xs text-blue-200/70">
@@ -2443,7 +2443,7 @@ export default function ODESolverPage() {
               </p>
             </div>
 
-            <div className="group p-5 rounded-lg bg-gradient-to-br from-violet-950/40 to-violet-900/40 border border-violet-500/40 hover:border-violet-400/70 transition-all duration-300 backdrop-blur-sm">
+            <div className="group p-5 rounded-lg bg-linear-to-br/oklab from-violet-950/40 to-violet-900/40 border border-violet-500/40 hover:border-violet-400/70 transition-all duration-300 backdrop-blur-sm">
               <h3 className="text-base font-semibold mb-2 text-violet-300">Runge-Kutta 4</h3>
               <p className="text-xs text-violet-200/80 font-mono mb-2">
                 Uses 4 slope evaluations per step
@@ -2454,7 +2454,7 @@ export default function ODESolverPage() {
               </p>
             </div>
 
-            <div className="group p-5 rounded-lg bg-gradient-to-br from-emerald-950/40 to-emerald-900/40 border border-emerald-500/40 hover:border-emerald-400/70 transition-all duration-300 backdrop-blur-sm">
+            <div className="group p-5 rounded-lg bg-linear-to-br/oklab from-emerald-950/40 to-emerald-900/40 border border-emerald-500/40 hover:border-emerald-400/70 transition-all duration-300 backdrop-blur-sm">
               <h3 className="text-base font-semibold mb-2 text-emerald-300">Phase Plane</h3>
               <p className="text-xs text-emerald-200/80 font-mono mb-2">Plot of (x, y) over time</p>
               <p className="text-xs text-emerald-200/70">
@@ -2463,7 +2463,7 @@ export default function ODESolverPage() {
               </p>
             </div>
 
-            <div className="group p-5 rounded-lg bg-gradient-to-br from-orange-950/40 to-orange-900/40 border border-orange-500/40 hover:border-orange-400/70 transition-all duration-300 backdrop-blur-sm">
+            <div className="group p-5 rounded-lg bg-linear-to-br/oklab from-orange-950/40 to-orange-900/40 border border-orange-500/40 hover:border-orange-400/70 transition-all duration-300 backdrop-blur-sm">
               <h3 className="text-base font-semibold mb-2 text-orange-300">Direction Field</h3>
               <p className="text-xs text-orange-200/80 font-mono mb-2">
                 Slope arrows at grid points
@@ -2476,7 +2476,7 @@ export default function ODESolverPage() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="p-5 rounded-lg bg-gradient-to-br from-background/80 to-card/80 border border-border backdrop-blur-sm">
+            <div className="p-5 rounded-lg bg-linear-to-br/oklab from-background/80 to-card/80 border border-border backdrop-blur-sm">
               <h3 className="text-base font-semibold mb-3 text-foreground">
                 Second-Order Reduction
               </h3>
@@ -2495,7 +2495,7 @@ export default function ODESolverPage() {
               </p>
             </div>
 
-            <div className="p-5 rounded-lg bg-gradient-to-br from-background/80 to-card/80 border border-border backdrop-blur-sm">
+            <div className="p-5 rounded-lg bg-linear-to-br/oklab from-background/80 to-card/80 border border-border backdrop-blur-sm">
               <h3 className="text-base font-semibold mb-3 text-foreground">Supported Syntax</h3>
               <div className="font-mono text-xs space-y-1 text-foreground/80 bg-muted/30 p-3 rounded">
                 <div>

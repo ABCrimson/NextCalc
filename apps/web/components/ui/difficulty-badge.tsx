@@ -100,7 +100,7 @@ export function DifficultyBadge({
       )}
       aria-label={`Difficulty: ${config.label}`}
     >
-      {showIcon && <Icon className="h-3.5 w-3.5" aria-hidden="true" />}
+      {showIcon && <Icon className="size-3.5" aria-hidden="true" />}
       <span>{config.label}</span>
     </Badge>
   );

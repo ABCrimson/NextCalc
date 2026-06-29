@@ -573,16 +573,16 @@ export default function PDESolverPage() {
   }, [simulationData]);
 
   return (
-    <main className="min-h-screen py-12 px-4 bg-gradient-to-br from-background via-background/95 to-background">
+    <main className="min-h-screen py-12 px-4 bg-linear-to-br/oklab from-background via-background/95 to-background">
       <div className="container mx-auto max-w-7xl">
         {/* Header */}
         <header className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-orange-500/20 to-red-500/20 border border-orange-500/30">
-              <Flame className="w-8 h-8 text-orange-400" />
+            <div className="p-2 rounded-xl bg-linear-to-br/oklab from-orange-500/20 to-red-500/20 border border-orange-500/30">
+              <Flame className="size-8 text-orange-400" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold bg-linear-to-r/oklab from-orange-400 via-red-400 to-pink-400 bg-clip-text text-transparent">
                 {t('studioTitle')}
               </h1>
               <p className="text-sm text-muted-foreground mt-1">{t('description')}</p>
@@ -590,7 +590,7 @@ export default function PDESolverPage() {
           </div>
           <div className="flex flex-wrap gap-2 mt-4">
             <Badge variant="outline" className="gap-1 backdrop-blur-sm bg-muted/50 border-border">
-              <Zap className="w-3 h-3 text-yellow-400" />
+              <Zap className="size-3 text-yellow-400" />
               {t('webgpuAccelerated')}
             </Badge>
             <Badge variant="outline" className="backdrop-blur-sm bg-muted/50 border-border">
@@ -607,7 +607,7 @@ export default function PDESolverPage() {
                 variant="outline"
                 className="gap-1 backdrop-blur-sm bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
               >
-                <Sparkles className="w-3 h-3" />
+                <Sparkles className="size-3" />
                 {t('solvedIn', { ms: computeTime.toFixed(0) })}
               </Badge>
             )}
@@ -620,7 +620,7 @@ export default function PDESolverPage() {
             <Card className="backdrop-blur-md bg-card/50 border-border">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Settings className="w-5 h-5 text-blue-400" />
+                  <Settings className="size-5 text-blue-400" />
                   {t('solverConfiguration')}
                 </CardTitle>
                 <CardDescription>{t('solverConfigurationDesc')}</CardDescription>
@@ -635,11 +635,11 @@ export default function PDESolverPage() {
                   >
                     <TabsList className="grid w-full grid-cols-2 bg-muted/50">
                       <TabsTrigger value="heat" className="gap-2">
-                        <Flame className="w-4 h-4" />
+                        <Flame className="size-4" />
                         {t('heat')}
                       </TabsTrigger>
                       <TabsTrigger value="wave" className="gap-2">
-                        <Radio className="w-4 h-4" />
+                        <Radio className="size-4" />
                         {t('wave')}
                       </TabsTrigger>
                     </TabsList>
@@ -833,7 +833,7 @@ export default function PDESolverPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="flex items-center gap-2">
-                    <Zap className="w-5 h-5 text-yellow-400" />
+                    <Zap className="size-5 text-yellow-400" />
                     {t('solutionHeatmap')}
                   </CardTitle>
                   <CardDescription className="mt-1">
@@ -844,11 +844,11 @@ export default function PDESolverPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Heatmap Visualization */}
-              <div className="relative bg-gradient-to-br from-background to-card rounded-lg p-2 border border-border flex items-center justify-center min-h-[300px]">
+              <div className="relative bg-linear-to-br/oklab from-background to-card rounded-lg p-2 border border-border flex items-center justify-center min-h-[300px]">
                 {isComputing ? (
                   <div className="flex items-center justify-center w-full py-16">
                     <div className="text-center space-y-4">
-                      <div className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto" />
+                      <div className="size-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto" />
                       <p className="text-sm text-muted-foreground">{t('computingPDE')}</p>
                     </div>
                   </div>
@@ -878,12 +878,12 @@ export default function PDESolverPage() {
                     >
                       {isPlaying ? (
                         <>
-                          <Pause className="w-4 h-4 mr-2" />
+                          <Pause className="size-4 mr-2" />
                           {t('pause')}
                         </>
                       ) : (
                         <>
-                          <Play className="w-4 h-4 mr-2" />
+                          <Play className="size-4 mr-2" />
                           {t('play')}
                         </>
                       )}
@@ -894,7 +894,7 @@ export default function PDESolverPage() {
                       className="backdrop-blur-sm bg-muted/50 border-border hover:bg-muted/70"
                       disabled={isComputing}
                     >
-                      <RotateCcw className="w-4 h-4" />
+                      <RotateCcw className="size-4" />
                     </Button>
                   </div>
 
@@ -922,7 +922,7 @@ export default function PDESolverPage() {
                       type="checkbox"
                       checked={smoothRendering}
                       onChange={(e) => setSmoothRendering(e.target.checked)}
-                      className="w-4 h-4 rounded border-border bg-muted text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                      className="size-4 rounded border-border bg-muted text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                     />
                   </div>
                 </div>
@@ -955,35 +955,35 @@ export default function PDESolverPage() {
         {/* Educational Content */}
         <section className="mt-12 space-y-6">
           <div className="flex items-center gap-2 mb-4">
-            <Info className="w-5 h-5 text-blue-400" />
+            <Info className="size-5 text-blue-400" />
             <h2 className="text-2xl font-semibold">{t('aboutTitle')}</h2>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="group relative p-6 rounded-lg bg-gradient-to-br from-orange-950/40 to-orange-900/40 border border-orange-500/40 hover:border-orange-400/70 transition-all duration-300 backdrop-blur-sm">
+            <div className="group relative p-6 rounded-lg bg-linear-to-br/oklab from-orange-950/40 to-orange-900/40 border border-orange-500/40 hover:border-orange-400/70 transition-all duration-300 backdrop-blur-sm">
               <h3 className="text-lg font-semibold mb-2 text-orange-300 flex items-center gap-2">
-                <Flame className="w-5 h-5" />
+                <Flame className="size-5" />
                 {t('heatEquation')}
               </h3>
               <p className="text-sm text-orange-200/80">{t('heatAbout')}</p>
             </div>
 
-            <div className="group relative p-6 rounded-lg bg-gradient-to-br from-blue-950/40 to-blue-900/40 border border-blue-500/40 hover:border-blue-400/70 transition-all duration-300 backdrop-blur-sm">
+            <div className="group relative p-6 rounded-lg bg-linear-to-br/oklab from-blue-950/40 to-blue-900/40 border border-blue-500/40 hover:border-blue-400/70 transition-all duration-300 backdrop-blur-sm">
               <h3 className="text-lg font-semibold mb-2 text-blue-300 flex items-center gap-2">
-                <Radio className="w-5 h-5" />
+                <Radio className="size-5" />
                 {t('waveEquation')}
               </h3>
               <p className="text-sm text-blue-200/80">{t('waveAbout')}</p>
             </div>
 
-            <div className="group relative p-6 rounded-lg bg-gradient-to-br from-purple-950/40 to-purple-900/40 border border-purple-500/40 hover:border-purple-400/70 transition-all duration-300 backdrop-blur-sm">
+            <div className="group relative p-6 rounded-lg bg-linear-to-br/oklab from-purple-950/40 to-purple-900/40 border border-purple-500/40 hover:border-purple-400/70 transition-all duration-300 backdrop-blur-sm">
               <h3 className="text-lg font-semibold mb-2 text-purple-300">
                 {t('finiteDifference')}
               </h3>
               <p className="text-sm text-purple-200/80">{t('finiteDifferenceAbout')}</p>
             </div>
 
-            <div className="group relative p-6 rounded-lg bg-gradient-to-br from-emerald-950/40 to-emerald-900/40 border border-emerald-500/40 hover:border-emerald-400/70 transition-all duration-300 backdrop-blur-sm">
+            <div className="group relative p-6 rounded-lg bg-linear-to-br/oklab from-emerald-950/40 to-emerald-900/40 border border-emerald-500/40 hover:border-emerald-400/70 transition-all duration-300 backdrop-blur-sm">
               <h3 className="text-lg font-semibold mb-2 text-emerald-300">
                 {t('applicationsTitle')}
               </h3>
