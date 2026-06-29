@@ -6,7 +6,7 @@
  * the web app's route handler.
  *
  * Dependencies:
- * - @apollo/server 5.4.0
+ * - @apollo/server 5.5.1
  * - @as-integrations/next 4.1.0
  * - graphql 17.0.1
  * - Prisma 7

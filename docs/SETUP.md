@@ -56,9 +56,15 @@ pnpm --filter @nextcalc/database db:migrate  # Production
 pnpm --filter @nextcalc/database db:studio  # Opens at http://localhost:5555
 ```
 
-### Step 5: Seed Data (Not Available)
+### Step 5: Seed Data (Optional)
 
-Seeding is not currently available — there is no `prisma/seed.ts` in `@nextcalc/database`, so the `db:seed` script would fail. (The seed file was removed.) Create your initial records through the app or Prisma Studio instead.
+Seed the database with starter content (50+ problems, the topic hierarchy, algorithms, theorems, and achievements) via the seed script in `apps/web/prisma/seed.ts`:
+
+```bash
+pnpm --filter @nextcalc/web db:seed
+```
+
+This requires `DATABASE_URL` to be set (see above). You can also create records through the app or Prisma Studio instead.
 
 ---
 

@@ -1,7 +1,7 @@
 /**
  * GraphQL API Route
  *
- * Next.js route handler that serves the GraphQL API via Apollo Server 5.4.0.
+ * Next.js route handler that serves the GraphQL API via Apollo Server 5.5.1.
  * Injects the real NextAuth auth() function so the API can authenticate requests.
  *
  * Endpoint: /api/graphql

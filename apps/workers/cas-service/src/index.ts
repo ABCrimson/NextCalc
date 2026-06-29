@@ -67,12 +67,11 @@ app.use('*', logger());
  * Global error handler
  */
 app.onError((err, c) => {
+  // Log the full error server-side, but never leak err.message to the client
+  // (matches export-service and rate-limiter, which return generic 500 bodies).
   console.error('Unhandled error:', err);
 
-  return c.json(
-    createErrorResponse('Internal server error', 'INTERNAL_ERROR', { message: err.message }),
-    500,
-  );
+  return c.json(createErrorResponse('Internal server error', 'INTERNAL_ERROR'), 500);
 });
 
 /**

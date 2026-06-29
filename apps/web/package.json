@@ -14,7 +14,8 @@
     "typecheck": "tsc --noEmit --project tsconfig.typecheck.json",
     "typecheck:fast": "tsgo --noEmit --project tsconfig.typecheck.json",
     "db:test": "tsx scripts/test-database-connection.ts",
-    "db:setup": "tsx scripts/setup-database.ts"
+    "db:setup": "tsx scripts/setup-database.ts",
+    "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@apollo/client": "4.3.0-alpha.1",

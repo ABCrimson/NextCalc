@@ -1,5 +1,5 @@
 // NextCalc Pro Database Schema
-// Prisma 7.5.0-dev.33 with PostgreSQL (Neon)
+// Prisma 7 with PostgreSQL (Neon)
 // Features: query plan caching, partial indexes, nested transaction savepoints, relation joins
 // Shared across all apps via @nextcalc/database
 
