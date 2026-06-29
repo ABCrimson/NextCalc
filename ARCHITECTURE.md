@@ -9,7 +9,7 @@ graph TB
     end
     subgraph Vercel["Vercel Edge Network"]
         B["App Router + SSR"]
-        C["GraphQL API (Apollo 5.5)"]
+        C["GraphQL API (Apollo 5.5.1)"]
     end
     subgraph CF["Cloudflare Workers"]
         D["CAS Service"]
@@ -86,7 +86,7 @@ Core mathematical computation library with subpath exports.
 | `problems/` | Problem generation | practice problem sets |
 | `prover/` | Mathematical proof engine | proof steps, verification |
 | `content/` | Educational content | lessons, explanations |
-| `wasm/` | WASM arbitrary precision (scaffolded) | `getWASMManager()` (mock fallback) |
+| `wasm/` | WASM arbitrary precision (scaffolded) | `getWASMManager()`, `getHighPrecision()` (throws in production if unbuilt; mock is tests/dev only) |
 
 **Tech:** Math.js 15.2, TypeScript 6.0.3, Vitest 5
 
@@ -113,7 +113,7 @@ Shared Prisma 7 database package.
 - **Client:** `packages/database/src/client.ts` (Neon serverless adapter singleton)
 - **Generated:** `packages/database/src/generated/prisma/` (gitignored, regenerated on postinstall)
 
-**Tables:** users, accounts, sessions, worksheets, folders, forum_posts, comments, upvotes, audit_logs
+**Tables:** 30 models in total. Core tables include users, accounts, sessions, worksheets, folders, forum_posts, comments, upvotes, audit_logs; the remainder cover the learning/content domain (problems, hints, test cases, topics, theorems, algorithms, user progress, attempts, achievements, etc.).
 
 **Tech:** Prisma 7.9.0-dev.13, @neondatabase/serverless 1.1.0, @prisma/adapter-neon 7.9.0-dev.13
 

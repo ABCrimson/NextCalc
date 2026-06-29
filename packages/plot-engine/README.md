@@ -10,7 +10,7 @@ GPU-accelerated mathematical visualization engine for NextCalc Pro.
 - **Adaptive Sampling**: Intelligent function sampling with recursive subdivision
 - **Web Worker Support**: Non-blocking sampling for complex functions
 - **Interactive Controls**: Pan, zoom, and rotate with mouse, touch, and keyboard
-- **6 Colormaps**: viridis, inferno, coolwarm, cividis, magma, spectral
+- **9 Colormaps**: viridis, plasma, turbo, rainbow, inferno, coolwarm, cividis, magma, spectral
 - **HDR Cubemap Themes**: 5 procedural space cubemap backgrounds with configurable resolution
 - **SSAO Post-Processing**: Screen-space ambient occlusion via GTAONode for 3D plots
 - **Multiple Export Formats**: PNG, SVG, and CSV export capabilities
@@ -230,8 +230,10 @@ await downloadAsCSV2D(points, 'plot-data.csv', {
 
 ## React Integration
 
+The React wrappers live in the web app at `apps/web/components/plots/` (imported via the web app's own `@/*` alias):
+
 ```tsx
-import { Plot2D, Plot3D, PlotContainer, PlotControls } from '@nextcalc/web/components/plots';
+import { Plot2D, Plot3D, PlotContainer, PlotControls } from '@/components/plots';
 
 function MyPlot() {
   const config: Plot2DCartesianConfig = {
@@ -266,8 +268,8 @@ The engine automatically selects the best available renderer:
 
 | Priority | Backend | Use Case |
 |----------|---------|----------|
-| 1 | WebGPU | PDE/ODE compute shaders, bifurcation diagrams |
-| 2 | WebGL 2 | Primary 2D rendering with GLSL shaders |
+| 1 | WebGPU | Primary GPU-accelerated 2D rendering with WGSL shaders |
+| 2 | WebGL 2 | 2D rendering with GLSL shaders |
 | 3 | Canvas 2D | Software fallback for legacy browsers |
 
 ```typescript

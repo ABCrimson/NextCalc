@@ -94,7 +94,7 @@ When creating or reviewing components:
 
 7. **Test Thoroughly**: Verify accessibility with axe-core, test keyboard navigation, check all theme variants, validate TypeScript types.
 
-8. **Document**: Create Storybook stories, write clear prop documentation, provide usage examples.
+8. **Document & Test**: Write Vitest 5 + `@testing-library/react` unit tests covering the component's variants and states, add a `jest-axe` accessibility test under `apps/web/__tests__/accessibility/*.a11y.test.tsx`, write clear prop documentation, and provide usage examples.
 
 ## Decision-Making Framework
 

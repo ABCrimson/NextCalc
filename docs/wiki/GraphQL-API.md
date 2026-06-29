@@ -1,6 +1,6 @@
 # GraphQL API Reference
 
-The API is served at `/api/graphql` via Apollo Server 5.5 integrated into the Next.js app.
+The API is served at `/api/graphql` via Apollo Server 5.5.1 integrated into the Next.js app.
 
 **Playground**: `http://localhost:3005/api/graphql` (dev) or `https://nextcalc.io/api/graphql`
 
@@ -144,9 +144,10 @@ type User {
   image: String
   bio: String
   role: UserRole!
-  worksheets: [Worksheet!]!
+  worksheets(limit: Int = 20, offset: Int = 0, visibility: WorksheetVisibility): [Worksheet!]!
   folders: [Folder!]!
-  forumPosts: [ForumPost!]!
+  worksheetCount: Int!
+  forumPosts(limit: Int = 20, offset: Int = 0): [ForumPost!]!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -237,7 +238,7 @@ enum ErrorCode {
 - `commentById`
 - `repliesByParentCommentId`
 - `worksheetsByFolderId`
-- `hasUpvoted` (composite key: targetId + userId)
+- `hasUpvoted` (composite key: `userId:targetId:targetType`)
 
 ---
 
@@ -285,19 +286,20 @@ This translates to `UPDATE ... SET views = views + 1` at the SQL level, which is
 | `commentById` | Comment ID | `Comment` for lookups |
 | `repliesByParentCommentId` | Parent Comment ID | `[Comment]` nested replies |
 | `worksheetsByFolderId` | Folder ID | `[Worksheet]` on Folder |
-| `hasUpvoted` | Target ID + User ID (composite) | `Boolean` on ForumPost, Comment |
+| `hasUpvoted` | Composite key `userId:targetId:targetType` | `Boolean` on ForumPost, Comment |
 
 ### Query Complexity Analysis
 
 A recursive selection set analyzer calculates depth-weighted complexity scores for incoming queries. Queries exceeding the configured threshold are rejected before execution:
 
-- **Depth weight**: Each nesting level multiplies the field cost by 2
-- **Default limit**: 1000 complexity points per query
-- **Introspection**: Exempt from complexity analysis
+- **Leaf field cost**: A leaf field (no nested selection set) contributes a base cost of 1
+- **Depth penalty**: A field with a nested selection set adds a fixed `depthFactor` of 10 plus the cost of its children (additive, not multiplicative)
+- **Default limit**: 1000 complexity points per query (`queryComplexityPlugin(1000)`)
+- **Introspection**: Not separately exempt; introspection is only enabled in development
 
 ### JWT Verification (WebSocket)
 
-WebSocket subscriptions authenticate via `jose.jwtVerify()` using the `NEXTAUTH_SECRET` as the symmetric key. Invalid or expired tokens cause the connection to close with a `4401` WebSocket close code.
+WebSocket subscriptions authenticate via `jose.jwtVerify()` using the `NEXTAUTH_SECRET` (or `AUTH_SECRET`) as the symmetric key. Invalid or expired tokens do not reject the connection by default — `onConnect` returns `true` and the connection proceeds with an unauthenticated context (`user: null`). The optional require-auth check in `onConnect` is commented out. Resolver-level subscription filters (e.g. `userWorksheetsChanged`) still enforce that `context.user` is present and matches the subscription target.
 
 ```typescript
 const { payload } = await jwtVerify(
@@ -308,4 +310,6 @@ const { payload } = await jwtVerify(
 
 ### Error Sanitization
 
-Internal errors (database failures, unexpected exceptions) are caught and replaced with generic `INTERNAL_ERROR` codes before reaching the client. The original error is logged server-side but never exposed in GraphQL responses. Validation errors and business-logic errors retain their specific `ErrorCode` values.
+Internal errors (database failures, unexpected exceptions) are caught by the `formatError` hook (and the `sanitizeError` helper) and, in production, replaced with a generic `INTERNAL_SERVER_ERROR` response before reaching the client. The original error is logged server-side but never exposed in GraphQL responses. Validation errors and business-logic errors retain their specific error codes.
+
+> **Note:** The runtime `extensions.code` values are Apollo's defaults set by the custom error classes — `UNAUTHENTICATED`, `FORBIDDEN`, `NOT_FOUND`, `BAD_USER_INPUT`, `RATE_LIMIT_EXCEEDED`, `CONFLICT`, `INTERNAL_SERVER_ERROR`, etc. Both `formatError` and `sanitizeError` mask on `INTERNAL_SERVER_ERROR` (or a missing code). The `ErrorCode` enum shown above (`UNAUTHORIZED`, `INTERNAL_ERROR`, `VALIDATION_ERROR`, …) is declared in the schema for documentation but is not the literal set emitted at runtime.

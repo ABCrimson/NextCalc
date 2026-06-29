@@ -35,14 +35,14 @@ This guide covers deploying NextCalc Pro to production: the web app on Vercel an
 1. Sign up at [vercel.com](https://vercel.com) with GitHub
 2. Click "Add New..." then "Project"
 3. Import your Git repository
-4. Configure project settings:
+4. Configure project settings (a committed `vercel.json` at the repo root already provides the build/install commands, framework, and output directory, so these are applied automatically):
 
 | Setting | Value |
 |---------|-------|
 | Framework Preset | Next.js |
 | Root Directory | `apps/web` |
-| Build Command | `cd ../.. && pnpm install && pnpm build --filter=@nextcalc/web` |
-| Install Command | `pnpm install` |
+| Build Command | `cd ../.. && pnpm build --filter=@nextcalc/web` |
+| Install Command | `cd ../.. && pnpm install` |
 | Output Directory | `.next` |
 
 5. Add environment variables (see [reference below](#environment-variables-reference))
@@ -215,8 +215,9 @@ Redis is used for:
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `DATABASE_URL` | Neon PostgreSQL connection string | `postgresql://user:pass@host.neon.tech/db?sslmode=require` |
-| `NEXTAUTH_URL` | Production URL of your app | `https://nextcalc.io` |
 | `AUTH_SECRET` | Auth encryption secret (32+ chars); the build-time secret (NextAuth v5). `NEXTAUTH_SECRET` is accepted as a v4-compat alias | Generate with `openssl rand -base64 32` |
+
+> **Note:** Under NextAuth v5 the app's host is auto-detected (from `AUTH_URL`/`VERCEL_URL` and request headers), so an explicit URL var is **optional**. `NEXTAUTH_URL` is accepted as a v4-compat alias; for a custom domain, prefer setting `AUTH_URL` (e.g. `https://nextcalc.io`).
 
 ### OAuth (Required for Authentication)
 
@@ -236,7 +237,7 @@ Redis is used for:
 | `DIRECT_DATABASE_URL` | Non-pooled Neon connection | Prisma migrations |
 | `UPSTASH_REDIS_REST_URL` | Redis REST endpoint | Rate limiting, caching |
 | `UPSTASH_REDIS_REST_TOKEN` | Redis auth token | With Redis |
-| `NEXT_PUBLIC_ENABLE_PLOT_ENGINE` | Enable plot engine | Default: true |
+| `NEXT_PUBLIC_ENABLE_PLOT_ENGINE` | Reserved/non-functional — declared in `turbo.json` and `.env.example` but not read by any code; the plot engine is always enabled | n/a |
 
 ### Production OAuth Redirect URIs
 
@@ -256,7 +257,7 @@ The CI pipeline (`.github/workflows/ci.yml`) runs 6 jobs on every push to `main`
 | Job | What It Does | Timeout |
 |-----|-------------|---------|
 | **Install** | `pnpm install --frozen-lockfile` + Prisma generate + cache `node_modules` | 10 min |
-| **Lint** | `pnpm turbo run lint` (Biome 2.5) | 10 min |
+| **Lint** | `pnpm turbo run lint` (Biome 2.5.1) | 10 min |
 | **Typecheck** | `pnpm turbo run typecheck` (TypeScript 6.0) | 15 min |
 | **Typecheck (fast, advisory)** | `pnpm turbo run typecheck:fast` (TS7 `tsgo`, non-blocking via `continue-on-error`) | 10 min |
 | **Build** | `pnpm turbo run build` (requires `AUTH_SECRET` env var) | 20 min |
@@ -365,7 +366,7 @@ routes = [
 | 1 | `git push origin main` | Automatic (Vercel Git integration) | ~2-3 min | Standard workflow |
 | 2 | Open Pull Request | Automatic (Vercel preview deploy) | ~2-3 min | Review before production |
 | 3 | `vercel --prod` | Manual CLI | ~2-3 min | Emergency / manual deploy |
-| 4 | `gh workflow run ci.yml` | Manual GitHub Action trigger | ~5-8 min | Full CI + deploy |
+| 4 | `gh workflow run deploy-workers.yml` | Manual GitHub Action trigger (`workflow_dispatch`) | ~5-8 min | Manually deploy the Cloudflare Workers |
 
 ### Method 1: Git Push (Recommended)
 
@@ -398,4 +399,8 @@ vercel --prod    # Direct production deploy
 
 ### Method 4: GitHub Actions
 
-The CI workflow (`.github/workflows/ci.yml`) runs lint, typecheck, test, and build on every push. Workers are deployed via `.github/workflows/deploy-workers.yml` on changes to `apps/workers/`.
+The CI workflow (`.github/workflows/ci.yml`) runs lint, typecheck, test, and build on every push to `main` and on pull requests — it has no `workflow_dispatch` trigger and does **not** deploy anything. Workers are deployed via `.github/workflows/deploy-workers.yml`, which runs automatically on changes to `apps/workers/**` (or `pnpm-lock.yaml`) and can also be triggered manually:
+
+```bash
+gh workflow run deploy-workers.yml
+```

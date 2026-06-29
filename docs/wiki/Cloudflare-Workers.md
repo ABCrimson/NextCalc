@@ -61,7 +61,8 @@ curl -X POST https://export.nextcalc.io/export/svg \
 - `GET /status/:identifier` -- Current status
 - `DELETE /reset/:identifier` -- Reset (admin only)
 - `GET /configs` -- Tier configurations
-- `POST /admin/keys` -- Manage API keys (admin only)
+- `GET /recommend/:requestsPerHour` -- Recommended tier for a given req/hour
+- `GET /admin/keys` -- List indexed identifiers (admin only)
 - `GET /health` -- Health check
 
 **Storage:** Per-client counters are tracked in a SQLite-backed `RateLimiterDurableObject` (the primary store). The `RATE_LIMITS` KV namespace is only an identifier index.
@@ -80,10 +81,12 @@ curl -X POST https://export.nextcalc.io/export/svg \
 ## Local Development
 
 ```bash
-cd apps/workers/cas-service && pnpm dev      # Port 8787
-cd apps/workers/export-service && pnpm dev   # Port 8788
-cd apps/workers/rate-limiter && pnpm dev     # Port 8789
+cd apps/workers/cas-service && pnpm dev      # Port 8787 (default)
+cd apps/workers/export-service && pnpm dev   # Port 8787 (default)
+cd apps/workers/rate-limiter && pnpm dev     # Port 8787 (default)
 ```
+
+> **Note:** No custom dev port is configured in any `wrangler.toml`, so each worker defaults to `8787`. To run them concurrently, pass `--port` (e.g. `pnpm dev -- --port 8788`).
 
 ## Deployment
 
@@ -94,7 +97,7 @@ cd apps/workers/export-service && pnpm run deploy
 cd apps/workers/rate-limiter && pnpm run deploy
 ```
 
-**CI/CD:** Push to `apps/workers/**` or `pnpm-lock.yaml` on `main` triggers `.github/workflows/deploy-workers.yml`. Also supports `workflow_dispatch` for manual runs. Requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` GitHub secrets. Each worker deploys independently (`fail-fast: false`). Uses `actions/checkout@v6` and `actions/setup-node@v6`.
+**CI/CD:** Push to `apps/workers/**` or `pnpm-lock.yaml` on `main` triggers `.github/workflows/deploy-workers.yml`. Also supports `workflow_dispatch` for manual runs. Requires the `CLOUDFLARE_API_TOKEN` GitHub secret (the account is hardcoded as `account_id` in each `wrangler.toml`, so no `CLOUDFLARE_ACCOUNT_ID` secret is needed). Each worker deploys independently (`fail-fast: false`). Uses `actions/checkout@v6` and `actions/setup-node@v6`.
 
 > **Note:** Use `pnpm run deploy` (not `pnpm deploy`) — pnpm 11 treats `deploy` as a built-in command.
 
@@ -104,7 +107,7 @@ All workers have OpenTelemetry observability enabled in `wrangler.toml`. Monitor
 
 ## Security (v1.1.0+)
 
-- **Sanitized error responses**: Workers no longer leak internal `err.message` to clients. All error responses return generic messages with appropriate HTTP status codes.
+- **Sanitized error responses**: The export-service and rate-limiter no longer leak internal `err.message` to clients — their `onError` handlers return generic messages with appropriate HTTP status codes. (The cas-service `onError` handler still includes `err.message` in its 500 body; sanitizing it is pending.)
 - **Timing-safe admin auth**: Admin key comparison uses timing-safe SHA-256 hashing + constant-time XOR comparison to prevent timing attacks.
 - **No information disclosure**: `prettyJSON` middleware removed from all workers to prevent verbose JSON output that could reveal internal structure.
 - **CORS hardening**: Origins validated against `ALLOWED_ORIGINS` environment variable. Requests from unlisted origins are rejected.

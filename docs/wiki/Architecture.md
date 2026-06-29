@@ -120,7 +120,7 @@ WebSocket subscriptions authenticate via JWT tokens passed in the connection `co
 
 ### Rate Limiter Security
 
-The Cloudflare rate-limiter Worker uses timing-safe comparison (`crypto.subtle.timingSafeEqual`) for API key validation, preventing timing-based side-channel attacks on the shared secret.
+The Cloudflare rate-limiter Worker uses a constant-time comparison of SHA-256 digests (a custom `timingSafeEqual` helper, since the Web Crypto API has no native timing-safe compare) for API key validation, preventing timing-based side-channel attacks on the shared secret.
 
 ## Prisma 7 Adapter Pattern
 

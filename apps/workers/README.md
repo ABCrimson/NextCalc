@@ -195,7 +195,7 @@ X-RateLimit-Tier: pro
 
 ### Prerequisites
 
-- Node.js 22+ (26 recommended)
+- Node.js 24+ (26 recommended)
 - pnpm 11+
 - Cloudflare account
 - Wrangler CLI (4.104.0)
@@ -245,13 +245,17 @@ pnpm dev
 # Export Service
 cd apps/workers/export-service
 pnpm dev
-# Runs on http://localhost:8788
+# Runs on http://localhost:8787
 
 # Rate Limiter
 cd apps/workers/rate-limiter
 pnpm dev
-# Runs on http://localhost:8789
+# Runs on http://localhost:8787
 ```
+
+> No `[dev]` port is configured in any `wrangler.toml`, so each worker
+> defaults to port 8787. To run more than one worker at the same time, pass
+> distinct ports explicitly (e.g. `pnpm dev --port 8788`).
 
 ### Testing
 
@@ -277,7 +281,7 @@ Verify TypeScript compilation:
 
 ```bash
 # All workers
-pnpm type-check
+pnpm typecheck
 ```
 
 ## Deployment
@@ -305,17 +309,16 @@ pnpm run deploy
 Deploy to specific environments:
 
 ```bash
-# Development
-wrangler deploy --env development
-
-# Production
-wrangler deploy --env production
+# Staging (the only [env.*] block defined in wrangler.toml)
+wrangler deploy --env staging
+# or, equivalently, via the package script:
+pnpm deploy:staging
 ```
 
 ### CI/CD Workflow
 
 The GitHub Actions deploy workflow (`deploy-workers.yml`) supports:
-- **v6 actions**: Updated to actions/checkout@v6, actions/setup-node@v6, and pnpm/action-setup@v4
+- **v6 actions**: Updated to actions/checkout@v6, actions/setup-node@v6, and pnpm/action-setup@v6
 - **Lockfile trigger**: Deployments automatically trigger on `pnpm-lock.yaml` changes affecting workers
 - **Manual dispatch**: Supports `workflow_dispatch` for on-demand deployments
 
@@ -324,7 +327,7 @@ The GitHub Actions deploy workflow (`deploy-workers.yml`) supports:
 Before deploying to production:
 
 - [ ] All tests passing (`pnpm test`)
-- [ ] TypeScript compiles without errors (`pnpm type-check`)
+- [ ] TypeScript compiles without errors (`pnpm typecheck`)
 - [ ] Environment variables configured
 - [ ] Cloudflare resources created (R2, KV, etc.)
 - [ ] wrangler.toml updated with correct IDs
@@ -433,8 +436,8 @@ Typical performance metrics:
 
 **Export Service:**
 - SVG generation: 20-50ms
-- PNG generation: 100-500ms (with external service)
-- PDF generation: 200-1000ms (with external service)
+- PNG generation: 100-500ms
+- PDF generation: 200-1000ms
 
 **Rate Limiter:**
 - Check operation: 1-5ms (Durable Object SQLite read/write)

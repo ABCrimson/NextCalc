@@ -107,10 +107,12 @@ schema or operations change.
 ### Cloudflare Workers
 
 ```bash
-# Each worker has its own dev/deploy scripts
-cd apps/workers/cas-service && pnpm dev      # Port 8787
-cd apps/workers/export-service && pnpm dev   # Port 8788
-cd apps/workers/rate-limiter && pnpm dev     # Port 8789
+# Each worker has its own dev/deploy scripts. The `dev` script runs a bare
+# `wrangler dev`, which defaults to port 8787 for every worker -- so they
+# collide if run at the same time. Pass `--port <n>` to run them concurrently:
+cd apps/workers/cas-service && pnpm dev                     # defaults to 8787
+cd apps/workers/export-service && pnpm dev -- --port 8788   # override port
+cd apps/workers/rate-limiter && pnpm dev -- --port 8789     # override port
 ```
 
 ### Math Engine
@@ -141,7 +143,7 @@ packages/
 ### Importing Workspace Packages
 
 ```typescript
-import { evaluate } from '@nextcalc/math-engine';
+import { evaluateExpression } from '@nextcalc/math-engine';
 import { WebGL2DRenderer } from '@nextcalc/plot-engine';
 import type { Calculation } from '@nextcalc/types';
 import { prisma } from '@nextcalc/database';

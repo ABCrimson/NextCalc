@@ -17,8 +17,8 @@ You are a mathematical computation architect with deep knowledge of:
 - Numerical methods and algorithm design
 
 **Technical Context:**
-- Primary library: Math.js for expression parsing
-- Computation engine: WASM via Emscripten for arbitrary precision (mock fallback available)
+- Primary library: Math.js (mathjs 15.x) for expression parsing, with a custom type-safe AST conversion layer
+- Computation engine: WASM via Emscripten/MPFR for arbitrary precision (mock retained for tests only; production THROWS if the WASM module is not built — no silent f64 fallback)
 - Language: TypeScript 6 with advanced type features and `exactOptionalPropertyTypes`
 - Execution environment: Web Workers for isolated computation
 - Testing: Vitest with property-based testing via fast-check

@@ -84,7 +84,6 @@ Prisma 7 with Neon PostgreSQL serverless adapter. Schema: `packages/database/pri
 | `UserRole` | USER, MODERATOR, ADMIN |
 | `WorksheetVisibility` | PRIVATE, UNLISTED, PUBLIC |
 | `SharePermission` | VIEW, EDIT |
-| `CellType` | CALCULATION, TEXT, HEADING, IMAGE, PLOT |
 | `UpvoteTarget` | POST, COMMENT |
 | `Difficulty` | BEGINNER, INTERMEDIATE, ADVANCED, MASTER |
 | `Category` | CALCULUS, ALGEBRA, TOPOLOGY, ANALYSIS, GEOMETRY, NUMBER_THEORY, ALGORITHMS, GAME_THEORY, CHAOS_THEORY, CRYPTOGRAPHY, QUANTUM, OPTIMIZATION, PROBABILITY, STATISTICS |
@@ -94,6 +93,8 @@ Prisma 7 with Neon PostgreSQL serverless adapter. Schema: `packages/database/pri
 | `ResourceType` | VIDEO, ARTICLE, BOOK, PAPER, INTERACTIVE, COURSE |
 
 > A `ProgrammingLanguage` enum (10 values) also exists for algorithm implementations.
+
+> **Note:** `CellType` (CALCULATION, TEXT, HEADING, IMAGE, PLOT) is **not** a Prisma/database enum. `Worksheet.content` is a `Json` column; `CellType` is defined in the GraphQL schema (and generated TS) and applies to cells inside that content JSON.
 
 ---
 
@@ -140,7 +141,7 @@ Key indexes for query performance:
 | `parentId` | Folder, Comment | Traverse nested hierarchies |
 | `shortCode` | SharedCalculation | Unique lookup for shared links |
 
-### Partial Indexes (Prisma 7.4+)
+### Partial Indexes (Prisma `partialIndexes` preview feature)
 
 Filtered indexes that only include non-deleted records. PostgreSQL automatically prefers these smaller indexes when queries include `WHERE deletedAt IS NULL`, dramatically reducing I/O for the vast majority of reads.
 
@@ -155,4 +156,4 @@ Filtered indexes that only include non-deleted records. PostgreSQL automatically
 | `problems_difficulty_popularity_active_idx` | Problem | difficulty, popularity DESC | `deletedAt IS NULL` |
 | `problems_createdAt_active_idx` | Problem | createdAt DESC | `deletedAt IS NULL` |
 
-Defined in schema using Prisma 7.4's type-safe syntax: `@@index([field], map: "name", where: { deletedAt: null })`
+Defined in schema using Prisma's type-safe syntax (enabled via the `partialIndexes` preview feature in `previewFeatures`): `@@index([field], map: "name", where: { deletedAt: null })`

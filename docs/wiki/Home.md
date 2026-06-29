@@ -2,7 +2,7 @@
 
 **Scientific Calculator & Mathematical Visualization Platform**
 
-> **Current Release: v1.2.2** (March 3, 2026) — [Release Notes](https://github.com/ABCrimson/NextCalc/releases/tag/v1.2.2)
+> **Current Release: v1.2.2** (March 4, 2026) — [Release Notes](https://github.com/ABCrimson/NextCalc/releases/tag/v1.2.2)
 
 [Live Demo](https://nextcalc.io) | [GitHub Repository](https://github.com/ABCrimson/NextCalc) | [Releases](https://github.com/ABCrimson/NextCalc/releases)
 
@@ -14,7 +14,7 @@ NextCalc Pro is a comprehensive scientific calculator and mathematical visualiza
 
 ### Key Numbers
 
-- **47** page routes
+- **48** page routes
 - **8** languages (en, ru, es, uk, de, fr, ja, zh)
 - **20** math engine modules
 - **3** Cloudflare Workers
@@ -23,8 +23,9 @@ NextCalc Pro is a comprehensive scientific calculator and mathematical visualiza
 
 ---
 
-## Latest Updates (v1.2.1)
+## Latest Updates (v1.2.2)
 
+- **Comprehensive test overhaul**: `vitest.config.ts` added to all three Cloudflare Workers, coverage thresholds, the monolithic resolver test split into focused `__tests__/lib` suites (cache, dataloaders, validation, cursor-pagination, errors), and ~46 new test files across API / web / math-engine / plot-engine
 - **Performance**: Dynamic-import SymbolicPanel (~300KB deferred), CSS `@keyframes` replace Framer Motion animations on `/symbolic` and `/algorithms/transformers`, IntersectionObserver-gated rAF loop, module-level KaTeX cache
 - **CI/CD pipeline fixes**: All 5 jobs now pass (Install, Lint, Typecheck, Build, Test)
 - **54 test failures fixed**: API (15), web (35), export-service (3), rate-limiter (1)

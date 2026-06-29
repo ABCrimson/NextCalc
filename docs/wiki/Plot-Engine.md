@@ -8,8 +8,8 @@ The engine automatically selects the best available renderer:
 
 | Priority | Backend | Use Case |
 |:---------|:--------|:---------|
-| 1 | WebGPU | PDE/ODE compute shaders, bifurcation diagrams |
-| 2 | WebGL 2 | Primary 2D rendering with GLSL shaders |
+| 1 | WebGPU | Primary GPU-accelerated 2D rendering (cartesian/polar/parametric/implicit/vector-field) via WGSL shaders |
+| 2 | WebGL 2 | 2D rendering with GLSL shaders (universal fallback for modern browsers) |
 | 3 | Canvas 2D | Software fallback for legacy browsers |
 
 ```typescript
@@ -21,11 +21,12 @@ const renderer = await createBest2DRenderer(canvas);
 
 ## Features
 
-- **WebGL 2D Renderer** -- Lightweight (<15KB), GLSL shaders
-- **Three.js 0.184 3D Renderer** -- Surface plots, parametric curves (lazy-loaded, 563KB)
+- **WebGPU 2D Renderer** -- Priority backend; WGSL shaders for cartesian/polar/parametric/implicit/vector-field plots
+- **WebGL 2D Renderer** -- Lightweight (~15KB target), GLSL shaders
+- **Three.js 0.184 3D Renderer** -- Surface plots, parametric curves (lazy-loaded, ~563KB target)
 - **Canvas 2D Fallback** -- Cartesian, polar, parametric for legacy browsers
 - **Adaptive Sampling** -- Recursive subdivision for smooth curves
-- **Interactive Controls** -- Pan, zoom, rotate (mouse, touch, keyboard)
+- **Interactive Controls** -- 2D: pan, zoom (mouse, touch, keyboard); 3D: orbit/rotate camera
 - **Export** -- PNG, SVG, CSV formats
 
 ## Colormaps
@@ -57,9 +58,9 @@ Screen-space ambient occlusion via GTAONode for enhanced 3D depth perception.
 ```
 @nextcalc/plot-engine
 +-- types/           TypeScript type definitions
-+-- renderers/       WebGL 2D, Three.js 3D, Canvas 2D fallback
++-- renderers/       WebGPU 2D, WebGL 2D, Three.js 3D, Canvas 2D fallback
 +-- sampling/        Adaptive sampling algorithms
-+-- controls/        Interactive controls (pan, zoom, rotate)
++-- controls/        Interactive 2D controls (pan, zoom, keyboard)
 +-- export/          PNG, SVG, CSV export
 +-- utils/           Utilities (colors, matrices, buffers, shaders)
 ```

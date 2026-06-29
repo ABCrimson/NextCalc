@@ -86,7 +86,7 @@ When modifying user-facing text, update all 8 locale files in `apps/web/messages
 
 - `en.json`, `ru.json`, `es.json`, `uk.json`, `de.json`, `fr.json`, `ja.json`, `zh.json`
 
-Each file contains 1200+ translation keys. To verify your changes render correctly across locales, run the app locally and append `?locale=<code>` to test different languages (e.g., `?locale=es` for Spanish, `?locale=ja` for Japanese). Check that text fits within UI containers -- some languages expand significantly (German, Russian) while others may be more compact (Chinese, Japanese).
+Each file contains 1200+ translation keys. The app uses next-intl path-prefix routing (configured in `apps/web/i18n/routing.ts`), so to verify your changes render correctly across locales, run the app locally and visit the locale-prefixed path (e.g., `http://localhost:3005/es` for Spanish, `http://localhost:3005/ja` for Japanese). Check that text fits within UI containers -- some languages expand significantly (German, Russian) while others may be more compact (Chinese, Japanese).
 
 If you add new keys, add them to **all 8 files**. Missing keys will fall back to the English string, which may break the UI for non-English users.
 

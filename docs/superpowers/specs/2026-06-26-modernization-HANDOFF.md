@@ -1,6 +1,6 @@
 # NextCalc Modernization — HANDOFF / PICKUP
 
-**Branch:** `modernization/foundation` · **Updated:** 2026-06-27 · **State:** clean tree, **ahead of `main`**, **pushed → PR #50 OPEN** (https://github.com/ABCrimson/NextCalc/pull/50).
+**Branch:** `modernization/foundation` · **Updated:** 2026-06-29 · **State:** clean tree, **ahead of `main`**, **pushed → PR #50 OPEN** (https://github.com/ABCrimson/NextCalc/pull/50).
 **This is the active resume doc for PR #50.** The modernization narrative + per-package version delta now live canonically in [`CHANGELOG.md`](../../../CHANGELOG.md) (**[Unreleased]**) and the remaining QA/provisioning in [`docs/ROADMAP.md`](../../ROADMAP.md); the earlier working specs (RESUME / design / baseline) and `VERSION-AUDIT` were consolidated into those and removed. Delete this file when PR #50 merges.
 
 > ## ▶ HOW TO RESUME (do these first, in order)
@@ -12,9 +12,9 @@
 
 ---
 
-## 0. TL;DR — modernization is FUNCTIONALLY COMPLETE (2026-06-27)
+## 0. TL;DR — modernization is FUNCTIONALLY COMPLETE; hardening continued through 2026-06-28
 
-Everything planned is done, gate-green at every commit, and shipped to **PR #50**. Summary:
+The planned modernization (Waves 1–4 + sweep + polish + dogfood + QA) was complete on 2026-06-27; a further round of substantive hardening (ultrareview waves + 7 follow-up refactors — §4) landed 2026-06-28. All gate-green at every commit and shipped to **PR #50**. Summary:
 - **Waves 1/R/2/3** (push-to-newest deps + newest idioms) + **i18n `useFormatter`** — DONE (prior sessions; see git log).
 - **Lint sweep P0–P5: 2,222 warnings + 221 infos → 0 warnings + 1 unavoidable info.** noNonNull 1612→0 (decision-#21a hybrid: scoped override for numeric hot-paths + 22 real masker fixes); all correctness / a11y / array-keys / perf-security real-fixed or principled-override; `!**/*.svg` excluded; `useLiteralKeys` disabled (conflicts with `noPropertyAccessFromIndexSignature`).
 - **Wave 4** — `@types/node` → 26.0.1 + CI Node 24→26 (engines.node stays ≥24 for Vercel); **TS7 `tsgo` advisory `typecheck:fast`** (non-blocking CI job, 12/12 GREEN — the repo is already TS7-forward-compatible); gate compiler `tsc 6.0.0-dev → 6.0.3 GA`.
@@ -85,6 +85,22 @@ All gate-green 21/21 + tests. Prior sessions: fake-fix initiative (26 findings) 
 
 (Plus docs commits `89a856d`, `10362a3`, `ba4434c`, and earlier `bd4bb7e`/`6c061fc`.)
 
+### Hardening / follow-up refactors (landed 2026-06-28, after the 06-27 "complete" milestone)
+
+A further hardening round (ultrareview waves + 7 standalone refactors) shipped after the planned modernization was declared functionally complete:
+
+| SHA | Item | What / why |
+|---|---|---|
+| `cbb5d9a` | **math-engine #6 — iterative cycle-detection DFS** | `hasCycleDirected`/`hasCycleUndirected` rewritten from recursion to explicit-stack iterative DFS (matches the file's Tarjan SCC / topo-sort) → removes the recursion-depth ceiling on large graphs. Directed = 3-colour marking; undirected = parent-tracking frames. Behaviour preserved (graph-theory 55/55). |
+| `f842d04` | **web a11y — ZKP grid → WAI-ARIA grid→row→gridcell** | The commitment-cell `role="grid"` had gridcells as direct children (fails axe-core `aria-required-children`/`-parent`). Added a `role="row"` layer with `display:contents` so CSS-grid layout is unchanged but the a11y tree gains the required containment. |
+| `a91f100` | **math-engine — dedup `astEquals`** | Three private copies (simplify-advanced / step-solver / cas-core) all omitted the `UnaryOperatorNode` branch (latent bug) → all now import the single canonical unary-aware `astEquals` from `./simplify`. |
+| `f019c48` | **web design — topic colors → semantic oklch tokens** | 14 hardcoded Tailwind-palette `MathTopic` colors → semantic `--color-topic-{name}-{bg,fg,border}` OKLCH tokens in `globals.css` (+ `[data-theme='dark']` overrides); component drops `dark:` variants. Values are the exact oklch of the prior palette steps. |
+| `ebdac93` | **web+api — re-enable 3 strict flags** | `apps/web` + `apps/api` had overridden `exactOptionalPropertyTypes`, `noPropertyAccessFromIndexSignature`, `noUnusedLocals` to false → re-enabled (matching the monorepo) + real-fixed the full ~143-diagnostic cascade across 21 files (no workarounds). |
+| `1b86f30` | **web — cosmetic sweep** | (a) vitest.setup.ts framer-motion mock: CommonJS `require('react')` → async factory + `await import('react')`; (b) GraphQL codegen: strip the dead `/* eslint-disable */` banner (Biome repo) + durable `hooks.afterOneFileWrite`; (c) `rgba(...)` shadows → oklch. |
+| `2f24d3f` | **web auth — NextAuth `SessionProvider` + `useSession`** | `lib/auth/hooks.ts` had reimplemented NextAuth's client API (per-component `fetch('/api/auth/session')` + 5-min poll). Adopt the official Auth.js v5 primitives: mount `next-auth/react` `SessionProvider` in the locale layout (one shared session context) + rewrite `useSession` as a thin adapter. |
+
+(Plus the `ultrareview` Wave 1–5 commits `f4a381a`→`4d59db0`, the modern-pdf-lib `0.29.0 → 0.40.2` bump `9acdf80`, and docs/CI commits.)
+
 ---
 
 ## 5. GOTCHAS CATALOG (traps already hit — don't rediscover them)
@@ -123,7 +139,7 @@ Waves 1–4, the full lint sweep, polish, dogfood, and QA are complete (PR #50).
 - **Wave 4** ✅ — `@types/node` 26.0.1, CI Node 26 (engines stay 24), `tsgo` advisory `typecheck:fast` (non-blocking CI), gate `tsc 6.0.3`.
 - **Lint sweep P0–P5** ✅ — 2222 warnings → 0; `noNonNullAssertion` hybrid override (decision #21a) landed in `biome.json`; the 3 old suppressions (chaos mount-effect / practice-mode / seed.ts) are subsumed by the now-clean sweep.
 - **Polish** ✅ — katex dedup done; `.scrollbar-none` utility added; the rest descoped (§0).
-- **Dogfood** ✅ — modern-cmdk command palette (verified); export-service tagged-PDF alt-text + `deduplicateImages` (modern-pdf-lib 0.29, verified). modern-xlsx blocked (§0).
+- **Dogfood** ✅ — modern-cmdk command palette (verified); export-service tagged-PDF alt-text + `deduplicateImages` (modern-pdf-lib, landed at 0.29 then advanced to **0.40.2**, verified). modern-xlsx blocked (§0).
 
 ### Optional / low priority (visual-QA-dependent)
 - three half-res AO done *correctly* would need a separate downsampled AO pass (not `setResolutionScale` on the main pass); tailwind scrollbar utils + tabular-nums (low value).

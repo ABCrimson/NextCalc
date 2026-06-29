@@ -56,11 +56,9 @@ pnpm --filter @nextcalc/database db:migrate  # Production
 pnpm --filter @nextcalc/database db:studio  # Opens at http://localhost:5555
 ```
 
-### Step 5: Seed Data (Optional)
+### Step 5: Seed Data (Not Available)
 
-```bash
-pnpm --filter @nextcalc/database db:seed
-```
+Seeding is not currently available — there is no `prisma/seed.ts` in `@nextcalc/database`, so the `db:seed` script would fail. (The seed file was removed.) Create your initial records through the app or Prisma Studio instead.
 
 ---
 
@@ -99,16 +97,18 @@ pnpm --filter @nextcalc/database db:seed
 ```env
 # apps/web/.env.local
 NEXTAUTH_URL="http://localhost:3005"
-NEXTAUTH_SECRET="generate-with-openssl-rand-base64-32"
+AUTH_SECRET="generate-with-openssl-rand-base64-32"   # NEXTAUTH_SECRET accepted as a legacy fallback
 
-GOOGLE_CLIENT_ID="xxxxx.apps.googleusercontent.com"
-GOOGLE_CLIENT_SECRET="GOCSPX-xxxxx"
+AUTH_GOOGLE_ID="xxxxx.apps.googleusercontent.com"    # GOOGLE_CLIENT_ID / GOOGLE_ID accepted as fallbacks
+AUTH_GOOGLE_SECRET="GOCSPX-xxxxx"                     # GOOGLE_CLIENT_SECRET / GOOGLE_SECRET accepted as fallbacks
 
-GITHUB_CLIENT_ID="xxxxx"        # GITHUB_ID is accepted as a fallback
-GITHUB_CLIENT_SECRET="xxxxx"    # GITHUB_SECRET is accepted as a fallback
+AUTH_GITHUB_ID="xxxxx"                                # GITHUB_CLIENT_ID / GITHUB_ID accepted as fallbacks
+AUTH_GITHUB_SECRET="xxxxx"                            # GITHUB_CLIENT_SECRET / GITHUB_SECRET accepted as fallbacks
 ```
 
-Generate `NEXTAUTH_SECRET`:
+> NextAuth v5 reads the `AUTH_*` names first and falls back to the legacy `*_CLIENT_*` / `*_ID` / `*_SECRET` and `NEXTAUTH_SECRET` names. The `.env.example` ships the legacy `*_CLIENT_*` names, which still work.
+
+Generate `AUTH_SECRET`:
 ```bash
 openssl rand -base64 32
 # Windows PowerShell:
@@ -118,7 +118,7 @@ openssl rand -base64 32
 ### Test OAuth Flow
 
 1. `pnpm dev` and open `http://localhost:3005`
-2. Click Sign In > Sign in with Google/GitHub
+2. Click Sign In > Sign in with Google/GitHub (the custom sign-in page is at `/auth/signin`)
 3. Authorize and verify redirect back to app
 4. Verify user record created in database via Prisma Studio
 
@@ -139,11 +139,11 @@ Create **separate** OAuth apps for production:
 |----------|-------------|
 | `DATABASE_URL` | PostgreSQL connection string |
 | `NEXTAUTH_URL` | Application URL |
-| `NEXTAUTH_SECRET` | NextAuth encryption secret |
-| `GOOGLE_CLIENT_ID` | Google OAuth client ID |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth secret |
-| `GITHUB_CLIENT_ID` | GitHub OAuth client ID (`GITHUB_ID` accepted as fallback) |
-| `GITHUB_CLIENT_SECRET` | GitHub OAuth secret (`GITHUB_SECRET` accepted as fallback) |
+| `AUTH_SECRET` | NextAuth v5 encryption secret (`NEXTAUTH_SECRET` accepted as legacy fallback) |
+| `AUTH_GOOGLE_ID` | Google OAuth client ID (`GOOGLE_CLIENT_ID` / `GOOGLE_ID` accepted as fallbacks) |
+| `AUTH_GOOGLE_SECRET` | Google OAuth secret (`GOOGLE_CLIENT_SECRET` / `GOOGLE_SECRET` accepted as fallbacks) |
+| `AUTH_GITHUB_ID` | GitHub OAuth client ID (`GITHUB_CLIENT_ID` / `GITHUB_ID` accepted as fallbacks) |
+| `AUTH_GITHUB_SECRET` | GitHub OAuth secret (`GITHUB_CLIENT_SECRET` / `GITHUB_SECRET` accepted as fallbacks) |
 
 ### Optional
 
@@ -152,7 +152,7 @@ Create **separate** OAuth apps for production:
 | `DIRECT_DATABASE_URL` | Direct (non-pooled) connection |
 | `UPSTASH_REDIS_REST_URL` | Redis for rate limiting/caching |
 | `UPSTASH_REDIS_REST_TOKEN` | Redis auth token |
-| `NEXT_PUBLIC_ENABLE_PLOT_ENGINE` | Enable plot engine (default: true) |
+| `NEXT_PUBLIC_ENABLE_PLOT_ENGINE` | Reserved/unused — declared as a Turbo env passthrough but no code currently reads it |
 
 ---
 

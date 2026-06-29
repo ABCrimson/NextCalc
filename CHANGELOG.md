@@ -46,6 +46,23 @@ All notable changes to NextCalc Pro are documented in this file.
 - CI runs on **Node 26**; added a non-blocking `typecheck-fast` job (TS7 `tsgo`, `continue-on-error`).
 - Gate compiler moved to `tsc` 6.0.3 GA.
 
+### Accessibility
+- ZKP commitment-cell grid restructured to a WAI-ARIA `grid` → `row` → `gridcell` pattern — a `role="row"` layer (`display: contents`, so the CSS-grid layout is untouched) gives the accessibility tree the containment axe-core requires; a new regression test asserts the hierarchy and a clean axe run.
+
+### Auth
+- Client session migrated to NextAuth's `SessionProvider` + a thin `useSession` adapter (`lib/auth/hooks.ts`) — replaces the per-component `fetch('/api/auth/session')` + interval poll with one shared session context (single fetch, focus revalidation); the `{ session, status }` shape is preserved so the 7 consumers are unchanged.
+
+### Design
+- Topic colors moved off hardcoded Tailwind palette utilities to semantic OKLCH category tokens (`--color-topic-*` in `globals.css` + clean token utilities in `ui/topic-tag.tsx`), with dark handled by the tokens; verified zero visual change. Part of a broader pass converting decorative `rgba()` box-shadows to `oklch()` (~130 colors across 36 files).
+
+### math-engine
+- `hasCycleDirected`/`hasCycleUndirected` rewritten from recursion to explicit-stack iterative DFS (3-colour marking / parent-tracking) — removes the recursion-depth ceiling on large graphs; behaviour preserved.
+- `astEquals` deduped to a single canonical export in `simplify.ts` — three private copies (in `simplify-advanced`, `step-solver`, `cas-core`) that each omitted the `UnaryOperatorNode` branch were deleted and now import the unary-aware canonical.
+
+### Tooling / Code quality
+- Re-enabled `exactOptionalPropertyTypes`, `noPropertyAccessFromIndexSignature`, and `noUnusedLocals` in `apps/web` and `apps/api` (they had overridden the root tsconfig to `false`) — 143 real fixes across 21 files, no workarounds.
+- Chore sweep: ESM `await import('react')` in the framer-motion vitest mock (was CommonJS `require`); GraphQL codegen now strips its dead `/* eslint-disable */` banner via an `afterOneFileWrite` hook (`scripts/codegen-strip-header.mjs`) so output stays Biome-native.
+
 ### Fixed
 - `export-service`: aligned the `modern-pdf-lib` test mock with its tagged-PDF API (`accessibilityPlugin`/`tagFigure`/marked-content/`deduplicateImages`) — unblocks the CI Test job.
 
