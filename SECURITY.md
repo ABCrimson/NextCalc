@@ -10,9 +10,9 @@ a secure platform.
 
 | Version   | Supported          | Notes                                |
 | --------- | ------------------ | ------------------------------------ |
-| 1.2.x     | :white_check_mark: | Current release, actively maintained |
-| 1.1.x     | :white_check_mark: | Security patches only                |
-| < 1.1     | :x:                | End of life                          |
+| 1.3.x     | :white_check_mark: | Current release, actively maintained |
+| 1.2.x     | :white_check_mark: | Security patches only                |
+| < 1.2     | :x:                | End of life                          |
 
 Only the latest minor release within each supported major.minor line receives security updates.
 We strongly recommend running the latest version at all times.

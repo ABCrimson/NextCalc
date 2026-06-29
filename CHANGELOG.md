@@ -2,7 +2,9 @@
 
 All notable changes to NextCalc Pro are documented in this file.
 
-## [Unreleased] — Modernization (push-to-newest)
+## [Unreleased]
+
+## [1.3.0] — Modernization (push-to-newest) — 2026-06-29
 
 > Branch `modernization/foundation` (PR #50). A bleeding-edge dependency modernization: every dependency pushed to its absolute-newest published version (canary/preview/dev where that is newest), code rewritten to each version's newest idioms, and a complete Biome lint sweep. The pre-push gate (`turbo run typecheck lint build`) is green; tests pass (see remaining browser/deploy QA in [docs/ROADMAP.md](docs/ROADMAP.md)).
 
