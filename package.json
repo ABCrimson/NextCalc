@@ -14,9 +14,9 @@
   "devDependencies": {
     "@apollo/server": "5.5.1",
     "@biomejs/biome": "2.5.1",
-    "@graphql-tools/merge": "9.1.7",
-    "@graphql-tools/schema": "10.0.31",
-    "@typescript/native-preview": "7.0.0-dev.20260626.1",
+    "@graphql-tools/merge": "9.1.10",
+    "@graphql-tools/schema": "10.0.34",
+    "@typescript/native-preview": "7.0.0-dev.20260629.1",
     "chrome-launcher": "^1.2.1",
     "graphql": "17.0.1",
     "graphql-tag": "2.12.7",
@@ -24,7 +24,7 @@
     "tsx": "4.22.4",
     "turbo": "2.10.0",
     "typescript": "6.0.3",
-    "zod": "4.4.0-canary.20260125T215152"
+    "zod": "4.4.3"
   },
   "packageManager": "pnpm@11.0.0-alpha.11",
   "engines": {
