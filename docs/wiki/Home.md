@@ -2,7 +2,7 @@
 
 **Scientific Calculator & Mathematical Visualization Platform**
 
-> **Current Release: v1.2.2** (March 4, 2026) — [Release Notes](https://github.com/ABCrimson/NextCalc/releases/tag/v1.2.2)
+> **Current Release: v1.3.0** (June 29, 2026) — [Release Notes](https://github.com/ABCrimson/NextCalc/releases/tag/v1.3.0)
 
 [Live Demo](https://nextcalc.io) | [GitHub Repository](https://github.com/ABCrimson/NextCalc) | [Releases](https://github.com/ABCrimson/NextCalc/releases)
 
@@ -23,18 +23,15 @@ NextCalc Pro is a comprehensive scientific calculator and mathematical visualiza
 
 ---
 
-## Latest Updates (v1.2.2)
+## Latest Updates (v1.3.0)
 
-- **Comprehensive test overhaul**: `vitest.config.ts` added to all three Cloudflare Workers, coverage thresholds, the monolithic resolver test split into focused `__tests__/lib` suites (cache, dataloaders, validation, cursor-pagination, errors), and ~46 new test files across API / web / math-engine / plot-engine
-- **Performance**: Dynamic-import SymbolicPanel (~300KB deferred), CSS `@keyframes` replace Framer Motion animations on `/symbolic` and `/algorithms/transformers`, IntersectionObserver-gated rAF loop, module-level KaTeX cache
-- **CI/CD pipeline fixes**: All 5 jobs now pass (Install, Lint, Typecheck, Build, Test)
-- **54 test failures fixed**: API (15), web (35), export-service (3), rate-limiter (1)
-- **Biome formatting**: 170+ files reformatted (import organization, line wrapping)
-- **New DataLoaders**: `hasUpvoted`, `commentCountByPostId`, `forumPostById`, `commentById` for efficient queries
-- **Redis cache**: Added `invalidateByPrefix` (SCAN-based pattern deletion)
-- **Comprehensive audit**: 78 issues fixed from v1.2.0 (security, performance, code quality)
-- **CI improvements**: `AUTH_SECRET` env var for NextAuth, `actions/checkout@v6` + `actions/setup-node@v6`
-- **Workers deploy**: Triggers on `pnpm-lock.yaml` changes, supports `workflow_dispatch`
+- **Push-to-newest modernization**: every dependency upgraded to its absolute-newest channel — Next.js 16.3, React 19.3, TypeScript 6.0.3, Apollo Server 5.5.1 / Client 4.3, Prisma 7.9, Tailwind 4.3, Three.js 0.184, Biome 2.5.1, Vitest 5, next-intl 4.13 — with code migrated to each version's current idioms
+- **Stricter TypeScript**: re-enabled `exactOptionalPropertyTypes`, `noPropertyAccessFromIndexSignature`, and `noUnusedLocals` across web + api (143 real fixes, zero `as any`)
+- **Accessibility**: ZKP commitment-cell grid restructured to a WAI-ARIA `grid`/`row`/`gridcell` pattern (axe-core verified)
+- **Auth**: client session migrated to NextAuth (Auth.js v5) `SessionProvider` + a `useSession` adapter — one shared session context replaces per-component fetch/poll
+- **Design**: topic colors and box-shadows moved to semantic OKLCH tokens (verified pixel-identical, zero visual change)
+- **math-engine**: iterative cycle-detection DFS (no recursion-depth limits); `astEquals` deduplicated to a single canonical, unary-aware implementation
+- **Documentation**: codebase-verified audit of all 38 Markdown files; the GitHub wiki re-synced to match
 
 ---
 
