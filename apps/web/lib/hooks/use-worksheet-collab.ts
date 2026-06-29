@@ -95,6 +95,30 @@ const HEARTBEAT_INTERVAL_MS = 4_000;
 const STALE_PEER_TIMEOUT_MS = 12_000;
 const PRUNE_INTERVAL_MS = 6_000;
 
+// Polling fallback (used when the SSE live path is unavailable)
+const POLL_INTERVAL_MS = 5_000;
+
+/** Shape of the worksheet payload returned by both the SSE subscription and the polling query. */
+interface RemoteWorksheet {
+  id: string;
+  title: string;
+  content: unknown;
+  updatedAt: string;
+}
+
+/**
+ * GraphQL query mirroring the `worksheetUpdated` subscription selection set so
+ * the polling fallback applies identical data through the same LWW merge.
+ */
+const WORKSHEET_POLL_QUERY = `query WorksheetSync($worksheetId: ID!) {
+  worksheet(id: $worksheetId) {
+    id
+    title
+    content
+    updatedAt
+  }
+}`;
+
 // SSE client for cross-device subscription (graphql-sse 2.6.0)
 const sseClient =
   typeof window !== 'undefined'
@@ -139,8 +163,19 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
   // SSE subscription dispose ref
   const sseDisposeRef = useRef<(() => void) | null>(null);
 
+  // Whether the SSE live path is currently delivering updates. While true, the
+  // polling fallback stays dormant to avoid duplicating SSE-delivered data.
+  const sseLiveRef = useRef(false);
+
   // Polling fallback refs (cross-device without SSE)
   const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // DB worksheet id the poller is currently tracking.
+  const pollWorksheetIdRef = useRef<string | null>(null);
+  // Newest `updatedAt` (epoch ms) already applied from a remote source. Shared
+  // by the SSE and polling paths to suppress duplicate / stale updates.
+  const lastRemoteUpdatedAtRef = useRef(0);
+  // Guards against overlapping in-flight poll fetches.
+  const pollInFlightRef = useRef(false);
 
   // Heartbeat timer
   const heartbeatTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -325,77 +360,187 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
   );
 
   // ---------------------------------------------------------------------------
+  // Shared remote-apply (used by both SSE and the polling fallback)
+  // ---------------------------------------------------------------------------
+  // Applies an authoritative worksheet snapshot using last-write-wins on
+  // updatedAt. Returns true when the snapshot was applied. The
+  // lastRemoteUpdatedAtRef guard ensures the same revision is never applied
+  // twice, regardless of which transport delivered it first.
+
+  const applyRemoteWorksheet = useCallback(
+    (updated: RemoteWorksheet, version?: number): boolean => {
+      const incomingUpdatedAt = new Date(updated.updatedAt).getTime();
+      if (!Number.isFinite(incomingUpdatedAt)) return false;
+
+      // Skip if we already applied this (or a newer) remote revision.
+      if (incomingUpdatedAt <= lastRemoteUpdatedAtRef.current) return false;
+
+      if (!Array.isArray(updated.content)) return false;
+
+      const localStore = useWorksheetStore.getState();
+      // LWW: only adopt the remote snapshot when it is strictly newer locally.
+      if (incomingUpdatedAt <= localStore.worksheet.updatedAt) {
+        // Local is at least as new; record the revision so we don't reconsider it.
+        lastRemoteUpdatedAtRef.current = incomingUpdatedAt;
+        return false;
+      }
+
+      const cells = updated.content as WorksheetCell[];
+      localStore.hydrate({
+        worksheetId: updated.id,
+        title: updated.title,
+        cells,
+        version: version ?? localStore.version,
+      });
+      lastRemoteUpdatedAtRef.current = incomingUpdatedAt;
+      return true;
+    },
+    [],
+  );
+
+  // ---------------------------------------------------------------------------
+  // Polling fallback (cross-device data sync when SSE is unavailable)
+  // ---------------------------------------------------------------------------
+  // Periodically fetches the authoritative worksheet snapshot via the GraphQL
+  // `worksheet(id)` query — the same data the SSE `worksheetUpdated`
+  // subscription delivers — and applies it through `applyRemoteWorksheet`
+  // (shared LWW + dedupe). Active only while the SSE live path is down.
+
+  const pollOnce = useCallback(async () => {
+    const worksheetId = pollWorksheetIdRef.current;
+    if (!worksheetId) return;
+    // SSE recovered between ticks — let it own the sync.
+    if (sseLiveRef.current) return;
+    // Skip if a previous fetch is still resolving.
+    if (pollInFlightRef.current) return;
+
+    pollInFlightRef.current = true;
+    try {
+      const response = await fetch('/api/graphql', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'same-origin',
+        cache: 'no-store',
+        body: JSON.stringify({
+          query: WORKSHEET_POLL_QUERY,
+          variables: { worksheetId },
+        }),
+      });
+
+      if (!response.ok) return;
+
+      const payload = (await response.json()) as {
+        data?: { worksheet?: RemoteWorksheet | null } | null;
+      };
+      const worksheet = payload.data?.worksheet;
+      if (worksheet) {
+        applyRemoteWorksheet(worksheet);
+      }
+    } catch {
+      // Network blip — keep the interval running and retry on the next tick.
+    } finally {
+      pollInFlightRef.current = false;
+    }
+  }, [applyRemoteWorksheet]);
+
+  const stopPolling = useCallback(() => {
+    if (pollTimerRef.current) {
+      clearInterval(pollTimerRef.current);
+      pollTimerRef.current = null;
+    }
+    pollWorksheetIdRef.current = null;
+  }, []);
+
+  const startPolling = useCallback(
+    (worksheetId: string) => {
+      // Nothing to poll without a persisted worksheet id, and never poll while
+      // the SSE live path is active.
+      if (!worksheetId || sseLiveRef.current) return;
+      // Already polling this worksheet — don't stack intervals.
+      if (pollTimerRef.current && pollWorksheetIdRef.current === worksheetId) return;
+
+      // Re-point an existing timer at a new worksheet id.
+      if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+
+      pollWorksheetIdRef.current = worksheetId;
+      // Fetch immediately so the fallback doesn't wait a full interval.
+      void pollOnce();
+      pollTimerRef.current = setInterval(() => {
+        void pollOnce();
+      }, POLL_INTERVAL_MS);
+    },
+    [pollOnce],
+  );
+
+  /**
+   * Public entry point used by the session lifecycle. Arms the polling fallback
+   * for the current DB-backed worksheet *only when SSE is unavailable* (e.g. the
+   * browser cannot construct the graphql-sse client). When SSE is available,
+   * `connectSSE` owns the fallback: its `error`/`complete` handlers start
+   * polling, and its `next` handler stops it once the live path recovers.
+   */
+  const openPollingFallback = useCallback(
+    (_sessionId: string) => {
+      if (sseClient) return;
+      const worksheetId = useWorksheetStore.getState().worksheetId;
+      if (!worksheetId) return;
+      startPolling(worksheetId);
+    },
+    [startPolling],
+  );
+
+  // ---------------------------------------------------------------------------
   // SSE transport (cross-device data sync via graphql-sse)
   // ---------------------------------------------------------------------------
 
-  const connectSSE = useCallback((worksheetId: string) => {
-    if (!sseClient) return;
+  const connectSSE = useCallback(
+    (worksheetId: string) => {
+      if (!sseClient) return;
 
-    // Dispose previous subscription if any
-    sseDisposeRef.current?.();
+      // Dispose previous subscription if any
+      sseDisposeRef.current?.();
 
-    const dispose = sseClient.subscribe(
-      {
-        query: `subscription WorksheetUpdated($worksheetId: ID!) {
+      const dispose = sseClient.subscribe(
+        {
+          query: `subscription WorksheetUpdated($worksheetId: ID!) {
             worksheetUpdated(worksheetId: $worksheetId) {
               id title content version updatedAt
             }
           }`,
-        variables: { worksheetId },
-      },
-      {
-        next: (result) => {
-          const updated = (result.data as Record<string, unknown> | null)?.['worksheetUpdated'] as
-            | {
-                id: string;
-                title: string;
-                content: unknown;
-                version: number;
-                updatedAt: string;
-              }
-            | undefined;
-          if (!updated) return;
-
-          // Apply incoming worksheet data using LWW
-          const localStore = useWorksheetStore.getState();
-          const localUpdatedAt = localStore.worksheet.updatedAt;
-          const incomingUpdatedAt = new Date(updated.updatedAt).getTime();
-
-          if (incomingUpdatedAt > localUpdatedAt) {
-            // The SSE update is newer — hydrate from it
-            if (Array.isArray(updated.content)) {
-              const cells = updated.content as WorksheetCell[];
-              localStore.hydrate({
-                worksheetId: updated.id,
-                title: updated.title,
-                cells,
-                version: updated.version,
-              });
-            }
-          }
+          variables: { worksheetId },
         },
-        error: (err) => {
-          console.error('SSE subscription error:', err);
-        },
-        complete: () => {
-          // SSE connection closed — no automatic retry (graphql-sse handles reconnection)
-        },
-      },
-    );
+        {
+          next: (result) => {
+            const updated = (result.data as Record<string, unknown> | null)?.['worksheetUpdated'] as
+              | (RemoteWorksheet & { version: number })
+              | undefined;
+            if (!updated) return;
 
-    sseDisposeRef.current = dispose;
-  }, []);
+            // SSE is delivering — keep the polling fallback dormant.
+            sseLiveRef.current = true;
+            stopPolling();
 
-  // ---------------------------------------------------------------------------
-  // Polling fallback (cross-device, no SSE)
-  // ---------------------------------------------------------------------------
-  // This is a stub placeholder that keeps the hook interface stable.
-  // SSE via graphql-sse is the primary cross-device transport.
-  const openPollingFallback = useCallback((_sessionId: string) => {
-    // Polling is deferred to a future implementation.
-    // The BroadcastChannel is the primary mechanism for same-device sync,
-    // which covers the most common collaboration scenario.
-  }, []);
+            applyRemoteWorksheet(updated, updated.version);
+          },
+          error: (err) => {
+            console.error('SSE subscription error:', err);
+            // SSE failed — fall back to polling so cross-device sync continues.
+            sseLiveRef.current = false;
+            startPolling(worksheetId);
+          },
+          complete: () => {
+            // SSE connection closed — fall back to polling. graphql-sse may
+            // still reconnect; the next `next` event flips us back to SSE.
+            sseLiveRef.current = false;
+            startPolling(worksheetId);
+          },
+        },
+      );
+
+      sseDisposeRef.current = dispose;
+    },
+    [applyRemoteWorksheet, startPolling, stopPolling],
+  );
 
   // ---------------------------------------------------------------------------
   // Heartbeat sender
@@ -506,16 +651,18 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
       channelRef.current = null;
       sseDisposeRef.current?.();
       sseDisposeRef.current = null;
+      sseLiveRef.current = false;
 
       // Clear timers
       if (heartbeatTimerRef.current) clearInterval(heartbeatTimerRef.current);
       if (pruneTimerRef.current) clearInterval(pruneTimerRef.current);
-      if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+      stopPolling();
+      lastRemoteUpdatedAtRef.current = 0;
 
       isHostRef.current = false;
       actions.endSession();
     },
-    [dispatch, actions],
+    [dispatch, actions, stopPolling],
   );
 
   // ---------------------------------------------------------------------------
@@ -528,6 +675,7 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
       actions.startSession(sessionId, 'broadcastchannel');
 
       const hasBc = openBroadcastChannel(sessionId);
+      openPollingFallback(sessionId);
 
       // Connect SSE for cross-device data sync (if we have a worksheet DB ID)
       const worksheetId = useWorksheetStore.getState().worksheetId;
@@ -560,7 +708,7 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
         PRUNE_INTERVAL_MS,
       );
     },
-    [actions, openBroadcastChannel, connectSSE, dispatch, sendHeartbeat],
+    [actions, openBroadcastChannel, connectSSE, openPollingFallback, dispatch, sendHeartbeat],
   );
 
   // ---------------------------------------------------------------------------
@@ -574,9 +722,14 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
       channelRef.current = null;
       sseDisposeRef.current?.();
       sseDisposeRef.current = null;
+      sseLiveRef.current = false;
       if (heartbeatTimerRef.current) clearInterval(heartbeatTimerRef.current);
       if (pruneTimerRef.current) clearInterval(pruneTimerRef.current);
-      if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+      if (pollTimerRef.current) {
+        clearInterval(pollTimerRef.current);
+        pollTimerRef.current = null;
+      }
+      pollWorksheetIdRef.current = null;
     };
   }, []);
 
@@ -594,7 +747,7 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
 
     const unsub = useWorksheetStore.subscribe((state) => {
       const session = useCollabStore.getState().session;
-      if (!session || session.status !== 'live') return;
+      if (session?.status !== 'live') return;
 
       const newCells = state.worksheet.cells;
       const newTitle = state.worksheet.title;

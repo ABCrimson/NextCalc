@@ -1,30 +1,29 @@
 /**
  * Authentication Hooks
  *
- * Client-side hooks for managing authentication state.
- * Compatible with Next.js 16 and NextAuth.js v5.
+ * Client-side auth helpers for NextCalc, built as a thin, ergonomic layer over
+ * NextAuth (Auth.js v5) `next-auth/react`. The provider lives in
+ * `@/components/providers/session-provider` and is mounted in the locale layout,
+ * so every `useSession()` call shares ONE session context (a single
+ * `/api/auth/session` request with built-in refetch / focus revalidation)
+ * rather than each component fetching and polling on its own.
  *
- * @see https://next-auth.js.org/getting-started/client
+ * @see https://authjs.dev/getting-started/session-management/get-session
  */
 
 'use client';
 
 import type { UserRole } from '@nextcalc/database';
+import type { Session } from 'next-auth';
+import { signOut as nextAuthSignOut, useSession as useNextAuthSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 
 /**
- * Session type from NextAuth
+ * Session type — re-exported from NextAuth so the augmented `user` shape
+ * (id / email / name / image / role, see `types/next-auth.d.ts`) is the single
+ * source of truth.
  */
-export interface Session {
-  user: {
-    id: string;
-    email: string;
-    name?: string;
-    image?: string;
-    role: UserRole;
-  };
-  expires: string;
-}
+export type { Session };
 
 /**
  * Session status
@@ -34,8 +33,9 @@ export type SessionStatus = 'loading' | 'authenticated' | 'unauthenticated';
 /**
  * Use Session Hook
  *
- * Returns the current session and loading state.
- * Automatically refreshes when session changes.
+ * Returns the current session and loading state from the shared NextAuth
+ * `SessionProvider` context. Keeps the project's `{ session, status }` shape
+ * (NextAuth's native hook exposes the session as `data`).
  *
  * @example
  * ```tsx
@@ -49,43 +49,9 @@ export type SessionStatus = 'loading' | 'authenticated' | 'unauthenticated';
  * }
  * ```
  */
-export const useSession = () => {
-  const [session, setSession] = useState<Session | null>(null);
-  const [status, setStatus] = useState<SessionStatus>('loading');
-
-  useEffect(() => {
-    const fetchSession = async () => {
-      try {
-        const response = await fetch('/api/auth/session');
-        if (response.ok) {
-          const data = await response.json();
-          if (data?.user) {
-            setSession(data as Session);
-            setStatus('authenticated');
-          } else {
-            setSession(null);
-            setStatus('unauthenticated');
-          }
-        } else {
-          setSession(null);
-          setStatus('unauthenticated');
-        }
-      } catch (error) {
-        console.error('Failed to fetch session:', error);
-        setSession(null);
-        setStatus('unauthenticated');
-      }
-    };
-
-    fetchSession();
-
-    // Poll for session changes every 5 minutes
-    const interval = setInterval(fetchSession, 5 * 60 * 1000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  return { session, status };
+export const useSession = (): { session: Session | null; status: SessionStatus } => {
+  const { data, status } = useNextAuthSession();
+  return { session: data, status };
 };
 
 /**
@@ -93,21 +59,10 @@ export const useSession = () => {
  *
  * Returns the current authenticated user or null.
  * Shorthand for accessing session.user.
- *
- * @example
- * ```tsx
- * function UserProfile() {
- *   const user = useUser();
- *
- *   if (!user) return <div>Please sign in</div>;
- *
- *   return <div>Hello {user.name}</div>;
- * }
- * ```
  */
 export const useUser = () => {
   const { session } = useSession();
-  return session?.user || null;
+  return session?.user ?? null;
 };
 
 /**
@@ -117,16 +72,6 @@ export const useUser = () => {
  * Useful for protected pages.
  *
  * @param redirectUrl URL to redirect to after sign in (default: current page)
- *
- * @example
- * ```tsx
- * function ProtectedPage() {
- *   const user = useRequireAuth();
- *
- *   // User is guaranteed to be authenticated here
- *   return <div>Welcome {user.name}</div>;
- * }
- * ```
  */
 export const useRequireAuth = (redirectUrl?: string) => {
   const { session, status } = useSession();
@@ -144,54 +89,26 @@ export const useRequireAuth = (redirectUrl?: string) => {
     return null;
   }
 
-  return session?.user || null;
+  return session?.user ?? null;
 };
 
 /**
  * Use Role Check Hook
  *
- * Checks if the current user has a specific role.
- *
- * @param requiredRoles Roles to check for
- * @returns True if user has one of the required roles
- *
- * @example
- * ```tsx
- * function AdminPanel() {
- *   const isAdmin = useHasRole('ADMIN');
- *   const canModerate = useHasRole('ADMIN', 'MODERATOR');
- *
- *   if (!isAdmin) return <div>Access denied</div>;
- *
- *   return <div>Admin controls...</div>;
- * }
- * ```
+ * Checks if the current user has one of the given roles.
  */
 export const useHasRole = (...requiredRoles: UserRole[]) => {
   const user = useUser();
-
   if (!user) return false;
-
   return requiredRoles.includes(user.role);
 };
 
 /**
  * Sign In Function
  *
- * Redirects to sign-in page with callback URL.
+ * Redirects to the app's custom sign-in page with a callback URL.
  *
  * @param callbackUrl URL to redirect to after sign in
- *
- * @example
- * ```tsx
- * function LoginButton() {
- *   return (
- *     <button onClick={() => signIn('/')}>
- *       Sign in
- *     </button>
- *   );
- * }
- * ```
  */
 export const signIn = (callbackUrl = '/') => {
   window.location.href = `/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`;
@@ -200,48 +117,18 @@ export const signIn = (callbackUrl = '/') => {
 /**
  * Sign Out Function
  *
- * Signs out the current user and redirects to home page.
+ * Signs out the current user via NextAuth and redirects.
  *
  * @param callbackUrl URL to redirect to after sign out (default: home page)
- *
- * @example
- * ```tsx
- * function LogoutButton() {
- *   return (
- *     <button onClick={() => signOut()}>
- *       Sign out
- *     </button>
- *   );
- * }
- * ```
  */
 export const signOut = async (callbackUrl = '/') => {
-  try {
-    const { signOut: nextAuthSignOut } = await import('next-auth/react');
-    await nextAuthSignOut({ callbackUrl });
-  } catch (error) {
-    console.error('Sign out error:', error);
-    // Redirect anyway so user isn't stuck
-    window.location.href = callbackUrl;
-  }
+  await nextAuthSignOut({ callbackUrl });
 };
 
 /**
  * Use Auth Loading Hook
  *
  * Returns true while authentication state is being determined.
- * Useful for showing loading states.
- *
- * @example
- * ```tsx
- * function App() {
- *   const isLoading = useAuthLoading();
- *
- *   if (isLoading) return <Spinner />;
- *
- *   return <MainContent />;
- * }
- * ```
  */
 export const useAuthLoading = () => {
   const { status } = useSession();
@@ -252,23 +139,6 @@ export const useAuthLoading = () => {
  * Use Is Authenticated Hook
  *
  * Returns true if user is authenticated.
- *
- * @example
- * ```tsx
- * function NavBar() {
- *   const isAuthenticated = useIsAuthenticated();
- *
- *   return (
- *     <nav>
- *       {isAuthenticated ? (
- *         <UserMenu />
- *       ) : (
- *         <button onClick={() => signIn()}>Sign in</button>
- *       )}
- *     </nav>
- *   );
- * }
- * ```
  */
 export const useIsAuthenticated = () => {
   const { status } = useSession();

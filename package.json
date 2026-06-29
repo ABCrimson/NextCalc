@@ -1,27 +1,29 @@
 {
   "name": "nextcalc-pro",
-  "version": "1.2.2",
+  "version": "1.3.0",
   "private": true,
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
     "test": "turbo run test",
     "lint": "turbo run lint",
+    "typecheck:fast": "turbo run typecheck:fast",
     "clean": "turbo run clean && rm -rf node_modules",
     "deploy:workers": "pnpm --filter './apps/workers/*' run deploy"
   },
   "devDependencies": {
-    "@apollo/server": "5.4.0",
-    "@biomejs/biome": "2.4.4",
+    "@apollo/server": "5.5.1",
+    "@biomejs/biome": "2.5.1",
     "@graphql-tools/merge": "9.1.7",
     "@graphql-tools/schema": "10.0.31",
+    "@typescript/native-preview": "7.0.0-dev.20260626.1",
     "chrome-launcher": "^1.2.1",
-    "graphql": "16.13.0",
-    "graphql-tag": "2.12.6",
-    "lighthouse": "13.0.3",
-    "tsx": "4.21.0",
-    "turbo": "2.8.13-canary.8",
-    "typescript": "6.0.0-dev.20260301",
+    "graphql": "17.0.1",
+    "graphql-tag": "2.12.7",
+    "lighthouse": "13.4.0",
+    "tsx": "4.22.4",
+    "turbo": "2.10.0",
+    "typescript": "6.0.3",
     "zod": "4.4.0-canary.20260125T215152"
   },
   "packageManager": "pnpm@11.0.0-alpha.11",
@@ -30,6 +32,6 @@
     "pnpm": ">=11.0.0-alpha.1"
   },
   "dependencies": {
-    "@upstash/redis": "1.37.0-rc.12"
+    "@upstash/redis": "1.38.0"
   }
 }

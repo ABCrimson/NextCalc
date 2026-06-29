@@ -1,5 +1,5 @@
 /**
- * Prisma 7.5.0-dev.33 Configuration File
+ * Prisma 7 Configuration File
  *
  * Shared database package for the NextCalc Pro monorepo.
  * Loads credentials from apps/web/.env.local or root .env.
@@ -7,8 +7,8 @@
  * @see https://pris.ly/d/config-datasource
  */
 
-import dotenv from 'dotenv';
 import path from 'node:path';
+import dotenv from 'dotenv';
 import { defineConfig } from 'prisma/config';
 
 // Load env from multiple locations (first match wins for each var)

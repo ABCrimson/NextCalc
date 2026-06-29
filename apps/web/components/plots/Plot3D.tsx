@@ -229,7 +229,7 @@ export function Plot3D({
         ref={canvasRef}
         width={canvasSize.width}
         height={canvasSize.height}
-        className="absolute inset-0 w-full h-full border border-border rounded-lg shadow-[0_0_20px_rgba(168,85,247,0.15)]"
+        className="absolute inset-0 w-full h-full border border-border rounded-lg shadow-[0_0_20px_oklch(0.6268_0.2325_303.9_/_0.15)]"
         style={{ width: '100%', height: '100%' }}
         aria-label={
           config.type === '3d-surface' && config.title ? config.title : '3D mathematical plot'

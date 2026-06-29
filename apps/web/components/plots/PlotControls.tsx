@@ -32,13 +32,12 @@ import {
 import { Progress } from '../ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
-// Branded type for export format to ensure type safety
 type ExportFormat = 'png' | 'svg' | 'csv';
 type ExportState = {
   isExporting: boolean;
   format: ExportFormat | null;
   progress: number;
-} & { readonly __brand: 'ExportState' };
+};
 
 export interface PlotControlsProps {
   canvasRef: RefObject<HTMLCanvasElement>;
@@ -81,7 +80,7 @@ export function PlotControls({
     isExporting: false,
     format: null,
     progress: 0,
-  } as ExportState);
+  });
 
   const [showKeyboardHints, setShowKeyboardHints] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
@@ -125,17 +124,14 @@ export function PlotControls({
     setExportError(null);
 
     try {
-      setExportState({ isExporting: true, format: 'png', progress: 0 } as ExportState);
+      setExportState({ isExporting: true, format: 'png', progress: 0 });
 
       // Simulate progress for better UX (real export is fast)
       const progressInterval = setInterval(() => {
-        setExportState(
-          (prev) =>
-            ({
-              ...prev,
-              progress: Math.min(prev.progress + 10, 90),
-            }) as ExportState,
-        );
+        setExportState((prev) => ({
+          ...prev,
+          progress: Math.min(prev.progress + 10, 90),
+        }));
       }, 50);
 
       await downloadAsPNG(canvas, 'plot', {
@@ -147,16 +143,16 @@ export function PlotControls({
       });
 
       clearInterval(progressInterval);
-      setExportState((prev) => ({ ...prev, progress: 100 }) as ExportState);
+      setExportState((prev) => ({ ...prev, progress: 100 }));
 
       // Reset after showing 100%
       setTimeout(() => {
-        setExportState({ isExporting: false, format: null, progress: 0 } as ExportState);
+        setExportState({ isExporting: false, format: null, progress: 0 });
       }, 500);
     } catch (error) {
       console.debug('PNG export failed:', error);
       setExportError('Failed to export PNG. Please try again.');
-      setExportState({ isExporting: false, format: null, progress: 0 } as ExportState);
+      setExportState({ isExporting: false, format: null, progress: 0 });
     }
   }, [canvasRef]);
 
@@ -168,16 +164,13 @@ export function PlotControls({
     }
 
     try {
-      setExportState({ isExporting: true, format: 'svg', progress: 0 } as ExportState);
+      setExportState({ isExporting: true, format: 'svg', progress: 0 });
 
       const progressInterval = setInterval(() => {
-        setExportState(
-          (prev) =>
-            ({
-              ...prev,
-              progress: Math.min(prev.progress + 10, 90),
-            }) as ExportState,
-        );
+        setExportState((prev) => ({
+          ...prev,
+          progress: Math.min(prev.progress + 10, 90),
+        }));
       }, 50);
 
       await downloadAsSVG([plotData], viewport, 'plot', {
@@ -187,15 +180,15 @@ export function PlotControls({
       });
 
       clearInterval(progressInterval);
-      setExportState((prev) => ({ ...prev, progress: 100 }) as ExportState);
+      setExportState((prev) => ({ ...prev, progress: 100 }));
 
       setTimeout(() => {
-        setExportState({ isExporting: false, format: null, progress: 0 } as ExportState);
+        setExportState({ isExporting: false, format: null, progress: 0 });
       }, 500);
     } catch (error) {
       console.debug('SVG export failed:', error);
       setExportError('Failed to export SVG. Please try again.');
-      setExportState({ isExporting: false, format: null, progress: 0 } as ExportState);
+      setExportState({ isExporting: false, format: null, progress: 0 });
     }
   }, [plotData, viewport, plotType]);
 
@@ -207,16 +200,13 @@ export function PlotControls({
     }
 
     try {
-      setExportState({ isExporting: true, format: 'csv', progress: 0 } as ExportState);
+      setExportState({ isExporting: true, format: 'csv', progress: 0 });
 
       const progressInterval = setInterval(() => {
-        setExportState(
-          (prev) =>
-            ({
-              ...prev,
-              progress: Math.min(prev.progress + 10, 90),
-            }) as ExportState,
-        );
+        setExportState((prev) => ({
+          ...prev,
+          progress: Math.min(prev.progress + 10, 90),
+        }));
       }, 50);
 
       await downloadAsCSV2D(plotData, 'plot-data', {
@@ -226,15 +216,15 @@ export function PlotControls({
       });
 
       clearInterval(progressInterval);
-      setExportState((prev) => ({ ...prev, progress: 100 }) as ExportState);
+      setExportState((prev) => ({ ...prev, progress: 100 }));
 
       setTimeout(() => {
-        setExportState({ isExporting: false, format: null, progress: 0 } as ExportState);
+        setExportState({ isExporting: false, format: null, progress: 0 });
       }, 500);
     } catch (error) {
       console.debug('CSV export failed:', error);
       setExportError('Failed to export CSV. Please try again.');
-      setExportState({ isExporting: false, format: null, progress: 0 } as ExportState);
+      setExportState({ isExporting: false, format: null, progress: 0 });
     }
   }, [plotData, plotType]);
 
@@ -246,7 +236,7 @@ export function PlotControls({
           relative flex items-center gap-2 p-2 rounded-xl
           bg-gradient-to-br from-background/60 via-card/50 to-background/60
           backdrop-blur-md border border-border
-          shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]
+          shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]
           ${className}
         `}
         initial={{ opacity: 0, y: -10 }}
@@ -430,7 +420,7 @@ export function PlotControls({
               align="end"
               className="
                 bg-card/95 border-border backdrop-blur-md
-                shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]
+                shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]
               "
             >
               <DropdownMenuItem
@@ -542,6 +532,7 @@ export function PlotControls({
               <div className="flex items-center justify-between gap-2">
                 <span>{exportError}</span>
                 <button
+                  type="button"
                   onClick={() => setExportError(null)}
                   className="text-destructive hover:text-destructive/80 font-medium shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded"
                   aria-label="Dismiss error"
@@ -564,7 +555,7 @@ export function PlotControls({
               className="
                 absolute top-full right-0 mt-2 p-3 rounded-lg
                 bg-card/95 border border-border backdrop-blur-md
-                shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]
+                shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]
                 min-w-[250px] z-50
               "
               role="dialog"
@@ -573,6 +564,7 @@ export function PlotControls({
               <div className="flex items-center justify-between mb-2">
                 <h4 className="text-sm font-semibold text-foreground">Keyboard Shortcuts</h4>
                 <button
+                  type="button"
                   onClick={() => setShowKeyboardHints(false)}
                   className="text-muted-foreground hover:text-foreground"
                   aria-label="Close shortcuts"

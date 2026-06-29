@@ -97,6 +97,7 @@ function SingleComment({
         {/* Avatar */}
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold bg-gradient-to-br from-muted/60 to-muted/30 border border-border">
           {comment.user.image ? (
+            // biome-ignore lint/performance/noImgElement: external OAuth avatar URL not in next/image remotePatterns
             <img
               src={comment.user.image}
               alt={comment.user.name ?? 'User'}
@@ -131,6 +132,7 @@ function SingleComment({
 
             {!isReply && (
               <button
+                type="button"
                 onClick={() => setShowReplyForm(!showReplyForm)}
                 className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded px-1"
               >
@@ -141,6 +143,7 @@ function SingleComment({
 
             {isOwner && !showDeleteConfirm && (
               <button
+                type="button"
                 onClick={() => setShowDeleteConfirm(true)}
                 disabled={deleting}
                 className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded px-1"
@@ -156,6 +159,7 @@ function SingleComment({
             {isOwner && showDeleteConfirm && (
               <span className="flex items-center gap-1 text-xs">
                 <button
+                  type="button"
                   onClick={handleDelete}
                   disabled={deleting}
                   className="text-destructive hover:text-destructive/80 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded px-1"
@@ -163,6 +167,7 @@ function SingleComment({
                   {deleting ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Confirm Delete'}
                 </button>
                 <button
+                  type="button"
                   onClick={() => setShowDeleteConfirm(false)}
                   className="text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded px-1"
                 >
@@ -310,6 +315,7 @@ function CommentWithReplies({
 
       {hasMany && (
         <button
+          type="button"
           onClick={() => setExpanded(!expanded)}
           className="ml-12 flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors py-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded"
         >

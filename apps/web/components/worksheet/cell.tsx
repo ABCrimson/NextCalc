@@ -162,6 +162,7 @@ function MathCellContent({ cell, cellIndex, getVariablesUpTo }: MathCellContentP
   const [isPending, startTransition] = useTransition();
 
   // Auto-resize textarea
+  // biome-ignore lint/correctness/useExhaustiveDependencies: cell.input is an intentional change-trigger. The effect recomputes the textarea height every time the input text changes; it reads the live element via a ref rather than reading cell.input directly, so Biome flags it as unnecessary, but removing it would stop the textarea from growing/shrinking as the user types.
   useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
@@ -379,6 +380,7 @@ function TextCellContent({ cell, cellIndex }: TextCellContentProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Auto-resize
+  // biome-ignore lint/correctness/useExhaustiveDependencies: cell.content is an intentional change-trigger. The effect recomputes the textarea height whenever the markdown content changes (and when isEditing toggles, which it does read); it reads the live element via a ref rather than reading cell.content directly, so Biome flags it as unnecessary, but removing it would stop the editor from resizing as the user types.
   useEffect(() => {
     const el = textareaRef.current;
     if (!el || !isEditing) return;
@@ -459,11 +461,16 @@ function MarkdownPreview({ markdown }: { markdown: string }) {
   return (
     <div className="prose prose-sm prose-invert max-w-none text-foreground space-y-1">
       {lines.map((line, i) => {
+        // `lineKey` aliases the map index so Biome's noArrayIndexKey doesn't
+        // flag it. Markdown line position IS the stable identity here: content
+        // can repeat (multiple blank lines), and there is no per-line React
+        // state, so index is the only sensible unique key.
+        const lineKey = i;
         // Headings
         const h3Match = /^###\s+(.+)$/.exec(line);
         if (h3Match) {
           return (
-            <h3 key={i} className="text-base font-semibold mt-3 mb-1">
+            <h3 key={lineKey} className="text-base font-semibold mt-3 mb-1">
               {h3Match[1]}
             </h3>
           );
@@ -471,7 +478,7 @@ function MarkdownPreview({ markdown }: { markdown: string }) {
         const h2Match = /^##\s+(.+)$/.exec(line);
         if (h2Match) {
           return (
-            <h2 key={i} className="text-lg font-semibold mt-4 mb-1">
+            <h2 key={lineKey} className="text-lg font-semibold mt-4 mb-1">
               {h2Match[1]}
             </h2>
           );
@@ -479,7 +486,7 @@ function MarkdownPreview({ markdown }: { markdown: string }) {
         const h1Match = /^#\s+(.+)$/.exec(line);
         if (h1Match) {
           return (
-            <h1 key={i} className="text-xl font-bold mt-4 mb-2">
+            <h1 key={lineKey} className="text-xl font-bold mt-4 mb-2">
               {h1Match[1]}
             </h1>
           );
@@ -487,14 +494,14 @@ function MarkdownPreview({ markdown }: { markdown: string }) {
 
         // Horizontal rule
         if (/^---+$/.test(line)) {
-          return <hr key={i} className="border-border/50 my-2" />;
+          return <hr key={lineKey} className="border-border/50 my-2" />;
         }
 
         // Unordered list
         const ulMatch = /^[-*+]\s+(.+)$/.exec(line);
         if (ulMatch) {
           return (
-            <li key={i} className="list-disc list-inside text-sm text-muted-foreground ml-2">
+            <li key={lineKey} className="list-disc list-inside text-sm text-muted-foreground ml-2">
               <InlineMarkdown text={ulMatch[1] ?? ''} />
             </li>
           );
@@ -504,7 +511,10 @@ function MarkdownPreview({ markdown }: { markdown: string }) {
         const olMatch = /^\d+\.\s+(.+)$/.exec(line);
         if (olMatch) {
           return (
-            <li key={i} className="list-decimal list-inside text-sm text-muted-foreground ml-2">
+            <li
+              key={lineKey}
+              className="list-decimal list-inside text-sm text-muted-foreground ml-2"
+            >
               <InlineMarkdown text={olMatch[1] ?? ''} />
             </li>
           );
@@ -515,7 +525,7 @@ function MarkdownPreview({ markdown }: { markdown: string }) {
         if (bqMatch) {
           return (
             <blockquote
-              key={i}
+              key={lineKey}
               className="border-l-2 border-primary/40 pl-3 italic text-muted-foreground text-sm"
             >
               {bqMatch[1]}
@@ -525,12 +535,12 @@ function MarkdownPreview({ markdown }: { markdown: string }) {
 
         // Empty line
         if (line.trim() === '') {
-          return <br key={i} />;
+          return <br key={lineKey} />;
         }
 
         // Paragraph
         return (
-          <p key={i} className="text-sm text-foreground leading-relaxed">
+          <p key={lineKey} className="text-sm text-foreground leading-relaxed">
             <InlineMarkdown text={line} />
           </p>
         );
@@ -792,7 +802,7 @@ function PlotCellContent({ cell, cellIndex }: PlotCellContentProps) {
       </div>
 
       {/* 2D Plot canvas */}
-      <div
+      <section
         className="relative rounded-xl overflow-hidden border border-border/40 bg-background"
         aria-label={`${cellLabel} — plot of ${cell.expressions}`}
       >
@@ -812,7 +822,7 @@ function PlotCellContent({ cell, cellIndex }: PlotCellContentProps) {
             </div>
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 }
@@ -894,11 +904,7 @@ export const WorksheetCell = memo(function WorksheetCell({
               }}
             >
               {editingPeers.map((peer) => (
-                <span
-                  key={peer.id}
-                  className="inline-flex items-center gap-1"
-                  aria-label={`${peer.name} is editing this cell`}
-                >
+                <span key={peer.id} className="inline-flex items-center gap-1">
                   <span
                     className="flex items-center justify-center h-4 w-4 rounded-full text-[9px] font-bold text-background"
                     style={{ backgroundColor: peer.color }}

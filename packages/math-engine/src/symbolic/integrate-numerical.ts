@@ -77,11 +77,9 @@ export interface IntegrationResult {
  */
 export class IntegrationError extends Error {
   override readonly name = 'IntegrationError';
-  override readonly cause?: unknown;
 
   constructor(message: string, cause?: unknown) {
-    super(message);
-    this.cause = cause;
+    super(message, { cause });
   }
 }
 
@@ -264,7 +262,7 @@ export function integrateAdaptiveSimpson(
  * 7-point Gauss rule embedded in 15-point Kronrod rule
  */
 const GK_NODES_15 = [
-  0.0, 0.2077849550078985, 0.4058451513773972, 0.5860872354676911, 0.7415311855993944,
+  0.0, 0.2077849550078985, 0.4058451513773972, 0.5860872354676911, 0.7415311855993943,
   0.8648644233597691, 0.9491079123427585, 0.9914553711208126,
 ];
 

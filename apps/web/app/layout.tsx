@@ -3,6 +3,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Metadata, Viewport } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import { cookies } from 'next/headers';
+import { getLocale } from 'next-intl/server';
 import type { ReactNode } from 'react';
 import './globals.css';
 
@@ -20,7 +21,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 // Next.js 16.2.0: Enhanced Metadata API with comprehensive SEO + PWA
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3005'),
+  metadataBase: new URL(process.env['NEXT_PUBLIC_APP_URL'] || 'http://localhost:3005'),
   title: {
     template: '%s | NextCalc Pro',
     default: 'NextCalc Pro - Modern Scientific Calculator',
@@ -120,9 +121,16 @@ export default async function RootLayout({
   const themeCookie = cookieStore.get('theme')?.value;
   // Only use known valid values; fall back to inline script detection otherwise
   const serverTheme = themeCookie === 'light' || themeCookie === 'dark' ? themeCookie : undefined;
+  // Active locale → <html lang>. next-intl resolves it from the request;
+  // required for screen readers, hyphenation, translation tooling, and SEO.
+  const locale = await getLocale();
 
   return (
-    <html suppressHydrationWarning {...(serverTheme ? { 'data-theme': serverTheme } : {})}>
+    <html
+      lang={locale}
+      suppressHydrationWarning
+      {...(serverTheme ? { 'data-theme': serverTheme } : {})}
+    >
       <head>
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -134,6 +142,7 @@ export default async function RootLayout({
             suppressHydrationWarning avoids browser-extension-induced mismatch. */}
         <script
           suppressHydrationWarning
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: static hardcoded theme-init IIFE; no user input involved
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);document.cookie='theme='+t+';path=/;max-age=31536000;SameSite=Lax'}catch(e){}})()`,
           }}

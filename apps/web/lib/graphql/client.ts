@@ -76,23 +76,10 @@ export function makeClient() {
     return {
       headers: {
         ...headers,
-        'x-apollo-client': '4.2.0-alpha.0',
+        'x-apollo-client': '4.3.0-alpha.1',
       },
     };
   });
-
-  // Operations that gracefully fall back to mock data — silence network errors
-  const MOCK_FALLBACK_OPS = new Set([
-    'ForumPosts',
-    'ForumPost',
-    'CreateForumPost',
-    'ToggleUpvote',
-    'CreateComment',
-    'DeleteComment',
-    'UserProfile',
-    'ShareCalculation',
-    'SharedCalculation',
-  ]);
 
   // AC4 ErrorLink: uses CombinedGraphQLErrors.is() for type-safe
   // unified error discrimination (replaces AC3's separate graphqlErrors/networkError)
@@ -114,10 +101,8 @@ export function makeClient() {
         }
       }
     } else {
-      // Network or unknown error — suppress for mock-fallback operations
-      if (!MOCK_FALLBACK_OPS.has(operation.operationName ?? '')) {
-        console.error(`[Network Error] ${operation.operationName}:`, error.message);
-      }
+      // Network or unknown error — surface all errors so they reach logging/Sentry
+      console.error(`[Network Error] ${operation.operationName}:`, error.message);
     }
   });
 

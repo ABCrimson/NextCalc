@@ -274,6 +274,8 @@
     "newPost": "新規投稿",
     "noDiscussions": "ディスカッションが見つかりません",
     "noDiscussionsHint": "検索やフィルターを調整してみてください",
+    "loadError": "ディスカッションの読み込みに失敗しました",
+    "loadErrorHint": "接続を確認して、もう一度お試しください",
     "popularTopics": "人気のトピック",
     "communityGuidelines": "コミュニティガイドライン",
     "topContributors": "トップ貢献者",

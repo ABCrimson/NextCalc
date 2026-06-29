@@ -16,8 +16,9 @@ export interface ComputeRequest {
 export interface ComputeResponse {
   id: string;
   type: 'success' | 'error';
-  // biome-ignore lint/suspicious/noExplicitAny: math engine returns arbitrary types (bigint, complex, matrix, etc.)
-  result?: any;
+  // The math engine returns heterogeneous results (number, bigint, complex,
+  // matrix, AST node, …) depending on the request type. Callers narrow.
+  result?: unknown;
   error?: string;
 }
 
@@ -28,8 +29,7 @@ self.onmessage = async (event: MessageEvent<ComputeRequest>) => {
   const { id, type, expression, context } = event.data;
 
   try {
-    // biome-ignore lint/suspicious/noExplicitAny: math engine returns arbitrary types
-    let result: any;
+    let result: unknown;
 
     switch (type) {
       case 'evaluate': {

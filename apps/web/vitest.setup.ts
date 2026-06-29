@@ -180,6 +180,41 @@ Object.defineProperty(window, 'innerHeight', {
   value: 768,
 });
 
+// Mock next-intl hooks (not available without NextIntlClientProvider in test environments)
+vi.mock('next-intl', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('next-intl')>();
+  const format = {
+    dateTime: (value: Date, options?: Intl.DateTimeFormatOptions) =>
+      value.toLocaleDateString('en-US', options),
+    number: (value: number, options?: Intl.NumberFormatOptions) =>
+      value.toLocaleString('en-US', options),
+    relativeTime: (value: Date) => {
+      const diffSec = Math.floor((Date.now() - value.getTime()) / 1000);
+      if (diffSec < 60) return 'just now';
+      const diffMin = Math.floor(diffSec / 60);
+      if (diffMin < 60) return `${diffMin}m ago`;
+      const diffHr = Math.floor(diffMin / 60);
+      if (diffHr < 24) return `${diffHr}h ago`;
+      return `${Math.floor(diffHr / 24)}d ago`;
+    },
+    list: (value: Iterable<string>) => [...value].join(', '),
+  };
+  return {
+    ...actual,
+    useFormatter: () => format,
+    useLocale: () => 'en',
+    useTranslations: () => (key: string, values?: Record<string, unknown>) => {
+      if (values) {
+        return `${key}:${JSON.stringify(values)}`;
+      }
+      return key;
+    },
+    useMessages: () => ({}),
+    useTimeZone: () => 'UTC',
+    useNow: () => new Date(),
+    NextIntlClientProvider: actual.NextIntlClientProvider,
+  };
+});
 
 // Mock Next.js navigation hooks (not available outside Next.js runtime)
 vi.mock('next/navigation', () => ({
@@ -225,8 +260,8 @@ vi.mock('@tanstack/react-virtual', () => ({
 }));
 
 // Mock framer-motion to avoid animation issues in tests
-vi.mock('framer-motion', () => {
-  const React = require('react');
+vi.mock('framer-motion', async () => {
+  const { createElement } = await import('react');
 
   // Filter out framer-motion specific props that React doesn't recognize
   // biome-ignore lint/suspicious/noExplicitAny: mock implementation — untyped by design
@@ -262,17 +297,17 @@ vi.mock('framer-motion', () => {
       }
     }
     // Restore style if it's valid CSS
-    if (props.style && typeof props.style === 'object') {
-      filtered.style = props.style;
+    if (props['style'] && typeof props['style'] === 'object') {
+      filtered['style'] = props['style'];
     }
     return filtered;
   };
 
-  // biome-ignore lint/suspicious/noExplicitAny: mock implementation — untyped by design
   const createMotionComponent =
     (tag: string) =>
+    // biome-ignore lint/suspicious/noExplicitAny: mock implementation — untyped by design
     ({ children, ref, ...props }: any) =>
-      React.createElement(tag, { ...filterMotionProps(props), ref }, children);
+      createElement(tag, { ...filterMotionProps(props), ref }, children);
 
   const motionProxy = {
     div: createMotionComponent('div'),

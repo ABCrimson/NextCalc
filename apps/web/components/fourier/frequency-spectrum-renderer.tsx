@@ -564,6 +564,7 @@ export function FrequencySpectrumRenderer({
   // -------------------------------------------------------------------------
   // WebGPU initialisation
   // -------------------------------------------------------------------------
+  // biome-ignore lint/correctness/useExhaustiveDependencies: mount-only WebGPU device/pipeline init; `magnitudes`/`magnitudes.length` are read once to size the initial magnitude buffer. Re-running on data change would destroy and rebuild the GPU device/pipelines — a separate effect (below) keeps the buffer in sync via writeBuffer.
   useEffect(() => {
     if (!supportsWebGPU) {
       setRenderMode('canvas2d');
@@ -668,7 +669,6 @@ export function FrequencySpectrumRenderer({
       }
       webgpuActiveRef.current = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Update magnitude buffer when data changes
@@ -800,7 +800,7 @@ export function FrequencySpectrumRenderer({
             border: `1px solid ${renderMode === 'webgpu' ? 'rgba(16,185,129,0.4)' : 'rgba(99,102,241,0.3)'}`,
             color: renderMode === 'webgpu' ? '#10b981' : '#818cf8',
           }}
-          aria-label={`Rendering with ${renderMode}`}
+          aria-hidden="true"
         >
           {renderMode === 'webgpu' ? 'WebGPU' : 'Canvas 2D'}
         </div>
@@ -821,7 +821,8 @@ export function FrequencySpectrumRenderer({
                 'linear-gradient(135deg, rgba(15,23,42,0.95) 0%, rgba(30,41,59,0.95) 100%)',
               backdropFilter: 'blur(12px)',
               border: '1px solid rgba(99,102,241,0.3)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(99,102,241,0.2)',
+              boxShadow:
+                '0 8px 32px oklch(0 0 0 / 0.4), 0 0 0 1px oklch(0.5854 0.2041 277.12 / 0.2)',
             }}
           >
             <div className="text-xs font-mono space-y-0.5">
@@ -855,7 +856,7 @@ export function FrequencySpectrumRenderer({
               backdropFilter: 'blur(8px)',
               border: '1px solid rgba(6,182,212,0.4)',
               color: '#06b6d4',
-              boxShadow: '0 4px 16px rgba(6,182,212,0.2)',
+              boxShadow: '0 4px 16px oklch(0.7148 0.1257 215.22 / 0.2)',
             }}
             aria-label="Reset view to default zoom and pan"
           >
@@ -874,7 +875,7 @@ export function FrequencySpectrumRenderer({
           backdropFilter: 'blur(8px)',
           border: '1px solid rgba(100,116,139,0.3)',
           color: '#94a3b8',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+          boxShadow: '0 4px 12px oklch(0 0 0 / 0.3)',
         }}
       >
         <span className="text-emerald-300 font-semibold">

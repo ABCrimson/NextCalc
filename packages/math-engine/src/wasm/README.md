@@ -1,5 +1,7 @@
 # MPFR/GMP WebAssembly Module
 
+> **Status: scaffolding only** — no compiled WASM artifacts are built yet. When the module is unavailable, `getHighPrecision()` **throws** rather than silently degrading precision; the pure-JS mock (`createMockWASM` in `src/wasm/mock.ts`) is only used by tests/dev, not substituted into production. The MPFR/Emscripten build described below is the target, not the current state.
+
 This directory contains the WebAssembly module for arbitrary precision arithmetic using MPFR (Multiple Precision Floating-Point Reliable Library) and GMP (GNU Multiple Precision Arithmetic Library).
 
 ## Prerequisites
@@ -68,6 +70,17 @@ chmod +x build.sh
 
 On Windows, use Git Bash or WSL to run the build script.
 
+Alternatively, run the build via the package scripts:
+
+```bash
+# Runs src/wasm/native/build.sh directly (requires Emscripten on PATH)
+pnpm --filter @nextcalc/math-engine build:wasm
+
+# Hermetic build inside the Emscripten SDK Docker image (Dockerfile.wasm),
+# emitting mpfr.js + mpfr.wasm into src/wasm/compiled/
+pnpm --filter @nextcalc/math-engine wasm:docker
+```
+
 ## Output
 
 The build produces two files in `packages/math-engine/src/wasm/`:
@@ -77,7 +90,7 @@ The build produces two files in `packages/math-engine/src/wasm/`:
 ## Usage
 
 ```typescript
-import { getWASMManager } from '@nextcalc/math-engine/wasm/loader';
+import { getWASMManager } from '@nextcalc/math-engine/wasm';
 
 // Initialize WASM module
 const manager = getWASMManager();
@@ -113,7 +126,7 @@ The WASM module is designed to run in a Web Worker:
 
 ```typescript
 // apps/web/lib/workers/compute.worker.ts
-import { getWASMManager } from '@nextcalc/math-engine/wasm/loader';
+import { getWASMManager } from '@nextcalc/math-engine/wasm';
 
 const manager = getWASMManager();
 
@@ -164,22 +177,30 @@ self.onmessage = async (event) => {
 
 ## Build Configuration
 
-The build script uses these Emscripten flags:
+See `native/build.sh` for the authoritative `emcc` invocation. As of this writing it passes:
 
 - `-s WASM=1` - Generate WebAssembly
-- `-s MODULARIZE=1` - Export as ES6 module
-- `-s EXPORT_ES6=1` - Use ES6 import/export
+- `-s EXPORTED_RUNTIME_METHODS='["ccall","cwrap","getValue","setValue"]'` - Runtime helpers exposed on the module
 - `-s ALLOW_MEMORY_GROWTH=1` - Dynamic memory allocation
 - `-s INITIAL_MEMORY=16MB` - Initial heap size
 - `-s MAXIMUM_MEMORY=2GB` - Maximum heap size
+- `-s MODULARIZE=1` - Export as a module factory
+- `-s EXPORT_ES6=1` - Use ES6 import/export
+- `-s EXPORT_NAME="createMPFRModule"` - Name of the exported module factory
+- `-s ENVIRONMENT='web,worker'` - Target browser and Web Worker environments only
+- `-s FILESYSTEM=0` - Drop the Emscripten filesystem shim
 - `-O3` - Maximum optimization
 - `-lmpfr -lgmp` - Link MPFR and GMP libraries
+- `--no-entry` - Build as a library with no `main()`
 
 ## Testing
 
+There are no WASM-specific test files yet. Once the module is built and tests
+exist, run the package suite from `packages/math-engine`:
+
 ```bash
 cd packages/math-engine
-pnpm test wasm
+pnpm test
 ```
 
 ## Troubleshooting

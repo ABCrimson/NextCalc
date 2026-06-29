@@ -4,13 +4,13 @@ Backend GraphQL API for NextCalc Pro, built with Apollo Server, Prisma, and Next
 
 ## Tech Stack
 
-- **Database:** Neon PostgreSQL with Prisma 7.5.0-dev.33
-- **API:** GraphQL with Apollo Server 5.4.0
-- **Authentication:** Auth.js v5 (NextAuth 5.0-beta.30) with OAuth + jose 6.1.3 JWT verification
+- **Database:** Neon PostgreSQL with Prisma 7 (via the shared `@nextcalc/database` package)
+- **API:** GraphQL (graphql 17.0.1) with Apollo Server 5.5.1
+- **Authentication:** Auth.js v5 (NextAuth 5.0.0-beta.31) with OAuth + jose 6.2.3 JWT verification
 - **Caching:** Upstash Redis
 - **Rate Limiting:** Upstash Rate Limit
 - **Connection Pooling:** Neon Serverless Driver
-- **Linting/Formatting:** Biome 2.4
+- **Linting/Formatting:** Biome 2.5
 
 ## Prerequisites
 
@@ -61,7 +61,7 @@ pnpm --filter @nextcalc/database db:seed
 pnpm dev
 ```
 
-GraphQL Playground will be available at: http://localhost:3005/api/graphql
+The GraphQL endpoint is reached through the **web** dev server at http://localhost:3005/api/graphql (served by `apps/web/app/api/graphql/route.ts`, which injects the real NextAuth `auth()` via `createHandler`). This `apps/api` package has no HTTP listener of its own — its `dev` script (`tsx watch src/index.ts`) only watches and re-evaluates the exported route handlers. In development the endpoint serves the **Apollo Sandbox / landing page** (the Apollo Server 5 default).
 
 ## Project Structure
 
@@ -77,9 +77,15 @@ apps/api/
 │   │       ├── folder.ts      # Folder organization
 │   │       ├── calculation.ts # Calculation history
 │   │       ├── forum.ts       # Forum posts
+│   │       ├── comment.ts     # Post comments
+│   │       ├── upvote.ts      # Post/comment voting
 │   │       ├── profile.ts     # User profile + analytics
 │   │       └── shared-calculation.ts  # Shared calculations
 │   ├── lib/
+│   │   ├── context.ts         # GraphQLContext type + auth helpers (requireAuth/requireRole/requireOwnership)
+│   │   ├── dataloaders.ts     # 11 DataLoader instances (N+1 prevention)
+│   │   ├── prisma.ts          # Prisma client re-export
+│   │   ├── auth-stub.ts       # Configurable auth function (setAuthFunction injection point)
 │   │   ├── cache.ts           # Upstash Redis caching (with invalidateByPrefix)
 │   │   ├── errors.ts          # Custom error classes
 │   │   ├── validation.ts      # Zod input schemas
@@ -88,9 +94,10 @@ apps/api/
 │   │   ├── monitoring.ts      # Request logging
 │   │   └── logger.ts          # Structured JSON logger
 │   ├── plugins/
-│   │   └── performance-monitoring.ts  # Apollo plugin
-│   ├── server.ts              # Apollo Server setup + context
-│   └── index.ts               # Next.js route handler exports
+│   │   ├── index.ts           # Plugin barrel export
+│   │   └── performance-monitoring.ts  # Apollo plugins (monitoring, caching, complexity, error tracking, usage reporting)
+│   ├── server.ts              # Apollo Server setup (GraphQLContext type lives in lib/context.ts)
+│   └── index.ts               # Next.js route handler exports (createHandler factory)
 ├── package.json
 ├── tsconfig.json
 └── README.md
@@ -155,33 +162,39 @@ query Me {
   }
 }
 
-# List worksheets
-query Worksheets($cursor: String, $limit: Int) {
-  worksheets(cursor: $cursor, limit: $limit) {
-    items {
+# List worksheets (offset-based pagination -> WorksheetConnection)
+query Worksheets($limit: Int, $offset: Int) {
+  worksheets(limit: $limit, offset: $offset) {
+    nodes {
       id
       title
       description
       updatedAt
     }
     pageInfo {
-      hasMore
-      nextCursor
+      totalCount
+      currentPage
+      totalPages
+      hasNextPage
     }
   }
 }
 
-# Search forum posts
-query SearchPosts($query: String!, $tags: [String!]) {
-  searchForumPosts(query: $query, tags: $tags) {
-    items {
+# List forum posts (offset-based pagination -> ForumPostConnection)
+query ForumPosts($limit: Int, $offset: Int) {
+  forumPosts(limit: $limit, offset: $offset) {
+    nodes {
       id
       title
       content
-      author {
+      user {
         name
       }
       upvoteCount
+    }
+    pageInfo {
+      totalCount
+      hasNextPage
     }
   }
 }
@@ -206,10 +219,10 @@ mutation CreatePost($input: CreateForumPostInput!) {
   }
 }
 
-# Upvote post
-mutation UpvotePost($postId: ID!) {
-  upvotePost(postId: $postId) {
-    success
+# Toggle upvote on a post or comment
+mutation ToggleUpvote($targetId: ID!, $targetType: UpvoteTargetType!) {
+  toggleUpvote(targetId: $targetId, targetType: $targetType) {
+    upvoted
     upvoteCount
   }
 }
@@ -340,7 +353,7 @@ pnpm prisma migrate reset
 - JWT session tokens (HTTP-only cookies) with jose signature verification
 - IDOR protection on worksheet and profile resolvers
 - Input validation with Zod on all mutations
-- Rate limiting per user (sliding window + token bucket)
+- Rate limiting per user (Upstash sliding window)
 - CORS configuration
 - SQL injection prevention (Prisma parameterized queries)
 - Atomic view counters (forum posts, worksheets)

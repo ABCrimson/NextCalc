@@ -13,7 +13,7 @@ NextCalc Pro is deployed on Vercel (web app) + Cloudflare Workers (edge services
 | 1 | `git push origin main` | Automatic | ~2-3 min | Standard workflow |
 | 2 | Open Pull Request | Automatic | ~2-3 min | Preview + review |
 | 3 | `vercel --prod` | Manual CLI | ~2-3 min | Emergency deploy |
-| 4 | `gh workflow run ci.yml` | Manual Action | ~5-8 min | Full CI + deploy |
+| 4 | `gh workflow run deploy-workers.yml` | Manual Action | ~5-8 min | Deploy Cloudflare Workers |
 
 ---
 
@@ -27,8 +27,8 @@ The GitHub repository is connected to Vercel. Push to `main` triggers a producti
 |:--------|:------|
 | Framework | Next.js |
 | Root Directory | `apps/web` |
-| Build Command | `cd ../.. && pnpm install && pnpm build --filter=@nextcalc/web` |
-| Install Command | `pnpm install` |
+| Build Command | `cd ../.. && pnpm build --filter=@nextcalc/web` |
+| Install Command | `cd ../.. && pnpm install` |
 | Node.js Version | 24.x |
 
 ### Environment Variables
@@ -49,9 +49,9 @@ Set in Vercel Dashboard > Project > Settings > Environment Variables:
 Deploy individually:
 
 ```bash
-cd apps/workers/cas-service && pnpm deploy
-cd apps/workers/export-service && pnpm deploy
-cd apps/workers/rate-limiter && pnpm deploy
+cd apps/workers/cas-service && pnpm run deploy
+cd apps/workers/export-service && pnpm run deploy
+cd apps/workers/rate-limiter && pnpm run deploy
 ```
 
 Or via GitHub Actions: `.github/workflows/deploy-workers.yml` triggers on changes to `apps/workers/` and `pnpm-lock.yaml`, and supports `workflow_dispatch` for manual runs. Requires `CLOUDFLARE_API_TOKEN` GitHub secret. Each worker deploys independently (`fail-fast: false`). Uses `actions/checkout@v6` and `actions/setup-node@v6`.
@@ -68,15 +68,16 @@ Or via GitHub Actions: `.github/workflows/deploy-workers.yml` triggers on change
 
 ## CI/CD Pipeline
 
-`.github/workflows/ci.yml` runs on every push (5 jobs, all passing as of v1.2.1):
+`.github/workflows/ci.yml` runs on every push (6 jobs, all passing as of v1.2.2):
 
 1. **Install** -- pnpm install + dependency caching
-2. **Lint** -- Biome 2.4
-3. **Typecheck** -- TypeScript 6.0
-4. **Build** -- Turborepo (all packages). Requires `AUTH_SECRET` env var for NextAuth.
+2. **Lint** -- Biome 2.5.1
+3. **Typecheck** -- TypeScript 6.0.3
+4. **Typecheck (TS7 tsgo, advisory)** -- `typecheck:fast` via tsgo; non-blocking (`continue-on-error`), surfaces TS7-forward issues without blocking merges.
 5. **Test** -- Vitest
+6. **Build** -- Turborepo (all packages). Requires `AUTH_SECRET` env var for NextAuth.
 
-**CI tooling** (v1.2.1): `actions/checkout@v6` and `actions/setup-node@v6`.
+**CI tooling** (v1.2.2): `actions/checkout@v6`, `actions/setup-node@v6`, and `pnpm/action-setup@v6` (pnpm 11). CI runs on Node 26, while the Vercel runtime caps at Node 24.x.
 
 ---
 

@@ -141,9 +141,9 @@ function ShortcutRow({ entry }: ShortcutRowProps) {
   return (
     <li className="flex items-center justify-between gap-4 py-2.5 border-b border-border/40 last:border-b-0">
       <span className="text-sm text-foreground">{entry.label}</span>
-      <span className="flex items-center gap-1 shrink-0" aria-label={entry.keys.join(' + ')}>
+      <span className="flex items-center gap-1 shrink-0">
         {entry.keys.map((key, i) => (
-          <span key={i} className="flex items-center gap-1">
+          <span key={key} className="flex items-center gap-1">
             {i > 0 && (
               <span
                 className="text-muted-foreground/60 text-xs font-mono select-none"
@@ -175,8 +175,8 @@ function CategorySection({ category }: CategorySectionProps) {
         {category.title}
       </h3>
       <ul className="rounded-xl border border-border/60 bg-muted/30 px-4 divide-y-0">
-        {category.shortcuts.map((entry, i) => (
-          <ShortcutRow key={i} entry={entry} />
+        {category.shortcuts.map((entry) => (
+          <ShortcutRow key={entry.label} entry={entry} />
         ))}
       </ul>
     </section>
@@ -375,7 +375,7 @@ export function ShortcutsModal({ registerGlobalHotkey = true }: ShortcutsModalPr
   return (
     <>
       {/* Floating trigger button — fixed to bottom-right of viewport */}
-      <div className="fixed bottom-6 right-6 z-40" aria-label="Keyboard shortcuts">
+      <div className="fixed bottom-6 right-6 z-40">
         {/* Onboarding tooltip anchored above the button */}
         <div className="relative">
           <OnboardingTooltip visible={showOnboarding} onDismiss={dismissOnboarding} />

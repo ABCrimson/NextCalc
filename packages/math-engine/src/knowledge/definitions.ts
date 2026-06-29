@@ -41,22 +41,23 @@ export interface Definition {
 /**
  * Math topic categories
  */
-export enum MathTopic {
-  Algebra = 'Algebra',
-  Calculus = 'Calculus',
-  LinearAlgebra = 'Linear Algebra',
-  AbstractAlgebra = 'Abstract Algebra',
-  NumberTheory = 'Number Theory',
-  Topology = 'Topology',
-  Analysis = 'Analysis',
-  DifferentialEquations = 'Differential Equations',
-  Probability = 'Probability',
-  Statistics = 'Statistics',
-  DiscreteMath = 'Discrete Math',
-  Geometry = 'Geometry',
-  SetTheory = 'Set Theory',
-  Logic = 'Logic',
-}
+export const MathTopic = {
+  Algebra: 'Algebra',
+  Calculus: 'Calculus',
+  LinearAlgebra: 'Linear Algebra',
+  AbstractAlgebra: 'Abstract Algebra',
+  NumberTheory: 'Number Theory',
+  Topology: 'Topology',
+  Analysis: 'Analysis',
+  DifferentialEquations: 'Differential Equations',
+  Probability: 'Probability',
+  Statistics: 'Statistics',
+  DiscreteMath: 'Discrete Math',
+  Geometry: 'Geometry',
+  SetTheory: 'Set Theory',
+  Logic: 'Logic',
+} as const;
+export type MathTopic = (typeof MathTopic)[keyof typeof MathTopic];
 
 // ============================================================================
 // DEFINITIONS DATABASE

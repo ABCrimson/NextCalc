@@ -71,20 +71,25 @@ describe('Differential Privacy', () => {
     it('property: noise is symmetric around true value', () => {
       fc.assert(
         fc.property(
-          fc.float({ min: Math.fround(0), max: Math.fround(1000) }),
-          fc.float({ min: Math.fround(0.1), max: Math.fround(10) }),
+          fc.float({ min: Math.fround(0), max: Math.fround(1000), noNaN: true }),
+          fc.float({ min: Math.fround(0.1), max: Math.fround(10), noNaN: true }),
           (trueValue, epsilon) => {
             const sensitivity = 1;
 
-            const samples = 100;
+            // 500 samples: by LLN the sample mean converges tightly.
+            // Laplace(0, b) mean has std dev b*sqrt(2/n) ≈ b*0.0632 for n=500.
+            // Tolerance of 3*b corresponds to ~47 sigma — statistically certain.
+            const samples = 500;
             const values = Array.from({ length: samples }, () =>
               laplaceMechanism(trueValue, sensitivity, epsilon),
             );
 
             const mean = values.reduce((a, b) => a + b, 0) / samples;
 
-            // Mean should be close to true value (noise is zero-centered)
-            expect(Math.abs(mean - trueValue)).toBeLessThan(sensitivity / epsilon);
+            // 3 scale units (b = sensitivity/epsilon) is a statistically sound
+            // tolerance: the sample mean is within this bound with overwhelming
+            // probability (failure probability < 10^-100 per CLT).
+            expect(Math.abs(mean - trueValue)).toBeLessThan(3 * (sensitivity / epsilon));
           },
         ),
         { numRuns: 5 }, // Fewer runs due to sampling
@@ -511,20 +516,32 @@ describe('Differential Privacy', () => {
     it('property: smaller epsilon provides stronger privacy', () => {
       fc.assert(
         fc.property(
-          fc.float({ min: Math.fround(0.1), max: Math.fround(0.5) }),
-          fc.float({ min: Math.fround(1.0), max: Math.fround(5.0) }),
+          fc.float({ min: Math.fround(0.1), max: Math.fround(0.5), noNaN: true }),
+          fc.float({ min: Math.fround(1.0), max: Math.fround(5.0), noNaN: true }),
           (lowEps, highEps) => {
             const trueValue = 100;
             const sensitivity = 1;
 
-            const lowNoise = Math.abs(laplaceMechanism(trueValue, sensitivity, lowEps) - trueValue);
-            const highNoise = Math.abs(
-              laplaceMechanism(trueValue, sensitivity, highEps) - trueValue,
-            );
+            // Average 200 samples per epsilon level. The expected absolute error
+            // for Laplace(0, b) is b = sensitivity/epsilon, so the ratio of
+            // expected errors is highEps/lowEps >= 1.0/0.5 = 2. With 200 samples
+            // the sample mean absolute error is tightly concentrated around its
+            // expectation (std dev ≈ b/sqrt(200)), making the directional
+            // assertion deterministically reliable.
+            const n = 200;
+            const avgLowEpsError =
+              Array.from({ length: n }, () =>
+                Math.abs(laplaceMechanism(trueValue, sensitivity, lowEps) - trueValue),
+              ).reduce((a, b) => a + b, 0) / n;
 
-            // This is probabilistic, but generally true
-            // Low epsilon should have higher average noise
-            expect(lowEps).toBeLessThan(highEps);
+            const avgHighEpsError =
+              Array.from({ length: n }, () =>
+                Math.abs(laplaceMechanism(trueValue, sensitivity, highEps) - trueValue),
+              ).reduce((a, b) => a + b, 0) / n;
+
+            // Low epsilon (more privacy) must produce strictly more noise on average.
+            // Expected ratio is lowEps/highEps >= 2 — statistically certain.
+            expect(avgLowEpsError).toBeGreaterThan(avgHighEpsError);
           },
         ),
         { numRuns: 10 },

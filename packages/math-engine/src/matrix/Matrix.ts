@@ -475,7 +475,7 @@ export class Matrix {
     try {
       const inv = this.inverse();
       return this.frobeniusNorm() * inv.frobeniusNorm();
-    } catch (e) {
+    } catch {
       return Infinity; // Singular matrix has infinite condition number
     }
   }
@@ -742,7 +742,7 @@ export class Matrix {
     // Solve (A^T A)x = A^T b
     try {
       return AtA.inverse().multiply(Atb);
-    } catch (e) {
+    } catch {
       throw new Error('Least squares solution failed: A^T A is singular');
     }
   }
@@ -771,7 +771,7 @@ export class Matrix {
       const AtA_inv = AtA.inverse();
       const P = this.multiply(AtA_inv).multiply(At);
       return P.multiply(b);
-    } catch (e) {
+    } catch {
       throw new Error('Projection failed: columns are linearly dependent');
     }
   }

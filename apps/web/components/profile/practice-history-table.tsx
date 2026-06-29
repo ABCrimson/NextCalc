@@ -1,5 +1,6 @@
 'use client';
 
+import { useFormatter } from 'next-intl';
 import { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -24,15 +25,6 @@ function formatTime(totalSeconds: number): string {
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return '—';
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-}
-
 function getAccuracyColor(accuracy: number): string {
   if (accuracy >= 90) return 'text-[oklch(0.65_0.22_145)]';
   if (accuracy >= 70) return 'text-[oklch(0.65_0.20_200)]';
@@ -41,6 +33,7 @@ function getAccuracyColor(accuracy: number): string {
 }
 
 export function PracticeHistoryTable({ sessions }: PracticeHistoryTableProps) {
+  const format = useFormatter();
   const [page, setPage] = useState(0);
 
   const totalPages = Math.max(1, Math.ceil(sessions.length / PAGE_SIZE));
@@ -110,7 +103,7 @@ export function PracticeHistoryTable({ sessions }: PracticeHistoryTableProps) {
                   >
                     <td className="px-4 py-3 font-medium text-foreground">{session.topic}</td>
                     <td className="px-4 py-3 text-right tabular-nums text-foreground">
-                      {session.score.toLocaleString()}
+                      {format.number(session.score)}
                     </td>
                     <td
                       className={`px-4 py-3 text-right tabular-nums font-medium ${getAccuracyColor(session.accuracy)}`}
@@ -121,7 +114,13 @@ export function PracticeHistoryTable({ sessions }: PracticeHistoryTableProps) {
                       {formatTime(session.totalTime)}
                     </td>
                     <td className="px-4 py-3 text-right text-muted-foreground">
-                      {formatDate(session.completedAt)}
+                      {session.completedAt
+                        ? format.dateTime(new Date(session.completedAt), {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                          })
+                        : '—'}
                     </td>
                   </tr>
                 ))}

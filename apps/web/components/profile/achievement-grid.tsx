@@ -1,6 +1,7 @@
 'use client';
 
 import { m } from 'framer-motion';
+import { useFormatter } from 'next-intl';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 
@@ -17,14 +18,6 @@ interface Achievement {
 
 interface AchievementGridProps {
   achievements: Achievement[];
-}
-
-function formatEarnedDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
 }
 
 function getTypeBadgeVariant(
@@ -83,6 +76,8 @@ const itemVariants = {
 };
 
 export function AchievementGrid({ achievements }: AchievementGridProps) {
+  const format = useFormatter();
+
   if (achievements.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -114,7 +109,7 @@ export function AchievementGrid({ achievements }: AchievementGridProps) {
               aria-hidden="true"
             >
               {achievement.badgeUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
+                // biome-ignore lint/performance/noImgElement: external badge URL not in next/image remotePatterns
                 <img
                   src={achievement.badgeUrl}
                   alt=""
@@ -145,7 +140,11 @@ export function AchievementGrid({ achievements }: AchievementGridProps) {
 
             {/* Earned date */}
             <p className="mt-1 text-xs text-muted-foreground">
-              {formatEarnedDate(achievement.earnedAt)}
+              {format.dateTime(new Date(achievement.earnedAt), {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+              })}
             </p>
           </Card>
         </m.div>

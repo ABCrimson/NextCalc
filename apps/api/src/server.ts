@@ -1,5 +1,5 @@
 /**
- * Apollo Server 5.4.0 Configuration
+ * Apollo Server 5.5.1 Configuration
  *
  * Production-ready GraphQL server with:
  * - unwrapResolverError for proper error formatting (AS5 best practice)
@@ -53,8 +53,8 @@ const formatError = (
   // In production, mask internal server errors to avoid leaking implementation details
   if (
     !isDevelopment &&
-    (formattedError.extensions?.code === 'INTERNAL_SERVER_ERROR' ||
-      !formattedError.extensions?.code)
+    (formattedError.extensions?.['code'] === 'INTERNAL_SERVER_ERROR' ||
+      !formattedError.extensions?.['code'])
   ) {
     return {
       message: 'An internal error occurred',
@@ -83,7 +83,9 @@ export function createApolloServer(httpServer?: import('node:http').Server) {
             includeCookies: true,
           })
         : ApolloServerPluginLandingPageProductionDefault({
-            ...(process.env.APOLLO_GRAPH_REF ? { graphRef: process.env.APOLLO_GRAPH_REF } : {}),
+            ...(process.env['APOLLO_GRAPH_REF']
+              ? { graphRef: process.env['APOLLO_GRAPH_REF'] }
+              : {}),
             footer: false,
           }),
 
@@ -120,8 +122,8 @@ if (process.env.NODE_ENV === 'production') {
   process.on('SIGINT', shutdown);
 }
 
-/** Re-exports for SSE/subscription consumers */
-export { createDataLoaders };
-export type { GraphQLContext };
 export { rateLimit } from './lib/cache';
 export { RateLimitError } from './lib/errors';
+export type { GraphQLContext };
+/** Re-exports for SSE/subscription consumers */
+export { createDataLoaders };

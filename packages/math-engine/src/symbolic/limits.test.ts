@@ -9,7 +9,7 @@ import {
   createOperatorNode,
   createSymbolNode,
 } from '../parser/ast';
-import { type LimitConfig, limit } from './limits';
+import { limit } from './limits';
 
 describe('Limits - Direct Substitution', () => {
   it('should compute simple polynomial limit', () => {

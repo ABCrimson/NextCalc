@@ -180,7 +180,7 @@ export function AxisLabels({ viewport, width, height, xAxisConfig, yAxisConfig }
             bg-background/80 backdrop-blur-sm
             px-2 py-0.5 rounded
             border border-cyan-500/30
-            shadow-[0_2px_8px_0_rgba(6,182,212,0.15)]
+            shadow-[0_2px_8px_0_oklch(0.7148_0.1257_215.22_/_0.15)]
           "
           style={{
             left: `${tick.position}px`,
@@ -208,7 +208,7 @@ export function AxisLabels({ viewport, width, height, xAxisConfig, yAxisConfig }
             bg-background/80 backdrop-blur-sm
             px-2 py-0.5 rounded
             border border-cyan-500/30
-            shadow-[0_2px_8px_0_rgba(6,182,212,0.15)]
+            shadow-[0_2px_8px_0_oklch(0.7148_0.1257_215.22_/_0.15)]
           "
           style={{
             left: `${Math.max(yAxisX + 4, 4)}px`,
@@ -234,7 +234,7 @@ export function AxisLabels({ viewport, width, height, xAxisConfig, yAxisConfig }
             text-cyan-100 bg-gradient-to-br from-background/90 to-card/90
             backdrop-blur-md px-3 py-1.5 rounded-lg
             border border-cyan-500/40
-            shadow-[0_4px_16px_0_rgba(6,182,212,0.2)]
+            shadow-[0_4px_16px_0_oklch(0.7148_0.1257_215.22_/_0.2)]
           "
           style={{
             left: `${width - 50}px`,
@@ -259,7 +259,7 @@ export function AxisLabels({ viewport, width, height, xAxisConfig, yAxisConfig }
             text-cyan-100 bg-gradient-to-br from-background/90 to-card/90
             backdrop-blur-md px-3 py-1.5 rounded-lg
             border border-cyan-500/40
-            shadow-[0_4px_16px_0_rgba(6,182,212,0.2)]
+            shadow-[0_4px_16px_0_oklch(0.7148_0.1257_215.22_/_0.2)]
           "
           style={{
             left: `${Math.max(yAxisX + 4, 4)}px`,

@@ -850,7 +850,7 @@ function isEdgeHighlighted(edge: GraphEdge, result: GraphResult | null): boolean
 }
 
 function getSCCColor(nodeId: string, result: GraphResult | null): string | null {
-  if (!result || result.type !== 'scc' || !result.components) return null;
+  if (result?.type !== 'scc' || !result.components) return null;
   const colors = [
     'oklch(0.65 0.18 155)',
     'oklch(0.65 0.2 30)',
@@ -1444,12 +1444,13 @@ function ContextMenu({ target, onDeleteNode, onDeleteEdge, onClose }: ContextMen
       exit={{ opacity: 0, scale: 0.92 }}
       transition={{ duration: 0.12 }}
       style={{ left: target.x, top: target.y }}
-      className="absolute z-50 min-w-36 rounded-lg border border-border bg-popover/95 backdrop-blur-md shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] overflow-hidden"
+      className="absolute z-50 min-w-36 rounded-lg border border-border bg-popover/95 backdrop-blur-md shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)] overflow-hidden"
     >
       <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground border-b border-border">
         {target.kind === 'node' ? `Node ${target.id}` : 'Edge'}
       </div>
       <button
+        type="button"
         role="menuitem"
         onClick={() => {
           if (target.kind === 'node') onDeleteNode(target.id);
@@ -1747,7 +1748,6 @@ export default function GraphAlgorithmsPage() {
       observer.disconnect();
     };
     // nodes/edges are read via nodesRef/edgesRef which are updated on every render
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showParticles]);
 
   // -------------------------------------------------------------------------
@@ -2108,7 +2108,7 @@ export default function GraphAlgorithmsPage() {
   // RENDER
   // -------------------------------------------------------------------------
   const glassPanel =
-    'bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]';
+    'bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]';
 
   return (
     <main className="min-h-screen py-10 px-4 relative">
@@ -2155,6 +2155,7 @@ export default function GraphAlgorithmsPage() {
         />
         {/* SVG noise texture overlay */}
         <svg
+          aria-hidden="true"
           className="absolute inset-0 w-full h-full opacity-[0.03]"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -2376,21 +2377,19 @@ export default function GraphAlgorithmsPage() {
                 {/* Edge list */}
                 <div className="space-y-1.5">
                   <Label>Edges ({edges.length})</Label>
-                  <div
+                  <ul
                     className="max-h-44 overflow-y-auto rounded-lg border border-border bg-background/40 p-2 space-y-1.5"
-                    role="list"
                     aria-label="Edge list"
                   >
                     <AnimatePresence initial={false}>
                       {edges.length === 0 && (
-                        <p className="text-xs text-muted-foreground text-center py-3">
+                        <li className="text-xs text-muted-foreground text-center py-3">
                           No edges yet. Drag between nodes on the canvas.
-                        </p>
+                        </li>
                       )}
                       {edges.map((edge, index) => (
-                        <m.div
-                          key={`${edge.from}-${edge.to}-${index}`}
-                          role="listitem"
+                        <m.li
+                          key={`${edge.from}-${edge.to}-${edge.weight}`}
                           initial={prefersReducedMotion ? false : { opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: 'auto' }}
                           {...(!prefersReducedMotion ? { exit: { opacity: 0, height: 0 } } : {})}
@@ -2416,10 +2415,10 @@ export default function GraphAlgorithmsPage() {
                           >
                             <Trash2 className="w-3 h-3" />
                           </button>
-                        </m.div>
+                        </m.li>
                       ))}
                     </AnimatePresence>
-                  </div>
+                  </ul>
                 </div>
               </CardContent>
             </Card>
@@ -2507,10 +2506,13 @@ export default function GraphAlgorithmsPage() {
                     className="w-full block"
                     style={{ cursor: addingNode ? 'crosshair' : edgeDragFrom ? 'cell' : 'default' }}
                     onClick={handleSvgClick}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape' && addingNode) setAddingNode(false);
+                    }}
                     onPointerMove={handleSvgPointerMove}
                     onPointerUp={handleSvgPointerUp}
                     aria-label="Interactive graph canvas"
-                    role="img"
+                    role="application"
                   >
                     <defs>
                       <pattern
@@ -2619,7 +2621,8 @@ export default function GraphAlgorithmsPage() {
                       const isDirected = edge.directed ?? currentAlgoMeta.directed;
 
                       return (
-                        <g key={`${edge.from}-${edge.to}-${index}`} data-edge>
+                        <g key={`${edge.from}-${edge.to}-${edge.weight}`} data-edge>
+                          {/* biome-ignore lint/a11y/noStaticElementInteractions: transparent hit-area path inside SVG application canvas; keyboard access is via the <g role="button"> node elements */}
                           <path
                             d={dPath}
                             fill="none"
@@ -2756,6 +2759,7 @@ export default function GraphAlgorithmsPage() {
                                 : 'var(--color-border)');
 
                       return (
+                        // biome-ignore lint/a11y/useSemanticElements: SVG <g> elements cannot be replaced with <button>; role="button"+tabIndex is the correct SVG a11y pattern
                         <g
                           key={node.id}
                           data-node
@@ -2924,6 +2928,7 @@ export default function GraphAlgorithmsPage() {
                   <canvas
                     ref={particleCanvasRef}
                     aria-hidden="true"
+                    tabIndex={-1}
                     className="absolute inset-0 w-full h-full pointer-events-none"
                     style={{ mixBlendMode: 'screen' }}
                   />
@@ -2971,7 +2976,7 @@ export default function GraphAlgorithmsPage() {
                           <div className="flex items-center gap-1 flex-wrap">
                             {result.path && result.path.length > 0 ? (
                               result.path.map((nodeId, i) => (
-                                <span key={i} className="flex items-center gap-1">
+                                <span key={nodeId} className="flex items-center gap-1">
                                   <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-500 font-mono font-bold text-sm">
                                     {nodeId}
                                   </span>
@@ -3006,7 +3011,7 @@ export default function GraphAlgorithmsPage() {
                       </p>
                       <div className="flex items-center gap-1 flex-wrap">
                         {result.order.map((nodeId, i) => (
-                          <span key={i} className="flex items-center gap-1">
+                          <span key={nodeId} className="flex items-center gap-1">
                             <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-500 font-mono font-bold text-sm">
                               {nodeId}
                             </span>
@@ -3029,7 +3034,7 @@ export default function GraphAlgorithmsPage() {
                       </p>
                       <div className="flex items-center gap-1 flex-wrap">
                         {result.order.map((nodeId, i) => (
-                          <span key={i} className="flex items-center gap-1">
+                          <span key={nodeId} className="flex items-center gap-1">
                             <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-500 font-mono font-bold text-sm">
                               {nodeId}
                             </span>
@@ -3062,7 +3067,10 @@ export default function GraphAlgorithmsPage() {
                           ];
                           const colorClass = colors[i % colors.length] ?? colors[0]!;
                           return (
-                            <div key={i} className="flex items-center gap-2 flex-wrap">
+                            <div
+                              key={component.join(',')}
+                              className="flex items-center gap-2 flex-wrap"
+                            >
                               <span className="text-xs text-muted-foreground w-16">
                                 SCC {i + 1}:
                               </span>
@@ -3087,8 +3095,11 @@ export default function GraphAlgorithmsPage() {
                         Minimum Spanning Tree
                       </p>
                       <div className="space-y-1.5">
-                        {result.edges?.map((edge, i) => (
-                          <div key={i} className="flex items-center gap-2 text-sm font-mono">
+                        {result.edges?.map((edge) => (
+                          <div
+                            key={`${edge.from}-${edge.to}`}
+                            className="flex items-center gap-2 text-sm font-mono"
+                          >
                             <span className="text-foreground/70">
                               {edge.from} — {edge.to}
                             </span>
@@ -3192,7 +3203,7 @@ export default function GraphAlgorithmsPage() {
                         <div className="space-y-1.5 rounded-lg bg-muted/20 border border-border/40 p-4">
                           {proof.steps.map((step, i) => (
                             <p
-                              key={i}
+                              key={step}
                               className="text-sm text-muted-foreground font-mono leading-relaxed"
                             >
                               <span className="text-primary/60 mr-2 select-none">{i + 1}.</span>

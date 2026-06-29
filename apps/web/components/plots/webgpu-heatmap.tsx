@@ -1334,6 +1334,7 @@ export function WebGPUHeatmap({
             height: 'auto',
           }}
           aria-hidden="true"
+          tabIndex={-1}
         />
       )}
 

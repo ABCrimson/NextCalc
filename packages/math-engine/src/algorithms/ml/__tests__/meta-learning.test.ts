@@ -427,7 +427,7 @@ describe('Meta-Learning Algorithms', () => {
 
             const sim = cosineSimilarity(a, b);
 
-            if (isNaN(sim)) return true; // Skip zero vectors
+            if (Number.isNaN(sim)) return true; // Skip zero vectors
 
             expect(sim).toBeGreaterThanOrEqual(-1);
             expect(sim).toBeLessThanOrEqual(1);

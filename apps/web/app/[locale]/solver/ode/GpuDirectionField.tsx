@@ -703,6 +703,7 @@ export function GpuDirectionField({
   }, [gpuAvailable]);
 
   // ----- WebGPU render -----
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `gpuAvailable` is intentionally retained (not "unnecessary") — it is the only reactive signal that re-runs this render pass after the async GPU init (gated on gpuAvailable) populates gpuRef/gpuActiveRef. Removing it would drop the trigger that draws the first GPU frame.
   useEffect(() => {
     if (!visible) return;
     if (!gpuActiveRef.current || !gpuRef.current) return;
@@ -904,6 +905,7 @@ export function GpuDirectionField({
       className="absolute inset-0 w-full h-full rounded-lg pointer-events-none"
       style={{ mixBlendMode: 'screen' }}
       aria-hidden="true"
+      tabIndex={-1}
       suppressHydrationWarning
     />
   );
@@ -918,8 +920,8 @@ export function GpuDirectionField({
  */
 export function DirectionFieldLegend() {
   return (
-    <div
-      className="flex items-center gap-2 text-xs text-muted-foreground"
+    <fieldset
+      className="flex items-center gap-2 border-0 p-0 m-0 text-xs text-muted-foreground"
       aria-label="Direction field speed color legend"
     >
       <span>Slow</span>
@@ -931,6 +933,6 @@ export function DirectionFieldLegend() {
         aria-hidden="true"
       />
       <span>Fast</span>
-    </div>
+    </fieldset>
   );
 }

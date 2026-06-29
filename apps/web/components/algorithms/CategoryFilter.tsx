@@ -116,6 +116,7 @@ export function CategoryFilter({
         <h3 className="text-lg font-semibold">{t('filter.title')}</h3>
         {hasActiveFilters && (
           <button
+            type="button"
             onClick={clearAll}
             className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded-sm px-2 py-1"
             aria-label={t('clearAllFilters')}
@@ -157,6 +158,7 @@ export function CategoryFilter({
             const label = t(`category.${category.key}`);
             return (
               <button
+                type="button"
                 key={category.value}
                 onClick={() => toggleCategory(category.value)}
                 className={cn(
@@ -185,6 +187,7 @@ export function CategoryFilter({
             const label = t(`difficulty.${difficulty.key}`);
             return (
               <button
+                type="button"
                 key={difficulty.value}
                 onClick={() => toggleDifficulty(difficulty.value)}
                 className={cn(

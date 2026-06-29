@@ -1,5 +1,5 @@
 /**
- * Internal SVG generation — KaTeX 0.16.33 server-side rendering.
+ * Internal SVG generation — KaTeX 0.17.0 server-side rendering.
  *
  * Uses KaTeX's `renderToString` for high-fidelity LaTeX rendering
  * entirely in JavaScript — no filesystem, no Node.js globals, fully
@@ -99,13 +99,13 @@ function escapeXml(str: string): string {
 // ---------------------------------------------------------------------------
 
 /**
- * Renders LaTeX to a standalone SVG string using KaTeX 0.16.33.
+ * Renders LaTeX to a standalone SVG string using KaTeX 0.17.0.
  *
  * The SVG embeds KaTeX's HTML output inside a `<foreignObject>` together
  * with inlined CSS, making it fully self-contained — no external
  * stylesheets or fonts needed when viewed in a browser.
  *
- * KaTeX 0.16.33 options used:
+ * KaTeX 0.17.0 options used:
  * - `output: "htmlAndMathml"` — dual output for accessibility
  * - `displayMode`             — block vs inline rendering
  * - `throwOnError: false`     — graceful fallback for bad input
@@ -131,7 +131,7 @@ export async function generateSvgFromLatex(latex: string, options: SvgOptions): 
   cleanLatex = cleanLatex.replace(/^\\\[|\\\]$/g, '');
   cleanLatex = cleanLatex.replace(/^\\\(|\\\)$/g, '');
 
-  // Render with KaTeX 0.16.33 — full feature set
+  // Render with KaTeX 0.17.0 — full feature set
   const katexHtml = katex.renderToString(cleanLatex, {
     displayMode: !inline,
     output: 'htmlAndMathml',

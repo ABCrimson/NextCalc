@@ -119,9 +119,9 @@ function escapeHtml(text: string): string {
 export function parseLaTeXEnvironments(latex: string): LaTeXEnvironment[] {
   const environments: LaTeXEnvironment[] = [];
   const regex = /\\begin\{(\w+)\}([\s\S]*?)\\end\{\1\}/g;
-  let match: RegExpExecArray | null;
+  let match = regex.exec(latex);
 
-  while ((match = regex.exec(latex)) !== null) {
+  while (match !== null) {
     if (match[1] && match[2] !== undefined) {
       environments.push({
         name: match[1],
@@ -129,6 +129,7 @@ export function parseLaTeXEnvironments(latex: string): LaTeXEnvironment[] {
         position: match.index,
       });
     }
+    match = regex.exec(latex);
   }
 
   return environments;
@@ -149,12 +150,13 @@ export interface LaTeXEnvironment {
 export function extractEquationRefs(latex: string): string[] {
   const refs: string[] = [];
   const regex = /\\label\{([^}]+)\}/g;
-  let match: RegExpExecArray | null;
+  let match = regex.exec(latex);
 
-  while ((match = regex.exec(latex)) !== null) {
+  while (match !== null) {
     if (match[1]) {
       refs.push(match[1]);
     }
+    match = regex.exec(latex);
   }
 
   return refs;

@@ -1,56 +1,55 @@
 import { describe, expect, it } from 'vitest';
 import {
-  atom,
-  and,
-  or,
-  not,
-  implies,
-  iff,
-  forall,
-  exists,
-  variable,
-  constant,
-  func,
-  evaluate,
-  getAtoms,
-  getFreeVariables,
-  generateTruthTable,
-  isTautology,
-  isContradiction,
-  isSatisfiable,
-  isEquivalent,
-  toString,
-  parse,
-  LogicalOperator,
-  type Assignment,
-} from '../../prover/logic-core';
-import {
+  applyAnyRule,
+  ChainRule,
+  ConjunctionElimination,
+  ConjunctionIntroduction,
+  DisjunctionIntroduction,
+  DisjunctiveSyllogism,
+  findApplicableRules,
+  HypotheticalSyllogism,
   ModusPonens,
   ModusTollens,
-  HypotheticalSyllogism,
-  DisjunctiveSyllogism,
-  ConjunctionIntroduction,
-  ConjunctionElimination,
-  DisjunctionIntroduction,
   Resolution,
-  ChainRule,
-  INFERENCE_RULES,
-  applyAnyRule,
-  findApplicableRules,
 } from '../../prover/inference-rules';
 import {
-  forwardChaining,
-  backwardChaining,
-  resolutionProof,
-  iterativeDeepeningProof,
-  formulasEqual,
-} from '../../prover/proof-search';
+  type Assignment,
+  and,
+  atom,
+  constant,
+  evaluate,
+  exists,
+  forall,
+  toString as formulaToString,
+  func,
+  generateTruthTable,
+  getAtoms,
+  getFreeVariables,
+  iff,
+  implies,
+  isContradiction,
+  isEquivalent,
+  isSatisfiable,
+  isTautology,
+  LogicalOperator,
+  not,
+  or,
+  parse,
+  variable,
+} from '../../prover/logic-core';
 import {
+  formatNDProof,
   NDProofBuilder,
   NDRuleType,
-  formatNDProof,
   validateNDProof,
 } from '../../prover/natural-deduction';
+import {
+  backwardChaining,
+  formulasEqual,
+  forwardChaining,
+  iterativeDeepeningProof,
+  resolutionProof,
+} from '../../prover/proof-search';
 
 // ============================================================================
 // Formula Construction
@@ -207,34 +206,162 @@ describe('Evaluation', () => {
 
   it('evaluates AND correctly', () => {
     const f = and(atom('P'), atom('Q'));
-    expect(evaluate(f, new Map([['P', true], ['Q', true]]))).toBe(true);
-    expect(evaluate(f, new Map([['P', true], ['Q', false]]))).toBe(false);
-    expect(evaluate(f, new Map([['P', false], ['Q', true]]))).toBe(false);
-    expect(evaluate(f, new Map([['P', false], ['Q', false]]))).toBe(false);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', true],
+          ['Q', true],
+        ]),
+      ),
+    ).toBe(true);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', true],
+          ['Q', false],
+        ]),
+      ),
+    ).toBe(false);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', false],
+          ['Q', true],
+        ]),
+      ),
+    ).toBe(false);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', false],
+          ['Q', false],
+        ]),
+      ),
+    ).toBe(false);
   });
 
   it('evaluates OR correctly', () => {
     const f = or(atom('P'), atom('Q'));
-    expect(evaluate(f, new Map([['P', true], ['Q', true]]))).toBe(true);
-    expect(evaluate(f, new Map([['P', true], ['Q', false]]))).toBe(true);
-    expect(evaluate(f, new Map([['P', false], ['Q', true]]))).toBe(true);
-    expect(evaluate(f, new Map([['P', false], ['Q', false]]))).toBe(false);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', true],
+          ['Q', true],
+        ]),
+      ),
+    ).toBe(true);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', true],
+          ['Q', false],
+        ]),
+      ),
+    ).toBe(true);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', false],
+          ['Q', true],
+        ]),
+      ),
+    ).toBe(true);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', false],
+          ['Q', false],
+        ]),
+      ),
+    ).toBe(false);
   });
 
   it('evaluates IMPLIES correctly (material conditional)', () => {
     const f = implies(atom('P'), atom('Q'));
-    expect(evaluate(f, new Map([['P', true], ['Q', true]]))).toBe(true);
-    expect(evaluate(f, new Map([['P', true], ['Q', false]]))).toBe(false);
-    expect(evaluate(f, new Map([['P', false], ['Q', true]]))).toBe(true);
-    expect(evaluate(f, new Map([['P', false], ['Q', false]]))).toBe(true);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', true],
+          ['Q', true],
+        ]),
+      ),
+    ).toBe(true);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', true],
+          ['Q', false],
+        ]),
+      ),
+    ).toBe(false);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', false],
+          ['Q', true],
+        ]),
+      ),
+    ).toBe(true);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', false],
+          ['Q', false],
+        ]),
+      ),
+    ).toBe(true);
   });
 
   it('evaluates IFF correctly', () => {
     const f = iff(atom('P'), atom('Q'));
-    expect(evaluate(f, new Map([['P', true], ['Q', true]]))).toBe(true);
-    expect(evaluate(f, new Map([['P', true], ['Q', false]]))).toBe(false);
-    expect(evaluate(f, new Map([['P', false], ['Q', true]]))).toBe(false);
-    expect(evaluate(f, new Map([['P', false], ['Q', false]]))).toBe(true);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', true],
+          ['Q', true],
+        ]),
+      ),
+    ).toBe(true);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', true],
+          ['Q', false],
+        ]),
+      ),
+    ).toBe(false);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', false],
+          ['Q', true],
+        ]),
+      ),
+    ).toBe(false);
+    expect(
+      evaluate(
+        f,
+        new Map([
+          ['P', false],
+          ['Q', false],
+        ]),
+      ),
+    ).toBe(true);
   });
 
   it('throws when evaluating quantified formulas', () => {
@@ -425,37 +552,37 @@ describe('Logical Equivalence', () => {
 
 describe('toString', () => {
   it('renders atomic proposition', () => {
-    expect(toString(atom('P'))).toBe('P');
+    expect(formulaToString(atom('P'))).toBe('P');
   });
 
   it('renders NOT with unicode', () => {
-    expect(toString(not(atom('P')), true)).toBe('\u00ACP');
+    expect(formulaToString(not(atom('P')), true)).toBe('\u00ACP');
   });
 
   it('renders NOT with ASCII', () => {
-    expect(toString(not(atom('P')), false)).toBe('~P');
+    expect(formulaToString(not(atom('P')), false)).toBe('~P');
   });
 
   it('renders AND with unicode', () => {
-    expect(toString(and(atom('P'), atom('Q')), true)).toBe('P \u2227 Q');
+    expect(formulaToString(and(atom('P'), atom('Q')), true)).toBe('P \u2227 Q');
   });
 
   it('renders IMPLIES with unicode', () => {
-    expect(toString(implies(atom('P'), atom('Q')), true)).toBe('P \u2192 Q');
+    expect(formulaToString(implies(atom('P'), atom('Q')), true)).toBe('P \u2192 Q');
   });
 
   it('renders IFF with unicode', () => {
-    expect(toString(iff(atom('P'), atom('Q')), true)).toBe('P \u2194 Q');
+    expect(formulaToString(iff(atom('P'), atom('Q')), true)).toBe('P \u2194 Q');
   });
 
   it('renders quantified formulas', () => {
     const f = forall('x', atom('P', variable('x')));
-    expect(toString(f, true)).toContain('\u2200x');
+    expect(formulaToString(f, true)).toContain('\u2200x');
   });
 
   it('renders predicates with arguments', () => {
     const f = atom('Loves', variable('x'), constant('Alice'));
-    expect(toString(f)).toBe('Loves(x, Alice)');
+    expect(formulaToString(f)).toBe('Loves(x, Alice)');
   });
 });
 
@@ -596,7 +723,7 @@ describe('parse', () => {
 
   it('round-trips parse -> toString -> parse for complex formula', () => {
     const original = implies(and(atom('P'), atom('Q')), or(atom('R'), not(atom('S'))));
-    const str = toString(original, false);
+    const str = formulaToString(original, false);
     const reparsed = parse(str);
     expect(isEquivalent(original, reparsed)).toBe(true);
   });
@@ -846,13 +973,13 @@ describe('Natural Deduction', () => {
   it('builds a simple proof using implies elimination', () => {
     // Prove Q from premises P and P -> Q
     const builder = new NDProofBuilder(Q);
-    const l1 = builder.assume(P);
+    builder.assume(P);
     builder.endSubproof();
     // We need to use a non-subproof approach:
     // Add P as premise-level assumption, then add P -> Q, then apply implies elim
     const builder2 = new NDProofBuilder(Q);
-    const lp = builder2.assume(P);
-    const lpq = builder2.assume(implies(P, Q));
+    builder2.assume(P);
+    builder2.assume(implies(P, Q));
     // Both at level 2 (nested assumptions), so we cannot directly use impliesElim
     // across levels. Let's use a flat approach instead:
     const proof2 = builder2.getProof();
@@ -863,7 +990,7 @@ describe('Natural Deduction', () => {
     const builder = new NDProofBuilder(and(P, Q));
     const l1 = builder.assume(P);
     const l2 = builder.assume(Q);
-    const l3 = builder.andIntro(l1, l2);
+    builder.andIntro(l1, l2);
     const proof = builder.getProof();
     expect(proof.lines).toHaveLength(3);
     const lastLine = proof.lines[proof.lines.length - 1]!;
@@ -873,7 +1000,7 @@ describe('Natural Deduction', () => {
   it('creates conjunction elimination proof', () => {
     const builder = new NDProofBuilder(P);
     const l1 = builder.assume(and(P, Q));
-    const l2 = builder.andElimLeft(l1);
+    builder.andElimLeft(l1);
     const proof = builder.getProof();
     expect(proof.lines).toHaveLength(2);
     expect(formulasEqual(proof.lines[1]!.formula, P)).toBe(true);
@@ -882,7 +1009,7 @@ describe('Natural Deduction', () => {
   it('creates OR introduction (left) proof', () => {
     const builder = new NDProofBuilder(or(P, Q));
     const l1 = builder.assume(P);
-    const l2 = builder.orIntroLeft(l1, Q);
+    builder.orIntroLeft(l1, Q);
     const proof = builder.getProof();
     expect(proof.lines).toHaveLength(2);
     expect(proof.lines[1]!.rule).toBe(NDRuleType.OR_INTRO_LEFT);
@@ -890,7 +1017,7 @@ describe('Natural Deduction', () => {
 
   it('applies law of excluded middle', () => {
     const builder = new NDProofBuilder(or(P, not(P)));
-    const l1 = builder.lem(P);
+    builder.lem(P);
     const proof = builder.getProof();
     expect(proof.complete).toBe(true);
   });
@@ -898,7 +1025,7 @@ describe('Natural Deduction', () => {
   it('applies reiteration', () => {
     const builder = new NDProofBuilder(P);
     const l1 = builder.assume(P);
-    const l2 = builder.reiterate(l1);
+    builder.reiterate(l1);
     const proof = builder.getProof();
     expect(proof.lines).toHaveLength(2);
     expect(proof.lines[1]!.rule).toBe(NDRuleType.REIT);

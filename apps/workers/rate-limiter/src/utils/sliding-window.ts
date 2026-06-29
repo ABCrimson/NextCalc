@@ -1,25 +1,26 @@
 /**
- * Sliding window rate limiting algorithm
- * Provides accurate rate limiting with smooth token consumption
+ * Sliding window rate limiting algorithm — pure functions only.
+ *
+ * All functions in this module are side-effect-free. They neither read nor
+ * write to any storage. The Durable Object wraps these functions around its
+ * SQLite storage to guarantee atomicity (single-threaded DO execution).
  */
 
-/**
- * User tier with associated rate limits
- */
+// ---------------------------------------------------------------------------
+// Types & configuration
+// ---------------------------------------------------------------------------
+
+/** User tier with associated rate limits. */
 export type UserTier = 'free' | 'pro' | 'enterprise';
 
-/**
- * Rate limit configuration per tier
- */
+/** Rate limit configuration per tier. */
 export interface RateLimitConfig {
   tier: UserTier;
   requestsPerHour: number;
   burstLimit: number;
 }
 
-/**
- * Rate limit status for a user
- */
+/** Rate limit status returned to callers. */
 export interface RateLimitStatus {
   allowed: boolean;
   remaining: number;
@@ -29,18 +30,7 @@ export interface RateLimitStatus {
   retryAfter?: number;
 }
 
-/**
- * Sliding window data stored in KV
- */
-export interface SlidingWindowData {
-  requests: number[];
-  tier: UserTier;
-  lastUpdated: number;
-}
-
-/**
- * Default rate limit configurations by tier
- */
+/** Default rate limit configurations by tier. */
 export const RATE_LIMIT_CONFIGS: Record<UserTier, RateLimitConfig> = {
   free: {
     tier: 'free',
@@ -59,264 +49,97 @@ export const RATE_LIMIT_CONFIGS: Record<UserTier, RateLimitConfig> = {
   },
 };
 
+// ---------------------------------------------------------------------------
+// Pure sliding-window evaluation
+// ---------------------------------------------------------------------------
+
 /**
- * Implements sliding window rate limiting algorithm
+ * Result produced by evaluateSlidingWindow.
  *
- * The sliding window algorithm:
- * 1. Stores timestamps of all requests in the past hour
- * 2. On each request, removes expired timestamps (older than 1 hour)
- * 3. Checks if remaining count is below the limit
- * 4. Adds current timestamp if allowed
- *
- * Advantages:
- * - More accurate than fixed window
- * - Prevents burst attacks
- * - Fair distribution over time
- *
- * Known limitation: KV's read-modify-write cycle is non-atomic. Under high
- * concurrency two requests can read the same count and both pass the check,
- * allowing up to one extra request above the limit. A safety margin of 1 is
- * subtracted from the limit comparison to reduce over-admission probability.
- *
- * TODO: Migrate to Durable Objects for atomic rate limiting that eliminates
- * the race condition entirely via single-threaded in-memory counters.
- *
- * @param kv - Cloudflare KV namespace
- * @param identifier - Unique identifier (user ID, IP address, API key)
- * @param tier - User tier
- * @returns Rate limit status
+ * `nextRequests` is the timestamp array that the caller must persist — it has
+ * already been pruned of expired entries and (when allowed) includes `now`.
  */
-export async function checkRateLimit(
-  kv: KVNamespace,
-  identifier: string,
+export interface SlidingWindowResult {
+  allowed: boolean;
+  nextRequests: number[];
+  status: RateLimitStatus;
+}
+
+/**
+ * Pure, side-effect-free sliding-window evaluation.
+ *
+ * Algorithm:
+ *  1. Discard timestamps older than `now - windowMs`.
+ *  2. Count surviving timestamps.
+ *  3. Allow iff `currentCount < limit` (strict less-than, no magic margins).
+ *  4. When `consuming` is true (default) and allowed, append `now` to produce
+ *     `nextRequests` and subtract 1 from `remaining` to reflect the slot used.
+ *     When `consuming` is false (read-only status check), `nextRequests` is
+ *     equal to the pruned active list and `remaining` reflects the unmodified
+ *     count — i.e. how many more requests the caller could make.
+ *
+ * Atomicity guarantee: this function is intentionally stateless. Callers
+ * (i.e., the Durable Object) are responsible for reading storage before
+ * calling and writing `nextRequests` back afterwards. Because Durable Objects
+ * are single-threaded per identifier, no concurrent call can observe stale
+ * state — the read–evaluate–write sequence is serialised automatically.
+ *
+ * @param requests   - Timestamp array read from storage (may be empty).
+ * @param now        - Current unix timestamp in milliseconds.
+ * @param tier       - User tier that determines the limit.
+ * @param windowMs   - Sliding window size in milliseconds (default: 1 hour).
+ * @param consuming  - Whether this evaluation consumes a request slot.
+ *                     Pass `false` for read-only status checks (default: true).
+ */
+export function evaluateSlidingWindow(
+  requests: number[],
+  now: number,
   tier: UserTier,
-): Promise<RateLimitStatus> {
-  const now = Date.now();
-  const windowMs = 60 * 60 * 1000; // 1 hour in milliseconds
+  windowMs = 60 * 60 * 1000,
+  consuming = true,
+): SlidingWindowResult {
   const config = RATE_LIMIT_CONFIGS[tier];
   const limit = config.requestsPerHour;
 
-  // Skip KV storage entirely for unlimited tiers
-  if (limit === Number.MAX_SAFE_INTEGER) {
-    return {
-      allowed: true,
-      remaining: Number.MAX_SAFE_INTEGER,
-      resetAt: now + windowMs,
-      limit,
-      tier,
-    };
-  }
-
-  // Generate KV key
-  const kvKey = `ratelimit:${identifier}`;
-
-  // Get existing data from KV
-  const existingData = await kv.get<SlidingWindowData>(kvKey, 'json');
-
-  // Initialize or use existing data
-  let requests: number[] = existingData?.requests || [];
-  const currentTier = existingData?.tier || tier;
-
-  // Update tier if changed
-  if (currentTier !== tier) {
-    // Tier changed - reset rate limit
-    requests = [];
-  }
-
-  // Remove expired requests (older than window)
+  // Prune expired entries.
   const windowStart = now - windowMs;
-  requests = requests.filter((timestamp) => timestamp > windowStart);
+  const active = requests.filter((ts) => ts > windowStart);
 
-  // Check if limit exceeded (safety margin of 1 to reduce KV race condition over-admission)
-  const currentCount = requests.length;
-  const allowed = currentCount < limit - 1;
+  const currentCount = active.length;
+  const allowed = currentCount < limit; // strict <, no band-aid margin
 
-  // If allowed, add current timestamp
-  if (allowed) {
-    requests.push(now);
+  // nextRequests only appends now when we are consuming a slot.
+  const nextRequests = consuming && allowed ? [...active, now] : active;
 
-    // Store updated data in KV with expiration
-    const updatedData: SlidingWindowData = {
-      requests,
-      tier,
-      lastUpdated: now,
-    };
+  // remaining reflects what the caller will see after this call:
+  //  - consuming + allowed: slot taken, so subtract 1 from available
+  //  - read-only (status): report how many slots are still available
+  //  - denied: 0 remaining
+  const consumed = consuming && allowed ? 1 : 0;
+  const remaining = Math.max(0, limit - currentCount - consumed);
 
-    // Expire KV entry after the window + 1 hour buffer
-    const expirationTtl = Math.ceil((windowMs + 3600000) / 1000);
-
-    await kv.put(kvKey, JSON.stringify(updatedData), {
-      expirationTtl,
-    });
-  }
-
-  // Calculate when the oldest request will expire
-  const oldestRequest = requests[0] || now;
+  // resetAt = when the oldest surviving request will fall outside the window.
+  const oldestRequest = active[0] ?? now;
   const resetAt = oldestRequest + windowMs;
 
-  return {
+  const status: RateLimitStatus = {
     allowed,
-    remaining: Math.max(0, limit - currentCount - (allowed ? 1 : 0)),
+    remaining,
     resetAt,
     limit,
     tier,
-    ...(!allowed && { retryAfter: Math.ceil((resetAt - now) / 1000) }),
+    ...(!allowed ? { retryAfter: Math.ceil((resetAt - now) / 1000) } : {}),
   };
+
+  return { allowed, nextRequests, status };
 }
 
-/**
- * Gets current rate limit status without consuming a request
- *
- * @param kv - Cloudflare KV namespace
- * @param identifier - Unique identifier
- * @param tier - User tier
- * @returns Current rate limit status
- */
-export async function getRateLimitStatus(
-  kv: KVNamespace,
-  identifier: string,
-  tier: UserTier,
-): Promise<RateLimitStatus> {
-  const now = Date.now();
-  const windowMs = 60 * 60 * 1000;
-  const config = RATE_LIMIT_CONFIGS[tier];
-
-  const kvKey = `ratelimit:${identifier}`;
-  const existingData = await kv.get<SlidingWindowData>(kvKey, 'json');
-
-  let requests: number[] = existingData?.requests || [];
-
-  // Remove expired requests
-  const windowStart = now - windowMs;
-  requests = requests.filter((timestamp) => timestamp > windowStart);
-
-  const currentCount = requests.length;
-  const limit = config.requestsPerHour;
-  const allowed = currentCount < limit;
-
-  const oldestRequest = requests[0] || now;
-  const resetAt = oldestRequest + windowMs;
-
-  return {
-    allowed,
-    remaining: Math.max(0, limit - currentCount),
-    resetAt,
-    limit,
-    tier,
-  };
-}
+// ---------------------------------------------------------------------------
+// Tier recommendation (pure)
+// ---------------------------------------------------------------------------
 
 /**
- * Resets rate limit for a specific identifier
- * Useful for administrative actions or testing
- *
- * @param kv - Cloudflare KV namespace
- * @param identifier - Unique identifier to reset
- */
-export async function resetRateLimit(kv: KVNamespace, identifier: string): Promise<void> {
-  const kvKey = `ratelimit:${identifier}`;
-  await kv.delete(kvKey);
-}
-
-/**
- * Gets all rate limit keys (for debugging/admin)
- * Note: KV list operations are eventually consistent
- *
- * @param kv - Cloudflare KV namespace
- * @param prefix - Optional prefix to filter keys
- * @returns List of rate limit keys
- */
-export async function listRateLimitKeys(
-  kv: KVNamespace,
-  prefix: string = 'ratelimit:',
-): Promise<string[]> {
-  const keys: string[] = [];
-  let cursor: string | undefined;
-
-  do {
-    const result = await kv.list({ prefix, ...(cursor ? { cursor } : {}) });
-    keys.push(...result.keys.map((k) => k.name));
-    cursor = result.list_complete ? undefined : result.cursor;
-  } while (cursor);
-
-  return keys;
-}
-
-/**
- * Implements token bucket rate limiting as an alternative
- * Token bucket allows for burst traffic within limits
- *
- * @param kv - Cloudflare KV namespace
- * @param identifier - Unique identifier
- * @param tier - User tier
- * @returns Rate limit status
- */
-export async function checkRateLimitTokenBucket(
-  kv: KVNamespace,
-  identifier: string,
-  tier: UserTier,
-): Promise<RateLimitStatus> {
-  const now = Date.now();
-  const config = RATE_LIMIT_CONFIGS[tier];
-
-  // Token bucket parameters
-  const capacity = config.burstLimit;
-  const refillRate = config.requestsPerHour / 3600; // tokens per second
-
-  const kvKey = `ratelimit:bucket:${identifier}`;
-
-  interface TokenBucketData {
-    tokens: number;
-    lastRefill: number;
-    tier: UserTier;
-  }
-
-  // Get existing bucket data
-  const existingData = await kv.get<TokenBucketData>(kvKey, 'json');
-
-  let tokens = existingData?.tokens ?? capacity;
-  let lastRefill = existingData?.lastRefill ?? now;
-
-  // Refill tokens based on time elapsed
-  const elapsed = (now - lastRefill) / 1000; // seconds
-  const tokensToAdd = elapsed * refillRate;
-  tokens = Math.min(capacity, tokens + tokensToAdd);
-  lastRefill = now;
-
-  // Check if we have tokens available
-  const allowed = tokens >= 1;
-
-  if (allowed) {
-    tokens -= 1;
-
-    // Update bucket in KV
-    const updatedData: TokenBucketData = {
-      tokens,
-      lastRefill,
-      tier,
-    };
-
-    await kv.put(kvKey, JSON.stringify(updatedData), {
-      expirationTtl: 7200, // 2 hours
-    });
-  }
-
-  // Calculate when next token will be available
-  const timeToNextToken = tokens < 1 ? (1 - tokens) / refillRate : 0;
-  const resetAt = now + timeToNextToken * 1000;
-
-  return {
-    allowed,
-    remaining: Math.floor(tokens),
-    resetAt,
-    limit: capacity,
-    tier,
-    ...(!allowed && { retryAfter: Math.ceil(timeToNextToken) }),
-  };
-}
-
-/**
- * Calculates the recommended tier for a user based on usage
+ * Calculates the recommended tier for a user based on usage.
  *
  * @param requestsPerHour - Average requests per hour
  * @returns Recommended tier

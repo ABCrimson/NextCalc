@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- **Node.js** >= 24.0.0 (recommended: 26.x)
+- **Node.js** >= 24.0.0 (CI runs 26)
 - **pnpm** >= 11
 
 ## Installation
@@ -28,12 +28,14 @@ DATABASE_URL="postgresql://user:password@host.neon.tech:5432/db?sslmode=require"
 # NextAuth
 NEXTAUTH_URL="http://localhost:3005"
 NEXTAUTH_SECRET="generate-with-openssl-rand-base64-32"
+# AUTH_SECRET is the build-time secret (required by NextAuth when building API routes)
+AUTH_SECRET="generate-with-openssl-rand-base64-32"
 
 # OAuth (optional -- only include providers with credentials)
 GOOGLE_CLIENT_ID="..."
 GOOGLE_CLIENT_SECRET="..."
-GITHUB_ID="..."
-GITHUB_SECRET="..."
+GITHUB_CLIENT_ID="..."
+GITHUB_CLIENT_SECRET="..."
 
 # Redis (optional)
 UPSTASH_REDIS_REST_URL="..."
@@ -62,7 +64,7 @@ pnpm dev
 | `pnpm build` | Build everything (Turborepo) |
 | `pnpm test` | Run all tests (Vitest) |
 | `pnpm lint` | Lint with Biome |
-| `pnpm typecheck` | TypeScript type checking |
+| `pnpm turbo run typecheck` | TypeScript type checking (no root `typecheck` script) |
 | `pnpm --filter @nextcalc/database db:studio` | Open Prisma Studio |
 
 ## Troubleshooting

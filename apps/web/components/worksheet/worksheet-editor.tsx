@@ -247,7 +247,7 @@ function AddCellStrip({ afterId, label }: AddCellStripProps) {
         'flex items-center justify-center gap-1 py-1.5',
         'opacity-0 focus-within:opacity-100 hover:opacity-100 transition-opacity duration-200',
       )}
-      role="group"
+      role="toolbar"
       aria-label={label}
     >
       <div className="h-px flex-1 bg-border/40" />
@@ -328,11 +328,8 @@ function VariablesSidebar({ cells }: { cells: readonly WorksheetCell[] }) {
           className="divide-y divide-border/30"
           aria-label="Variable bindings"
         >
-          {allBindings.map((b, i) => (
-            <li
-              key={`${b.name}-${i}`}
-              className="flex items-center justify-between px-4 py-2 text-sm"
-            >
+          {allBindings.map((b) => (
+            <li key={b.name} className="flex items-center justify-between px-4 py-2 text-sm">
               <div className="flex items-center gap-2">
                 <code className="font-mono font-semibold text-blue-300">{b.name}</code>
                 <span className="text-xs text-muted-foreground/60">from cell [{b.cellIndex}]</span>
@@ -481,7 +478,7 @@ function AddCellFAB() {
   return (
     <div
       className="fixed bottom-6 right-6 z-40 flex flex-col-reverse items-end gap-2 sm:hidden"
-      role="group"
+      role="toolbar"
       aria-label="Add cell"
     >
       <AnimatePresence>

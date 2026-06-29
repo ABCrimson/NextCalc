@@ -286,7 +286,8 @@ export function DijkstraVisualizer() {
     }
 
     return steps;
-  }, [preset, startNode, endNode]);
+    // endNode is a module-invariant constant ('E'); only preset/startNode are reactive.
+  }, [preset, startNode]);
 
   // Update current state based on step
   useEffect(() => {
@@ -339,7 +340,8 @@ export function DijkstraVisualizer() {
         ...(distance !== undefined && { distance }),
       };
     });
-  }, [preset.nodes, algorithmState, startNode, endNode]);
+    // endNode is a module-invariant constant ('E'); excluded as it never changes.
+  }, [preset.nodes, algorithmState, startNode]);
 
   const visualEdges: GraphEdge[] = useMemo(() => {
     if (!algorithmState) return preset.edges;
@@ -409,7 +411,8 @@ export function DijkstraVisualizer() {
         }
       }
     },
-    [algorithmState, startNode, endNode, preset, handleReset],
+    // endNode is a module-invariant constant ('E'); excluded as it never changes.
+    [algorithmState, startNode, preset, handleReset],
   );
 
   const totalDistance = algorithmState?.distances.get(endNode);
@@ -492,8 +495,8 @@ export function DijkstraVisualizer() {
                   }}
                 >
                   <TabsList className="grid w-full grid-cols-3">
-                    {PRESET_GRAPHS.map((_, i) => (
-                      <TabsTrigger key={i} value={i.toString()}>
+                    {PRESET_GRAPHS.map((graph, i) => (
+                      <TabsTrigger key={graph.name} value={i.toString()}>
                         {i + 1}
                       </TabsTrigger>
                     ))}

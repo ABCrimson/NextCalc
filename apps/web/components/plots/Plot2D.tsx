@@ -300,6 +300,7 @@ export function Plot2D({
   }, []);
 
   // Initialize Cartesian/Parametric interaction controller
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `config.viewport` is read once to seed the controller's initial viewport. The controller itself emits pan/zoom/reset events that update the viewport, so depending on it would disable/re-enable the controller on every interaction (losing drag state and looping). Live config is read via the stable `configRef` inside handleViewportChange.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !isReady || !enableInteractions) return;
@@ -353,7 +354,6 @@ export function Plot2D({
     // We intentionally omit `config` from deps here: we want to create the
     // controller once per isReady/enableInteractions change (not on every
     // config re-render) and read config via the stable ref inside the handler.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReady, enableInteractions, config.type]);
 
   // --- Fix 1: Debounced auto-refresh when config changes ---
@@ -472,7 +472,7 @@ export function Plot2D({
               px-3 py-2 rounded-xl
               bg-background/80 backdrop-blur-md
               border border-border
-              shadow-[0_4px_16px_rgba(0,0,0,0.4)]
+              shadow-[0_4px_16px_oklch(0_0_0_/_0.4)]
             "
             >
               <AnnotationToolbar
@@ -490,7 +490,7 @@ export function Plot2D({
         ref={canvasRef}
         width={canvasSize.width}
         height={canvasSize.height}
-        className="absolute inset-0 w-full h-full border border-border rounded-lg shadow-[0_0_20px_rgba(6,182,212,0.15)]"
+        className="absolute inset-0 w-full h-full border border-border rounded-lg shadow-[0_0_20px_oklch(0.7148_0.1257_215.22_/_0.15)]"
         style={{
           width: '100%',
           height: '100%',

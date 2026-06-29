@@ -36,12 +36,14 @@ vi.mock('modern-pdf-lib', () => {
     setCreator: vi.fn(),
     setProducer: vi.fn(),
     setCreationDate: vi.fn(),
+    setLanguage: vi.fn(),
     addPage: vi.fn().mockReturnValue(mockPage),
-    embedPng: vi.fn().mockReturnValue(mockImage),
+    embedPng: vi.fn().mockResolvedValue(mockImage),
     save: vi.fn().mockResolvedValue(new Uint8Array(512)),
   };
   return {
     createPdf: vi.fn().mockReturnValue(mockDoc),
+    initWasm: vi.fn().mockResolvedValue(undefined),
     PageSizes: {
       A4: [595.28, 841.89],
       Letter: [612, 792],

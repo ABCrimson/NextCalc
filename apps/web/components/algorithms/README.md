@@ -4,7 +4,7 @@ Comprehensive, interactive UI components for visualizing advanced algorithms in 
 
 ## Overview
 
-This module provides five production-ready algorithm visualization components:
+This module documents the five flagship interactive demos (plus supporting graph visualizers and UI components — see `index.ts` for the full export list):
 
 1. **TransformerVisualizer** - Multi-head self-attention visualization
 2. **ZKPDemo** - Zero-knowledge proof (Schnorr protocol) demonstration
@@ -12,17 +12,18 @@ This module provides five production-ready algorithm visualization components:
 4. **PageRankExplorer** - Interactive graph builder with PageRank computation
 5. **MetaLearningPlayground** - MAML algorithm visualization
 
+Beyond these flagship demos, the module also exports `ZKPComputeVisualizer`, graph visualizers (`AStarVisualizer`, `DijkstraVisualizer`, `GraphTraversalVisualizer`, `MSTVisualizer`), and the shared UI components `AlgorithmCard`, `AlgorithmBreadcrumb`, `AlgorithmMetadata`, `AlgorithmPage`, and `CategoryFilter`.
+
 ## Features
 
 ### Common Features (All Components)
 
 - **Type-Safe**: Full TypeScript support with branded types for domain concepts
-- **Accessible**: WCAG 2.2 Level AAA compliant
+- **Accessible**: Targets WCAG 2.2 AA
   - Keyboard navigation (Tab, Enter, Escape, Arrow keys)
   - Screen reader support with ARIA labels
   - Focus management
   - Semantic HTML
-  - Color contrast ratios: 7:1 (normal text), 4.5:1 (large text)
 - **Responsive**: Mobile-first design, works on all screen sizes
 - **Dark Mode**: Full theme support (light/dark/high-contrast)
 - **Animated**: Smooth Framer Motion animations with `prefers-reduced-motion` support
@@ -205,6 +206,8 @@ export default function PageRankPage() {
 - **Star**: Hub-and-spoke structure
 - **Cycle**: Circular graph
 - **Web**: Typical website link structure
+- **Large (50)**: 50-node generated graph
+- **Large (100)**: 100-node generated graph
 
 ### 5. MetaLearningPlayground
 
@@ -265,7 +268,7 @@ const invalid = createAttentionScore(1.5); // ✗ Throws error
 
 ## Accessibility
 
-All components meet WCAG 2.2 Level AAA standards:
+Components target WCAG 2.2 AA. Automated coverage is an `axe-core` check on the ZKP commitment-cell grid (`apps/web/__tests__/accessibility/zkp-grid.a11y.test.tsx`), which renders `ZKPComputeVisualizer` and runs `axe(container)` with the default rule set (WCAG A/AA).
 
 ### Keyboard Navigation
 - **Tab/Shift+Tab**: Navigate interactive elements
@@ -281,9 +284,7 @@ All components meet WCAG 2.2 Level AAA standards:
 
 ### Focus Management
 - Visible focus indicators (2px ring)
-- Focus trapped in modals
 - Logical tab order
-- Skip links provided
 
 ### Color & Contrast
 - Minimum contrast ratios met
@@ -298,17 +299,14 @@ Components are optimized for production use:
 - **Memoization**: `useMemo` and `useCallback` prevent unnecessary re-renders
 - **Lazy Loading**: Heavy computations deferred until needed
 - **Debouncing**: Input handlers debounced for smooth UX
-- **Virtual Scrolling**: Large lists use windowing
 - **Code Splitting**: Components can be dynamically imported
 
 ## Testing
 
-Each component includes:
+Coverage for this module is:
 
-- **Unit Tests**: Core logic tested with Vitest
-- **Accessibility Tests**: `axe-core` integration
-- **Keyboard Tests**: All interactions keyboard-testable
-- **Visual Regression**: Storybook stories for all variants
+- **End-to-End**: Playwright specs drive the hub and ML pages (`apps/web/e2e/algorithms.spec.ts`, `apps/web/e2e/ml-algorithms.spec.ts`)
+- **Accessibility**: A focused `axe-core` (jest-axe) test on the ZKP grid (`apps/web/__tests__/accessibility/zkp-grid.a11y.test.tsx`)
 
 ## Integration
 
@@ -403,17 +401,7 @@ Components use Tailwind CSS and respect the application theme:
 
 ## Dependencies
 
-Required packages (already in package.json):
-
-```json
-{
-  "dependencies": {
-    "framer-motion": "12.34.2",
-    "lucide-react": "0.575.0",
-    "radix-ui": "1.4.4-rc.1766004502650"
-  }
-}
-```
+Dependency versions are defined in `apps/web/package.json`.
 
 ## Browser Support
 

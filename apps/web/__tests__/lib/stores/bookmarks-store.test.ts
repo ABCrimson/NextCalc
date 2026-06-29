@@ -27,9 +27,9 @@ describe('bookmarks-store', () => {
 
       const { bookmarks } = useBookmarksStore.getState();
       expect(bookmarks).toHaveLength(1);
-      expect(bookmarks[0].id).toBe('topic:algebra');
-      expect(bookmarks[0].title).toBe('Bookmark topic:algebra');
-      expect(bookmarks[0].createdAt).toBeTypeOf('number');
+      expect(bookmarks[0]!.id).toBe('topic:algebra');
+      expect(bookmarks[0]!.title).toBe('Bookmark topic:algebra');
+      expect(bookmarks[0]!.createdAt).toBeTypeOf('number');
     });
 
     it('does not add duplicate bookmarks', () => {
@@ -62,7 +62,7 @@ describe('bookmarks-store', () => {
 
       const { bookmarks } = useBookmarksStore.getState();
       expect(bookmarks).toHaveLength(1);
-      expect(bookmarks[0].id).toBe('topic:calculus');
+      expect(bookmarks[0]!.id).toBe('topic:calculus');
     });
 
     it('does nothing for non-existent id', () => {

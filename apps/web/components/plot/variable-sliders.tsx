@@ -311,7 +311,7 @@ function SliderRow({ name, config, onValueChange, onMinChange, onMaxChange }: Sl
             '[&::-webkit-slider-thumb]:bg-gradient-to-br',
             '[&::-webkit-slider-thumb]:from-cyan-400 [&::-webkit-slider-thumb]:to-blue-400',
             '[&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-cyan-300/50',
-            '[&::-webkit-slider-thumb]:shadow-[0_0_6px_rgba(6,182,212,0.6)]',
+            '[&::-webkit-slider-thumb]:shadow-[0_0_6px_oklch(0.7148_0.1257_215.22_/_0.6)]',
             '[&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:active:cursor-grabbing',
             '[&::-webkit-slider-thumb]:transition-transform',
             '[&::-webkit-slider-thumb]:hover:scale-125',
@@ -332,6 +332,7 @@ function SliderRow({ name, config, onValueChange, onMinChange, onMaxChange }: Sl
       {/* Current value readout */}
       <span
         className="flex-shrink-0 w-14 text-right text-xs font-mono font-semibold text-foreground tabular-nums"
+        role="status"
         aria-live="polite"
         aria-atomic="true"
         aria-label={`${name} equals ${formatValue(clampedValue)}`}
@@ -446,7 +447,7 @@ export function VariableSliders({ expressions, onChange, className = '' }: Varia
         'relative rounded-xl overflow-hidden',
         'bg-gradient-to-br from-background/60 via-card/50 to-background/60',
         'backdrop-blur-md border border-border',
-        'shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]',
+        'shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]',
         className,
       ].join(' ')}
       role="region"
@@ -479,6 +480,7 @@ export function VariableSliders({ expressions, onChange, className = '' }: Varia
             <span className="text-xs font-semibold text-foreground">Parameters</span>
             <span
               className="inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-bold"
+              role="img"
               aria-label={`${paramNames.length} parameter${paramNames.length === 1 ? '' : 's'} detected`}
             >
               {paramNames.length}

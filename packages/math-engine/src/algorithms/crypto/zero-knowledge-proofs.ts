@@ -183,7 +183,7 @@ export class SchnorrProof {
         .padStart(2, '0'),
     ).join('');
 
-    const randomValue = BigInt('0x' + randomHex);
+    const randomValue = BigInt(`0x${randomHex}`);
     return randomValue % max;
   }
 
@@ -373,7 +373,7 @@ export class PedersenCommitment {
         .padStart(2, '0'),
     ).join('');
 
-    const randomValue = BigInt('0x' + randomHex);
+    const randomValue = BigInt(`0x${randomHex}`);
     return randomValue % max;
   }
 }

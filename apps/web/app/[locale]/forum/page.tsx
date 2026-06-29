@@ -3,22 +3,24 @@
 /**
  * NextCalc Pro Community Forum
  *
- * Main forum listing page with GraphQL-powered data (falls back to
- * mock data when the API is unavailable). Preserves the original
- * glass morphism, OKLCH color system, and Framer Motion animations.
+ * Main forum listing page with GraphQL-powered data. Shows real empty/error
+ * states when the DB has no posts or the API is unreachable.
  *
- * Now wired to Apollo Client for real CRUD + upvotes.
+ * Preserves the original glass morphism, OKLCH color system, and Framer Motion
+ * animations.
  */
 
 import { useQuery } from '@apollo/client/react';
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import {
+  AlertCircle,
   ArrowUpRight,
   Award,
   Clock,
   Filter,
   Flame,
   Hash,
+  Loader2,
   MessageSquare,
   Plus,
   Search,
@@ -31,18 +33,8 @@ import {
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ForumBackground } from '@/components/forum/forum-background';
-import {
-  type ForumPostNode,
-  formatNumber,
-  getStoredUpvotes,
-  MOCK_POSTS,
-  type MockForumPost,
-  type SortMode,
-  setStoredUpvote,
-  TAGS,
-  TIER_CONFIG,
-} from '@/components/forum/forum-shared';
-import { MockPostCard, PostCard, TagPill } from '@/components/forum/post-card';
+import { type ForumPostNode, type SortMode, TAGS } from '@/components/forum/forum-shared';
+import { PostCard, TagPill } from '@/components/forum/post-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -125,24 +117,12 @@ export default function ForumPage() {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  // Mock data state (fallback) — hydrate upvotes from localStorage
-  const [mockPosts, setMockPosts] = useState<MockForumPost[]>(() => {
-    const stored = getStoredUpvotes();
-    if (Object.keys(stored).length === 0) return MOCK_POSTS;
-    return MOCK_POSTS.map((p) => {
-      const wasUpvoted = stored[p.id] === true;
-      if (wasUpvoted === p.hasUpvoted) return p;
-      return {
-        ...p,
-        hasUpvoted: wasUpvoted,
-        upvotes: wasUpvoted ? p.upvotes + 1 : Math.max(0, p.upvotes - 1),
-      };
-    });
-  });
+  // Page size for the initial query and each "Load more" fetch
+  const PAGE_SIZE = 50;
 
-  const { data, loading, error } = useQuery<ForumPostsQueryData>(FORUM_POSTS_QUERY, {
+  const { data, loading, error, fetchMore } = useQuery<ForumPostsQueryData>(FORUM_POSTS_QUERY, {
     variables: {
-      limit: 50,
+      limit: PAGE_SIZE,
       offset: 0,
       ...(debouncedSearch.trim() ? { searchQuery: debouncedSearch.trim() } : {}),
       ...(selectedTag ? { tags: [selectedTag] } : {}),
@@ -150,13 +130,33 @@ export default function ForumPage() {
     fetchPolicy: 'cache-and-network',
   });
 
-  // Determine data source — fall back to mock only on actual errors, not empty data
-  const useGraphQL = !error && !!data?.forumPosts;
-  const graphqlPosts: ForumPostNode[] = useGraphQL ? (data.forumPosts.nodes ?? []) : [];
+  const graphqlPosts: ForumPostNode[] = data?.forumPosts?.nodes ?? [];
+
+  // "Load more" pagination — fetch the next offset window and merge via the
+  // offset-pagination typePolicy in lib/graphql/client.ts.
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const hasNextPage = data?.forumPosts?.pageInfo?.hasNextPage ?? false;
+
+  const handleLoadMore = useCallback(async () => {
+    if (loadingMore || !hasNextPage) return;
+    setLoadingMore(true);
+    try {
+      await fetchMore({
+        variables: {
+          limit: PAGE_SIZE,
+          offset: graphqlPosts.length,
+          ...(debouncedSearch.trim() ? { searchQuery: debouncedSearch.trim() } : {}),
+          ...(selectedTag ? { tags: [selectedTag] } : {}),
+        },
+      });
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [loadingMore, hasNextPage, fetchMore, graphqlPosts.length, debouncedSearch, selectedTag]);
 
   // Client-side sort for GraphQL data
-  const sortedGraphqlPosts = useMemo(() => {
-    if (!useGraphQL) return [];
+  const sortedPosts = useMemo(() => {
     const posts = [...graphqlPosts];
 
     const pinned = posts.filter((p) => p.isPinned);
@@ -183,78 +183,15 @@ export default function ForumPage() {
     }
 
     return [...pinned, ...unpinned];
-  }, [useGraphQL, graphqlPosts, sortMode]);
+  }, [graphqlPosts, sortMode]);
 
-  // Client-side sort/filter for mock data (when GraphQL is unavailable)
-  const toggleMockUpvote = useCallback((postId: string) => {
-    setMockPosts((prev) =>
-      prev.map((p) => {
-        if (p.id !== postId) return p;
-        const newUpvoted = !p.hasUpvoted;
-        setStoredUpvote(postId, newUpvoted);
-        return {
-          ...p,
-          hasUpvoted: newUpvoted,
-          upvotes: newUpvoted ? p.upvotes + 1 : p.upvotes - 1,
-        };
-      }),
-    );
-  }, []);
-
-  const sortedMockPosts = useMemo(() => {
-    let filtered = mockPosts;
-
-    if (searchInput.trim()) {
-      const q = searchInput.toLowerCase();
-      filtered = filtered.filter(
-        (p) =>
-          p.title.toLowerCase().includes(q) ||
-          p.content.toLowerCase().includes(q) ||
-          p.tags.some((t) => t.includes(q)),
-      );
-    }
-
-    if (selectedTag) {
-      filtered = filtered.filter((p) => p.tags.includes(selectedTag));
-    }
-
-    const pinned = filtered.filter((p) => p.isPinned);
-    const unpinned = filtered.filter((p) => !p.isPinned);
-
-    switch (sortMode) {
-      case 'hot': {
-        // Hot = upvotes per time — higher score for more upvotes in less time
-        const now = Date.now();
-        unpinned.sort((a, b) => {
-          const hoursA = Math.max(1, (now - a.createdAt.getTime()) / 3_600_000);
-          const hoursB = Math.max(1, (now - b.createdAt.getTime()) / 3_600_000);
-          const scoreA = (a.upvotes + a.commentCount * 0.5) / (hoursA + 2) ** 1.5;
-          const scoreB = (b.upvotes + b.commentCount * 0.5) / (hoursB + 2) ** 1.5;
-          return scoreB - scoreA;
-        });
-        break;
-      }
-      case 'new':
-        unpinned.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-        break;
-      case 'top':
-        unpinned.sort((a, b) => b.upvotes - a.upvotes);
-        break;
-    }
-
-    return [...pinned, ...unpinned];
-  }, [mockPosts, sortMode, searchInput, selectedTag]);
-
-  // Stats
-  const totalPosts = useGraphQL
-    ? (data.forumPosts.pageInfo?.totalCount ?? graphqlPosts.length)
-    : mockPosts.length;
-  const totalComments = useGraphQL
-    ? graphqlPosts.reduce((sum: number, p: ForumPostNode) => sum + (p.commentCount ?? 0), 0)
-    : mockPosts.reduce((sum, p) => sum + p.commentCount, 0);
-  const totalContributors = useGraphQL
-    ? new Set(graphqlPosts.map((p: ForumPostNode) => p.user.id)).size
-    : new Set(mockPosts.map((p) => p.author.name)).size;
+  // Stats from real data
+  const totalPosts = data?.forumPosts?.pageInfo?.totalCount ?? graphqlPosts.length;
+  const totalComments = graphqlPosts.reduce(
+    (sum: number, p: ForumPostNode) => sum + (p.commentCount ?? 0),
+    0,
+  );
+  const totalContributors = new Set(graphqlPosts.map((p: ForumPostNode) => p.user.id)).size;
 
   const handleNewPost = useCallback(() => {
     if (authStatus !== 'authenticated') {
@@ -365,6 +302,7 @@ export default function ForumPage() {
                   ].map(({ mode, icon: Icon, label }) => (
                     <button
                       key={mode}
+                      type="button"
                       onClick={() => setSortMode(mode)}
                       className={cn(
                         'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all',
@@ -403,6 +341,7 @@ export default function ForumPage() {
                     <span className="text-xs text-muted-foreground">{tCommon('filterBy')}</span>
                     <TagPill name={selectedTag} />
                     <button
+                      type="button"
                       onClick={() => setSelectedTag(null)}
                       className="text-xs text-muted-foreground hover:text-foreground underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                     >
@@ -415,31 +354,31 @@ export default function ForumPage() {
               {/* Loading state */}
               {loading && !data && (
                 <div className="space-y-3">
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <PostSkeleton key={i} />
+                  {['sk-0', 'sk-1', 'sk-2', 'sk-3'].map((k) => (
+                    <PostSkeleton key={k} />
                   ))}
                 </div>
               )}
 
-              {/* Post list — GraphQL or Mock */}
-              {!loading || data ? (
+              {/* Error state */}
+              {error && !loading && (
+                <div className="rounded-2xl border border-destructive/30 p-6 bg-destructive/10 backdrop-blur-md text-center">
+                  <AlertCircle className="h-10 w-10 mx-auto text-destructive mb-3" />
+                  <p className="text-sm text-destructive">{t('loadError')}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t('loadErrorHint')}</p>
+                </div>
+              )}
+
+              {/* Post list */}
+              {(!loading || data) && !error ? (
                 <div className="space-y-3">
                   <AnimatePresence mode="popLayout">
-                    {useGraphQL
-                      ? sortedGraphqlPosts.map((post, i) => (
-                          <PostCard key={post.id} post={post} index={i} />
-                        ))
-                      : sortedMockPosts.map((post, i) => (
-                          <MockPostCard
-                            key={post.id}
-                            post={post}
-                            index={i}
-                            onUpvote={toggleMockUpvote}
-                          />
-                        ))}
+                    {sortedPosts.map((post, i) => (
+                      <PostCard key={post.id} post={post} index={i} />
+                    ))}
                   </AnimatePresence>
 
-                  {(useGraphQL ? sortedGraphqlPosts : sortedMockPosts).length === 0 && !loading && (
+                  {sortedPosts.length === 0 && !loading && (
                     <div className="text-center py-16">
                       <Search className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
                       <p className="text-muted-foreground">{t('noDiscussions')}</p>
@@ -451,7 +390,27 @@ export default function ForumPage() {
                 </div>
               ) : null}
 
-              {/* TODO: Load more (GraphQL only) — needs fetchMore + cursor state */}
+              {/* Load more */}
+              {!error && hasNextPage && sortedPosts.length > 0 && (
+                <div className="flex justify-center pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleLoadMore}
+                    disabled={loadingMore}
+                    className="gap-2 backdrop-blur-md bg-card/50 border-border"
+                  >
+                    {loadingMore ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        {tCommon('loading')}
+                      </>
+                    ) : (
+                      t('loadMore')
+                    )}
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Right: Sidebar */}
@@ -478,6 +437,7 @@ export default function ForumPage() {
                     {TAGS.map((tag) => (
                       <button
                         key={tag.name}
+                        type="button"
                         onClick={() =>
                           setSelectedTag((prev) => (prev === tag.name ? null : tag.name))
                         }
@@ -519,7 +479,7 @@ export default function ForumPage() {
                 </CardContent>
               </Card>
 
-              {/* Top contributors */}
+              {/* Top contributors — schema gap: no resolver for this aggregation */}
               <Card className="backdrop-blur-md bg-card/50 border-border">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2">

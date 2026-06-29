@@ -83,8 +83,8 @@ export default async function StatsPage() {
             </p>
 
             {/* Feature pill badges */}
-            <div
-              className="flex flex-wrap items-center justify-center gap-2 pt-1"
+            <ul
+              className="flex flex-wrap items-center justify-center gap-2 pt-1 list-none p-0 m-0"
               aria-label="Available features"
             >
               {(
@@ -95,7 +95,7 @@ export default async function StatsPage() {
                   { label: t('badge.predictions'), color: 'oklch(0.78 0.18 80)' },
                 ] as const
               ).map(({ label, color }) => (
-                <span
+                <li
                   key={label}
                   className="text-xs font-medium px-3 py-1 rounded-full border"
                   style={{
@@ -105,9 +105,9 @@ export default async function StatsPage() {
                   }}
                 >
                   {label}
-                </span>
+                </li>
               ))}
-            </div>
+            </ul>
           </header>
 
           {/* Gradient separator */}

@@ -278,6 +278,7 @@ export function SolverPageContent() {
 
         {/* Noise texture overlay via SVG feTurbulence */}
         <svg
+          aria-hidden="true"
           className="absolute inset-0 w-full h-full opacity-[0.03] mix-blend-overlay pointer-events-none"
           xmlns="http://www.w3.org/2000/svg"
         >

@@ -1,7 +1,15 @@
 'use client';
 
 import { m } from 'framer-motion';
-import { Grid3x3, Infinity, Ruler, Sparkles, Square, TrendingUp, Variable } from 'lucide-react';
+import {
+  Grid3x3,
+  Infinity as InfinityIcon,
+  Ruler,
+  Sparkles,
+  Square,
+  TrendingUp,
+  Variable,
+} from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { type CSSProperties, Suspense } from 'react';
@@ -26,6 +34,7 @@ const Calculator = dynamic(
           <div className="h-32 bg-muted rounded-xl" />
           <div className="grid grid-cols-5 gap-3">
             {Array.from({ length: 25 }).map((_, i) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length skeleton grid; positional index is the stable identity
               <div key={i} className="aspect-square bg-muted rounded-2xl" />
             ))}
           </div>
@@ -102,7 +111,7 @@ const featureCards: FeatureCard[] = [
   },
   {
     href: '/complex',
-    icon: Infinity,
+    icon: InfinityIcon,
     titleKey: 'home.feature.complexNumbers',
     subtitleKey: 'home.feature.complexNumbersSubtitle',
     accentClass: 'text-violet-300',
@@ -177,7 +186,7 @@ export default function Home() {
           transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
         >
           <div className="inline-block mb-4 relative">
-            <h1 className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-primary via-calculator-operator to-calculator-equals bg-clip-text text-transparent animate-gradient bg-[length:200%_auto] drop-shadow-[0_0_30px_rgba(59,130,246,0.3)]">
+            <h1 className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-primary via-calculator-operator to-calculator-equals bg-clip-text text-transparent animate-gradient bg-[length:200%_auto] drop-shadow-[0_0_30px_oklch(0.6231_0.188_259.81_/_0.3)]">
               {t('home.hero.title' as Parameters<typeof t>[0])}
             </h1>
             <div className="h-1.5 w-full bg-gradient-to-r from-primary via-calculator-operator to-calculator-equals rounded-full mt-3 shadow-lg shadow-primary/50 animate-pulse" />
@@ -185,7 +194,7 @@ export default function Home() {
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             {t.rich('home.hero.subtitle' as Parameters<typeof t>[0], {
               react: () => <span className="font-semibold text-foreground">React 19.3.0</span>,
-              nextjs: () => <span className="font-semibold text-foreground">Next.js 16.2.0</span>,
+              nextjs: () => <span className="font-semibold text-foreground">Next.js 16.3.0</span>,
             })}
           </p>
 
@@ -216,7 +225,7 @@ export default function Home() {
               className="group relative px-4 py-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg shadow-purple-500/40 hover:shadow-xl hover:shadow-purple-500/60 transition-all duration-300 hover:scale-105 overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
-              <span className="relative z-10">Tailwind 4.2.0</span>
+              <span className="relative z-10">Tailwind 4.3.0</span>
             </m.div>
             <m.div
               variants={badgeVariants}
@@ -236,6 +245,7 @@ export default function Home() {
                 <div className="h-32 bg-muted rounded-xl" />
                 <div className="grid grid-cols-5 gap-3">
                   {Array.from({ length: 25 }).map((_, i) => (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length skeleton grid; positional index is the stable identity
                     <div key={i} className="aspect-square bg-muted rounded-2xl" />
                   ))}
                 </div>

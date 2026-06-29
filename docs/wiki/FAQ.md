@@ -85,7 +85,7 @@ Verify `NEXTAUTH_URL` matches your deployment URL exactly. Create separate OAuth
 
 Create the resources:
 ```bash
-wrangler kv:namespace create "RATE_LIMITS"
+wrangler kv namespace create "RATE_LIMITS"
 wrangler r2 bucket create nextcalc-exports-public
 ```
 

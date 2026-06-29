@@ -90,7 +90,7 @@ async function setupDatabase() {
   }
 
   // Step 3: Push schema to database
-  console.log('\n' + '='.repeat(60));
+  console.log(`\n${'='.repeat(60)}`);
   console.log('Step 3: Push Prisma schema to database');
   console.log('='.repeat(60));
   console.log('\nThis will create all tables, indexes, and constraints.');
@@ -108,7 +108,7 @@ async function setupDatabase() {
   }
 
   // Step 4: Generate Prisma client
-  console.log('\n' + '='.repeat(60));
+  console.log(`\n${'='.repeat(60)}`);
   console.log('Step 4: Generate Prisma client');
   console.log('='.repeat(60));
 
@@ -118,7 +118,7 @@ async function setupDatabase() {
   }
 
   // Step 5: Seed database (optional)
-  console.log('\n' + '='.repeat(60));
+  console.log(`\n${'='.repeat(60)}`);
   console.log('Step 5: Seed initial data (optional)');
   console.log('='.repeat(60));
   console.log('\nThis will create sample data for testing:');
@@ -133,9 +133,9 @@ async function setupDatabase() {
   }
 
   // Step 6: Verify setup
-  console.log('\n' + '='.repeat(60));
+  console.log(`\n${'='.repeat(60)}`);
   console.log('Step 6: Verify setup');
-  console.log('='.repeat(60) + '\n');
+  console.log(`${'='.repeat(60)}\n`);
 
   executeCommand('pnpm tsx scripts/test-database-connection.ts', 'Running final verification');
 

@@ -449,7 +449,6 @@ describe('nthPrimeApprox', () => {
 
   it('gives reasonable approximation for n = 10', () => {
     const approx = nthPrimeApprox(10);
-    const actual = 29; // 10th prime
     // Should be in the right ballpark
     expect(approx).toBeGreaterThan(10);
     expect(approx).toBeLessThan(100);

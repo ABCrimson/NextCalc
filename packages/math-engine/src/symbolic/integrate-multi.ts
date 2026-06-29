@@ -13,6 +13,7 @@
 import type { ExpressionNode } from '../parser/ast';
 import { evaluate } from '../parser/evaluator';
 import { parse } from '../parser/parser';
+import { astToString } from './integrate';
 import {
   IntegrationError,
   type IntegrationResult,
@@ -528,7 +529,7 @@ export function integrateDoubleTransformed(
 
   // Build transformed expression: f(u(s,t), v(s,t)) * |J(s,t)|
   const transformedExpr = parse(`
-    (${expr.toString()}) * (${
+    (${astToString(expr)}) * (${
       typeof transformation.jacobian === 'string' ? transformation.jacobian : 'jacobian'
     })
   `);

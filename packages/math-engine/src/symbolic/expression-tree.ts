@@ -14,26 +14,27 @@ import { isConstantNode, isFunctionNode, isOperatorNode, isSymbolNode } from '..
 /**
  * Expression type classification
  */
-export enum ExpressionType {
+export const ExpressionType = {
   /** Constant value */
-  Constant = 'Constant',
+  Constant: 'Constant',
   /** Single variable */
-  Variable = 'Variable',
+  Variable: 'Variable',
   /** Polynomial in one or more variables */
-  Polynomial = 'Polynomial',
+  Polynomial: 'Polynomial',
   /** Rational function (ratio of polynomials) */
-  Rational = 'Rational',
+  Rational: 'Rational',
   /** Contains trigonometric functions */
-  Trigonometric = 'Trigonometric',
+  Trigonometric: 'Trigonometric',
   /** Contains exponential functions */
-  Exponential = 'Exponential',
+  Exponential: 'Exponential',
   /** Contains logarithmic functions */
-  Logarithmic = 'Logarithmic',
+  Logarithmic: 'Logarithmic',
   /** Mixed transcendental */
-  Transcendental = 'Transcendental',
+  Transcendental: 'Transcendental',
   /** Unknown or complex type */
-  Unknown = 'Unknown',
-}
+  Unknown: 'Unknown',
+} as const;
+export type ExpressionType = (typeof ExpressionType)[keyof typeof ExpressionType];
 
 /**
  * Mathematical properties of an expression
@@ -201,7 +202,7 @@ function isPolynomialOperation(
   leftType: ExpressionType,
   rightType: ExpressionType,
 ): boolean {
-  const polynomialTypes = [
+  const polynomialTypes: ExpressionType[] = [
     ExpressionType.Constant,
     ExpressionType.Variable,
     ExpressionType.Polynomial,
@@ -233,9 +234,12 @@ function isPolynomialOperation(
  */
 function isPolynomial(node: ExpressionNode): boolean {
   const type = classifyExpression(node);
-  return [ExpressionType.Constant, ExpressionType.Variable, ExpressionType.Polynomial].includes(
-    type,
-  );
+  const polynomialTypes: ExpressionType[] = [
+    ExpressionType.Constant,
+    ExpressionType.Variable,
+    ExpressionType.Polynomial,
+  ];
+  return polynomialTypes.includes(type);
 }
 
 /**

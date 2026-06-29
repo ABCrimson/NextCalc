@@ -30,9 +30,6 @@ interface UpvoteButtonProps {
   targetType: 'POST' | 'COMMENT';
   initialCount: number;
   initialUpvoted: boolean;
-  /** Use mock mode (no GraphQL mutation) */
-  mock?: boolean;
-  onMockToggle?: () => void;
 }
 
 export function UpvoteButton({
@@ -40,8 +37,6 @@ export function UpvoteButton({
   targetType,
   initialCount,
   initialUpvoted,
-  mock = false,
-  onMockToggle,
 }: UpvoteButtonProps) {
   const prefersReduced = useReducedMotion();
   const { status } = useSession();
@@ -59,14 +54,6 @@ export function UpvoteButton({
   const [toggleUpvote] = useMutation<ToggleUpvoteData>(TOGGLE_UPVOTE_MUTATION);
 
   const handleToggle = useCallback(() => {
-    if (mock) {
-      onMockToggle?.();
-      startTransition(() => {
-        setOptimistic(!optimistic.upvoted);
-      });
-      return;
-    }
-
     if (!isAuthenticated) return;
 
     const newUpvoted = !optimistic.upvoted;
@@ -87,16 +74,7 @@ export function UpvoteButton({
         },
       },
     });
-  }, [
-    mock,
-    onMockToggle,
-    isAuthenticated,
-    optimistic,
-    setOptimistic,
-    toggleUpvote,
-    targetId,
-    targetType,
-  ]);
+  }, [isAuthenticated, optimistic, setOptimistic, toggleUpvote, targetId, targetType]);
 
   const button = (
     <m.button
@@ -111,7 +89,7 @@ export function UpvoteButton({
         optimistic.upvoted
           ? 'bg-gradient-to-b from-orange-500/20 to-orange-600/10 text-orange-400 shadow-[0_0_16px_oklch(0.72_0.20_60/0.25)]'
           : 'bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground',
-        !isAuthenticated && !mock && 'cursor-default opacity-80',
+        !isAuthenticated && 'cursor-default opacity-80',
       )}
       {...(prefersReduced ? {} : { whileTap: { scale: 0.85 } })}
       aria-label={
@@ -119,7 +97,7 @@ export function UpvoteButton({
           ? `Remove upvote (${optimistic.count} upvotes)`
           : `Upvote (${optimistic.count} upvotes)`
       }
-      disabled={!isAuthenticated && !mock}
+      disabled={!isAuthenticated}
     >
       <m.div
         {...(prefersReduced
@@ -139,7 +117,7 @@ export function UpvoteButton({
     </m.button>
   );
 
-  if (!isAuthenticated && !mock) {
+  if (!isAuthenticated) {
     return (
       <TooltipProvider>
         <Tooltip>

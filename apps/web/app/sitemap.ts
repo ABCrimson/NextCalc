@@ -11,7 +11,7 @@ import type { MetadataRoute } from 'next';
  * @see https://nextjs.org/docs/app/api-reference/file-conventions/metadata/sitemap
  */
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://nextcalc.dev';
+const BASE_URL = process.env['NEXT_PUBLIC_APP_URL'] || 'https://nextcalc.dev';
 
 const locales = ['en', 'ru', 'es', 'uk', 'de', 'fr', 'ja', 'zh'] as const;
 

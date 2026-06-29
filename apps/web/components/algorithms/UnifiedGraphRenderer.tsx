@@ -880,6 +880,7 @@ export function UnifiedGraphRenderer({
   // -------------------------------------------------------------------------
   // WebGPU initialisation
   // -------------------------------------------------------------------------
+  // biome-ignore lint/correctness/useExhaustiveDependencies: mount-only WebGPU device/pipeline init; `nodes.length`/`edges.length` are read once to size the GPU node/edge buffers (capped at 256/1024). Re-running on graph change would destroy and rebuild the GPU device/pipelines — the render loop re-uploads node/edge data each frame via writeBuffer.
   useEffect(() => {
     if (!supportsWebGPU) {
       setRenderMode('canvas2d');
@@ -1038,7 +1039,6 @@ export function UnifiedGraphRenderer({
       }
       webgpuActiveRef.current = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // -------------------------------------------------------------------------
@@ -1187,8 +1187,7 @@ export function UnifiedGraphRenderer({
     (deltaTime: number) => {
       const gpu = gpuRef.current;
       if (
-        !gpu ||
-        !gpu.particleComputePipeline ||
+        !gpu?.particleComputePipeline ||
         !gpu.particleBuffer ||
         !gpu.particleParamBuffer ||
         !gpu.particleStagingBuffer
@@ -1596,6 +1595,7 @@ export function UnifiedGraphRenderer({
       <canvas
         ref={particleCanvasRef}
         aria-hidden="true"
+        tabIndex={-1}
         className="absolute inset-0 w-full h-full pointer-events-none"
         style={{ mixBlendMode: 'screen' }}
       />

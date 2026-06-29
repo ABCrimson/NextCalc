@@ -2,8 +2,8 @@
 
 import { m, useReducedMotion } from 'framer-motion';
 import { useMemo } from 'react';
-import { LaTeXRenderer } from '@/components/math/latex-renderer';
 import { Card } from '@/components/ui/card';
+import { MathRenderer } from '@/components/ui/math-renderer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { convertToLatex } from '@/lib/latex';
 import type { ShareAngleMode, ShareMode } from '@/lib/share';
@@ -139,7 +139,7 @@ export function Display({ expression, result, isPending = false, mode, angle }: 
                     role="status"
                     aria-label={`LaTeX expression: ${expression}`}
                   >
-                    <LaTeXRenderer expression={latex} displayMode={true} className="text-base" />
+                    <MathRenderer expression={latex} displayMode={true} className="text-base" />
                   </div>
                 )}
                 {displayResult !== null && (

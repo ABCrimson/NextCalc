@@ -202,11 +202,7 @@ export function InteractiveSolver({
   const currentStepData = solution.steps[currentStep];
 
   return (
-    <div
-      className={cn('space-y-6', className)}
-      role="region"
-      aria-label="Interactive problem solver"
-    >
+    <section className={cn('space-y-6', className)} aria-label="Interactive problem solver">
       {/* Problem Statement */}
       <Card>
         <CardHeader>
@@ -306,13 +302,13 @@ export function InteractiveSolver({
                           <Lightbulb className="h-4 w-4 text-yellow-500" aria-hidden="true" />
                           <span>Hints</span>
                         </div>
-                        {currentStepData.hints.map((hint, index) => (
+                        {Array.from(currentStepData.hints.entries()).map(([hintPos, hint]) => (
                           <HintCard
-                            key={index}
+                            key={`${hintPos}:${hint.slice(0, 40)}`}
                             hint={hint}
-                            index={index}
-                            isRevealed={revealedHints.has(index)}
-                            onReveal={() => handleRevealHint(index)}
+                            index={hintPos}
+                            isRevealed={revealedHints.has(hintPos)}
+                            onReveal={() => handleRevealHint(hintPos)}
                           />
                         ))}
                       </div>
@@ -473,7 +469,7 @@ export function InteractiveSolver({
           </div>
         </CardContent>
       </Card>
-    </div>
+    </section>
   );
 }
 

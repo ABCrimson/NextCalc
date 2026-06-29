@@ -190,7 +190,7 @@ export function MatrixPanel() {
    * Copy result to matrix input
    */
   const copyResultToMatrix = (target: 'A' | 'B') => {
-    if (!result || result.type !== 'matrix') return;
+    if (result?.type !== 'matrix') return;
 
     const resultMatrix = result.value as number[][];
     const newRows = resultMatrix.length;
@@ -586,13 +586,14 @@ export function MatrixPanel() {
           style={{
             gridTemplateColumns: `repeat(${matrix[0]?.length || 1}, minmax(3rem, 1fr))`,
           }}
-          role="grid"
-          aria-label={`Matrix ${label}`}
         >
-          {matrix.map((row, i) =>
-            row.map((val, j) => (
+          {Array.from({ length: rows * cols }, (_, k) => {
+            const i = Math.floor(k / cols);
+            const j = k % cols;
+            const val = matrix[i]?.[j] ?? 0;
+            return (
               <Input
-                key={`${matrixKey}-${i}-${j}`}
+                key={`${matrixKey}-r${i}c${j}`}
                 type="number"
                 step="any"
                 value={val}
@@ -600,8 +601,8 @@ export function MatrixPanel() {
                 className="w-full text-center font-mono text-sm p-2"
                 aria-label={`${label} row ${i + 1} column ${j + 1}`}
               />
-            )),
-          )}
+            );
+          })}
         </div>
       </div>
     </div>
@@ -615,11 +616,7 @@ export function MatrixPanel() {
 
     if (result.type === 'scalar') {
       return (
-        <div
-          className="p-6 bg-muted rounded-lg relative overflow-hidden"
-          role="region"
-          aria-label="Result"
-        >
+        <section className="p-6 bg-muted rounded-lg relative overflow-hidden" aria-label="Result">
           <div className="text-sm text-muted-foreground font-semibold mb-2">Result:</div>
           <div className="text-3xl font-mono overflow-x-auto whitespace-nowrap pr-10 scrollbar-none">
             {(result.value as number).toFixed(8)}
@@ -637,7 +634,7 @@ export function MatrixPanel() {
               <Copy className="h-4 w-4" />
             )}
           </Button>
-        </div>
+        </section>
       );
     }
 
@@ -677,20 +674,24 @@ export function MatrixPanel() {
             style={{
               gridTemplateColumns: `repeat(${matrix[0]?.length || 1}, minmax(0, 1fr))`,
             }}
-            role="grid"
-            aria-label="Result matrix"
           >
-            {matrix.map((row, i) =>
-              row.map((val, j) => (
-                <div
-                  key={`result-${i}-${j}`}
-                  className="p-2 text-center font-mono text-sm bg-background rounded border"
-                  role="gridcell"
-                >
-                  {val.toFixed(4)}
-                </div>
-              )),
-            )}
+            {(() => {
+              const numRows = matrix.length;
+              const numCols = matrix[0]?.length ?? 0;
+              return Array.from({ length: numRows * numCols }, (_, k) => {
+                const i = Math.floor(k / numCols);
+                const j = k % numCols;
+                const val = matrix[i]?.[j] ?? 0;
+                return (
+                  <div
+                    key={`r${i}c${j}`}
+                    className="p-2 text-center font-mono text-sm bg-background rounded border"
+                  >
+                    {val.toFixed(4)}
+                  </div>
+                );
+              });
+            })()}
           </div>
         </div>
         {result.latex && (

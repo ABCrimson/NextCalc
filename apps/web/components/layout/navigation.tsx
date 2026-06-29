@@ -11,7 +11,7 @@ import {
   Flame,
   Globe,
   Grid3x3,
-  Infinity,
+  Infinity as InfinityIcon,
   Library,
   LogIn,
   LogOut,
@@ -41,6 +41,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Link, usePathname, useRouter } from '@/i18n/navigation';
+import type { Locale } from '@/i18n/routing';
 import { signIn, signOut, useSession } from '@/lib/auth/hooks';
 import { cn } from '@/lib/utils';
 import { CommandPalette } from './command-palette';
@@ -53,15 +54,16 @@ interface NavLink {
   icon: ComponentType<{ className?: string }>;
 }
 
-type LocaleCode = 'en' | 'ru' | 'es' | 'uk' | 'de';
-
-const LOCALE_NAMES: Record<LocaleCode, string> = {
+const LOCALE_NAMES: Record<Locale, string> = {
   en: 'English',
   ru: 'Русский',
   es: 'Español',
   uk: 'Українська',
   de: 'Deutsch',
-} as const;
+  fr: 'Français',
+  ja: '日本語',
+  zh: '中文',
+};
 
 /** Direct link before dropdowns */
 const preDropdownLinks: NavLink[] = [
@@ -134,7 +136,7 @@ const toolLinks: NavLink[] = [
     href: '/complex',
     labelKey: 'nav.complex',
     descKey: 'nav.complexDescription',
-    icon: Infinity,
+    icon: InfinityIcon,
   },
   {
     href: '/formulas',
@@ -266,13 +268,13 @@ function UserAvatar({ name, image, level }: { name?: string; image?: string; lev
 }
 
 function LanguageSwitcher() {
-  const locale = useLocale() as LocaleCode;
+  const locale = useLocale() as Locale;
   const router = useRouter();
   const pathname = usePathname();
 
-  const locales = Object.keys(LOCALE_NAMES) as LocaleCode[];
+  const locales = Object.keys(LOCALE_NAMES) as Locale[];
 
-  const handleLocaleChange = (newLocale: LocaleCode) => {
+  const handleLocaleChange = (newLocale: Locale) => {
     router.replace(pathname, { locale: newLocale });
   };
 

@@ -736,7 +736,7 @@ export default function GameTheoryPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ type: 'spring', stiffness: 260, damping: 28, delay: 0.1 }}
           >
-            <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] h-full">
+            <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)] h-full">
               <CardHeader className="pb-4">
                 <CardTitle className="text-foreground text-lg">{t('gameSetup')}</CardTitle>
                 <CardDescription>{t('gameSetupDesc')}</CardDescription>
@@ -807,7 +807,7 @@ export default function GameTheoryPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ type: 'spring', stiffness: 260, damping: 28, delay: 0.15 }}
           >
-            <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+            <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -866,65 +866,68 @@ export default function GameTheoryPage() {
                 </div>
 
                 {/* Matrix grid */}
-                <div className="overflow-auto" role="table" aria-label="Payoff matrix">
-                  <div
-                    className="grid gap-2 min-w-0"
-                    style={{
-                      gridTemplateColumns: `minmax(80px,auto) repeat(${gridSize}, minmax(90px, 1fr))`,
-                    }}
-                    role="rowgroup"
-                  >
-                    {/* Column headers */}
-                    <div role="row" className="contents">
-                      <div className="pb-1" role="columnheader" />
-                      {Array.from({ length: gridSize }, (_, i) => (
-                        <div
-                          key={i}
-                          role="columnheader"
-                          className="text-center pb-1"
-                          aria-label={`Player 2 ${useCustomColLabels[i] ?? `Column ${i + 1}`}`}
-                        >
-                          <span className="text-[10px] font-semibold uppercase tracking-wider text-[oklch(0.63_0.20_300)]/80 block">
-                            P2
-                          </span>
-                          <span className="text-xs font-medium text-foreground/70">
-                            {useCustomColLabels[i] ?? `Col ${i + 1}`}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Matrix rows */}
-                    {Array.from({ length: gridSize }, (_, row) => (
-                      <div key={row} role="row" className="contents">
-                        <div
-                          role="rowheader"
-                          className="flex flex-col justify-center pr-2"
-                          aria-label={`Player 1 ${useCustomRowLabels[row] ?? `Row ${row + 1}`}`}
-                        >
-                          <span className="text-[10px] font-semibold uppercase tracking-wider text-primary/80">
-                            P1
-                          </span>
-                          <span className="text-xs font-medium text-foreground/70 leading-tight">
-                            {useCustomRowLabels[row] ?? `Row ${row + 1}`}
-                          </span>
-                        </div>
-                        {Array.from({ length: gridSize }, (_, col) => {
-                          const payoffs = payoffMatrix[row]?.[col] ?? [0, 0];
+                <div className="overflow-auto">
+                  <table className="border-separate border-spacing-2" aria-label="Payoff matrix">
+                    <thead>
+                      <tr>
+                        <th className="pb-1 min-w-[80px]" />
+                        {Array.from({ length: gridSize }, (_, colIdx) => {
+                          const colKey = `col-${String.fromCharCode(65 + colIdx)}`;
                           return (
-                            <MatrixCell
-                              key={col}
-                              row={row}
-                              col={col}
-                              payoffs={[payoffs[0] ?? 0, payoffs[1] ?? 0]}
-                              isNashEquilibrium={isNashEquilibrium(row, col)}
-                              onUpdate={updatePayoff}
-                            />
+                            <th
+                              key={colKey}
+                              scope="col"
+                              className="text-center pb-1 min-w-[90px]"
+                              aria-label={`Player 2 ${useCustomColLabels[colIdx] ?? `Column ${colIdx + 1}`}`}
+                            >
+                              <span className="text-[10px] font-semibold uppercase tracking-wider text-[oklch(0.63_0.20_300)]/80 block">
+                                P2
+                              </span>
+                              <span className="text-xs font-medium text-foreground/70">
+                                {useCustomColLabels[colIdx] ?? `Col ${colIdx + 1}`}
+                              </span>
+                            </th>
                           );
                         })}
-                      </div>
-                    ))}
-                  </div>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Array.from({ length: gridSize }, (_, rowIdx) => {
+                        const rowKey = `row-${String.fromCharCode(65 + rowIdx)}`;
+                        return (
+                          <tr key={rowKey}>
+                            <th
+                              scope="row"
+                              className="flex flex-col justify-center pr-2 min-w-[80px]"
+                              aria-label={`Player 1 ${useCustomRowLabels[rowIdx] ?? `Row ${rowIdx + 1}`}`}
+                            >
+                              <span className="text-[10px] font-semibold uppercase tracking-wider text-primary/80">
+                                P1
+                              </span>
+                              <span className="text-xs font-medium text-foreground/70 leading-tight">
+                                {useCustomRowLabels[rowIdx] ?? `Row ${rowIdx + 1}`}
+                              </span>
+                            </th>
+                            {Array.from({ length: gridSize }, (_, colIdx) => {
+                              const cellKey = `cell-${String.fromCharCode(65 + rowIdx)}-${String.fromCharCode(65 + colIdx)}`;
+                              const payoffs = payoffMatrix[rowIdx]?.[colIdx] ?? [0, 0];
+                              return (
+                                <td key={cellKey} className="align-top">
+                                  <MatrixCell
+                                    row={rowIdx}
+                                    col={colIdx}
+                                    payoffs={[payoffs[0] ?? 0, payoffs[1] ?? 0]}
+                                    isNashEquilibrium={isNashEquilibrium(rowIdx, colIdx)}
+                                    onUpdate={updatePayoff}
+                                  />
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
               </CardContent>
             </Card>
@@ -943,7 +946,7 @@ export default function GameTheoryPage() {
               className="grid gap-6 lg:grid-cols-2 mt-6"
             >
               {/* Nash Equilibria */}
-              <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+              <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <div className="w-2 h-2 rounded-full bg-primary shrink-0" aria-hidden="true" />
@@ -968,7 +971,7 @@ export default function GameTheoryPage() {
                           useCustomColLabels[eq.player2] ?? `Strategy ${eq.player2 + 1}`;
                         return (
                           <m.div
-                            key={index}
+                            key={`${eq.player1}-${eq.player2}`}
                             variants={fadeInUp}
                             className="p-4 rounded-xl bg-gradient-to-br from-primary/15 via-primary/8 to-transparent border border-primary/30 shadow-[inset_0_1px_0_0_oklch(1_0_0_/_0.08)]"
                           >
@@ -1035,7 +1038,7 @@ export default function GameTheoryPage() {
               </Card>
 
               {/* Dominated Strategies */}
-              <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+              <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <div
@@ -1169,8 +1172,8 @@ export default function GameTheoryPage() {
                   accentTo,
                   borderColor,
                   hoverBorder,
-                  'backdrop-blur-sm shadow-[0_4px_16px_0_rgba(0,0,0,0.12)]',
-                  'hover:shadow-[0_8px_24px_0_rgba(0,0,0,0.2)]',
+                  'backdrop-blur-sm shadow-[0_4px_16px_0_oklch(0_0_0_/_0.12)]',
+                  'hover:shadow-[0_8px_24px_0_oklch(0_0_0_/_0.2)]',
                 ].join(' ')}
               >
                 <h3 className={`text-base font-semibold mb-2 ${titleColor}`}>{title}</h3>

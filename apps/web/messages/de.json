@@ -241,6 +241,8 @@
     "newPost": "Neuer Beitrag",
     "noDiscussions": "Keine Diskussionen gefunden",
     "noDiscussionsHint": "Versuchen Sie, Ihre Suche oder Ihren Filter anzupassen",
+    "loadError": "Diskussionen konnten nicht geladen werden",
+    "loadErrorHint": "Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut",
     "popularTopics": "Beliebte Themen",
     "communityGuidelines": "Community-Richtlinien",
     "topContributors": "Top-Mitwirkende",
@@ -279,7 +281,7 @@
     "activityTab": "Activity",
     "activityComingSoon": "Activity feed coming soon",
     "activityComingSoonHint": "Track comments, upvotes, and achievements",
-    "loadMore": "Load more",
+    "loadMore": "Mehr laden",
     "sort": {
       "hot": "Beliebt",
       "new": "Neu",

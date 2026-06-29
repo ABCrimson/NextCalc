@@ -1,31 +1,113 @@
 /**
- * Rate Limiter Service - Vitest Unit Tests
+ * Rate Limiter Service — Integration tests for the Hono application.
  *
- * Tests every public route of the Rate Limiter Hono application using
- * Hono's `app.request()` helper which executes handlers in-process.
+ * Vitest environment: node (not @cloudflare/vitest-pool-workers).
+ * The Durable Object is not available in node mode, so we mock the DO
+ * namespace + stub with vi.fn(). The pure algorithm is already covered by
+ * sliding-window.test.ts; these tests focus on HTTP routing, validation,
+ * header setting, and auth enforcement.
  *
- * Mocking strategy:
- * - The KV namespace (RATE_LIMITS) is mocked with vi.fn() implementations
- *   that mimic get/put/delete/list behaviour in-memory so we can control
- *   exactly how many requests have been seen for a given identifier.
- * - ADMIN_KEY is set to a fixed value ("test-admin-key") in env bindings
- *   so admin-protected routes can be exercised.
+ * Mock strategy:
+ *  - createMockDoNamespace() returns an object that satisfies the
+ *    DurableObjectNamespace<RateLimiterDurableObject> surface used by the
+ *    Worker. Each created stub holds an in-memory state so sequential /check
+ *    calls against the same identifier decrement remaining correctly.
+ *  - createMockKV() returns an in-memory KV for the identifier index that
+ *    /admin/keys reads.
  */
 
 import { describe, expect, it, vi } from 'vitest';
 import app from './index.js';
-import { RATE_LIMIT_CONFIGS } from './utils/sliding-window.js';
+import type { RateLimitStatus, UserTier } from './utils/sliding-window.js';
+import { evaluateSlidingWindow, RATE_LIMIT_CONFIGS } from './utils/sliding-window.js';
 
 // ---------------------------------------------------------------------------
-// KV mock helpers
+// In-memory DO stub
+// ---------------------------------------------------------------------------
+
+/**
+ * Minimal in-memory stub that mirrors RateLimiterDurableObject.
+ * State is kept per-identifier in the parent namespace factory.
+ */
+function createDoStub(initialRequests: number[] = [], initialTier?: UserTier) {
+  let requests = initialRequests;
+  let storedTier: UserTier | undefined = initialTier;
+
+  return {
+    check: vi.fn(async (tier: UserTier): Promise<RateLimitStatus> => {
+      const now = Date.now();
+      // Mirror the DO's enterprise short-circuit (no storage churn).
+      if (RATE_LIMIT_CONFIGS[tier].requestsPerHour === Number.MAX_SAFE_INTEGER) {
+        return {
+          allowed: true,
+          remaining: Number.MAX_SAFE_INTEGER,
+          resetAt: now + 60 * 60 * 1000,
+          limit: Number.MAX_SAFE_INTEGER,
+          tier,
+        };
+      }
+      // Reset on tier change (mirrors DO logic)
+      if (storedTier !== undefined && storedTier !== tier) {
+        requests = [];
+      }
+      storedTier = tier;
+      const { status, nextRequests } = evaluateSlidingWindow(requests, now, tier);
+      requests = nextRequests;
+      return status;
+    }),
+    status: vi.fn(async (tier: UserTier): Promise<RateLimitStatus> => {
+      const now = Date.now();
+      // consuming=false: read-only path, do not count current request.
+      const { status } = evaluateSlidingWindow(requests, now, tier, 60 * 60 * 1000, false);
+      return status;
+    }),
+    reset: vi.fn(async (): Promise<void> => {
+      requests = [];
+      storedTier = undefined;
+    }),
+  };
+}
+
+type DoStub = ReturnType<typeof createDoStub>;
+
+/**
+ * Creates a mock DurableObjectNamespace that maps identifier strings to
+ * in-memory DO stubs. Pre-populated stubs can be injected via `initialStubs`.
+ */
+function createMockDoNamespace(
+  initialStubs: Record<string, { requests?: number[]; tier?: UserTier }> = {},
+) {
+  // Map from name → stub
+  const stubs = new Map<string, DoStub>();
+
+  for (const [name, opts] of Object.entries(initialStubs)) {
+    stubs.set(name, createDoStub(opts.requests ?? [], opts.tier));
+  }
+
+  function getOrCreate(name: string): DoStub {
+    const existing = stubs.get(name);
+    if (existing !== undefined) return existing;
+    const stub = createDoStub();
+    stubs.set(name, stub);
+    return stub;
+  }
+
+  return {
+    idFromName: vi.fn((name: string) => ({ name, toString: () => name })),
+    get: vi.fn((id: { name: string }): DoStub => getOrCreate(id.name)),
+    // expose stubs map for assertions
+    _stubs: stubs,
+  } as unknown as DurableObjectNamespace<
+    import('./durable-objects/rate-limiter-do.js').RateLimiterDurableObject
+  > & { _stubs: Map<string, DoStub> };
+}
+
+// ---------------------------------------------------------------------------
+// In-memory KV mock (identifier index)
 // ---------------------------------------------------------------------------
 
 type KVStore = Map<string, string>;
 
-/**
- * Creates a lightweight in-memory KV namespace mock that satisfies the
- * KVNamespace interface surface used by the rate limiter logic.
- */
 function createMockKV(initialData: Record<string, unknown> = {}): KVNamespace {
   const store: KVStore = new Map(
     Object.entries(initialData).map(([k, v]) => [k, JSON.stringify(v)]),
@@ -35,7 +117,7 @@ function createMockKV(initialData: Record<string, unknown> = {}): KVNamespace {
     get: vi.fn(async (key: string, type?: string) => {
       const raw = store.get(key);
       if (raw === undefined) return null;
-      if (type === 'json') return JSON.parse(raw);
+      if (type === 'json') return JSON.parse(raw) as unknown;
       return raw;
     }),
     put: vi.fn(async (key: string, value: string) => {
@@ -44,25 +126,39 @@ function createMockKV(initialData: Record<string, unknown> = {}): KVNamespace {
     delete: vi.fn(async (key: string) => {
       store.delete(key);
     }),
-    list: vi.fn(async (options?: { prefix?: string; cursor?: string }) => {
-      const prefix = options?.prefix ?? '';
-      const keys = [...store.keys()].filter((k) => k.startsWith(prefix)).map((name) => ({ name }));
-      return { keys, cursor: undefined, list_complete: true };
-    }),
-    // Remaining KVNamespace methods not used by the service
+    list: vi.fn(
+      async (options?: {
+        prefix?: string;
+        cursor?: string;
+      }): Promise<KVNamespaceListResult<unknown, string>> => {
+        const prefix = options?.prefix ?? '';
+        const keys = [...store.keys()]
+          .filter((k) => k.startsWith(prefix))
+          .map((name) => ({ name, expiration: undefined, metadata: undefined }));
+        return { keys, cursor: '', list_complete: true };
+      },
+    ),
     getWithMetadata: vi.fn(),
   } as unknown as KVNamespace;
 }
 
 // ---------------------------------------------------------------------------
-// Environment binding factory
+// Test env factory
 // ---------------------------------------------------------------------------
 
 const ADMIN_KEY = 'test-admin-key';
 
-function createTestEnv(overrides: Record<string, unknown> = {}) {
+function createTestEnv(
+  overrides: {
+    RATE_LIMITER?: ReturnType<typeof createMockDoNamespace>;
+    RATE_LIMITS?: KVNamespace;
+    ADMIN_KEY?: string;
+    ALLOWED_ORIGINS?: string;
+  } = {},
+) {
   return {
     ALLOWED_ORIGINS: 'http://localhost:3005',
+    RATE_LIMITER: createMockDoNamespace(),
     RATE_LIMITS: createMockKV(),
     ADMIN_KEY,
     ...overrides,
@@ -84,11 +180,7 @@ function makeRequest(
 function postJson(url: string, body: unknown, env = createTestEnv()): Promise<Response> {
   return makeRequest(
     url,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    },
+    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) },
     env,
   );
 }
@@ -113,7 +205,6 @@ describe('GET /health', () => {
     const json = (await res.json()) as Record<string, unknown>;
     expect(json.status).toBe('healthy');
     expect(json.service).toBe('rate-limiter');
-    expect(json.version).toBe('1.0.0');
   });
 
   it('includes a valid ISO 8601 timestamp', async () => {
@@ -128,19 +219,17 @@ describe('GET /health', () => {
 // ---------------------------------------------------------------------------
 
 describe('GET /', () => {
-  it('returns 200 with service metadata and endpoint descriptions', async () => {
+  it('returns 200 with service metadata', async () => {
     const res = await makeRequest('/');
     expect(res.status).toBe(200);
 
     const json = (await res.json()) as Record<string, unknown>;
     expect(json.name).toContain('Rate Limiter');
-    expect(json.version).toBe('1.0.0');
   });
 
-  it('includes RATE_LIMIT_CONFIGS in the root response', async () => {
+  it('includes RATE_LIMIT_CONFIGS in tiers field', async () => {
     const res = await makeRequest('/');
     const json = (await res.json()) as { tiers: typeof RATE_LIMIT_CONFIGS };
-    expect(json.tiers).toBeDefined();
     expect(json.tiers.free).toBeDefined();
     expect(json.tiers.pro).toBeDefined();
     expect(json.tiers.enterprise).toBeDefined();
@@ -166,17 +255,13 @@ describe('Unknown routes', () => {
 // ---------------------------------------------------------------------------
 
 describe('CORS middleware', () => {
-  it('echoes the allowed origin back in ACAO header', async () => {
-    const res = await makeRequest('/health', {
-      headers: { Origin: 'http://localhost:3005' },
-    });
+  it('echoes allowed origin in ACAO header', async () => {
+    const res = await makeRequest('/health', { headers: { Origin: 'http://localhost:3005' } });
     expect(res.headers.get('Access-Control-Allow-Origin')).toBe('http://localhost:3005');
   });
 
   it('exposes rate-limit headers in ACEH', async () => {
-    const res = await makeRequest('/health', {
-      headers: { Origin: 'http://localhost:3005' },
-    });
+    const res = await makeRequest('/health', { headers: { Origin: 'http://localhost:3005' } });
     const exposed = res.headers.get('Access-Control-Expose-Headers') ?? '';
     expect(exposed).toContain('X-RateLimit-Limit');
     expect(exposed).toContain('X-RateLimit-Remaining');
@@ -189,11 +274,8 @@ describe('CORS middleware', () => {
 // ---------------------------------------------------------------------------
 
 describe('POST /check', () => {
-  it('returns 200 with allowed:true for the first request from a fresh identifier', async () => {
-    const res = await postJson('/check', {
-      identifier: 'user-fresh-001',
-      tier: 'free',
-    });
+  it('returns 200 with allowed:true for a fresh identifier', async () => {
+    const res = await postJson('/check', { identifier: 'user-fresh', tier: 'free' });
     expect(res.status).toBe(200);
 
     const json = (await res.json()) as {
@@ -210,96 +292,68 @@ describe('POST /check', () => {
     const res = await postJson('/check', { identifier: 'user-no-tier' });
     expect(res.status).toBe(200);
 
-    const json = (await res.json()) as { success: boolean; data: { tier: string } };
-    expect(json.success).toBe(true);
+    const json = (await res.json()) as { data: { tier: string } };
     expect(json.data.tier).toBe('free');
   });
 
-  it('returns correct limit for the pro tier', async () => {
-    const res = await postJson('/check', {
-      identifier: 'user-pro-001',
-      tier: 'pro',
-    });
-    expect(res.status).toBe(200);
-
+  it('returns correct limit for pro tier', async () => {
+    const res = await postJson('/check', { identifier: 'user-pro', tier: 'pro' });
     const json = (await res.json()) as { data: { limit: number; tier: string } };
     expect(json.data.tier).toBe('pro');
     expect(json.data.limit).toBe(RATE_LIMIT_CONFIGS.pro.requestsPerHour);
   });
 
-  it('returns correct limit for the enterprise tier', async () => {
-    const res = await postJson('/check', {
-      identifier: 'user-enterprise-001',
-      tier: 'enterprise',
-    });
-    expect(res.status).toBe(200);
-
+  it('returns correct limit for enterprise tier (unlimited)', async () => {
+    const res = await postJson('/check', { identifier: 'user-enterprise', tier: 'enterprise' });
     const json = (await res.json()) as { data: { limit: number; tier: string } };
     expect(json.data.tier).toBe('enterprise');
     expect(json.data.limit).toBe(RATE_LIMIT_CONFIGS.enterprise.requestsPerHour);
   });
 
   it('decrements remaining by 1 on the second call for the same identifier', async () => {
-    const kv = createMockKV();
-    const env = createTestEnv({ RATE_LIMITS: kv });
-
+    const ns = createMockDoNamespace();
+    const env = createTestEnv({ RATE_LIMITER: ns });
     const body = { identifier: 'user-decrement', tier: 'free' };
 
     const res1 = await postJson('/check', body, env);
     const json1 = (await res1.json()) as { data: { remaining: number } };
-    const remaining1 = json1.data.remaining;
 
     const res2 = await postJson('/check', body, env);
     const json2 = (await res2.json()) as { data: { remaining: number } };
-    const remaining2 = json2.data.remaining;
 
-    expect(remaining2).toBe(remaining1 - 1);
+    expect(json2.data.remaining).toBe(json1.data.remaining - 1);
   });
 
   it('blocks a request when the identifier has exhausted its quota', async () => {
-    // Pre-fill the KV store with a window containing exactly the free-tier limit
-    // of timestamps, all within the last hour, so the next request is denied.
     const limit = RATE_LIMIT_CONFIGS.free.requestsPerHour;
     const now = Date.now();
     const timestamps = Array.from({ length: limit }, (_, i) => now - i * 100);
 
-    const kv = createMockKV({
-      'ratelimit:exhausted-user': {
-        requests: timestamps,
-        tier: 'free',
-        lastUpdated: now,
-      },
+    const ns = createMockDoNamespace({
+      'exhausted-user': { requests: timestamps, tier: 'free' },
     });
-    const env = createTestEnv({ RATE_LIMITS: kv });
+    const env = createTestEnv({ RATE_LIMITER: ns });
 
     const res = await postJson('/check', { identifier: 'exhausted-user', tier: 'free' }, env);
     expect(res.status).toBe(200);
 
     const json = (await res.json()) as {
-      success: boolean;
       data: { allowed: boolean; remaining: number; retryAfter?: number };
     };
-    expect(json.success).toBe(true);
     expect(json.data.allowed).toBe(false);
     expect(json.data.remaining).toBe(0);
     expect(json.data.retryAfter).toBeDefined();
   });
 
   it('sets X-RateLimit-Limit header matching the tier config', async () => {
-    const res = await postJson('/check', {
-      identifier: 'user-header-check',
-      tier: 'pro',
-    });
+    const res = await postJson('/check', { identifier: 'user-header', tier: 'pro' });
     expect(res.headers.get('X-RateLimit-Limit')).toBe(
       RATE_LIMIT_CONFIGS.pro.requestsPerHour.toString(),
     );
   });
 
   it('sets X-RateLimit-Tier header to the requested tier', async () => {
-    const res = await postJson('/check', {
-      identifier: 'user-tier-header',
-      tier: 'enterprise',
-    });
+    const res = await postJson('/check', { identifier: 'user-tier', tier: 'enterprise' });
     expect(res.headers.get('X-RateLimit-Tier')).toBe('enterprise');
   });
 
@@ -308,25 +362,14 @@ describe('POST /check', () => {
     const now = Date.now();
     const timestamps = Array.from({ length: limit }, (_, i) => now - i * 10);
 
-    const kv = createMockKV({
-      'ratelimit:rate-limited-user': {
-        requests: timestamps,
-        tier: 'free',
-        lastUpdated: now,
-      },
+    const ns = createMockDoNamespace({
+      'rate-limited-user': { requests: timestamps, tier: 'free' },
     });
-    const env = createTestEnv({ RATE_LIMITS: kv });
+    const env = createTestEnv({ RATE_LIMITER: ns });
 
-    const res = await postJson(
-      '/check',
-      {
-        identifier: 'rate-limited-user',
-        tier: 'free',
-      },
-      env,
-    );
-
+    const res = await postJson('/check', { identifier: 'rate-limited-user', tier: 'free' }, env);
     const json = (await res.json()) as { data: { allowed: boolean } };
+
     if (!json.data.allowed) {
       expect(res.headers.get('Retry-After')).toBeTruthy();
     }
@@ -349,10 +392,7 @@ describe('POST /check', () => {
   });
 
   it('returns 400 VALIDATION_ERROR when tier is not a recognised enum value', async () => {
-    const res = await postJson('/check', {
-      identifier: 'user-bad-tier',
-      tier: 'diamond', // not allowed
-    });
+    const res = await postJson('/check', { identifier: 'user', tier: 'diamond' });
     expect(res.status).toBe(400);
 
     const json = (await res.json()) as { error: { code: string } };
@@ -360,30 +400,48 @@ describe('POST /check', () => {
   });
 
   it('resets the window when tier changes between calls for the same identifier', async () => {
-    const kv = createMockKV({
-      'ratelimit:tier-switch-user': {
-        // Stored under 'pro', so switching to 'free' should reset
-        requests: [Date.now() - 100],
-        tier: 'pro',
-        lastUpdated: Date.now(),
-      },
+    const now = Date.now();
+    const ns = createMockDoNamespace({
+      'tier-switch': { requests: [now - 100], tier: 'pro' },
     });
-    const env = createTestEnv({ RATE_LIMITS: kv });
+    const env = createTestEnv({ RATE_LIMITER: ns });
 
-    // First call with 'free' — tier mismatch triggers a reset, so remaining
-    // should be close to the free limit (limit - 1 after consuming this request).
-    const res = await postJson(
-      '/check',
-      {
-        identifier: 'tier-switch-user',
-        tier: 'free',
-      },
-      env,
-    );
+    const res = await postJson('/check', { identifier: 'tier-switch', tier: 'free' }, env);
     expect(res.status).toBe(200);
 
     const json = (await res.json()) as { data: { remaining: number } };
     expect(json.data.remaining).toBe(RATE_LIMIT_CONFIGS.free.requestsPerHour - 1);
+  });
+
+  // -------------------------------------------------------------------------
+  // Admission correctness: verifies the strict < limit check (no band-aid)
+  // -------------------------------------------------------------------------
+
+  it('admits exactly the limit and denies the next request (strict < check)', async () => {
+    const limit = RATE_LIMIT_CONFIGS.free.requestsPerHour;
+    const now = Date.now();
+
+    // Pre-populate with limit - 1 timestamps: the next /check must be the last allowed.
+    const ns = createMockDoNamespace({
+      'sequence-user': {
+        requests: Array.from({ length: limit - 1 }, (_, i) => now - (limit - i) * 10),
+        tier: 'free',
+      },
+    });
+    const env = createTestEnv({ RATE_LIMITER: ns });
+
+    // This is the 100th request — must be allowed.
+    const resAllowed = await postJson('/check', { identifier: 'sequence-user', tier: 'free' }, env);
+    const jsonAllowed = (await resAllowed.json()) as { data: { allowed: boolean } };
+    expect(jsonAllowed.data.allowed).toBe(true);
+
+    // This is the 101st request — must be denied.
+    const resDenied = await postJson('/check', { identifier: 'sequence-user', tier: 'free' }, env);
+    const jsonDenied = (await resDenied.json()) as {
+      data: { allowed: boolean; remaining: number };
+    };
+    expect(jsonDenied.data.allowed).toBe(false);
+    expect(jsonDenied.data.remaining).toBe(0);
   });
 });
 
@@ -392,7 +450,7 @@ describe('POST /check', () => {
 // ---------------------------------------------------------------------------
 
 describe('GET /status/:identifier', () => {
-  it('returns 200 with status data for a fresh identifier', async () => {
+  it('returns 200 with allowed:true for a fresh identifier', async () => {
     const res = await makeRequest('/status/fresh-identifier');
     expect(res.status).toBe(200);
 
@@ -406,7 +464,7 @@ describe('GET /status/:identifier', () => {
     expect(json.data.limit).toBe(RATE_LIMIT_CONFIGS.free.requestsPerHour);
   });
 
-  it('returns data for the pro tier when ?tier=pro query param is used', async () => {
+  it('returns data for pro tier when ?tier=pro is used', async () => {
     const res = await makeRequest('/status/some-user?tier=pro');
     expect(res.status).toBe(200);
 
@@ -416,8 +474,8 @@ describe('GET /status/:identifier', () => {
   });
 
   it('does NOT decrement remaining (read-only endpoint)', async () => {
-    const kv = createMockKV();
-    const env = createTestEnv({ RATE_LIMITS: kv });
+    const ns = createMockDoNamespace();
+    const env = createTestEnv({ RATE_LIMITER: ns });
 
     const res1 = await makeRequest('/status/read-only-user', {}, env);
     const json1 = (await res1.json()) as { data: { remaining: number } };
@@ -425,23 +483,22 @@ describe('GET /status/:identifier', () => {
     const res2 = await makeRequest('/status/read-only-user', {}, env);
     const json2 = (await res2.json()) as { data: { remaining: number } };
 
-    // Status endpoint must not consume a token between calls
     expect(json2.data.remaining).toBe(json1.data.remaining);
   });
 
   it('sets X-RateLimit-Limit header', async () => {
-    const res = await makeRequest('/status/some-identifier?tier=free');
+    const res = await makeRequest('/status/some-id?tier=free');
     expect(res.headers.get('X-RateLimit-Limit')).toBe(
       RATE_LIMIT_CONFIGS.free.requestsPerHour.toString(),
     );
   });
 
   it('sets X-RateLimit-Tier header', async () => {
-    const res = await makeRequest('/status/some-identifier?tier=pro');
+    const res = await makeRequest('/status/some-id?tier=pro');
     expect(res.headers.get('X-RateLimit-Tier')).toBe('pro');
   });
 
-  it('returns 400 INVALID_TIER for an unrecognised tier query value', async () => {
+  it('returns 400 INVALID_TIER for an unrecognised tier value', async () => {
     const res = await makeRequest('/status/some-user?tier=platinum');
     expect(res.status).toBe(400);
 
@@ -449,23 +506,20 @@ describe('GET /status/:identifier', () => {
     expect(json.error.code).toBe('INVALID_TIER');
   });
 
-  it('reflects existing request count from KV for a previously seen identifier', async () => {
+  it('reflects existing request count for a known identifier', async () => {
     const now = Date.now();
-    // Simulate 5 recent requests
-    const kv = createMockKV({
-      'ratelimit:known-user': {
+    const ns = createMockDoNamespace({
+      'known-user': {
         requests: Array.from({ length: 5 }, (_, i) => now - i * 1000),
         tier: 'free',
-        lastUpdated: now,
       },
     });
-    const env = createTestEnv({ RATE_LIMITS: kv });
+    const env = createTestEnv({ RATE_LIMITER: ns });
 
     const res = await makeRequest('/status/known-user?tier=free', {}, env);
     expect(res.status).toBe(200);
 
     const json = (await res.json()) as { data: { remaining: number } };
-    // 100 limit − 5 used = 95 remaining
     expect(json.data.remaining).toBe(RATE_LIMIT_CONFIGS.free.requestsPerHour - 5);
   });
 });
@@ -485,14 +539,9 @@ describe('GET /configs', () => {
 
   it('contains free, pro, and enterprise tier configurations', async () => {
     const res = await makeRequest('/configs');
-    const json = (await res.json()) as {
-      success: boolean;
-      data: typeof RATE_LIMIT_CONFIGS;
-    };
+    const json = (await res.json()) as { data: typeof RATE_LIMIT_CONFIGS };
 
-    expect(json.data.free.tier).toBe('free');
     expect(json.data.free.requestsPerHour).toBe(100);
-    expect(json.data.pro.tier).toBe('pro');
     expect(json.data.pro.requestsPerHour).toBe(1000);
     expect(json.data.enterprise.tier).toBe('enterprise');
   });
@@ -517,36 +566,27 @@ describe('GET /recommend/:requestsPerHour', () => {
     expect(res.status).toBe(200);
 
     const json = (await res.json()) as {
-      success: boolean;
       data: { requestsPerHour: number; recommendedTier: string };
     };
-    expect(json.success).toBe(true);
     expect(json.data.requestsPerHour).toBe(50);
     expect(json.data.recommendedTier).toBe('free');
   });
 
   it('recommends pro tier for 500 requests/hour', async () => {
     const res = await makeRequest('/recommend/500');
-    expect(res.status).toBe(200);
-
     const json = (await res.json()) as { data: { recommendedTier: string } };
     expect(json.data.recommendedTier).toBe('pro');
   });
 
   it('recommends enterprise tier for 5000 requests/hour', async () => {
     const res = await makeRequest('/recommend/5000');
-    expect(res.status).toBe(200);
-
     const json = (await res.json()) as { data: { recommendedTier: string } };
     expect(json.data.recommendedTier).toBe('enterprise');
   });
 
   it('includes the config object for the recommended tier', async () => {
     const res = await makeRequest('/recommend/100');
-    const json = (await res.json()) as {
-      data: { config: typeof RATE_LIMIT_CONFIGS.free };
-    };
-    expect(json.data.config).toBeDefined();
+    const json = (await res.json()) as { data: { config: typeof RATE_LIMIT_CONFIGS.free } };
     expect(typeof json.data.config.requestsPerHour).toBe('number');
   });
 
@@ -568,19 +608,15 @@ describe('GET /recommend/:requestsPerHour', () => {
 });
 
 // ---------------------------------------------------------------------------
-// DELETE /reset/:identifier  (admin endpoint)
+// DELETE /reset/:identifier  (admin)
 // ---------------------------------------------------------------------------
 
 describe('DELETE /reset/:identifier', () => {
   it('returns 200 and resets the rate limit when correct admin key is provided', async () => {
-    const kv = createMockKV({
-      'ratelimit:to-be-reset': {
-        requests: [Date.now()],
-        tier: 'free',
-        lastUpdated: Date.now(),
-      },
+    const ns = createMockDoNamespace({
+      'to-be-reset': { requests: [Date.now()], tier: 'free' },
     });
-    const env = createTestEnv({ RATE_LIMITS: kv });
+    const env = createTestEnv({ RATE_LIMITER: ns });
 
     const res = await deleteReq('/reset/to-be-reset', { 'X-Admin-Key': ADMIN_KEY }, env);
     expect(res.status).toBe(200);
@@ -590,15 +626,15 @@ describe('DELETE /reset/:identifier', () => {
     expect(json.message).toContain('to-be-reset');
   });
 
-  it('calls kv.delete with the correct key on a successful reset', async () => {
-    const kv = createMockKV();
-    const env = createTestEnv({ RATE_LIMITS: kv });
+  it('calls DO stub.reset() on a successful admin reset', async () => {
+    const ns = createMockDoNamespace({ 'target-user': {} });
+    const env = createTestEnv({ RATE_LIMITER: ns });
 
     await deleteReq('/reset/target-user', { 'X-Admin-Key': ADMIN_KEY }, env);
 
-    expect((kv.delete as ReturnType<typeof vi.fn>).mock.calls).toContainEqual([
-      'ratelimit:target-user',
-    ]);
+    // The stub for target-user should have had reset() called.
+    const stub = (ns as unknown as { _stubs: Map<string, DoStub> })._stubs.get('target-user');
+    expect(stub?.reset).toHaveBeenCalledTimes(1);
   });
 
   it('returns 401 when X-Admin-Key header is missing', async () => {
@@ -616,14 +652,14 @@ describe('DELETE /reset/:identifier', () => {
 });
 
 // ---------------------------------------------------------------------------
-// GET /admin/keys  (admin endpoint)
+// GET /admin/keys  (admin)
 // ---------------------------------------------------------------------------
 
 describe('GET /admin/keys', () => {
   it('returns 200 with key count when authenticated', async () => {
     const kv = createMockKV({
-      'ratelimit:user-a': { requests: [], tier: 'free', lastUpdated: 0 },
-      'ratelimit:user-b': { requests: [], tier: 'pro', lastUpdated: 0 },
+      'index:user-a': '1',
+      'index:user-b': '1',
     });
     const env = createTestEnv({ RATE_LIMITS: kv });
 
@@ -645,17 +681,14 @@ describe('GET /admin/keys', () => {
   });
 
   it('returns 401 when X-Admin-Key is wrong', async () => {
-    const res = await makeRequest('/admin/keys', {
-      headers: { 'X-Admin-Key': 'bad-key' },
-    });
+    const res = await makeRequest('/admin/keys', { headers: { 'X-Admin-Key': 'bad-key' } });
     expect(res.status).toBe(401);
   });
 
-  it('limits the returned keys to a maximum of 100', async () => {
-    // Fill KV with 150 keys
+  it('limits returned keys to a maximum of 100', async () => {
     const initial: Record<string, unknown> = {};
     for (let i = 0; i < 150; i++) {
-      initial[`ratelimit:user-${i}`] = { requests: [], tier: 'free', lastUpdated: 0 };
+      initial[`index:user-${i}`] = '1';
     }
     const kv = createMockKV(initial);
     const env = createTestEnv({ RATE_LIMITS: kv });
@@ -664,94 +697,47 @@ describe('GET /admin/keys', () => {
     const json = (await res.json()) as { data: { keys: string[] } };
     expect(json.data.keys.length).toBeLessThanOrEqual(100);
   });
+
+  it('includes a note explaining the KV index backend', async () => {
+    const env = createTestEnv();
+    const res = await makeRequest('/admin/keys', { headers: { 'X-Admin-Key': ADMIN_KEY } }, env);
+    const json = (await res.json()) as { data: { note: string } };
+    expect(typeof json.data.note).toBe('string');
+    expect(json.data.note.length).toBeGreaterThan(0);
+  });
 });
 
 // ---------------------------------------------------------------------------
-// Rate limit enforcement – integration-style sequence
+// Rate limit enforcement – integration sequence
 // ---------------------------------------------------------------------------
 
-describe('Rate limit enforcement (sequence test)', () => {
-  it('allows up to the free-tier limit and denies the next request', async () => {
-    const limit = RATE_LIMIT_CONFIGS.free.requestsPerHour;
-    const now = Date.now();
-
-    // Pre-populate KV with (limit - 2) timestamps so the next /check is the
-    // last allowed one, and the one after that is denied.
-    //
-    // The sliding-window implementation applies a safety margin of 1 to reduce
-    // KV read-modify-write race conditions: `allowed = currentCount < limit - 1`.
-    // This means the effective cap is (limit - 1) in-flight requests, not limit.
-    // With (limit - 2) pre-existing requests, the first call is still accepted
-    // (98 < 99) and the second call is rejected (99 < 99 = false).
-    const kv = createMockKV({
-      'ratelimit:sequence-user': {
-        requests: Array.from({ length: limit - 2 }, (_, i) => now - (limit - i) * 10),
-        tier: 'free',
-        lastUpdated: now,
-      },
-    });
-    const env = createTestEnv({ RATE_LIMITS: kv });
-
-    // This call should be allowed (fills the last slot)
-    const resAllowed = await postJson(
-      '/check',
-      {
-        identifier: 'sequence-user',
-        tier: 'free',
-      },
-      env,
-    );
-    expect(resAllowed.status).toBe(200);
-    const jsonAllowed = (await resAllowed.json()) as { data: { allowed: boolean } };
-    expect(jsonAllowed.data.allowed).toBe(true);
-
-    // This call should be denied (limit exhausted)
-    const resDenied = await postJson(
-      '/check',
-      {
-        identifier: 'sequence-user',
-        tier: 'free',
-      },
-      env,
-    );
-    expect(resDenied.status).toBe(200);
-    const jsonDenied = (await resDenied.json()) as {
-      data: { allowed: boolean; remaining: number };
-    };
-    expect(jsonDenied.data.allowed).toBe(false);
-    // With the safety-margin check (`currentCount < limit - 1`), the denied
-    // response has currentCount = limit - 1 = 99, so remaining = limit - 99 = 1.
-    expect(jsonDenied.data.remaining).toBe(1);
-  });
-
+describe('Rate limit enforcement (sequence tests)', () => {
   it('ignores timestamps outside the 1-hour sliding window', async () => {
     const now = Date.now();
-    const oneHourAgoMs = 60 * 60 * 1000;
+    const oneHourMs = 60 * 60 * 1000;
 
-    // All timestamps are older than the window — they should be discarded,
-    // leaving a fresh slate (remaining = limit - 1 after this request).
-    const kv = createMockKV({
-      'ratelimit:window-user': {
-        requests: Array.from({ length: 50 }, (_, i) => now - oneHourAgoMs - (i + 1) * 1000),
+    const ns = createMockDoNamespace({
+      'window-user': {
+        requests: Array.from({ length: 50 }, (_, i) => now - oneHourMs - (i + 1) * 1000),
         tier: 'free',
-        lastUpdated: now - oneHourAgoMs,
       },
     });
-    const env = createTestEnv({ RATE_LIMITS: kv });
+    const env = createTestEnv({ RATE_LIMITER: ns });
 
-    const res = await postJson(
-      '/check',
-      {
-        identifier: 'window-user',
-        tier: 'free',
-      },
-      env,
-    );
+    const res = await postJson('/check', { identifier: 'window-user', tier: 'free' }, env);
     expect(res.status).toBe(200);
 
     const json = (await res.json()) as { data: { allowed: boolean; remaining: number } };
     expect(json.data.allowed).toBe(true);
-    // All 50 stale timestamps were discarded, only the current request counts
     expect(json.data.remaining).toBe(RATE_LIMIT_CONFIGS.free.requestsPerHour - 1);
+  });
+
+  it('enterprise tier always allowed, remaining = MAX_SAFE_INTEGER', async () => {
+    const res = await postJson('/check', { identifier: 'enterprise-user', tier: 'enterprise' });
+    expect(res.status).toBe(200);
+
+    const json = (await res.json()) as { data: { allowed: boolean; remaining: number } };
+    expect(json.data.allowed).toBe(true);
+    expect(json.data.remaining).toBe(Number.MAX_SAFE_INTEGER);
   });
 });

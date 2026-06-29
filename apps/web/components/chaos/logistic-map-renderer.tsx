@@ -470,6 +470,7 @@ export function LogisticMapRenderer({ data, title = 'x(n)' }: LogisticMapRendere
   // -------------------------------------------------------------------------
   // WebGPU initialisation
   // -------------------------------------------------------------------------
+  // biome-ignore lint/correctness/useExhaustiveDependencies: mount-only WebGPU device/pipeline init; `data`/`data.length` are read once to size the initial point buffer. Re-running on data change would destroy and rebuild the GPU device/pipelines — a separate effect (below) keeps the buffer in sync via writeBuffer.
   useEffect(() => {
     if (!supportsWebGPU) {
       setRenderMode('canvas2d');
@@ -593,7 +594,6 @@ export function LogisticMapRenderer({ data, title = 'x(n)' }: LogisticMapRendere
       }
       webgpuActiveRef.current = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // -------------------------------------------------------------------------
@@ -838,14 +838,17 @@ export function LogisticMapRenderer({ data, title = 'x(n)' }: LogisticMapRendere
             border: `1px solid ${renderMode === 'webgpu' ? 'rgba(16,185,129,0.4)' : 'rgba(99,102,241,0.3)'}`,
             color: renderMode === 'webgpu' ? '#10b981' : '#818cf8',
           }}
-          aria-label={`Rendering with ${renderMode}`}
+          aria-hidden="true"
         >
           {renderMode === 'webgpu' ? 'WebGPU' : 'Canvas 2D'}
         </div>
       )}
 
       {/* Zoom controls */}
-      <div className="absolute top-3 right-3 flex flex-col gap-1" aria-label="Zoom controls">
+      <fieldset
+        className="absolute top-3 right-3 flex flex-col gap-1 border-0 p-0 m-0"
+        aria-label="Zoom controls"
+      >
         <button
           type="button"
           onClick={() => zoomBy(1.3)}
@@ -861,6 +864,7 @@ export function LogisticMapRenderer({ data, title = 'x(n)' }: LogisticMapRendere
         <div
           className="w-8 h-6 flex items-center justify-center rounded text-[10px]
             font-mono text-white/50 bg-black/40 border border-white/5"
+          role="status"
           aria-live="polite"
           aria-label={`Zoom ${zoom.toFixed(1)}x`}
         >
@@ -878,7 +882,7 @@ export function LogisticMapRenderer({ data, title = 'x(n)' }: LogisticMapRendere
         >
           −
         </button>
-      </div>
+      </fieldset>
 
       {/* Tooltip */}
       <AnimatePresence>
@@ -895,7 +899,8 @@ export function LogisticMapRenderer({ data, title = 'x(n)' }: LogisticMapRendere
               background: 'linear-gradient(135deg,rgba(12,20,44,0.96),rgba(20,30,58,0.96))',
               backdropFilter: 'blur(12px)',
               border: '1px solid rgba(129,140,248,0.3)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.5),0 0 0 1px rgba(129,140,248,0.15)',
+              boxShadow:
+                '0 8px 32px oklch(0 0 0 / 0.5),0 0 0 1px oklch(0.6801 0.1583 276.93 / 0.15)',
             }}
           >
             <div className="text-xs font-mono space-y-0.5">
@@ -922,7 +927,7 @@ export function LogisticMapRenderer({ data, title = 'x(n)' }: LogisticMapRendere
               backdropFilter: 'blur(8px)',
               border: '1px solid rgba(6,182,212,0.38)',
               color: '#06b6d4',
-              boxShadow: '0 4px 16px rgba(6,182,212,0.15)',
+              boxShadow: '0 4px 16px oklch(0.7148 0.1257 215.22 / 0.15)',
             }}
             aria-label="Reset view"
           >

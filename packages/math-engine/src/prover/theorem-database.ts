@@ -10,7 +10,7 @@
  */
 
 import type { Formula } from './logic-core';
-import { toString } from './logic-core';
+import { toString as formulaToString } from './logic-core';
 import type { Proof } from './proof-search';
 import { verifyProof } from './proof-search';
 
@@ -163,7 +163,7 @@ export class TheoremDatabase {
     if (theorem.latex) {
       latex += theorem.latex;
     } else {
-      latex += `$${toString(theorem.statement, true)}$`;
+      latex += `$${formulaToString(theorem.statement, true)}$`;
     }
 
     latex += '\n\\end{theorem}\n\n';
@@ -174,7 +174,7 @@ export class TheoremDatabase {
     for (let i = 0; i < theorem.proof.steps.length; i++) {
       const step = theorem.proof.steps[i];
       if (step) {
-        latex += `\\item ${step.justification}: $${toString(step.formula, true)}$\n`;
+        latex += `\\item ${step.justification}: $${formulaToString(step.formula, true)}$\n`;
       }
     }
 

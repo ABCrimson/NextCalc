@@ -164,7 +164,7 @@ export function InstallPWA() {
       aria-describedby="install-pwa-description"
     >
       <div
-        className="flex flex-col gap-3 p-4 bg-gradient-to-r from-primary to-calculator-operator text-white rounded-2xl shadow-2xl shadow-primary/30 border border-white/10 backdrop-blur-sm transition-all motion-safe:animate-in motion-safe:slide-in-from-bottom-8 motion-safe:fade-in duration-300"
+        className="flex flex-col gap-3 p-4 bg-gradient-to-r from-primary to-calculator-operator text-white rounded-2xl shadow-2xl shadow-primary/30 border border-white/10 backdrop-blur-sm transition-all duration-300 animate-slide-up"
         style={{
           // Respect prefers-reduced-motion
           animationDuration: prefersReducedMotion ? '0.01ms' : '300ms',

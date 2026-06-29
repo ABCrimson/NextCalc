@@ -23,6 +23,12 @@ const config: CodegenConfig = {
     },
   },
   ignoreNoDocuments: true,
+  hooks: {
+    // The client preset hardcodes a `/* eslint-disable */` banner into every
+    // generated file. This repo lints with Biome (which ignores **/generated),
+    // so strip the dead ESLint banner on each write to keep output Biome-native.
+    afterOneFileWrite: ['node scripts/codegen-strip-header.mjs'],
+  },
 };
 
 export default config;

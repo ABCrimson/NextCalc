@@ -235,7 +235,7 @@ describe('Contrastive Learning', () => {
       const lossValue = loss.compute(features);
 
       expect(lossValue).toBeGreaterThan(0);
-      expect(isFinite(lossValue)).toBe(true);
+      expect(Number.isFinite(lossValue)).toBe(true);
     });
 
     it('should penalize dissimilar positive pairs', () => {
@@ -250,7 +250,7 @@ describe('Contrastive Learning', () => {
 
       const dissimilarLoss = loss.compute(dissimilar);
       // Loss should be finite (contrastive loss can be close to 0 when pairs align)
-      expect(isFinite(dissimilarLoss)).toBe(true);
+      expect(Number.isFinite(dissimilarLoss)).toBe(true);
     });
 
     it('should work with different batch sizes', () => {
@@ -260,7 +260,7 @@ describe('Contrastive Learning', () => {
       );
 
       const lossValue = loss.compute(features);
-      expect(isFinite(lossValue)).toBe(true);
+      expect(Number.isFinite(lossValue)).toBe(true);
     });
   });
 });
@@ -414,7 +414,7 @@ describe('Knowledge Distillation', () => {
       const loss = distiller.computeLoss(studentLogits, teacherLogits, labels);
 
       expect(loss).toBeGreaterThan(0);
-      expect(isFinite(loss)).toBe(true);
+      expect(Number.isFinite(loss)).toBe(true);
     });
 
     it('should balance soft and hard targets', () => {
@@ -438,7 +438,7 @@ describe('Knowledge Distillation', () => {
 
       const loss = distiller.computeLoss(studentLogits, teacherLogits, labels);
 
-      expect(isFinite(loss)).toBe(true);
+      expect(Number.isFinite(loss)).toBe(true);
     });
 
     it('should penalize disagreement between student and teacher', () => {

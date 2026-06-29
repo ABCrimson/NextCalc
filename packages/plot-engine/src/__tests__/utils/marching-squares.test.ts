@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { marchingSquares } from '../../utils/marching-squares';
-import type { ContourSegment } from '../../utils/marching-squares';
 
 /**
  * Helper: builds a grid by evaluating f(x, y) over the given viewport with

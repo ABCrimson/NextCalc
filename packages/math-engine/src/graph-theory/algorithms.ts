@@ -470,7 +470,9 @@ export function tarjanSCC(graph: Graph): SCCResult {
   // Create component map
   const componentMap = new Map<number, number>();
   components.forEach((component, idx) => {
-    component.forEach((v) => componentMap.set(v, idx));
+    component.forEach((v) => {
+      componentMap.set(v, idx);
+    });
   });
 
   return {
@@ -550,7 +552,9 @@ export function kosarajuSCC(graph: Graph): SCCResult {
   // Create component map
   const componentMap = new Map<number, number>();
   components.forEach((component, idx) => {
-    component.forEach((v) => componentMap.set(v, idx));
+    component.forEach((v) => {
+      componentMap.set(v, idx);
+    });
   });
 
   return {
@@ -983,27 +987,34 @@ function greedyTSP(graph: Graph): TSPResult {
 export function hasCycleDirected(graph: Graph): boolean {
   const { vertices } = graph;
   const adj = buildAdjacencyList(graph);
-  const visited = new Set<number>();
-  const recursionStack = new Set<number>();
+  // Iterative DFS with 3-colour marking (consistent with the rest of this file):
+  // 0 = white (unvisited), 1 = grey (on the current DFS path), 2 = black (finished).
+  // A back edge to a grey vertex closes a cycle.
+  const color = new Int8Array(vertices);
 
-  function dfs(v: number): boolean {
-    if (recursionStack.has(v)) return true;
-    if (visited.has(v)) return false;
+  for (let start = 0; start < vertices; start++) {
+    if (color[start] !== 0) continue;
 
-    visited.add(v);
-    recursionStack.add(v);
+    const stack: Array<{ v: number; i: number }> = [{ v: start, i: 0 }];
+    color[start] = 1;
 
-    const neighbors = adj.get(v) ?? [];
-    for (const neighbor of neighbors) {
-      if (dfs(neighbor.to)) return true;
+    while (stack.length > 0) {
+      const frame = stack[stack.length - 1]!;
+      const neighbors = adj.get(frame.v) ?? [];
+
+      if (frame.i < neighbors.length) {
+        const w = neighbors[frame.i]!.to;
+        frame.i++;
+        if (color[w] === 1) return true; // back edge to a grey vertex
+        if (color[w] === 0) {
+          color[w] = 1;
+          stack.push({ v: w, i: 0 });
+        }
+      } else {
+        color[frame.v] = 2; // finished
+        stack.pop();
+      }
     }
-
-    recursionStack.delete(v);
-    return false;
-  }
-
-  for (let v = 0; v < vertices; v++) {
-    if (dfs(v)) return true;
   }
 
   return false;
@@ -1018,28 +1029,32 @@ export function hasCycleDirected(graph: Graph): boolean {
 export function hasCycleUndirected(graph: Graph): boolean {
   const { vertices } = graph;
   const adj = buildAdjacencyList(graph);
+  // Iterative DFS tracking each frame's parent; a visited non-parent neighbour is a
+  // back edge (an undirected DFS has no cross edges), i.e. it closes a cycle.
   const visited = new Set<number>();
 
-  function dfs(v: number, parent: number): boolean {
-    visited.add(v);
+  for (let start = 0; start < vertices; start++) {
+    if (visited.has(start)) continue;
 
-    const neighbors = adj.get(v) ?? [];
-    for (const neighbor of neighbors) {
-      const w = neighbor.to;
+    const stack: Array<{ v: number; parent: number; i: number }> = [{ v: start, parent: -1, i: 0 }];
+    visited.add(start);
 
-      if (!visited.has(w)) {
-        if (dfs(w, v)) return true;
-      } else if (w !== parent) {
-        return true; // Back edge to non-parent = cycle
+    while (stack.length > 0) {
+      const frame = stack[stack.length - 1]!;
+      const neighbors = adj.get(frame.v) ?? [];
+
+      if (frame.i < neighbors.length) {
+        const w = neighbors[frame.i]!.to;
+        frame.i++;
+        if (!visited.has(w)) {
+          visited.add(w);
+          stack.push({ v: w, parent: frame.v, i: 0 });
+        } else if (w !== frame.parent) {
+          return true; // back edge to a non-parent vertex
+        }
+      } else {
+        stack.pop();
       }
-    }
-
-    return false;
-  }
-
-  for (let v = 0; v < vertices; v++) {
-    if (!visited.has(v)) {
-      if (dfs(v, -1)) return true;
     }
   }
 

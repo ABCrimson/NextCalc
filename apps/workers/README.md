@@ -22,10 +22,11 @@ NextCalc Pro uses a microservices architecture deployed to Cloudflare's global e
     └───────────────┘ └───────┬───────┘ └───────┬───────┘
                               │                 │
                               ▼                 ▼
-                        ┌──────────┐      ┌──────────┐
-                        │ R2 Bucket│      │ KV Store │
-                        │ (Files)  │      │ (Limits) │
-                        └──────────┘      └──────────┘
+                        ┌──────────┐    ┌──────────────────┐
+                        │ R2 Bucket│    │ Durable Object   │
+                        │ (Files)  │    │ (SQLite counters)│
+                        └──────────┘    │  + KV id index   │
+                                        └──────────────────┘
 ```
 
 ## Services
@@ -92,8 +93,10 @@ curl -X POST https://cas.nextcalc.io/solve \
 
 **Technology Stack:**
 - Hono web framework
-- Cloudflare R2 for file storage
-- MathJax (placeholder for production)
+- Cloudflare R2 for file storage (with aws4fetch for S3-compatible presigning)
+- KaTeX (server-side `renderToString`) for LaTeX → SVG
+- @cf-wasm/resvg 0.3.4 for SVG → PNG rasterization
+- modern-pdf-lib 0.40.2 for PDF generation
 - Zod for validation
 
 **Example Usage:**
@@ -141,11 +144,13 @@ curl -X POST https://export.nextcalc.io/export/svg \
 - `DELETE /reset/:identifier` - Reset limits (admin)
 - `GET /configs` - Get tier configurations
 - `GET /recommend/:requestsPerHour` - Get tier recommendation
+- `GET /admin/keys` - List registered identifier keys (admin)
 - `GET /health` - Health check
 
 **Technology Stack:**
 - Hono web framework
-- Cloudflare KV for distributed state
+- Durable Object (SQLite-backed `RateLimiterDurableObject`) as the primary state store for counters
+- Cloudflare KV (`RATE_LIMITS`) used only as an identifier index, not for counting
 - Sliding window algorithm
 - Multi-tier support
 
@@ -190,10 +195,10 @@ X-RateLimit-Tier: pro
 
 ### Prerequisites
 
-- Node.js 22+ (26 recommended)
+- Node.js 24+ (26 recommended)
 - pnpm 11+
 - Cloudflare account
-- Wrangler CLI (4.69+)
+- Wrangler CLI (4.104.0)
 
 ### Setup
 
@@ -240,13 +245,17 @@ pnpm dev
 # Export Service
 cd apps/workers/export-service
 pnpm dev
-# Runs on http://localhost:8788
+# Runs on http://localhost:8787
 
 # Rate Limiter
 cd apps/workers/rate-limiter
 pnpm dev
-# Runs on http://localhost:8789
+# Runs on http://localhost:8787
 ```
+
+> No `[dev]` port is configured in any `wrangler.toml`, so each worker
+> defaults to port 8787. To run more than one worker at the same time, pass
+> distinct ports explicitly (e.g. `pnpm dev --port 8788`).
 
 ### Testing
 
@@ -272,7 +281,7 @@ Verify TypeScript compilation:
 
 ```bash
 # All workers
-pnpm type-check
+pnpm typecheck
 ```
 
 ## Deployment
@@ -300,17 +309,16 @@ pnpm run deploy
 Deploy to specific environments:
 
 ```bash
-# Development
-wrangler deploy --env development
-
-# Production
-wrangler deploy --env production
+# Staging (the only [env.*] block defined in wrangler.toml)
+wrangler deploy --env staging
+# or, equivalently, via the package script:
+pnpm deploy:staging
 ```
 
 ### CI/CD Workflow
 
 The GitHub Actions deploy workflow (`deploy-workers.yml`) supports:
-- **v6 actions**: Updated to actions/checkout@v6, actions/setup-node@v6, and pnpm/action-setup@v4
+- **v6 actions**: Updated to actions/checkout@v6, actions/setup-node@v6, and pnpm/action-setup@v6
 - **Lockfile trigger**: Deployments automatically trigger on `pnpm-lock.yaml` changes affecting workers
 - **Manual dispatch**: Supports `workflow_dispatch` for on-demand deployments
 
@@ -319,7 +327,7 @@ The GitHub Actions deploy workflow (`deploy-workers.yml`) supports:
 Before deploying to production:
 
 - [ ] All tests passing (`pnpm test`)
-- [ ] TypeScript compiles without errors (`pnpm type-check`)
+- [ ] TypeScript compiles without errors (`pnpm typecheck`)
 - [ ] Environment variables configured
 - [ ] Cloudflare resources created (R2, KV, etc.)
 - [ ] wrangler.toml updated with correct IDs
@@ -378,7 +386,7 @@ Error: KV namespace binding RATE_LIMITS not found
 
 Solution: Create KV namespace and update `wrangler.toml`:
 ```bash
-wrangler kv:namespace create "RATE_LIMITS"
+wrangler kv namespace create "RATE_LIMITS"
 # Copy the ID to wrangler.toml
 ```
 
@@ -428,12 +436,12 @@ Typical performance metrics:
 
 **Export Service:**
 - SVG generation: 20-50ms
-- PNG generation: 100-500ms (with external service)
-- PDF generation: 200-1000ms (with external service)
+- PNG generation: 100-500ms
+- PDF generation: 200-1000ms
 
 **Rate Limiter:**
-- Check operation: 1-5ms (KV read/write)
-- Status check: 1-3ms (KV read only)
+- Check operation: 1-5ms (Durable Object SQLite read/write)
+- Status check: 1-3ms (Durable Object SQLite read only)
 
 ### Optimization Tips
 
@@ -477,7 +485,7 @@ Typical performance metrics:
 ### Code Style
 
 - TypeScript strict mode required
-- Biome 2.4.4 for linting and formatting
+- Biome 2.5.1 for linting and formatting
 - Single quotes, 2-space indent, trailing commas
 - JSDoc comments for all public functions
 

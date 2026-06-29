@@ -30,7 +30,7 @@ import { Complex, type Solution, solve } from '../solver/solve';
 import { differentiate } from './differentiate';
 import { analyzeExpression } from './expression-tree';
 import { astToString } from './integrate';
-import { expand, simplify } from './simplify';
+import { astEquals, expand, simplify } from './simplify';
 
 /**
  * Solution step
@@ -57,21 +57,22 @@ export interface SolutionStep {
 /**
  * Step category — drives the badge colour in the UI
  */
-export enum StepCategory {
-  Identification = 'Identification',
-  Simplification = 'Simplification',
-  Expansion = 'Expansion',
-  Factorization = 'Factorization',
-  Substitution = 'Substitution',
-  Rearrangement = 'Rearrangement',
-  Isolation = 'Isolation',
-  Differentiation = 'Differentiation',
-  Integration = 'Integration',
-  Evaluation = 'Evaluation',
-  Identity = 'Identity',
-  Formula = 'Formula',
-  FinalAnswer = 'FinalAnswer',
-}
+export const StepCategory = {
+  Identification: 'Identification',
+  Simplification: 'Simplification',
+  Expansion: 'Expansion',
+  Factorization: 'Factorization',
+  Substitution: 'Substitution',
+  Rearrangement: 'Rearrangement',
+  Isolation: 'Isolation',
+  Differentiation: 'Differentiation',
+  Integration: 'Integration',
+  Evaluation: 'Evaluation',
+  Identity: 'Identity',
+  Formula: 'Formula',
+  FinalAnswer: 'FinalAnswer',
+} as const;
+export type StepCategory = (typeof StepCategory)[keyof typeof StepCategory];
 
 /**
  * Complete solution with steps
@@ -92,15 +93,16 @@ export interface StepSolution {
 /**
  * Problem type classification
  */
-export enum ProblemType {
-  Simplification = 'Simplification',
-  Equation = 'Equation',
-  Derivative = 'Derivative',
-  Integral = 'Integral',
-  Limit = 'Limit',
-  Expansion = 'Expansion',
-  Factorization = 'Factorization',
-}
+export const ProblemType = {
+  Simplification: 'Simplification',
+  Equation: 'Equation',
+  Derivative: 'Derivative',
+  Integral: 'Integral',
+  Limit: 'Limit',
+  Expansion: 'Expansion',
+  Factorization: 'Factorization',
+} as const;
+export type ProblemType = (typeof ProblemType)[keyof typeof ProblemType];
 
 // ============================================================================
 // EQUATION TYPE DETECTION
@@ -181,7 +183,7 @@ function evalAt(expr: ExpressionNode, variable: string, x: number): number | nul
     const result = evaluate(expr, { variables: { [variable]: x } });
     if (!result.success) return null;
     const v = Number(result.value);
-    return isFinite(v) ? v : null;
+    return Number.isFinite(v) ? v : null;
   } catch {
     return null;
   }
@@ -577,7 +579,7 @@ export class StepSolver {
           noSol ? 'No solutions' : 'All real numbers are solutions',
           noSol
             ? `The coefficient of ${variable} is 0 and the constant ${b} ≠ 0, so there is no solution.`
-            : 'Both coefficients are 0, so every value of ${variable} is a solution.',
+            : `Both coefficients are 0, so every value of ${variable} is a solution.`,
           StepCategory.FinalAnswer,
           noSol ? '\\text{No solution}' : `${variable} \\in \\mathbb{R}`,
         ),
@@ -1335,23 +1337,6 @@ export class StepSolver {
 // PRIVATE UTILITY FUNCTIONS
 // ============================================================================
 
-function astEquals(a: ExpressionNode, b: ExpressionNode): boolean {
-  if (a.type !== b.type) return false;
-  if (isConstantNode(a) && isConstantNode(b)) return a.value === b.value;
-  if (isSymbolNode(a) && isSymbolNode(b)) return a.name === b.name;
-  if (isOperatorNode(a) && isOperatorNode(b)) {
-    return a.op === b.op && astEquals(a.args[0], b.args[0]) && astEquals(a.args[1], b.args[1]);
-  }
-  if (isFunctionNode(a) && isFunctionNode(b)) {
-    if (a.fn !== b.fn || a.args.length !== b.args.length) return false;
-    return a.args.every((arg, i) => {
-      const bArg = b.args[i];
-      return bArg !== undefined && astEquals(arg, bArg);
-    });
-  }
-  return false;
-}
-
 /** Format a coefficient for LaTeX: omit 1, show −1 as − */
 function formatCoeff(n: number): string {
   if (n === 1) return '';
@@ -1361,7 +1346,7 @@ function formatCoeff(n: number): string {
 
 /** Compact decimal formatting — no trailing zeros */
 function formatDecimal(n: number): string {
-  if (!isFinite(n)) return String(n);
+  if (!Number.isFinite(n)) return String(n);
   if (Number.isInteger(n)) return String(n);
   return n.toFixed(6).replace(/\.?0+$/, '');
 }

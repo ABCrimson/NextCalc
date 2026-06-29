@@ -9,7 +9,7 @@ import {
   Copy,
   FunctionSquare,
   Grid3x3,
-  Infinity,
+  Infinity as InfinityIcon,
   Search,
   Triangle,
   X,
@@ -777,7 +777,7 @@ const CATEGORY_META: Record<FormulaCategory, CategoryMeta> = {
     gradient: 'from-blue-950/40 to-blue-900/40',
     border: 'border-blue-500/40 hover:border-blue-400/60',
     chip: 'bg-blue-500/15 text-blue-300 border-blue-500/30',
-    glow: 'hover:shadow-[0_0_24px_rgba(59,130,246,0.3)]',
+    glow: 'hover:shadow-[0_0_24px_oklch(0.6231_0.188_259.81_/_0.3)]',
     text: 'text-blue-300',
   },
   trigonometry: {
@@ -786,16 +786,16 @@ const CATEGORY_META: Record<FormulaCategory, CategoryMeta> = {
     gradient: 'from-purple-950/40 to-purple-900/40',
     border: 'border-purple-500/40 hover:border-purple-400/60',
     chip: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
-    glow: 'hover:shadow-[0_0_24px_rgba(168,85,247,0.3)]',
+    glow: 'hover:shadow-[0_0_24px_oklch(0.6268_0.2325_303.9_/_0.3)]',
     text: 'text-purple-300',
   },
   calculus: {
     label: 'Calculus',
-    icon: Infinity,
+    icon: InfinityIcon,
     gradient: 'from-emerald-950/40 to-emerald-900/40',
     border: 'border-emerald-500/40 hover:border-emerald-400/60',
     chip: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
-    glow: 'hover:shadow-[0_0_24px_rgba(16,185,129,0.3)]',
+    glow: 'hover:shadow-[0_0_24px_oklch(0.6959_0.1491_162.48_/_0.3)]',
     text: 'text-emerald-300',
   },
   'linear-algebra': {
@@ -804,7 +804,7 @@ const CATEGORY_META: Record<FormulaCategory, CategoryMeta> = {
     gradient: 'from-amber-950/40 to-amber-900/40',
     border: 'border-amber-500/40 hover:border-amber-400/60',
     chip: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
-    glow: 'hover:shadow-[0_0_24px_rgba(245,158,11,0.3)]',
+    glow: 'hover:shadow-[0_0_24px_oklch(0.7686_0.1647_70.08_/_0.3)]',
     text: 'text-amber-300',
   },
   statistics: {
@@ -813,7 +813,7 @@ const CATEGORY_META: Record<FormulaCategory, CategoryMeta> = {
     gradient: 'from-cyan-950/40 to-cyan-900/40',
     border: 'border-cyan-500/40 hover:border-cyan-400/60',
     chip: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30',
-    glow: 'hover:shadow-[0_0_24px_rgba(6,182,212,0.3)]',
+    glow: 'hover:shadow-[0_0_24px_oklch(0.7148_0.1257_215.22_/_0.3)]',
     text: 'text-cyan-300',
   },
   physics: {
@@ -822,7 +822,7 @@ const CATEGORY_META: Record<FormulaCategory, CategoryMeta> = {
     gradient: 'from-rose-950/40 to-rose-900/40',
     border: 'border-rose-500/40 hover:border-rose-400/60',
     chip: 'bg-rose-500/15 text-rose-300 border-rose-500/30',
-    glow: 'hover:shadow-[0_0_24px_rgba(244,63,94,0.3)]',
+    glow: 'hover:shadow-[0_0_24px_oklch(0.645_0.2154_16.44_/_0.3)]',
     text: 'text-rose-300',
   },
   geometry: {
@@ -831,7 +831,7 @@ const CATEGORY_META: Record<FormulaCategory, CategoryMeta> = {
     gradient: 'from-orange-950/40 to-orange-900/40',
     border: 'border-orange-500/40 hover:border-orange-400/60',
     chip: 'bg-orange-500/15 text-orange-300 border-orange-500/30',
-    glow: 'hover:shadow-[0_0_24px_rgba(249,115,22,0.3)]',
+    glow: 'hover:shadow-[0_0_24px_oklch(0.7049_0.1867_47.6_/_0.3)]',
     text: 'text-orange-300',
   },
 } satisfies Record<FormulaCategory, CategoryMeta>;
@@ -902,7 +902,7 @@ function FormulaCard({ formula, index }: FormulaCardProps) {
         `bg-gradient-to-br ${meta.gradient}`,
         meta.border,
         meta.glow,
-        'shadow-[0_2px_8px_rgba(0,0,0,0.25)]',
+        'shadow-[0_2px_8px_oklch(0_0_0_/_0.25)]',
       )}
       onClick={handleCopy}
       role="button"
@@ -1151,6 +1151,7 @@ export default function FormulasPage() {
                 <h2 className="text-base font-semibold">Filters</h2>
                 {hasActiveFilters && (
                   <button
+                    type="button"
                     onClick={clearFilters}
                     className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                     aria-label="Clear all filters"
@@ -1187,6 +1188,7 @@ export default function FormulasPage() {
                   />
                   {searchQuery && (
                     <button
+                      type="button"
                       onClick={() => setSearchQuery('')}
                       className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-2 focus-visible:outline-ring rounded"
                       aria-label="Clear search"
@@ -1210,6 +1212,7 @@ export default function FormulasPage() {
                     const count = countByCategory[cat] ?? 0;
                     return (
                       <button
+                        type="button"
                         key={cat}
                         onClick={() => toggleCategory(cat)}
                         aria-pressed={isActive}
@@ -1320,6 +1323,7 @@ export default function FormulasPage() {
                   Try a different search term or clear the category filters to see all formulas.
                 </p>
                 <button
+                  type="button"
                   onClick={clearFilters}
                   className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 >

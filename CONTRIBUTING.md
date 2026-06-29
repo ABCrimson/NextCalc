@@ -27,28 +27,10 @@ For full setup instructions (database, OAuth, environment variables), see [docs/
 
 ### Prerequisites
 
-- **Node.js** >= 20.0.0 (recommended: 26.x)
+- **Node.js** >= 24.0.0 (CI runs Node 26)
 - **pnpm** >= 11
-- See [DEVELOPMENT.md](DEVELOPMENT.md) for the full developer guide
 
-### Commands
-
-```bash
-pnpm dev          # Start all apps in dev mode
-pnpm build        # Build everything (Turborepo)
-pnpm test         # Run all tests
-pnpm lint         # Lint with Biome
-pnpm typecheck    # TypeScript type checking
-```
-
-### Code Style
-
-- **TypeScript strict mode** with `exactOptionalPropertyTypes`
-- **Zero `as any`** in production code (only allowed in test mocks with biome-ignore)
-- **React 19.3 patterns**: `ref` as a regular prop (no `forwardRef`), named imports only
-- **Biome 2.4.4** for linting and formatting
-- **Semantic color tokens**: `text-foreground`, `bg-background` (not `gray-*` or `slate-*`)
-- **Focus rings**: `focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring`
+See [DEVELOPMENT.md](DEVELOPMENT.md) for the full command reference, project structure, and detailed code-style conventions (TypeScript strict mode, React 19.3 patterns, Biome 2.5.1, semantic color tokens, focus rings).
 
 ---
 
@@ -81,7 +63,7 @@ Example: `feat: add polar plot analysis section`
 
 2. Run the full check suite:
    ```bash
-   pnpm build && pnpm test && pnpm lint && pnpm typecheck
+   pnpm build && pnpm test && pnpm lint && pnpm turbo run typecheck
    ```
 
 3. Push your branch and open a PR against `main`
@@ -94,15 +76,7 @@ Example: `feat: add polar plot analysis section`
 
 ## Project Structure
 
-| Directory | Description |
-|-----------|-------------|
-| `apps/web` | Next.js 16 frontend |
-| `apps/api` | Apollo Server GraphQL API |
-| `apps/workers/` | Cloudflare Workers (CAS, export, rate limiter) |
-| `packages/math-engine` | Core math library |
-| `packages/plot-engine` | GPU visualization engine |
-| `packages/database` | Prisma 7 shared database package |
-| `packages/types` | Shared TypeScript types |
+See [DEVELOPMENT.md](DEVELOPMENT.md) for the full monorepo package map and project structure.
 
 ---
 
@@ -112,7 +86,7 @@ When modifying user-facing text, update all 8 locale files in `apps/web/messages
 
 - `en.json`, `ru.json`, `es.json`, `uk.json`, `de.json`, `fr.json`, `ja.json`, `zh.json`
 
-Each file contains 1200+ translation keys. To verify your changes render correctly across locales, run the app locally and append `?locale=<code>` to test different languages (e.g., `?locale=es` for Spanish, `?locale=ja` for Japanese). Check that text fits within UI containers -- some languages expand significantly (German, Russian) while others may be more compact (Chinese, Japanese).
+Each file contains 1200+ translation keys. The app uses next-intl path-prefix routing (configured in `apps/web/i18n/routing.ts`), so to verify your changes render correctly across locales, run the app locally and visit the locale-prefixed path (e.g., `http://localhost:3005/es` for Spanish, `http://localhost:3005/ja` for Japanese). Check that text fits within UI containers -- some languages expand significantly (German, Russian) while others may be more compact (Chinese, Japanese).
 
 If you add new keys, add them to **all 8 files**. Missing keys will fall back to the English string, which may break the UI for non-English users.
 

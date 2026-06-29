@@ -72,7 +72,7 @@ export async function register() {
     // OpenTelemetry — placeholder for future integration
     // ---------------------------------------------------------------
     // When ready, add @opentelemetry/sdk-node + auto-instrumentations here.
-    // Next.js 16 has built-in OTel support via `experimental.instrumentationHook`.
+    // Next.js 15+ has built-in OTel support via instrumentation.ts (stable — no experimental flag).
     // Example:
     //   const { NodeSDK } = await import('@opentelemetry/sdk-node');
     //   const sdk = new NodeSDK({ ... });

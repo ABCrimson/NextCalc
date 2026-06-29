@@ -1,26 +1,26 @@
 import { describe, expect, it } from 'vitest';
 import {
-  simplify,
+  type ConstantNode,
+  createConstantNode,
+  createFunctionNode,
+  createOperatorNode,
+  createSymbolNode,
+  createUnaryOperatorNode,
+  type ExpressionNode,
+  isConstantNode,
+  isFunctionNode,
+  isOperatorNode,
+  isSymbolNode,
+} from '../../parser/ast';
+import {
+  astEquals,
   expand,
   factor,
-  substitute,
-  astEquals,
   isExpanded,
   isFactored,
+  simplify,
+  substitute,
 } from '../../symbolic/simplify';
-import {
-  createConstantNode,
-  createSymbolNode,
-  createOperatorNode,
-  createFunctionNode,
-  createUnaryOperatorNode,
-  isConstantNode,
-  isSymbolNode,
-  isOperatorNode,
-  isFunctionNode,
-  type ExpressionNode,
-  type ConstantNode,
-} from '../../parser/ast';
 
 // ============================================================================
 // Helper to build AST nodes concisely

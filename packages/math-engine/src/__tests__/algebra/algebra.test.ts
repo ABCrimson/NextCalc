@@ -1,63 +1,60 @@
-import { describe, it, expect } from 'vitest';
-
-// ── Group Theory imports ────────────────────────────────────────────────────
-import {
-  verifyGroupAxioms,
-  createCyclicGroup,
-  elementOrder,
-  isCyclic,
-  findGenerators,
-  composePermutations,
-  invertPermutation,
-  permutationToCycles,
-  cyclesToPermutation,
-  createSymmetricGroup,
-  createDihedralGroup,
-  isSubgroup,
-  leftCoset,
-  allLeftCosets,
-  groupIndex,
-  isHomomorphism,
-  isIsomorphism,
-  kernel,
-  image,
-} from '../../algebra/groups';
-
-// ── Ring Theory imports ─────────────────────────────────────────────────────
-import {
-  verifyRingAxioms,
-  createModularRing,
-  gaussian,
-  GaussianIntegerOps,
-  addPolynomials,
-  multiplyPolynomials,
-  dividePolynomials,
-  evaluatePolynomial,
-  derivativePolynomial,
-  gcdPolynomials,
-  polynomialToString,
-  isIdeal,
-  principalIdeal,
-  isRingHomomorphism,
-} from '../../algebra/rings';
-
+import { describe, expect, it } from 'vitest';
 // ── Field Theory imports ────────────────────────────────────────────────────
 import {
-  verifyFieldAxioms,
-  modInverse,
   createFiniteField,
-  isPrimitiveRoot,
-  findPrimitiveRoot,
-  quadraticElement,
   createQuadraticExtensionOps,
-  minimalPolynomialSqrt,
-  isIrreducible,
-  findRootsFiniteField,
   extensionDegree,
-  isSplittingField,
+  findPrimitiveRoot,
+  findRootsFiniteField,
   galoisGroupFiniteField,
   isGaloisExtension,
+  isIrreducible,
+  isPrimitiveRoot,
+  isSplittingField,
+  minimalPolynomialSqrt,
+  modInverse,
+  quadraticElement,
+  verifyFieldAxioms,
 } from '../../algebra/fields';
+// ── Group Theory imports ────────────────────────────────────────────────────
+import {
+  allLeftCosets,
+  composePermutations,
+  createCyclicGroup,
+  createDihedralGroup,
+  createSymmetricGroup,
+  cyclesToPermutation,
+  elementOrder,
+  findGenerators,
+  groupIndex,
+  image,
+  invertPermutation,
+  isCyclic,
+  isHomomorphism,
+  isIsomorphism,
+  isSubgroup,
+  kernel,
+  leftCoset,
+  permutationToCycles,
+  verifyGroupAxioms,
+} from '../../algebra/groups';
+// ── Ring Theory imports ─────────────────────────────────────────────────────
+import {
+  addPolynomials,
+  createModularRing,
+  derivativePolynomial,
+  dividePolynomials,
+  evaluatePolynomial,
+  GaussianIntegerOps,
+  gaussian,
+  gcdPolynomials,
+  isIdeal,
+  isRingHomomorphism,
+  multiplyPolynomials,
+  polynomialToString,
+  principalIdeal,
+  verifyRingAxioms,
+} from '../../algebra/rings';
 
 // ════════════════════════════════════════════════════════════════════════════
 // GROUP THEORY
@@ -375,12 +372,7 @@ describe('Group Theory — groups.ts', () => {
 
     it('passes group axiom verification for D_3', () => {
       const d3 = createDihedralGroup(3);
-      const result = verifyGroupAxioms(
-        [...d3.elements],
-        d3.operation,
-        d3.identity,
-        d3.inverse,
-      );
+      const result = verifyGroupAxioms([...d3.elements], d3.operation, d3.identity, d3.inverse);
 
       expect(result.isGroup).toBe(true);
     });
@@ -428,7 +420,7 @@ describe('Group Theory — groups.ts', () => {
 
   // ── Cosets and Lagrange's theorem ─────────────────────────────────────
 
-  describe('Cosets and Lagrange\'s theorem', () => {
+  describe("Cosets and Lagrange's theorem", () => {
     it('computes left coset 1 + {0, 3} in Z_6', () => {
       const z6 = createCyclicGroup(6);
       const H = [0, 3];
@@ -471,13 +463,7 @@ describe('Group Theory — groups.ts', () => {
       const z12 = createCyclicGroup(12);
 
       // All proper subgroups of Z_12 have orders dividing 12: {1,2,3,4,6,12}
-      const subgroups: number[][] = [
-        [0],
-        [0, 6],
-        [0, 4, 8],
-        [0, 3, 6, 9],
-        [0, 2, 4, 6, 8, 10],
-      ];
+      const subgroups: number[][] = [[0], [0, 6], [0, 4, 8], [0, 3, 6, 9], [0, 2, 4, 6, 8, 10]];
 
       for (const H of subgroups) {
         expect(isSubgroup(z12, H)).toBe(true);
@@ -1523,13 +1509,7 @@ describe('Field Theory — fields.ts', () => {
   describe('Cross-module mathematical properties', () => {
     it('F_p satisfies ring axioms (every field is a ring)', () => {
       const f7 = createFiniteField(7);
-      const result = verifyRingAxioms(
-        [...f7.elements],
-        f7.add,
-        f7.multiply,
-        f7.zero,
-        f7.negate,
-      );
+      const result = verifyRingAxioms([...f7.elements], f7.add, f7.multiply, f7.zero, f7.negate);
 
       expect(result.isRing).toBe(true);
     });
@@ -1699,12 +1679,7 @@ describe('Field Theory — fields.ts', () => {
     it('D_n passes group axiom verification for several n', () => {
       for (const n of [3, 4, 5, 6]) {
         const dn = createDihedralGroup(n);
-        const result = verifyGroupAxioms(
-          [...dn.elements],
-          dn.operation,
-          dn.identity,
-          dn.inverse,
-        );
+        const result = verifyGroupAxioms([...dn.elements], dn.operation, dn.identity, dn.inverse);
         expect(result.isGroup).toBe(true);
       }
     });
@@ -1727,10 +1702,7 @@ describe('Field Theory — fields.ts', () => {
 
       const dp = derivativePolynomial(p);
       const dq = derivativePolynomial(q);
-      const sum = addPolynomials(
-        multiplyPolynomials(dp, q),
-        multiplyPolynomials(p, dq),
-      );
+      const sum = addPolynomials(multiplyPolynomials(dp, q), multiplyPolynomials(p, dq));
 
       // dpq and sum should be equal
       expect(dpq.length).toBe(sum.length);

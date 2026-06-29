@@ -109,7 +109,7 @@ interface DashboardRecentActivityData {
 
 function ProfileSkeleton() {
   return (
-    <div className="space-y-6" aria-busy="true" aria-label="Loading profile data">
+    <div className="space-y-6" role="status" aria-busy="true" aria-label="Loading profile data">
       {/* Hero card skeleton */}
       <div className="rounded-xl border border-border bg-card p-6">
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
@@ -125,6 +125,7 @@ function ProfileSkeleton() {
       {/* Stats grid skeleton */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {Array.from({ length: 4 }, (_, i) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length skeleton placeholder; index is stable positional identity
           <div key={i} className="rounded-xl border border-border bg-card p-4">
             <div className="flex items-center gap-3">
               <Skeleton className="h-9 w-9 rounded-lg" />
@@ -142,6 +143,7 @@ function ProfileSkeleton() {
         <Skeleton className="h-5 w-32" />
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {Array.from({ length: 3 }, (_, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length skeleton placeholder; index is stable positional identity
             <Skeleton key={i} className="h-16 rounded-xl" />
           ))}
         </div>
@@ -152,6 +154,7 @@ function ProfileSkeleton() {
         <div className="rounded-xl border border-border bg-card p-6 space-y-3">
           <Skeleton className="h-5 w-36" />
           {Array.from({ length: 5 }, (_, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length skeleton placeholder; index is stable positional identity
             <div key={i} className="flex items-center gap-3 py-2">
               <Skeleton className="h-8 w-8 rounded-md flex-shrink-0" />
               <div className="flex-1 space-y-1.5">

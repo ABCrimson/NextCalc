@@ -89,7 +89,10 @@ export function MathRenderer({
           errorColor: 'var(--color-destructive)',
           ...(macros !== undefined && { macros }),
           trust,
-          output: 'mathml',
+          // Default 'htmlAndMathml': KaTeX's CSS-based HTML layout for visual
+          // fidelity PLUS MathML for screen readers. (Previously forced 'mathml',
+          // which discarded the HTML typesetting and relied on inconsistent
+          // native-browser MathML rendering.)
           strict: 'warn',
         };
 

@@ -16,6 +16,7 @@
  * @module app/solver/ode/page
  */
 
+import { evaluate, parse } from '@nextcalc/math-engine/parser';
 import {
   Activity,
   Download,
@@ -197,46 +198,34 @@ fn fs_main(in : VOut) -> @location(0) vec4<f32> {
 // ============================================================================
 
 function compileExpr(expr: string, vars: string[]): ((...args: number[]) => number) | ParseError {
-  const normalized = expr
-    .replace(/\^/g, '**')
-    .replace(/\bpi\b/g, 'Math.PI')
-    .replace(/\be\b(?![a-zA-Z_])/g, 'Math.E')
-    .replace(/\bsin\b/g, 'Math.sin')
-    .replace(/\bcos\b/g, 'Math.cos')
-    .replace(/\btan\b/g, 'Math.tan')
-    .replace(/\basin\b/g, 'Math.asin')
-    .replace(/\bacos\b/g, 'Math.acos')
-    .replace(/\batan\b/g, 'Math.atan')
-    .replace(/\batan2\b/g, 'Math.atan2')
-    .replace(/\bexp\b/g, 'Math.exp')
-    .replace(/\bln\b/g, 'Math.log')
-    .replace(/\blog\b(?!\s*\()/g, 'Math.log10')
-    .replace(/\blog\b/g, 'Math.log')
-    .replace(/\bsqrt\b/g, 'Math.sqrt')
-    .replace(/\babs\b/g, 'Math.abs')
-    .replace(/\bcbrt\b/g, 'Math.cbrt')
-    .replace(/\bceil\b/g, 'Math.ceil')
-    .replace(/\bfloor\b/g, 'Math.floor')
-    .replace(/\bround\b/g, 'Math.round')
-    .replace(/\bsign\b/g, 'Math.sign')
-    .replace(/\bmax\b/g, 'Math.max')
-    .replace(/\bmin\b/g, 'Math.min')
-    .replace(/\bpow\b/g, 'Math.pow')
-    .replace(/\bhypot\b/g, 'Math.hypot')
-    .replace(/\bsinh\b/g, 'Math.sinh')
-    .replace(/\bcosh\b/g, 'Math.cosh')
-    .replace(/\btanh\b/g, 'Math.tanh');
-
+  // Parse once up front. The math-engine evaluator natively understands pi/e, sin/cos/tan,
+  // ln/log, sqrt, abs, etc., so there is no string rewriting and — crucially — no
+  // `new Function` evaluation of user-supplied input (no dynamic-eval / injection surface).
+  let ast: ReturnType<typeof parse>;
   try {
-    // eslint-disable-next-line no-new-func
-    const fn = new Function(...vars, `"use strict"; return (${normalized});`) as (
-      ...args: number[]
-    ) => number;
-    fn(...vars.map(() => 0));
-    return fn;
+    ast = parse(expr);
   } catch (err) {
     return { message: err instanceof Error ? err.message : String(err) };
   }
+
+  // Probe with a benign scope (1) so unknown functions/symbols are surfaced up front
+  // (driving `hasParseError`), without tripping 0-singularities like ln(0) or 1/0.
+  const probeScope: Record<string, number> = {};
+  for (const name of vars) probeScope[name] = 1;
+  const probe = evaluate(ast, { variables: probeScope });
+  if (!probe.success) {
+    return { message: probe.error.message };
+  }
+
+  return (...args: number[]): number => {
+    const variables: Record<string, number> = {};
+    for (let i = 0; i < vars.length; i++) {
+      variables[vars[i] as string] = args[i] ?? 0;
+    }
+    const result = evaluate(ast, { variables });
+    if (!result.success) return Number.NaN;
+    return typeof result.value === 'number' ? result.value : Number(result.value);
+  };
 }
 
 // ============================================================================
@@ -1578,8 +1567,11 @@ function SolutionTable({ points, odeType, maxRows = 20 }: SolutionTableProps) {
           </tr>
         </thead>
         <tbody>
-          {rows.map((pt, i) => (
-            <tr key={i} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+          {rows.map((pt) => (
+            <tr
+              key={pt.t}
+              className="border-b border-border/50 hover:bg-muted/30 transition-colors"
+            >
               <td className="px-4 py-1.5 text-foreground/80">
                 {(pt as SolutionPoint).t !== undefined ? (pt as SolutionPoint).t.toFixed(4) : ''}
               </td>

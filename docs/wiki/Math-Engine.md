@@ -1,6 +1,6 @@
 # Math Engine
 
-`@nextcalc/math-engine` is the core mathematical computation library with 18+ modules available via subpath exports.
+`@nextcalc/math-engine` is the core mathematical computation library with 20 subpath export modules.
 
 ## Modules
 
@@ -16,6 +16,7 @@
 | Units | `@nextcalc/math-engine/units` | Unit conversion engine |
 | Fourier | `@nextcalc/math-engine/fourier` | FFT, IFFT, spectral analysis, Fourier series |
 | Graph Theory | `@nextcalc/math-engine/graph-theory` | MST, SCC, coloring, max flow, TSP |
+| Algorithms | `@nextcalc/math-engine/algorithms` | Sorting, searching, graph, DP, greedy, string algorithms |
 | Game Theory | `@nextcalc/math-engine/game-theory/game-theory` | Nash equilibrium, dominant strategies |
 | Chaos Theory | `@nextcalc/math-engine/chaos/chaos-theory` | Lorenz attractor, bifurcation |
 | Calculus | `@nextcalc/math-engine/calculus` | Vector calculus, line/surface integrals |
@@ -62,9 +63,9 @@ const integral = integrate(expr, 'x');
 ### Taylor Series
 
 ```typescript
-import { taylorSeries } from '@nextcalc/math-engine';
+import { parse, taylorSeries } from '@nextcalc/math-engine';
 
-const series = taylorSeries('sin(x)', 'x', 0, 5);
+const series = taylorSeries(parse('sin(x)'), 'x', { center: 0, terms: 5 });
 // x - x^3/6 + x^5/120
 ```
 
@@ -89,9 +90,9 @@ const ranks = pageRank(graph);
 import { isPrime, millerRabin, primeFactorize, modPow, crt } from '@nextcalc/math-engine';
 
 isPrime(104729); // true
-millerRabin(104729n, 20); // true
-primeFactorize(360); // { 2: 3, 3: 2, 5: 1 }
-modPow(2n, 10n, 1000n); // 24n
+millerRabin(104729, 20); // true
+primeFactorize(360); // PrimeFactorization { factors: Map { 2 => 3, 3 => 2, 5 => 1 }, n: 360 }
+modPow(2, 10, 1000); // 24
 ```
 
 ### Theorem Prover
@@ -118,7 +119,7 @@ Use builder functions: `createConstantNode()`, `createSymbolNode()`, `createOper
 
 ## BigInt Safety
 
-Since v1.1.0, `modPow`, `lucasLehmer`, and RSA operations use BigInt arithmetic throughout to prevent integer overflow. The `randomBigIntBelow()` helper replaces unsafe `Number(bigint)` conversions, ensuring correctness for arbitrarily large inputs.
+Since v1.1.0, `modPow` and `lucasLehmer` expose `number` signatures (`modPow(base, exp, m): number`, `lucasLehmer(p): boolean`) while computing internally with BigInt to prevent integer overflow. Within RSA key generation (`algorithms/crypto/rsa.ts`), a private `randomBigIntBelow()` helper replaces unsafe `Number(bigint)` conversions, ensuring correct uniform sampling for arbitrarily large key candidates. It is an internal helper scoped to RSA, not a cross-cutting public export.
 
 ## Performance
 

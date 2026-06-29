@@ -218,12 +218,12 @@ export function Annotations({
   return (
     // pointer-events-none on the root so we don't block WebGL interactions;
     // individual interactive elements opt back in with pointer-events-auto.
+    // biome-ignore lint/a11y/noStaticElementInteractions: pointer-events:none — onClick only fires via bubbling from interactive children; adding role+tabIndex here would be semantically wrong
+    // biome-ignore lint/a11y/useKeyWithClickEvents: pointer-events:none — this div cannot receive keyboard focus; deselect-on-click fires only from child bubbling, not direct interaction
     <div
       className="absolute inset-0 select-none"
       style={{ width, height, pointerEvents: 'none' }}
       onClick={handleOverlayClick}
-      role="presentation"
-      aria-label="Plot annotations overlay"
     >
       {/* ------------------------------------------------------------------ */}
       {/* SVG layer — draws arrow shafts and arrowheads                       */}
@@ -281,6 +281,7 @@ export function Annotations({
                 exit="exit"
               >
                 {/* Invisible wide hit area for click selection */}
+                {/* biome-ignore lint/a11y/useSemanticElements: SVG <line> cannot be replaced with <button>; role="button" is the correct ARIA pattern for interactive SVG elements */}
                 <line
                   x1={ann.px1}
                   y1={ann.py1}

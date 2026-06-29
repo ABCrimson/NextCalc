@@ -288,11 +288,8 @@ function factorial(n: number): number {
  * Custom error class for evaluation errors
  */
 export class EvaluationError extends Error {
-  constructor(
-    message: string,
-    public override cause?: unknown,
-  ) {
-    super(message);
+  constructor(message: string, cause?: unknown) {
+    super(message, { cause });
     this.name = 'EvaluationError';
   }
 }

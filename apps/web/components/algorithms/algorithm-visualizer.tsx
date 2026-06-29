@@ -108,7 +108,7 @@ export function AlgorithmVisualizer({
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState<keyof typeof SPEED_PRESETS>('normal');
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const currentStepData = steps[currentStep];
   const progress = ((currentStep + 1) / steps.length) * 100;
@@ -191,7 +191,7 @@ export function AlgorithmVisualizer({
   }, [handlePlayPause, handleStepForward, handleStepBackward, handleReset]);
 
   return (
-    <div className={cn('space-y-6', className)} role="region" aria-label="Algorithm visualizer">
+    <section className={cn('space-y-6', className)} aria-label="Algorithm visualizer">
       {/* Header */}
       <Card>
         <CardHeader>
@@ -399,7 +399,7 @@ export function AlgorithmVisualizer({
           </div>
         </CardContent>
       </Card>
-    </div>
+    </section>
   );
 }
 
@@ -614,7 +614,13 @@ function VisualizationRenderer({
     const maxY = levels.length * 80 + 50;
     return (
       <div className="flex justify-center p-4" role="img" aria-label="Tree visualization">
-        <svg width={600} height={maxY} viewBox={`0 0 600 ${maxY}`} className="max-w-full">
+        <svg
+          width={600}
+          height={maxY}
+          viewBox={`0 0 600 ${maxY}`}
+          className="max-w-full"
+          aria-hidden="true"
+        >
           {/* Edges */}
           {levels.map((row, lvl) =>
             row.map((node, i) => {
@@ -721,7 +727,7 @@ function VisualizationRenderer({
 
   return (
     <div className="flex justify-center p-4" role="img" aria-label="Graph visualization">
-      <svg width={600} height={440} viewBox="0 0 600 440" className="max-w-full">
+      <svg width={600} height={440} viewBox="0 0 600 440" className="max-w-full" aria-hidden="true">
         {/* Edges */}
         {edges.map((edge, i) => {
           const from = nodes[edge.from];
@@ -729,7 +735,7 @@ function VisualizationRenderer({
           if (!from || !to) return null;
           return (
             <m.line
-              key={`gedge-${i}`}
+              key={`gedge-${edge.from}-${edge.to}`}
               x1={from.x}
               y1={from.y}
               x2={to.x}

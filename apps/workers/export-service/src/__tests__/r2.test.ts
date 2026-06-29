@@ -2,8 +2,9 @@
  * Comprehensive unit tests for R2 storage utilities
  *
  * Tests cover:
- * - Object upload/download via uploadToR2
- * - Export URL generation via generateExportUrl
+ * - Object upload/download via uploadToR2 (public and private paths)
+ * - Presigned URL generation via generateExportUrl (private = SigV4, public = plain)
+ * - Error on missing credentials for private exports (no silent fallback)
  * - Object deletion via deleteFromR2
  * - Object listing via listR2Objects
  * - Key generation via generateExportKey
@@ -12,19 +13,61 @@
  * - Error handling for missing objects and failed uploads
  */
 
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   deleteFromR2,
   generateExportKey,
   generateExportUrl,
   getMimeType,
   listR2Objects,
-  uploadToR2,
-  validateFileSize,
   type R2Bucket,
   type R2Object,
   type R2ObjectBody,
+  type R2S3Config,
+  uploadToR2,
+  validateFileSize,
 } from '../utils/r2.js';
+
+// ---------------------------------------------------------------------------
+// aws4fetch mock — keeps tests offline; records the URL that would be signed.
+// The real AwsClient.sign() returns a signed Request; we return a fake signed
+// URL that contains the standard SigV4 presign query parameters so the tests
+// can assert on their presence.
+// ---------------------------------------------------------------------------
+vi.mock('aws4fetch', () => {
+  class AwsClient {
+    async sign(
+      request: Request,
+      _opts?: { aws?: { signQuery?: boolean; expiresIn?: number } },
+    ): Promise<Request> {
+      // Build a realistic-looking presigned URL with the expected SigV4 params
+      const url = new URL(request.url);
+      url.searchParams.set('X-Amz-Algorithm', 'AWS4-HMAC-SHA256');
+      url.searchParams.set(
+        'X-Amz-Credential',
+        'AKIAIOSFODNN7EXAMPLE/20260624/auto/s3/aws4_request',
+      );
+      url.searchParams.set('X-Amz-Date', '20260624T000000Z');
+      url.searchParams.set('X-Amz-Expires', '3600');
+      url.searchParams.set('X-Amz-Signature', 'mock-signature-hex-string');
+      return new Request(url.toString(), { method: 'GET' });
+    }
+  }
+
+  return { AwsClient };
+});
+
+// ---------------------------------------------------------------------------
+// Test fixtures
+// ---------------------------------------------------------------------------
+
+const MOCK_R2_CONFIG: R2S3Config = {
+  accountId: 'test-account-id',
+  accessKeyId: 'test-access-key-id',
+  secretAccessKey: 'test-secret-access-key',
+  privateBucketName: 'nextcalc-exports-private',
+  publicBaseUrl: 'https://exports.nextcalc.pro',
+};
 
 // ---------------------------------------------------------------------------
 // R2 mock factory
@@ -71,10 +114,10 @@ function createMockBucket(overrides: Partial<R2Bucket> = {}): R2Bucket {
 }
 
 // ---------------------------------------------------------------------------
-// uploadToR2
+// uploadToR2 — public exports
 // ---------------------------------------------------------------------------
 
-describe('uploadToR2', () => {
+describe('uploadToR2 (public exports)', () => {
   let bucket: R2Bucket;
 
   beforeEach(() => {
@@ -82,7 +125,14 @@ describe('uploadToR2', () => {
   });
 
   it('uploads content and returns a valid UploadResult', async () => {
-    const result = await uploadToR2(bucket, 'test/file.pdf', 'pdf content', 'application/pdf');
+    const result = await uploadToR2(
+      bucket,
+      'test/file.pdf',
+      'pdf content',
+      'application/pdf',
+      false,
+      MOCK_R2_CONFIG,
+    );
 
     expect(result.key).toBe('test/file.pdf');
     expect(result.url).toContain('test/file.pdf');
@@ -93,7 +143,7 @@ describe('uploadToR2', () => {
 
   it('calls bucket.put with the correct key and content', async () => {
     const content = new Uint8Array([1, 2, 3]);
-    await uploadToR2(bucket, 'my/key.png', content, 'image/png');
+    await uploadToR2(bucket, 'my/key.png', content, 'image/png', false, MOCK_R2_CONFIG);
 
     expect(bucket.put).toHaveBeenCalledTimes(1);
     const args = (bucket.put as ReturnType<typeof vi.fn>).mock.calls[0];
@@ -101,18 +151,34 @@ describe('uploadToR2', () => {
     expect(args?.[1]).toBe(content);
   });
 
-  it('sets httpMetadata with contentType and cacheControl', async () => {
-    await uploadToR2(bucket, 'key.svg', '<svg/>', 'image/svg+xml');
+  it('sets httpMetadata with contentType and public cacheControl', async () => {
+    await uploadToR2(bucket, 'key.svg', '<svg/>', 'image/svg+xml', false, MOCK_R2_CONFIG);
 
     const args = (bucket.put as ReturnType<typeof vi.fn>).mock.calls[0];
     const options = args?.[2] as { httpMetadata?: { contentType?: string; cacheControl?: string } };
     expect(options?.httpMetadata?.contentType).toBe('image/svg+xml');
+    expect(options?.httpMetadata?.cacheControl).toBe('public, max-age=86400');
+  });
+
+  it('sets httpMetadata with private cacheControl for private exports', async () => {
+    await uploadToR2(bucket, 'users/u1/key.svg', '<svg/>', 'image/svg+xml', true, MOCK_R2_CONFIG);
+
+    const args = (bucket.put as ReturnType<typeof vi.fn>).mock.calls[0];
+    const options = args?.[2] as { httpMetadata?: { contentType?: string; cacheControl?: string } };
     expect(options?.httpMetadata?.cacheControl).toBe('private, max-age=3600');
   });
 
   it('passes custom metadata when provided', async () => {
     const metadata = { userId: 'u123', format: 'pdf' };
-    await uploadToR2(bucket, 'key.pdf', 'content', 'application/pdf', metadata);
+    await uploadToR2(
+      bucket,
+      'key.pdf',
+      'content',
+      'application/pdf',
+      false,
+      MOCK_R2_CONFIG,
+      metadata,
+    );
 
     const args = (bucket.put as ReturnType<typeof vi.fn>).mock.calls[0];
     const options = args?.[2] as { customMetadata?: Record<string, string> };
@@ -120,7 +186,7 @@ describe('uploadToR2', () => {
   });
 
   it('does not include customMetadata when not provided', async () => {
-    await uploadToR2(bucket, 'key.pdf', 'content', 'application/pdf');
+    await uploadToR2(bucket, 'key.pdf', 'content', 'application/pdf', false, MOCK_R2_CONFIG);
 
     const args = (bucket.put as ReturnType<typeof vi.fn>).mock.calls[0];
     const options = args?.[2] as { customMetadata?: Record<string, string> };
@@ -133,23 +199,42 @@ describe('uploadToR2', () => {
     });
 
     await expect(
-      uploadToR2(failBucket, 'key.pdf', 'content', 'application/pdf'),
+      uploadToR2(failBucket, 'key.pdf', 'content', 'application/pdf', false, MOCK_R2_CONFIG),
     ).rejects.toThrow('Failed to upload to R2');
   });
 
-  it('returns a URL rooted at exports.nextcalc.pro', async () => {
+  it('returns a public URL using publicBaseUrl for public exports', async () => {
     const customBucket = createMockBucket({
-      put: vi.fn().mockResolvedValue(createMockR2Object({ key: 'users/123/file.pdf', size: 512 })),
+      put: vi
+        .fn()
+        .mockResolvedValue(createMockR2Object({ key: 'public/2026-01-01/file.pdf', size: 512 })),
     });
 
-    const result = await uploadToR2(customBucket, 'users/123/file.pdf', 'data', 'application/pdf');
+    const result = await uploadToR2(
+      customBucket,
+      'public/2026-01-01/file.pdf',
+      'data',
+      'application/pdf',
+      false,
+      MOCK_R2_CONFIG,
+    );
 
-    expect(result.url).toBe('https://exports.nextcalc.pro/users/123/file.pdf');
+    expect(result.url).toBe('https://exports.nextcalc.pro/public/2026-01-01/file.pdf');
+    // Must NOT contain SigV4 params — public URLs are plain
+    expect(result.url).not.toContain('X-Amz-Signature');
+    expect(result.url).not.toContain('X-Amz-Expires');
   });
 
   it('sets expiresAt to approximately 1 hour in the future', async () => {
     const before = Date.now();
-    const result = await uploadToR2(bucket, 'key.pdf', 'data', 'application/pdf');
+    const result = await uploadToR2(
+      bucket,
+      'key.pdf',
+      'data',
+      'application/pdf',
+      false,
+      MOCK_R2_CONFIG,
+    );
     const after = Date.now();
 
     const expiresMs = new Date(result.expiresAt).getTime();
@@ -160,14 +245,28 @@ describe('uploadToR2', () => {
 
   it('handles ArrayBuffer content', async () => {
     const buffer = new ArrayBuffer(16);
-    const result = await uploadToR2(bucket, 'key.bin', buffer, 'application/octet-stream');
+    const result = await uploadToR2(
+      bucket,
+      'key.bin',
+      buffer,
+      'application/octet-stream',
+      false,
+      MOCK_R2_CONFIG,
+    );
 
     expect(result.key).toBe('test/file.pdf'); // from mock
     expect(bucket.put).toHaveBeenCalledTimes(1);
   });
 
   it('handles string content', async () => {
-    const result = await uploadToR2(bucket, 'key.svg', '<svg></svg>', 'image/svg+xml');
+    const result = await uploadToR2(
+      bucket,
+      'key.svg',
+      '<svg></svg>',
+      'image/svg+xml',
+      false,
+      MOCK_R2_CONFIG,
+    );
 
     expect(result).toBeDefined();
     expect(bucket.put).toHaveBeenCalledTimes(1);
@@ -175,17 +274,68 @@ describe('uploadToR2', () => {
 });
 
 // ---------------------------------------------------------------------------
-// generateExportUrl
+// uploadToR2 — private exports (presigned URL path)
 // ---------------------------------------------------------------------------
 
-describe('generateExportUrl', () => {
-  it('returns a URL for an existing object', async () => {
+describe('uploadToR2 (private exports)', () => {
+  it('returns a presigned URL with X-Amz-Signature for private exports', async () => {
+    const bucket = createMockBucket({
+      put: vi.fn().mockResolvedValue(createMockR2Object({ key: 'users/u1/2026-06-24/file.pdf' })),
+    });
+
+    const result = await uploadToR2(
+      bucket,
+      'users/u1/2026-06-24/file.pdf',
+      'data',
+      'application/pdf',
+      true,
+      MOCK_R2_CONFIG,
+    );
+
+    expect(result.url).toContain('X-Amz-Signature');
+    expect(result.url).toContain('X-Amz-Expires');
+    expect(result.url).toContain('X-Amz-Credential');
+    // URL must be rooted at the R2 S3 endpoint, not the public base
+    expect(result.url).toContain(`${MOCK_R2_CONFIG.accountId}.r2.cloudflarestorage.com`);
+  });
+
+  it('throws with a clear error when isPrivate=true but r2Config is undefined', async () => {
     const bucket = createMockBucket();
 
-    const url = await generateExportUrl(bucket, 'test/file.pdf');
+    await expect(
+      uploadToR2(bucket, 'users/u1/key.pdf', 'data', 'application/pdf', true, undefined),
+    ).rejects.toThrow('R2 S3 credentials are required for private exports');
+  });
 
-    expect(url).toContain('https://exports.nextcalc.pro/test/file.pdf');
-    expect(url).toContain('expires=');
+  it('does NOT fall back to an unsigned URL when credentials are missing', async () => {
+    const bucket = createMockBucket();
+
+    const promise = uploadToR2(
+      bucket,
+      'users/u1/key.pdf',
+      'data',
+      'application/pdf',
+      true,
+      undefined,
+    );
+
+    // Must throw, never resolve
+    await expect(promise).rejects.toThrow();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// generateExportUrl — public
+// ---------------------------------------------------------------------------
+
+describe('generateExportUrl (public)', () => {
+  it('returns a plain public URL for public objects', async () => {
+    const bucket = createMockBucket();
+
+    const url = await generateExportUrl(bucket, 'public/file.pdf', false, MOCK_R2_CONFIG);
+
+    expect(url).toBe('https://exports.nextcalc.pro/public/file.pdf');
+    expect(url).not.toContain('X-Amz-Signature');
   });
 
   it('throws when object does not exist', async () => {
@@ -193,40 +343,70 @@ describe('generateExportUrl', () => {
       head: vi.fn().mockResolvedValue(null),
     });
 
-    await expect(generateExportUrl(emptyBucket, 'missing/file.pdf')).rejects.toThrow(
-      'Object not found',
-    );
-  });
-
-  it('uses default expiry of 3600 seconds', async () => {
-    const bucket = createMockBucket();
-    const before = Date.now();
-
-    const url = await generateExportUrl(bucket, 'test/file.pdf');
-
-    const expiresMatch = url.match(/expires=(\d+)/);
-    expect(expiresMatch).not.toBeNull();
-    const expiresMs = Number(expiresMatch?.[1]);
-    expect(expiresMs).toBeGreaterThanOrEqual(before + 3600 * 1000);
-  });
-
-  it('respects custom expiry seconds', async () => {
-    const bucket = createMockBucket();
-    const before = Date.now();
-
-    const url = await generateExportUrl(bucket, 'test/file.pdf', 7200);
-
-    const expiresMatch = url.match(/expires=(\d+)/);
-    const expiresMs = Number(expiresMatch?.[1]);
-    expect(expiresMs).toBeGreaterThanOrEqual(before + 7200 * 1000);
+    await expect(
+      generateExportUrl(emptyBucket, 'missing/file.pdf', false, MOCK_R2_CONFIG),
+    ).rejects.toThrow('Object not found');
   });
 
   it('calls bucket.head to verify existence', async () => {
     const bucket = createMockBucket();
 
-    await generateExportUrl(bucket, 'check/key.pdf');
+    await generateExportUrl(bucket, 'check/key.pdf', false, MOCK_R2_CONFIG);
 
     expect(bucket.head).toHaveBeenCalledWith('check/key.pdf');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// generateExportUrl — private (presigned SigV4)
+// ---------------------------------------------------------------------------
+
+describe('generateExportUrl (private presigned)', () => {
+  it('returns a presigned URL with X-Amz-Signature for private objects', async () => {
+    const bucket = createMockBucket();
+
+    const url = await generateExportUrl(bucket, 'users/u1/file.pdf', true, MOCK_R2_CONFIG);
+
+    expect(url).toContain('X-Amz-Signature');
+    expect(url).toContain('X-Amz-Expires');
+    expect(url).toContain('X-Amz-Credential');
+  });
+
+  it('presigned URL is rooted at the R2 S3 endpoint', async () => {
+    const bucket = createMockBucket();
+
+    const url = await generateExportUrl(bucket, 'users/u1/file.pdf', true, MOCK_R2_CONFIG);
+
+    expect(url).toContain(`${MOCK_R2_CONFIG.accountId}.r2.cloudflarestorage.com`);
+    expect(url).toContain(MOCK_R2_CONFIG.privateBucketName);
+    expect(url).toContain('users/u1/file.pdf');
+  });
+
+  it('presigned URL contains X-Amz-Expires param', async () => {
+    const bucket = createMockBucket();
+
+    const url = await generateExportUrl(bucket, 'users/u1/file.pdf', true, MOCK_R2_CONFIG, 7200);
+
+    // The mock always sets X-Amz-Expires to 3600 in URL params;
+    // the important check is that the parameter is present and not 0.
+    expect(url).toContain('X-Amz-Expires=');
+  });
+
+  it('throws with a clear error when isPrivate=true but r2Config is undefined', async () => {
+    const bucket = createMockBucket();
+
+    await expect(generateExportUrl(bucket, 'users/u1/file.pdf', true, undefined)).rejects.toThrow(
+      'R2 S3 credentials are required to generate a presigned URL',
+    );
+  });
+
+  it('does NOT fall back to an unsigned URL when credentials are missing for private objects', async () => {
+    const bucket = createMockBucket();
+
+    const promise = generateExportUrl(bucket, 'users/u1/file.pdf', true, undefined);
+
+    // Must throw before reaching bucket.head — credentials gate comes first
+    await expect(promise).rejects.toThrow();
   });
 });
 

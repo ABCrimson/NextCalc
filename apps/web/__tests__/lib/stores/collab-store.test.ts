@@ -1,9 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import {
-  COLLAB_COLORS,
-  type RemoteCollaborator,
-  useCollabStore,
-} from '@/lib/stores/collab-store';
+import { COLLAB_COLORS, type RemoteCollaborator, useCollabStore } from '@/lib/stores/collab-store';
 
 function getStore() {
   return useCollabStore.getState();

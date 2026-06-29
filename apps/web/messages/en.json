@@ -274,6 +274,8 @@
     "newPost": "New Post",
     "noDiscussions": "No discussions found",
     "noDiscussionsHint": "Try adjusting your search or filter",
+    "loadError": "Failed to load discussions",
+    "loadErrorHint": "Please check your connection and try again",
     "popularTopics": "Popular Topics",
     "communityGuidelines": "Community Guidelines",
     "topContributors": "Top Contributors",

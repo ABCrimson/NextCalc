@@ -25,10 +25,12 @@ We are committed to making participation in this project a welcoming and respect
 
 Project maintainers are responsible for clarifying the standards of acceptable behavior and will take appropriate corrective action in response to any instances of unacceptable behavior.
 
+Instances of unacceptable behavior may be reported to the project maintainers at conduct@nextcalc.dev. All complaints will be reviewed and investigated promptly and fairly.
+
 ## Scope
 
 This Code of Conduct applies within all project spaces and when an individual is representing the project in public spaces.
 
 ## Attribution
 
-This Code of Conduct is adapted from the [Contributor Covenant](https://www.contributor-covenant.org/), version 2.1.
+This Code of Conduct is adapted from the [Contributor Covenant](https://www.contributor-covenant.org/).

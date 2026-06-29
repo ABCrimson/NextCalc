@@ -9,33 +9,33 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import { ValidationError } from '../../lib/errors';
 import {
-  idSchema,
-  emailSchema,
-  nameSchema,
-  urlSchema,
-  textSchema,
-  markdownSchema,
-  createWorksheetSchema,
-  updateWorksheetSchema,
-  createForumPostSchema,
-  updateForumPostSchema,
-  createCommentSchema,
-  updateCommentSchema,
-  shareCalculationSchema,
-  shareWorksheetSchema,
   calculationSchema,
-  paginationSchema,
+  createCommentSchema,
   createFolderSchema,
-  updateFolderSchema,
-  worksheetFilterSchema,
+  createForumPostSchema,
+  createWorksheetSchema,
+  emailSchema,
   forumPostFilterSchema,
-  updateUserProfileSchema,
-  validate,
+  idSchema,
+  markdownSchema,
+  nameSchema,
+  paginationSchema,
   sanitizeHtml,
   sanitizeSearchQuery,
+  shareCalculationSchema,
+  shareWorksheetSchema,
+  textSchema,
+  updateCommentSchema,
+  updateFolderSchema,
+  updateForumPostSchema,
+  updateUserProfileSchema,
+  updateWorksheetSchema,
+  urlSchema,
+  validate,
+  worksheetFilterSchema,
 } from '../../lib/validation';
-import { ValidationError } from '../../lib/errors';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -629,9 +629,7 @@ describe('Domain schemas', () => {
     });
 
     it('validates image as URL', () => {
-      expect(
-        updateUserProfileSchema.safeParse({ image: 'not-a-url' }).success,
-      ).toBe(false);
+      expect(updateUserProfileSchema.safeParse({ image: 'not-a-url' }).success).toBe(false);
     });
 
     it('accepts valid image URL', () => {
@@ -668,7 +666,7 @@ describe('validate()', () => {
     } catch (error) {
       expect(error).toBeInstanceOf(ValidationError);
       const ve = error as InstanceType<typeof ValidationError>;
-      expect(ve.extensions?.code).toBe('BAD_USER_INPUT');
+      expect(ve.extensions?.['code']).toBe('BAD_USER_INPUT');
     }
   });
 
@@ -689,7 +687,7 @@ describe('validate()', () => {
     } catch (error) {
       expect(error).toBeInstanceOf(ValidationError);
       const ve = error as InstanceType<typeof ValidationError>;
-      const fieldErrors = ve.extensions?.validationErrors as Record<string, string[]>;
+      const fieldErrors = ve.extensions?.['validationErrors'] as Record<string, string[]>;
 
       // title too short => "title" key
       expect(fieldErrors).toHaveProperty('title');
@@ -712,7 +710,7 @@ describe('validate()', () => {
     } catch (error) {
       expect(error).toBeInstanceOf(ValidationError);
       const ve = error as InstanceType<typeof ValidationError>;
-      const fieldErrors = ve.extensions?.validationErrors as Record<string, string[]>;
+      const fieldErrors = ve.extensions?.['validationErrors'] as Record<string, string[]>;
       expect(fieldErrors).toHaveProperty('_root');
     }
   });
@@ -728,7 +726,7 @@ describe('validate()', () => {
     } catch (error) {
       expect(error).toBeInstanceOf(ValidationError);
       const ve = error as InstanceType<typeof ValidationError>;
-      const fieldErrors = ve.extensions?.validationErrors as Record<string, string[]>;
+      const fieldErrors = ve.extensions?.['validationErrors'] as Record<string, string[]>;
       // Should have paths like "content.cells.0.type" or "content.cells.0.content"
       const paths = Object.keys(fieldErrors);
       const hasNestedPath = paths.some((p) => p.includes('.'));
@@ -835,7 +833,7 @@ describe('sanitizeSearchQuery()', () => {
   });
 
   it('removes special characters', () => {
-    expect(sanitizeSearchQuery("hello!@#$%^&*()+=world")).toBe('helloworld');
+    expect(sanitizeSearchQuery('hello!@#$%^&*()+=world')).toBe('helloworld');
   });
 
   it('removes SQL injection characters', () => {

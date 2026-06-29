@@ -7,7 +7,7 @@ Browser Client (Next.js 16 + React 19.3)
     |
     +-- Vercel Edge Network
     |     +-- App Router + SSR
-    |     +-- GraphQL API (Apollo Server 5.4)
+    |     +-- GraphQL API (Apollo Server 5.5)
     |           +-- Neon PostgreSQL (Prisma 7)
     |           +-- Upstash Redis (cache + PubSub)
     |
@@ -30,8 +30,8 @@ Browser Client (Next.js 16 + React 19.3)
   +-- @nextcalc/types
 
 @nextcalc/cas-service     (standalone, uses mathjs)
-@nextcalc/export-service  (standalone, uses mathjax)
-@nextcalc/rate-limiter    (standalone, uses Cloudflare KV)
+@nextcalc/export-service  (standalone, uses KaTeX + @cf-wasm/resvg + modern-pdf-lib)
+@nextcalc/rate-limiter    (standalone, uses a Cloudflare Durable Object)
 ```
 
 **Build order** (enforced by Turborepo):
@@ -120,11 +120,11 @@ WebSocket subscriptions authenticate via JWT tokens passed in the connection `co
 
 ### Rate Limiter Security
 
-The Cloudflare rate-limiter Worker uses timing-safe comparison (`crypto.subtle.timingSafeEqual`) for API key validation, preventing timing-based side-channel attacks on the shared secret.
+The Cloudflare rate-limiter Worker uses a constant-time comparison of SHA-256 digests (a custom `timingSafeEqual` helper, since the Web Crypto API has no native timing-safe compare) for API key validation, preventing timing-based side-channel attacks on the shared secret.
 
-## Prisma 7.5 Adapter Pattern
+## Prisma 7 Adapter Pattern
 
-The database package uses Prisma 7.5.0-dev.33's Neon serverless adapter. The adapter constructor takes a **config object**, not a Pool instance:
+The database package uses Prisma 7's Neon serverless adapter. The adapter constructor takes a **config object**, not a Pool instance:
 
 ```typescript
 // Correct

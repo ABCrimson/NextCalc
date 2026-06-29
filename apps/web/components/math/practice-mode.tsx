@@ -32,12 +32,8 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 
-/**
- * Branded type for practice mode state
- */
-type PracticeModeState = ('setup' | 'active' | 'paused' | 'completed') & {
-  __brand: 'PracticeModeState';
-};
+/** Practice mode state */
+type PracticeModeState = 'setup' | 'active' | 'paused' | 'completed';
 
 /**
  * Performance metrics for a practice session
@@ -125,7 +121,7 @@ export function PracticeMode({
   const { timeLimit = 0, questionCount = 10, topic, adaptiveDifficulty = false } = config;
 
   // State
-  const [state, setState] = useState<PracticeModeState>('setup' as PracticeModeState);
+  const [state, setState] = useState<PracticeModeState>('setup');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userAnswer, setUserAnswer] = useState('');
   const [answers, setAnswers] = useState<Array<{ correct: boolean; time: number }>>([]);
@@ -135,8 +131,8 @@ export function PracticeMode({
   const [bestStreak, setBestStreak] = useState(0);
   const [score, setScore] = useState(0);
 
-  const timerRef = useRef<NodeJS.Timeout | undefined>(undefined);
-  const questionTimerRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const timerRef = useRef<ReturnType<typeof globalThis.setInterval> | undefined>(undefined);
+  const questionTimerRef = useRef<ReturnType<typeof globalThis.setInterval> | undefined>(undefined);
 
   // Get current problem
   const currentProblem = problems[currentIndex];
@@ -159,8 +155,12 @@ export function PracticeMode({
     };
   }, [answers, score, streak, bestStreak]);
 
+  // Latest-handler ref so the question timer always calls the current
+  // handleSubmit (which closes over up-to-date answers/streak/score state)
+  // without recreating the interval on every render.
+  const handleSubmitRef = useRef<(isCorrect: boolean) => void>(() => {});
+
   // Timer effects
-  // biome-ignore lint/correctness/useExhaustiveDependencies: handleSubmit is stable; including it would cause timer restarts
   useEffect(() => {
     if (state === 'active') {
       timerRef.current = setInterval(() => {
@@ -172,7 +172,7 @@ export function PracticeMode({
           const newTime = prev + 1;
           // Auto-submit if time limit reached
           if (timeLimit > 0 && newTime >= timeLimit) {
-            handleSubmit(false);
+            handleSubmitRef.current(false);
           }
           return newTime;
         });
@@ -187,20 +187,20 @@ export function PracticeMode({
 
   // Start session
   const handleStart = useCallback(() => {
-    setState('active' as PracticeModeState);
+    setState('active');
     setTimer(0);
     setQuestionTimer(0);
   }, []);
 
   // Pause session
   const handlePause = useCallback(() => {
-    setState('paused' as PracticeModeState);
+    setState('paused');
     onPause?.();
   }, [onPause]);
 
   // Resume session
   const handleResume = useCallback(() => {
-    setState('active' as PracticeModeState);
+    setState('active');
     onResume?.();
   }, [onResume]);
 
@@ -229,7 +229,7 @@ export function PracticeMode({
 
       // Move to next question or complete
       if (isLastQuestion) {
-        setState('completed' as PracticeModeState);
+        setState('completed');
         onComplete?.({
           totalQuestions: newAnswers.length,
           correctAnswers: newAnswers.filter((a) => a.correct).length,
@@ -258,6 +258,9 @@ export function PracticeMode({
       score,
     ],
   );
+
+  // Keep the question timer interval pointed at the latest handleSubmit.
+  handleSubmitRef.current = handleSubmit;
 
   // Check answer
   const checkAnswer = useCallback(() => {
@@ -415,9 +418,10 @@ export function PracticeMode({
                         const height = (time / maxTime) * 100;
                         const answer = answers[index];
                         if (!answer) return null;
+                        const barKey = `${index}-${answer.time}-${String(answer.correct)}`;
                         return (
                           <m.div
-                            key={index}
+                            key={barKey}
                             initial={{ height: 0 }}
                             animate={{ height: `${height}%` }}
                             transition={{ duration: 0.3, delay: 0.4 + index * 0.05 }}
@@ -474,7 +478,7 @@ export function PracticeMode({
 
   // Active/Paused view
   return (
-    <div className="max-w-4xl mx-auto space-y-6" role="main" aria-label="Practice Mode">
+    <section className="max-w-4xl mx-auto space-y-6" aria-label="Practice Mode">
       {/* Header with stats */}
       <Card>
         <CardContent className="pt-6">
@@ -590,7 +594,6 @@ export function PracticeMode({
                       }}
                       className="w-full px-4 py-3 rounded-lg border bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                       placeholder="Enter your answer..."
-                      autoFocus
                       aria-label="Answer input"
                     />
                   </div>
@@ -617,7 +620,7 @@ export function PracticeMode({
           </Card>
         </m.div>
       </AnimatePresence>
-    </div>
+    </section>
   );
 }
 

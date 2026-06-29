@@ -223,7 +223,7 @@ function StepCard({ step, index, isExpanded, onToggle, isFinal }: StepCardProps)
             <CategoryBadge category={step.category} />
           </div>
           {/* LaTeX preview — always visible */}
-          <div className="mt-1.5 overflow-x-auto" aria-label={`Step ${step.stepNumber} expression`}>
+          <div className="mt-1.5 overflow-x-auto">
             <MathRenderer expression={step.latex} displayMode={false} className="text-base" />
           </div>
         </div>
@@ -252,10 +252,7 @@ function StepCard({ step, index, isExpanded, onToggle, isFinal }: StepCardProps)
                 {step.explanation}
               </p>
               {/* Display-mode math for expanded state */}
-              <div
-                className="mt-3 rounded-md bg-muted/50 px-4 py-3 overflow-x-auto"
-                aria-label={`Step ${step.stepNumber} expression, display mode`}
-              >
+              <div className="mt-3 rounded-md bg-muted/50 px-4 py-3 overflow-x-auto">
                 <MathRenderer expression={step.latex} displayMode={true} className="text-base" />
               </div>
               <p className="mt-2 text-xs text-muted-foreground/70 font-mono">
@@ -286,8 +283,9 @@ interface StepsPanelProps {
  * animated step cards, and a final-answer callout.
  */
 function StepsPanel({ steps, finalLatex, timeMs, copiedSteps, onCopyFinal }: StepsPanelProps) {
+  const lastStep = steps.at(-1);
   const [expandedSteps, setExpandedSteps] = useState<ReadonlySet<number>>(
-    new Set(steps.length > 0 ? [steps[steps.length - 1]!.stepNumber] : []),
+    new Set(lastStep ? [lastStep.stepNumber] : []),
   );
 
   const toggleStep = useCallback((stepNumber: number) => {
@@ -382,6 +380,7 @@ function StepsPanel({ steps, finalLatex, timeMs, copiedSteps, onCopyFinal }: Ste
                         viewBox="0 0 8 5"
                         fill="none"
                         className="text-border"
+                        aria-hidden="true"
                       >
                         <path d="M0 0L4 5L8 0" fill="currentColor" />
                       </svg>
@@ -395,9 +394,8 @@ function StepsPanel({ steps, finalLatex, timeMs, copiedSteps, onCopyFinal }: Ste
       </ol>
 
       {/* Final answer callout */}
-      <div
+      <section
         className="rounded-xl border border-primary/30 bg-primary/5 p-4"
-        role="region"
         aria-label="Final answer"
       >
         <div className="flex items-start justify-between gap-3">
@@ -446,7 +444,7 @@ function StepsPanel({ steps, finalLatex, timeMs, copiedSteps, onCopyFinal }: Ste
             </AnimatePresence>
           </Button>
         </div>
-      </div>
+      </section>
     </m.div>
   );
 }
@@ -477,7 +475,7 @@ function toAstShape(node: unknown): AstNodeShape | null {
 
 function needsParens(node: unknown): boolean {
   const n = toAstShape(node);
-  if (!n || n.type !== 'OperatorNode') return false;
+  if (n?.type !== 'OperatorNode') return false;
   const op = String(n.op ?? '');
   return op === '+' || op === '-';
 }
@@ -702,7 +700,7 @@ export function SymbolicPanel() {
       // Quick result (existing behaviour)
       const ast = parse(expression);
       const integral = integrate(ast, variable);
-      const resultStr = astToString(integral) + ' + C';
+      const resultStr = `${astToString(integral)} + C`;
       setResult(resultStr);
       setActiveOperation('integrate');
 
@@ -927,9 +925,8 @@ export function SymbolicPanel() {
           {/* Quick result display + Show Steps toggle */}
           {result && !error && (
             <div className="space-y-3">
-              <div
+              <section
                 className="p-6 bg-muted rounded-lg space-y-3"
-                role="region"
                 aria-label="Calculation result"
               >
                 <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -940,7 +937,7 @@ export function SymbolicPanel() {
                 <div className="text-xs text-muted-foreground pt-2 border-t">
                   d/d{variable} [{expression}] = {result}
                 </div>
-              </div>
+              </section>
 
               {stepsSection}
             </div>
@@ -1091,9 +1088,8 @@ export function SymbolicPanel() {
           {/* Quick result display + Show Steps toggle */}
           {result && !error && (
             <div className="space-y-3">
-              <div
+              <section
                 className="p-6 bg-muted rounded-lg space-y-3"
-                role="region"
                 aria-label="Integration result"
               >
                 <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -1104,7 +1100,7 @@ export function SymbolicPanel() {
                 <div className="text-xs text-muted-foreground pt-2 border-t">
                   &int; [{expression}] d{variable} = {result}
                 </div>
-              </div>
+              </section>
 
               {stepsSection}
             </div>

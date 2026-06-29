@@ -24,7 +24,7 @@ import {
   isOperatorNode,
   isSymbolNode,
 } from '../parser/ast';
-import { simplify } from './simplify';
+import { astEquals, simplify } from './simplify';
 
 /**
  * Advanced simplification configuration
@@ -76,7 +76,7 @@ export function simplifyAdvanced(
   let previous: ExpressionNode | null = null;
   let iterations = 0;
 
-  while (!astEquals(current, previous) && iterations < maxIterations) {
+  while ((previous === null || !astEquals(current, previous)) && iterations < maxIterations) {
     previous = cloneNode(current);
     iterations++;
 
@@ -589,36 +589,6 @@ function rationalizeDenominator(expr: ExpressionNode): ExpressionNode {
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
-
-/**
- * Check if two AST nodes are structurally equal
- */
-function astEquals(a: ExpressionNode | null, b: ExpressionNode | null): boolean {
-  if (a === null || b === null) return a === b;
-  if (a.type !== b.type) return false;
-
-  if (isConstantNode(a) && isConstantNode(b)) {
-    return a.value === b.value;
-  }
-
-  if (isSymbolNode(a) && isSymbolNode(b)) {
-    return a.name === b.name;
-  }
-
-  if (isOperatorNode(a) && isOperatorNode(b)) {
-    return a.op === b.op && astEquals(a.args[0], b.args[0]) && astEquals(a.args[1], b.args[1]);
-  }
-
-  if (isFunctionNode(a) && isFunctionNode(b)) {
-    if (a.fn !== b.fn || a.args.length !== b.args.length) return false;
-    return a.args.every((arg, i) => {
-      const bArg = b.args[i];
-      return bArg && astEquals(arg, bArg);
-    });
-  }
-
-  return false;
-}
 
 /**
  * Clone AST node (deep copy)

@@ -66,7 +66,7 @@ export function AlgorithmBreadcrumb({ items, className }: AlgorithmBreadcrumbPro
           const isLast = index === items.length - 1;
 
           return (
-            <li key={`${item.label}-${index}`} className="flex items-center gap-2">
+            <li key={item.label} className="flex items-center gap-2">
               {/* Separator */}
               <ChevronRight className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
 

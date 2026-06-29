@@ -7,9 +7,9 @@
  * Mocking strategy:
  * - The R2 bucket methods (put, get, head, list, delete) are mocked with
  *   vi.fn() so tests never touch actual Cloudflare infrastructure.
- * - The SVG handler's internal MathJax rendering (`generateSvgFromLatex`)
- *   is vi.mock()ed because MathJax 4.x uses a Windows-incompatible absolute
- *   path loader at test time (c:/ protocol not supported by Node ESM).
+ * - The SVG handler's internal KaTeX rendering (`generateSvgFromLatex`)
+ *   is vi.mock()ed so the routing, validation, and R2 upload paths are
+ *   exercised without invoking the real KaTeX → SVG render.
  *   The mock returns a minimal but structurally valid SVG string.
  * - `@cf-wasm/resvg/workerd` is mocked because the WASM binary cannot be
  *   instantiated inside a vitest environment.  The mock's `Resvg.async()`
@@ -24,11 +24,32 @@
 import { describe, expect, it, type Mock, vi } from 'vitest';
 
 // ---------------------------------------------------------------------------
-// Mock MathJax internals BEFORE importing app so the module graph resolves
-// with the stub already in place.  The svg-internal module is the only one
-// that calls MathJax; by replacing generateSvgFromLatex with a stub we avoid
-// the Windows ESM path protocol error while still exercising the full Hono
-// routing, Zod validation, R2 upload and response-shaping code paths.
+// Mock aws4fetch so private-export presigning works without network access.
+// The mock AwsClient.sign() appends standard SigV4 query parameters to the
+// URL so the rest of the stack can proceed normally.
+// ---------------------------------------------------------------------------
+vi.mock('aws4fetch', () => {
+  class AwsClient {
+    async sign(request: Request, _opts?: unknown): Promise<Request> {
+      const url = new URL(request.url);
+      url.searchParams.set('X-Amz-Algorithm', 'AWS4-HMAC-SHA256');
+      url.searchParams.set('X-Amz-Credential', 'TESTKEY/20260624/auto/s3/aws4_request');
+      url.searchParams.set('X-Amz-Date', '20260624T000000Z');
+      url.searchParams.set('X-Amz-Expires', '3600');
+      url.searchParams.set('X-Amz-Signature', 'mock-signature');
+      return new Request(url.toString(), { method: 'GET' });
+    }
+  }
+
+  return { AwsClient };
+});
+
+// ---------------------------------------------------------------------------
+// Mock the svg-internal renderer BEFORE importing app so the module graph
+// resolves with the stub already in place. svg-internal is the only module that
+// runs the KaTeX -> SVG render; stubbing generateSvgFromLatex keeps the tests
+// deterministic and fast while still exercising the full Hono routing, Zod
+// validation, R2 upload and response-shaping code paths.
 // ---------------------------------------------------------------------------
 vi.mock('./handlers/svg-internal.js', () => ({
   generateSvgFromLatex: vi
@@ -64,14 +85,20 @@ vi.mock('@cf-wasm/resvg/workerd', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Mock modern-pdf-lib — createPdf() returns a lightweight document mock
-// that supports the methods used by the PDF handler (setTitle, setAuthor,
-// setSubject, setCreator, setProducer, setCreationDate, addPage, embedPng,
-// save).
+// Mock modern-pdf-lib (0.40.2) — createPdf() returns a lightweight document mock
+// supporting every method the PDF handler uses: metadata setters, addPage,
+// embedPng, save, the tagged-PDF accessibility surface (use(accessibilityPlugin),
+// createStructureTree() + the standalone tagFigure() helper, assignMcid, and page
+// beginMarkedContent/endMarkedContentSequence), and deduplicateImages() which
+// returns a DeduplicationReport. The mock interoperates with the resvg mock —
+// embedPng receives the mock PNG buffer — and save() returns a non-empty
+// Uint8Array so the downstream file-size check and R2 upload run.
 // ---------------------------------------------------------------------------
 vi.mock('modern-pdf-lib', () => {
   const mockPage = {
     drawImage: vi.fn(),
+    beginMarkedContent: vi.fn(),
+    endMarkedContentSequence: vi.fn(),
   };
 
   const mockImage = {
@@ -79,20 +106,34 @@ vi.mock('modern-pdf-lib', () => {
     height: 50,
   };
 
+  const mockStructureTree = {
+    addElement: vi.fn().mockReturnValue({ type: 'Figure' }),
+    assignMcid: vi.fn().mockReturnValue(0),
+  };
+
   const mockDoc = {
+    use: vi.fn(),
     setTitle: vi.fn(),
     setAuthor: vi.fn(),
     setSubject: vi.fn(),
     setCreator: vi.fn(),
     setProducer: vi.fn(),
     setCreationDate: vi.fn(),
+    setLanguage: vi.fn(),
+    createStructureTree: vi.fn().mockReturnValue(mockStructureTree),
     addPage: vi.fn().mockReturnValue(mockPage),
-    embedPng: vi.fn().mockReturnValue(mockImage),
+    embedPng: vi.fn().mockResolvedValue(mockImage),
     save: vi.fn().mockResolvedValue(new Uint8Array(512)),
   };
 
   return {
     createPdf: vi.fn().mockReturnValue(mockDoc),
+    accessibilityPlugin: vi.fn().mockReturnValue({ name: 'accessibility' }),
+    tagFigure: vi.fn().mockReturnValue({ type: 'Figure' }),
+    deduplicateImages: vi
+      .fn()
+      .mockReturnValue({ totalImages: 0, uniqueImages: 0, duplicatesRemoved: 0, bytesSaved: 0 }),
+    initWasm: vi.fn().mockResolvedValue(undefined),
     PageSizes: {
       A4: [595.28, 841.89],
       Letter: [612, 792],
@@ -154,6 +195,14 @@ function createTestEnv(overrides: Record<string, unknown> = {}) {
     EXPORTS_PRIVATE: createMockR2Bucket(),
     SIGNED_URL_EXPIRY: '3600',
     MAX_FILE_SIZE: '5242880',
+    // R2 S3 secrets required for private export presigned URL generation.
+    // The aws4fetch mock above intercepts the actual signing, so these are
+    // test-only placeholder values — no real network calls are made.
+    R2_ACCOUNT_ID: 'test-account-id',
+    R2_ACCESS_KEY_ID: 'test-access-key-id',
+    R2_SECRET_ACCESS_KEY: 'test-secret-access-key',
+    R2_PRIVATE_BUCKET: 'nextcalc-exports-private',
+    R2_PUBLIC_BASE_URL: 'https://exports.nextcalc.pro',
     ...overrides,
   };
 }

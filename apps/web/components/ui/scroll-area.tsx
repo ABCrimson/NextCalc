@@ -1,9 +1,9 @@
 import { ScrollArea as ScrollAreaPrimitive } from 'radix-ui';
-import type { ComponentPropsWithoutRef, ElementRef, Ref } from 'react';
+import type { ComponentPropsWithoutRef, ComponentRef, Ref } from 'react';
 import { cn } from '@/lib/utils';
 
 interface ScrollAreaProps extends ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root> {
-  ref?: Ref<ElementRef<typeof ScrollAreaPrimitive.Root>>;
+  ref?: Ref<ComponentRef<typeof ScrollAreaPrimitive.Root>>;
 }
 
 function ScrollArea({ className, children, ref, ...props }: ScrollAreaProps) {
@@ -24,7 +24,7 @@ function ScrollArea({ className, children, ref, ...props }: ScrollAreaProps) {
 
 interface ScrollBarProps
   extends ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar> {
-  ref?: Ref<ElementRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>>;
+  ref?: Ref<ComponentRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>>;
 }
 
 function ScrollBar({ className, orientation = 'vertical', ref, ...props }: ScrollBarProps) {

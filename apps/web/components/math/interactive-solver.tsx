@@ -25,10 +25,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 
-/**
- * Branded type for solution reveal state
- */
-type RevealState = ('hidden' | 'partial' | 'full') & { __brand: 'RevealState' };
+/** Solution reveal state */
+type RevealState = 'hidden' | 'partial' | 'full';
 
 /**
  * Props for InteractiveSolver component
@@ -104,7 +102,7 @@ export function InteractiveSolver({
 }: InteractiveSolverProps) {
   // State
   const [answer, setAnswer] = useState(userAnswer);
-  const [revealState, setRevealState] = useState<RevealState>('hidden' as RevealState);
+  const [revealState, setRevealState] = useState<RevealState>('hidden');
   const [expandedSteps, setExpandedSteps] = useState<Set<number>>(new Set());
   const [activeMethodIndex, setActiveMethodIndex] = useState(0);
 
@@ -160,13 +158,11 @@ export function InteractiveSolver({
       // Ctrl+S: Toggle solution
       if (e.ctrlKey && e.key === 's') {
         e.preventDefault();
-        setRevealState((prev) =>
-          prev === 'hidden' ? ('full' as RevealState) : ('hidden' as RevealState),
-        );
+        setRevealState((prev) => (prev === 'hidden' ? 'full' : 'hidden'));
       }
       // Escape: Hide solution
       if (e.key === 'Escape') {
-        setRevealState('hidden' as RevealState);
+        setRevealState('hidden');
       }
     };
 
@@ -182,11 +178,7 @@ export function InteractiveSolver({
   ]);
 
   return (
-    <div
-      className="max-w-6xl mx-auto space-y-6"
-      role="main"
-      aria-label="Interactive Problem Solver"
-    >
+    <section className="max-w-6xl mx-auto space-y-6" aria-label="Interactive Problem Solver">
       {/* Problem Header */}
       <Card className="border-l-4 border-l-primary">
         <CardHeader>
@@ -331,9 +323,7 @@ export function InteractiveSolver({
                     variant="outline"
                     size="sm"
                     onClick={() =>
-                      setRevealState((prev) =>
-                        prev === 'hidden' ? ('full' as RevealState) : ('hidden' as RevealState),
-                      )
+                      setRevealState((prev) => (prev === 'hidden' ? 'full' : 'hidden'))
                     }
                     aria-label={revealState === 'hidden' ? 'Show solution' : 'Hide solution'}
                   >
@@ -359,7 +349,7 @@ export function InteractiveSolver({
                       ...problem.solution.alternativeSolutions.map((s) => s.method),
                     ].map((method, index) => (
                       <Button
-                        key={index}
+                        key={method}
                         variant={activeMethodIndex === index ? 'default' : 'outline'}
                         size="sm"
                         onClick={() => setActiveMethodIndex(index)}
@@ -412,8 +402,8 @@ export function InteractiveSolver({
                         </CardHeader>
                         <CardContent>
                           <ul className="space-y-2 text-sm">
-                            {problem.solution.insights.map((insight, index) => (
-                              <li key={index} className="flex items-start gap-2">
+                            {problem.solution.insights.map((insight) => (
+                              <li key={insight} className="flex items-start gap-2">
                                 <ChevronRight className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                                 <span>{insight}</span>
                               </li>
@@ -450,7 +440,7 @@ export function InteractiveSolver({
                 <div className="space-y-3">
                   {problem.hints.map((hint, index) => (
                     <HintCard
-                      key={index}
+                      key={hint.order}
                       hint={hint}
                       index={index}
                       isRevealed={revealedHints.includes(index)}
@@ -526,7 +516,7 @@ export function InteractiveSolver({
           )}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -548,6 +538,7 @@ function SolutionStepCard({ step, isExpanded, onToggle }: SolutionStepCardProps)
     >
       <Card className="overflow-hidden hover:shadow-md transition-shadow">
         <button
+          type="button"
           onClick={onToggle}
           className="w-full text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded-lg"
           aria-expanded={isExpanded}

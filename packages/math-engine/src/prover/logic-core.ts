@@ -410,7 +410,7 @@ export function isEquivalent(f1: Formula, f2: Formula): boolean {
 /**
  * Convert formula to string representation
  */
-export function toString(formula: Formula, unicode = true): string {
+function formulaToString(formula: Formula, unicode = true): string {
   const symbols = unicode
     ? { not: '¬', and: '∧', or: '∨', implies: '→', iff: '↔', forall: '∀', exists: '∃' }
     : {
@@ -488,6 +488,10 @@ export function toString(formula: Formula, unicode = true): string {
 
   return inner(formula);
 }
+
+// Public alias preserves the historical `toString` export name without
+// declaring a local binding that shadows the global `Object.prototype.toString`.
+export { formulaToString as toString };
 
 /**
  * Parse a formula string supporting propositional and first-order logic.

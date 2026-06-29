@@ -1,5 +1,6 @@
 'use client';
 
+import { useFormatter } from 'next-intl';
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -46,9 +47,9 @@ function TopicMasteryChart({ data }: { data: TopicMastery[] }) {
   const sorted = [...data].sort((a, b) => b.mastery - a.mastery);
 
   return (
-    <div className="space-y-3" role="list" aria-label="Topic mastery levels">
+    <ul className="space-y-3" aria-label="Topic mastery levels">
       {sorted.map((item) => (
-        <div key={item.topic} role="listitem" className="group">
+        <li key={item.topic} className="group">
           <div className="mb-1 flex items-center justify-between text-sm">
             <span className="font-medium text-foreground">{item.topic}</span>
             <span className="tabular-nums text-muted-foreground">
@@ -71,9 +72,9 @@ function TopicMasteryChart({ data }: { data: TopicMastery[] }) {
               }}
             />
           </div>
-        </div>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
 
@@ -86,6 +87,8 @@ const CHART_HEIGHT = 160;
 const PADDING = { top: 12, right: 16, bottom: 32, left: 36 };
 
 function AccuracyTrendChart({ data }: { data: TrendPoint[] }) {
+  const format = useFormatter();
+
   const { points, pathD, fillD, xLabels, yTicks } = useMemo(() => {
     if (data.length < 2) return { points: [], pathD: '', fillD: '', xLabels: [], yTicks: [] };
 
@@ -104,21 +107,26 @@ function AccuracyTrendChart({ data }: { data: TrendPoint[] }) {
       .join(' ');
 
     const bottom = PADDING.top + plotH;
-    const firstPt = pts[0]!;
-    const lastPt = pts[pts.length - 1]!;
-    const fillPath = [
-      `M ${firstPt.x.toFixed(1)} ${bottom}`,
-      ...pts.map((p) => `L ${p.x.toFixed(1)} ${p.y.toFixed(1)}`),
-      `L ${lastPt.x.toFixed(1)} ${bottom}`,
-      'Z',
-    ].join(' ');
+    // data.length >= 2 is guaranteed above, so pts is non-empty; the guard
+    // narrows the type without a non-null assertion.
+    const firstPt = pts[0];
+    const lastPt = pts.at(-1);
+    const fillPath =
+      firstPt && lastPt
+        ? [
+            `M ${firstPt.x.toFixed(1)} ${bottom}`,
+            ...pts.map((p) => `L ${p.x.toFixed(1)} ${p.y.toFixed(1)}`),
+            `L ${lastPt.x.toFixed(1)} ${bottom}`,
+            'Z',
+          ].join(' ')
+        : '';
 
     // Every 5th label on x-axis
     const xl = pts
       .filter((_, i) => i % Math.max(1, Math.floor(data.length / 6)) === 0 || i === data.length - 1)
       .map((p) => ({
         x: p.x,
-        label: new Date(p.label).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        label: format.dateTime(new Date(p.label), { month: 'short', day: 'numeric' }),
       }));
 
     const yt = [0, 25, 50, 75, 100].map((v) => ({
@@ -127,7 +135,7 @@ function AccuracyTrendChart({ data }: { data: TrendPoint[] }) {
     }));
 
     return { points: pts, pathD: linePath, fillD: fillPath, xLabels: xl, yTicks: yt };
-  }, [data]);
+  }, [data, format]);
 
   if (data.length < 2) {
     return (
@@ -194,9 +202,9 @@ function AccuracyTrendChart({ data }: { data: TrendPoint[] }) {
       />
 
       {/* Data points */}
-      {points.map((p, i) => (
+      {points.map((p) => (
         <circle
-          key={i}
+          key={p.label}
           cx={p.x}
           cy={p.y}
           r={3}
@@ -310,9 +318,9 @@ function StreakHistoryChart({ data }: { data: StreakPoint[] }) {
       ))}
 
       {/* Bars */}
-      {bars.map((bar, i) => (
+      {bars.map((bar) => (
         <rect
-          key={i}
+          key={bar.date}
           x={bar.x}
           y={bar.y}
           width={bar.width}

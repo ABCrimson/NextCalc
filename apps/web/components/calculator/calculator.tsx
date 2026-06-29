@@ -46,6 +46,7 @@ export function Calculator() {
   const searchParams = useSearchParams();
   const hasRestoredRef = useRef(false);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional mount-only restore. We read the initial URL's searchParams exactly once (guarded by hasRestoredRef); adding `searchParams` would re-trigger restoration on later URL changes, and `dispatch` is a stable Zustand store reference — neither belongs in the dependency list for this one-shot effect.
   useEffect(() => {
     // Only restore once per mount (guard against React 19 Strict Mode double-invoke)
     if (hasRestoredRef.current) return;
@@ -101,7 +102,6 @@ export function Calculator() {
       });
     }
     // Run only on mount — searchParams identity is stable in the App Router
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleInput = (action: CalculatorAction) => {

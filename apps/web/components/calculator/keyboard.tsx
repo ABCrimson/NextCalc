@@ -308,6 +308,7 @@ export function Keyboard({
       {memory !== null && (
         <div
           className="flex items-center gap-1.5 text-xs text-violet-400 font-mono mb-1"
+          role="status"
           aria-live="polite"
           aria-label={`Memory contains ${memory}`}
         >
@@ -352,13 +353,13 @@ export function Keyboard({
         {/* ---------------------------------------------------------------- */}
         {/* Divider                                                           */}
         {/* ---------------------------------------------------------------- */}
-        <div className="border-t border-border/30 my-1" role="separator" aria-hidden="true" />
+        <div className="border-t border-border/30 my-1" aria-hidden="true" />
 
         {/* ---------------------------------------------------------------- */}
         {/* Rows 3–6: Numeric + operator grid (5 columns)                    */}
         {/* ---------------------------------------------------------------- */}
         {NUMERIC_ROWS.map((row, rowIdx) => (
-          <div key={rowIdx} className="grid grid-cols-5 gap-2" role="row">
+          <div key={row[0]?.label ?? rowIdx} className="grid grid-cols-5 gap-2" role="row">
             {row.map((btn, colIdx) => renderButton(btn, rowIdx + 3, colIdx))}
           </div>
         ))}

@@ -66,11 +66,11 @@ export type ImplementationCreateInput = z.infer<typeof ImplementationCreateSchem
 // Algorithm Repository Class
 // ============================================================================
 
-export class AlgorithmRepository {
+export const AlgorithmRepository = {
   /**
    * Create a new algorithm
    */
-  static async createAlgorithm(data: AlgorithmCreateInput): Promise<Algorithm> {
+  async createAlgorithm(data: AlgorithmCreateInput): Promise<Algorithm> {
     const validated = AlgorithmCreateSchema.parse(data);
 
     return await prisma.algorithm.create({
@@ -93,15 +93,12 @@ export class AlgorithmRepository {
         implementations: true,
       },
     });
-  }
+  },
 
   /**
    * Update an algorithm
    */
-  static async updateAlgorithm(
-    id: string,
-    data: Partial<AlgorithmCreateInput>,
-  ): Promise<Algorithm> {
+  async updateAlgorithm(id: string, data: Partial<AlgorithmCreateInput>): Promise<Algorithm> {
     return await prisma.algorithm.update({
       where: { id },
       data: {
@@ -121,21 +118,21 @@ export class AlgorithmRepository {
         implementations: true,
       },
     });
-  }
+  },
 
   /**
    * Delete an algorithm
    */
-  static async deleteAlgorithm(id: string): Promise<void> {
+  async deleteAlgorithm(id: string): Promise<void> {
     await prisma.algorithm.delete({
       where: { id },
     });
-  }
+  },
 
   /**
    * Get algorithm by slug
    */
-  static async getAlgorithmBySlug(slug: string) {
+  async getAlgorithmBySlug(slug: string) {
     return await prisma.algorithm.findUnique({
       where: { slug },
       include: {
@@ -144,12 +141,12 @@ export class AlgorithmRepository {
         },
       },
     });
-  }
+  },
 
   /**
    * Get algorithm by ID
    */
-  static async getAlgorithmById(id: string) {
+  async getAlgorithmById(id: string) {
     return await prisma.algorithm.findUnique({
       where: { id },
       include: {
@@ -158,12 +155,12 @@ export class AlgorithmRepository {
         },
       },
     });
-  }
+  },
 
   /**
    * Get all algorithms by category
    */
-  static async getAlgorithmsByCategory(category: AlgorithmCategory) {
+  async getAlgorithmsByCategory(category: AlgorithmCategory) {
     return await prisma.algorithm.findMany({
       where: { category },
       include: {
@@ -175,12 +172,12 @@ export class AlgorithmRepository {
       },
       orderBy: { name: 'asc' },
     });
-  }
+  },
 
   /**
    * Get all algorithms with optional filtering
    */
-  static async getAlgorithms(filters?: {
+  async getAlgorithms(filters?: {
     category?: AlgorithmCategory;
     search?: string;
     limit?: number;
@@ -218,12 +215,12 @@ export class AlgorithmRepository {
       total,
       hasMore: (filters?.offset || 0) + (filters?.limit || 50) < total,
     };
-  }
+  },
 
   /**
    * Add an implementation to an algorithm
    */
-  static async addImplementation(data: ImplementationCreateInput) {
+  async addImplementation(data: ImplementationCreateInput) {
     const validated = ImplementationCreateSchema.parse(data);
 
     // Verify algorithm exists
@@ -268,12 +265,12 @@ export class AlgorithmRepository {
         algorithm: true,
       },
     });
-  }
+  },
 
   /**
    * Update an implementation
    */
-  static async updateImplementation(id: string, data: { code?: string; explanation?: string }) {
+  async updateImplementation(id: string, data: { code?: string; explanation?: string }) {
     return await prisma.implementation.update({
       where: { id },
       data: {
@@ -284,21 +281,21 @@ export class AlgorithmRepository {
         algorithm: true,
       },
     });
-  }
+  },
 
   /**
    * Delete an implementation
    */
-  static async deleteImplementation(id: string): Promise<void> {
+  async deleteImplementation(id: string): Promise<void> {
     await prisma.implementation.delete({
       where: { id },
     });
-  }
+  },
 
   /**
    * Get implementations by language
    */
-  static async getImplementationsByLanguage(language: ProgrammingLanguage) {
+  async getImplementationsByLanguage(language: ProgrammingLanguage) {
     return await prisma.implementation.findMany({
       where: { language },
       include: {
@@ -308,12 +305,12 @@ export class AlgorithmRepository {
         algorithm: { name: 'asc' },
       },
     });
-  }
+  },
 
   /**
    * Search algorithms
    */
-  static async searchAlgorithms(query: string, limit = 20) {
+  async searchAlgorithms(query: string, limit = 20) {
     if (!query || query.length < 2) {
       return [];
     }
@@ -336,12 +333,12 @@ export class AlgorithmRepository {
       },
       orderBy: { name: 'asc' },
     });
-  }
+  },
 
   /**
    * Get algorithm statistics
    */
-  static async getStatistics() {
+  async getStatistics() {
     const [totalAlgorithms, totalImplementations, algorithmsByCategory, implementationsByLanguage] =
       await Promise.all([
         prisma.algorithm.count(),
@@ -369,12 +366,12 @@ export class AlgorithmRepository {
         count: item._count,
       })),
     };
-  }
+  },
 
   /**
    * Get algorithms by complexity
    */
-  static async getAlgorithmsByComplexity(timeComplexity: string) {
+  async getAlgorithmsByComplexity(timeComplexity: string) {
     return await prisma.algorithm.findMany({
       where: {
         OR: [
@@ -386,12 +383,12 @@ export class AlgorithmRepository {
       },
       orderBy: { name: 'asc' },
     });
-  }
+  },
 
   /**
    * Compare algorithms (for educational purposes)
    */
-  static async compareAlgorithms(algorithmIds: string[]) {
+  async compareAlgorithms(algorithmIds: string[]) {
     const algorithms = await prisma.algorithm.findMany({
       where: {
         id: { in: algorithmIds },
@@ -413,16 +410,12 @@ export class AlgorithmRepository {
       implementationCount: algo.implementations.length,
       languages: algo.implementations.map((impl) => impl.language),
     }));
-  }
+  },
 
   /**
    * Get recommended algorithms based on category
    */
-  static async getRecommendedAlgorithms(
-    category: AlgorithmCategory,
-    excludeId?: string,
-    limit = 5,
-  ) {
+  async getRecommendedAlgorithms(category: AlgorithmCategory, excludeId?: string, limit = 5) {
     return await prisma.algorithm.findMany({
       where: {
         category,
@@ -438,7 +431,7 @@ export class AlgorithmRepository {
       },
       orderBy: { createdAt: 'desc' },
     });
-  }
-}
+  },
+} as const;
 
 export default AlgorithmRepository;

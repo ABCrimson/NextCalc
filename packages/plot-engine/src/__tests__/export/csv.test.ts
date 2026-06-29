@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { exportToCSV2D, exportToCSV3D, downloadAsCSV2D, downloadAsCSV3D } from '../../export/csv';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { downloadAsCSV2D, downloadAsCSV3D, exportToCSV2D, exportToCSV3D } from '../../export/csv';
 import type { Point2D, Point3D } from '../../types/index';
 
 describe('exportToCSV2D', () => {

@@ -21,9 +21,17 @@ import { exportToPdf, type PdfExportRequest, validateLatexSyntax } from './handl
 import { exportToPng, getRecommendedDpi, type PngExportRequest } from './handlers/png.js';
 import { exportToSvg, type SvgExportRequest } from './handlers/svg.js';
 import type { R2Bucket } from './utils/r2.js';
+import { r2ConfigFromEnv } from './utils/r2.js';
 
 /**
- * Cloudflare Worker environment bindings
+ * Cloudflare Worker environment bindings.
+ *
+ * R2 S3 secrets (required for private export presigned URLs):
+ *   wrangler secret put R2_ACCOUNT_ID
+ *   wrangler secret put R2_ACCESS_KEY_ID
+ *   wrangler secret put R2_SECRET_ACCESS_KEY
+ *   wrangler secret put R2_PRIVATE_BUCKET
+ *   wrangler secret put R2_PUBLIC_BASE_URL
  */
 type Bindings = {
   EXPORTS_PUBLIC: R2Bucket;
@@ -31,6 +39,12 @@ type Bindings = {
   ALLOWED_ORIGINS: string;
   SIGNED_URL_EXPIRY: string;
   MAX_FILE_SIZE: string;
+  // R2 S3-compatible API credentials (provisioned as wrangler secrets)
+  R2_ACCOUNT_ID?: string;
+  R2_ACCESS_KEY_ID?: string;
+  R2_SECRET_ACCESS_KEY?: string;
+  R2_PRIVATE_BUCKET?: string;
+  R2_PUBLIC_BASE_URL?: string;
 };
 
 /**
@@ -167,12 +181,14 @@ app.post('/export/pdf', async (c) => {
     }
 
     // Determine which bucket to use
-    const bucket = validated.userId ? c.env.EXPORTS_PRIVATE : c.env.EXPORTS_PUBLIC;
+    const isPrivate = validated.userId !== undefined;
+    const bucket = isPrivate ? c.env.EXPORTS_PRIVATE : c.env.EXPORTS_PUBLIC;
+    const r2Config = r2ConfigFromEnv(c.env);
 
     const maxFileSize = parseInt(c.env.MAX_FILE_SIZE || '5242880', 10);
 
     // Export to PDF
-    const result = await exportToPdf(validated, bucket, maxFileSize);
+    const result = await exportToPdf(validated, bucket, maxFileSize, isPrivate, r2Config);
 
     return c.json({
       success: true,
@@ -265,12 +281,14 @@ app.post('/export/png', async (c) => {
     }
 
     // Determine which bucket to use
-    const bucket = validated.userId ? c.env.EXPORTS_PRIVATE : c.env.EXPORTS_PUBLIC;
+    const isPrivate = validated.userId !== undefined;
+    const bucket = isPrivate ? c.env.EXPORTS_PRIVATE : c.env.EXPORTS_PUBLIC;
+    const r2Config = r2ConfigFromEnv(c.env);
 
     const maxFileSize = parseInt(c.env.MAX_FILE_SIZE || '5242880', 10);
 
     // Export to PNG
-    const result = await exportToPng(validated, bucket, maxFileSize);
+    const result = await exportToPng(validated, bucket, maxFileSize, isPrivate, r2Config);
 
     return c.json({
       success: true,
@@ -361,12 +379,14 @@ app.post('/export/svg', async (c) => {
     }
 
     // Determine which bucket to use
-    const bucket = validated.userId ? c.env.EXPORTS_PRIVATE : c.env.EXPORTS_PUBLIC;
+    const isPrivate = validated.userId !== undefined;
+    const bucket = isPrivate ? c.env.EXPORTS_PRIVATE : c.env.EXPORTS_PUBLIC;
+    const r2Config = r2ConfigFromEnv(c.env);
 
     const maxFileSize = parseInt(c.env.MAX_FILE_SIZE || '5242880', 10);
 
     // Export to SVG
-    const result = await exportToSvg(validated, bucket, maxFileSize);
+    const result = await exportToSvg(validated, bucket, maxFileSize, isPrivate, r2Config);
 
     return c.json({
       success: true,

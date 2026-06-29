@@ -1,9 +1,9 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  encodeCursor,
-  decodeCursor,
-  buildCursorParams,
   buildConnection,
+  buildCursorParams,
+  decodeCursor,
+  encodeCursor,
 } from '../../lib/cursor-pagination';
 
 // ---------------------------------------------------------------------------

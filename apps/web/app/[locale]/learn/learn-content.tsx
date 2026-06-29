@@ -238,6 +238,7 @@ function AnimatedBackground({ shouldReduceMotion }: { shouldReduceMotion: boolea
 
       {/* SVG noise texture overlay */}
       <svg
+        aria-hidden="true"
         className="absolute inset-0 w-full h-full"
         style={{ opacity: 0.03, mixBlendMode: 'overlay' }}
         xmlns="http://www.w3.org/2000/svg"

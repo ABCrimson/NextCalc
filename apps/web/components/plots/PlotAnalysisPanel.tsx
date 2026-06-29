@@ -539,8 +539,8 @@ function SectionRow({
           <span className="text-muted-foreground italic">{emptyText}</span>
         ) : (
           <span className="flex flex-wrap gap-1 mt-0.5">
-            {points.map((p, i) => (
-              <PointBadge key={i} label={p.label} color={color} />
+            {points.map((p) => (
+              <PointBadge key={p.label} label={p.label} color={color} />
             ))}
           </span>
         )}
@@ -579,9 +579,9 @@ function AsymptoteRow({ asymptotes, color }: { asymptotes: AsymptoteInfo[]; colo
           <div className="flex-1 min-w-0">
             <span className="font-medium text-foreground/80 mr-2">Vertical:</span>
             <span className="flex flex-wrap gap-1 mt-0.5">
-              {verticals.map((a, i) => (
+              {verticals.map((a) => (
                 <span
-                  key={i}
+                  key={a.label}
                   className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-mono bg-orange-950/40 border border-orange-500/30 text-orange-200"
                   style={{ borderLeftColor: color, borderLeftWidth: 2 }}
                 >
@@ -600,9 +600,9 @@ function AsymptoteRow({ asymptotes, color }: { asymptotes: AsymptoteInfo[]; colo
           <div className="flex-1 min-w-0">
             <span className="font-medium text-foreground/80 mr-2">Horizontal:</span>
             <span className="flex flex-wrap gap-1 mt-0.5">
-              {horizontals.map((a, i) => (
+              {horizontals.map((a) => (
                 <span
-                  key={i}
+                  key={a.label}
                   className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-mono bg-sky-950/40 border border-sky-500/30 text-sky-200"
                   style={{ borderLeftColor: color, borderLeftWidth: 2 }}
                 >
@@ -642,12 +642,12 @@ export function PlotAnalysisPanel({
     ) || intersections.length > 0;
 
   return (
-    <div
+    <section
       className={[
         'rounded-xl overflow-hidden',
         'bg-gradient-to-br from-background/60 via-card/50 to-background/60',
         'backdrop-blur-md border border-border',
-        'shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]',
+        'shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]',
         className,
       ].join(' ')}
       aria-label="Function analysis panel"
@@ -696,7 +696,7 @@ export function PlotAnalysisPanel({
             <div className="px-4 pb-4 space-y-4 border-t border-border/50 pt-3">
               {/* Per-function analysis */}
               {fnAnalyses.map((analysis) => (
-                <div
+                <section
                   key={analysis.label}
                   className="space-y-2"
                   aria-label={`Analysis for ${analysis.label}`}
@@ -775,12 +775,12 @@ export function PlotAnalysisPanel({
                     {/* Asymptotes */}
                     <AsymptoteRow asymptotes={analysis.asymptotes} color={analysis.color} />
                   </div>
-                </div>
+                </section>
               ))}
 
               {/* Pairwise intersections (only when > 1 function) */}
               {functions.length > 1 && (
-                <div
+                <section
                   className="space-y-2 border-t border-border/40 pt-3"
                   aria-label="Intersection points"
                 >
@@ -795,9 +795,9 @@ export function PlotAnalysisPanel({
                     </p>
                   ) : (
                     <div className="pl-5 flex flex-wrap gap-1.5">
-                      {intersections.map((pt, i) => (
+                      {intersections.map((pt) => (
                         <span
-                          key={i}
+                          key={`${pt.labels[0]}∩${pt.labels[1]}`}
                           className="
                             inline-flex items-center gap-1
                             px-2 py-0.5 rounded-md text-xs font-mono
@@ -821,7 +821,7 @@ export function PlotAnalysisPanel({
                       ))}
                     </div>
                   )}
-                </div>
+                </section>
               )}
 
               {/* Numerical note */}
@@ -833,6 +833,6 @@ export function PlotAnalysisPanel({
           </m.div>
         )}
       </AnimatePresence>
-    </div>
+    </section>
   );
 }

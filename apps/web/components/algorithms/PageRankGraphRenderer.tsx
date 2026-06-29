@@ -489,6 +489,8 @@ export function PageRankGraphRenderer({
         viewBox={viewBox}
         width={config.width}
         height={config.height}
+        role="img"
+        aria-label="PageRank graph — drag to pan, scroll to zoom"
         style={{
           display: 'block',
           width: '100%',

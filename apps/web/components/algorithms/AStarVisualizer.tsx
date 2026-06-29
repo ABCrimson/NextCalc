@@ -563,8 +563,8 @@ export function AStarVisualizer() {
                   }}
                 >
                   <TabsList className="grid w-full grid-cols-3">
-                    {PRESET_SCENARIOS.map((_, i) => (
-                      <TabsTrigger key={i} value={i.toString()}>
+                    {PRESET_SCENARIOS.map((scenario, i) => (
+                      <TabsTrigger key={scenario.name} value={i.toString()}>
                         {i + 1}
                       </TabsTrigger>
                     ))}

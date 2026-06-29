@@ -11,7 +11,7 @@ import { parse } from './parser/parser';
 import { correlation } from './stats/correlation';
 import { mean, median, stdDev, variance } from './stats/descriptive';
 import { linearRegression } from './stats/regression';
-import { differentiate, simplifyDerivative } from './symbolic/differentiate';
+import { differentiate } from './symbolic/differentiate';
 import { astToString } from './symbolic/integrate';
 import { simplify } from './symbolic/simplify';
 

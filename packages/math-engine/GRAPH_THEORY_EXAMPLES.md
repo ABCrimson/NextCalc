@@ -41,13 +41,14 @@ mst.edges.forEach(([from, to, weight]) => {
 });
 console.log(`Network is fully connected: ${mst.isConnected}`);
 
-// Output:
+// Output (one valid MST — equal-weight ties are non-deterministic):
 // Total cable needed: 27 km
 // Connections:
 //   City 2 to City 3: 4 km
 //   City 0 to City 3: 5 km
-//   City 0 to City 2: 6 km
 //   City 1 to City 4: 8 km
+//   City 0 to City 1: 10 km
+//   (City 0 to City 2: 6 km is skipped — it would form a cycle)
 ```
 
 ### Prim's Algorithm
@@ -470,8 +471,8 @@ console.log(`Total distance: ${tour.distance} km`);
 console.log(`Heuristic used: ${tour.heuristic}`);
 
 // Output:
-// Tour: 0 -> 1 -> 2 -> 4 -> 3 -> 0
-// Total distance: 95 km
+// Tour: 0 -> 1 -> 3 -> 4 -> 2 -> 0
+// Total distance: 75 km
 ```
 
 ### Comparing Heuristics

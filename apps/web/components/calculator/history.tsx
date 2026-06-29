@@ -3,6 +3,7 @@
 import type { HistoryEntry } from '@nextcalc/types';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { AnimatePresence, m } from 'framer-motion';
+import { useFormatter } from 'next-intl';
 import { memo, useDeferredValue, useMemo, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { formatResultWithSeparators, useThousandsSeparator } from '@/lib/stores/settings-store';
@@ -24,6 +25,7 @@ const HistoryItem = memo(function HistoryItem({
   onSelect?: (entry: HistoryEntry) => void;
   thousandsSeparator: boolean;
 }) {
+  const format = useFormatter();
   const formattedResult = formatResultWithSeparators(entry.result, thousandsSeparator);
 
   return (
@@ -44,11 +46,12 @@ const HistoryItem = memo(function HistoryItem({
       aria-label={`Load calculation: ${entry.expression} equals ${formattedResult}`}
     >
       <div className="flex items-center gap-2 mb-1">
-        <span
-          className="text-xs text-muted-foreground/60 font-medium tracking-wide uppercase"
-          suppressHydrationWarning
-        >
-          {new Date(entry.timestamp).toLocaleTimeString()}
+        <span className="text-xs text-muted-foreground/60 font-medium tracking-wide uppercase">
+          {format.dateTime(new Date(entry.timestamp), {
+            hour: 'numeric',
+            minute: '2-digit',
+            second: '2-digit',
+          })}
         </span>
       </div>
       <div className="text-sm font-mono text-muted-foreground mb-2 group-hover:text-foreground transition-colors duration-200">
@@ -106,16 +109,13 @@ export function History({ entries, onSelect }: HistoryProps) {
         <div
           ref={parentRef}
           className="h-56 overflow-auto pr-4 scrollbar-thin scrollbar-thumb-muted scrollbar-track-background"
-          aria-label="Calculation history"
-          role="list"
         >
-          {/* Virtual list container with absolute positioning */}
-          <div
-            style={{
-              height: `${virtualizer.getTotalSize()}px`,
-              width: '100%',
-              position: 'relative',
-            }}
+          {/* The <ul> spacer sizes to the full virtual height so it can directly
+              contain the <li> items (axe requires <ul> children to be <li>). */}
+          <ul
+            className="relative m-0 w-full list-none p-0"
+            style={{ height: `${virtualizer.getTotalSize()}px` }}
+            aria-label="Calculation history"
           >
             {/* Only render visible items + overscan */}
             <AnimatePresence initial={false}>
@@ -123,7 +123,7 @@ export function History({ entries, onSelect }: HistoryProps) {
                 const entry = deferredEntries[virtualItem.index];
                 if (!entry) return null;
                 return (
-                  <div
+                  <li
                     key={entry.id}
                     style={{
                       position: 'absolute',
@@ -132,7 +132,6 @@ export function History({ entries, onSelect }: HistoryProps) {
                       width: '100%',
                       transform: `translateY(${virtualItem.start}px)`,
                     }}
-                    role="listitem"
                   >
                     <HistoryItem
                       entry={entry}
@@ -140,11 +139,11 @@ export function History({ entries, onSelect }: HistoryProps) {
                       thousandsSeparator={thousandsSeparator}
                       {...(onSelect ? { onSelect } : {})}
                     />
-                  </div>
+                  </li>
                 );
               })}
             </AnimatePresence>
-          </div>
+          </ul>
         </div>
       </Card>
     </m.div>

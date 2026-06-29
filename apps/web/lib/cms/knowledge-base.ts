@@ -105,11 +105,11 @@ export interface SearchResult {
 // Knowledge Base Manager Class
 // ============================================================================
 
-export class KnowledgeBaseManager {
+export const KnowledgeBaseManager = {
   /**
    * Create a new topic
    */
-  static async createTopic(data: TopicCreateInput): Promise<Topic> {
+  async createTopic(data: TopicCreateInput): Promise<Topic> {
     const validated = TopicCreateSchema.parse(data);
 
     // Verify parent exists if provided
@@ -143,12 +143,12 @@ export class KnowledgeBaseManager {
         },
       },
     });
-  }
+  },
 
   /**
    * Update a topic
    */
-  static async updateTopic(id: string, data: Partial<TopicCreateInput>): Promise<Topic> {
+  async updateTopic(id: string, data: Partial<TopicCreateInput>): Promise<Topic> {
     return await prisma.topic.update({
       where: { id },
       data: {
@@ -164,12 +164,12 @@ export class KnowledgeBaseManager {
         children: true,
       },
     });
-  }
+  },
 
   /**
    * Delete a topic (only if no problems/theorems attached)
    */
-  static async deleteTopic(id: string): Promise<void> {
+  async deleteTopic(id: string): Promise<void> {
     // Check if topic has content
     const topic = await prisma.topic.findUnique({
       where: { id },
@@ -195,12 +195,12 @@ export class KnowledgeBaseManager {
     await prisma.topic.delete({
       where: { id },
     });
-  }
+  },
 
   /**
    * Get complete topic tree (hierarchical structure)
    */
-  static async getTopicTree(category?: Category): Promise<TopicNode[]> {
+  async getTopicTree(category?: Category): Promise<TopicNode[]> {
     const where: Prisma.TopicWhereInput = {
       ...(category ? { category } : {}),
     };
@@ -235,12 +235,12 @@ export class KnowledgeBaseManager {
         }));
 
     return buildTree(null);
-  }
+  },
 
   /**
    * Get topic by slug with full details
    */
-  static async getTopicBySlug(slug: string) {
+  async getTopicBySlug(slug: string) {
     return await prisma.topic.findUnique({
       where: { slug },
       include: {
@@ -270,12 +270,12 @@ export class KnowledgeBaseManager {
         },
       },
     });
-  }
+  },
 
   /**
    * Get topic by ID
    */
-  static async getTopicById(id: string) {
+  async getTopicById(id: string) {
     return await prisma.topic.findUnique({
       where: { id },
       include: {
@@ -286,12 +286,12 @@ export class KnowledgeBaseManager {
         resources: true,
       },
     });
-  }
+  },
 
   /**
    * Get all topics in a category
    */
-  static async getTopicsByCategory(category: Category) {
+  async getTopicsByCategory(category: Category) {
     return await prisma.topic.findMany({
       where: { category },
       include: {
@@ -305,12 +305,12 @@ export class KnowledgeBaseManager {
       },
       orderBy: { name: 'asc' },
     });
-  }
+  },
 
   /**
    * Add a theorem to a topic
    */
-  static async addTheorem(data: TheoremCreateInput): Promise<Theorem> {
+  async addTheorem(data: TheoremCreateInput): Promise<Theorem> {
     const validated = TheoremCreateSchema.parse(data);
 
     // Verify topic exists
@@ -341,12 +341,12 @@ export class KnowledgeBaseManager {
         dependents: true,
       },
     });
-  }
+  },
 
   /**
    * Update a theorem
    */
-  static async updateTheorem(id: string, data: Partial<TheoremCreateInput>): Promise<Theorem> {
+  async updateTheorem(id: string, data: Partial<TheoremCreateInput>): Promise<Theorem> {
     return await prisma.theorem.update({
       where: { id },
       data: {
@@ -361,31 +361,31 @@ export class KnowledgeBaseManager {
         prerequisites: true,
       },
     });
-  }
+  },
 
   /**
    * Delete a theorem
    */
-  static async deleteTheorem(id: string): Promise<void> {
+  async deleteTheorem(id: string): Promise<void> {
     await prisma.theorem.delete({
       where: { id },
     });
-  }
+  },
 
   /**
    * Add a definition to a topic
    */
-  static async addDefinition(topicId: string, definition: string): Promise<Topic> {
+  async addDefinition(topicId: string, definition: string): Promise<Topic> {
     return await prisma.topic.update({
       where: { id: topicId },
       data: { definition },
     });
-  }
+  },
 
   /**
    * Add a resource to a topic
    */
-  static async addResource(data: ResourceCreateInput) {
+  async addResource(data: ResourceCreateInput) {
     const validated = ResourceCreateSchema.parse(data);
 
     return await prisma.resource.create({
@@ -400,12 +400,12 @@ export class KnowledgeBaseManager {
         topic: true,
       },
     });
-  }
+  },
 
   /**
    * Add an example to a topic or problem
    */
-  static async addExample(data: ExampleCreateInput) {
+  async addExample(data: ExampleCreateInput) {
     const validated = ExampleCreateSchema.parse(data);
 
     if (!validated.topicId && !validated.problemId) {
@@ -427,12 +427,12 @@ export class KnowledgeBaseManager {
         problem: true,
       },
     });
-  }
+  },
 
   /**
    * Search knowledge base (topics, theorems, problems)
    */
-  static async searchKnowledgeBase(query: string, limit = 20): Promise<SearchResult[]> {
+  async searchKnowledgeBase(query: string, limit = 20): Promise<SearchResult[]> {
     if (!query || query.length < 2) {
       return [];
     }
@@ -524,12 +524,12 @@ export class KnowledgeBaseManager {
     ];
 
     return results.slice(0, limit);
-  }
+  },
 
   /**
    * Get topic path (breadcrumbs) from root to given topic
    */
-  static async getTopicPath(topicId: string): Promise<Topic[]> {
+  async getTopicPath(topicId: string): Promise<Topic[]> {
     const path: Topic[] = [];
     let currentId: string | null = topicId;
     const visited = new Set<string>();
@@ -552,12 +552,12 @@ export class KnowledgeBaseManager {
     }
 
     return path;
-  }
+  },
 
   /**
    * Get prerequisites for a theorem (recursive)
    */
-  static async getTheoremPrerequisites(theoremId: string): Promise<Theorem[]> {
+  async getTheoremPrerequisites(theoremId: string): Promise<Theorem[]> {
     const theorem = await prisma.theorem.findUnique({
       where: { id: theoremId },
       include: {
@@ -590,12 +590,12 @@ export class KnowledgeBaseManager {
     await collectPrerequisites(theorem);
 
     return allPrerequisites;
-  }
+  },
 
   /**
    * Get recommended topics based on user's current progress
    */
-  static async getRecommendedTopics(userId: string, limit = 5) {
+  async getRecommendedTopics(userId: string, limit = 5) {
     // Get user's topic progress
     const userProgress = await prisma.userProgress.findUnique({
       where: { userId },
@@ -649,7 +649,7 @@ export class KnowledgeBaseManager {
         },
       },
     });
-  }
-}
+  },
+} as const;
 
 export default KnowledgeBaseManager;

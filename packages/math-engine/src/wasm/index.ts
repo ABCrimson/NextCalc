@@ -7,7 +7,7 @@
  * Note: Requires the WASM module to be built first.
  * Run: pnpm run build:wasm
  *
- * See WASM_SETUP.md for detailed setup instructions.
+ * See ./README.md for detailed setup instructions.
  */
 
 // Original WASM bindings

@@ -1,5 +1,5 @@
 // NextCalc Pro Database Schema
-// Prisma 7.5.0-dev.33 with PostgreSQL (Neon)
+// Prisma 7 with PostgreSQL (Neon)
 // Features: query plan caching, partial indexes, nested transaction savepoints, relation joins
 // Shared across all apps via @nextcalc/database
 
@@ -25,7 +25,7 @@ enum UserRole {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String    @id @default(cuid(2))
   email         String    @unique
   emailVerified DateTime?
   name          String?
@@ -58,7 +58,7 @@ model User {
 
 // NextAuth.js required tables
 model Account {
-  id                String  @id @default(cuid())
+  id                String  @id @default(cuid(2))
   userId            String
   type              String
   provider          String
@@ -79,7 +79,7 @@ model Account {
 }
 
 model Session {
-  id           String   @id @default(cuid())
+  id           String   @id @default(cuid(2))
   sessionToken String   @unique
   userId       String
   expires      DateTime
@@ -110,7 +110,7 @@ enum WorksheetVisibility {
 }
 
 model Worksheet {
-  id          String              @id @default(cuid())
+  id          String              @id @default(cuid(2))
   title       String              @db.VarChar(255)
   description String?             @db.Text
   content     Json // WorksheetContent type (array of cells)
@@ -142,7 +142,7 @@ model Worksheet {
 }
 
 model Folder {
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid(2))
   name        String   @db.VarChar(255)
   description String?  @db.Text
   parentId    String? // For nested folders
@@ -168,7 +168,7 @@ enum SharePermission {
 }
 
 model WorksheetShare {
-  id          String          @id @default(cuid())
+  id          String          @id @default(cuid(2))
   worksheetId String
   sharedWith  String          @db.VarChar(255) // Email or user ID
   permission  SharePermission @default(VIEW)
@@ -187,7 +187,7 @@ model WorksheetShare {
 // ============================================================================
 
 model CalculationHistory {
-  id         String   @id @default(cuid())
+  id         String   @id @default(cuid(2))
   userId     String
   expression String   @db.Text
   result     String   @db.Text
@@ -208,7 +208,7 @@ model CalculationHistory {
 // ============================================================================
 
 model ForumPost {
-  id        String    @id @default(cuid())
+  id        String    @id @default(cuid(2))
   title     String    @db.VarChar(255)
   content   String    @db.Text
   tags      String[] // Array of tag strings
@@ -237,7 +237,7 @@ model ForumPost {
 }
 
 model Comment {
-  id        String    @id @default(cuid())
+  id        String    @id @default(cuid(2))
   content   String    @db.Text
   postId    String
   userId    String
@@ -271,7 +271,7 @@ enum UpvoteTarget {
 }
 
 model Upvote {
-  id         String       @id @default(cuid())
+  id         String       @id @default(cuid(2))
   userId     String
   targetId   String // ID of post or comment
   targetType UpvoteTarget
@@ -292,7 +292,7 @@ model Upvote {
 // ============================================================================
 
 model SharedCalculation {
-  id          String    @id @default(cuid())
+  id          String    @id @default(cuid(2))
   shortCode   String    @unique @db.VarChar(8) // 8-char alphanumeric code
   latex       String    @db.Text               // LaTeX expression
   expression  String    @db.Text               // Plain-text expression (for calculator restore)
@@ -316,7 +316,7 @@ model SharedCalculation {
 // ============================================================================
 
 model AuditLog {
-  id        String   @id @default(cuid())
+  id        String   @id @default(cuid(2))
   userId    String? // Null for system actions
   action    String   @db.VarChar(100) // "create", "update", "delete", "view"
   entity    String   @db.VarChar(100) // "worksheet", "post", "comment", etc.
@@ -347,7 +347,7 @@ enum Difficulty {
 }
 
 model Problem {
-  id            String     @id @default(cuid())
+  id            String     @id @default(cuid(2))
   title         String     @db.VarChar(255)
   slug          String     @unique @db.VarChar(255)
   description   String     @db.Text
@@ -388,7 +388,7 @@ model Problem {
 }
 
 model Hint {
-  id        String   @id @default(cuid())
+  id        String   @id @default(cuid(2))
   problemId String
   content   String   @db.Text
   order     Int      @default(0) // Display order
@@ -402,7 +402,7 @@ model Hint {
 }
 
 model TestCase {
-  id        String  @id @default(cuid())
+  id        String  @id @default(cuid(2))
   problemId String
   input     String  @db.Text
   expected  String  @db.Text
@@ -416,7 +416,7 @@ model TestCase {
 }
 
 model Example {
-  id          String  @id @default(cuid())
+  id          String  @id @default(cuid(2))
   problemId   String?
   topicId     String?
   title       String  @db.VarChar(255)
@@ -455,7 +455,7 @@ enum Category {
 }
 
 model Topic {
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid(2))
   name        String   @db.VarChar(255)
   slug        String   @unique @db.VarChar(255)
   category    Category
@@ -500,7 +500,7 @@ model ProblemTopic {
 }
 
 model Theorem {
-  id            String   @id @default(cuid())
+  id            String   @id @default(cuid(2))
   name          String   @db.VarChar(255)
   statement     String   @db.Text // LaTeX theorem statement
   proof         String   @db.Text // Markdown/LaTeX proof
@@ -522,7 +522,7 @@ model Theorem {
 }
 
 model Resource {
-  id          String       @id @default(cuid())
+  id          String       @id @default(cuid(2))
   title       String       @db.VarChar(255)
   description String?      @db.Text
   url         String       @db.Text
@@ -565,7 +565,7 @@ enum AlgorithmCategory {
 }
 
 model Algorithm {
-  id                String            @id @default(cuid())
+  id                String            @id @default(cuid(2))
   name              String            @db.VarChar(255)
   slug              String            @unique @db.VarChar(255)
   description       String            @db.Text
@@ -608,7 +608,7 @@ enum ProgrammingLanguage {
 }
 
 model Implementation {
-  id          String              @id @default(cuid())
+  id          String              @id @default(cuid(2))
   algorithmId String
   language    ProgrammingLanguage
   code        String              @db.Text
@@ -626,7 +626,7 @@ model Implementation {
 // ============================================================================
 
 model UserProgress {
-  id             String   @id @default(cuid())
+  id             String   @id @default(cuid(2))
   userId         String   @unique
 
   // Overall statistics
@@ -658,7 +658,7 @@ model UserProgress {
 }
 
 model TopicProgress {
-  id               String       @id @default(cuid())
+  id               String       @id @default(cuid(2))
   userProgressId   String
   topicId          String
 
@@ -678,7 +678,7 @@ model TopicProgress {
 }
 
 model Attempt {
-  id             String   @id @default(cuid())
+  id             String   @id @default(cuid(2))
   userProgressId String
   problemId      String
 
@@ -710,7 +710,7 @@ model Attempt {
 }
 
 model PracticeSession {
-  id             String    @id @default(cuid())
+  id             String    @id @default(cuid(2))
   userProgressId String
   topic          String?   @db.VarChar(100)
   difficulty     String?   @db.VarChar(50)
@@ -742,7 +742,7 @@ enum FavoriteType {
 }
 
 model Favorite {
-  id             String       @id @default(cuid())
+  id             String       @id @default(cuid(2))
   userProgressId String
   resourceType   FavoriteType @default(PROBLEM)
   problemId      String?
@@ -774,7 +774,7 @@ enum AchievementType {
 }
 
 model Achievement {
-  id          String          @id @default(cuid())
+  id          String          @id @default(cuid(2))
   name        String          @db.VarChar(255)
   description String          @db.Text
   type        AchievementType
@@ -796,7 +796,7 @@ model Achievement {
 }
 
 model UserAchievement {
-  id             String   @id @default(cuid())
+  id             String   @id @default(cuid(2))
   userProgressId String
   achievementId  String
 

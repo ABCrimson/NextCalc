@@ -61,8 +61,18 @@ describe('Differentiate Handler', () => {
     });
 
     expect(result.success).toBe(true);
-    expect(result.data?.derivative).toBeDefined();
-    // Should be 2*x + 3
+    // d/dx(x^2 + 3x + 2) = 2x + 3. mathjs renders this as "2 * x + 3".
+    // Assert the actual content (whitespace-insensitive) rather than mere existence.
+    const derivative = result.data?.derivative ?? '';
+    const compact = derivative.replace(/\s+/g, '');
+    // Leading coefficient 2 multiplied by a single x.
+    expect(compact).toMatch(/2\*?x/);
+    // Constant term 3 from differentiating 3x; the +2 constant vanishes.
+    expect(compact).toMatch(/3/);
+    // Exactly one occurrence of the variable x in the linear result.
+    expect((compact.match(/x/g) ?? []).length).toBe(1);
+    // The constant 2 must NOT survive differentiation as a standalone term.
+    expect(compact).not.toMatch(/\+2$/);
   });
 
   it('should compute second derivative', async () => {
@@ -74,8 +84,11 @@ describe('Differentiate Handler', () => {
     });
 
     expect(result.success).toBe(true);
-    expect(result.data?.derivative).toBeDefined();
-    // Should be 6*x
+    // d^2/dx^2(x^3) = 6x. mathjs renders this as "6 * x".
+    const derivative = result.data?.derivative ?? '';
+    const compact = derivative.replace(/\s+/g, '');
+    // Coefficient 6 multiplied by a single x, with no remaining power.
+    expect(compact).toMatch(/^6\*?x$/);
   });
 
   it('should return error for invalid expression', async () => {

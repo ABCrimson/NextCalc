@@ -1,6 +1,6 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { BufferPool } from '../../utils/buffer-pool';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { PooledBuffer } from '../../utils/buffer-pool';
+import { BufferPool } from '../../utils/buffer-pool';
 
 /**
  * Creates a mock WebGL2RenderingContext with the methods used by BufferPool.
@@ -190,7 +190,7 @@ describe('BufferPool', () => {
 
   it('should NOT clean up buffers that are still in use', () => {
     const pool = new BufferPool(gl, 32, 1000);
-    const buf = pool.acquire(256);
+    pool.acquire(256);
     // Do NOT release — it is still in use
 
     vi.spyOn(Date, 'now').mockReturnValue(Date.now() + 2000);

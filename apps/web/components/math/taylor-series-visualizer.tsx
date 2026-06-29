@@ -1297,7 +1297,7 @@ function GlassCard({ children, className }: GlassCardProps) {
   return (
     <div
       className={cn(
-        'rounded-xl border border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]',
+        'rounded-xl border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]',
         'bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md',
         className,
       )}
@@ -1575,7 +1575,10 @@ export function TaylorSeriesVisualizer() {
           <Sparkles className="h-4 w-4 text-primary/70" aria-hidden />
           <span className="text-sm font-medium text-muted-foreground">Function Presets</span>
         </div>
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Function preset selection">
+        <fieldset
+          className="flex flex-wrap gap-2 border-0 p-0 m-0"
+          aria-label="Function preset selection"
+        >
           {FUNCTION_PRESETS.map((preset) => (
             <PresetChip
               key={preset.id}
@@ -1589,7 +1592,7 @@ export function TaylorSeriesVisualizer() {
               }}
             />
           ))}
-        </div>
+        </fieldset>
         {/* Description line for selected preset */}
         <AnimatePresence mode="wait">
           <m.p

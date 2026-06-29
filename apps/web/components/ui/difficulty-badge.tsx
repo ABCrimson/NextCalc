@@ -126,9 +126,8 @@ export function DifficultyScale({
   const levels: DifficultyLevel[] = ['beginner', 'intermediate', 'advanced', 'master'];
 
   return (
-    <div
-      className={cn('flex items-center gap-2', className)}
-      role="group"
+    <fieldset
+      className={cn('flex items-center gap-2 border-0 p-0 m-0', className)}
       aria-label="Difficulty scale"
     >
       {levels.map((level) => {
@@ -138,6 +137,7 @@ export function DifficultyScale({
         return (
           <div
             key={level}
+            role="img"
             className={cn(
               'h-2 flex-1 rounded-full transition-all',
               isCurrent
@@ -149,7 +149,7 @@ export function DifficultyScale({
           />
         );
       })}
-    </div>
+    </fieldset>
   );
 }
 

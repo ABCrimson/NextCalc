@@ -22,7 +22,7 @@
 - [ ] `pnpm build` passes
 - [ ] `pnpm test` passes
 - [ ] `pnpm lint` passes
-- [ ] `pnpm typecheck` passes
+- [ ] `pnpm turbo run typecheck` passes
 - [ ] Manual testing completed
 
 ## Screenshots

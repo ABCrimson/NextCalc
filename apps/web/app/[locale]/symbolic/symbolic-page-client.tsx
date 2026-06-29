@@ -8,7 +8,8 @@ import { Link } from '@/i18n/navigation';
 // ---------------------------------------------------------------------------
 
 const SymbolicPanel = dynamic(
-  () => import('@/components/calculator/symbolic-panel').then((m) => ({ default: m.SymbolicPanel })),
+  () =>
+    import('@/components/calculator/symbolic-panel').then((m) => ({ default: m.SymbolicPanel })),
   {
     ssr: false,
     loading: () => (
@@ -102,6 +103,7 @@ function AnimatedBackground() {
 
       {/* Noise texture overlay */}
       <svg
+        aria-hidden="true"
         className="absolute inset-0 w-full h-full opacity-[0.035] pointer-events-none"
         xmlns="http://www.w3.org/2000/svg"
       >

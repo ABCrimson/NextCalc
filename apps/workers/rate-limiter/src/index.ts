@@ -1,41 +1,54 @@
 /**
  * NextCalc Pro - Rate Limiter Service
  *
- * A Cloudflare Worker providing comprehensive rate limiting:
- * - Sliding window algorithm for accurate limiting
- * - Multi-tier support (Free, Pro, Enterprise)
- * - IP-based and user-based limiting
- * - Real-time quota management
+ * A Cloudflare Worker providing atomic sliding-window rate limiting via
+ * Durable Objects. Each identifier is mapped to a single DO instance via
+ * idFromName(identifier), serialising concurrent requests and eliminating
+ * the KV read-modify-write race condition.
  *
- * Uses Cloudflare KV for distributed rate limit tracking.
+ * Storage layout:
+ *   RATE_LIMITER  — DurableObjectNamespace, one instance per identifier.
+ *                   Holds the sliding-window timestamp log in SQLite.
+ *   RATE_LIMITS   — KVNamespace, used ONLY as an identifier index so that
+ *                   /admin/keys can enumerate active identifiers. The counter
+ *                   itself always lives in the DO.
  *
  * @author NextCalc Pro Team
- * @version 1.0.0
+ * @version 2.0.0
  */
 
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { z } from 'zod';
+import type { RateLimiterDurableObject } from './durable-objects/rate-limiter-do.js';
 import { ipRateLimitMiddleware } from './middleware/ratelimit.js';
-import {
-  checkRateLimit,
-  getRateLimitStatus,
-  getRecommendedTier,
-  listRateLimitKeys,
-  RATE_LIMIT_CONFIGS,
-  resetRateLimit,
-  type UserTier,
-} from './utils/sliding-window.js';
+import { getRecommendedTier, RATE_LIMIT_CONFIGS, type UserTier } from './utils/sliding-window.js';
 
-/**
- * Cloudflare Worker environment bindings
- */
+// Re-export the DO class so Wrangler can locate it as a named export of the
+// entrypoint module. Workers require the DO class to be exported from the
+// same module that is declared as `main` in wrangler.toml.
+export { RateLimiterDurableObject } from './durable-objects/rate-limiter-do.js';
+
+// ---------------------------------------------------------------------------
+// Environment bindings
+// ---------------------------------------------------------------------------
+
 type Bindings = {
+  /** DO namespace — one instance per identifier, holds the rate-limit state. */
+  RATE_LIMITER: DurableObjectNamespace<RateLimiterDurableObject>;
+  /**
+   * KV namespace — used exclusively as an identifier index for /admin/keys.
+   * The rate-limit counter is never stored here; the DO owns all counters.
+   */
   RATE_LIMITS: KVNamespace;
   ALLOWED_ORIGINS: string;
   ADMIN_KEY: string;
 };
+
+// ---------------------------------------------------------------------------
+// Timing-safe string comparison
+// ---------------------------------------------------------------------------
 
 /**
  * Timing-safe string comparison using SHA-256 digests via the Web Crypto API.
@@ -54,25 +67,61 @@ async function timingSafeEqual(a: string, b: string): Promise<boolean> {
   ]);
   const viewA = new Uint8Array(hashA);
   const viewB = new Uint8Array(hashB);
-  // SHA-256 always produces 32 bytes; the length check is a safety guard.
   if (viewA.length !== viewB.length) return false;
+  // Use DataView to avoid noUncheckedIndexedAccess non-null assertions.
+  const dvA = new DataView(hashA);
+  const dvB = new DataView(hashB);
   let diff = 0;
-  for (let i = 0; i < viewA.length; i++) {
-    diff |= viewA[i]! ^ viewB[i]!;
+  for (let i = 0; i < dvA.byteLength; i++) {
+    diff |= dvA.getUint8(i) ^ dvB.getUint8(i);
   }
   return diff === 0;
 }
 
-/**
- * Initialize Hono application with type-safe bindings
- */
+// ---------------------------------------------------------------------------
+// DO helper — obtain a stub for the given identifier
+// ---------------------------------------------------------------------------
+
+function getDoStub(env: Bindings, identifier: string): DurableObjectStub<RateLimiterDurableObject> {
+  return env.RATE_LIMITER.get(env.RATE_LIMITER.idFromName(identifier));
+}
+
+// ---------------------------------------------------------------------------
+// KV index helpers (identifier enumeration only)
+// ---------------------------------------------------------------------------
+
+const KV_INDEX_PREFIX = 'index:';
+const KV_INDEX_TTL = 7 * 24 * 60 * 60; // 7 days — refresh on each /check
+
+async function recordIdentifierInIndex(kv: KVNamespace, identifier: string): Promise<void> {
+  await kv.put(`${KV_INDEX_PREFIX}${identifier}`, '1', { expirationTtl: KV_INDEX_TTL });
+}
+
+async function listIndexedIdentifiers(kv: KVNamespace): Promise<string[]> {
+  const identifiers: string[] = [];
+  let cursor: string | undefined;
+
+  do {
+    const result: KVNamespaceListResult<unknown, string> = await kv.list({
+      prefix: KV_INDEX_PREFIX,
+      ...(cursor !== undefined ? { cursor } : {}),
+    });
+    for (const key of result.keys) {
+      identifiers.push(key.name.slice(KV_INDEX_PREFIX.length));
+    }
+    cursor = result.list_complete ? undefined : result.cursor;
+  } while (cursor !== undefined);
+
+  return identifiers;
+}
+
+// ---------------------------------------------------------------------------
+// Hono application
+// ---------------------------------------------------------------------------
+
 const app = new Hono<{ Bindings: Bindings }>();
 
-/**
- * Middleware configuration
- */
-
-// CORS configuration
+// CORS
 app.use('/*', async (c, next) => {
   const allowedOrigins = c.env.ALLOWED_ORIGINS?.split(',') ?? [];
 
@@ -95,51 +144,46 @@ app.use('/*', async (c, next) => {
   return corsMiddleware(c, next);
 });
 
-// Request logging
 app.use('*', logger());
 
-/**
- * Global error handler
- */
+// ---------------------------------------------------------------------------
+// Error handler
+// ---------------------------------------------------------------------------
+
 app.onError((err, c) => {
   console.error('Unhandled error:', err);
-
   return c.json(
     {
       success: false,
-      error: {
-        message: 'Internal server error',
-        code: 'INTERNAL_ERROR',
-      },
+      error: { message: 'Internal server error', code: 'INTERNAL_ERROR' },
     },
     500,
   );
 });
 
-/**
- * Health check endpoint
- *
- * @route GET /health
- */
+// ---------------------------------------------------------------------------
+// GET /health
+// ---------------------------------------------------------------------------
+
 app.get('/health', (c) => {
   return c.json({
     status: 'healthy',
     service: 'rate-limiter',
-    version: '1.0.0',
+    version: '2.0.0',
     timestamp: new Date().toISOString(),
   });
 });
 
-/**
- * Root endpoint - API information
- *
- * @route GET /
- */
+// ---------------------------------------------------------------------------
+// GET /
+// ---------------------------------------------------------------------------
+
 app.get('/', (c) => {
   return c.json({
     name: 'NextCalc Pro - Rate Limiter Service',
-    version: '1.0.0',
-    description: 'Distributed rate limiting service with sliding window algorithm',
+    version: '2.0.0',
+    description:
+      'Atomic distributed rate limiting via Durable Objects with sliding-window algorithm',
     endpoints: {
       check: 'POST /check - Check rate limit and consume request',
       status: 'GET /status/:identifier - Get rate limit status',
@@ -152,71 +196,51 @@ app.get('/', (c) => {
   });
 });
 
-/**
- * Check rate limit and consume a request
- *
- * @route POST /check
- * @body {identifier: string, tier?: UserTier}
- * @returns Rate limit status
- *
- * @example
- * POST /check
- * {
- *   "identifier": "user-123",
- *   "tier": "pro"
- * }
- *
- * Response:
- * {
- *   "success": true,
- *   "data": {
- *     "allowed": true,
- *     "remaining": 999,
- *     "resetAt": 1234567890,
- *     "limit": 1000,
- *     "tier": "pro"
- *   }
- * }
- */
+// ---------------------------------------------------------------------------
+// POST /check
+// ---------------------------------------------------------------------------
+
+const checkSchema = z.object({
+  identifier: z.string().min(1).max(200),
+  tier: z.enum(['free', 'pro', 'enterprise']).optional().default('free'),
+});
+
 app.post('/check', async (c) => {
   try {
     const body = await c.req.json();
+    const validated = checkSchema.parse(body);
 
-    // Validate request
-    const schema = z.object({
-      identifier: z.string().min(1).max(200),
-      tier: z.enum(['free', 'pro', 'enterprise']).optional().default('free'),
-    });
+    const stub = getDoStub(c.env, validated.identifier);
+    const status = await stub.check(validated.tier);
 
-    const validated = schema.parse(body);
+    // Record the identifier in the KV index so /admin/keys can enumerate it.
+    // Fire-and-forget — a failure here must not block the rate-limit response.
+    // executionCtx is only available in the Cloudflare runtime, not in node test
+    // environments, so we guard before accessing it.
+    try {
+      c.executionCtx.waitUntil(recordIdentifierInIndex(c.env.RATE_LIMITS, validated.identifier));
+    } catch {
+      // No ExecutionContext in test environments — schedule the index write
+      // as a detached promise so it doesn't block the response.
+      void recordIdentifierInIndex(c.env.RATE_LIMITS, validated.identifier);
+    }
 
-    // Check rate limit
-    const status = await checkRateLimit(c.env.RATE_LIMITS, validated.identifier, validated.tier);
-
-    // Set rate limit headers
     c.header('X-RateLimit-Limit', status.limit.toString());
     c.header('X-RateLimit-Remaining', status.remaining.toString());
     c.header('X-RateLimit-Reset', new Date(status.resetAt).toISOString());
     c.header('X-RateLimit-Tier', status.tier);
 
-    if (!status.allowed && status.retryAfter) {
+    if (!status.allowed && status.retryAfter !== undefined) {
       c.header('Retry-After', status.retryAfter.toString());
     }
 
-    return c.json({
-      success: true,
-      data: status,
-    });
+    return c.json({ success: true, data: status });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return c.json(
         {
           success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.issues,
-          },
+          error: { message: 'Validation error', code: 'VALIDATION_ERROR', details: error.issues },
         },
         400,
       );
@@ -226,83 +250,52 @@ app.post('/check', async (c) => {
     return c.json(
       {
         success: false,
-        error: {
-          message: 'Failed to check rate limit',
-          code: 'CHECK_ERROR',
-        },
+        error: { message: 'Failed to check rate limit', code: 'CHECK_ERROR' },
       },
       500,
     );
   }
 });
 
-/**
- * Get rate limit status without consuming a request
- *
- * @route GET /status/:identifier
- * @param identifier - User/IP identifier
- * @query tier - User tier (default: free)
- * @returns Current rate limit status
- *
- * @example
- * GET /status/user-123?tier=pro
- */
+// ---------------------------------------------------------------------------
+// GET /status/:identifier
+// ---------------------------------------------------------------------------
+
 app.get('/status/:identifier', async (c) => {
   try {
     const identifier = c.req.param('identifier');
-    const tier = (c.req.query('tier') || 'free') as UserTier;
+    const tierParam = c.req.query('tier') ?? 'free';
 
-    if (!['free', 'pro', 'enterprise'].includes(tier)) {
+    if (!(['free', 'pro', 'enterprise'] as const).includes(tierParam as UserTier)) {
       return c.json(
-        {
-          success: false,
-          error: {
-            message: 'Invalid tier',
-            code: 'INVALID_TIER',
-          },
-        },
+        { success: false, error: { message: 'Invalid tier', code: 'INVALID_TIER' } },
         400,
       );
     }
 
-    // Get status without consuming
-    const status = await getRateLimitStatus(c.env.RATE_LIMITS, identifier, tier);
+    const tier = tierParam as UserTier;
+    const stub = getDoStub(c.env, identifier);
+    const status = await stub.status(tier);
 
-    // Set headers
     c.header('X-RateLimit-Limit', status.limit.toString());
     c.header('X-RateLimit-Remaining', status.remaining.toString());
     c.header('X-RateLimit-Reset', new Date(status.resetAt).toISOString());
     c.header('X-RateLimit-Tier', status.tier);
 
-    return c.json({
-      success: true,
-      data: status,
-    });
+    return c.json({ success: true, data: status });
   } catch (error) {
     console.error('Error in /status:', error);
     return c.json(
-      {
-        success: false,
-        error: {
-          message: 'Failed to get status',
-          code: 'STATUS_ERROR',
-        },
-      },
+      { success: false, error: { message: 'Failed to get status', code: 'STATUS_ERROR' } },
       500,
     );
   }
 });
 
-/**
- * Reset rate limit for an identifier (admin endpoint)
- *
- * @route DELETE /reset/:identifier
- * @param identifier - Identifier to reset
- * @returns Success confirmation
- *
- * @example
- * DELETE /reset/user-123
- */
+// ---------------------------------------------------------------------------
+// DELETE /reset/:identifier  (admin)
+// ---------------------------------------------------------------------------
+
 app.delete('/reset/:identifier', async (c) => {
   try {
     const adminKey = c.req.header('X-Admin-Key') ?? '';
@@ -312,50 +305,34 @@ app.delete('/reset/:identifier', async (c) => {
 
     const identifier = c.req.param('identifier');
 
-    await resetRateLimit(c.env.RATE_LIMITS, identifier);
+    const stub = getDoStub(c.env, identifier);
+    await stub.reset();
 
-    return c.json({
-      success: true,
-      message: `Rate limit reset for ${identifier}`,
-    });
+    // Also remove from the KV index.
+    await c.env.RATE_LIMITS.delete(`${KV_INDEX_PREFIX}${identifier}`);
+
+    return c.json({ success: true, message: `Rate limit reset for ${identifier}` });
   } catch (error) {
     console.error('Error in /reset:', error);
     return c.json(
-      {
-        success: false,
-        error: {
-          message: 'Failed to reset rate limit',
-          code: 'RESET_ERROR',
-        },
-      },
+      { success: false, error: { message: 'Failed to reset rate limit', code: 'RESET_ERROR' } },
       500,
     );
   }
 });
 
-/**
- * Get tier configurations
- *
- * @route GET /configs
- * @returns Rate limit configurations for all tiers
- */
+// ---------------------------------------------------------------------------
+// GET /configs
+// ---------------------------------------------------------------------------
+
 app.get('/configs', (c) => {
-  return c.json({
-    success: true,
-    data: RATE_LIMIT_CONFIGS,
-  });
+  return c.json({ success: true, data: RATE_LIMIT_CONFIGS });
 });
 
-/**
- * Get recommended tier based on usage
- *
- * @route GET /recommend/:requestsPerHour
- * @param requestsPerHour - Average requests per hour
- * @returns Recommended tier
- *
- * @example
- * GET /recommend/500
- */
+// ---------------------------------------------------------------------------
+// GET /recommend/:requestsPerHour
+// ---------------------------------------------------------------------------
+
 app.get('/recommend/:requestsPerHour', (c) => {
   try {
     const requestsPerHour = parseInt(c.req.param('requestsPerHour'), 10);
@@ -364,10 +341,7 @@ app.get('/recommend/:requestsPerHour', (c) => {
       return c.json(
         {
           success: false,
-          error: {
-            message: 'Invalid requests per hour',
-            code: 'INVALID_INPUT',
-          },
+          error: { message: 'Invalid requests per hour', code: 'INVALID_INPUT' },
         },
         400,
       );
@@ -388,25 +362,25 @@ app.get('/recommend/:requestsPerHour', (c) => {
     return c.json(
       {
         success: false,
-        error: {
-          message: 'Failed to get recommendation',
-          code: 'RECOMMEND_ERROR',
-        },
+        error: { message: 'Failed to get recommendation', code: 'RECOMMEND_ERROR' },
       },
       500,
     );
   }
 });
 
-/**
- * List all rate limit keys (admin/debug endpoint)
- *
- * @route GET /admin/keys
- * @returns List of all rate limit keys
- *
- * WARNING: This can be expensive on large datasets
- * Should be protected with authentication in production
- */
+// ---------------------------------------------------------------------------
+// GET /admin/keys  (admin)
+//
+// Design note: DOs cannot be enumerated — there is no "list all DO instances"
+// API. Instead, /check writes a lightweight KV index entry for every identifier
+// it sees. This endpoint reads that index to return known active identifiers.
+//
+// Trade-off: identifiers that were only ever seen before the DO migration, or
+// that were directly reset without going through /check again, may not appear
+// in the index. New identifiers are indexed on first /check call.
+// ---------------------------------------------------------------------------
+
 app.get('/admin/keys', async (c) => {
   try {
     const adminKey = c.req.header('X-Admin-Key') ?? '';
@@ -414,67 +388,56 @@ app.get('/admin/keys', async (c) => {
       return c.json({ success: false, error: 'Unauthorized' }, 401);
     }
 
-    const keys = await listRateLimitKeys(c.env.RATE_LIMITS);
+    const identifiers = await listIndexedIdentifiers(c.env.RATE_LIMITS);
 
     return c.json({
       success: true,
       data: {
-        count: keys.length,
-        keys: keys.slice(0, 100), // Limit to first 100 for safety
+        count: identifiers.length,
+        keys: identifiers.slice(0, 100),
+        note: 'Lists identifiers indexed by the DO backend. Only identifiers seen via POST /check appear here.',
       },
     });
   } catch (error) {
     console.error('Error in /admin/keys:', error);
     return c.json(
-      {
-        success: false,
-        error: {
-          message: 'Failed to list keys',
-          code: 'LIST_ERROR',
-        },
-      },
+      { success: false, error: { message: 'Failed to list keys', code: 'LIST_ERROR' } },
       500,
     );
   }
 });
 
-/**
- * Example of using rate limit middleware on a protected route
- *
- * @route GET /example/protected
- */
+// ---------------------------------------------------------------------------
+// Example protected route (IP-based rate limiting)
+// ---------------------------------------------------------------------------
+
 app.get(
   '/example/protected',
   async (c, next) => {
-    const middleware = ipRateLimitMiddleware(c.env.RATE_LIMITS, 'free');
+    const middleware = ipRateLimitMiddleware(c.env.RATE_LIMITER, 'free');
     return middleware(c, next);
   },
   (c) => {
-    return c.json({
-      success: true,
-      message: 'This endpoint is rate limited',
-    });
+    return c.json({ success: true, message: 'This endpoint is rate limited' });
   },
 );
 
-/**
- * 404 handler
- */
+// ---------------------------------------------------------------------------
+// 404 handler
+// ---------------------------------------------------------------------------
+
 app.notFound((c) => {
   return c.json(
     {
       success: false,
-      error: {
-        message: 'Endpoint not found',
-        code: 'NOT_FOUND',
-        path: c.req.path,
-      },
+      error: { message: 'Endpoint not found', code: 'NOT_FOUND', path: c.req.path },
     },
     404,
   );
 });
 
-/**
- * Export the Hono app
- */
+// ---------------------------------------------------------------------------
+// Default export
+// ---------------------------------------------------------------------------
+
 export default app;

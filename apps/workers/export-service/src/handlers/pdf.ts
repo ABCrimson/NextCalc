@@ -3,7 +3,7 @@
  *
  * Converts LaTeX math expressions to PDF format via a three-stage pipeline:
  *
- *   1. LaTeX  -> SVG   (MathJax 4.x, see svg-internal.ts)
+ *   1. LaTeX  -> SVG   (KaTeX, see svg-internal.ts)
  *   2. SVG    -> PNG   (@cf-wasm/resvg, see png.ts)
  *   3. PNG    -> PDF   (modern-pdf-lib, embedded raster image)
  *
@@ -12,11 +12,19 @@
  * scaled to fit within the configured margins while preserving aspect ratio.
  */
 
-import { createPdf, PageSizes } from 'modern-pdf-lib';
+import {
+  accessibilityPlugin,
+  createPdf,
+  deduplicateImages,
+  initWasm,
+  PageSizes,
+  tagFigure,
+} from 'modern-pdf-lib';
 import {
   generateExportKey,
   getMimeType,
   type R2Bucket,
+  type R2S3Config,
   type UploadResult,
   uploadToR2,
   validateFileSize,
@@ -39,6 +47,34 @@ const PAGE_SIZE_MAP = {
   a4: PageSizes.A4,
   legal: PageSizes.Legal,
 } as const;
+
+// ---------------------------------------------------------------------------
+// WASM acceleration (best-effort, optional)
+// ---------------------------------------------------------------------------
+// modern-pdf-lib can use WASM to accelerate PNG decoding (embedPng) and deflate
+// compression (save). It is fully optional — the library emits identical output
+// via a pure-JS fallback — so we initialise it once, lazily, and swallow failures.
+let wasmInit: Promise<unknown> | null = null;
+function ensureWasm(): Promise<unknown> {
+  // Observability: log once whether acceleration actually engaged.
+  // VERIFIED 2026-06-28 against modern-pdf-lib 0.40.2: the published package still
+  // ships NO .wasm binaries (its `dist/wasm/**` is declared in `files` but empty)
+  // and bundles no inline WASM (`hasInlineWasmData()` === false), so `initWasm`
+  // ENOENTs on `dist/wasm/libdeflate/modern_pdf_deflate_bg.wasm` and we fall back
+  // to pure-JS — which still produces valid, fully-compressed PDFs. The day
+  // modern-pdf-lib ships/inlines its .wasm, this call upgrades to WASM for free.
+  wasmInit ??= initWasm({ png: true, deflate: true })
+    .then(() => {
+      console.info('[export-service] modern-pdf-lib WASM acceleration enabled');
+    })
+    .catch((err: unknown) => {
+      console.warn(
+        '[export-service] modern-pdf-lib WASM unavailable; using pure-JS fallback:',
+        err instanceof Error ? err.message : String(err),
+      );
+    });
+  return wasmInit;
+}
 
 // ---------------------------------------------------------------------------
 // Public interfaces
@@ -127,7 +163,12 @@ async function generatePdfFromLatex(
   // ------------------------------------------------------------------
   // Step 3: Create PDF document with metadata
   // ------------------------------------------------------------------
+  await ensureWasm();
   const doc = createPdf();
+  // Tagged-PDF accessibility: marks the document tagged (/MarkInfo /Marked) and
+  // sets the document language so assistive tech can navigate the structure tree.
+  // The plugin emits the StructTreeRoot + ParentTree at save time.
+  doc.use(accessibilityPlugin({ language: 'en', markAsTagged: true }));
 
   if (includeMetadata) {
     doc.setTitle(title);
@@ -136,6 +177,8 @@ async function generatePdfFromLatex(
     doc.setCreator('NextCalc Export Service');
     doc.setProducer('modern-pdf-lib + @cf-wasm/resvg');
     doc.setCreationDate(new Date());
+    // Document language for tagged-PDF / screen-reader accessibility.
+    doc.setLanguage('en');
   }
 
   // ------------------------------------------------------------------
@@ -143,7 +186,7 @@ async function generatePdfFromLatex(
   // ------------------------------------------------------------------
   const pdfPage = doc.addPage(PAGE_SIZE_MAP[pageSize]);
 
-  const pngImage = doc.embedPng(png);
+  const pngImage = await doc.embedPng(png);
 
   // Available drawing area after margins
   const availableWidth = dims.width - marginPt * 2;
@@ -169,17 +212,28 @@ async function generatePdfFromLatex(
   const x = marginPt + (availableWidth - drawWidth) / 2;
   const y = dims.height - marginPt - drawHeight;
 
+  // Tagged-PDF: wrap the math image in a Figure structure element whose
+  // alternate text is the LaTeX source, so screen readers announce the
+  // equation instead of skipping an unlabelled image.
+  const structureTree = doc.createStructureTree();
+  const figure = tagFigure(structureTree, null, latex);
+  const mcid = structureTree.assignMcid(figure, 0);
+
+  pdfPage.beginMarkedContent('Figure', mcid);
   pdfPage.drawImage(pngImage, {
     x,
     y,
     width: drawWidth,
     height: drawHeight,
   });
+  pdfPage.endMarkedContentSequence();
 
   // ------------------------------------------------------------------
-  // Step 5: Serialise
+  // Step 5: Serialise — object streams (threshold 100) + maximum FlateDecode
+  // (compressionLevel 9) shrink the output; useWasm engages WASM deflate when
+  // initialised (pure-JS fallback otherwise — see ensureWasm).
   // ------------------------------------------------------------------
-  return doc.save();
+  return doc.save({ objectStreamThreshold: 100, compressionLevel: 9, useWasm: true });
 }
 
 // ---------------------------------------------------------------------------
@@ -192,12 +246,16 @@ async function generatePdfFromLatex(
  * @param request      - PDF export request (LaTeX + options)
  * @param bucket       - R2 bucket binding for storage
  * @param maxFileSize  - Maximum allowed PDF size in bytes
+ * @param isPrivate    - True for user-scoped private exports (requires r2Config)
+ * @param r2Config     - R2 S3 credentials for presigned URL generation
  * @returns Upload result including page count, page size, and download URL
  */
 export async function exportToPdf(
   request: PdfExportRequest,
   bucket: R2Bucket,
   maxFileSize: number,
+  isPrivate: boolean,
+  r2Config: R2S3Config | undefined,
 ): Promise<PdfExportResult> {
   const { latex, userId, options = {} } = request;
 
@@ -223,13 +281,21 @@ export async function exportToPdf(
   // Upload to R2
   const key = generateExportKey(userId, 'pdf');
 
-  const uploadResult = await uploadToR2(bucket, key, pdfBytes, getMimeType('pdf'), {
-    latex,
-    pageSize,
-    title,
-    createdAt: new Date().toISOString(),
-    userId: userId ?? 'anonymous',
-  });
+  const uploadResult = await uploadToR2(
+    bucket,
+    key,
+    pdfBytes,
+    getMimeType('pdf'),
+    isPrivate,
+    r2Config,
+    {
+      latex,
+      pageSize,
+      title,
+      createdAt: new Date().toISOString(),
+      userId: userId ?? 'anonymous',
+    },
+  );
 
   return {
     ...uploadResult,
@@ -253,6 +319,8 @@ export async function exportToPdf(
  * @param userId       - Optional user ID for R2 key namespacing
  * @param bucket       - R2 bucket binding
  * @param maxFileSize  - Maximum file size in bytes
+ * @param isPrivate    - True for user-scoped private exports
+ * @param r2Config     - R2 S3 credentials for presigned URL generation
  * @param options      - Common PDF options applied to every page
  * @returns PDF export result for the combined document
  */
@@ -261,6 +329,8 @@ export async function batchExportToPdf(
   userId: string | undefined,
   bucket: R2Bucket,
   maxFileSize: number,
+  isPrivate: boolean,
+  r2Config: R2S3Config | undefined,
   options?: PdfExportRequest['options'],
 ): Promise<PdfExportResult> {
   const pageSize = options?.pageSize ?? 'a4';
@@ -273,7 +343,11 @@ export async function batchExportToPdf(
   const marginPt = margin * 72;
   const dims = PAGE_DIMENSIONS[pageSize];
 
+  await ensureWasm();
   const doc = createPdf();
+  // Tagged-PDF accessibility (see generatePdfFromLatex for rationale).
+  doc.use(accessibilityPlugin({ language: 'en', markAsTagged: true }));
+  const structureTree = doc.createStructureTree();
 
   if (includeMetadata) {
     doc.setTitle(title);
@@ -282,13 +356,15 @@ export async function batchExportToPdf(
     doc.setCreator('NextCalc Export Service');
     doc.setProducer('modern-pdf-lib + @cf-wasm/resvg');
     doc.setCreationDate(new Date());
+    // Document language for tagged-PDF / screen-reader accessibility.
+    doc.setLanguage('en');
   }
 
   // Available drawing area after margins
   const availableWidth = dims.width - marginPt * 2;
   const availableHeight = dims.height - marginPt * 2;
 
-  for (const latex of expressions) {
+  for (const [pageIndex, latex] of expressions.entries()) {
     // Step 1: LaTeX -> SVG
     const svgOptions: SvgOptions = {
       fontSize: fontSize * 2,
@@ -308,7 +384,7 @@ export async function batchExportToPdf(
 
     // Step 3: Add page, embed PNG, scale to fit
     const pdfPage = doc.addPage(PAGE_SIZE_MAP[pageSize]);
-    const pngImage = doc.embedPng(png);
+    const pngImage = await doc.embedPng(png);
 
     let drawWidth = imgWidth;
     let drawHeight = imgHeight;
@@ -328,15 +404,36 @@ export async function batchExportToPdf(
     const x = marginPt + (availableWidth - drawWidth) / 2;
     const y = dims.height - marginPt - drawHeight;
 
+    // Tagged figure with the LaTeX source as alternate text (one per page).
+    const figure = tagFigure(structureTree, null, latex);
+    const mcid = structureTree.assignMcid(figure, pageIndex);
+
+    pdfPage.beginMarkedContent('Figure', mcid);
     pdfPage.drawImage(pngImage, {
       x,
       y,
       width: drawWidth,
       height: drawHeight,
     });
+    pdfPage.endMarkedContentSequence();
   }
 
-  const pdfBytes = await doc.save();
+  // Batch documents frequently embed byte-identical math images across pages
+  // (repeated symbols / duplicate expressions); collapse identical image
+  // XObjects into a single shared object to shrink the output. The returned
+  // report is surfaced for the deployed Worker's observability.
+  const dedupeReport = deduplicateImages(doc);
+  if (dedupeReport.duplicatesRemoved > 0) {
+    console.info(
+      `[export-service] deduplicateImages: collapsed ${dedupeReport.duplicatesRemoved} of ${dedupeReport.totalImages} images (${dedupeReport.bytesSaved} bytes saved)`,
+    );
+  }
+
+  const pdfBytes = await doc.save({
+    objectStreamThreshold: 100,
+    compressionLevel: 9,
+    useWasm: true,
+  });
 
   // Validate file size
   validateFileSize(pdfBytes.byteLength, maxFileSize);
@@ -344,14 +441,22 @@ export async function batchExportToPdf(
   // Upload to R2
   const key = generateExportKey(userId, 'pdf');
 
-  const uploadResult = await uploadToR2(bucket, key, pdfBytes, getMimeType('pdf'), {
-    latex: expressions.join(' | '),
-    pageSize,
-    title,
-    pages: expressions.length.toString(),
-    createdAt: new Date().toISOString(),
-    userId: userId ?? 'anonymous',
-  });
+  const uploadResult = await uploadToR2(
+    bucket,
+    key,
+    pdfBytes,
+    getMimeType('pdf'),
+    isPrivate,
+    r2Config,
+    {
+      latex: expressions.join(' | '),
+      pageSize,
+      title,
+      pages: expressions.length.toString(),
+      createdAt: new Date().toISOString(),
+      userId: userId ?? 'anonymous',
+    },
+  );
 
   return {
     ...uploadResult,
@@ -416,13 +521,13 @@ export function validateLatexSyntax(latex: string): boolean {
   const checks = [
     // Check for balanced braces
     () => {
-      const openBraces = (latex.match(/\{/g) || []).length;
-      const closeBraces = (latex.match(/\}/g) || []).length;
+      const openBraces = (latex.match(/\{/g) ?? []).length;
+      const closeBraces = (latex.match(/\}/g) ?? []).length;
       return openBraces === closeBraces;
     },
     // Check for balanced math delimiters
     () => {
-      const dollarSigns = (latex.match(/\$/g) || []).length;
+      const dollarSigns = (latex.match(/\$/g) ?? []).length;
       return dollarSigns % 2 === 0;
     },
     // Check for common LaTeX commands

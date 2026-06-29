@@ -4,7 +4,7 @@
  * WebGL 2 when WebGPU is unavailable. Post-processing uses the TSL-native
  * RenderPipeline + node-based bloom, compatible with both backends.
  *
- * MODERNIZATION FEATURES (Three.js 0.183.0):
+ * MODERNIZATION FEATURES (Three.js 0.184.0):
  * - WebGPURenderer with automatic WebGL 2 fallback
  * - PBR materials (MeshStandardMaterial/MeshPhysicalMaterial)
  * - Node-based post-processing pipeline with RenderPipeline
@@ -15,7 +15,8 @@
  * - Sprite-based axis labels (canvas texture, no external font loader)
  * - Wireframe overlay using LineSegments with MeshBasicMaterial (lighting-immune)
  * - Procedural HDR environment cubemap for IBL (image-based lighting)
- * - SSAO post-processing via TSL node pipeline for depth cue on surfaces
+ * - SSAO post-processing via TSL GTAO node pipeline for depth cue on surfaces
+ *   (r184 GTAONode writes occlusion to the red channel only — blended via .r)
  *
  * @module renderers/webgl-3d
  */
@@ -317,6 +318,7 @@ export function createProceduralHDRCubeMap(
       b += bright * 1.0;
     }
     // Secondary star layer — different hash seed via offset
+    // biome-ignore lint/suspicious/noApproximativeNumericConstant: 2.302 is an arbitrary decorrelation seed for the procedural star hash, not Math.LN10
     const star2 = starHash(nx * 1.618 + 0.414, ny * 2.302 - 0.577, nz * 1.732 + 1.0);
     if (star2 > 0.983) {
       const bright2 = (star2 - 0.983) * 18.0;
@@ -1016,6 +1018,7 @@ export function createProceduralHDRCubeMap(
       b += bright * 0.88;
     }
     // Second star hash for even more density in the core
+    // biome-ignore lint/suspicious/noApproximativeNumericConstant: 0.707 and 3.142 are arbitrary decorrelation seeds for the procedural star hash, not Math.SQRT1_2 / Math.PI
     const star2 = starHash(nx * 2.414 + 0.707, ny * 1.618 - 1.0, nz * 3.142 + 0.577);
     if (star2 > Math.max(0, 0.985 - proxSC * 0.35)) {
       const t2 = 1.0 - Math.max(0, 0.985 - proxSC * 0.35);
@@ -1147,7 +1150,7 @@ export function createProceduralHDRCubeMap(
  * coordinateSystem to distinguish WebGPU from WebGL.
  */
 function detectBackend(renderer: WebGPURenderer): RenderBackend {
-  // THREE.WebGPUCoordinateSystem = 2 (Y-up, clip-space 0..1)
+  // THREE.WebGPUCoordinateSystem = 2001 (Y-up, clip-space 0..1)
   // THREE.WebGLCoordinateSystem = 2000 (Y-up, clip-space -1..1)
   // We use the renderer's reported coordinate system as a reliable signal.
   return renderer.backend.coordinateSystem === THREE.WebGPUCoordinateSystem ? 'webgpu' : 'webgl2';
@@ -1312,7 +1315,7 @@ export class WebGL3DRenderer implements IRenderer {
       this.renderer.shadowMap.type = PCFSoftShadowMap;
 
       // HDR tone mapping
-      this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      this.renderer.toneMapping = THREE.AgXToneMapping;
       this.renderer.toneMappingExposure = 1.2;
 
       // Add modern PBR lighting
@@ -1482,16 +1485,23 @@ export class WebGL3DRenderer implements IRenderer {
       aoPass.radius.value = this._ssaoRadius;
       aoPass.scale.value = this._ssaoIntensity;
 
-      // Get the AO texture and blend it with the scene color.
+      // Blend the AO factor with the scene colour.
+      // three r184 changed GTAONode to write the occlusion factor to the RED
+      // channel only (its render target now uses RedFormat), so we read `.r`
+      // and let the resulting scalar broadcast uniformly across the scene
+      // colour's RGB. (Pre-r184 the factor was replicated across channels, so
+      // multiplying by the full RGBA node "worked"; in r184 that would zero
+      // green/blue and red-tint the occluded regions.)
       // aoFactor is in [0, 1] where 1 = fully lit, 0 = fully occluded.
       // We mix between full brightness and the AO factor based on strength
       // to keep the effect subtle and not overpower the colormap.
-      const aoTexture = aoPass.getTextureNode();
+      const aoFactor = aoPass.getTextureNode().r;
       const radiusFactor = Math.min(this._ssaoRadius / 0.5, 2.0);
       const strength = Math.min(this._ssaoIntensity * 0.4 * radiusFactor, 0.7);
 
-      // aoMask = lerp(1.0, aoTexture, strength) = (1-strength) + strength * ao
-      const aoMask = mix(float(1.0), aoTexture, float(strength));
+      // aoMask = lerp(1.0, aoFactor, strength) = (1-strength) + strength * ao,
+      // a scalar node applied uniformly to every scene-colour channel.
+      const aoMask = mix(float(1.0), aoFactor, float(strength));
 
       const aoModulated = sceneColor.mul(aoMask);
       outputNode = aoModulated.add(bloomNode);
@@ -1658,7 +1668,9 @@ export class WebGL3DRenderer implements IRenderer {
         this.scene.remove(this.currentMesh);
         this.currentMesh.geometry.dispose();
         if (Array.isArray(this.currentMesh.material)) {
-          this.currentMesh.material.forEach((m) => m.dispose());
+          this.currentMesh.material.forEach((m) => {
+            m.dispose();
+          });
         } else {
           this.currentMesh.material.dispose();
         }
@@ -1670,7 +1682,9 @@ export class WebGL3DRenderer implements IRenderer {
         this.scene.remove(this.currentWireframe);
         this.currentWireframe.geometry.dispose();
         if (Array.isArray(this.currentWireframe.material)) {
-          this.currentWireframe.material.forEach((m) => m.dispose());
+          this.currentWireframe.material.forEach((m) => {
+            m.dispose();
+          });
         } else {
           this.currentWireframe.material.dispose();
         }
@@ -1889,7 +1903,9 @@ export class WebGL3DRenderer implements IRenderer {
         this.scene.remove(this.currentWireframe);
         this.currentWireframe.geometry.dispose();
         if (Array.isArray(this.currentWireframe.material)) {
-          this.currentWireframe.material.forEach((m) => m.dispose());
+          this.currentWireframe.material.forEach((m) => {
+            m.dispose();
+          });
         } else {
           this.currentWireframe.material.dispose();
         }
@@ -2127,7 +2143,9 @@ export class WebGL3DRenderer implements IRenderer {
         this.scene.remove(this.currentMesh);
         this.currentMesh.geometry.dispose();
         if (Array.isArray(this.currentMesh.material)) {
-          this.currentMesh.material.forEach((m) => m.dispose());
+          this.currentMesh.material.forEach((m) => {
+            m.dispose();
+          });
         } else {
           this.currentMesh.material.dispose();
         }
@@ -2154,7 +2172,9 @@ export class WebGL3DRenderer implements IRenderer {
         this.scene.remove(this.currentMesh);
         this.currentMesh.geometry.dispose();
         if (Array.isArray(this.currentMesh.material)) {
-          this.currentMesh.material.forEach((m) => m.dispose());
+          this.currentMesh.material.forEach((m) => {
+            m.dispose();
+          });
         } else {
           this.currentMesh.material.dispose();
         }
@@ -2216,7 +2236,9 @@ export class WebGL3DRenderer implements IRenderer {
       this.currentMesh.geometry.dispose();
       const mat = this.currentMesh.material;
       if (Array.isArray(mat)) {
-        mat.forEach((m) => m.dispose());
+        mat.forEach((m) => {
+          m.dispose();
+        });
       } else {
         mat.dispose();
       }
@@ -2227,7 +2249,9 @@ export class WebGL3DRenderer implements IRenderer {
       this.scene?.remove(this.currentWireframe);
       this.currentWireframe.geometry.dispose();
       if (Array.isArray(this.currentWireframe.material)) {
-        this.currentWireframe.material.forEach((m) => m.dispose());
+        this.currentWireframe.material.forEach((m) => {
+          m.dispose();
+        });
       } else {
         this.currentWireframe.material.dispose();
       }
@@ -2278,7 +2302,9 @@ export class WebGL3DRenderer implements IRenderer {
     }
 
     // Dispose cached axis label textures
-    this.axisLabelTextureCache.forEach((tex) => tex.dispose());
+    this.axisLabelTextureCache.forEach((tex) => {
+      tex.dispose();
+    });
     this.axisLabelTextureCache.clear();
 
     // Dispose procedural environment cubemap

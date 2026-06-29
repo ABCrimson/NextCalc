@@ -293,8 +293,8 @@ export function KnowledgeExplorer({
                           <Lightbulb className="h-5 w-5 text-yellow-500" aria-hidden="true" />
                           <span>Examples</span>
                         </div>
-                        {selectedItem.examples.map((example, index) => (
-                          <Card key={index} className="bg-muted/50">
+                        {selectedItem.examples.map((example) => (
+                          <Card key={example.title} className="bg-muted/50">
                             <CardHeader>
                               <CardTitle className="text-base">{example.title}</CardTitle>
                             </CardHeader>
@@ -348,9 +348,9 @@ export function KnowledgeExplorer({
                       <div className="space-y-3">
                         <div className="text-lg font-semibold">References</div>
                         <div className="space-y-2">
-                          {selectedItem.references.map((ref, index) => (
+                          {selectedItem.references.map((ref) => (
                             <a
-                              key={index}
+                              key={ref.url}
                               href={ref.url}
                               target="_blank"
                               rel="noopener noreferrer"

@@ -60,11 +60,11 @@ function fromScaledBigInt(value: bigint, digits = 0): string {
     const trimmed = digits > 0 ? decStr.slice(0, digits) : decStr.replace(/0+$/, '');
 
     if (trimmed.length > 0) {
-      result += '.' + trimmed;
+      result += `.${trimmed}`;
     }
   }
 
-  return isNegative ? '-' + result : result;
+  return isNegative ? `-${result}` : result;
 }
 
 /**

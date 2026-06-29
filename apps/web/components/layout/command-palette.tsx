@@ -1,35 +1,24 @@
 'use client';
 
 /**
- * Command Palette
+ * Command Palette (modern-cmdk)
  *
- * A full-featured command palette for NextCalc Pro, opened via Ctrl+K / Cmd+K.
- * Supports fuzzy search across pages, calculator actions, and recent calculations.
+ * Ctrl/Cmd+K command palette built on `modern-cmdk` (the `Command.Dialog`
+ * compound components). The library owns the search/filter state machine,
+ * fuzzy matching + ranking, keyboard navigation, list virtualization, and
+ * WCAG combobox semantics (aria-activedescendant, live regions) — so this file
+ * only declares the command data, the trigger button, and the global shortcut.
  *
- * Features:
- * - Ctrl+K / Cmd+K global keyboard shortcut to open
- * - Fuzzy search with character-level match highlighting
- * - Keyboard navigation (ArrowUp/ArrowDown, Enter, Escape)
- * - Section headers: Pages, Actions, Recent
- * - Framer Motion animations respecting prefers-reduced-motion
- * - WCAG 2.2 AAA accessible (aria-activedescendant, combobox role, live regions)
+ * Sections: Pages (static navigation), Actions (calculator dispatch), and
+ * Recent (calculator history). Mount once at the root layout level.
  *
- * Keyboard Shortcuts:
- * - Ctrl+K / Cmd+K  Open the palette
- * - ArrowUp          Move to previous item
- * - ArrowDown        Move to next item
- * - Enter           Activate selected item
- * - Escape          Close the palette
- *
- * @example
- * ```tsx
- * // Mount once in the root layout (inside a Client Component boundary)
- * <CommandPalette />
- * ```
+ * Keyboard:
+ * - Ctrl+K / Cmd+K   Toggle the palette
+ * - ArrowUp/Down     Move highlight (looping)
+ * - Enter            Activate the highlighted item
+ * - Escape           Close
  */
 
-import type { HistoryEntry } from '@nextcalc/types';
-import { AnimatePresence, m, useReducedMotion, type Variants } from 'framer-motion';
 import {
   Activity,
   BarChart2,
@@ -55,56 +44,16 @@ import {
   Trophy,
   Variable,
   Wind,
-  X,
   Zap,
 } from 'lucide-react';
+import { Command } from 'modern-cmdk/react';
 import { useRouter } from 'next/navigation';
-import {
-  type ChangeEvent,
-  type KeyboardEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useCalculatorDispatch, useCalculatorHistory } from '@/lib/stores/calculator-store';
 import { cn } from '@/lib/utils';
 
 // ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-/** Discriminated union of all command item kinds. */
-type CommandItemKind =
-  | { kind: 'page'; href: string }
-  | { kind: 'action'; action: () => void }
-  | { kind: 'recent'; entry: HistoryEntry };
-
-/** A single searchable command entry. */
-interface CommandItem {
-  /** Stable unique identifier used for aria-activedescendant and keys. */
-  id: string;
-  label: string;
-  description: string;
-  icon: LucideIcon;
-  section: 'pages' | 'actions' | 'recent';
-  /** Keywords beyond the label/description that improve fuzzy ranking. */
-  keywords: readonly string[];
-  data: CommandItemKind;
-}
-
-/** A matched command item with character-level match spans. */
-interface MatchedItem {
-  item: CommandItem;
-  /** Indices in `item.label` that matched the query characters. */
-  matchIndices: readonly number[];
-  /** Lower score = better match (fewer gaps). */
-  score: number;
-}
-
-// ---------------------------------------------------------------------------
-// Static command data
+// Static page-navigation commands
 // ---------------------------------------------------------------------------
 
 const PAGE_COMMANDS = [
@@ -294,143 +243,35 @@ const PAGE_COMMANDS = [
 }>;
 
 // ---------------------------------------------------------------------------
-// Fuzzy matching
+// Shared class names
 // ---------------------------------------------------------------------------
 
 /**
- * Scores a string against a query using a character-sequential fuzzy algorithm.
- * Returns null if no match, otherwise { score, matchIndices }.
- * Lower score = better match (fewer character gaps between matches).
+ * Item styling. `modern-cmdk` flags the highlighted item with `[data-active]`
+ * and disabled items with `[data-disabled]`; we theme both via arbitrary
+ * variants rather than importing the library's default stylesheet.
  */
-function fuzzyScore(text: string, query: string): { score: number; matchIndices: number[] } | null {
-  if (query.length === 0) return { score: 0, matchIndices: [] };
+const ITEM_CLASS = cn(
+  'flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer select-none',
+  'text-sm text-foreground transition-colors duration-150',
+  '[&[data-active]]:bg-accent/70 [&[data-active]]:text-foreground',
+  'data-[disabled]:opacity-40 data-[disabled]:pointer-events-none',
+);
 
-  const textLower = text.toLowerCase();
-  const queryLower = query.toLowerCase();
-  const matchIndices: number[] = [];
-
-  let qi = 0;
-  let lastMatchIndex = -1;
-  let gapPenalty = 0;
-
-  for (let ti = 0; ti < textLower.length && qi < queryLower.length; ti++) {
-    if (textLower[ti] === queryLower[qi]) {
-      matchIndices.push(ti);
-      // Penalize gaps between consecutive matches
-      if (lastMatchIndex !== -1) {
-        gapPenalty += ti - lastMatchIndex - 1;
-      }
-      lastMatchIndex = ti;
-      qi++;
-    }
-  }
-
-  if (qi < queryLower.length) return null;
-
-  // Bonus for matching at start of string or after a space
-  let startBonus = 0;
-  if (matchIndices[0] === 0) startBonus = -10;
-  else if (matchIndices[0] !== undefined && text[matchIndices[0] - 1] === ' ') startBonus = -5;
-
-  return {
-    score: gapPenalty + startBonus + matchIndices[0]! * 0.1,
-    matchIndices,
-  };
-}
-
-/**
- * Searches text and keywords. Returns the best score across all fields,
- * using match indices from the label only (for display highlighting).
- */
-function scoreItem(
-  item: CommandItem,
-  query: string,
-): { score: number; matchIndices: number[] } | null {
-  const labelResult = fuzzyScore(item.label, query);
-  const descResult = fuzzyScore(item.description, query);
-  const keywordResults = item.keywords.map((k) => fuzzyScore(k, query));
-
-  const allResults = [
-    labelResult,
-    ...(descResult ? [{ ...descResult, score: descResult.score + 5 }] : []),
-    ...keywordResults.flatMap((r) => (r ? [{ ...r, score: r.score + 3 }] : [])),
-  ].filter((r): r is { score: number; matchIndices: number[] } => r !== null);
-
-  if (allResults.length === 0) return null;
-
-  // Return the best (lowest) score; use label match indices when available
-  const best = allResults.reduce((a, b) => (a.score <= b.score ? a : b));
-  return {
-    score: best.score,
-    matchIndices: labelResult?.matchIndices ?? [],
-  };
-}
+/** Group wrapper styling — themes the library's `[data-command-group-heading]`. */
+const GROUP_CLASS = cn(
+  'mb-1',
+  '[&_[data-command-group-heading]]:px-3 [&_[data-command-group-heading]]:pb-1 [&_[data-command-group-heading]]:pt-2',
+  '[&_[data-command-group-heading]]:text-[11px] [&_[data-command-group-heading]]:font-semibold',
+  '[&_[data-command-group-heading]]:uppercase [&_[data-command-group-heading]]:tracking-wide',
+  '[&_[data-command-group-heading]]:text-muted-foreground',
+);
 
 // ---------------------------------------------------------------------------
-// Highlighted label renderer
+// Component
 // ---------------------------------------------------------------------------
 
-/**
- * Renders the label text with matched characters wrapped in a highlight span.
- * Purely a display utility — no interactive elements.
- */
-function HighlightedLabel({
-  label,
-  matchIndices,
-}: {
-  label: string;
-  matchIndices: readonly number[];
-}) {
-  if (matchIndices.length === 0) {
-    return <span>{label}</span>;
-  }
-
-  const indexSet = new Set(matchIndices);
-  const parts: Array<{ text: string; highlighted: boolean }> = [];
-  let current = { text: '', highlighted: false };
-
-  for (let i = 0; i < label.length; i++) {
-    const char = label[i]!;
-    const shouldHighlight = indexSet.has(i);
-    if (shouldHighlight !== current.highlighted) {
-      if (current.text) parts.push(current);
-      current = { text: char, highlighted: shouldHighlight };
-    } else {
-      current.text += char;
-    }
-  }
-  if (current.text) parts.push(current);
-
-  return (
-    <span>
-      {parts.map((part, i) =>
-        part.highlighted ? (
-          <mark key={i} className="bg-transparent text-primary font-semibold not-italic">
-            {part.text}
-          </mark>
-        ) : (
-          <span key={i}>{part.text}</span>
-        ),
-      )}
-    </span>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Section label
-// ---------------------------------------------------------------------------
-
-const SECTION_LABELS = {
-  pages: 'Pages',
-  actions: 'Actions',
-  recent: 'Recent',
-} as const satisfies Record<CommandItem['section'], string>;
-
-// ---------------------------------------------------------------------------
-// Main component
-// ---------------------------------------------------------------------------
-
-/** Props for CommandPalette - stateless trigger surface kept minimal. */
+/** Props for CommandPalette — a stateless trigger surface kept minimal. */
 interface CommandPaletteProps {
   /** Additional class names for the trigger button rendered inside the nav. */
   className?: string;
@@ -439,37 +280,31 @@ interface CommandPaletteProps {
 /**
  * CommandPalette
  *
- * Self-contained: registers the global Ctrl+K shortcut internally.
- * Mount once at the root layout level.
+ * Self-contained: registers the global Ctrl+K shortcut internally and renders
+ * both the nav trigger button and the modern-cmdk dialog. Mount once at the
+ * root layout level.
  */
 export function CommandPalette({ className }: CommandPaletteProps) {
   const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState('');
-  const [activeIndex, setActiveIndex] = useState(0);
 
   const router = useRouter();
   const history = useCalculatorHistory();
   const dispatch = useCalculatorDispatch();
-  const prefersReducedMotion = useReducedMotion();
 
-  const inputRef = useRef<HTMLInputElement>(null);
-  const listRef = useRef<HTMLUListElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  // Global keyboard shortcut: Ctrl+K / Cmd+K toggles the palette.
+  useEffect(() => {
+    const onKeyDown = (e: globalThis.KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setOpen((prev) => !prev);
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, []);
 
-  // ---------------------------------------------------------------------------
-  // Build action commands (defined inside component for dispatch closure)
-  // ---------------------------------------------------------------------------
-
-  const ACTION_COMMANDS = useMemo<
-    ReadonlyArray<{
-      id: string;
-      label: string;
-      description: string;
-      icon: LucideIcon;
-      keywords: readonly string[];
-      action: () => void;
-    }>
-  >(
+  // Calculator action commands (depend on the dispatch closure).
+  const actions = useMemo(
     () => [
       {
         id: 'action-clear',
@@ -477,7 +312,7 @@ export function CommandPalette({ className }: CommandPaletteProps) {
         description: 'Reset the current expression and result',
         icon: Trash2,
         keywords: ['reset', 'wipe', 'erase', 'ac', 'all clear'],
-        action: () => dispatch({ type: 'CLEAR' }),
+        run: () => dispatch({ type: 'CLEAR' }),
       },
       {
         id: 'action-mode-exact',
@@ -485,7 +320,7 @@ export function CommandPalette({ className }: CommandPaletteProps) {
         description: 'Compute results in exact symbolic form',
         icon: FlipHorizontal,
         keywords: ['exact', 'symbolic', 'fraction', 'rational'],
-        action: () => dispatch({ type: 'SET_MODE', payload: 'exact' }),
+        run: () => dispatch({ type: 'SET_MODE', payload: 'exact' }),
       },
       {
         id: 'action-mode-approximate',
@@ -493,274 +328,27 @@ export function CommandPalette({ className }: CommandPaletteProps) {
         description: 'Compute results as decimal approximations',
         icon: Zap,
         keywords: ['decimal', 'float', 'numeric', 'approximate'],
-        action: () => dispatch({ type: 'SET_MODE', payload: 'approximate' }),
+        run: () => dispatch({ type: 'SET_MODE', payload: 'approximate' }),
       },
     ],
     [dispatch],
   );
 
-  // ---------------------------------------------------------------------------
-  // Build flat item list
-  // ---------------------------------------------------------------------------
+  // Most-recent calculator history entries.
+  const recent = useMemo(() => history.slice(0, 8), [history]);
 
-  const allItems = useMemo<CommandItem[]>(() => {
-    const pages: CommandItem[] = PAGE_COMMANDS.map((p) => ({
-      id: p.id,
-      label: p.label,
-      description: p.description,
-      icon: p.icon,
-      section: 'pages' as const,
-      keywords: p.keywords,
-      data: { kind: 'page', href: p.href },
-    }));
-
-    const actions: CommandItem[] = ACTION_COMMANDS.map((a) => ({
-      id: a.id,
-      label: a.label,
-      description: a.description,
-      icon: a.icon,
-      section: 'actions' as const,
-      keywords: a.keywords,
-      data: { kind: 'action', action: a.action },
-    }));
-
-    const recent: CommandItem[] = history.slice(0, 8).map((entry) => ({
-      id: `recent-${entry.id}`,
-      label: entry.expression,
-      description: `= ${entry.result}`,
-      icon: Clock,
-      section: 'recent' as const,
-      keywords: [String(entry.result)],
-      data: { kind: 'recent', entry },
-    }));
-
-    return [...pages, ...actions, ...recent];
-  }, [history, ACTION_COMMANDS]);
-
-  // ---------------------------------------------------------------------------
-  // Filtered + scored results
-  // ---------------------------------------------------------------------------
-
-  const filteredItems = useMemo<MatchedItem[]>(() => {
-    const q = query.trim();
-
-    if (q.length === 0) {
-      // Show all items ungrouped when no query, limited to avoid overwhelming
-      return allItems.map((item) => ({ item, matchIndices: [], score: 0 }));
-    }
-
-    return allItems
-      .flatMap((item): MatchedItem[] => {
-        const result = scoreItem(item, q);
-        if (!result) return [];
-        return [{ item, matchIndices: result.matchIndices, score: result.score }];
-      })
-      .sort((a, b) => a.score - b.score);
-  }, [allItems, query]);
-
-  // ---------------------------------------------------------------------------
-  // Open / close
-  // ---------------------------------------------------------------------------
-
-  const openPalette = useCallback(() => {
-    setOpen(true);
-    setQuery('');
-    setActiveIndex(0);
-  }, []);
-
-  const closePalette = useCallback(() => {
+  // Run an item's effect, then close the palette.
+  const runAndClose = useCallback((effect: () => void) => {
+    effect();
     setOpen(false);
-    setQuery('');
-    setActiveIndex(0);
   }, []);
-
-  // Global keyboard shortcut: Ctrl+K / Cmd+K
-  useEffect(() => {
-    const handleGlobalKeyDown = (e: globalThis.KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        if (open) {
-          closePalette();
-        } else {
-          openPalette();
-        }
-      }
-    };
-
-    document.addEventListener('keydown', handleGlobalKeyDown);
-    return () => document.removeEventListener('keydown', handleGlobalKeyDown);
-  }, [open, openPalette, closePalette]);
-
-  // Focus input when palette opens
-  useEffect(() => {
-    if (open) {
-      // rAF ensures the AnimatePresence has mounted the element
-      const raf = requestAnimationFrame(() => {
-        inputRef.current?.focus();
-      });
-      return () => cancelAnimationFrame(raf);
-    }
-    return undefined;
-  }, [open]);
-
-  // Reset activeIndex when results change
-  useEffect(() => {
-    setActiveIndex(0);
-  }, [filteredItems.length]);
-
-  // ---------------------------------------------------------------------------
-  // Item activation
-  // ---------------------------------------------------------------------------
-
-  const activateItem = useCallback(
-    (matched: MatchedItem) => {
-      const { data } = matched.item;
-      closePalette();
-
-      if (data.kind === 'page') {
-        router.push(data.href);
-      } else if (data.kind === 'action') {
-        data.action();
-      } else if (data.kind === 'recent') {
-        dispatch({ type: 'LOAD_HISTORY', payload: data.entry });
-        router.push('/');
-      }
-    },
-    [closePalette, router, dispatch],
-  );
-
-  // ---------------------------------------------------------------------------
-  // Keyboard navigation inside the palette
-  // ---------------------------------------------------------------------------
-
-  const handleInputKeyDown = useCallback(
-    (e: KeyboardEvent<HTMLInputElement>) => {
-      switch (e.key) {
-        case 'ArrowDown': {
-          e.preventDefault();
-          setActiveIndex((prev) =>
-            filteredItems.length === 0 ? 0 : (prev + 1) % filteredItems.length,
-          );
-          break;
-        }
-        case 'ArrowUp': {
-          e.preventDefault();
-          setActiveIndex((prev) =>
-            filteredItems.length === 0
-              ? 0
-              : (prev - 1 + filteredItems.length) % filteredItems.length,
-          );
-          break;
-        }
-        case 'Enter': {
-          e.preventDefault();
-          const matched = filteredItems[activeIndex];
-          if (matched) activateItem(matched);
-          break;
-        }
-        case 'Escape': {
-          e.preventDefault();
-          closePalette();
-          break;
-        }
-        case 'Tab': {
-          // Allow Tab to navigate, prevent closing
-          e.preventDefault();
-          if (e.shiftKey) {
-            setActiveIndex((prev) =>
-              filteredItems.length === 0
-                ? 0
-                : (prev - 1 + filteredItems.length) % filteredItems.length,
-            );
-          } else {
-            setActiveIndex((prev) =>
-              filteredItems.length === 0 ? 0 : (prev + 1) % filteredItems.length,
-            );
-          }
-          break;
-        }
-      }
-    },
-    [activeIndex, filteredItems, activateItem, closePalette],
-  );
-
-  // ---------------------------------------------------------------------------
-  // Scroll active item into view
-  // ---------------------------------------------------------------------------
-
-  useEffect(() => {
-    if (!listRef.current) return;
-    const activeEl = listRef.current.querySelector('[data-active="true"]');
-    activeEl?.scrollIntoView({ block: 'nearest' });
-  }, [activeIndex]);
-
-  // ---------------------------------------------------------------------------
-  // Grouped rendering
-  // ---------------------------------------------------------------------------
-
-  const groupedItems = useMemo(() => {
-    const groups: Map<CommandItem['section'], MatchedItem[]> = new Map();
-    const sectionOrder: CommandItem['section'][] = ['pages', 'actions', 'recent'];
-
-    for (const section of sectionOrder) {
-      const items = filteredItems.filter((m) => m.item.section === section);
-      if (items.length > 0) groups.set(section, items);
-    }
-
-    return groups;
-  }, [filteredItems]);
-
-  // ---------------------------------------------------------------------------
-  // Derived ARIA id for active descendant
-  // ---------------------------------------------------------------------------
-
-  const activeItemId =
-    filteredItems[activeIndex] != null
-      ? `cmd-item-${filteredItems[activeIndex]!.item.id}`
-      : undefined;
-
-  // ---------------------------------------------------------------------------
-  // Animation variants
-  // ---------------------------------------------------------------------------
-
-  const overlayVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1 },
-    exit: { opacity: 0 },
-  };
-
-  const dialogVariants: Variants = prefersReducedMotion
-    ? {
-        hidden: { opacity: 0 },
-        visible: { opacity: 1 },
-        exit: { opacity: 0 },
-      }
-    : {
-        hidden: { opacity: 0, scale: 0.96, y: -8 },
-        visible: {
-          opacity: 1,
-          scale: 1,
-          y: 0,
-          transition: { duration: 0.18, ease: [0.16, 1, 0.3, 1] },
-        },
-        exit: {
-          opacity: 0,
-          scale: 0.97,
-          y: -4,
-          transition: { duration: 0.12, ease: [0.4, 0, 1, 1] },
-        },
-      };
-
-  // ---------------------------------------------------------------------------
-  // Render
-  // ---------------------------------------------------------------------------
 
   return (
     <>
       {/* Trigger button — surfaced inside the Navigation bar via props.className */}
       <button
         type="button"
-        onClick={openPalette}
+        onClick={() => setOpen(true)}
         className={cn(
           'hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg',
           'text-sm text-muted-foreground bg-muted/50 border border-border/50',
@@ -777,261 +365,106 @@ export function CommandPalette({ className }: CommandPaletteProps) {
         <kbd
           className="hidden lg:inline-flex items-center gap-0.5 rounded border border-border/70 bg-background px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
           aria-hidden="true"
+          tabIndex={-1}
         >
           <span className="text-[11px]">⌘</span>K
         </kbd>
       </button>
 
-      {/* Portal overlay + dialog */}
-      <AnimatePresence>
-        {open && (
-          <>
-            {/* Backdrop */}
-            <m.div
-              key="cmd-backdrop"
-              className="fixed inset-0 z-[100] bg-background/60 backdrop-blur-sm"
-              variants={overlayVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              transition={{ duration: prefersReducedMotion ? 0 : 0.15 }}
-              aria-hidden="true"
-              onClick={closePalette}
-            />
-
-            {/* Dialog */}
-            <m.div
-              key="cmd-dialog"
-              ref={containerRef}
-              className="fixed left-1/2 top-[15vh] z-[101] w-full max-w-xl -translate-x-1/2"
-              variants={dialogVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              role="dialog"
-              aria-modal="true"
-              aria-label="Command palette"
-            >
-              <div
-                className={cn(
-                  'overflow-hidden rounded-xl border border-border/60',
-                  'glass-heavy shadow-2xl shadow-background/40',
-                )}
-              >
-                {/* Search input */}
-                <div className="flex items-center gap-3 border-b border-border/40 px-4 py-3">
-                  <Search className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    role="combobox"
-                    aria-autocomplete="list"
-                    aria-expanded={filteredItems.length > 0}
-                    aria-controls="cmd-listbox"
-                    {...(activeItemId ? { 'aria-activedescendant': activeItemId } : {})}
-                    aria-label="Search commands, pages, and recent calculations"
-                    value={query}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                      setQuery(e.target.value);
-                    }}
-                    onKeyDown={handleInputKeyDown}
-                    placeholder="Search commands..."
-                    className={cn(
-                      'flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground',
-                      'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-                      'caret-primary',
-                    )}
-                    spellCheck={false}
-                    autoComplete="off"
-                    autoCorrect="off"
-                    autoCapitalize="off"
-                  />
-                  {query.length > 0 && (
-                    <button
-                      type="button"
-                      onClick={() => setQuery('')}
-                      className={cn(
-                        'flex h-5 w-5 items-center justify-center rounded',
-                        'text-muted-foreground hover:text-foreground',
-                        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-                        'transition-colors duration-150',
-                      )}
-                      aria-label="Clear search"
-                    >
-                      <X className="h-3.5 w-3.5" aria-hidden="true" />
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={closePalette}
-                    className={cn(
-                      'flex h-6 items-center rounded border border-border/70 bg-muted/50 px-1.5',
-                      'font-mono text-[10px] text-muted-foreground',
-                      'hover:bg-accent hover:text-foreground',
-                      'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-                      'transition-colors duration-150',
-                    )}
-                    aria-label="Close command palette (Escape)"
-                  >
-                    Esc
-                  </button>
-                </div>
-
-                {/* Results list */}
-                <div className="max-h-[min(60vh,28rem)] overflow-y-auto overscroll-contain">
-                  {filteredItems.length === 0 && query.trim().length > 0 ? (
-                    <div
-                      className="flex flex-col items-center justify-center gap-2 px-4 py-10 text-center"
-                      role="status"
-                      aria-live="polite"
-                    >
-                      <Search className="h-8 w-8 text-muted-foreground/40" aria-hidden="true" />
-                      <p className="text-sm text-muted-foreground">
-                        No results for{' '}
-                        <span className="font-medium text-foreground">&ldquo;{query}&rdquo;</span>
-                      </p>
-                      <p className="text-xs text-muted-foreground/70">
-                        Try a different search term.
-                      </p>
-                    </div>
-                  ) : (
-                    <ul
-                      id="cmd-listbox"
-                      ref={listRef}
-                      role="listbox"
-                      aria-label="Commands"
-                      className="py-2"
-                    >
-                      {Array.from(groupedItems.entries()).map(([section, items]) => {
-                        return (
-                          <li key={section} role="presentation">
-                            {/* Section header */}
-                            <div className="px-4 pb-1 pt-3 first:pt-1" role="presentation">
-                              <span
-                                className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60"
-                                aria-hidden="true"
-                              >
-                                {SECTION_LABELS[section]}
-                              </span>
-                            </div>
-
-                            {/* Section items */}
-                            <ul role="presentation">
-                              {items.map((matched) => {
-                                // Resolve the flat index for keyboard navigation
-                                const flatIndex = filteredItems.indexOf(matched);
-                                const isActive = flatIndex === activeIndex;
-                                const itemId = `cmd-item-${matched.item.id}`;
-                                const Icon = matched.item.icon;
-
-                                return (
-                                  <li
-                                    key={matched.item.id}
-                                    id={itemId}
-                                    role="option"
-                                    aria-selected={isActive}
-                                    data-active={isActive ? 'true' : undefined}
-                                    className={cn(
-                                      'group mx-2 flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5',
-                                      'transition-colors duration-100',
-                                      isActive
-                                        ? 'bg-primary/10 text-foreground'
-                                        : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground',
-                                    )}
-                                    onClick={() => activateItem(matched)}
-                                    onMouseEnter={() => setActiveIndex(flatIndex)}
-                                  >
-                                    {/* Icon */}
-                                    <span
-                                      className={cn(
-                                        'flex h-7 w-7 shrink-0 items-center justify-center rounded-md border',
-                                        'transition-colors duration-100',
-                                        isActive
-                                          ? 'border-primary/30 bg-primary/10 text-primary'
-                                          : 'border-border/50 bg-muted/50 text-muted-foreground group-hover:border-border group-hover:text-foreground',
-                                      )}
-                                      aria-hidden="true"
-                                    >
-                                      <Icon className="h-3.5 w-3.5" />
-                                    </span>
-
-                                    {/* Label + description */}
-                                    <span className="flex min-w-0 flex-1 flex-col">
-                                      <span className="truncate text-sm font-medium leading-snug text-foreground">
-                                        <HighlightedLabel
-                                          label={matched.item.label}
-                                          matchIndices={matched.matchIndices}
-                                        />
-                                      </span>
-                                      <span className="truncate text-xs text-muted-foreground">
-                                        {matched.item.description}
-                                      </span>
-                                    </span>
-
-                                    {/* Active indicator */}
-                                    {isActive && (
-                                      <kbd
-                                        className="hidden shrink-0 rounded border border-border/60 bg-background px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground sm:inline-flex"
-                                        aria-hidden="true"
-                                      >
-                                        Enter
-                                      </kbd>
-                                    )}
-                                  </li>
-                                );
-                              })}
-                            </ul>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  )}
-                </div>
-
-                {/* Footer hint */}
-                <div
-                  className="flex items-center justify-between border-t border-border/30 px-4 py-2"
-                  aria-hidden="true"
-                >
-                  <div className="flex items-center gap-3 text-[10px] text-muted-foreground/60">
-                    <span className="flex items-center gap-1">
-                      <kbd className="rounded border border-border/50 bg-muted/40 px-1 font-mono text-[9px]">
-                        ↑
-                      </kbd>
-                      <kbd className="rounded border border-border/50 bg-muted/40 px-1 font-mono text-[9px]">
-                        ↓
-                      </kbd>
-                      Navigate
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <kbd className="rounded border border-border/50 bg-muted/40 px-1 font-mono text-[9px]">
-                        Enter
-                      </kbd>
-                      Select
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <kbd className="rounded border border-border/50 bg-muted/40 px-1 font-mono text-[9px]">
-                        Esc
-                      </kbd>
-                      Close
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-muted-foreground/40">
-                    {filteredItems.length} result{filteredItems.length !== 1 ? 's' : ''}
-                  </span>
-                </div>
-              </div>
-            </m.div>
-          </>
+      {/* modern-cmdk dialog — Radix-backed (portal, focus trap, overlay). */}
+      <Command.Dialog
+        open={open}
+        onOpenChange={setOpen}
+        label="Command palette"
+        description="Search pages, calculator actions, and recent calculations"
+        loop
+        overlayClassName="fixed inset-0 z-[100] bg-background/60 backdrop-blur-sm"
+        contentClassName={cn(
+          'fixed left-1/2 top-[15vh] z-[101] w-[92vw] max-w-xl -translate-x-1/2',
+          'overflow-hidden rounded-2xl border border-border/60',
+          'bg-popover/95 backdrop-blur-xl shadow-2xl shadow-primary/10 ring-1 ring-white/5',
         )}
-      </AnimatePresence>
+      >
+        {/* Search input */}
+        <div className="flex items-center gap-2 border-b border-border/50 px-4">
+          <Search className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+          <Command.Input
+            placeholder="Search pages, actions, recent…"
+            className="w-full bg-transparent py-4 text-sm text-foreground outline-none placeholder:text-muted-foreground"
+          />
+        </div>
 
-      {/* Screen reader live region for result count */}
-      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
-        {open && query.trim().length > 0
-          ? `${filteredItems.length} result${filteredItems.length !== 1 ? 's' : ''} for ${query}`
-          : null}
-      </div>
+        {/* Results */}
+        <Command.List className="max-h-[55vh] overflow-y-auto overflow-x-hidden p-2 scrollbar-thin">
+          <Command.Empty className="py-10 text-center text-sm text-muted-foreground">
+            No results found.
+          </Command.Empty>
+
+          {/* Pages */}
+          <Command.Group heading="Pages" className={GROUP_CLASS}>
+            {PAGE_COMMANDS.map((page) => (
+              <Command.Item
+                key={page.id}
+                value={page.label}
+                keywords={[...page.keywords, page.description]}
+                onSelect={() => runAndClose(() => router.push(page.href))}
+                className={ITEM_CLASS}
+              >
+                <page.icon className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                <span className="font-medium">{page.label}</span>
+                <span className="ml-auto truncate pl-3 text-xs text-muted-foreground">
+                  {page.description}
+                </span>
+              </Command.Item>
+            ))}
+          </Command.Group>
+
+          {/* Actions */}
+          <Command.Group heading="Actions" className={GROUP_CLASS}>
+            {actions.map((action) => (
+              <Command.Item
+                key={action.id}
+                value={action.label}
+                keywords={[...action.keywords, action.description]}
+                onSelect={() => runAndClose(action.run)}
+                className={ITEM_CLASS}
+              >
+                <action.icon className="h-4 w-4 shrink-0 text-violet-400" aria-hidden="true" />
+                <span className="font-medium">{action.label}</span>
+                <span className="ml-auto truncate pl-3 text-xs text-muted-foreground">
+                  {action.description}
+                </span>
+              </Command.Item>
+            ))}
+          </Command.Group>
+
+          {/* Recent calculations */}
+          {recent.length > 0 && (
+            <Command.Group heading="Recent" className={GROUP_CLASS}>
+              {recent.map((entry) => (
+                <Command.Item
+                  key={`recent-${entry.id}`}
+                  value={entry.expression}
+                  keywords={[String(entry.result)]}
+                  onSelect={() =>
+                    runAndClose(() => {
+                      dispatch({ type: 'LOAD_HISTORY', payload: entry });
+                      router.push('/');
+                    })
+                  }
+                  className={ITEM_CLASS}
+                >
+                  <Clock className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                  <span className="truncate font-mono">{entry.expression}</span>
+                  <span className="ml-auto shrink-0 pl-3 font-mono text-xs text-emerald-400">
+                    = {entry.result}
+                  </span>
+                </Command.Item>
+              ))}
+            </Command.Group>
+          )}
+        </Command.List>
+      </Command.Dialog>
     </>
   );
 }

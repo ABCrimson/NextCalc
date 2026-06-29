@@ -37,7 +37,7 @@ sizes.forEach((n) => {
   }
 
   console.log(
-    `${n}\t\t${fftTime.toFixed(2)}\t\t${dftTime > 0 ? dftTime.toFixed(2) : 'N/A'}\t\t${speedup > 0 ? speedup.toFixed(1) + 'x' : 'N/A'}`,
+    `${n}\t\t${fftTime.toFixed(2)}\t\t${dftTime > 0 ? dftTime.toFixed(2) : 'N/A'}\t\t${speedup > 0 ? `${speedup.toFixed(1)}x` : 'N/A'}`,
   );
 });
 
@@ -92,12 +92,12 @@ const memUsed = (memAfter - memBefore) / 1024 / 1024;
 
 console.log(`Signal size: ${largeSignal.length} samples`);
 console.log(
-  `Memory used: ${memUsed > 0 ? memUsed.toFixed(2) + ' MB' : 'N/A (browser API not available)'}`,
+  `Memory used: ${memUsed > 0 ? `${memUsed.toFixed(2)} MB` : 'N/A (browser API not available)'}`,
 );
 console.log(
   `Output arrays: ${result.real.length + result.imag.length + result.magnitude.length + result.phase.length + result.frequencies.length} total elements`,
 );
 
-console.log('\n' + '='.repeat(70));
+console.log(`\n${'='.repeat(70)}`);
 console.log('BENCHMARKS COMPLETE');
 console.log('='.repeat(70));

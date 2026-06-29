@@ -1,15 +1,15 @@
 /**
- * Apollo Server 5.4.0 — Next.js Route Handler
+ * Apollo Server 5.5.1 — Next.js Route Handler
  *
  * Provides a createHandler() factory that accepts an auth function,
  * enabling the real NextAuth auth() to be injected at runtime from
  * the web app's route handler.
  *
  * Dependencies:
- * - @apollo/server 5.4.0
+ * - @apollo/server 5.5.1
  * - @as-integrations/next 4.1.0
- * - graphql 16.12.0
- * - Prisma 7.5.0-dev.33
+ * - graphql 17.0.1
+ * - Prisma 7
  */
 
 import { startServerAndCreateNextHandler } from '@as-integrations/next';
@@ -95,8 +95,8 @@ async function createContext(req: NextRequest): Promise<GraphQLContext> {
  * Defaults: 1000 req/min authenticated, 100 req/min anonymous.
  * Fails open if Redis is unavailable.
  */
-const authRateLimit = parseInt(process.env.RATE_LIMIT_AUTH ?? '1000', 10);
-const anonRateLimit = parseInt(process.env.RATE_LIMIT_ANON ?? '100', 10);
+const authRateLimit = parseInt(process.env['RATE_LIMIT_AUTH'] ?? '1000', 10);
+const anonRateLimit = parseInt(process.env['RATE_LIMIT_ANON'] ?? '100', 10);
 
 async function rateLimitMiddleware(_req: NextRequest, context: GraphQLContext): Promise<void> {
   const identifier = context.user?.id || context.req.ip || 'anonymous';

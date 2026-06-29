@@ -10,7 +10,7 @@ import {
   GitBranch,
   Grid,
   Hash,
-  Infinity,
+  Infinity as InfinityIcon,
   Layers,
   Pause,
   Play,
@@ -19,7 +19,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { type ElementType, useCallback, useEffect, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -873,7 +873,7 @@ function SectionHeader({
   description,
   gradient,
 }: {
-  icon: React.ElementType;
+  icon: ElementType;
   title: string;
   description: string;
   gradient: string;
@@ -909,7 +909,7 @@ function StepList({ steps }: { steps: Array<{ label: string; latex: string; note
     <ol className="space-y-3">
       {steps.map((step, i) => (
         <m.li
-          key={i}
+          key={step.latex}
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: i * 0.06 }}
@@ -1515,7 +1515,7 @@ function GCDPanel() {
                 <div className="space-y-2">
                   {result.steps.map((step, i) => (
                     <m.div
-                      key={i}
+                      key={`${String(step.a)}-${String(step.b)}`}
                       initial={{ opacity: 0, x: -8 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.07 }}
@@ -1898,7 +1898,8 @@ function SieveCanvas({ cells, limit, currentPrime }: SieveCanvasProps) {
     return Math.max(Math.min(Math.floor(containerW / cols), 28), 4);
   }
 
-  // WebGPU render init — done once, or when limit changes
+  // WebGPU render init — done once, or when limit changes.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: cols/rows are derived purely from `limit`, and getCellSize reads the live container width (canvas.parentElement.clientWidth) each call — re-running this effect on their identity would needlessly destroy and recreate GPU resources on every render. limit is the sole intentional trigger.
   useEffect(() => {
     if (!supportsWebGPU) return;
     const canvas = canvasRef.current;
@@ -1946,10 +1947,10 @@ function SieveCanvas({ cells, limit, currentPrime }: SieveCanvasProps) {
       gpuRef.current = null;
       webgpuActiveRef.current = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [limit]);
 
-  // Render whenever cells/currentPrime changes
+  // Render whenever cells/currentPrime changes.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: getCellSize reads live container width each call, so it is intentionally not a dependency (its identity changes every render); and `currentPrime` is intentionally retained to force a re-render of the grid when the highlighted prime changes, even though it is consumed via the `cells` snapshot rather than read directly here.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -2053,7 +2054,6 @@ function SieveCanvas({ cells, limit, currentPrime }: SieveCanvasProps) {
         ctx.fillText(String(n), x + cellSize / 2, y + cellSize / 2);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cells, limit, currentPrime, cols, rows]);
 
   return (
@@ -2857,7 +2857,6 @@ function FibonacciCanvas({ terms }: { terms: bigint[] }) {
       gpuRef.current = null;
       webgpuActiveRef.current = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -3028,7 +3027,7 @@ function FibLucasPanel() {
   return (
     <div className="space-y-6">
       <SectionHeader
-        icon={Infinity}
+        icon={InfinityIcon}
         title="Fibonacci & Lucas Sequences"
         description="Explore the golden ratio and recurrence relations. GPU-accelerated bar chart."
         gradient="bg-gradient-to-br from-amber-500 to-orange-600"
@@ -3108,15 +3107,18 @@ function FibLucasPanel() {
               <CardContent>
                 <FibonacciCanvas terms={terms} />
                 <div className="mt-2 flex flex-wrap gap-1 max-h-20 overflow-y-auto">
-                  {terms.slice(0, 30).map((t, i) => (
-                    <Badge
-                      key={i}
-                      variant={i === result.n ? 'default' : 'outline'}
-                      className="font-mono text-xs"
-                    >
-                      {String(t)}
-                    </Badge>
-                  ))}
+                  {terms.slice(0, 30).map((t, n) => {
+                    const fibKey = `F(${n})`;
+                    return (
+                      <Badge
+                        key={fibKey}
+                        variant={n === result.n ? 'default' : 'outline'}
+                        className="font-mono text-xs"
+                      >
+                        {String(t)}
+                      </Badge>
+                    );
+                  })}
                   {terms.length > 30 && (
                     <Badge variant="outline" className="text-xs">
                       +{terms.length - 30} more
@@ -3203,7 +3205,6 @@ function CollatzCanvas({ seq }: { seq: bigint[] }) {
       gpuRef.current = null;
       webgpuActiveRef.current = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -3480,14 +3481,17 @@ function CollatzPanel() {
                 <CollatzCanvas seq={result.seq} />
                 {result.seq.length <= 50 && (
                   <div className="mt-3 flex flex-wrap gap-1 text-xs">
-                    {result.seq.map((v, i) => (
-                      <span key={i} className="font-mono">
-                        {String(v)}
-                        {i < result.seq.length - 1 ? (
-                          <ArrowRight className="w-3 h-3 inline mx-0.5" />
-                        ) : null}
-                      </span>
-                    ))}
+                    {result.seq.map((v, seqPos) => {
+                      const collatzKey = `collatz-${seqPos}`;
+                      return (
+                        <span key={collatzKey} className="font-mono">
+                          {String(v)}
+                          {seqPos < result.seq.length - 1 ? (
+                            <ArrowRight className="w-3 h-3 inline mx-0.5" />
+                          ) : null}
+                        </span>
+                      );
+                    })}
                   </div>
                 )}
               </CardContent>
@@ -3526,7 +3530,7 @@ const TABS = [
   { id: 'modular', label: 'Modular', icon: Layers, component: ModularPanel },
   { id: 'sieve', label: 'Sieve', icon: Grid, component: SievePanel },
   { id: 'totient', label: "Euler's φ", icon: Circle, component: TotientPanel },
-  { id: 'fibonacci', label: 'Fibonacci', icon: Infinity, component: FibLucasPanel },
+  { id: 'fibonacci', label: 'Fibonacci', icon: InfinityIcon, component: FibLucasPanel },
   { id: 'collatz', label: 'Collatz', icon: Shuffle, component: CollatzPanel },
 ] as const;
 
@@ -3577,6 +3581,7 @@ export default function NumberTheoryPage() {
         <div className="flex flex-wrap gap-2">
           {TABS.map(({ id, label, icon: Icon }) => (
             <button
+              type="button"
               key={id}
               onClick={() => setActiveTab(id)}
               className={cn(

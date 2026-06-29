@@ -241,6 +241,8 @@
     "newPost": "Нова тема",
     "noDiscussions": "Обговорень не знайдено",
     "noDiscussionsHint": "Спробуйте змінити пошук або фільтр",
+    "loadError": "Не вдалося завантажити обговорення",
+    "loadErrorHint": "Перевірте підключення та спробуйте ще раз",
     "popularTopics": "Популярні теми",
     "communityGuidelines": "Правила спільноти",
     "topContributors": "Найкращі учасники",
@@ -279,7 +281,7 @@
     "activityTab": "Activity",
     "activityComingSoon": "Activity feed coming soon",
     "activityComingSoonHint": "Track comments, upvotes, and achievements",
-    "loadMore": "Load more",
+    "loadMore": "Завантажити ще",
     "sort": {
       "hot": "Гарячі",
       "new": "Нові",

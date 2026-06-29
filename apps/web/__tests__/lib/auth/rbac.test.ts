@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
-  PERMISSIONS,
   assertPermission,
   can,
   canAccess,
   getPermissions,
+  PERMISSIONS,
   type Permission,
 } from '@/lib/auth/rbac';
 
@@ -92,13 +92,7 @@ describe('RBAC', () => {
 
     it('allows moderator to access any resource via any permission', () => {
       expect(
-        canAccess(
-          'MODERATOR',
-          'mod-1',
-          'user-2',
-          'forum:post:delete:own',
-          'forum:post:delete:any',
-        ),
+        canAccess('MODERATOR', 'mod-1', 'user-2', 'forum:post:delete:own', 'forum:post:delete:any'),
       ).toBe(true);
     });
 

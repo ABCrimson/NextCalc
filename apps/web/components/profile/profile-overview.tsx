@@ -3,7 +3,7 @@
 import { useMutation } from '@apollo/client/react';
 import { AnimatePresence, m } from 'framer-motion';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useFormatter, useLocale, useTranslations } from 'next-intl';
 import type { FormEvent } from 'react';
 import { useCallback, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -80,40 +80,8 @@ export interface ProfileOverviewProps {
   onProfileUpdated?: (updated: { name: string | null; bio: string | null }) => void;
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function formatJoinedDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    month: 'long',
-    year: 'numeric',
-  });
-}
-
-function formatEarnedDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-  });
-}
-
-function formatRelativeTime(dateStr: string): string {
-  const now = Date.now();
-  const then = new Date(dateStr).getTime();
-  const diffMs = now - then;
-  const diffSec = Math.floor(diffMs / 1000);
-  if (diffSec < 60) return 'just now';
-  const diffMin = Math.floor(diffSec / 60);
-  if (diffMin < 60) return `${diffMin}m ago`;
-  const diffHr = Math.floor(diffMin / 60);
-  if (diffHr < 24) return `${diffHr}h ago`;
-  const diffDay = Math.floor(diffHr / 24);
-  if (diffDay < 30) return `${diffDay}d ago`;
-  return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-}
-
 // xpForLevel now imported from level-utils.ts (RS3-style exponential curve)
+// Date/number formatting uses next-intl's useFormatter() hook in each component.
 
 // ---------------------------------------------------------------------------
 // Framer Motion variants
@@ -185,6 +153,8 @@ interface StatCardProps {
 }
 
 function StatCard({ label, value, icon, accent = false, description }: StatCardProps) {
+  const format = useFormatter();
+
   return (
     <Card
       className={[
@@ -210,7 +180,7 @@ function StatCard({ label, value, icon, accent = false, description }: StatCardP
               accent ? 'text-primary' : 'text-foreground',
             ].join(' ')}
           >
-            {typeof value === 'number' ? value.toLocaleString() : value}
+            {typeof value === 'number' ? format.number(value) : value}
           </p>
           {description && <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>}
         </div>
@@ -260,33 +230,33 @@ function QuickActions({ locale }: { locale?: string }) {
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3" role="list" aria-label="Quick actions">
+    <ul className="grid grid-cols-1 gap-3 sm:grid-cols-3" aria-label="Quick actions">
       {actions.map((action) => (
-        <Link
-          key={action.href}
-          href={action.href}
-          role="listitem"
-          className={[
-            'flex items-center gap-3 rounded-xl border border-border bg-gradient-to-br p-4',
-            'transition-all duration-200 hover:-translate-y-0.5 hover:border-border/80 hover:shadow-md',
-            'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-            action.gradient,
-          ].join(' ')}
-          aria-label={action.label}
-        >
-          <span
-            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-background/70 text-xl shadow-sm"
-            aria-hidden="true"
+        <li key={action.href}>
+          <Link
+            href={action.href}
+            className={[
+              'flex items-center gap-3 rounded-xl border border-border bg-gradient-to-br p-4',
+              'transition-all duration-200 hover:-translate-y-0.5 hover:border-border/80 hover:shadow-md',
+              'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+              action.gradient,
+            ].join(' ')}
+            aria-label={action.label}
           >
-            {action.icon}
-          </span>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-foreground">{action.label}</p>
-            <p className="text-xs text-muted-foreground">{action.description}</p>
-          </div>
-        </Link>
+            <span
+              className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-background/70 text-xl shadow-sm"
+              aria-hidden="true"
+            >
+              {action.icon}
+            </span>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-foreground">{action.label}</p>
+              <p className="text-xs text-muted-foreground">{action.description}</p>
+            </div>
+          </Link>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
 
@@ -319,6 +289,7 @@ interface RecentActivityFeedProps {
 
 function RecentActivityFeed({ calculations, worksheets, locale }: RecentActivityFeedProps) {
   const t = useTranslations('profile');
+  const format = useFormatter();
   const base = locale ? `/${locale}` : '';
 
   const entries: ActivityEntry[] = [
@@ -429,9 +400,15 @@ function RecentActivityFeed({ calculations, worksheets, locale }: RecentActivity
           <time
             dateTime={entry.time}
             className="flex-shrink-0 text-xs text-muted-foreground"
-            title={new Date(entry.time).toLocaleString()}
+            title={format.dateTime(new Date(entry.time), {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: 'numeric',
+            })}
           >
-            {formatRelativeTime(entry.time)}
+            {format.relativeTime(new Date(entry.time))}
           </time>
         </m.li>
       ))}
@@ -662,11 +639,8 @@ function HeroAvatar({
           <LevelIcon level={level} size={112} />
         </div>
       )}
-      {/* Level badge */}
-      <div
-        className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-primary text-xs font-bold text-primary-foreground"
-        aria-label={`Level ${level}`}
-      >
+      {/* Level badge — inside aria-hidden parent; no aria-label needed */}
+      <div className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-primary text-xs font-bold text-primary-foreground">
         {level}
       </div>
     </div>
@@ -685,6 +659,8 @@ interface HeroCardProps {
 
 function HeroCard({ user, progress, onEditClick }: HeroCardProps) {
   const t = useTranslations('profile');
+  const format = useFormatter();
+  const locale = useLocale();
   const currentXp = progress?.experience ?? 0;
   const currentLevel = progress?.level ?? 1;
   const tier = getLevelTier(currentLevel);
@@ -736,7 +712,9 @@ function HeroCard({ user, progress, onEditClick }: HeroCardProps) {
             )}
 
             <p className="mt-2 text-xs text-muted-foreground">
-              {t('joined', { date: formatJoinedDate(user.createdAt) })}
+              {t('joined', {
+                date: format.dateTime(new Date(user.createdAt), { month: 'long', year: 'numeric' }),
+              })}
             </p>
 
             {/* XP Progress bar */}
@@ -746,7 +724,7 @@ function HeroCard({ user, progress, onEditClick }: HeroCardProps) {
                   {t('level')} {currentLevel} — <span className={tier.textClass}>{tier.name}</span>
                 </span>
                 <span>
-                  {formatXp(currentXp)} / {formatXp(xpNeeded)} XP
+                  {formatXp(currentXp, locale)} / {formatXp(xpNeeded, locale)} XP
                 </span>
               </div>
               <div
@@ -791,6 +769,7 @@ export function ProfileOverview({
   onProfileUpdated,
 }: ProfileOverviewProps) {
   const t = useTranslations('profile');
+  const format = useFormatter();
   const [editOpen, setEditOpen] = useState(false);
   const [localUser, setLocalUser] = useState(user);
 
@@ -831,7 +810,7 @@ export function ProfileOverview({
     { label: t('level'), value: progress?.level ?? 1, icon: '⭐', accent: true },
     {
       label: t('experience'),
-      value: `${(progress?.experience ?? 0).toLocaleString()} XP`,
+      value: `${format.number(progress?.experience ?? 0)} XP`,
       icon: '✨',
     },
     { label: t('problemsSolved'), value: progress?.problemsSolved ?? 0, icon: '🧩' },
@@ -944,7 +923,10 @@ export function ProfileOverview({
                         {achievement.name}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {formatEarnedDate(achievement.earnedAt)}
+                        {format.dateTime(new Date(achievement.earnedAt), {
+                          month: 'short',
+                          day: 'numeric',
+                        })}
                       </p>
                     </div>
                     <Badge variant="secondary" className="flex-shrink-0 tabular-nums">

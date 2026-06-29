@@ -11,10 +11,7 @@ vi.mock('@/lib/workers/compute-manager', () => ({
 }));
 
 // Stub global fetch so persistCalculation (fire-and-forget) never hits the network
-vi.stubGlobal(
-  'fetch',
-  vi.fn().mockResolvedValue({ ok: true }),
-);
+vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true }));
 
 // ---------------------------------------------------------------------------
 // Import the store and selectors AFTER mocks are registered
@@ -41,8 +38,9 @@ import {
 const getState = () => useCalculatorStore.getState().state;
 
 /** Shortcut – dispatch an action (may be async for EVALUATE / Enter) */
-const dispatch = (action: Parameters<ReturnType<typeof useCalculatorStore.getState>['dispatch']>[0]) =>
-  useCalculatorStore.getState().dispatch(action);
+const dispatch = (
+  action: Parameters<ReturnType<typeof useCalculatorStore.getState>['dispatch']>[0],
+) => useCalculatorStore.getState().dispatch(action);
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -144,8 +142,8 @@ describe('calculator-store', () => {
       expect(mockEvaluate).toHaveBeenCalledWith('5+5', { mode: 'approximate' });
       expect(getState().result).toBe(10);
       expect(getState().history).toHaveLength(1);
-      expect(getState().history[0].expression).toBe('5+5');
-      expect(getState().history[0].result).toBe('10');
+      expect(getState().history[0]!.expression).toBe('5+5');
+      expect(getState().history[0]!.result).toBe('10');
     });
 
     it('= triggers evaluation via BUTTON_CLICK', async () => {
@@ -185,9 +183,7 @@ describe('calculator-store', () => {
           mode: 'exact',
           angleMode: 'rad',
           memory: 7,
-          history: [
-            { id: 'test-1', expression: '1+1', result: '2', timestamp: 1000 },
-          ],
+          history: [{ id: 'test-1', expression: '1+1', result: '2', timestamp: 1000 }],
         },
       });
 
@@ -379,10 +375,10 @@ describe('calculator-store', () => {
 
       const { history } = getState();
       expect(history).toHaveLength(1);
-      expect(history[0].expression).toBe('10^2');
-      expect(history[0].result).toBe('100');
-      expect(history[0].id).toBeTypeOf('string');
-      expect(history[0].timestamp).toBeTypeOf('number');
+      expect(history[0]!.expression).toBe('10^2');
+      expect(history[0]!.result).toBe('100');
+      expect(history[0]!.id).toBeTypeOf('string');
+      expect(history[0]!.timestamp).toBeTypeOf('number');
     });
 
     it('sets result to "Error" when evaluation throws', async () => {
@@ -425,8 +421,8 @@ describe('calculator-store', () => {
       const { history } = getState();
       expect(history).toHaveLength(100);
       // The newest entry should be first
-      expect(history[0].expression).toBe('101');
-      expect(history[0].result).toBe('101');
+      expect(history[0]!.expression).toBe('101');
+      expect(history[0]!.result).toBe('101');
       // The last entry in the original array (old-99) should have been dropped
       // because slice(0, 100) keeps [new, old-0, ..., old-98]
       expect(history.find((e) => e.id === 'old-99')).toBeUndefined();
@@ -442,10 +438,13 @@ describe('calculator-store', () => {
 
       await dispatch({ type: 'EVALUATE' });
 
-      expect(fetch).toHaveBeenCalledWith('/api/graphql', expect.objectContaining({
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      }));
+      expect(fetch).toHaveBeenCalledWith(
+        '/api/graphql',
+        expect.objectContaining({
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      );
     });
 
     it('preprocesses factorial notation before evaluation', async () => {

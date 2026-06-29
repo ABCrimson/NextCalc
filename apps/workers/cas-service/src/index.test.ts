@@ -16,6 +16,7 @@
  * runtime behaviour of the handler rather than an idealised CAS.
  */
 
+import { evaluate } from 'mathjs';
 import { describe, expect, it } from 'vitest';
 import app from './index.js';
 
@@ -332,8 +333,13 @@ describe('POST /differentiate', () => {
     expect(json.success).toBe(true);
     expect(json.data.variable).toBe('x');
     expect(json.data.order).toBe(1);
-    // mathjs may produce "2 * x" or "2*x" – just check it contains "2"
-    expect(json.data.derivative).toMatch(/2/);
+    // d/dx(x^2) = 2x. mathjs renders this as "2 * x" (or "2*x").
+    // Assert the actual content, whitespace-insensitive, not mere presence of "2".
+    const compact = json.data.derivative.replace(/\s+/g, '');
+    // Coefficient 2 multiplied by a single x, with no remaining exponent.
+    expect(compact).toMatch(/^2\*?x$/);
+    // Exactly one occurrence of the variable x.
+    expect((compact.match(/x/g) ?? []).length).toBe(1);
   });
 
   it('differentiates a polynomial x^3 + 3*x + 2', async () => {
@@ -349,8 +355,22 @@ describe('POST /differentiate', () => {
       data: { derivative: string };
     };
     expect(json.success).toBe(true);
-    // d/dx(x^3 + 3x + 2) = 3x^2 + 3 — result must be non-empty
-    expect(json.data.derivative.length).toBeGreaterThan(0);
+    // d/dx(x^3 + 3x + 2) = 3x^2 + 3. mathjs simplifies this to the factored
+    // form "3 * (x ^ 2 + 1)" = 3(x^2 + 1). Assert the actual cubic-derivative
+    // content (whitespace-insensitive) instead of a non-empty-length check.
+    const compact = json.data.derivative.replace(/\s+/g, '');
+    // The leading coefficient 3 must be present.
+    expect(compact).toMatch(/3/);
+    // The quadratic term x^2 must appear — proof we differentiated the cubic.
+    expect(compact).toMatch(/x\^2/);
+    // The original cubic term x^3 must be gone (it was differentiated away).
+    expect(compact).not.toMatch(/x\^3/);
+    // The standalone constant +2 must not survive differentiation.
+    expect(compact).not.toMatch(/2$/);
+    // Verify numeric equivalence to 3x^2 + 3 by evaluating the returned
+    // derivative at sample points (x = 2 -> 15, x = 0 -> 3).
+    expect(evaluate(json.data.derivative, { x: 2 })).toBe(15);
+    expect(evaluate(json.data.derivative, { x: 0 })).toBe(3);
   });
 
   it('computes second-order derivative of x^4 (should contain 12)', async () => {

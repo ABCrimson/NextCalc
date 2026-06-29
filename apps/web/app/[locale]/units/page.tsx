@@ -29,7 +29,7 @@ const CATEGORY_CARDS: CategoryCard[] = [
     unitCount: 11,
     exampleUnits: 'nm, μm, mm, cm, m, km, in, ft, yd, mi, nmi',
     colorClasses:
-      'from-blue-950/40 to-blue-900/40 border-blue-500/40 hover:border-blue-400/70 shadow-[0_0_15px_rgba(59,130,246,0.2)] hover:shadow-[0_0_25px_rgba(59,130,246,0.35)]',
+      'from-blue-950/40 to-blue-900/40 border-blue-500/40 hover:border-blue-400/70 shadow-[0_0_15px_oklch(0.6231_0.188_259.81_/_0.2)] hover:shadow-[0_0_25px_oklch(0.6231_0.188_259.81_/_0.35)]',
     headingClasses: 'text-blue-300',
     textClasses: 'text-blue-200/80',
     countClasses: 'text-blue-300/60',
@@ -41,7 +41,7 @@ const CATEGORY_CARDS: CategoryCard[] = [
     unitCount: 8,
     exampleUnits: 'mg, g, kg, t, oz, lb, st, ton',
     colorClasses:
-      'from-emerald-950/40 to-emerald-900/40 border-emerald-500/40 hover:border-emerald-400/70 shadow-[0_0_15px_rgba(16,185,129,0.2)] hover:shadow-[0_0_25px_rgba(16,185,129,0.35)]',
+      'from-emerald-950/40 to-emerald-900/40 border-emerald-500/40 hover:border-emerald-400/70 shadow-[0_0_15px_oklch(0.6959_0.1491_162.48_/_0.2)] hover:shadow-[0_0_25px_oklch(0.6959_0.1491_162.48_/_0.35)]',
     headingClasses: 'text-emerald-300',
     textClasses: 'text-emerald-200/80',
     countClasses: 'text-emerald-300/60',
@@ -53,7 +53,7 @@ const CATEGORY_CARDS: CategoryCard[] = [
     unitCount: 4,
     exampleUnits: '°C, °F, K, °R',
     colorClasses:
-      'from-rose-950/40 to-rose-900/40 border-rose-500/40 hover:border-rose-400/70 shadow-[0_0_15px_rgba(244,63,94,0.2)] hover:shadow-[0_0_25px_rgba(244,63,94,0.35)]',
+      'from-rose-950/40 to-rose-900/40 border-rose-500/40 hover:border-rose-400/70 shadow-[0_0_15px_oklch(0.645_0.2154_16.44_/_0.2)] hover:shadow-[0_0_25px_oklch(0.645_0.2154_16.44_/_0.35)]',
     headingClasses: 'text-rose-300',
     textClasses: 'text-rose-200/80',
     countClasses: 'text-rose-300/60',
@@ -65,7 +65,7 @@ const CATEGORY_CARDS: CategoryCard[] = [
     unitCount: 9,
     exampleUnits: 'mL, L, m³, fl oz, cup, pt, qt, gal, Imp gal',
     colorClasses:
-      'from-cyan-950/40 to-cyan-900/40 border-cyan-500/40 hover:border-cyan-400/70 shadow-[0_0_15px_rgba(6,182,212,0.2)] hover:shadow-[0_0_25px_rgba(6,182,212,0.35)]',
+      'from-cyan-950/40 to-cyan-900/40 border-cyan-500/40 hover:border-cyan-400/70 shadow-[0_0_15px_oklch(0.7148_0.1257_215.22_/_0.2)] hover:shadow-[0_0_25px_oklch(0.7148_0.1257_215.22_/_0.35)]',
     headingClasses: 'text-cyan-300',
     textClasses: 'text-cyan-200/80',
     countClasses: 'text-cyan-300/60',
@@ -77,7 +77,7 @@ const CATEGORY_CARDS: CategoryCard[] = [
     unitCount: 10,
     exampleUnits: 'mm², cm², m², km², in², ft², yd², mi², ac, ha',
     colorClasses:
-      'from-amber-950/40 to-amber-900/40 border-amber-500/40 hover:border-amber-400/70 shadow-[0_0_15px_rgba(245,158,11,0.2)] hover:shadow-[0_0_25px_rgba(245,158,11,0.35)]',
+      'from-amber-950/40 to-amber-900/40 border-amber-500/40 hover:border-amber-400/70 shadow-[0_0_15px_oklch(0.7686_0.1647_70.08_/_0.2)] hover:shadow-[0_0_25px_oklch(0.7686_0.1647_70.08_/_0.35)]',
     headingClasses: 'text-amber-300',
     textClasses: 'text-amber-200/80',
     countClasses: 'text-amber-300/60',
@@ -89,7 +89,7 @@ const CATEGORY_CARDS: CategoryCard[] = [
     unitCount: 6,
     exampleUnits: 'm/s, km/h, mph, kn, ft/s, Mach',
     colorClasses:
-      'from-orange-950/40 to-orange-900/40 border-orange-500/40 hover:border-orange-400/70 shadow-[0_0_15px_rgba(249,115,22,0.2)] hover:shadow-[0_0_25px_rgba(249,115,22,0.35)]',
+      'from-orange-950/40 to-orange-900/40 border-orange-500/40 hover:border-orange-400/70 shadow-[0_0_15px_oklch(0.7049_0.1867_47.6_/_0.2)] hover:shadow-[0_0_25px_oklch(0.7049_0.1867_47.6_/_0.35)]',
     headingClasses: 'text-orange-300',
     textClasses: 'text-orange-200/80',
     countClasses: 'text-orange-300/60',
@@ -101,7 +101,7 @@ const CATEGORY_CARDS: CategoryCard[] = [
     unitCount: 8,
     exampleUnits: 'ms, s, min, h, d, wk, mo, yr',
     colorClasses:
-      'from-purple-950/40 to-purple-900/40 border-purple-500/40 hover:border-purple-400/70 shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:shadow-[0_0_25px_rgba(168,85,247,0.35)]',
+      'from-purple-950/40 to-purple-900/40 border-purple-500/40 hover:border-purple-400/70 shadow-[0_0_15px_oklch(0.6268_0.2325_303.9_/_0.2)] hover:shadow-[0_0_25px_oklch(0.6268_0.2325_303.9_/_0.35)]',
     headingClasses: 'text-purple-300',
     textClasses: 'text-purple-200/80',
     countClasses: 'text-purple-300/60',
@@ -113,7 +113,7 @@ const CATEGORY_CARDS: CategoryCard[] = [
     unitCount: 10,
     exampleUnits: 'b, B, KB, MB, GB, TB, PB, KiB, MiB, GiB',
     colorClasses:
-      'from-indigo-950/40 to-indigo-900/40 border-indigo-500/40 hover:border-indigo-400/70 shadow-[0_0_15px_rgba(99,102,241,0.2)] hover:shadow-[0_0_25px_rgba(99,102,241,0.35)]',
+      'from-indigo-950/40 to-indigo-900/40 border-indigo-500/40 hover:border-indigo-400/70 shadow-[0_0_15px_oklch(0.5854_0.2041_277.12_/_0.2)] hover:shadow-[0_0_25px_oklch(0.5854_0.2041_277.12_/_0.35)]',
     headingClasses: 'text-indigo-300',
     textClasses: 'text-indigo-200/80',
     countClasses: 'text-indigo-300/60',
@@ -125,7 +125,7 @@ const CATEGORY_CARDS: CategoryCard[] = [
     unitCount: 8,
     exampleUnits: 'Pa, kPa, MPa, bar, mbar, atm, psi, mmHg',
     colorClasses:
-      'from-sky-950/40 to-sky-900/40 border-sky-500/40 hover:border-sky-400/70 shadow-[0_0_15px_rgba(14,165,233,0.2)] hover:shadow-[0_0_25px_rgba(14,165,233,0.35)]',
+      'from-sky-950/40 to-sky-900/40 border-sky-500/40 hover:border-sky-400/70 shadow-[0_0_15px_oklch(0.6847_0.1479_237.32_/_0.2)] hover:shadow-[0_0_25px_oklch(0.6847_0.1479_237.32_/_0.35)]',
     headingClasses: 'text-sky-300',
     textClasses: 'text-sky-200/80',
     countClasses: 'text-sky-300/60',
@@ -137,7 +137,7 @@ const CATEGORY_CARDS: CategoryCard[] = [
     unitCount: 9,
     exampleUnits: 'J, kJ, cal, kcal, Wh, kWh, eV, BTU, ft·lbf',
     colorClasses:
-      'from-yellow-950/40 to-yellow-900/40 border-yellow-500/40 hover:border-yellow-400/70 shadow-[0_0_15px_rgba(234,179,8,0.2)] hover:shadow-[0_0_25px_rgba(234,179,8,0.35)]',
+      'from-yellow-950/40 to-yellow-900/40 border-yellow-500/40 hover:border-yellow-400/70 shadow-[0_0_15px_oklch(0.7952_0.1617_86.05_/_0.2)] hover:shadow-[0_0_25px_oklch(0.7952_0.1617_86.05_/_0.35)]',
     headingClasses: 'text-yellow-300',
     textClasses: 'text-yellow-200/80',
     countClasses: 'text-yellow-300/60',
@@ -149,7 +149,7 @@ const CATEGORY_CARDS: CategoryCard[] = [
     unitCount: 6,
     exampleUnits: 'N, kN, dyn, lbf, kgf, ozf',
     colorClasses:
-      'from-red-950/40 to-red-900/40 border-red-500/40 hover:border-red-400/70 shadow-[0_0_15px_rgba(239,68,68,0.2)] hover:shadow-[0_0_25px_rgba(239,68,68,0.35)]',
+      'from-red-950/40 to-red-900/40 border-red-500/40 hover:border-red-400/70 shadow-[0_0_15px_oklch(0.6368_0.2078_25.33_/_0.2)] hover:shadow-[0_0_25px_oklch(0.6368_0.2078_25.33_/_0.35)]',
     headingClasses: 'text-red-300',
     textClasses: 'text-red-200/80',
     countClasses: 'text-red-300/60',
@@ -161,7 +161,7 @@ const CATEGORY_CARDS: CategoryCard[] = [
     unitCount: 6,
     exampleUnits: '°, rad, grad, arcmin, arcsec, rev',
     colorClasses:
-      'from-teal-950/40 to-teal-900/40 border-teal-500/40 hover:border-teal-400/70 shadow-[0_0_15px_rgba(20,184,166,0.2)] hover:shadow-[0_0_25px_rgba(20,184,166,0.35)]',
+      'from-teal-950/40 to-teal-900/40 border-teal-500/40 hover:border-teal-400/70 shadow-[0_0_15px_oklch(0.7038_0.123_182.5_/_0.2)] hover:shadow-[0_0_25px_oklch(0.7038_0.123_182.5_/_0.35)]',
     headingClasses: 'text-teal-300',
     textClasses: 'text-teal-200/80',
     countClasses: 'text-teal-300/60',

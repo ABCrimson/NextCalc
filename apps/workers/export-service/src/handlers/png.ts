@@ -3,7 +3,7 @@
  *
  * Converts LaTeX math expressions to PNG format via a two-stage pipeline:
  *
- *   1. LaTeX → SVG   (MathJax 4.x, see svg-internal.ts)
+ *   1. LaTeX → SVG   (KaTeX, see svg-internal.ts)
  *   2. SVG   → PNG   (@cf-wasm/resvg, WebAssembly running inside Workers)
  *
  * The @cf-wasm/resvg package provides a Cloudflare-Workers-compatible WASM
@@ -17,6 +17,7 @@ import {
   generateExportKey,
   getMimeType,
   type R2Bucket,
+  type R2S3Config,
   type UploadResult,
   uploadToR2,
   validateFileSize,
@@ -60,6 +61,17 @@ export interface PngExportResult extends UploadResult {
 }
 
 /**
+ * Per-item result of a batch PNG export.
+ *
+ * A discriminated union keyed on `status` so callers can tell, for every
+ * input expression, whether the export succeeded or failed — failures are
+ * never silently dropped from the returned array.
+ */
+export type BatchPngExportResult =
+  | { latex: string; status: 'ok'; result: PngExportResult }
+  | { latex: string; status: 'error'; error: string };
+
+/**
  * Result from a raw SVG → PNG conversion (no R2 upload).
  */
 export interface PngConversionResult {
@@ -79,7 +91,7 @@ export interface PngConversionResult {
  * Converts a LaTeX expression to PNG and uploads it to R2.
  *
  * Pipeline:
- *   1. Render LaTeX → SVG  via MathJax (generateSvgFromLatex)
+ *   1. Render LaTeX → SVG  via KaTeX (generateSvgFromLatex)
  *   2. Rasterise SVG → PNG via resvg WASM
  *   3. Extract pixel dimensions from the rendered image
  *   4. Validate file size against the caller-supplied limit
@@ -88,12 +100,16 @@ export interface PngConversionResult {
  * @param request      - PNG export request (LaTeX + options)
  * @param bucket       - R2 bucket binding for storage
  * @param maxFileSize  - Maximum allowed PNG size in bytes
+ * @param isPrivate    - True for user-scoped private exports (requires r2Config)
+ * @param r2Config     - R2 S3 credentials for presigned URL generation
  * @returns Upload result including dimensions, DPI, and download URL
  */
 export async function exportToPng(
   request: PngExportRequest,
   bucket: R2Bucket,
   maxFileSize: number,
+  isPrivate: boolean,
+  r2Config: R2S3Config | undefined,
 ): Promise<PngExportResult> {
   const { latex, userId, options = {} } = request;
 
@@ -129,7 +145,7 @@ export async function exportToPng(
   // ------------------------------------------------------------------
   const key = generateExportKey(userId, 'png');
 
-  const uploadResult = await uploadToR2(bucket, key, png, getMimeType('png'), {
+  const uploadResult = await uploadToR2(bucket, key, png, getMimeType('png'), isPrivate, r2Config, {
     latex,
     width: width.toString(),
     height: height.toString(),
@@ -188,24 +204,31 @@ export async function convertSvgToPng(
  * Batch export multiple LaTeX expressions to PNG.
  *
  * Expressions are processed sequentially to avoid overwhelming CPU time
- * limits in the Worker.  Failures for individual expressions are logged
- * and skipped; the returned array contains only successful results.
+ * limits in the Worker.  Every input expression yields exactly one entry in
+ * the returned array: a discriminated union that is either a success
+ * (`status: 'ok'`) or a failure (`status: 'error'`).  Failures are still
+ * logged but are no longer silently dropped, so callers can surface an
+ * accurate error count and distinguish partial failure from full success.
  *
  * @param expressions  - Array of LaTeX strings
  * @param userId       - Optional user ID for R2 key namespacing
  * @param bucket       - R2 bucket binding
  * @param maxFileSize  - Maximum file size per PNG in bytes
+ * @param isPrivate    - True for user-scoped private exports
+ * @param r2Config     - R2 S3 credentials for presigned URL generation
  * @param options      - Common export options applied to every expression
- * @returns Array of successful export results
+ * @returns One result per expression, each tagged ok or error
  */
 export async function batchExportToPng(
   expressions: string[],
   userId: string | undefined,
   bucket: R2Bucket,
   maxFileSize: number,
+  isPrivate: boolean,
+  r2Config: R2S3Config | undefined,
   options?: PngExportRequest['options'],
-): Promise<PngExportResult[]> {
-  const results: PngExportResult[] = [];
+): Promise<BatchPngExportResult[]> {
+  const results: BatchPngExportResult[] = [];
 
   for (const latex of expressions) {
     try {
@@ -217,10 +240,17 @@ export async function batchExportToPng(
         },
         bucket,
         maxFileSize,
+        isPrivate,
+        r2Config,
       );
-      results.push(result);
+      results.push({ latex, status: 'ok', result });
     } catch (error) {
       console.error(`Failed to export expression "${latex}":`, error);
+      results.push({
+        latex,
+        status: 'error',
+        error: error instanceof Error ? error.message : String(error),
+      });
     }
   }
 

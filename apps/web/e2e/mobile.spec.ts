@@ -68,15 +68,16 @@ test.describe('Mobile Responsiveness', () => {
       .or(page.locator('[aria-label*="menu" i]'))
       .or(page.locator('button[data-mobile-menu]'));
 
+    // The hamburger menu button is always present at the mobile viewport.
     const btn = menuButton.first();
-    if (await btn.isVisible()) {
-      await btn.click();
-      // After opening, navigation links should become visible
-      await page.waitForTimeout(300); // Allow animation
-      const navLinks = page.locator('a[href="/plot"], a[href="/matrix"], a[href="/stats"]');
-      const count = await navLinks.count();
-      expect(count).toBeGreaterThanOrEqual(1);
-    }
+    await expect(btn).toBeVisible({ timeout: 10000 });
+
+    await btn.click();
+    // After opening, navigation links should become visible
+    await page.waitForTimeout(300); // Allow animation
+    const navLinks = page.locator('a[href="/plot"], a[href="/matrix"], a[href="/stats"]');
+    const count = await navLinks.count();
+    expect(count).toBeGreaterThanOrEqual(1);
   });
 
   test('matrix page is usable at mobile viewport', async ({ page }) => {

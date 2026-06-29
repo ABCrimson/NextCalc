@@ -16,7 +16,6 @@ import { describe, expect, it } from 'vitest';
 import {
   applyWindow,
   autocorrelation,
-  type Complex,
   dft,
   fft,
   findDominantFrequencies,
@@ -57,16 +56,6 @@ function generateSine(frequency: number, sampleRate: number, duration: number): 
   const samples = Math.floor(sampleRate * duration);
   return Array.from({ length: samples }, (_, i) =>
     Math.sin((2 * Math.PI * frequency * i) / sampleRate),
-  );
-}
-
-/**
- * Generate cosine wave
- */
-function generateCosine(frequency: number, sampleRate: number, duration: number): number[] {
-  const samples = Math.floor(sampleRate * duration);
-  return Array.from({ length: samples }, (_, i) =>
-    Math.cos((2 * Math.PI * frequency * i) / sampleRate),
   );
 }
 
@@ -121,7 +110,6 @@ describe('Fast Fourier Transform (FFT)', () => {
         0.5 * Math.sin((2 * Math.PI * 120 * i) / sampleRate),
     );
 
-    const result = fft(signal, sampleRate);
     const peaks = findDominantFrequencies(signal, sampleRate, 5);
 
     expect(peaks.length).toBeGreaterThanOrEqual(2);
@@ -396,9 +384,6 @@ describe('Power Spectral Density', () => {
 
   it('should satisfy Parseval theorem', () => {
     const signal = Array.from({ length: 128 }, () => Math.random());
-
-    // Time domain energy
-    const timeEnergy = signal.reduce((sum, x) => sum + x * x, 0);
 
     // Frequency domain energy (via PSD)
     const psd = powerSpectralDensity(signal, 1, 'rectangular');

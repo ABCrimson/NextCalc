@@ -155,10 +155,10 @@ export const buttonHover = {
  * Card hover animation
  */
 export const cardHover: Variants = {
-  rest: { scale: 1, boxShadow: '0 4px 6px rgba(0,0,0,0.1)' },
+  rest: { scale: 1, boxShadow: '0 4px 6px oklch(0 0 0 / 0.1)' },
   hover: {
     scale: 1.02,
-    boxShadow: '0 10px 20px rgba(0,0,0,0.15)',
+    boxShadow: '0 10px 20px oklch(0 0 0 / 0.15)',
     transition: { duration: DURATIONS.fast },
   },
 };

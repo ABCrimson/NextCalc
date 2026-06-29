@@ -19,7 +19,7 @@ describe('worksheet-store', () => {
       const { worksheet } = getStore();
       expect(worksheet.title).toBe('Untitled Worksheet');
       expect(worksheet.cells).toHaveLength(1);
-      expect(worksheet.cells[0].kind).toBe('math');
+      expect(worksheet.cells[0]!.kind).toBe('math');
     });
 
     it('starts with isDirty false', () => {
@@ -35,19 +35,19 @@ describe('worksheet-store', () => {
     it('adds a math cell at the end', () => {
       getStore().addCell('math');
       expect(getStore().worksheet.cells).toHaveLength(2);
-      expect(getStore().worksheet.cells[1].kind).toBe('math');
+      expect(getStore().worksheet.cells[1]!.kind).toBe('math');
     });
 
     it('adds a text cell', () => {
       getStore().addCell('text');
       const cells = getStore().worksheet.cells;
-      expect(cells[cells.length - 1].kind).toBe('text');
+      expect(cells[cells.length - 1]!.kind).toBe('text');
     });
 
     it('adds a plot cell', () => {
       getStore().addCell('plot');
       const cells = getStore().worksheet.cells;
-      const plotCell = cells[cells.length - 1];
+      const plotCell = cells[cells.length - 1]!;
       expect(plotCell.kind).toBe('plot');
       if (plotCell.kind === 'plot') {
         expect(plotCell.expressions).toBe('sin(x)');
@@ -57,11 +57,11 @@ describe('worksheet-store', () => {
     });
 
     it('inserts after a specific cell', () => {
-      const firstCellId = getStore().worksheet.cells[0].id;
+      const firstCellId = getStore().worksheet.cells[0]!.id;
       getStore().addCell('text', firstCellId);
       const cells = getStore().worksheet.cells;
       expect(cells).toHaveLength(2);
-      expect(cells[1].kind).toBe('text');
+      expect(cells[1]!.kind).toBe('text');
     });
 
     it('returns the new cell id', () => {
@@ -84,7 +84,7 @@ describe('worksheet-store', () => {
     });
 
     it('keeps at least one cell', () => {
-      const onlyCell = getStore().worksheet.cells[0].id;
+      const onlyCell = getStore().worksheet.cells[0]!.id;
       getStore().deleteCell(onlyCell);
       expect(getStore().worksheet.cells).toHaveLength(1);
     });
@@ -99,56 +99,56 @@ describe('worksheet-store', () => {
   describe('moveCellUp / moveCellDown', () => {
     it('moves a cell up', () => {
       const secondId = getStore().addCell('text');
-      const firstId = getStore().worksheet.cells[0].id;
+      const firstId = getStore().worksheet.cells[0]!.id;
 
       getStore().moveCellUp(secondId);
 
       const cells = getStore().worksheet.cells;
-      expect(cells[0].id).toBe(secondId);
-      expect(cells[1].id).toBe(firstId);
+      expect(cells[0]!.id).toBe(secondId);
+      expect(cells[1]!.id).toBe(firstId);
     });
 
     it('does not move the first cell up', () => {
       getStore().addCell('text');
-      const firstId = getStore().worksheet.cells[0].id;
+      const firstId = getStore().worksheet.cells[0]!.id;
       getStore().moveCellUp(firstId);
-      expect(getStore().worksheet.cells[0].id).toBe(firstId);
+      expect(getStore().worksheet.cells[0]!.id).toBe(firstId);
     });
 
     it('moves a cell down', () => {
-      const firstId = getStore().worksheet.cells[0].id;
+      const firstId = getStore().worksheet.cells[0]!.id;
       const secondId = getStore().addCell('text');
 
       getStore().moveCellDown(firstId);
 
       const cells = getStore().worksheet.cells;
-      expect(cells[0].id).toBe(secondId);
-      expect(cells[1].id).toBe(firstId);
+      expect(cells[0]!.id).toBe(secondId);
+      expect(cells[1]!.id).toBe(firstId);
     });
 
     it('does not move the last cell down', () => {
       const secondId = getStore().addCell('text');
       getStore().moveCellDown(secondId);
       const cells = getStore().worksheet.cells;
-      expect(cells[cells.length - 1].id).toBe(secondId);
+      expect(cells[cells.length - 1]!.id).toBe(secondId);
     });
   });
 
   describe('content mutations', () => {
     it('updates math cell input', () => {
-      const cellId = getStore().worksheet.cells[0].id;
+      const cellId = getStore().worksheet.cells[0]!.id;
       getStore().updateMathInput(cellId, '2 + 3');
 
-      const cell = getStore().worksheet.cells[0];
+      const cell = getStore().worksheet.cells[0]!;
       expect(cell.kind === 'math' && cell.input).toBe('2 + 3');
     });
 
     it('resets math cell state when input changes', () => {
-      const cellId = getStore().worksheet.cells[0].id;
+      const cellId = getStore().worksheet.cells[0]!.id;
       getStore().setMathResult(cellId, '5', '2+3', []);
       getStore().updateMathInput(cellId, 'new input');
 
-      const cell = getStore().worksheet.cells[0];
+      const cell = getStore().worksheet.cells[0]!;
       if (cell.kind === 'math') {
         expect(cell.status).toBe('idle');
         expect(cell.result).toBeNull();
@@ -185,18 +185,18 @@ describe('worksheet-store', () => {
 
   describe('evaluation state', () => {
     it('sets math cell to pending', () => {
-      const cellId = getStore().worksheet.cells[0].id;
+      const cellId = getStore().worksheet.cells[0]!.id;
       getStore().setMathPending(cellId);
 
-      const cell = getStore().worksheet.cells[0];
+      const cell = getStore().worksheet.cells[0]!;
       expect(cell.kind === 'math' && cell.status).toBe('pending');
     });
 
     it('sets math result', () => {
-      const cellId = getStore().worksheet.cells[0].id;
+      const cellId = getStore().worksheet.cells[0]!.id;
       getStore().setMathResult(cellId, '42', '42', [{ name: 'x', value: 42 }]);
 
-      const cell = getStore().worksheet.cells[0];
+      const cell = getStore().worksheet.cells[0]!;
       if (cell.kind === 'math') {
         expect(cell.result).toBe('42');
         expect(cell.latex).toBe('42');
@@ -206,10 +206,10 @@ describe('worksheet-store', () => {
     });
 
     it('sets math error', () => {
-      const cellId = getStore().worksheet.cells[0].id;
+      const cellId = getStore().worksheet.cells[0]!.id;
       getStore().setMathError(cellId, 'Division by zero');
 
-      const cell = getStore().worksheet.cells[0];
+      const cell = getStore().worksheet.cells[0]!;
       if (cell.kind === 'math') {
         expect(cell.status).toBe('error');
         expect(cell.errorMessage).toBe('Division by zero');
@@ -231,7 +231,7 @@ describe('worksheet-store', () => {
 
   describe('getVariablesUpTo', () => {
     it('collects variables from cells before the target', () => {
-      const cell1Id = getStore().worksheet.cells[0].id;
+      const cell1Id = getStore().worksheet.cells[0]!.id;
       const cell2Id = getStore().addCell('math');
       const cell3Id = getStore().addCell('math');
 
@@ -243,7 +243,7 @@ describe('worksheet-store', () => {
     });
 
     it('does not include variables from the target cell itself', () => {
-      const cell1Id = getStore().worksheet.cells[0].id;
+      const cell1Id = getStore().worksheet.cells[0]!.id;
       getStore().setMathResult(cell1Id, '5', 'x=5', [{ name: 'x', value: 5 }]);
 
       const scope = getStore().getVariablesUpTo(cell1Id);
@@ -251,7 +251,7 @@ describe('worksheet-store', () => {
     });
 
     it('skips non-math and error cells', () => {
-      const cell1Id = getStore().worksheet.cells[0].id;
+      const cell1Id = getStore().worksheet.cells[0]!.id;
       getStore().addCell('text');
       const cell3Id = getStore().addCell('math');
 

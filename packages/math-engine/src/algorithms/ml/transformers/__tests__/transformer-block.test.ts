@@ -206,7 +206,7 @@ describe('Transformer Block', () => {
 
       // Should not produce NaN
       for (const val of result[0]!) {
-        expect(isNaN(val)).toBe(false);
+        expect(Number.isNaN(val)).toBe(false);
       }
     });
 
@@ -224,7 +224,7 @@ describe('Transformer Block', () => {
       expect(result).toHaveLength(1);
 
       for (const val of result[0]!) {
-        expect(isFinite(val)).toBe(true);
+        expect(Number.isFinite(val)).toBe(true);
       }
     });
   });
@@ -320,8 +320,8 @@ describe('Transformer Block', () => {
 
       for (const row of result) {
         for (const val of row) {
-          expect(isNaN(val)).toBe(false);
-          expect(isFinite(val)).toBe(true);
+          expect(Number.isNaN(val)).toBe(false);
+          expect(Number.isFinite(val)).toBe(true);
         }
       }
     });

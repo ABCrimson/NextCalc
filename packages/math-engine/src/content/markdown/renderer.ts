@@ -236,7 +236,7 @@ function renderList(text: string): string {
 
   for (const line of lines) {
     const match = line.match(/^[-*+]\s+(.+)$/);
-    if (match && match[1]) {
+    if (match?.[1]) {
       html += `<li>${renderInline(match[1])}</li>\n`;
     }
   }

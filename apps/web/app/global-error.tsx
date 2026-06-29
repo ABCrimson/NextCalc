@@ -96,7 +96,7 @@ export default function RootGlobalError({ error, reset }: RootGlobalErrorProps) 
                 border: '1px solid #27272a',
                 borderRadius: '0.5rem',
                 padding: '2rem',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                boxShadow: '0 10px 15px -3px oklch(0 0 0 / 0.1)',
               }}
             >
               {/* Error Icon */}
@@ -206,6 +206,7 @@ export default function RootGlobalError({ error, reset }: RootGlobalErrorProps) 
 
               {/* Reload Button */}
               <button
+                type="button"
                 onClick={reset}
                 style={{
                   width: '100%',
@@ -226,7 +227,13 @@ export default function RootGlobalError({ error, reset }: RootGlobalErrorProps) 
                 onMouseOver={(e) => {
                   e.currentTarget.style.backgroundColor = '#2563eb';
                 }}
+                onFocus={(e) => {
+                  e.currentTarget.style.backgroundColor = '#2563eb';
+                }}
                 onMouseOut={(e) => {
+                  e.currentTarget.style.backgroundColor = '#3b82f6';
+                }}
+                onBlur={(e) => {
                   e.currentTarget.style.backgroundColor = '#3b82f6';
                 }}
               >

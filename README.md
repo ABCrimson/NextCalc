@@ -3,7 +3,7 @@
 </div>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Next.js-16.2-000?logo=nextdotjs&logoColor=white" alt="Next.js" />
+  <img src="https://img.shields.io/badge/Next.js-16.3-000?logo=nextdotjs&logoColor=white" alt="Next.js" />
   <img src="https://img.shields.io/badge/React-19.3-61DAFB?logo=react&logoColor=white" alt="React" />
   <img src="https://img.shields.io/badge/TypeScript-6.0-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/github/actions/workflow/status/ABCrimson/NextCalc/ci.yml?branch=main&label=CI&logo=github" alt="CI" />
@@ -13,27 +13,26 @@
   <img src="https://img.shields.io/badge/edge-3_workers-F38020?logo=cloudflare&logoColor=white" alt="Workers" />
 </p>
 
-### What's New in v1.2.1
+### What's New
 
-> **Performance Optimizations, Comprehensive Audit & Full Green CI**
+> **Modernization (unreleased)** — every dependency pushed to its absolute-newest version, code rewritten to the newest idioms, and a full Biome lint sweep (2,222 warnings → 0). Last release: **v1.2.2**. Full detail in [CHANGELOG.md](CHANGELOG.md).
 
 <details>
 <summary><strong>Highlights</strong></summary>
 
 | Category | Improvements |
 |:---------|:-------------|
-| **Performance** | Dynamic-import SymbolicPanel (~300KB deferred), CSS `@keyframes` replace Framer Motion animations, IntersectionObserver-gated rAF loop, module-level KaTeX cache |
-| **Audit** | 78 issues fixed across entire monorepo (25 HIGH, 47 MEDIUM, 6 LOW) — security, performance, code quality |
-| **CI/CD** | All 5 CI jobs green (Install, Lint, Typecheck, Build, Test), 54 test failures fixed, 170+ files formatted |
-| **Security** | Path traversal guard, GraphQL redirect sanitization, input validation hardening |
-| **Infrastructure** | GitHub Actions v6, `AUTH_SECRET` in CI build, Workers deploy with `workflow_dispatch` |
+| **Dependencies** | Next.js 16.3-preview, React 19.3 canary, TypeScript 6.0.3, GraphQL 17, Apollo 5.5, Prisma 7.9-dev, Three.js 0.184, Biome 2.5, Turbo 2.10, Vitest 5, Wrangler 4.104 |
+| **Newest idioms** | TSL-compute Lorenz particles, GTAO SSAO, next-intl `useFormatter`, serwist 10, tagged-PDF export (modern-pdf-lib 0.40), modern-cmdk command palette |
+| **Lint sweep** | Biome 2.5.1 — 2,222 warnings + 221 infos → 0 warnings (real fixes; only documented, principled overrides) |
+| **CI/CD** | Node 26, non-blocking TS7 `tsgo` typecheck, gate green |
 
 </details>
 
 <h3 align="center">Scientific Calculator &amp; Mathematical Visualization Platform</h3>
 
 <p align="center">
-  47 pages &middot; 8 languages &middot; GPU-accelerated WebGL / WebGPU &middot; Edge computing
+  48 pages &middot; 8 languages &middot; GPU-accelerated WebGL / WebGPU &middot; Edge computing
 </p>
 
 <p align="center">
@@ -60,7 +59,7 @@ Full-featured calculator with expression history, LaTeX rendering, keyboard shor
 <td width="33%" valign="top">
 
 **2D / 3D Plotting**
-GPU-accelerated function plotting with WebGL 2D, Three.js 3D surfaces, adaptive sampling, 6 colormaps, SSAO, and HDR cubemap themes.
+GPU-accelerated function plotting with WebGL 2D, Three.js 3D surfaces, adaptive sampling, 9 colormaps, SSAO, and HDR cubemap themes.
 
 </td>
 <td width="33%" valign="top">
@@ -80,7 +79,7 @@ Interactive demos for Transformers, Zero-Knowledge Proofs, Quantum Computing, Pa
 <td width="33%" valign="top">
 
 **Edge Workers**
-3 Cloudflare Workers for sub-50ms global symbolic math, LaTeX-to-PDF export, and rate limiting with KV storage.
+3 Cloudflare Workers for sub-50ms global symbolic math, LaTeX-to-PDF export, and rate limiting via a SQLite-backed Durable Object.
 
 </td>
 <td width="33%" valign="top">
@@ -104,20 +103,20 @@ graph TB
 
     subgraph Vercel["Vercel Edge Network"]
         B["App Router + SSR"]
-        C["GraphQL API<br/>Apollo Server 5.4"]
+        C["GraphQL API<br/>Apollo Server 5.5"]
     end
 
     subgraph Cloudflare["Cloudflare Workers"]
         D["CAS Service<br/>Symbolic Math"]
         E["Export Service<br/>LaTeX to PDF / PNG / SVG"]
-        F["Rate Limiter<br/>KV-backed"]
+        F["Rate Limiter<br/>Durable Object"]
     end
 
     subgraph Storage["Storage Layer"]
         G[("Neon PostgreSQL<br/>Prisma 7")]
         H[("Upstash Redis<br/>Cache + PubSub")]
         I[("R2 Bucket<br/>Exports")]
-        J[("KV Store<br/>Rate Limits")]
+        J[("Durable Object<br/>Rate Limits")]
     end
 
     A --> B
@@ -137,25 +136,28 @@ graph TB
 
 | Category | Technology | Version |
 |:---------|:-----------|:--------|
-| Language | TypeScript | 6.0 |
-| Framework | Next.js | 16.2 |
+| Language | TypeScript | 6.0.3 |
+| Framework | Next.js | 16.3 |
 | UI Library | React | 19.3 |
-| Styling | Tailwind CSS | 4.2 |
-| Components | Radix UI (unified) | 1.4 |
-| Animation | Framer Motion | 12.34 |
+| Styling | Tailwind CSS | 4.3 |
+| Components | Radix UI (unified) | 1.6 |
+| Animation | Framer Motion | 12.41 |
 | State | Zustand | 5.0 |
 | Math | Math.js | 15.2 |
-| 3D Rendering | Three.js | 0.183 |
+| 3D Rendering | Three.js | 0.184 |
 | 2D Charts | D3.js | 7.9 |
-| LaTeX | KaTeX | 0.16 |
-| ORM | Prisma | 7.5 |
-| Auth | NextAuth + jose | 5.0 / 6.1 |
-| GraphQL | Apollo Server / Client | 5.4 / 4.2 |
-| Cache | Upstash Redis | 1.37 |
+| LaTeX | KaTeX | 0.17 |
+| ORM | Prisma | 7.9-dev |
+| Auth | NextAuth + jose | 5.0 / 6.2 |
+| GraphQL | Apollo Server / Client | 5.5 / 4.3 |
+| GraphQL spec | graphql | 17 |
+| Cache | Upstash Redis | 1.38 |
 | Workers | Hono on Cloudflare | 4.12 |
-| Build | Turborepo | 2.8 |
-| Linting | Biome | 2.4 |
-| Testing | Vitest + Playwright | 4.1 |
+| Build | Turborepo | 2.10 |
+| Linting | Biome | 2.5 |
+| Testing | Vitest + Playwright | 5.0 |
+
+> Exact pinned versions live in each package's `package.json`.
 
 ---
 
@@ -165,13 +167,13 @@ graph TB
 NextCalc/
 ├── apps/
 │   ├── web/                   # Next.js 16 frontend (port 3005)
-│   ├── api/                   # GraphQL API (Apollo Server 5.4)
+│   ├── api/                   # GraphQL API (Apollo Server 5.5)
 │   └── workers/               # Cloudflare Workers
 │       ├── cas-service/       #   Symbolic math on the edge
 │       ├── export-service/    #   LaTeX to PDF/PNG/SVG export
-│       └── rate-limiter/      #   API rate limiting via KV
+│       └── rate-limiter/      #   API rate limiting via Durable Object
 ├── packages/
-│   ├── math-engine/           # Core math library (18 modules)
+│   ├── math-engine/           # Core math library (20 subpath modules)
 │   ├── plot-engine/           # GPU visualization engine
 │   ├── database/              # Prisma 7 shared package
 │   └── types/                 # Shared TypeScript types
@@ -179,7 +181,7 @@ NextCalc/
 ```
 
 <details>
-<summary><strong>apps/web</strong> — 47 page routes</summary>
+<summary><strong>apps/web</strong> — 48 page routes</summary>
 
 ```
 app/[locale]/
@@ -221,7 +223,7 @@ app/[locale]/
 </details>
 
 <details>
-<summary><strong>packages/math-engine</strong> — 18 modules</summary>
+<summary><strong>packages/math-engine</strong> — 20 subpath export modules (key modules shown)</summary>
 
 | Module | Description |
 |:-------|:------------|
@@ -230,11 +232,15 @@ app/[locale]/
 | `cas/` | Computer algebra system |
 | `matrix/` | Matrix operations, eigenvalues, decompositions |
 | `stats/` | Statistics, distributions, regression |
-| `number-theory/` | Primes, modular arithmetic, factorization |
+| `complex/` | Complex number arithmetic |
+| `calculus/` | Vector calculus, line/surface integrals |
+| `differential/` | Differential equations |
+| `solver/` | Algebraic + ODE equation solver |
+| `units/` | Unit conversion engine |
+| `fourier/` | FFT, IFFT, spectral analysis, Fourier series |
 | `graph-theory/` | Graph algorithms (Dijkstra, BFS, DFS, MST, PageRank) |
 | `game-theory/` | Nash equilibrium, dominant strategies |
 | `prover/` | Logic core + proof search |
-| `calculus/` | Vector calculus, line/surface integrals |
 | `algorithms/` | Sorting, searching, crypto, ML |
 
 </details>
@@ -246,7 +252,7 @@ app/[locale]/
 - **Three.js 3D Renderer** — surface plots, parametric curves, SSAO, HDR cubemaps
 - **WebGPU Compute** — PDE/ODE solvers, bifurcation diagrams
 - **Canvas 2D Fallback** — software renderer for legacy browsers
-- **6 Colormaps** — viridis, inferno, coolwarm, cividis, magma, spectral
+- **9 Colormaps** — viridis, inferno, magma, plasma, cividis, coolwarm, spectral, turbo, rainbow
 
 </details>
 
@@ -264,7 +270,7 @@ pnpm dev
 # Open http://localhost:3005
 ```
 
-> **Prerequisites**: Node.js >= 20.0.0, pnpm >= 11
+> **Prerequisites**: Node.js >= 24.0.0 (CI runs Node 26), pnpm >= 11
 
 ---
 

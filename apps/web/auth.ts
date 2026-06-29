@@ -1,16 +1,26 @@
 /**
- * NextAuth.js v5 (next-auth@5.0.0-beta.30) Main Configuration
+ * NextAuth.js v5 (next-auth@5.0.0-beta.31) Main Configuration
  *
- * Integrates with Prisma 7.5.0-dev.33 adapter and extends session with custom user data.
+ * Integrates with the Prisma 7 adapter and extends session with custom user data.
  *
  * @see https://authjs.dev/getting-started/session-management
  */
 
 import { PrismaAdapter } from '@auth/prisma-adapter';
-import type { UserRole } from '@nextcalc/database';
+import { UserRole } from '@nextcalc/database';
 import NextAuth from 'next-auth';
+import type { JWT } from 'next-auth/jwt';
 import { prisma } from '@/lib/prisma';
 import { authConfig } from './auth.config';
+
+/**
+ * Type guard validating that an unknown value is a {@link UserRole}.
+ * Used to safely narrow the role carried on the authenticated user/profile
+ * without resorting to unchecked type assertions.
+ */
+function isUserRole(value: unknown): value is UserRole {
+  return typeof value === 'string' && (Object.values(UserRole) as string[]).includes(value);
+}
 
 export const {
   handlers: { GET, POST },
@@ -19,21 +29,30 @@ export const {
   signOut,
 } = NextAuth({
   ...authConfig,
-  // biome-ignore lint/suspicious/noExplicitAny: Generated PrismaClient type differs from @auth/prisma-adapter's expected type
-  adapter: PrismaAdapter(prisma as any),
+  // @auth/prisma-adapter is typed against its own bundled @prisma/client; our Prisma 7
+  // client (@nextcalc/database) is structurally identical but a distinct nominal type, so
+  // we cast to the adapter's exact expected parameter type (not `any`). Upstream type-only
+  // incompatibility — safe at runtime.
+  adapter: PrismaAdapter(prisma as Parameters<typeof PrismaAdapter>[0]),
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
-    async jwt({ token, user, trigger, session }) {
+    async jwt({ token, user, trigger, session }): Promise<JWT | null> {
       // Initial sign in - add user data to token
       if (user) {
-        token.id = user.id!;
-        token.role = ((user as unknown as { role?: string }).role || 'USER') as UserRole;
-        token.email = user.email!;
-        token.name = user.name!;
-        token.picture = user.image!;
+        // user.id is `string | undefined` on the base User type; it is always
+        // present for the AdapterUser at initial sign-in. Guard instead of
+        // asserting so a missing id can't silently become an empty token.id.
+        if (user.id) token.id = user.id;
+        token.role = isUserRole(user.role) ? user.role : UserRole.USER;
+        // email/name/image are legitimately nullable (OAuth profiles may omit
+        // them); the JWT fields are typed `string | null`, so coalesce any
+        // `undefined` to `null` to match the declared field type exactly.
+        token.email = user.email ?? null;
+        token.name = user.name ?? null;
+        token.picture = user.image ?? null;
         token.version = 0;
       }
 
@@ -41,13 +60,13 @@ export const {
       if (token.id) {
         try {
           const dbUser = await prisma.user.findUnique({
-            where: { id: token.id as string },
+            where: { id: token.id },
             select: { tokenVersion: true, role: true },
           });
 
           // Invalidate token if version doesn't match (user logged out all sessions)
           if (dbUser && dbUser.tokenVersion !== (token.version || 0)) {
-            return null as unknown as typeof token;
+            return null;
           }
 
           // Update role in token if changed
@@ -69,11 +88,11 @@ export const {
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as UserRole;
-        session.user.email = token.email as string;
-        session.user.name = token.name as string;
-        session.user.image = token.picture as string;
+        session.user.id = token.id;
+        session.user.role = token.role;
+        session.user.email = token.email ?? '';
+        session.user.name = token.name ?? '';
+        session.user.image = token.picture ?? '';
       }
       return session;
     },
@@ -85,13 +104,13 @@ export const {
           // Sync name and image from the latest OAuth provider profile
           if (!isNewUser && profile) {
             const providerName = profile.name as string | undefined;
-            const providerImage = (profile.picture ?? profile.avatar_url) as string | undefined;
+            const providerImage = (profile.picture ?? profile['avatar_url']) as string | undefined;
             const updates: Record<string, string> = {};
             if (providerName && providerName !== user.name) {
-              updates.name = providerName;
+              updates['name'] = providerName;
             }
             if (providerImage && providerImage !== user.image) {
-              updates.image = providerImage;
+              updates['image'] = providerImage;
             }
             if (Object.keys(updates).length > 0) {
               await prisma.user.update({
@@ -127,10 +146,10 @@ export const {
         try {
           await prisma.auditLog.create({
             data: {
-              userId: token.id as string,
+              userId: token.id,
               action: 'signout',
               entity: 'user',
-              entityId: token.id as string,
+              entityId: token.id,
             },
           });
         } catch (error) {

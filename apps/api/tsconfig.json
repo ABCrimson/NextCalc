@@ -19,9 +19,6 @@
     "declarationMap": true,
     "sourceMap": true,
     "composite": true,
-    "exactOptionalPropertyTypes": false,
-    "noPropertyAccessFromIndexSignature": false,
-    "noUnusedLocals": false,
     "paths": {
       "@/*": ["./src/*"]
     },

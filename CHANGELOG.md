@@ -2,6 +2,91 @@
 
 All notable changes to NextCalc Pro are documented in this file.
 
+## [Unreleased]
+
+## [1.3.0] — Modernization (push-to-newest) — 2026-06-29
+
+> Branch `modernization/foundation` (PR #50). A bleeding-edge dependency modernization: every dependency pushed to its absolute-newest published version (canary/preview/dev where that is newest), code rewritten to each version's newest idioms, and a complete Biome lint sweep. The pre-push gate (`turbo run typecheck lint build`) is green; tests pass (see remaining browser/deploy QA in [docs/ROADMAP.md](docs/ROADMAP.md)).
+
+### Dependencies (old → new)
+
+| Package | Before | After |
+|---|---|---|
+| next | 16.2.0-canary.69 | 16.3.0-preview.3 |
+| react / react-dom | 19.3 canary (Feb) | 19.3 canary (Jun, 20260623) |
+| typescript | 6.0.0-dev | **6.0.3 (GA)** + `@typescript/native-preview` 7.0 (advisory tsgo typecheck) |
+| graphql | 16.13.0 | **17.0.1** (via a `pnpm-workspace.yaml` peer override — no fork) |
+| @apollo/server / @apollo/client | 5.4.0 / 4.2-alpha | 5.5.1 / 4.3.0-alpha.1 |
+| prisma / @prisma/client / adapter-neon | 7.5.0-dev.33 | 7.9.0-dev.13 |
+| @neondatabase/serverless | 1.0.2 | 1.1.0 |
+| tailwindcss / radix-ui / framer-motion / zustand | 4.2 / 1.4-rc / 12.34 / 5.0.11 | 4.3.1 / 1.6.0 / 12.41.0 / 5.0.14 |
+| three / katex / mathjs | 0.183.2 / 0.16.33 / (pre-CVE) | 0.184.0 / 0.17.0 / **15.2.0** |
+| next-intl / lucide-react / serwist | — / — / 9.5.6 | 4.13.0 / 1.21.0 / 10.0.0-preview.14 |
+| jose / @upstash/redis | 6.1.3 / 1.37 | 6.2.3 / 1.38.0 |
+| turbo / @biomejs/biome / vitest | 2.8-canary / 2.4.4 / 4.1-beta | 2.10.0 / 2.5.1 / 5.0.0-beta.5 |
+| wrangler / hono | 4.69.0 / 4.12.3 | 4.104.0 / 4.12.27 |
+| modern-pdf-lib / modern-cmdk | 0.28.1 / — | 0.40.2 / 1.1.5 (adopted) |
+| @types/node / Node (CI) | 25 / 24 | 26.0.1 / **26** (engines floor stays ≥24 for Vercel) |
+
+### Security
+- **mathjs → 15.2.0** picks up the RCE-CVE fix (the pinned canary predated it).
+- Bumping the Next.js / React / Prisma canaries off the months-old pins pulls in their accumulated upstream security fixes.
+
+### Newest-idiom rewrites (not just version bumps)
+- **Three 0.184**: Lorenz GPU particles rewritten from raw-WebGPU to TSL compute; SSAO migrated to `GTAONode` (red-channel fix). Lorenz 50K-particle render verified in a WebGPU browser.
+- **next-intl 4.13**: ~30 hardcoded `'en-US'` date/number formats → `useFormatter()`; adopted `hasLocale`/`notFound`.
+- **katex 0.17 / tailwind 4.3**: fixed dark-variant wiring + katex output mode.
+- **serwist 10**: migrated to `createSerwist` (preview).
+- **modern-pdf-lib 0.40.2**: export-service emits tagged-PDF accessibility — the math image is wrapped in a `Figure` structure element via the new high-level `tagFigure()` helper, carrying the LaTeX as `/Alt`; plus `deduplicateImages` (now returning a logged `DeduplicationReport`) and max-FlateDecode (`compressionLevel: 9`) in the save path.
+- **modern-cmdk 1.1.5**: replaced the ~820-line hand-rolled command palette with the library's compound `Command.Dialog` components.
+- **lucide-react 1.x**: inline GitHub/Google marks for the removed brand icons.
+
+### Lint sweep (Biome 2.5.1)
+- **2,222 warnings + 221 infos → 0 warnings + 1 unavoidable info.** `noNonNullAssertion` 1,612 → 0 via a documented hybrid: a scoped override for provably-safe numeric/matrix hot-paths plus 22 genuine masker fixes. Correctness/a11y/array-key/perf-security rules all real-fixed or principled-override; `!**/*.svg` excluded; `useLiteralKeys` disabled (conflicts with `noPropertyAccessFromIndexSignature`). Principle throughout: real fixes, not suppression.
+
+### Tooling / CI
+- CI runs on **Node 26**; added a non-blocking `typecheck-fast` job (TS7 `tsgo`, `continue-on-error`).
+- Gate compiler moved to `tsc` 6.0.3 GA.
+
+### Accessibility
+- ZKP commitment-cell grid restructured to a WAI-ARIA `grid` → `row` → `gridcell` pattern — a `role="row"` layer (`display: contents`, so the CSS-grid layout is untouched) gives the accessibility tree the containment axe-core requires; a new regression test asserts the hierarchy and a clean axe run.
+
+### Auth
+- Client session migrated to NextAuth's `SessionProvider` + a thin `useSession` adapter (`lib/auth/hooks.ts`) — replaces the per-component `fetch('/api/auth/session')` + interval poll with one shared session context (single fetch, focus revalidation); the `{ session, status }` shape is preserved so the 7 consumers are unchanged.
+
+### Design
+- Topic colors moved off hardcoded Tailwind palette utilities to semantic OKLCH category tokens (`--color-topic-*` in `globals.css` + clean token utilities in `ui/topic-tag.tsx`), with dark handled by the tokens; verified zero visual change. Part of a broader pass converting decorative `rgba()` box-shadows to `oklch()` (~130 colors across 36 files).
+
+### math-engine
+- `hasCycleDirected`/`hasCycleUndirected` rewritten from recursion to explicit-stack iterative DFS (3-colour marking / parent-tracking) — removes the recursion-depth ceiling on large graphs; behaviour preserved.
+- `astEquals` deduped to a single canonical export in `simplify.ts` — three private copies (in `simplify-advanced`, `step-solver`, `cas-core`) that each omitted the `UnaryOperatorNode` branch were deleted and now import the unary-aware canonical.
+
+### Tooling / Code quality
+- Re-enabled `exactOptionalPropertyTypes`, `noPropertyAccessFromIndexSignature`, and `noUnusedLocals` in `apps/web` and `apps/api` (they had overridden the root tsconfig to `false`) — 143 real fixes across 21 files, no workarounds.
+- Chore sweep: ESM `await import('react')` in the framer-motion vitest mock (was CommonJS `require`); GraphQL codegen now strips its dead `/* eslint-disable */` banner via an `afterOneFileWrite` hook (`scripts/codegen-strip-header.mjs`) so output stays Biome-native.
+
+### Fixed
+- `export-service`: aligned the `modern-pdf-lib` test mock with its tagged-PDF API (`accessibilityPlugin`/`tagFigure`/marked-content/`deduplicateImages`) — unblocks the CI Test job.
+
+### Notes
+- **modern-xlsx** was evaluated for an XLSX export path but **not adopted** — the published 1.0.0/rc.1 dist ships without its wasm-bindgen JS glue and fails to import/bundle. Tracked in [docs/ROADMAP.md](docs/ROADMAP.md).
+- Remaining browser/deploy QA and provisioning are tracked in [docs/ROADMAP.md](docs/ROADMAP.md).
+
+---
+
+## [1.2.2] - 2026-03-04
+
+### Testing
+- **Comprehensive test overhaul across the entire monorepo** (`9a06ce7`) — added `vitest.config.ts` to all three Cloudflare Workers, coverage thresholds, split the monolithic resolver test into focused `__tests__/lib` suites (cache, dataloaders, validation, cursor-pagination, errors), and added ~46 test files across API / web / math-engine / plot-engine.
+
+### Performance
+- Optimize `/symbolic` and `/algorithms/transformers` routes (`43d4893`).
+
+### Documentation
+- Sync documentation and wiki with v1.2.1 performance optimizations and codebase (`34a1f70`).
+
+---
+
 ## [1.2.1] - 2026-03-04
 
 ### Performance
@@ -66,6 +151,16 @@ All notable changes to NextCalc Pro are documented in this file.
 - Extract `HeroAvatar` component with `onError` image fallback + level icon default (`b441eb3`)
 - XP bar with tier name display in profile HeroCard (`b441eb3`)
 - Level icon as default avatar in navigation and profile when no provider image (`b441eb3`)
+
+---
+
+## [1.1.4] - 2026-03-02
+
+### Branding / PWA
+- Custom geometric crystal favicon with a full PWA icon suite (`94dc7e7`)
+
+### Database
+- Upgrade Prisma `7.5.0-dev.32` → `7.5.0-dev.33`, modernize the schema, and document the partial indexes (`1ecd5a1`, `ae99ab2`)
 
 ---
 
@@ -233,8 +328,11 @@ All notable changes to NextCalc Pro are documented in this file.
 
 _This changelog is generated from the git history. Commit hashes reference the short SHA for each change._
 
-[1.2.1]: https://github.com/ABCrimson/NextCalc/compare/v1.2.0...v1.2.1
-[1.2.0]: https://github.com/ABCrimson/NextCalc/compare/v1.1.3...v1.2.0
+[Unreleased]: https://github.com/ABCrimson/NextCalc/compare/v1.2.2...HEAD
+[1.2.2]: https://github.com/ABCrimson/NextCalc/compare/v1.2.1...v1.2.2
+[1.2.1]: https://github.com/ABCrimson/NextCalc/compare/v1.1.4...v1.2.1
+[1.2.0]: https://github.com/ABCrimson/NextCalc/commit/b441eb3
+[1.1.4]: https://github.com/ABCrimson/NextCalc/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/ABCrimson/NextCalc/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/ABCrimson/NextCalc/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/ABCrimson/NextCalc/releases/tag/v1.1.1

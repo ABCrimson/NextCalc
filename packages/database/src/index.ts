@@ -7,65 +7,62 @@
 
 // Re-export the singleton client and utilities
 export {
-  prisma,
   checkDatabaseConnection,
   disconnectDatabase,
   getPoolStats,
+  prisma,
 } from './client';
-
-// Re-export PrismaClient class (for type annotations and adapter use)
-export { PrismaClient } from './generated/prisma/client';
-
 // Re-export ALL generated types and enums
 export type {
-  // Model types
-  User,
   Account,
-  Session,
-  VerificationToken,
-  Worksheet,
-  Folder,
-  WorksheetShare,
-  CalculationHistory,
-  ForumPost,
-  Comment,
-  Upvote,
-  AuditLog,
-  Problem,
-  Hint,
-  TestCase,
-  Example,
-  Topic,
-  ProblemTopic,
-  Theorem,
-  Resource,
-  Algorithm,
-  Implementation,
-  UserProgress,
-  TopicProgress,
-  Attempt,
-  Favorite,
   Achievement,
-  UserAchievement,
-  SharedCalculation,
+  Algorithm,
+  Attempt,
+  AuditLog,
+  CalculationHistory,
+  Comment,
+  Example,
+  Favorite,
+  Folder,
+  ForumPost,
+  Hint,
+  Implementation,
   PracticeSession,
   // Prisma namespace for advanced queries
   Prisma,
+  Problem,
+  ProblemTopic,
+  Resource,
+  Session,
+  SharedCalculation,
+  TestCase,
+  Theorem,
+  Topic,
+  TopicProgress,
+  Upvote,
+  // Model types
+  User,
+  UserAchievement,
+  UserProgress,
+  VerificationToken,
+  Worksheet,
+  WorksheetShare,
 } from './generated/prisma/client';
-
+// Re-export PrismaClient class (for type annotations and adapter use)
 // Re-export enums (these are values, not just types)
 export {
-  UserRole,
-  WorksheetVisibility,
+  AchievementType,
+  AlgorithmCategory,
+  Category,
+  Difficulty,
+  FavoriteType,
+  PrismaClient,
+  ProgrammingLanguage,
+  ResourceType,
   SharePermission,
   UpvoteTarget,
-  Difficulty,
-  Category,
-  ResourceType,
-  AlgorithmCategory,
-  ProgrammingLanguage,
-  AchievementType,
-  FavoriteType,
+  UserRole,
+  WorksheetVisibility,
 } from './generated/prisma/client';
 
 // Re-export the models barrel (needed for TypeScript declaration emit)

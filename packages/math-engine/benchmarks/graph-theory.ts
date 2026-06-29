@@ -201,7 +201,7 @@ scaleFactors.forEach((n) => {
 });
 console.log(`Tarjan SCC\t\t${tarjanTimes.map((t) => t.toFixed(2)).join('\t\t')}`);
 
-console.log('\n' + '='.repeat(70));
+console.log(`\n${'='.repeat(70)}`);
 console.log('BENCHMARKS COMPLETE');
 console.log('='.repeat(70));
 

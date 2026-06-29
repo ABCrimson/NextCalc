@@ -191,6 +191,7 @@ function CollaboratorAvatarRow({ peers, localName, localColor }: CollaboratorAva
         <span
           className="flex items-center justify-center h-8 w-8 rounded-full text-xs font-bold text-background ring-2 ring-background"
           style={{ backgroundColor: localColor }}
+          role="img"
           aria-label={`${localName} (you)`}
         >
           {localName.charAt(0).toUpperCase()}
@@ -205,6 +206,7 @@ function CollaboratorAvatarRow({ peers, localName, localColor }: CollaboratorAva
           <span
             className="flex items-center justify-center h-8 w-8 rounded-full text-xs font-bold text-background ring-2 ring-background"
             style={{ backgroundColor: peer.color }}
+            role="img"
             aria-label={peer.name}
           >
             {peer.name.charAt(0).toUpperCase()}

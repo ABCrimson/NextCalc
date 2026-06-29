@@ -348,7 +348,7 @@ export function PlotExportToolbar({
           rows.push(cells.join(','));
         }
 
-        const csv = rows.join('\n') + '\n';
+        const csv = `${rows.join('\n')}\n`;
         const blob = new Blob([csv], { type: 'text/csv' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');

@@ -170,8 +170,8 @@ function StatCard({ label, value, accent, onCopy, copied }: StatCardProps) {
         'border border-border',
         'bg-gradient-to-br from-background/60 via-card/50 to-background/60',
         'backdrop-blur-md',
-        'shadow-[0_2px_8px_0_rgba(0,0,0,0.08)]',
-        'hover:shadow-[0_4px_16px_0_rgba(0,0,0,0.12)]',
+        'shadow-[0_2px_8px_0_oklch(0_0_0_/_0.08)]',
+        'hover:shadow-[0_4px_16px_0_oklch(0_0_0_/_0.12)]',
         'hover:border-primary/30',
         'transition-all duration-300',
       )}
@@ -319,6 +319,7 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
           ry="5"
         />
         {/* Invisible hit target for box body (IQR hover) */}
+        {/* biome-ignore lint/a11y/useSemanticElements: SVG <rect> cannot be replaced with <button>; role="button" is valid SVG-ARIA */}
         <rect
           x={scale(q1)}
           y={midY - 18}
@@ -326,6 +327,9 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
           height={36}
           fill="transparent"
           className="cursor-pointer"
+          role="button"
+          tabIndex={0}
+          aria-label={`IQR: ${formatNumber(iqr)}`}
           onMouseEnter={handleMouseEnter('IQR', iqr)}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
@@ -342,6 +346,7 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
           strokeLinecap="round"
         />
         {/* Invisible hit target for median */}
+        {/* biome-ignore lint/a11y/useSemanticElements: SVG <line> cannot be replaced with <button>; role="button" is valid SVG-ARIA */}
         <line
           x1={scale(q2)}
           y1={midY - 18}
@@ -350,6 +355,9 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
           stroke="transparent"
           strokeWidth={hitTargetWidth}
           className="cursor-pointer"
+          role="button"
+          tabIndex={0}
+          aria-label={`Median: ${formatNumber(q2)}`}
           onMouseEnter={handleMouseEnter('Median (Q2)', q2)}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
@@ -366,6 +374,7 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
           strokeLinecap="round"
         />
         {/* Invisible hit target for min cap */}
+        {/* biome-ignore lint/a11y/useSemanticElements: SVG <line> cannot be replaced with <button>; role="button" is valid SVG-ARIA */}
         <line
           x1={scale(min)}
           y1={midY - 15}
@@ -374,6 +383,9 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
           stroke="transparent"
           strokeWidth={hitTargetWidth}
           className="cursor-pointer"
+          role="button"
+          tabIndex={0}
+          aria-label={`Min: ${formatNumber(min)}`}
           onMouseEnter={handleMouseEnter('Min', min)}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
@@ -390,6 +402,7 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
           strokeLinecap="round"
         />
         {/* Invisible hit target for max cap */}
+        {/* biome-ignore lint/a11y/useSemanticElements: SVG <line> cannot be replaced with <button>; role="button" is valid SVG-ARIA */}
         <line
           x1={scale(max)}
           y1={midY - 15}
@@ -398,12 +411,16 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
           stroke="transparent"
           strokeWidth={hitTargetWidth}
           className="cursor-pointer"
+          role="button"
+          tabIndex={0}
+          aria-label={`Max: ${formatNumber(max)}`}
           onMouseEnter={handleMouseEnter('Max', max)}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         />
 
         {/* Q1 edge — invisible hit target on left edge of box */}
+        {/* biome-ignore lint/a11y/useSemanticElements: SVG <line> cannot be replaced with <button>; role="button" is valid SVG-ARIA */}
         <line
           x1={scale(q1)}
           y1={midY - 18}
@@ -412,12 +429,16 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
           stroke="transparent"
           strokeWidth={hitTargetWidth}
           className="cursor-pointer"
+          role="button"
+          tabIndex={0}
+          aria-label={`Q1 (25th percentile): ${formatNumber(q1)}`}
           onMouseEnter={handleMouseEnter('Q1 (25th percentile)', q1)}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         />
 
         {/* Q3 edge — invisible hit target on right edge of box */}
+        {/* biome-ignore lint/a11y/useSemanticElements: SVG <line> cannot be replaced with <button>; role="button" is valid SVG-ARIA */}
         <line
           x1={scale(q3)}
           y1={midY - 18}
@@ -426,6 +447,9 @@ function BoxPlot({ stats, width = 400, height = 110 }: BoxPlotProps) {
           stroke="transparent"
           strokeWidth={hitTargetWidth}
           className="cursor-pointer"
+          role="button"
+          tabIndex={0}
+          aria-label={`Q3 (75th percentile): ${formatNumber(q3)}`}
           onMouseEnter={handleMouseEnter('Q3 (75th percentile)', q3)}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
@@ -540,6 +564,7 @@ function R2Badge({ r2, quality }: R2BadgeProps) {
         borderColor: style.border,
         color: style.color,
       }}
+      role="status"
       aria-label={`R-squared value ${formatNumber(r2)}, quality: ${quality}`}
     >
       <span>R&sup2; = {formatNumber(r2)}</span>
@@ -590,7 +615,7 @@ function GlassPanel({ children, className, accent = 'primary' }: GlassPanelProps
         'border border-border',
         'bg-gradient-to-br from-background/60 via-card/50 to-background/60',
         'backdrop-blur-md',
-        'shadow-[0_8px_32px_0_rgba(0,0,0,0.10)]',
+        'shadow-[0_8px_32px_0_oklch(0_0_0_/_0.10)]',
         className,
       )}
     >
@@ -812,7 +837,11 @@ export function StatsPanel() {
         regression = statsModule.exponentialRegression(xData, yData);
       }
 
-      const predicted = statsModule.predict(regression!, xValue);
+      if (!regression) {
+        setError('Unable to compute a regression for this prediction');
+        return;
+      }
+      const predicted = statsModule.predict(regression, xValue);
       setPredictionResult(typeof predicted === 'number' ? predicted : (predicted[0] ?? null));
       setError(null);
     } catch (err) {
@@ -902,7 +931,7 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
 
   if (!statsModule) {
     return (
-      <Card className="w-full max-w-4xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border-border shadow-[0_8px_32px_0_rgba(0,0,0,0.10)]">
+      <Card className="w-full max-w-4xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.10)]">
         <CardContent className="p-8">
           <div className="flex flex-col items-center justify-center gap-3 text-muted-foreground py-8">
             <div
@@ -923,7 +952,7 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
         'bg-gradient-to-br from-background/60 via-card/50 to-background/60',
         'backdrop-blur-md',
         'border border-border',
-        'shadow-[0_8px_32px_0_rgba(0,0,0,0.10)]',
+        'shadow-[0_8px_32px_0_oklch(0_0_0_/_0.10)]',
         'relative overflow-hidden',
       )}
     >
@@ -1391,7 +1420,6 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
                       background: 'oklch(0.63 0.20 300 / 0.08)',
                       border: '1px solid oklch(0.63 0.20 300 / 0.20)',
                     }}
-                    aria-label={`Regression equation: ${regressionResult.equation}`}
                   >
                     {regressionResult.equation}
                   </div>
@@ -1403,8 +1431,8 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
                       Coefficients
                     </p>
                     <div className="space-y-1">
-                      {regressionResult.coefficients.map((coeff, i) => (
-                        <p key={i} className="text-sm font-mono text-foreground">
+                      {regressionResult.coefficients.map((coeff) => (
+                        <p key={coeff} className="text-sm font-mono text-foreground">
                           {coeff}
                         </p>
                       ))}

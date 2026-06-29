@@ -670,11 +670,8 @@ function TemplateCard({ template, accent, text, iconBg, animationDelay }: Templa
     if (state.result === null) return '';
     if (template.id === 'quadratic') {
       // re-derive roots from stored inputs
-      // biome-ignore lint/complexity/useLiteralKeys: noPropertyAccessFromIndexSignature requires bracket notation
       const a = parseFloat(state.inputs['a'] ?? '0');
-      // biome-ignore lint/complexity/useLiteralKeys: noPropertyAccessFromIndexSignature requires bracket notation
       const b = parseFloat(state.inputs['b'] ?? '0');
-      // biome-ignore lint/complexity/useLiteralKeys: noPropertyAccessFromIndexSignature requires bracket notation
       const c = parseFloat(state.inputs['c'] ?? '0');
       const disc = b * b - 4 * a * c;
       const x1 = (-b + Math.sqrt(disc)) / (2 * a);
@@ -996,7 +993,7 @@ export default function TemplatesPage() {
       {/* ── Skip link ──────────────────────────────────────────────────────── */}
       <a
         href="#templates-main"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md"
+        className="sr-only focus-visible:not-sr-only focus-visible:absolute focus-visible:top-4 focus-visible:left-4 focus-visible:z-50 focus-visible:px-4 focus-visible:py-2 focus-visible:bg-primary focus-visible:text-primary-foreground focus-visible:rounded-md"
       >
         {t('skipToContent')}
       </a>

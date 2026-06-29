@@ -7,8 +7,6 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { evaluate } from '../parser/evaluator';
-import { parse } from '../parser/parser';
 import { astToString, integrate, integrateDefinite } from './integrate';
 
 // ---------------------------------------------------------------------------
