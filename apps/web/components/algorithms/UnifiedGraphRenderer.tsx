@@ -14,8 +14,8 @@
  * canvas sits on top regardless.
  */
 
-import { AnimatePresence, m } from 'motion/react';
 import { Hand, Maximize2, ZoomIn, ZoomOut } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import {
   type MouseEvent,
   useCallback,

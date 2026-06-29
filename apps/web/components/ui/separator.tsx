@@ -15,6 +15,7 @@ function Separator({
 }: SeparatorProps) {
   return (
     <SeparatorPrimitive.Root
+      data-slot="separator"
       ref={ref}
       decorative={decorative}
       orientation={orientation}

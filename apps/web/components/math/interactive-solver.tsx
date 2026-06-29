@@ -1,7 +1,6 @@
 'use client';
 
 import type { Hint, Problem, SolutionStep } from '@nextcalc/math-engine/problems';
-import { AnimatePresence, m } from 'motion/react';
 import {
   ArrowRight,
   BookOpen,
@@ -17,6 +16,7 @@ import {
   Trophy,
   XCircle,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

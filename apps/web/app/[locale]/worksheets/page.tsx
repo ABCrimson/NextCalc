@@ -5,7 +5,6 @@
  * and management actions (open, delete, create new).
  */
 
-import { AnimatePresence, m } from 'motion/react';
 import {
   Clock,
   Eye,
@@ -19,6 +18,7 @@ import {
   SortDesc,
   Trash2,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import { useFormatter, useTranslations } from 'next-intl';
 import { AlertDialog } from 'radix-ui';
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
@@ -192,11 +192,7 @@ export default function WorksheetsPage() {
             className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl border border-border bg-card text-foreground text-sm hover:bg-accent transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             title={t('sortDirection')}
           >
-            {sortDir === 'desc' ? (
-              <SortDesc className="size-4" />
-            ) : (
-              <SortAsc className="size-4" />
-            )}
+            {sortDir === 'desc' ? <SortDesc className="size-4" /> : <SortAsc className="size-4" />}
           </button>
 
           {/* Sort field */}

@@ -21,8 +21,8 @@
  * @module EigenPanel
  */
 
-import { AnimatePresence, m, type Variants } from 'motion/react';
 import { AlertCircle, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
+import { AnimatePresence, m, type Variants } from 'motion/react';
 import type { KeyboardEvent, ReactElement } from 'react';
 import { useCallback, useId, useRef, useState, useTransition } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';

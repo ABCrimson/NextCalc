@@ -1,8 +1,8 @@
 'use client';
 
 import { evaluate } from '@nextcalc/math-engine';
-import { AnimatePresence, m } from 'motion/react';
 import { AlertCircle, Check, ChevronDown, ChevronUp, Copy, Info, ListOrdered } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import dynamic from 'next/dynamic';
 import { useCallback, useId, useMemo, useState } from 'react';
 import type { AnalysisFunction } from '@/components/plots/PlotAnalysisPanel';

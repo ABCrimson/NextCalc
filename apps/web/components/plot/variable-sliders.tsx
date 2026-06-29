@@ -20,8 +20,8 @@
  */
 
 import { extractVariables } from '@nextcalc/math-engine';
-import { AnimatePresence, m } from 'motion/react';
 import { ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import type { ChangeEvent, KeyboardEvent } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -487,11 +487,7 @@ export function VariableSliders({ expressions, onChange, className = '' }: Varia
             </span>
           </div>
           <span className="text-muted-foreground" aria-hidden="true">
-            {collapsed ? (
-              <ChevronDown className="size-3.5" />
-            ) : (
-              <ChevronUp className="size-3.5" />
-            )}
+            {collapsed ? <ChevronDown className="size-3.5" /> : <ChevronUp className="size-3.5" />}
           </span>
         </button>
 

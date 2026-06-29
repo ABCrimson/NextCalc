@@ -1,6 +1,5 @@
 'use client';
 
-import { AnimatePresence, m } from 'motion/react';
 import {
   AlertCircle,
   Calculator,
@@ -11,6 +10,7 @@ import {
   Sigma,
   Type,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import type { KeyboardEvent } from 'react';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';

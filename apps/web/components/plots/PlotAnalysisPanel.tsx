@@ -18,7 +18,6 @@
  * @module components/plots/PlotAnalysisPanel
  */
 
-import { AnimatePresence, m } from 'motion/react';
 import {
   ArrowDownUp,
   ChevronDown,
@@ -29,6 +28,7 @@ import {
   TrendingDown,
   TrendingUp,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 

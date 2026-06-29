@@ -1,6 +1,5 @@
 'use client';
 
-import { AnimatePresence, m } from 'motion/react';
 import {
   Check,
   ChevronLeft,
@@ -13,6 +12,7 @@ import {
   Send,
   X,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import { type ComponentType, useCallback, useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -507,10 +507,7 @@ function HintCard({
           className="p-4 bg-muted"
         >
           <div className="flex items-start gap-2">
-            <Lightbulb
-              className="size-4 text-yellow-500 mt-0.5 flex-shrink-0"
-              aria-hidden="true"
-            />
+            <Lightbulb className="size-4 text-yellow-500 mt-0.5 flex-shrink-0" aria-hidden="true" />
             <p className="text-sm">{hint}</p>
           </div>
         </m.div>

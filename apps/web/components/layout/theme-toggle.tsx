@@ -1,7 +1,7 @@
 'use client';
 
-import { AnimatePresence, m } from 'motion/react';
 import { Moon, Sun } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import { useEffect, useEffectEvent, useState } from 'react';
 import { Button } from '@/components/ui/button';
 

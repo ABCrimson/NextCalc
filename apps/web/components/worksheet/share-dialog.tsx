@@ -17,7 +17,6 @@
  *   - Focus ring: focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring
  */
 
-import { AnimatePresence, m } from 'motion/react';
 import {
   Check,
   Copy,
@@ -30,6 +29,7 @@ import {
   X,
   ZapOff,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import { useCallback, useId, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {

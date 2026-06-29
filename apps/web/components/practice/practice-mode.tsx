@@ -1,6 +1,5 @@
 'use client';
 
-import { AnimatePresence, m } from 'motion/react';
 import {
   Award,
   CheckCircle2,
@@ -13,6 +12,7 @@ import {
   Trophy,
   XCircle,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

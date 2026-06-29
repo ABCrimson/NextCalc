@@ -1,7 +1,7 @@
 'use client';
 
-import { m, useReducedMotion } from 'motion/react';
 import { type LucideIcon, Share2 } from 'lucide-react';
+import { m, useReducedMotion } from 'motion/react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';

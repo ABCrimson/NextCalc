@@ -1,7 +1,7 @@
 'use client';
 
-import { m, useReducedMotion } from 'motion/react';
 import { ArrowRight, Award, Bookmark, BookOpen, CheckCircle2, TrendingUp } from 'lucide-react';
+import { m, useReducedMotion } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import type { CSSProperties, ReactNode } from 'react';
 import { Badge } from '@/components/ui/badge';

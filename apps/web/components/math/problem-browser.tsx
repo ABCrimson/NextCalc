@@ -3,7 +3,6 @@
 import type { MathTopic } from '@nextcalc/math-engine/knowledge';
 import type { DifficultyLevel, Problem, ProblemFilter } from '@nextcalc/math-engine/problems';
 import { ProblemType } from '@nextcalc/math-engine/problems';
-import { AnimatePresence, m } from 'motion/react';
 import {
   Bookmark,
   BookmarkPlus,
@@ -16,6 +15,7 @@ import {
   SlidersHorizontal,
   Trophy,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import type { KeyboardEvent } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';

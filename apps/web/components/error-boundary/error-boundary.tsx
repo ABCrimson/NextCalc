@@ -67,7 +67,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     void captureError(error, {
       component: 'ErrorBoundary',
       level: 'error',
-      ...(errorInfo.componentStack ? { metadata: { componentStack: errorInfo.componentStack } } : {}),
+      ...(errorInfo.componentStack
+        ? { metadata: { componentStack: errorInfo.componentStack } }
+        : {}),
     });
   }
 

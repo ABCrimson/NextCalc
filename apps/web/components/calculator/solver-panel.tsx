@@ -1,6 +1,5 @@
 'use client';
 
-import { AnimatePresence, m } from 'motion/react';
 import {
   AlertCircle,
   BookOpen,
@@ -15,6 +14,7 @@ import {
   Sigma,
   TrendingUp,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import type { KeyboardEvent } from 'react';
 import { useCallback, useId, useState, useTransition } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';

@@ -16,7 +16,6 @@
  * ```
  */
 
-import { m } from 'motion/react';
 import {
   GitBranch,
   Info,
@@ -27,6 +26,7 @@ import {
   SkipForward,
   TrendingDown,
 } from 'lucide-react';
+import { m } from 'motion/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

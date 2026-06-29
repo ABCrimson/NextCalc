@@ -11,7 +11,6 @@
  */
 
 import { useQuery } from '@apollo/client/react';
-import { AnimatePresence, m, useReducedMotion } from 'motion/react';
 import {
   AlertCircle,
   ArrowUpRight,
@@ -30,6 +29,7 @@ import {
   Users,
   Zap,
 } from 'lucide-react';
+import { AnimatePresence, m, useReducedMotion } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ForumBackground } from '@/components/forum/forum-background';

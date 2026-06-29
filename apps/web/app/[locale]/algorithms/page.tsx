@@ -1,6 +1,5 @@
 'use client';
 
-import { m } from 'motion/react';
 import {
   Activity,
   Atom,
@@ -16,6 +15,7 @@ import {
   Trophy,
   Wind,
 } from 'lucide-react';
+import { m } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import { useMemo, useState } from 'react';
 import {

@@ -8,8 +8,8 @@
  */
 
 import { useQuery } from '@apollo/client/react';
-import { m, useReducedMotion } from 'motion/react';
 import { AlertCircle, ArrowLeft, Clock, Eye, MessageSquare, ThumbsUp } from 'lucide-react';
+import { m, useReducedMotion } from 'motion/react';
 import { useFormatter, useTranslations } from 'next-intl';
 import { ForumBackground } from '@/components/forum/forum-background';
 import { getPostHue, type UserProfileData } from '@/components/forum/forum-shared';
@@ -212,7 +212,9 @@ export function UserProfileClient({ id }: UserProfileClientProps) {
                                 </span>
                                 <span className="flex items-center gap-1">
                                   <Clock className="size-3" />
-                                  {format.relativeTime(new Date(post.createdAt), { style: 'narrow' })}
+                                  {format.relativeTime(new Date(post.createdAt), {
+                                    style: 'narrow',
+                                  })}
                                 </span>
                               </div>
                             </div>

@@ -1,7 +1,7 @@
 'use client';
 
-import { AnimatePresence, m } from 'motion/react';
 import { Pause, Play, RotateCcw, SkipBack, SkipForward } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

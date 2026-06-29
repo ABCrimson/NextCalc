@@ -13,7 +13,6 @@
  * @module app/pde/3d/pde-3d-client
  */
 
-import { m, useReducedMotion } from 'motion/react';
 import {
   Box,
   Flame,
@@ -26,6 +25,7 @@ import {
   Sparkles,
   Timer,
 } from 'lucide-react';
+import { m, useReducedMotion } from 'motion/react';
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { RenderMode } from '@/components/plots/PDE3DRenderer';

@@ -3,11 +3,29 @@ import { Select as SelectPrimitive } from 'radix-ui';
 import type { ComponentPropsWithoutRef, ComponentRef, Ref } from 'react';
 import { cn } from '@/lib/utils';
 
-const Select = SelectPrimitive.Root;
+function Select({
+  ...props
+}: ComponentPropsWithoutRef<typeof SelectPrimitive.Root> & {
+  ref?: Ref<ComponentRef<typeof SelectPrimitive.Root>>;
+}) {
+  return <SelectPrimitive.Root data-slot="select" {...props} />;
+}
 
-const SelectGroup = SelectPrimitive.Group;
+function SelectGroup({
+  ...props
+}: ComponentPropsWithoutRef<typeof SelectPrimitive.Group> & {
+  ref?: Ref<ComponentRef<typeof SelectPrimitive.Group>>;
+}) {
+  return <SelectPrimitive.Group data-slot="select-group" {...props} />;
+}
 
-const SelectValue = SelectPrimitive.Value;
+function SelectValue({
+  ...props
+}: ComponentPropsWithoutRef<typeof SelectPrimitive.Value> & {
+  ref?: Ref<ComponentRef<typeof SelectPrimitive.Value>>;
+}) {
+  return <SelectPrimitive.Value data-slot="select-value" {...props} />;
+}
 
 interface SelectTriggerProps extends ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> {
   ref?: Ref<ComponentRef<typeof SelectPrimitive.Trigger>>;
@@ -16,6 +34,7 @@ interface SelectTriggerProps extends ComponentPropsWithoutRef<typeof SelectPrimi
 function SelectTrigger({ className, children, ref, ...props }: SelectTriggerProps) {
   return (
     <SelectPrimitive.Trigger
+      data-slot="select-trigger"
       ref={ref}
       className={cn(
         'flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
@@ -39,6 +58,7 @@ interface SelectScrollUpButtonProps
 function SelectScrollUpButton({ className, ref, ...props }: SelectScrollUpButtonProps) {
   return (
     <SelectPrimitive.ScrollUpButton
+      data-slot="select-scroll-up-button"
       ref={ref}
       className={cn('flex cursor-default items-center justify-center py-1', className)}
       {...props}
@@ -56,6 +76,7 @@ interface SelectScrollDownButtonProps
 function SelectScrollDownButton({ className, ref, ...props }: SelectScrollDownButtonProps) {
   return (
     <SelectPrimitive.ScrollDownButton
+      data-slot="select-scroll-down-button"
       ref={ref}
       className={cn('flex cursor-default items-center justify-center py-1', className)}
       {...props}
@@ -79,6 +100,7 @@ function SelectContent({
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
+        data-slot="select-content"
         ref={ref}
         className={cn(
           'relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
@@ -112,6 +134,7 @@ interface SelectLabelProps extends ComponentPropsWithoutRef<typeof SelectPrimiti
 function SelectLabel({ className, ref, ...props }: SelectLabelProps) {
   return (
     <SelectPrimitive.Label
+      data-slot="select-label"
       ref={ref}
       className={cn('py-1.5 pl-8 pr-2 text-sm font-semibold', className)}
       {...props}
@@ -126,6 +149,7 @@ interface SelectItemProps extends ComponentPropsWithoutRef<typeof SelectPrimitiv
 function SelectItem({ className, children, ref, ...props }: SelectItemProps) {
   return (
     <SelectPrimitive.Item
+      data-slot="select-item"
       ref={ref}
       className={cn(
         'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
@@ -151,6 +175,7 @@ interface SelectSeparatorProps extends ComponentPropsWithoutRef<typeof SelectPri
 function SelectSeparator({ className, ref, ...props }: SelectSeparatorProps) {
   return (
     <SelectPrimitive.Separator
+      data-slot="select-separator"
       ref={ref}
       className={cn('-mx-1 my-1 h-px bg-muted', className)}
       {...props}

@@ -1,7 +1,6 @@
 'use client';
 
 import type { Definition, MathTopic } from '@nextcalc/math-engine/knowledge';
-import { AnimatePresence, m } from 'motion/react';
 import {
   Bookmark,
   BookmarkPlus,
@@ -12,6 +11,7 @@ import {
   Network,
   Search,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import { useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

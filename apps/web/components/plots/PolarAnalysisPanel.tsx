@@ -13,7 +13,6 @@
  * @module components/plots/PolarAnalysisPanel
  */
 
-import { AnimatePresence, m } from 'motion/react';
 import {
   ChevronDown,
   ChevronRight,
@@ -24,6 +23,7 @@ import {
   Radar,
   Shapes,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';

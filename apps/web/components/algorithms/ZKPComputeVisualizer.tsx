@@ -22,8 +22,8 @@
  * - ARIA labels, live regions, keyboard navigation.
  */
 
-import { AnimatePresence, m } from 'motion/react';
 import { BarChart2, Cpu, Info, Lock, Play, RotateCcw, ShieldCheck, X, Zap } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import type { KeyboardEvent } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {

@@ -20,8 +20,8 @@
  *  - `Escape`          — close the dialog (Radix built-in, also caught in global handler)
  */
 
-import { AnimatePresence, m, useReducedMotion } from 'motion/react';
 import { Keyboard, X } from 'lucide-react';
+import { AnimatePresence, m, useReducedMotion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Dialog,

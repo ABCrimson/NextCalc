@@ -1,6 +1,5 @@
 'use client';
 
-import { m } from 'motion/react';
 import {
   ChevronRight,
   Info,
@@ -13,6 +12,7 @@ import {
   Trash2,
   TrendingUp,
 } from 'lucide-react';
+import { m } from 'motion/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

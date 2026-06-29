@@ -1,7 +1,6 @@
 'use client';
 
 import { RangeProof } from '@nextcalc/math-engine/algorithms';
-import { AnimatePresence, m, useReducedMotion, type Variants } from 'motion/react';
 // import { Progress } from '@/components/ui/progress'; // Unused
 import {
   AlertTriangle,
@@ -24,6 +23,7 @@ import {
   X,
   Zap,
 } from 'lucide-react';
+import { AnimatePresence, m, useReducedMotion, type Variants } from 'motion/react';
 import { useCallback, useMemo, useState } from 'react';
 import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';

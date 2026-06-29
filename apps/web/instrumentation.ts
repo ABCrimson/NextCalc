@@ -12,10 +12,7 @@
  * @see https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation
  */
 
-import {
-  configureErrorTracking,
-  createSentryErrorTracking,
-} from '@/lib/monitoring/error-tracking';
+import { configureErrorTracking, createSentryErrorTracking } from '@/lib/monitoring/error-tracking';
 
 // Holds the loaded Sentry module (Node runtime, DSN present) so onRequestError
 // can forward server errors synchronously without re-importing.

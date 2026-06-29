@@ -1,6 +1,5 @@
 'use client';
 
-import { AnimatePresence, m } from 'motion/react';
 import {
   BarChart3,
   BookOpen,
@@ -15,6 +14,7 @@ import {
   X,
   Zap,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import type { ComponentType } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { MathRenderer } from '@/components/ui/math-renderer';

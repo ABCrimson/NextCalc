@@ -8,8 +8,8 @@
  */
 
 import { useMutation } from '@apollo/client/react';
-import { m, useReducedMotion } from 'motion/react';
 import { ThumbsUp } from 'lucide-react';
+import { m, useReducedMotion } from 'motion/react';
 import { useFormatter } from 'next-intl';
 import { useCallback, useOptimistic, useTransition } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';

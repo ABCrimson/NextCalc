@@ -7,8 +7,8 @@
  * an "Open in Calculator" button that loads the expression into the calculator.
  */
 
-import { m } from 'motion/react';
 import { Calculator, Check, Copy, Share2, User } from 'lucide-react';
+import { m } from 'motion/react';
 import { useFormatter } from 'next-intl';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';

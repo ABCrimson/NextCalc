@@ -24,7 +24,13 @@ interface AlertProps extends HTMLAttributes<HTMLDivElement>, VariantProps<typeof
 
 function Alert({ className, variant, ref, ...props }: AlertProps) {
   return (
-    <div ref={ref} role="alert" className={cn(alertVariants({ variant }), className)} {...props} />
+    <div
+      data-slot="alert"
+      ref={ref}
+      role="alert"
+      className={cn(alertVariants({ variant }), className)}
+      {...props}
+    />
   );
 }
 
@@ -35,6 +41,7 @@ interface AlertTitleProps extends HTMLAttributes<HTMLHeadingElement> {
 function AlertTitle({ className, ref, ...props }: AlertTitleProps) {
   return (
     <h5
+      data-slot="alert-title"
       ref={ref}
       className={cn('mb-1 font-medium leading-none tracking-tight', className)}
       {...props}
@@ -47,7 +54,14 @@ interface AlertDescriptionProps extends HTMLAttributes<HTMLParagraphElement> {
 }
 
 function AlertDescription({ className, ref, ...props }: AlertDescriptionProps) {
-  return <div ref={ref} className={cn('text-sm [&_p]:leading-relaxed', className)} {...props} />;
+  return (
+    <div
+      data-slot="alert-description"
+      ref={ref}
+      className={cn('text-sm [&_p]:leading-relaxed', className)}
+      {...props}
+    />
+  );
 }
 
 export { Alert, AlertDescription, AlertTitle };

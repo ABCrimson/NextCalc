@@ -21,8 +21,8 @@ import type {
   Plot2DParametricConfig,
   Plot2DPolarConfig,
 } from '@nextcalc/plot-engine';
-import { m } from 'motion/react';
 import { Activity, Layers, Maximize2, Zap } from 'lucide-react';
+import { m } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
 import { useCallback, useMemo, useState } from 'react';

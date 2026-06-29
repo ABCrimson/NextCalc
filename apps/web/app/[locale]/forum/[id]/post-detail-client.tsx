@@ -8,7 +8,6 @@
  */
 
 import { useMutation, useQuery } from '@apollo/client/react';
-import { m, useReducedMotion } from 'motion/react';
 import {
   AlertCircle,
   ArrowLeft,
@@ -20,6 +19,7 @@ import {
   Pin,
   Send,
 } from 'lucide-react';
+import { m, useReducedMotion } from 'motion/react';
 import { useFormatter, useTranslations } from 'next-intl';
 import { useCallback, useState } from 'react';
 import { CommentThread } from '@/components/forum/comment-thread';

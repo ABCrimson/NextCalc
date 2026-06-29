@@ -1,6 +1,5 @@
 'use client';
 
-import { m } from 'motion/react';
 import {
   AlertCircle,
   Calculator,
@@ -15,6 +14,7 @@ import {
   Trash2,
   User,
 } from 'lucide-react';
+import { m } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import type { ComponentType, ReactNode } from 'react';
 import { useCallback, useEffect, useState } from 'react';

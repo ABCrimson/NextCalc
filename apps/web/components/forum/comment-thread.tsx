@@ -8,15 +8,11 @@
  */
 
 import { useMutation } from '@apollo/client/react';
-import { AnimatePresence, m, useReducedMotion } from 'motion/react';
 import { ChevronDown, ChevronUp, Loader2, MessageSquare, Reply, Trash2 } from 'lucide-react';
+import { AnimatePresence, m, useReducedMotion } from 'motion/react';
 import { useFormatter } from 'next-intl';
 import { useCallback, useState } from 'react';
-import {
-  type CommentNode,
-  type CommentReply,
-  getInitials,
-} from '@/components/forum/forum-shared';
+import { type CommentNode, type CommentReply, getInitials } from '@/components/forum/forum-shared';
 import { UpvoteButton } from '@/components/forum/upvote-button';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';

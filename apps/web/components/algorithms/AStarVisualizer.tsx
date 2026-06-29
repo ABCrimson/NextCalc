@@ -16,8 +16,8 @@
  * ```
  */
 
-import { m } from 'motion/react';
 import { Compass, Info, Pause, Play, RotateCcw, SkipForward } from 'lucide-react';
+import { m } from 'motion/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

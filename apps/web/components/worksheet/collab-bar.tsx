@@ -22,8 +22,8 @@
  *   - Live pulse respects prefers-reduced-motion (Framer Motion built-in)
  */
 
-import { AnimatePresence, m } from 'motion/react';
 import { Share2, Users } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useWorksheetCollab } from '@/lib/hooks/use-worksheet-collab';

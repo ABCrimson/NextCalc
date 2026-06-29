@@ -1,7 +1,7 @@
 'use client';
 
-import { AnimatePresence, m } from 'motion/react';
 import { Download, Info, Pause, Play, RotateCcw, Send } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';

@@ -1,7 +1,6 @@
 'use client';
 
 import { kruskal, prim } from '@nextcalc/math-engine/graph-theory';
-import { AnimatePresence, m, useReducedMotion } from 'motion/react';
 import {
   BookOpen,
   Info,
@@ -12,6 +11,7 @@ import {
   Sparkles,
   Trash2,
 } from 'lucide-react';
+import { AnimatePresence, m, useReducedMotion } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent } from 'react';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';

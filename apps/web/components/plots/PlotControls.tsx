@@ -8,7 +8,6 @@
  */
 
 import { downloadAsCSV2D, downloadAsPNG, downloadAsSVG, type Point2D } from '@nextcalc/plot-engine';
-import { AnimatePresence, m } from 'motion/react';
 import {
   Download,
   FileImage,
@@ -20,6 +19,7 @@ import {
   ZoomIn,
   ZoomOut,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import { type RefObject, useCallback, useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import {

@@ -1,7 +1,7 @@
 'use client';
 
-import { AnimatePresence, m } from 'motion/react';
 import { ChevronDown, Cpu, Zap } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import {
   type MouseEvent,
   type TouchEvent as ReactTouchEvent,

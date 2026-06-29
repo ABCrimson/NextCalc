@@ -1,6 +1,5 @@
 'use client';
 
-import { AnimatePresence, m } from 'motion/react';
 import {
   ArrowRight,
   CheckCircle2,
@@ -18,6 +17,7 @@ import {
   Shuffle,
   XCircle,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import { type ElementType, useCallback, useEffect, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';

@@ -1,6 +1,5 @@
 'use client';
 
-import { AnimatePresence, m } from 'motion/react';
 import {
   AlertCircle,
   BarChart2,
@@ -13,6 +12,7 @@ import {
   type LucideIcon,
   Wrench,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useId, useState } from 'react';
 
@@ -820,10 +820,7 @@ function TemplateCard({ template, accent, text, iconBg, animationDelay }: Templa
               role="alert"
               aria-live="assertive"
             >
-              <AlertCircle
-                className="size-4 text-destructive shrink-0 mt-0.5"
-                aria-hidden="true"
-              />
+              <AlertCircle className="size-4 text-destructive shrink-0 mt-0.5" aria-hidden="true" />
               <p className="text-xs text-destructive leading-snug">{state.error}</p>
             </m.div>
           )}

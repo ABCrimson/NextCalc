@@ -1,6 +1,5 @@
 'use client';
 
-import { m } from 'motion/react';
 import {
   Brain,
   Info,
@@ -14,6 +13,7 @@ import {
   ZoomIn,
   ZoomOut,
 } from 'lucide-react';
+import { m } from 'motion/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

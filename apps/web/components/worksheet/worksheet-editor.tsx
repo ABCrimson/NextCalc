@@ -19,7 +19,6 @@
  *     under the key "worksheet-storage" after every mutation.
  */
 
-import { AnimatePresence, m } from 'motion/react';
 import {
   AlignLeft,
   BookOpen,
@@ -34,6 +33,7 @@ import {
   Upload,
   Variable,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import { type ChangeEvent, type ReactNode, useCallback, useId, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

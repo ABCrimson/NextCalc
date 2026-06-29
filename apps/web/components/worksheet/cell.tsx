@@ -22,7 +22,6 @@
  */
 
 import { evaluate as evaluateExpr } from '@nextcalc/math-engine';
-import { AnimatePresence, m } from 'motion/react';
 import {
   AlertCircle,
   AlignLeft,
@@ -36,6 +35,7 @@ import {
   Trash2,
   TrendingUp,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import dynamic from 'next/dynamic';
 import {
   type ComponentType,

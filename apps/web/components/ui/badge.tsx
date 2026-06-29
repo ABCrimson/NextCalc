@@ -19,8 +19,10 @@ const badgeVariants = cva(
           'border-transparent bg-linear-to-r/oklab from-blue-500/90 to-cyan-500/90 text-white',
         advanced:
           'border-transparent bg-linear-to-r/oklab from-purple-500/90 to-pink-500/90 text-white',
-        expert: 'border-transparent bg-linear-to-r/oklab from-orange-500/90 to-red-500/90 text-white',
-        research: 'border-transparent bg-linear-to-r/oklab from-red-600/90 to-rose-600/90 text-white',
+        expert:
+          'border-transparent bg-linear-to-r/oklab from-orange-500/90 to-red-500/90 text-white',
+        research:
+          'border-transparent bg-linear-to-r/oklab from-red-600/90 to-rose-600/90 text-white',
       },
     },
     defaultVariants: {
@@ -34,7 +36,7 @@ export interface BadgeProps
     VariantProps<typeof badgeVariants> {}
 
 function Badge({ className, variant, ...props }: BadgeProps) {
-  return <div className={cn(badgeVariants({ variant }), className)} {...props} />;
+  return <div data-slot="badge" className={cn(badgeVariants({ variant }), className)} {...props} />;
 }
 
 export { Badge, badgeVariants };

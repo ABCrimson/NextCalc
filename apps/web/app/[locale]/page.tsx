@@ -1,6 +1,5 @@
 'use client';
 
-import { m } from 'motion/react';
 import {
   Grid3x3,
   Infinity as InfinityIcon,
@@ -10,6 +9,7 @@ import {
   TrendingUp,
   Variable,
 } from 'lucide-react';
+import { m } from 'motion/react';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { type CSSProperties, Suspense } from 'react';

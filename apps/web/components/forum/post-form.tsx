@@ -8,8 +8,8 @@
  */
 
 import { useMutation } from '@apollo/client/react';
-import { m, useReducedMotion } from 'motion/react';
 import { AlertCircle, Hash, Loader2, Send } from 'lucide-react';
+import { m, useReducedMotion } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
 import { getTagStyle, TAGS } from '@/components/forum/forum-shared';

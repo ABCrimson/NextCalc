@@ -22,7 +22,6 @@
  * - TypeScript 6.0 strict + exactOptionalPropertyTypes
  */
 
-import { AnimatePresence, m } from 'motion/react';
 import {
   ChevronRight,
   Pause,
@@ -32,6 +31,7 @@ import {
   SkipForward,
   Sparkles,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import type { ReactNode } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { AnalysisFunction } from '@/components/plots/PlotAnalysisPanel';

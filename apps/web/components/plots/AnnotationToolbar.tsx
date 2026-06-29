@@ -13,8 +13,8 @@
  * @module components/plots/AnnotationToolbar
  */
 
-import { AnimatePresence, m } from 'motion/react';
 import { MousePointerClick, MoveRight, Tag, Trash2 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import type { ReactNode } from 'react';
 import { useEffect } from 'react';
 

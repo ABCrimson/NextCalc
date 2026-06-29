@@ -43,6 +43,7 @@ function Button({ className, variant, size, asChild = false, ref, ...props }: Bu
   if (asChild) {
     return (
       <Slot.Root
+        data-slot="button"
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         suppressHydrationWarning
@@ -52,6 +53,7 @@ function Button({ className, variant, size, asChild = false, ref, ...props }: Bu
   }
   return (
     <button
+      data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
       ref={ref}
       suppressHydrationWarning
