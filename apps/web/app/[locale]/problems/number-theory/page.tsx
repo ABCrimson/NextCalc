@@ -1,6 +1,5 @@
 'use client';
 
-import { AnimatePresence, m } from 'framer-motion';
 import {
   ArrowRight,
   CheckCircle2,
@@ -18,6 +17,7 @@ import {
   Shuffle,
   XCircle,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import { type ElementType, useCallback, useEffect, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -882,11 +882,11 @@ function SectionHeader({
     <div className="flex items-start gap-4 mb-6">
       <div
         className={cn(
-          'w-12 h-12 rounded-xl flex items-center justify-center text-white flex-shrink-0',
+          'size-12 rounded-xl flex items-center justify-center text-white flex-shrink-0',
           gradient,
         )}
       >
-        <Icon className="w-6 h-6" />
+        <Icon className="size-6" />
       </div>
       <div>
         <h2 className="text-xl font-bold text-foreground">{title}</h2>
@@ -915,7 +915,7 @@ function StepList({ steps }: { steps: Array<{ label: string; latex: string; note
           transition={{ delay: i * 0.06 }}
           className="flex gap-3 items-start"
         >
-          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/15 text-primary text-xs font-bold flex items-center justify-center mt-0.5">
+          <span className="flex-shrink-0 size-6 rounded-full bg-primary/15 text-primary text-xs font-bold flex items-center justify-center mt-0.5">
             {i + 1}
           </span>
           <div className="flex-1 min-w-0">
@@ -993,7 +993,7 @@ function PrimeChecker() {
         icon={Hash}
         title="Prime Checker"
         description="Test whether a number is prime using deterministic Miller-Rabin."
-        gradient="bg-gradient-to-br from-blue-500 to-indigo-600"
+        gradient="bg-linear-to-br/oklab from-blue-500 to-indigo-600"
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1014,7 +1014,7 @@ function PrimeChecker() {
               />
               <Button onClick={check} aria-label="Check primality">
                 Check
-                <ChevronRight className="w-4 h-4 ml-1" />
+                <ChevronRight className="size-4 ml-1" />
               </Button>
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
@@ -1055,9 +1055,9 @@ function PrimeChecker() {
                 <CardHeader>
                   <div className="flex items-center gap-3">
                     {result.prime ? (
-                      <CheckCircle2 className="w-8 h-8 text-green-500" />
+                      <CheckCircle2 className="size-8 text-green-500" />
                     ) : (
-                      <XCircle className="w-8 h-8 text-amber-500" />
+                      <XCircle className="size-8 text-amber-500" />
                     )}
                     <div>
                       <CardTitle className="text-base font-mono">{String(result.n)}</CardTitle>
@@ -1291,7 +1291,7 @@ function FactorizationPanel() {
         icon={GitBranch}
         title="Prime Factorization"
         description="Decompose any integer into its prime factors with a visual factor tree."
-        gradient="bg-gradient-to-br from-purple-500 to-pink-600"
+        gradient="bg-linear-to-br/oklab from-purple-500 to-pink-600"
       />
 
       <Card>
@@ -1422,7 +1422,7 @@ function GCDPanel() {
         icon={Divide}
         title="GCD / LCM Calculator"
         description="Euclidean algorithm with step-by-step breakdown."
-        gradient="bg-gradient-to-br from-emerald-500 to-teal-600"
+        gradient="bg-linear-to-br/oklab from-emerald-500 to-teal-600"
       />
 
       <Card>
@@ -1612,7 +1612,7 @@ function ModularPanel() {
         icon={Layers}
         title="Modular Arithmetic"
         description="Compute residues, modular inverses, and modular exponentiation."
-        gradient="bg-gradient-to-br from-orange-500 to-red-600"
+        gradient="bg-linear-to-br/oklab from-orange-500 to-red-600"
       />
 
       <Card>
@@ -2347,7 +2347,7 @@ function SievePanel() {
         icon={Grid}
         title="Sieve of Eratosthenes"
         description="GPU-compute accelerated prime sieve with animated step-through visualization up to 10,000."
-        gradient="bg-gradient-to-br from-cyan-500 to-blue-600"
+        gradient="bg-linear-to-br/oklab from-cyan-500 to-blue-600"
       />
 
       {/* Controls card */}
@@ -2410,7 +2410,7 @@ function SievePanel() {
                 className="flex-1 min-w-[120px]"
                 aria-label="Play sieve animation"
               >
-                <Play className="w-4 h-4 mr-2" />
+                <Play className="size-4 mr-2" />
                 {sieveState.currentPrime === -1 && !sieveState.done ? 'Start' : 'Resume'}
               </Button>
             ) : (
@@ -2420,7 +2420,7 @@ function SievePanel() {
                 className="flex-1 min-w-[120px]"
                 aria-label="Pause sieve animation"
               >
-                <Pause className="w-4 h-4 mr-2" />
+                <Pause className="size-4 mr-2" />
                 Pause
               </Button>
             )}
@@ -2430,30 +2430,30 @@ function SievePanel() {
               disabled={animating || sieveState.done}
               aria-label="Step forward one prime"
             >
-              <ChevronRight className="w-4 h-4 mr-1" />
+              <ChevronRight className="size-4 mr-1" />
               Step
             </Button>
             <Button variant="outline" onClick={reset} aria-label="Reset sieve">
-              <RotateCcw className="w-4 h-4" />
+              <RotateCcw className="size-4" />
             </Button>
           </div>
 
           {/* Legend */}
           <div className="flex flex-wrap gap-3 text-xs">
             <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-sm bg-muted-foreground/40 inline-block" />
+              <span className="size-3 rounded-sm bg-muted-foreground/40 inline-block" />
               Unchecked
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-sm bg-green-500 inline-block" />
+              <span className="size-3 rounded-sm bg-green-500 inline-block" />
               Prime
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-sm bg-red-500 inline-block" />
+              <span className="size-3 rounded-sm bg-red-500 inline-block" />
               Composite
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-sm bg-amber-500 inline-block" />
+              <span className="size-3 rounded-sm bg-amber-500 inline-block" />
               Current factor
             </span>
           </div>
@@ -2698,7 +2698,7 @@ function TotientPanel() {
         icon={Circle}
         title="Euler's Totient Function"
         description="Count integers coprime to n; foundational to RSA and number theory."
-        gradient="bg-gradient-to-br from-violet-500 to-purple-600"
+        gradient="bg-linear-to-br/oklab from-violet-500 to-purple-600"
       />
 
       <Card>
@@ -3030,7 +3030,7 @@ function FibLucasPanel() {
         icon={InfinityIcon}
         title="Fibonacci & Lucas Sequences"
         description="Explore the golden ratio and recurrence relations. GPU-accelerated bar chart."
-        gradient="bg-gradient-to-br from-amber-500 to-orange-600"
+        gradient="bg-linear-to-br/oklab from-amber-500 to-orange-600"
       />
 
       <Card>
@@ -3396,7 +3396,7 @@ function CollatzPanel() {
         icon={Shuffle}
         title="Collatz Conjecture"
         description="The 3n+1 problem: every positive integer eventually reaches 1. GPU-accelerated trajectory."
-        gradient="bg-gradient-to-br from-rose-500 to-pink-600"
+        gradient="bg-linear-to-br/oklab from-rose-500 to-pink-600"
       />
 
       <Card>
@@ -3412,7 +3412,7 @@ function CollatzPanel() {
             />
             <Button onClick={compute}>
               Compute
-              <ArrowRight className="w-4 h-4 ml-1" />
+              <ArrowRight className="size-4 ml-1" />
             </Button>
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
@@ -3487,7 +3487,7 @@ function CollatzPanel() {
                         <span key={collatzKey} className="font-mono">
                           {String(v)}
                           {seqPos < result.seq.length - 1 ? (
-                            <ArrowRight className="w-3 h-3 inline mx-0.5" />
+                            <ArrowRight className="size-3 inline mx-0.5" />
                           ) : null}
                         </span>
                       );
@@ -3550,12 +3550,12 @@ export default function NumberTheoryPage() {
       {/* Header */}
       <div className="mb-10">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold text-lg">
+          <div className="size-10 rounded-xl bg-linear-to-br/oklab from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold text-lg">
             ℕ
           </div>
           <div>
             <h1 className="text-4xl font-bold">
-              <span className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r/oklab from-green-500 via-emerald-500 to-teal-500 bg-clip-text text-transparent">
                 {t('title')}
               </span>
             </h1>
@@ -3594,7 +3594,7 @@ export default function NumberTheoryPage() {
               aria-pressed={activeTab === id}
               aria-label={`Open ${label} tool`}
             >
-              <Icon className="w-4 h-4" />
+              <Icon className="size-4" />
               {label}
             </button>
           ))}

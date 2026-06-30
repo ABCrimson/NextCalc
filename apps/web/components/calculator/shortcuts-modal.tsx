@@ -20,8 +20,8 @@
  *  - `Escape`          — close the dialog (Radix built-in, also caught in global handler)
  */
 
-import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { Keyboard, X } from 'lucide-react';
+import { AnimatePresence, m, useReducedMotion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Dialog,
@@ -222,7 +222,7 @@ function OnboardingTooltip({ visible, onDismiss }: OnboardingTooltipProps) {
               'text-sm text-popover-foreground',
             )}
           >
-            <Keyboard className="h-3.5 w-3.5 text-primary shrink-0" aria-hidden="true" />
+            <Keyboard className="size-3.5 text-primary shrink-0" aria-hidden="true" />
             <span>
               Press{' '}
               <kbd className="inline-flex items-center px-1.5 h-5 rounded border border-border bg-muted text-xs font-mono font-medium mx-0.5">
@@ -252,14 +252,14 @@ function OnboardingTooltip({ visible, onDismiss }: OnboardingTooltipProps) {
             className={cn(
               'absolute -top-2 -right-2',
               'pointer-events-auto',
-              'flex items-center justify-center w-5 h-5',
+              'flex items-center justify-center size-5',
               'rounded-full border border-border bg-background',
               'text-muted-foreground hover:text-foreground',
               'transition-colors duration-150',
               'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
             )}
           >
-            <X className="h-3 w-3" aria-hidden="true" />
+            <X className="size-3" aria-hidden="true" />
           </button>
         </m.div>
       )}
@@ -391,7 +391,7 @@ export function ShortcutsModal({ registerGlobalHotkey = true }: ShortcutsModalPr
             transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
             className={cn(
               'flex items-center justify-center',
-              'w-10 h-10 rounded-full',
+              'size-10 rounded-full',
               'border border-border/60',
               'bg-background/90 backdrop-blur-sm',
               'text-muted-foreground hover:text-foreground',
@@ -431,12 +431,12 @@ export function ShortcutsModal({ registerGlobalHotkey = true }: ShortcutsModalPr
               <div
                 className={cn(
                   'flex items-center justify-center',
-                  'w-8 h-8 rounded-lg',
+                  'size-8 rounded-lg',
                   'bg-primary/10 border border-primary/20',
                 )}
                 aria-hidden="true"
               >
-                <Keyboard className="h-4 w-4 text-primary" />
+                <Keyboard className="size-4 text-primary" />
               </div>
               <div>
                 <DialogTitle className="text-base font-semibold text-foreground">

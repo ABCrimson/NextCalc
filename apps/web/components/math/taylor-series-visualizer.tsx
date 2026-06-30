@@ -22,7 +22,6 @@
  * - TypeScript 6.0 strict + exactOptionalPropertyTypes
  */
 
-import { AnimatePresence, m } from 'framer-motion';
 import {
   ChevronRight,
   Pause,
@@ -32,6 +31,7 @@ import {
   SkipForward,
   Sparkles,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import type { ReactNode } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { AnalysisFunction } from '@/components/plots/PlotAnalysisPanel';
@@ -1298,7 +1298,7 @@ function GlassCard({ children, className }: GlassCardProps) {
     <div
       className={cn(
         'rounded-xl border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]',
-        'bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md',
+        'bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 backdrop-blur-md',
         className,
       )}
     >
@@ -1572,7 +1572,7 @@ export function TaylorSeriesVisualizer() {
       {/* Preset chips row */}
       <GlassCard className="p-5">
         <div className="flex items-center gap-2 mb-3">
-          <Sparkles className="h-4 w-4 text-primary/70" aria-hidden />
+          <Sparkles className="size-4 text-primary/70" aria-hidden />
           <span className="text-sm font-medium text-muted-foreground">Function Presets</span>
         </div>
         <fieldset
@@ -1769,7 +1769,7 @@ export function TaylorSeriesVisualizer() {
                 onClick={handleReset}
                 aria-label="Reset to first term"
               >
-                <RotateCcw className="h-4 w-4" />
+                <RotateCcw className="size-4" />
               </Button>
               <Button
                 variant="outline"
@@ -1778,7 +1778,7 @@ export function TaylorSeriesVisualizer() {
                 disabled={visibleTerms <= 1}
                 aria-label="Previous term"
               >
-                <SkipBack className="h-4 w-4" />
+                <SkipBack className="size-4" />
               </Button>
               <Button
                 variant={isPlaying ? 'default' : 'outline'}
@@ -1787,7 +1787,7 @@ export function TaylorSeriesVisualizer() {
                 disabled={visibleTerms >= maxVisible && !isPlaying}
                 aria-label={isPlaying ? 'Pause animation' : 'Play animation'}
               >
-                {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                {isPlaying ? <Pause className="size-4" /> : <Play className="size-4" />}
               </Button>
               <Button
                 variant="outline"
@@ -1796,7 +1796,7 @@ export function TaylorSeriesVisualizer() {
                 disabled={visibleTerms >= maxVisible}
                 aria-label="Next term"
               >
-                <SkipForward className="h-4 w-4" />
+                <SkipForward className="size-4" />
               </Button>
 
               <div className="w-32">
@@ -1833,7 +1833,7 @@ export function TaylorSeriesVisualizer() {
       {/* Polynomial formula */}
       <GlassCard className="p-5">
         <h3 className="text-sm font-medium flex items-center gap-2 mb-3">
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="size-4" />
           Taylor Polynomial T_{visibleTerms}(x)
         </h3>
         <div className="p-4 bg-muted/20 rounded-lg overflow-x-auto border border-border/40">

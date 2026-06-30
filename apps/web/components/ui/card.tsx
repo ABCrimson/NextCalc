@@ -8,6 +8,7 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 function Card({ className, ref, ...props }: CardProps) {
   return (
     <div
+      data-slot="card"
       ref={ref}
       className={cn(
         'rounded-xl border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-lg hover:shadow-primary/5',
@@ -23,7 +24,14 @@ interface CardHeaderProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 function CardHeader({ className, ref, ...props }: CardHeaderProps) {
-  return <div ref={ref} className={cn('flex flex-col space-y-1.5 p-6', className)} {...props} />;
+  return (
+    <div
+      data-slot="card-header"
+      ref={ref}
+      className={cn('flex flex-col space-y-1.5 p-6', className)}
+      {...props}
+    />
+  );
 }
 
 interface CardTitleProps extends HTMLAttributes<HTMLHeadingElement> {
@@ -33,6 +41,7 @@ interface CardTitleProps extends HTMLAttributes<HTMLHeadingElement> {
 function CardTitle({ className, ref, ...props }: CardTitleProps) {
   return (
     <h3
+      data-slot="card-title"
       ref={ref}
       className={cn('text-2xl font-semibold leading-none tracking-tight', className)}
       {...props}
@@ -45,7 +54,14 @@ interface CardDescriptionProps extends HTMLAttributes<HTMLParagraphElement> {
 }
 
 function CardDescription({ className, ref, ...props }: CardDescriptionProps) {
-  return <p ref={ref} className={cn('text-sm text-muted-foreground', className)} {...props} />;
+  return (
+    <p
+      data-slot="card-description"
+      ref={ref}
+      className={cn('text-sm text-muted-foreground', className)}
+      {...props}
+    />
+  );
 }
 
 interface CardContentProps extends HTMLAttributes<HTMLDivElement> {
@@ -53,7 +69,9 @@ interface CardContentProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 function CardContent({ className, ref, ...props }: CardContentProps) {
-  return <div ref={ref} className={cn('p-6 pt-0', className)} {...props} />;
+  return (
+    <div data-slot="card-content" ref={ref} className={cn('p-6 pt-0', className)} {...props} />
+  );
 }
 
 interface CardFooterProps extends HTMLAttributes<HTMLDivElement> {
@@ -61,7 +79,14 @@ interface CardFooterProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 function CardFooter({ className, ref, ...props }: CardFooterProps) {
-  return <div ref={ref} className={cn('flex items-center p-6 pt-0', className)} {...props} />;
+  return (
+    <div
+      data-slot="card-footer"
+      ref={ref}
+      className={cn('flex items-center p-6 pt-0', className)}
+      {...props}
+    />
+  );
 }
 
 export { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle };

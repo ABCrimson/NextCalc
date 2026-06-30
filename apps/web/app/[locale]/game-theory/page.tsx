@@ -1,8 +1,8 @@
 'use client';
 
 import { NormalFormGame } from '@nextcalc/math-engine/game-theory/game-theory';
-import { AnimatePresence, m } from 'framer-motion';
 import { Brain, ChevronRight, Target, TrendingUp, Users } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -500,7 +500,7 @@ function PresetButton({ preset, isActive, onClick }: PresetButtonProps) {
     >
       <ChevronRight
         className={[
-          'w-3.5 h-3.5 mt-0.5 shrink-0 transition-transform duration-200',
+          'size-3.5 mt-0.5 shrink-0 transition-transform duration-200',
           isActive ? 'text-primary rotate-90' : 'text-muted-foreground group-hover:text-primary',
         ].join(' ')}
         aria-hidden="true"
@@ -530,8 +530,8 @@ function MatrixCell({ row, col, payoffs, isNashEquilibrium, onUpdate }: MatrixCe
       className={[
         'relative rounded-lg border p-2.5 transition-all duration-200',
         isNashEquilibrium
-          ? 'bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 border-primary/50 shadow-[0_0_12px_0_oklch(0.65_0.22_264_/_0.25)]'
-          : 'bg-gradient-to-br from-background/80 to-card/60 border-border/70 hover:border-border',
+          ? 'bg-linear-to-br/oklab from-primary/20 via-primary/10 to-primary/5 border-primary/50 shadow-[0_0_12px_0_oklch(0.65_0.22_264_/_0.25)]'
+          : 'bg-linear-to-br/oklab from-background/80 to-card/60 border-border/70 hover:border-border',
       ].join(' ')}
       aria-label={`Cell row ${row + 1} column ${col + 1}${isNashEquilibrium ? ', Nash equilibrium' : ''}`}
     >
@@ -539,7 +539,7 @@ function MatrixCell({ row, col, payoffs, isNashEquilibrium, onUpdate }: MatrixCe
         <m.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-primary rounded-full border-2 border-background shadow-sm"
+          className="absolute -top-1.5 -right-1.5 size-3.5 bg-primary rounded-full border-2 border-background shadow-sm"
           aria-hidden="true"
         />
       )}
@@ -673,7 +673,7 @@ export default function GameTheoryPage() {
         : colLabels;
 
   return (
-    <main className="min-h-screen py-12 px-4 bg-gradient-to-br from-background via-background/95 to-background">
+    <main className="min-h-screen py-12 px-4 bg-linear-to-br/oklab from-background via-background/95 to-background">
       {/* Background texture */}
       <div
         className="fixed inset-0 pointer-events-none opacity-[0.025]"
@@ -693,11 +693,11 @@ export default function GameTheoryPage() {
           transition={{ type: 'spring', stiffness: 260, damping: 28 }}
         >
           <div className="flex items-center gap-4 mb-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-[oklch(0.63_0.20_300)]/20 border border-primary/30 shadow-[0_0_20px_0_oklch(0.55_0.27_264_/_0.2)]">
-              <Brain className="w-8 h-8 text-primary" aria-hidden="true" />
+            <div className="p-2.5 rounded-xl bg-linear-to-br/oklab from-primary/20 to-[oklch(0.63_0.20_300)]/20 border border-primary/30 shadow-[0_0_20px_0_oklch(0.55_0.27_264_/_0.2)]">
+              <Brain className="size-8 text-primary" aria-hidden="true" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-[oklch(0.65_0.22_200)] to-[oklch(0.63_0.20_300)] bg-clip-text text-transparent leading-tight">
+              <h1 className="text-4xl font-bold bg-linear-to-r/oklab from-primary via-[oklch(0.65_0.22_200)] to-[oklch(0.63_0.20_300)] bg-clip-text text-transparent leading-tight">
                 {t('title')}
               </h1>
               <p className="text-base text-muted-foreground mt-0.5">{t('subtitle')}</p>
@@ -708,21 +708,21 @@ export default function GameTheoryPage() {
               variant="outline"
               className="border-primary/40 text-primary bg-primary/8 text-xs"
             >
-              <Target className="w-3 h-3 mr-1.5" aria-hidden="true" />
+              <Target className="size-3 mr-1.5" aria-hidden="true" />
               {t('nashEquilibriumBadge')}
             </Badge>
             <Badge
               variant="outline"
               className="border-[oklch(0.65_0.20_155)]/40 text-[oklch(0.65_0.20_155)] bg-[oklch(0.65_0.20_155)]/8 text-xs"
             >
-              <TrendingUp className="w-3 h-3 mr-1.5" aria-hidden="true" />
+              <TrendingUp className="size-3 mr-1.5" aria-hidden="true" />
               {t('dominatedStrategies')}
             </Badge>
             <Badge
               variant="outline"
               className="border-[oklch(0.63_0.20_300)]/40 text-[oklch(0.63_0.20_300)] bg-[oklch(0.63_0.20_300)]/8 text-xs"
             >
-              <Users className="w-3 h-3 mr-1.5" aria-hidden="true" />
+              <Users className="size-3 mr-1.5" aria-hidden="true" />
               {t('twoPlayerNormalForm')}
             </Badge>
           </div>
@@ -736,7 +736,7 @@ export default function GameTheoryPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ type: 'spring', stiffness: 260, damping: 28, delay: 0.1 }}
           >
-            <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)] h-full">
+            <Card className="bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)] h-full">
               <CardHeader className="pb-4">
                 <CardTitle className="text-foreground text-lg">{t('gameSetup')}</CardTitle>
                 <CardDescription>{t('gameSetupDesc')}</CardDescription>
@@ -791,10 +791,10 @@ export default function GameTheoryPage() {
                 {/* Analyze button */}
                 <Button
                   onClick={analyzeGame}
-                  className="w-full bg-gradient-to-r from-primary to-[oklch(0.63_0.20_300)] hover:from-primary/90 hover:to-[oklch(0.63_0.20_300)]/90 text-primary-foreground shadow-[0_4px_16px_0_oklch(0.55_0.27_264_/_0.35)] hover:shadow-[0_6px_20px_0_oklch(0.55_0.27_264_/_0.45)] transition-all duration-200"
+                  className="w-full bg-linear-to-r/oklab from-primary to-[oklch(0.63_0.20_300)] hover:from-primary/90 hover:to-[oklch(0.63_0.20_300)]/90 text-primary-foreground shadow-[0_4px_16px_0_oklch(0.55_0.27_264_/_0.35)] hover:shadow-[0_6px_20px_0_oklch(0.55_0.27_264_/_0.45)] transition-all duration-200"
                   size="lg"
                 >
-                  <Target className="w-4 h-4 mr-2" aria-hidden="true" />
+                  <Target className="size-4 mr-2" aria-hidden="true" />
                   {t('findNashEquilibrium')}
                 </Button>
               </CardContent>
@@ -807,12 +807,12 @@ export default function GameTheoryPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ type: 'spring', stiffness: 260, damping: 28, delay: 0.15 }}
           >
-            <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
+            <Card className="bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <CardTitle className="flex items-center gap-2 text-foreground text-lg">
-                      <Users className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
+                      <Users className="size-4 text-muted-foreground" aria-hidden="true" />
                       {t('payoffMatrix')}
                     </CardTitle>
                     <CardDescription className="mt-1">
@@ -842,14 +842,14 @@ export default function GameTheoryPage() {
                 <div className="flex items-center gap-4 mb-4 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1.5">
                     <span
-                      className="w-2.5 h-2.5 rounded-full bg-primary/70 inline-block"
+                      className="size-2.5 rounded-full bg-primary/70 inline-block"
                       aria-hidden="true"
                     />
                     {t('playerRows')}
                   </span>
                   <span className="flex items-center gap-1.5">
                     <span
-                      className="w-2.5 h-2.5 rounded-full bg-[oklch(0.63_0.20_300)]/70 inline-block"
+                      className="size-2.5 rounded-full bg-[oklch(0.63_0.20_300)]/70 inline-block"
                       aria-hidden="true"
                     />
                     {t('playerCols')}
@@ -857,7 +857,7 @@ export default function GameTheoryPage() {
                   {result && result.nashEquilibria.length > 0 && (
                     <span className="flex items-center gap-1.5">
                       <span
-                        className="w-2.5 h-2.5 rounded-full bg-primary inline-block ring-2 ring-background"
+                        className="size-2.5 rounded-full bg-primary inline-block ring-2 ring-background"
                         aria-hidden="true"
                       />
                       Nash equilibrium
@@ -946,10 +946,10 @@ export default function GameTheoryPage() {
               className="grid gap-6 lg:grid-cols-2 mt-6"
             >
               {/* Nash Equilibria */}
-              <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
+              <Card className="bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-lg">
-                    <div className="w-2 h-2 rounded-full bg-primary shrink-0" aria-hidden="true" />
+                    <div className="size-2 rounded-full bg-primary shrink-0" aria-hidden="true" />
                     {t('nashEquilibria')}
                   </CardTitle>
                   <CardDescription>{t('nashDesc')}</CardDescription>
@@ -973,7 +973,7 @@ export default function GameTheoryPage() {
                           <m.div
                             key={`${eq.player1}-${eq.player2}`}
                             variants={fadeInUp}
-                            className="p-4 rounded-xl bg-gradient-to-br from-primary/15 via-primary/8 to-transparent border border-primary/30 shadow-[inset_0_1px_0_0_oklch(1_0_0_/_0.08)]"
+                            className="p-4 rounded-xl bg-linear-to-br/oklab from-primary/15 via-primary/8 to-transparent border border-primary/30 shadow-[inset_0_1px_0_0_oklch(1_0_0_/_0.08)]"
                           >
                             <div className="flex items-center justify-between mb-3">
                               <span className="text-sm font-semibold text-foreground">
@@ -1023,8 +1023,8 @@ export default function GameTheoryPage() {
                       animate={{ opacity: 1 }}
                       className="flex flex-col items-center justify-center py-10 text-center gap-3"
                     >
-                      <div className="w-12 h-12 rounded-full bg-muted/60 border border-border flex items-center justify-center">
-                        <Target className="w-5 h-5 text-muted-foreground" aria-hidden="true" />
+                      <div className="size-12 rounded-full bg-muted/60 border border-border flex items-center justify-center">
+                        <Target className="size-5 text-muted-foreground" aria-hidden="true" />
                       </div>
                       <div>
                         <div className="text-sm font-medium text-foreground">{t('noPureNash')}</div>
@@ -1038,11 +1038,11 @@ export default function GameTheoryPage() {
               </Card>
 
               {/* Dominated Strategies */}
-              <Card className="bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
+              <Card className="bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <div
-                      className="w-2 h-2 rounded-full bg-destructive shrink-0"
+                      className="size-2 rounded-full bg-destructive shrink-0"
                       aria-hidden="true"
                     />
                     {t('dominatedStrategies')}
@@ -1167,7 +1167,7 @@ export default function GameTheoryPage() {
                 whileHover="hover"
                 className={[
                   'group p-5 rounded-xl border transition-all duration-300',
-                  'bg-gradient-to-br',
+                  'bg-linear-to-br/oklab',
                   accentFrom,
                   accentTo,
                   borderColor,

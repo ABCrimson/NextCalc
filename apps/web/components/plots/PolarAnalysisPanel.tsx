@@ -13,7 +13,6 @@
  * @module components/plots/PolarAnalysisPanel
  */
 
-import { AnimatePresence, m } from 'framer-motion';
 import {
   ChevronDown,
   ChevronRight,
@@ -24,6 +23,7 @@ import {
   Radar,
   Shapes,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -491,7 +491,7 @@ function SymmetryBadges({ symmetry, color }: { symmetry: SymmetryInfo; color: st
           style={badge.active ? { borderLeftColor: color, borderLeftWidth: 2 } : undefined}
         >
           {badge.active && (
-            <span className="w-1.5 h-1.5 rounded-full mr-1.5 bg-purple-400 shadow-[0_0_6px_oklch(0.6268_0.2325_303.9_/_0.5)]" />
+            <span className="size-1.5 rounded-full mr-1.5 bg-purple-400 shadow-[0_0_6px_oklch(0.6268_0.2325_303.9_/_0.5)]" />
           )}
           {badge.label}
         </span>
@@ -518,7 +518,7 @@ export function PolarAnalysisPanel({
     <section
       className={[
         'rounded-xl overflow-hidden',
-        'bg-gradient-to-br from-background/60 via-card/50 to-background/60',
+        'bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60',
         'backdrop-blur-md border border-border',
         'shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]',
         className,
@@ -540,13 +540,13 @@ export function PolarAnalysisPanel({
         aria-controls="polar-analysis-panel-body"
       >
         <div className="flex items-center gap-2">
-          <Compass className="h-4 w-4 text-purple-400" />
+          <Compass className="size-4 text-purple-400" />
           <span>Polar Analysis</span>
         </div>
         {isOpen ? (
-          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          <ChevronDown className="size-4 text-muted-foreground" />
         ) : (
-          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          <ChevronRight className="size-4 text-muted-foreground" />
         )}
       </button>
 
@@ -568,7 +568,7 @@ export function PolarAnalysisPanel({
                     {/* Function header with color swatch */}
                     <div className="flex items-center gap-2 mb-1">
                       <span
-                        className="inline-block w-3 h-3 rounded-full ring-1 ring-white/20"
+                        className="inline-block size-3 rounded-full ring-1 ring-white/20"
                         style={{ background: analysis.color }}
                         aria-hidden="true"
                       />
@@ -583,7 +583,7 @@ export function PolarAnalysisPanel({
                     <div className="space-y-2">
                       {/* Curve Type */}
                       <AnalysisRow
-                        icon={<Shapes className="h-3 w-3" />}
+                        icon={<Shapes className="size-3" />}
                         label="Curve Type"
                         value={analysis.curveType}
                         color={analysis.color}
@@ -592,7 +592,7 @@ export function PolarAnalysisPanel({
                       {/* Symmetry */}
                       <div className="flex items-start gap-2 text-xs">
                         <span className="shrink-0 mt-0.5" style={{ color: analysis.color }}>
-                          <FlipHorizontal className="h-3 w-3" />
+                          <FlipHorizontal className="size-3" />
                         </span>
                         <span className="text-muted-foreground shrink-0">Symmetry</span>
                         <div className="ml-auto">
@@ -602,7 +602,7 @@ export function PolarAnalysisPanel({
 
                       {/* Petals / Loops */}
                       <AnalysisRow
-                        icon={<Flower2 className="h-3 w-3" />}
+                        icon={<Flower2 className="size-3" />}
                         label="Petals / Loops"
                         value={analysis.petalCount > 0 ? String(analysis.petalCount) : 'N/A'}
                         color={analysis.color}
@@ -610,7 +610,7 @@ export function PolarAnalysisPanel({
 
                       {/* Max Radius */}
                       <AnalysisRow
-                        icon={<Maximize2 className="h-3 w-3" />}
+                        icon={<Maximize2 className="size-3" />}
                         label="Max Radius"
                         value={fmt(analysis.maxRadius)}
                         color={analysis.color}
@@ -618,7 +618,7 @@ export function PolarAnalysisPanel({
 
                       {/* Enclosed Area */}
                       <AnalysisRow
-                        icon={<Radar className="h-3 w-3" />}
+                        icon={<Radar className="size-3" />}
                         label="Enclosed Area"
                         value={fmt(analysis.enclosedArea)}
                         color={analysis.color}

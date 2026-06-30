@@ -1,7 +1,7 @@
 'use client';
 
 import type { AngleMode, CalculatorAction } from '@nextcalc/types';
-import { m } from 'framer-motion';
+import { m } from 'motion/react';
 import { useCallback, useEffect, useRef } from 'react';
 
 // ---------------------------------------------------------------------------
@@ -124,27 +124,27 @@ const BASE =
 function getButtonStyle(kind: ButtonKind, isActiveToggle = false): string {
   switch (kind) {
     case 'equals':
-      return `${BASE} bg-gradient-to-br from-calculator-equals to-calculator-equals/80 hover:from-calculator-equals-hover hover:to-calculator-equals-hover/80 text-white shadow-lg shadow-calculator-equals/30 hover:shadow-xl hover:shadow-calculator-equals/50 ring-1 ring-white/10`;
+      return `${BASE} bg-linear-to-br/oklab from-calculator-equals to-calculator-equals/80 hover:from-calculator-equals-hover hover:to-calculator-equals-hover/80 text-white shadow-lg shadow-calculator-equals/30 hover:shadow-xl hover:shadow-calculator-equals/50 ring-1 ring-white/10`;
 
     case 'operator':
-      return `${BASE} bg-gradient-to-br from-calculator-operator to-calculator-operator/80 hover:from-calculator-operator-hover hover:to-calculator-operator-hover/80 text-white shadow-lg shadow-calculator-operator/30 hover:shadow-xl hover:shadow-calculator-operator/50 ring-1 ring-white/10`;
+      return `${BASE} bg-linear-to-br/oklab from-calculator-operator to-calculator-operator/80 hover:from-calculator-operator-hover hover:to-calculator-operator-hover/80 text-white shadow-lg shadow-calculator-operator/30 hover:shadow-xl hover:shadow-calculator-operator/50 ring-1 ring-white/10`;
 
     case 'clear':
-      return `${BASE} bg-gradient-to-br from-destructive to-destructive/80 hover:from-destructive/90 hover:to-destructive/70 text-white shadow-lg shadow-destructive/30 hover:shadow-xl hover:shadow-destructive/50 ring-1 ring-white/10`;
+      return `${BASE} bg-linear-to-br/oklab from-destructive to-destructive/80 hover:from-destructive/90 hover:to-destructive/70 text-white shadow-lg shadow-destructive/30 hover:shadow-xl hover:shadow-destructive/50 ring-1 ring-white/10`;
 
     case 'scientific':
-      return `${BASE} bg-gradient-to-br from-calculator-special to-calculator-special/80 hover:from-calculator-special-hover hover:to-calculator-special-hover/80 text-white shadow-md shadow-calculator-special/20 hover:shadow-lg hover:shadow-calculator-special/40 ring-1 ring-white/10`;
+      return `${BASE} bg-linear-to-br/oklab from-calculator-special to-calculator-special/80 hover:from-calculator-special-hover hover:to-calculator-special-hover/80 text-white shadow-md shadow-calculator-special/20 hover:shadow-lg hover:shadow-calculator-special/40 ring-1 ring-white/10`;
 
     case 'memory':
-      return `${BASE} bg-gradient-to-br from-violet-600 to-violet-600/80 hover:from-violet-500 hover:to-violet-500/80 text-white shadow-md shadow-violet-600/20 hover:shadow-lg hover:shadow-violet-600/40 ring-1 ring-white/10`;
+      return `${BASE} bg-linear-to-br/oklab from-violet-600 to-violet-600/80 hover:from-violet-500 hover:to-violet-500/80 text-white shadow-md shadow-violet-600/20 hover:shadow-lg hover:shadow-violet-600/40 ring-1 ring-white/10`;
 
     case 'angle-toggle':
       return isActiveToggle
-        ? `${BASE} bg-gradient-to-br from-amber-500 to-amber-500/80 hover:from-amber-400 hover:to-amber-400/80 text-white shadow-md shadow-amber-500/30 hover:shadow-lg hover:shadow-amber-500/50 ring-1 ring-white/10`
-        : `${BASE} bg-gradient-to-br from-amber-700/60 to-amber-700/40 hover:from-amber-600/70 hover:to-amber-600/50 text-white shadow-md ring-1 ring-white/10`;
+        ? `${BASE} bg-linear-to-br/oklab from-amber-500 to-amber-500/80 hover:from-amber-400 hover:to-amber-400/80 text-white shadow-md shadow-amber-500/30 hover:shadow-lg hover:shadow-amber-500/50 ring-1 ring-white/10`
+        : `${BASE} bg-linear-to-br/oklab from-amber-700/60 to-amber-700/40 hover:from-amber-600/70 hover:to-amber-600/50 text-white shadow-md ring-1 ring-white/10`;
 
     default:
-      return `${BASE} bg-gradient-to-br from-calculator-button to-calculator-button/90 hover:from-calculator-button-hover hover:to-calculator-button-hover/90 text-foreground shadow-md hover:shadow-lg border border-border/50 hover:border-border/70`;
+      return `${BASE} bg-linear-to-br/oklab from-calculator-button to-calculator-button/90 hover:from-calculator-button-hover hover:to-calculator-button-hover/90 text-foreground shadow-md hover:shadow-lg border border-border/50 hover:border-border/70`;
   }
 }
 
@@ -282,7 +282,7 @@ export function Keyboard({
         </span>
         {/* Shine sweep */}
         <m.div
-          className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent"
+          className="absolute inset-0 bg-linear-to-tr/oklab from-transparent via-white/10 to-transparent"
           initial={{ x: '-100%' }}
           whileHover={{ x: '100%' }}
           transition={{ duration: 0.6 }}
@@ -312,7 +312,7 @@ export function Keyboard({
           aria-live="polite"
           aria-label={`Memory contains ${memory}`}
         >
-          <span className="inline-block w-2 h-2 rounded-full bg-violet-400" aria-hidden="true" />M ={' '}
+          <span className="inline-block size-2 rounded-full bg-violet-400" aria-hidden="true" />M ={' '}
           {memory}
         </div>
       )}

@@ -15,7 +15,7 @@
 
 ### What's New
 
-> **Modernization (unreleased)** — every dependency pushed to its absolute-newest version, code rewritten to the newest idioms, and a full Biome lint sweep (2,222 warnings → 0). Last release: **v1.2.2**. Full detail in [CHANGELOG.md](CHANGELOG.md).
+> **Current release: v1.4.0** — idiom modernization across the stack (the newest idioms of each pinned dependency, behavior-preserving) plus a forum localization fix, built on the v1.3.0 push-to-newest dependency sweep. Full detail in [CHANGELOG.md](CHANGELOG.md).
 
 <details>
 <summary><strong>Highlights</strong></summary>

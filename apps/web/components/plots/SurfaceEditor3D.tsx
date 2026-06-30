@@ -304,7 +304,7 @@ export function SurfaceEditor3D({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Shapes className="h-5 w-5" />
+              <Shapes className="size-5" />
               3D Surface Editor
             </CardTitle>
             <CardDescription>Create and customize 3D surfaces</CardDescription>
@@ -313,14 +313,14 @@ export function SurfaceEditor3D({
             {/* Preset Shapes */}
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
-                <Box className="h-4 w-4" />
+                <Box className="size-4" />
                 Preset Shapes
               </Label>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="w-full justify-between">
                     <span>{PRESET_SHAPES[selectedPreset].name}</span>
-                    <Sparkles className="h-4 w-4" />
+                    <Sparkles className="size-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-full max-h-96 overflow-y-auto">
@@ -367,7 +367,7 @@ export function SurfaceEditor3D({
             {/* Error Display */}
             {error && (
               <Alert variant="destructive">
-                <Info className="h-4 w-4" />
+                <Info className="size-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
@@ -376,7 +376,7 @@ export function SurfaceEditor3D({
             <div className="space-y-2">
               <Label className="flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  <Grid3x3 className="h-4 w-4" />
+                  <Grid3x3 className="size-4" />
                   Resolution
                 </span>
                 <span className="text-sm font-mono">
@@ -396,7 +396,7 @@ export function SurfaceEditor3D({
               {/* Performance warning for high resolutions */}
               {resolution > 300 && (
                 <Alert variant={resolution > 500 ? 'destructive' : 'default'} className="mt-2">
-                  <Info className="h-4 w-4" />
+                  <Info className="size-4" />
                   <AlertDescription>
                     {resolution > 500 ? (
                       <>
@@ -424,14 +424,14 @@ export function SurfaceEditor3D({
             {/* Color Map */}
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
-                <Palette className="h-4 w-4" />
+                <Palette className="size-4" />
                 Color Map
               </Label>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="w-full justify-between capitalize">
                     {colorMap}
-                    <Palette className="h-4 w-4" />
+                    <Palette className="size-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-full max-h-96 overflow-y-auto">
@@ -451,7 +451,7 @@ export function SurfaceEditor3D({
             {/* Wireframe Toggle */}
             <div className="flex items-center justify-between">
               <Label htmlFor="wireframe" className="flex items-center gap-2">
-                <Waves className="h-4 w-4" />
+                <Waves className="size-4" />
                 Wireframe Mode
               </Label>
               <Button
@@ -467,7 +467,7 @@ export function SurfaceEditor3D({
             {/* HDR Environment Map Toggle */}
             <div className="flex items-center justify-between">
               <Label htmlFor="hdr-env" className="flex items-center gap-2">
-                <Lightbulb className="h-4 w-4" />
+                <Lightbulb className="size-4" />
                 <span>
                   HDR Lighting
                   <span className="block text-[10px] text-muted-foreground font-normal leading-tight">
@@ -499,7 +499,7 @@ export function SurfaceEditor3D({
                         className="w-full justify-between text-xs"
                       >
                         {SPACE_THEMES.find((t) => t.id === spaceTheme)?.label ?? spaceTheme}
-                        <Lightbulb className="h-3 w-3" />
+                        <Lightbulb className="size-3" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-full">
@@ -546,7 +546,7 @@ export function SurfaceEditor3D({
             {/* SSAO Toggle */}
             <div className="flex items-center justify-between">
               <Label htmlFor="ssao" className="flex items-center gap-2">
-                <ScanLine className="h-4 w-4" />
+                <ScanLine className="size-4" />
                 <span>
                   SSAO
                   <span className="block text-[10px] text-muted-foreground font-normal leading-tight">

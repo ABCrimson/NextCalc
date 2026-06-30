@@ -7,7 +7,7 @@
  * @module animations/calculator-animations
  */
 
-import type { Transition, Variants } from 'framer-motion';
+import type { Transition, Variants } from 'motion/react';
 
 /**
  * Creates a reduced motion version of animation variants

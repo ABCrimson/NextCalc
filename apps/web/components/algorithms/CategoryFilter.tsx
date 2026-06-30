@@ -121,7 +121,7 @@ export function CategoryFilter({
             className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded-sm px-2 py-1"
             aria-label={t('clearAllFilters')}
           >
-            <X className="h-4 w-4" aria-hidden="true" />
+            <X className="size-4" aria-hidden="true" />
             {t('filter.clearAll')}
           </button>
         )}
@@ -134,7 +134,7 @@ export function CategoryFilter({
         </Label>
         <div className="relative">
           <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+            className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
             aria-hidden="true"
           />
           <Input

@@ -199,7 +199,7 @@ export function FunctionInput({
           disabled={localFunctions.length >= maxFunctions}
           className="text-xs"
         >
-          <Plus className="h-3 w-3 mr-1" />
+          <Plus className="size-3 mr-1" />
           Add Function
         </Button>
       </div>
@@ -217,7 +217,7 @@ export function FunctionInput({
                   type="color"
                   value={fn.color}
                   onChange={(e) => handleColorChange(fn.id, e.target.value)}
-                  className="w-8 h-8 rounded cursor-pointer border-2 border-border"
+                  className="size-8 rounded cursor-pointer border-2 border-border"
                   aria-label={`Color for ${fn.label}`}
                 />
               </div>
@@ -257,13 +257,13 @@ export function FunctionInput({
                   <div className="mt-1 flex items-center gap-1 text-xs">
                     {fn.expression && fn.isValid && (
                       <>
-                        <CheckCircle2 className="h-3 w-3 text-green-400" />
+                        <CheckCircle2 className="size-3 text-green-400" />
                         <span className="text-green-400">Valid</span>
                       </>
                     )}
                     {fn.expression && !fn.isValid && fn.error && (
                       <>
-                        <AlertCircle className="h-3 w-3 text-red-400" />
+                        <AlertCircle className="size-3 text-red-400" />
                         <span className="text-red-400">{fn.error}</span>
                       </>
                     )}
@@ -278,7 +278,7 @@ export function FunctionInput({
                 className="flex-shrink-0 p-1 rounded hover:bg-muted text-muted-foreground hover:text-red-400 transition-colors"
                 aria-label={`Remove ${fn.label}`}
               >
-                <X className="h-4 w-4" />
+                <X className="size-4" />
               </button>
             </div>
           </div>

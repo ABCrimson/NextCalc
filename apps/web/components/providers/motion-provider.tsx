@@ -21,7 +21,7 @@
  * @see https://www.framer.com/motion/lazy-motion/
  */
 
-import { domAnimation, LazyMotion } from 'framer-motion';
+import { domAnimation, LazyMotion } from 'motion/react';
 import type { ReactNode } from 'react';
 
 export function MotionProvider({ children }: { children: ReactNode }) {

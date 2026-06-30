@@ -26,12 +26,12 @@ export default function NotFound() {
   const router = useRouter();
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4 bg-gradient-to-br from-background via-background/95 to-background relative overflow-hidden">
+    <div className="flex min-h-screen items-center justify-center p-4 bg-linear-to-br/oklab from-background via-background/95 to-background relative overflow-hidden">
       {/* Animated background elements */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-20 left-20 size-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
         <div
-          className="absolute bottom-20 right-20 w-96 h-96 bg-calculator-operator/10 rounded-full blur-3xl animate-pulse"
+          className="absolute bottom-20 right-20 size-96 bg-calculator-operator/10 rounded-full blur-3xl animate-pulse"
           style={{ animationDelay: '1s' }}
         />
       </div>
@@ -40,10 +40,10 @@ export default function NotFound() {
         <div className="text-center space-y-8">
           {/* Large 404 */}
           <div className="space-y-4">
-            <h1 className="text-9xl font-bold bg-gradient-to-r from-primary via-calculator-operator to-calculator-equals bg-clip-text text-transparent">
+            <h1 className="text-9xl font-bold bg-linear-to-r/oklab from-primary via-calculator-operator to-calculator-equals bg-clip-text text-transparent">
               {t('error.notFound.code' as Parameters<typeof t>[0])}
             </h1>
-            <div className="h-1 w-32 mx-auto bg-gradient-to-r from-primary via-calculator-operator to-calculator-equals rounded-full" />
+            <div className="h-1 w-32 mx-auto bg-linear-to-r/oklab from-primary via-calculator-operator to-calculator-equals rounded-full" />
           </div>
 
           {/* Error Message */}
@@ -66,10 +66,10 @@ export default function NotFound() {
               <Link href="/" className="group">
                 <Button
                   variant="outline"
-                  className="w-full bg-gradient-to-br from-blue-900/30 to-blue-800/30 border-blue-500/40 hover:border-blue-400/70 hover:bg-blue-900/50 transition-all"
+                  className="w-full bg-linear-to-br/oklab from-blue-900/30 to-blue-800/30 border-blue-500/40 hover:border-blue-400/70 hover:bg-blue-900/50 transition-all"
                   size="lg"
                 >
-                  <Home className="h-5 w-5 mr-2" />
+                  <Home className="size-5 mr-2" />
                   <span>{t('error.notFound.home' as Parameters<typeof t>[0])}</span>
                 </Button>
               </Link>
@@ -77,10 +77,10 @@ export default function NotFound() {
               <Link href="/plot" className="group">
                 <Button
                   variant="outline"
-                  className="w-full bg-gradient-to-br from-purple-900/30 to-purple-800/30 border-purple-500/40 hover:border-purple-400/70 hover:bg-purple-900/50 transition-all"
+                  className="w-full bg-linear-to-br/oklab from-purple-900/30 to-purple-800/30 border-purple-500/40 hover:border-purple-400/70 hover:bg-purple-900/50 transition-all"
                   size="lg"
                 >
-                  <TrendingUp className="h-5 w-5 mr-2" />
+                  <TrendingUp className="size-5 mr-2" />
                   <span>{t('error.notFound.plotFunctions' as Parameters<typeof t>[0])}</span>
                 </Button>
               </Link>
@@ -88,10 +88,10 @@ export default function NotFound() {
               <Link href="/symbolic" className="group">
                 <Button
                   variant="outline"
-                  className="w-full bg-gradient-to-br from-emerald-900/30 to-emerald-800/30 border-emerald-500/40 hover:border-emerald-400/70 hover:bg-emerald-900/50 transition-all"
+                  className="w-full bg-linear-to-br/oklab from-emerald-900/30 to-emerald-800/30 border-emerald-500/40 hover:border-emerald-400/70 hover:bg-emerald-900/50 transition-all"
                   size="lg"
                 >
-                  <Variable className="h-5 w-5 mr-2" />
+                  <Variable className="size-5 mr-2" />
                   <span>{t('error.notFound.symbolicMath' as Parameters<typeof t>[0])}</span>
                 </Button>
               </Link>
@@ -99,10 +99,10 @@ export default function NotFound() {
               <Link href="/" className="group">
                 <Button
                   variant="outline"
-                  className="w-full bg-gradient-to-br from-rose-900/30 to-rose-800/30 border-rose-500/40 hover:border-rose-400/70 hover:bg-rose-900/50 transition-all"
+                  className="w-full bg-linear-to-br/oklab from-rose-900/30 to-rose-800/30 border-rose-500/40 hover:border-rose-400/70 hover:bg-rose-900/50 transition-all"
                   size="lg"
                 >
-                  <Calculator className="h-5 w-5 mr-2" />
+                  <Calculator className="size-5 mr-2" />
                   <span>{t('error.notFound.calculator' as Parameters<typeof t>[0])}</span>
                 </Button>
               </Link>
@@ -113,7 +113,7 @@ export default function NotFound() {
           <div className="pt-4">
             <Button
               onClick={() => router.back()}
-              className="bg-gradient-to-r from-primary via-calculator-operator to-calculator-equals hover:opacity-90 transition-opacity"
+              className="bg-linear-to-r/oklab from-primary via-calculator-operator to-calculator-equals hover:opacity-90 transition-opacity"
               size="lg"
             >
               {t('error.notFound.goBack' as Parameters<typeof t>[0])}

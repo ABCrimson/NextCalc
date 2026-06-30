@@ -1,7 +1,7 @@
 'use client';
 
-import { m, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Award, Bookmark, BookOpen, CheckCircle2, TrendingUp } from 'lucide-react';
+import { m, useReducedMotion } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import type { CSSProperties, ReactNode } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -239,7 +239,7 @@ function AnimatedBackground({ shouldReduceMotion }: { shouldReduceMotion: boolea
       {/* SVG noise texture overlay */}
       <svg
         aria-hidden="true"
-        className="absolute inset-0 w-full h-full"
+        className="absolute inset-0 size-full"
         style={{ opacity: 0.03, mixBlendMode: 'overlay' }}
         xmlns="http://www.w3.org/2000/svg"
       >
@@ -308,7 +308,7 @@ function TopicCard({ topic, definitionCount, shouldReduceMotion }: TopicCardProp
         <Card className="h-full relative overflow-hidden backdrop-blur-md bg-card/50 border-border group">
           {/* Subtle gradient wash on hover */}
           <div
-            className={`absolute inset-0 opacity-0 group-hover:opacity-8 transition-opacity duration-300 bg-gradient-to-br ${config.color}`}
+            className={`absolute inset-0 opacity-0 group-hover:opacity-8 transition-opacity duration-300 bg-linear-to-br/oklab ${config.color}`}
             aria-hidden="true"
           />
 
@@ -321,7 +321,7 @@ function TopicCard({ topic, definitionCount, shouldReduceMotion }: TopicCardProp
                 <div className="flex items-center gap-3 mb-2">
                   {/* Gradient icon badge with glow on hover */}
                   <div
-                    className={`w-12 h-12 rounded-lg bg-gradient-to-br ${config.color} flex items-center justify-center text-white text-2xl font-bold shrink-0 transition-shadow duration-300`}
+                    className={`size-12 rounded-lg bg-linear-to-br/oklab ${config.color} flex items-center justify-center text-white text-2xl font-bold shrink-0 transition-shadow duration-300`}
                     style={
                       shouldReduceMotion
                         ? {}
@@ -356,7 +356,7 @@ function TopicCard({ topic, definitionCount, shouldReduceMotion }: TopicCardProp
                   aria-label={isBookmarked ? `Remove ${topic} bookmark` : `Bookmark ${topic}`}
                 >
                   <Bookmark
-                    className={`h-4 w-4 transition-colors ${isBookmarked ? 'fill-primary text-primary' : 'text-muted-foreground'}`}
+                    className={`size-4 transition-colors ${isBookmarked ? 'fill-primary text-primary' : 'text-muted-foreground'}`}
                   />
                 </button>
                 <Link
@@ -364,7 +364,7 @@ function TopicCard({ topic, definitionCount, shouldReduceMotion }: TopicCardProp
                   className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded"
                 >
                   <ArrowRight
-                    className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-200"
+                    className="size-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-200"
                     aria-hidden="true"
                   />
                 </Link>
@@ -377,15 +377,15 @@ function TopicCard({ topic, definitionCount, shouldReduceMotion }: TopicCardProp
             <CardContent>
               <ul className="space-y-2" aria-label={t('availableContent', { topic })}>
                 <li className="flex items-center gap-2 text-sm">
-                  <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0" aria-hidden="true" />
+                  <CheckCircle2 className="size-4 text-green-400 shrink-0" aria-hidden="true" />
                   <span className="text-muted-foreground">{t('coreDefinitions')}</span>
                 </li>
                 <li className="flex items-center gap-2 text-sm">
-                  <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0" aria-hidden="true" />
+                  <CheckCircle2 className="size-4 text-green-400 shrink-0" aria-hidden="true" />
                   <span className="text-muted-foreground">{t('keyTheorems')}</span>
                 </li>
                 <li className="flex items-center gap-2 text-sm">
-                  <CheckCircle2 className="h-4 w-4 text-green-400 shrink-0" aria-hidden="true" />
+                  <CheckCircle2 className="size-4 text-green-400 shrink-0" aria-hidden="true" />
                   <span className="text-muted-foreground">{t('practiceProblems')}</span>
                 </li>
               </ul>
@@ -438,7 +438,7 @@ export function LearnContent({ topics, definitionCounts }: LearnContentProps) {
           animate="visible"
         >
           <h1 className="text-5xl font-bold mb-4">
-            <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r/oklab from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
               {t('title')}
             </span>
           </h1>
@@ -455,7 +455,7 @@ export function LearnContent({ topics, definitionCounts }: LearnContentProps) {
         >
           <m.div variants={statsItemVariants}>
             <StatCard
-              icon={<BookOpen className="h-5 w-5 text-blue-400" aria-hidden="true" />}
+              icon={<BookOpen className="size-5 text-blue-400" aria-hidden="true" />}
               title={t('topicsCovered')}
               value={topics.length}
               label={t('mathematicalDomains')}
@@ -464,7 +464,7 @@ export function LearnContent({ topics, definitionCounts }: LearnContentProps) {
 
           <m.div variants={statsItemVariants}>
             <StatCard
-              icon={<TrendingUp className="h-5 w-5 text-purple-400" aria-hidden="true" />}
+              icon={<TrendingUp className="size-5 text-purple-400" aria-hidden="true" />}
               title={t('definitions')}
               value={totalDefinitions}
               label={t('conceptsToExplore')}
@@ -473,7 +473,7 @@ export function LearnContent({ topics, definitionCounts }: LearnContentProps) {
 
           <m.div variants={statsItemVariants}>
             <StatCard
-              icon={<Award className="h-5 w-5 text-green-400" aria-hidden="true" />}
+              icon={<Award className="size-5 text-green-400" aria-hidden="true" />}
               title={t('learningPaths')}
               value={12}
               label={t('structuredCourses')}
@@ -514,7 +514,7 @@ export function LearnContent({ topics, definitionCounts }: LearnContentProps) {
           whileInView="visible"
           viewport={{ once: true, margin: '-40px' }}
         >
-          <Card className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-border backdrop-blur-md bg-card/50">
+          <Card className="bg-linear-to-r/oklab from-blue-500/10 to-purple-500/10 border-border backdrop-blur-md bg-card/50">
             <CardContent className="pt-6">
               <h2 className="text-2xl font-bold mb-2 text-foreground">{t('readyToStart')}</h2>
               <p className="text-muted-foreground mb-4">{t('readyToStartHint')}</p>
@@ -522,7 +522,7 @@ export function LearnContent({ topics, definitionCounts }: LearnContentProps) {
                 <Button asChild>
                   <Link href="/problems">
                     {t('browseProblems')}
-                    <ArrowRight className="h-4 w-4 ml-2" aria-hidden="true" />
+                    <ArrowRight className="size-4 ml-2" aria-hidden="true" />
                   </Link>
                 </Button>
                 <Button variant="outline" asChild>

@@ -17,6 +17,7 @@
  * @version 2.0.0
  */
 
+import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
@@ -205,57 +206,65 @@ const checkSchema = z.object({
   tier: z.enum(['free', 'pro', 'enterprise']).optional().default('free'),
 });
 
-app.post('/check', async (c) => {
-  try {
-    const body = await c.req.json();
-    const validated = checkSchema.parse(body);
-
-    const stub = getDoStub(c.env, validated.identifier);
-    const status = await stub.check(validated.tier);
-
-    // Record the identifier in the KV index so /admin/keys can enumerate it.
-    // Fire-and-forget — a failure here must not block the rate-limit response.
-    // executionCtx is only available in the Cloudflare runtime, not in node test
-    // environments, so we guard before accessing it.
-    try {
-      c.executionCtx.waitUntil(recordIdentifierInIndex(c.env.RATE_LIMITS, validated.identifier));
-    } catch {
-      // No ExecutionContext in test environments — schedule the index write
-      // as a detached promise so it doesn't block the response.
-      void recordIdentifierInIndex(c.env.RATE_LIMITS, validated.identifier);
-    }
-
-    c.header('X-RateLimit-Limit', status.limit.toString());
-    c.header('X-RateLimit-Remaining', status.remaining.toString());
-    c.header('X-RateLimit-Reset', new Date(status.resetAt).toISOString());
-    c.header('X-RateLimit-Tier', status.tier);
-
-    if (!status.allowed && status.retryAfter !== undefined) {
-      c.header('Retry-After', status.retryAfter.toString());
-    }
-
-    return c.json({ success: true, data: status });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
+app.post(
+  '/check',
+  zValidator('json', checkSchema, (result, c) => {
+    if (!result.success) {
       return c.json(
         {
           success: false,
-          error: { message: 'Validation error', code: 'VALIDATION_ERROR', details: error.issues },
+          error: {
+            message: 'Validation error',
+            code: 'VALIDATION_ERROR',
+            details: result.error.issues,
+          },
         },
         400,
       );
     }
+    return undefined;
+  }),
+  async (c) => {
+    try {
+      const validated = c.req.valid('json');
 
-    console.error('Error in /check:', error);
-    return c.json(
-      {
-        success: false,
-        error: { message: 'Failed to check rate limit', code: 'CHECK_ERROR' },
-      },
-      500,
-    );
-  }
-});
+      const stub = getDoStub(c.env, validated.identifier);
+      const status = await stub.check(validated.tier);
+
+      // Record the identifier in the KV index so /admin/keys can enumerate it.
+      // Fire-and-forget — a failure here must not block the rate-limit response.
+      // executionCtx is only available in the Cloudflare runtime, not in node test
+      // environments, so we guard before accessing it.
+      try {
+        c.executionCtx.waitUntil(recordIdentifierInIndex(c.env.RATE_LIMITS, validated.identifier));
+      } catch {
+        // No ExecutionContext in test environments — schedule the index write
+        // as a detached promise so it doesn't block the response.
+        void recordIdentifierInIndex(c.env.RATE_LIMITS, validated.identifier);
+      }
+
+      c.header('X-RateLimit-Limit', status.limit.toString());
+      c.header('X-RateLimit-Remaining', status.remaining.toString());
+      c.header('X-RateLimit-Reset', new Date(status.resetAt).toISOString());
+      c.header('X-RateLimit-Tier', status.tier);
+
+      if (!status.allowed && status.retryAfter !== undefined) {
+        c.header('Retry-After', status.retryAfter.toString());
+      }
+
+      return c.json({ success: true, data: status });
+    } catch (error) {
+      console.error('Error in /check:', error);
+      return c.json(
+        {
+          success: false,
+          error: { message: 'Failed to check rate limit', code: 'CHECK_ERROR' },
+        },
+        500,
+      );
+    }
+  },
+);
 
 // ---------------------------------------------------------------------------
 // GET /status/:identifier

@@ -1,6 +1,5 @@
 'use client';
 
-import { AnimatePresence, m } from 'framer-motion';
 import {
   Check,
   ChevronLeft,
@@ -13,6 +12,7 @@ import {
   Send,
   X,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import { type ComponentType, useCallback, useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -218,7 +218,7 @@ export function InteractiveSolver({
               aria-label={showSolution ? 'Hide solution' : 'Show solution'}
               aria-pressed={showSolution}
             >
-              {showSolution ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {showSolution ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
               <span className="ml-2">{showSolution ? 'Hide' : 'Show'} Solution</span>
             </Button>
             <Badge variant="outline">{solution.approach}</Badge>
@@ -247,9 +247,9 @@ export function InteractiveSolver({
                     aria-label={isPlaying ? 'Pause auto-play' : 'Play auto-play'}
                   >
                     {isPlaying ? (
-                      <Pause className="h-4 w-4" aria-hidden="true" />
+                      <Pause className="size-4" aria-hidden="true" />
                     ) : (
-                      <Play className="h-4 w-4" aria-hidden="true" />
+                      <Play className="size-4" aria-hidden="true" />
                     )}
                   </Button>
                 </div>
@@ -299,7 +299,7 @@ export function InteractiveSolver({
                     {currentStepData.hints && currentStepData.hints.length > 0 && (
                       <div className="space-y-2">
                         <div className="flex items-center gap-2 text-sm font-medium">
-                          <Lightbulb className="h-4 w-4 text-yellow-500" aria-hidden="true" />
+                          <Lightbulb className="size-4 text-yellow-500" aria-hidden="true" />
                           <span>Hints</span>
                         </div>
                         {Array.from(currentStepData.hints.entries()).map(([hintPos, hint]) => (
@@ -327,7 +327,7 @@ export function InteractiveSolver({
               disabled={currentStep === 0}
               aria-label="Previous step"
             >
-              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+              <ChevronLeft className="size-4" aria-hidden="true" />
               <span className="ml-2">Previous</span>
             </Button>
 
@@ -342,7 +342,7 @@ export function InteractiveSolver({
               aria-label="Next step"
             >
               <span className="mr-2">Next</span>
-              <ChevronRight className="h-4 w-4" aria-hidden="true" />
+              <ChevronRight className="size-4" aria-hidden="true" />
             </Button>
           </div>
         </div>
@@ -373,7 +373,7 @@ export function InteractiveSolver({
                   />
 
                   <Button onClick={handleSubmit} className="w-full" size="lg">
-                    <Send className="h-4 w-4 mr-2" aria-hidden="true" />
+                    <Send className="size-4 mr-2" aria-hidden="true" />
                     Submit Answer
                   </Button>
 
@@ -394,9 +394,9 @@ export function InteractiveSolver({
                         aria-live="polite"
                       >
                         {feedback.type === 'success' ? (
-                          <Check className="h-5 w-5" aria-hidden="true" />
+                          <Check className="size-5" aria-hidden="true" />
                         ) : (
-                          <X className="h-5 w-5" aria-hidden="true" />
+                          <X className="size-5" aria-hidden="true" />
                         )}
                         <span className="font-medium">{feedback.message}</span>
                       </m.div>
@@ -496,7 +496,7 @@ function HintCard({
           onClick={onReveal}
           aria-label={`Reveal hint ${index + 1}`}
         >
-          <Lightbulb className="h-4 w-4 mr-2 text-yellow-500" aria-hidden="true" />
+          <Lightbulb className="size-4 mr-2 text-yellow-500" aria-hidden="true" />
           <span>Click to reveal hint {index + 1}</span>
         </Button>
       ) : (
@@ -507,10 +507,7 @@ function HintCard({
           className="p-4 bg-muted"
         >
           <div className="flex items-start gap-2">
-            <Lightbulb
-              className="h-4 w-4 text-yellow-500 mt-0.5 flex-shrink-0"
-              aria-hidden="true"
-            />
+            <Lightbulb className="size-4 text-yellow-500 mt-0.5 flex-shrink-0" aria-hidden="true" />
             <p className="text-sm">{hint}</p>
           </div>
         </m.div>

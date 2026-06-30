@@ -4,7 +4,7 @@ import type { CalculatorAction } from '@nextcalc/types';
 import { BarChart3, Sigma } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useOptimistic, useRef, useTransition } from 'react';
+import { useEffect, useEffectEvent, useOptimistic, useRef, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { parseShareParams } from '@/lib/share';
 import {
@@ -46,8 +46,11 @@ export function Calculator() {
   const searchParams = useSearchParams();
   const hasRestoredRef = useRef(false);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional mount-only restore. We read the initial URL's searchParams exactly once (guarded by hasRestoredRef); adding `searchParams` would re-trigger restoration on later URL changes, and `dispatch` is a stable Zustand store reference — neither belongs in the dependency list for this one-shot effect.
-  useEffect(() => {
+  // React 19.3 Effect Event: the share-param restore reads `searchParams` and
+  // `dispatch` non-reactively, so the mount Effect below keeps a genuinely empty
+  // dependency list with no suppression. Reading the initial URL once is exactly
+  // an "effect event" — latest values, not a reactive trigger.
+  const restoreFromShareParams = useEffectEvent(() => {
     // Only restore once per mount (guard against React 19 Strict Mode double-invoke)
     if (hasRestoredRef.current) return;
     hasRestoredRef.current = true;
@@ -101,7 +104,11 @@ export function Calculator() {
         }
       });
     }
-    // Run only on mount — searchParams identity is stable in the App Router
+  });
+
+  // Run only on mount — the restore itself reads the (then-current) initial URL.
+  useEffect(() => {
+    restoreFromShareParams();
   }, []);
 
   const handleInput = (action: CalculatorAction) => {
@@ -135,10 +142,10 @@ export function Calculator() {
         <Link href="/plot" className="flex-1 max-w-xs">
           <Button
             variant="outline"
-            className="w-full bg-gradient-to-r from-blue-600/10 to-indigo-600/10 hover:from-blue-600/20 hover:to-indigo-600/20 border-blue-500/30 hover:border-blue-500/50 transition-all"
+            className="w-full bg-linear-to-r/oklab from-blue-600/10 to-indigo-600/10 hover:from-blue-600/20 hover:to-indigo-600/20 border-blue-500/30 hover:border-blue-500/50 transition-all"
             size="lg"
           >
-            <BarChart3 className="h-5 w-5 mr-2" />
+            <BarChart3 className="size-5 mr-2" />
             <span className="font-semibold">Plot Functions</span>
           </Button>
         </Link>
@@ -146,10 +153,10 @@ export function Calculator() {
         <Link href="/symbolic" className="flex-1 max-w-xs">
           <Button
             variant="outline"
-            className="w-full bg-gradient-to-r from-purple-600/10 to-pink-600/10 hover:from-purple-600/20 hover:to-pink-600/20 border-purple-500/30 hover:border-purple-500/50 transition-all"
+            className="w-full bg-linear-to-r/oklab from-purple-600/10 to-pink-600/10 hover:from-purple-600/20 hover:to-pink-600/20 border-purple-500/30 hover:border-purple-500/50 transition-all"
             size="lg"
           >
-            <Sigma className="h-5 w-5 mr-2" />
+            <Sigma className="size-5 mr-2" />
             <span className="font-semibold">Symbolic Math</span>
           </Button>
         </Link>

@@ -7,7 +7,7 @@ generator client {
   provider        = "prisma-client"
   output          = "../src/generated/prisma"
   compilerBuild   = "fast"
-  previewFeatures = ["fullTextSearchPostgres", "nativeDistinct", "relationJoins", "partialIndexes"]
+  previewFeatures = ["partialIndexes"]
 }
 
 datasource db {

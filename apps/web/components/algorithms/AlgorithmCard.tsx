@@ -1,7 +1,7 @@
 'use client';
 
-import { m } from 'framer-motion';
 import { ArrowRight, type LucideIcon } from 'lucide-react';
+import { m } from 'motion/react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
@@ -178,7 +178,7 @@ export function AlgorithmCard({
     <m.div
       className={cn(
         'group relative p-6 rounded-xl border transition-all duration-300 overflow-hidden',
-        `bg-gradient-to-br ${styles.gradient}`,
+        `bg-linear-to-br/oklab ${styles.gradient}`,
         styles.border,
         styles.shadow,
         disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
@@ -193,7 +193,7 @@ export function AlgorithmCard({
       <div
         className={cn(
           'absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300',
-          `bg-gradient-to-br ${styles.gradient}`,
+          `bg-linear-to-br/oklab ${styles.gradient}`,
           !disabled && 'group-hover:opacity-100',
         )}
       />
@@ -203,7 +203,7 @@ export function AlgorithmCard({
         {/* Header with icon and badges */}
         <div className="flex items-start justify-between mb-4">
           <div className={cn('p-3 rounded-lg', styles.iconBg)} aria-hidden="true">
-            <Icon className={cn('h-6 w-6', styles.text)} />
+            <Icon className={cn('size-6', styles.text)} />
           </div>
 
           <div className="flex flex-col items-end gap-2 shrink-0 min-w-0">
@@ -247,7 +247,7 @@ export function AlgorithmCard({
           )}
         >
           <span>{t('card.explore')}</span>
-          <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          <ArrowRight className="size-4" aria-hidden="true" />
         </div>
 
         {/* Disabled overlay */}

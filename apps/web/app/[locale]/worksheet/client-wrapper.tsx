@@ -23,7 +23,7 @@ const WorksheetEditor = dynamic(
         aria-live="polite"
       >
         <div className="flex flex-col items-center gap-4 text-muted-foreground rounded-2xl border border-border/50 bg-card/50 backdrop-blur-md px-10 py-8 shadow-sm">
-          <Loader2 className="h-8 w-8 animate-spin" aria-hidden="true" />
+          <Loader2 className="size-8 animate-spin" aria-hidden="true" />
           <p className="text-sm">Loading worksheet editor...</p>
         </div>
       </div>

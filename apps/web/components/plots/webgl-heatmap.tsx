@@ -509,7 +509,7 @@ export function WebGLHeatmap({
       {hoveredValue && (
         <div className="absolute top-2 left-2 px-3 py-2 rounded-lg backdrop-blur-md bg-black/40 border border-white/10 text-xs font-mono text-white shadow-lg">
           <div className="flex items-center gap-1 mb-1">
-            <Info className="w-3 h-3 text-blue-400" />
+            <Info className="size-3 text-blue-400" />
             <span className="text-blue-400">Grid Position</span>
           </div>
           <div className="space-y-0.5">

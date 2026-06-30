@@ -7,7 +7,7 @@
  * and dot grid used across all forum pages.
  */
 
-import { m, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
 
 function FloatingOrb({

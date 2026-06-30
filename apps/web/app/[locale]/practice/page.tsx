@@ -7,8 +7,8 @@ import {
   getProblemsByTopic,
   type Problem,
 } from '@nextcalc/math-engine/problems';
-import { m, useReducedMotion } from 'framer-motion';
 import { Play, Settings, Target, Timer, TrendingUp, Zap } from 'lucide-react';
+import { m, useReducedMotion } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import type { CSSProperties } from 'react';
 import { useActionState, useCallback, useEffect, useRef, useState } from 'react';
@@ -203,7 +203,7 @@ function AnimatedBackground({ prefersReduced }: { prefersReduced: boolean }) {
 
       {/* SVG noise texture overlay */}
       <svg
-        className="absolute inset-0 w-full h-full"
+        className="absolute inset-0 size-full"
         style={{ opacity: 0.03, mixBlendMode: 'overlay' }}
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
@@ -256,14 +256,14 @@ function StatCard({ data }: { data: StatCardData }) {
           <CardTitle className="text-lg flex items-center gap-2 font-semibold">
             {/* Icon with gradient background */}
             <span
-              className="inline-flex items-center justify-center w-8 h-8 rounded-lg flex-shrink-0"
+              className="inline-flex items-center justify-center size-8 rounded-lg flex-shrink-0"
               style={{
                 background: iconBg,
                 border: `1px solid ${iconBorder}`,
               }}
               aria-hidden="true"
             >
-              <Icon className="h-4 w-4" style={{ color: iconColor }} />
+              <Icon className="size-4" style={{ color: iconColor }} />
             </span>
             {label}
           </CardTitle>
@@ -470,7 +470,7 @@ export default function PracticePage() {
             }}
           >
             <Target
-              className="h-4 w-4"
+              className="size-4"
               style={{ color: 'oklch(0.72 0.22 55)' }}
               aria-hidden="true"
             />
@@ -480,7 +480,7 @@ export default function PracticePage() {
           </div>
 
           <h1 className="text-5xl md:text-6xl font-bold mb-4">
-            <span className="bg-gradient-to-r from-orange-400 via-rose-400 to-pink-400 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r/oklab from-orange-400 via-rose-400 to-pink-400 bg-clip-text text-transparent">
               Practice Mode
             </span>
           </h1>
@@ -557,14 +557,14 @@ export default function PracticePage() {
               <CardHeader>
                 <CardTitle className="text-2xl flex items-center gap-3">
                   <span
-                    className="inline-flex items-center justify-center w-9 h-9 rounded-xl flex-shrink-0"
+                    className="inline-flex items-center justify-center size-9 rounded-xl flex-shrink-0"
                     style={{
                       background: 'oklch(0.72 0.22 55 / 0.12)',
                       border: '1px solid oklch(0.72 0.22 55 / 0.25)',
                     }}
                     aria-hidden="true"
                   >
-                    <Settings className="h-5 w-5" style={{ color: 'oklch(0.72 0.22 55)' }} />
+                    <Settings className="size-5" style={{ color: 'oklch(0.72 0.22 55)' }} />
                   </span>
                   {t('configurePracticeSession')}
                 </CardTitle>
@@ -756,7 +756,7 @@ export default function PracticePage() {
                         }}
                       >
                         <Zap
-                          className="h-4 w-4 flex-shrink-0"
+                          className="size-4 flex-shrink-0"
                           style={{ color: 'oklch(0.65 0.22 264)' }}
                           aria-hidden="true"
                         />
@@ -788,7 +788,7 @@ export default function PracticePage() {
                       boxShadow: '0 4px 20px oklch(0.60 0.22 55 / 0.30)',
                     }}
                   >
-                    <Play className="h-5 w-5 mr-2" aria-hidden="true" />
+                    <Play className="size-5 mr-2" aria-hidden="true" />
                     {t('startPracticeSession')}
                   </Button>
                 </m.div>

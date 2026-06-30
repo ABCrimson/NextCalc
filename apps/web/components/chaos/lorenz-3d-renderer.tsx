@@ -657,9 +657,9 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
   }, [data, syncZoomDisplay]);
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative size-full">
       {/* Renderer canvas container */}
-      <div ref={containerRef} className="w-full h-full" style={{ touchAction: 'none' }} />
+      <div ref={containerRef} className="size-full" style={{ touchAction: 'none' }} />
 
       {/* Zoom controls - top left */}
       <fieldset
@@ -669,7 +669,7 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
         <button
           type="button"
           onClick={handleZoomIn}
-          className="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-bold
+          className="size-8 flex items-center justify-center rounded-lg text-sm font-bold
             bg-black/60 backdrop-blur-sm border border-white/10 text-white/80
             hover:bg-white/10 hover:text-white hover:border-white/25
             focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring
@@ -690,7 +690,7 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
         <button
           type="button"
           onClick={handleZoomOut}
-          className="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-bold
+          className="size-8 flex items-center justify-center rounded-lg text-sm font-bold
             bg-black/60 backdrop-blur-sm border border-white/10 text-white/80
             hover:bg-white/10 hover:text-white hover:border-white/25
             focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring
@@ -713,7 +713,7 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
             type="checkbox"
             checked={cageVisible}
             onChange={(e) => setCageVisible(e.target.checked)}
-            className="w-3.5 h-3.5 accent-white/70 cursor-pointer"
+            className="size-3.5 accent-white/70 cursor-pointer"
             aria-label="Show bounding cage"
           />
           <span className="text-[10px] font-mono text-white/60">Cage</span>
@@ -728,7 +728,7 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
             type="checkbox"
             checked={skyboxVisible}
             onChange={(e) => setSkyboxVisible(e.target.checked)}
-            className="w-3.5 h-3.5 accent-white/70 cursor-pointer"
+            className="size-3.5 accent-white/70 cursor-pointer"
             aria-label="Show space background"
           />
           <span className="text-[10px] font-mono text-white/60">Space</span>
@@ -744,7 +744,7 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
               type="checkbox"
               checked={gpuParticlesEnabled}
               onChange={(e) => setGpuParticlesEnabled(e.target.checked)}
-              className="w-3.5 h-3.5 accent-white/70 cursor-pointer"
+              className="size-3.5 accent-white/70 cursor-pointer"
               aria-label="Show GPU particles"
             />
             <span className="text-[10px] font-mono text-white/60">Particles</span>

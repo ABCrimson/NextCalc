@@ -168,7 +168,7 @@ function StatCard({ label, value, accent, onCopy, copied }: StatCardProps) {
       className={cn(
         'group relative flex items-center justify-between p-3 rounded-xl',
         'border border-border',
-        'bg-gradient-to-br from-background/60 via-card/50 to-background/60',
+        'bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60',
         'backdrop-blur-md',
         'shadow-[0_2px_8px_0_oklch(0_0_0_/_0.08)]',
         'hover:shadow-[0_4px_16px_0_oklch(0_0_0_/_0.12)]',
@@ -194,7 +194,7 @@ function StatCard({ label, value, accent, onCopy, copied }: StatCardProps) {
           variant="ghost"
           size="icon"
           className={cn(
-            'h-8 w-8 ml-2 shrink-0',
+            'size-8 ml-2 shrink-0',
             'opacity-0 group-hover:opacity-100 focus-visible:opacity-100',
             'transition-opacity duration-200',
             'hover:bg-primary/10',
@@ -203,9 +203,9 @@ function StatCard({ label, value, accent, onCopy, copied }: StatCardProps) {
           aria-label={`Copy ${label}`}
         >
           {copied ? (
-            <Check className="h-4 w-4 text-[oklch(0.65_0.18_155)]" aria-hidden="true" />
+            <Check className="size-4 text-[oklch(0.65_0.18_155)]" aria-hidden="true" />
           ) : (
-            <Copy className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+            <Copy className="size-4 text-muted-foreground" aria-hidden="true" />
           )}
         </Button>
       )}
@@ -580,7 +580,7 @@ function SectionDivider({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'h-px w-full bg-gradient-to-r from-transparent via-primary/40 to-transparent',
+        'h-px w-full bg-linear-to-r/oklab from-transparent via-primary/40 to-transparent',
         className,
       )}
       aria-hidden="true"
@@ -613,7 +613,7 @@ function GlassPanel({ children, className, accent = 'primary' }: GlassPanelProps
       className={cn(
         'relative rounded-xl overflow-hidden',
         'border border-border',
-        'bg-gradient-to-br from-background/60 via-card/50 to-background/60',
+        'bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60',
         'backdrop-blur-md',
         'shadow-[0_8px_32px_0_oklch(0_0_0_/_0.10)]',
         className,
@@ -621,7 +621,7 @@ function GlassPanel({ children, className, accent = 'primary' }: GlassPanelProps
     >
       {/* Top accent line */}
       <div
-        className={cn('absolute inset-x-0 top-0 h-px bg-gradient-to-r', accentGradient[accent])}
+        className={cn('absolute inset-x-0 top-0 h-px bg-linear-to-r/oklab', accentGradient[accent])}
         aria-hidden="true"
       />
       <div className="p-4">{children}</div>
@@ -931,11 +931,11 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
 
   if (!statsModule) {
     return (
-      <Card className="w-full max-w-4xl bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.10)]">
+      <Card className="w-full max-w-4xl bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 backdrop-blur-md border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.10)]">
         <CardContent className="p-8">
           <div className="flex flex-col items-center justify-center gap-3 text-muted-foreground py-8">
             <div
-              className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin"
+              className="size-8 rounded-full border-2 border-primary border-t-transparent animate-spin"
               aria-hidden="true"
             />
             <span className="text-sm font-medium">Loading statistics module&hellip;</span>
@@ -949,7 +949,7 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
     <Card
       className={cn(
         'w-full max-w-4xl',
-        'bg-gradient-to-br from-background/60 via-card/50 to-background/60',
+        'bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60',
         'backdrop-blur-md',
         'border border-border',
         'shadow-[0_8px_32px_0_oklch(0_0_0_/_0.10)]',
@@ -958,7 +958,7 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
     >
       {/* Top gradient accent line */}
       <div
-        className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent"
+        className="absolute inset-x-0 top-0 h-px bg-linear-to-r/oklab from-transparent via-primary/60 to-transparent"
         aria-hidden="true"
       />
 
@@ -973,7 +973,7 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
             }}
             aria-hidden="true"
           >
-            <BarChart3 className="h-6 w-6" style={{ color: 'oklch(0.65 0.22 264)' }} />
+            <BarChart3 className="size-6" style={{ color: 'oklch(0.65 0.22 264)' }} />
           </div>
           <div>
             <CardTitle className="text-xl font-bold text-foreground">
@@ -993,16 +993,16 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
             variant="destructive"
             className="flex items-start gap-2 border-destructive/40 bg-destructive/8"
           >
-            <AlertCircle className="h-5 w-5 mt-0.5 shrink-0 text-destructive" aria-hidden="true" />
+            <AlertCircle className="size-5 mt-0.5 shrink-0 text-destructive" aria-hidden="true" />
             <div className="flex-1 text-destructive text-sm">{error}</div>
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 shrink-0 hover:bg-destructive/15 text-destructive"
+              className="size-6 shrink-0 hover:bg-destructive/15 text-destructive"
               onClick={() => setError(null)}
               aria-label="Dismiss error"
             >
-              <X className="h-4 w-4" aria-hidden="true" />
+              <X className="size-4" aria-hidden="true" />
             </Button>
           </Alert>
         )}
@@ -1073,7 +1073,7 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
               onClick={() => loadExample('normal')}
               className="gap-1.5"
             >
-              <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+              <Sparkles className="size-3.5" aria-hidden="true" />
               Normal
             </Button>
 
@@ -1083,7 +1083,7 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
               onClick={() => loadExample('bimodal')}
               className="gap-1.5"
             >
-              <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+              <Sparkles className="size-3.5" aria-hidden="true" />
               Bimodal
             </Button>
 
@@ -1113,7 +1113,7 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
                   type="checkbox"
                   checked={useSampleStats}
                   onChange={(e) => setUseSampleStats(e.target.checked)}
-                  className="h-4 w-4 rounded border-input accent-primary"
+                  className="size-4 rounded border-input accent-primary"
                 />
                 Sample statistics
               </label>
@@ -1253,7 +1253,7 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
               onClick={handleCopyAllStats}
               className="w-full gap-2 border-border hover:border-primary/40 hover:bg-primary/5 transition-colors"
             >
-              <Copy className="h-4 w-4" aria-hidden="true" />
+              <Copy className="size-4" aria-hidden="true" />
               Copy All Statistics
             </Button>
 
@@ -1285,7 +1285,7 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
               }}
               aria-hidden="true"
             >
-              <TrendingUp className="h-4 w-4" style={{ color: 'oklch(0.63 0.20 300)' }} />
+              <TrendingUp className="size-4" style={{ color: 'oklch(0.63 0.20 300)' }} />
             </div>
             <h2 id="regression-heading" className="text-lg font-semibold text-foreground">
               Regression Analysis
@@ -1384,7 +1384,7 @@ IQR: ${formatNumber(descriptiveStats.iqr)}
               onClick={() => loadExample('linear')}
               className="gap-1.5"
             >
-              <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+              <Sparkles className="size-3.5" aria-hidden="true" />
               Linear Example
             </Button>
 

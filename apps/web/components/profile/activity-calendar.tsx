@@ -211,7 +211,7 @@ export function ActivityCalendar({ data }: ActivityCalendarProps) {
         ].map((color) => (
           <span
             key={color}
-            className="inline-block h-3 w-3 rounded-sm"
+            className="inline-block size-3 rounded-sm"
             style={{ backgroundColor: color }}
             aria-hidden="true"
           />

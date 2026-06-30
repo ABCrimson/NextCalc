@@ -8,10 +8,10 @@
  */
 
 import { useMutation } from '@apollo/client/react';
-import { m, useReducedMotion } from 'framer-motion';
 import { ThumbsUp } from 'lucide-react';
+import { m, useReducedMotion } from 'motion/react';
+import { useFormatter } from 'next-intl';
 import { useCallback, useOptimistic, useTransition } from 'react';
-import { formatNumber } from '@/components/forum/forum-shared';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useSession } from '@/lib/auth/hooks';
 import { TOGGLE_UPVOTE_MUTATION } from '@/lib/graphql/forum-operations';
@@ -39,6 +39,7 @@ export function UpvoteButton({
   initialUpvoted,
 }: UpvoteButtonProps) {
   const prefersReduced = useReducedMotion();
+  const format = useFormatter();
   const { status } = useSession();
   const isAuthenticated = status === 'authenticated';
   const [, startTransition] = useTransition();
@@ -87,7 +88,7 @@ export function UpvoteButton({
         'flex flex-col items-center gap-0.5 px-2 py-2 rounded-xl transition-all duration-200',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         optimistic.upvoted
-          ? 'bg-gradient-to-b from-orange-500/20 to-orange-600/10 text-orange-400 shadow-[0_0_16px_oklch(0.72_0.20_60/0.25)]'
+          ? 'bg-linear-to-b/oklab from-orange-500/20 to-orange-600/10 text-orange-400 shadow-[0_0_16px_oklch(0.72_0.20_60/0.25)]'
           : 'bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground',
         !isAuthenticated && 'cursor-default opacity-80',
       )}
@@ -110,10 +111,12 @@ export function UpvoteButton({
         transition={{ duration: 0.3 }}
       >
         <ThumbsUp
-          className={cn('h-4 w-4 transition-transform', optimistic.upvoted && 'scale-110')}
+          className={cn('size-4 transition-transform', optimistic.upvoted && 'scale-110')}
         />
       </m.div>
-      <span className="text-xs font-bold tabular-nums">{formatNumber(optimistic.count)}</span>
+      <span className="text-xs font-bold tabular-nums">
+        {format.number(optimistic.count, { notation: 'compact', maximumFractionDigits: 1 })}
+      </span>
     </m.button>
   );
 

@@ -7,8 +7,8 @@
  * @module components/plots/PlotContainer
  */
 
-import { AnimatePresence, m } from 'framer-motion';
 import { AlertTriangle, Loader2, RefreshCw, TrendingUp } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import type { ErrorInfo, ReactNode } from 'react';
 import { Component, Suspense } from 'react';
 import { Button } from '../ui/button';
@@ -88,7 +88,7 @@ function PlotSkeleton() {
       animate="visible"
       className="
         relative rounded-xl p-6
-        bg-gradient-to-br from-background/60 via-card/50 to-background/60
+        bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60
         backdrop-blur-md border border-border
         shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]
         overflow-hidden
@@ -98,7 +98,7 @@ function PlotSkeleton() {
       aria-label="Loading plot visualization"
     >
       {/* Animated gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-purple-500/5 to-blue-500/5 animate-pulse" />
+      <div className="absolute inset-0 bg-linear-to-br/oklab from-cyan-500/5 via-purple-500/5 to-blue-500/5 animate-pulse" />
 
       <div className="relative space-y-4">
         {/* Header skeleton */}
@@ -113,7 +113,7 @@ function PlotSkeleton() {
           {/* Animated loader overlay */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
-              <Loader2 className="h-12 w-12 text-cyan-400 animate-spin mx-auto mb-3" />
+              <Loader2 className="size-12 text-cyan-400 animate-spin mx-auto mb-3" />
               <p className="text-sm font-medium text-foreground/80">Rendering visualization...</p>
               <p className="text-xs text-muted-foreground/70 mt-1">
                 Preparing GPU-accelerated plot
@@ -145,7 +145,7 @@ function PlotError({ error, onRetry }: { error: string; onRetry?: () => void }) 
       animate="visible"
       className="
         relative rounded-xl p-8
-        bg-gradient-to-br from-red-950/40 via-red-900/30 to-red-950/40
+        bg-linear-to-br/oklab from-red-950/40 via-red-900/30 to-red-950/40
         backdrop-blur-md border border-red-800/50
         shadow-[0_8px_32px_0_oklch(0.5771_0.2152_27.33_/_0.2)]
         overflow-hidden
@@ -155,7 +155,7 @@ function PlotError({ error, onRetry }: { error: string; onRetry?: () => void }) 
       aria-atomic="true"
     >
       {/* Subtle animated background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-pink-500/5 animate-pulse" />
+      <div className="absolute inset-0 bg-linear-to-br/oklab from-red-500/5 to-pink-500/5 animate-pulse" />
 
       <div className="relative text-center max-w-md mx-auto">
         {/* Error icon with animation */}
@@ -163,9 +163,9 @@ function PlotError({ error, onRetry }: { error: string; onRetry?: () => void }) 
           initial={{ scale: 0, rotate: -180 }}
           animate={{ scale: 1, rotate: 0 }}
           transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-          className="inline-flex items-center justify-center w-16 h-16 mb-4 rounded-full bg-red-900/50 border-2 border-red-500/50"
+          className="inline-flex items-center justify-center size-16 mb-4 rounded-full bg-red-900/50 border-2 border-red-500/50"
         >
-          <AlertTriangle className="h-8 w-8 text-red-400" />
+          <AlertTriangle className="size-8 text-red-400" />
         </m.div>
 
         {/* Error message */}
@@ -177,7 +177,7 @@ function PlotError({ error, onRetry }: { error: string; onRetry?: () => void }) 
           <Button
             onClick={onRetry}
             className="
-              bg-gradient-to-br from-red-800/60 to-red-900/60
+              bg-linear-to-br/oklab from-red-800/60 to-red-900/60
               hover:from-red-700/70 hover:to-red-800/70
               border border-red-600/50 hover:border-red-500/70
               text-red-100 hover:text-red-50
@@ -185,7 +185,7 @@ function PlotError({ error, onRetry }: { error: string; onRetry?: () => void }) 
               transition-all duration-200
             "
           >
-            <RefreshCw className="h-4 w-4 mr-2" />
+            <RefreshCw className="size-4 mr-2" />
             Try Again
           </Button>
         )}
@@ -274,18 +274,18 @@ export function PlotContainer({
             transition={{ duration: 0.3 }}
             className="
               relative p-4 rounded-xl
-              bg-gradient-to-br from-background/40 via-card/30 to-background/40
+              bg-linear-to-br/oklab from-background/40 via-card/30 to-background/40
               backdrop-blur-sm border border-border
               shadow-[0_4px_16px_0_oklch(0_0_0_/_0.2)]
             "
           >
             {/* Subtle gradient overlay */}
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-500/3 to-purple-500/3 pointer-events-none" />
+            <div className="absolute inset-0 rounded-xl bg-linear-to-br/oklab from-cyan-500/3 to-purple-500/3 pointer-events-none" />
 
             <div className="relative">
               {title && (
                 <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="h-5 w-5 text-cyan-400" aria-hidden="true" />
+                  <TrendingUp className="size-5 text-cyan-400" aria-hidden="true" />
                   <h3 className="text-lg font-semibold text-foreground tracking-tight">{title}</h3>
                 </div>
               )}
@@ -333,14 +333,14 @@ export function PlotContainer({
                   <div
                     className="
                       relative rounded-xl
-                      bg-gradient-to-br from-background/60 via-card/50 to-background/60
+                      bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60
                       backdrop-blur-md border border-border
                       shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]
                       overflow-hidden
                     "
                   >
                     {/* Subtle gradient overlay for depth */}
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-500/5 via-transparent to-purple-500/5 pointer-events-none" />
+                    <div className="absolute inset-0 rounded-xl bg-linear-to-br/oklab from-cyan-500/5 via-transparent to-purple-500/5 pointer-events-none" />
 
                     {/* Content */}
                     <div className="relative">{children}</div>

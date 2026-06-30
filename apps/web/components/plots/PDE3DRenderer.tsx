@@ -245,7 +245,7 @@ export function PDE3DRenderer({
   return (
     <div
       ref={containerRef}
-      className="w-full h-full min-h-[400px] rounded-lg overflow-hidden"
+      className="size-full min-h-[400px] rounded-lg overflow-hidden"
       style={{ touchAction: 'none' }}
     />
   );

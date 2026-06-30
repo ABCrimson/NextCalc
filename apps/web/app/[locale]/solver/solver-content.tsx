@@ -1,6 +1,6 @@
 'use client';
 
-import { m } from 'framer-motion';
+import { m } from 'motion/react';
 import { SolverPanel } from '@/components/calculator/solver-panel';
 
 // ---------------------------------------------------------------------------
@@ -181,7 +181,7 @@ function FeatureCard({ card }: { card: FeatureCard }) {
 
       {/* Corner accent */}
       <div
-        className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20"
+        className="absolute top-0 right-0 size-24 rounded-bl-full opacity-20"
         style={{
           background: `radial-gradient(circle at top right, ${baseColor.replace(')', ' / 0.4)')} , transparent)`,
         }}
@@ -192,7 +192,7 @@ function FeatureCard({ card }: { card: FeatureCard }) {
         {/* Accent dot + formula */}
         <div className="flex items-center gap-2 mb-3">
           <div
-            className="w-2 h-2 rounded-full shrink-0"
+            className="size-2 rounded-full shrink-0"
             style={{
               background: baseColor,
               boxShadow: `0 0 8px ${baseColor.replace(')', ' / 0.8)')}`,
@@ -242,7 +242,7 @@ export function SolverPageContent() {
       {/* ------------------------------------------------------------------ */}
       <div className="fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
         {/* Base gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background" />
+        <div className="absolute inset-0 bg-linear-to-br/oklab from-background via-background/95 to-background" />
 
         {/* Orb 1 — emerald, top-right */}
         <m.div
@@ -279,7 +279,7 @@ export function SolverPageContent() {
         {/* Noise texture overlay via SVG feTurbulence */}
         <svg
           aria-hidden="true"
-          className="absolute inset-0 w-full h-full opacity-[0.03] mix-blend-overlay pointer-events-none"
+          className="absolute inset-0 size-full opacity-[0.03] mix-blend-overlay pointer-events-none"
           xmlns="http://www.w3.org/2000/svg"
         >
           <filter id="solver-noise">
@@ -330,7 +330,7 @@ export function SolverPageContent() {
             </div>
 
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold bg-linear-to-r/oklab from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
                 Equation Solver
               </h1>
               <p className="text-base text-muted-foreground mt-1">

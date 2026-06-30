@@ -1,6 +1,5 @@
 'use client';
 
-import { AnimatePresence, m } from 'framer-motion';
 import {
   BarChart3,
   BookOpen,
@@ -15,6 +14,7 @@ import {
   X,
   Zap,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import type { ComponentType } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { MathRenderer } from '@/components/ui/math-renderer';
@@ -899,7 +899,7 @@ function FormulaCard({ formula, index }: FormulaCardProps) {
       }}
       className={cn(
         'group relative flex flex-col gap-3 p-5 rounded-xl border transition-all duration-300 overflow-hidden cursor-pointer',
-        `bg-gradient-to-br ${meta.gradient}`,
+        `bg-linear-to-br/oklab ${meta.gradient}`,
         meta.border,
         meta.glow,
         'shadow-[0_2px_8px_oklch(0_0_0_/_0.25)]',
@@ -924,7 +924,7 @@ function FormulaCard({ formula, index }: FormulaCardProps) {
           )}
           aria-hidden="true"
         >
-          <CategoryIcon className="h-3 w-3" aria-hidden="true" />
+          <CategoryIcon className="size-3" aria-hidden="true" />
           {meta.label}
         </span>
 
@@ -933,16 +933,16 @@ function FormulaCard({ formula, index }: FormulaCardProps) {
           initial={false}
           animate={{ scale: copied ? 1.15 : 1 }}
           className={cn(
-            'shrink-0 flex items-center justify-center w-7 h-7 rounded-lg transition-colors duration-200',
+            'shrink-0 flex items-center justify-center size-7 rounded-lg transition-colors duration-200',
             copied
               ? 'bg-emerald-500/20 text-emerald-400'
               : 'bg-muted/20 text-muted-foreground group-hover:text-foreground group-hover:bg-muted/40',
           )}
         >
           {copied ? (
-            <Check className="h-3.5 w-3.5" aria-hidden="true" />
+            <Check className="size-3.5" aria-hidden="true" />
           ) : (
-            <Copy className="h-3.5 w-3.5" aria-hidden="true" />
+            <Copy className="size-3.5" aria-hidden="true" />
           )}
         </m.div>
       </div>
@@ -982,7 +982,7 @@ function FormulaCard({ formula, index }: FormulaCardProps) {
             aria-atomic="true"
           >
             <span className="flex items-center gap-2 px-4 py-2 bg-emerald-900/80 border border-emerald-500/40 rounded-full text-emerald-300 text-sm font-medium">
-              <Check className="h-4 w-4" aria-hidden="true" />
+              <Check className="size-4" aria-hidden="true" />
               Copied!
             </span>
           </m.div>
@@ -1080,9 +1080,9 @@ export default function FormulasPage() {
           className="absolute inset-0 -z-10 pointer-events-none overflow-hidden"
           aria-hidden="true"
         >
-          <div className="absolute top-12 left-8 w-80 h-80 bg-blue-500/5 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute top-12 left-8 size-80 bg-blue-500/5 rounded-full blur-3xl animate-pulse" />
           <div
-            className="absolute bottom-8 right-12 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl animate-pulse"
+            className="absolute bottom-8 right-12 size-96 bg-purple-500/5 rounded-full blur-3xl animate-pulse"
             style={{ animationDelay: '1.2s' }}
           />
           <div
@@ -1099,11 +1099,11 @@ export default function FormulasPage() {
           >
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary border border-primary/20 mb-6">
-              <BookOpen className="h-4 w-4" aria-hidden="true" />
+              <BookOpen className="size-4" aria-hidden="true" />
               <span className="text-sm font-medium">Reference Library</span>
             </div>
 
-            <h1 className="text-5xl md:text-6xl font-bold mb-5 bg-gradient-to-r from-blue-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">
+            <h1 className="text-5xl md:text-6xl font-bold mb-5 bg-linear-to-r/oklab from-blue-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">
               Formula Library
             </h1>
 
@@ -1128,7 +1128,7 @@ export default function FormulasPage() {
                       meta.chip,
                     )}
                   >
-                    <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                    <Icon className="size-3.5" aria-hidden="true" />
                     {meta.label}
                   </span>
                 );
@@ -1156,7 +1156,7 @@ export default function FormulasPage() {
                     className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                     aria-label="Clear all filters"
                   >
-                    <X className="h-3.5 w-3.5" aria-hidden="true" />
+                    <X className="size-3.5" aria-hidden="true" />
                     Clear all
                   </button>
                 )}
@@ -1169,7 +1169,7 @@ export default function FormulasPage() {
                 </label>
                 <div className="relative">
                   <Search
-                    className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none"
                     aria-hidden="true"
                   />
                   <input
@@ -1193,7 +1193,7 @@ export default function FormulasPage() {
                       className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-2 focus-visible:outline-ring rounded"
                       aria-label="Clear search"
                     >
-                      <X className="h-3.5 w-3.5" aria-hidden="true" />
+                      <X className="size-3.5" aria-hidden="true" />
                     </button>
                   )}
                 </div>
@@ -1227,7 +1227,7 @@ export default function FormulasPage() {
                         )}
                       >
                         <span className="flex items-center gap-2">
-                          <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                          <Icon className="size-3.5" aria-hidden="true" />
                           {meta.label}
                         </span>
                         <span
@@ -1316,7 +1316,7 @@ export default function FormulasPage() {
                 aria-live="polite"
               >
                 <div className="mb-4 p-4 rounded-full bg-muted/20">
-                  <Search className="h-10 w-10 text-muted-foreground/40" aria-hidden="true" />
+                  <Search className="size-10 text-muted-foreground/40" aria-hidden="true" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2">No formulas found</h3>
                 <p className="text-sm text-muted-foreground mb-6 max-w-xs">
@@ -1344,11 +1344,11 @@ export default function FormulasPage() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="p-7 rounded-xl bg-gradient-to-br from-primary/10 to-purple-500/10 border border-primary/20"
+          className="p-7 rounded-xl bg-linear-to-br/oklab from-primary/10 to-purple-500/10 border border-primary/20"
         >
           <div className="flex items-start gap-4">
             <div className="p-3 rounded-lg bg-primary/20 shrink-0" aria-hidden="true">
-              <BookOpen className="h-6 w-6 text-primary" aria-hidden="true" />
+              <BookOpen className="size-6 text-primary" aria-hidden="true" />
             </div>
             <div>
               <h3 className="text-lg font-semibold mb-1">Using This Library</h3>

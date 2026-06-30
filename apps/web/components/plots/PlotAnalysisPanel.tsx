@@ -18,7 +18,6 @@
  * @module components/plots/PlotAnalysisPanel
  */
 
-import { AnimatePresence, m } from 'framer-motion';
 import {
   ArrowDownUp,
   ChevronDown,
@@ -29,6 +28,7 @@ import {
   TrendingDown,
   TrendingUp,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import type { ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 
@@ -559,7 +559,7 @@ function AsymptoteRow({ asymptotes, color }: { asymptotes: AsymptoteInfo[]; colo
     return (
       <div className="flex items-start gap-2 text-xs">
         <span className="mt-0.5 shrink-0" style={{ color }}>
-          <MoveHorizontal className="h-3 w-3" />
+          <MoveHorizontal className="size-3" />
         </span>
         <div className="flex-1 min-w-0">
           <span className="font-medium text-foreground/80 mr-2">Asymptotes:</span>
@@ -574,7 +574,7 @@ function AsymptoteRow({ asymptotes, color }: { asymptotes: AsymptoteInfo[]; colo
       {verticals.length > 0 && (
         <div className="flex items-start gap-2 text-xs">
           <span className="mt-0.5 shrink-0" style={{ color }}>
-            <MoveHorizontal className="h-3 w-3 rotate-90" />
+            <MoveHorizontal className="size-3 rotate-90" />
           </span>
           <div className="flex-1 min-w-0">
             <span className="font-medium text-foreground/80 mr-2">Vertical:</span>
@@ -595,7 +595,7 @@ function AsymptoteRow({ asymptotes, color }: { asymptotes: AsymptoteInfo[]; colo
       {horizontals.length > 0 && (
         <div className="flex items-start gap-2 text-xs">
           <span className="mt-0.5 shrink-0" style={{ color }}>
-            <MoveHorizontal className="h-3 w-3" />
+            <MoveHorizontal className="size-3" />
           </span>
           <div className="flex-1 min-w-0">
             <span className="font-medium text-foreground/80 mr-2">Horizontal:</span>
@@ -645,7 +645,7 @@ export function PlotAnalysisPanel({
     <section
       className={[
         'rounded-xl overflow-hidden',
-        'bg-gradient-to-br from-background/60 via-card/50 to-background/60',
+        'bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60',
         'backdrop-blur-md border border-border',
         'shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]',
         className,
@@ -667,7 +667,7 @@ export function PlotAnalysisPanel({
         aria-controls="analysis-panel-body"
       >
         <div className="flex items-center gap-2">
-          <Crosshair className="h-4 w-4 text-cyan-400" />
+          <Crosshair className="size-4 text-cyan-400" />
           <span>Analysis: Intercepts &amp; Critical Points</span>
           {!hasAnyData && (
             <span className="text-xs text-muted-foreground font-normal">
@@ -676,9 +676,9 @@ export function PlotAnalysisPanel({
           )}
         </div>
         {isOpen ? (
-          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          <ChevronDown className="size-4 text-muted-foreground" />
         ) : (
-          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          <ChevronRight className="size-4 text-muted-foreground" />
         )}
       </button>
 
@@ -704,7 +704,7 @@ export function PlotAnalysisPanel({
                   {/* Function header with color swatch */}
                   <div className="flex items-center gap-2">
                     <span
-                      className="inline-block w-3 h-3 rounded-full ring-1 ring-white/20"
+                      className="inline-block size-3 rounded-full ring-1 ring-white/20"
                       style={{ background: analysis.color }}
                       aria-hidden="true"
                     />
@@ -719,7 +719,7 @@ export function PlotAnalysisPanel({
                   <div className="pl-5 space-y-1.5">
                     {/* X-intercepts */}
                     <SectionRow
-                      icon={<ArrowDownUp className="h-3 w-3" />}
+                      icon={<ArrowDownUp className="size-3" />}
                       title="X-intercepts"
                       points={analysis.xIntercepts}
                       color={analysis.color}
@@ -729,7 +729,7 @@ export function PlotAnalysisPanel({
                     {/* Y-intercept */}
                     <div className="flex items-start gap-2 text-xs">
                       <span className="mt-0.5 shrink-0" style={{ color: analysis.color }}>
-                        <ArrowDownUp className="h-3 w-3 rotate-90" />
+                        <ArrowDownUp className="size-3 rotate-90" />
                       </span>
                       <div className="flex-1 min-w-0">
                         <span className="font-medium text-foreground/80 mr-2">Y-intercept:</span>
@@ -747,7 +747,7 @@ export function PlotAnalysisPanel({
 
                     {/* Local maxima */}
                     <SectionRow
-                      icon={<TrendingUp className="h-3 w-3" />}
+                      icon={<TrendingUp className="size-3" />}
                       title="Local maxima"
                       points={analysis.localMaxima}
                       color={analysis.color}
@@ -756,7 +756,7 @@ export function PlotAnalysisPanel({
 
                     {/* Local minima */}
                     <SectionRow
-                      icon={<TrendingDown className="h-3 w-3" />}
+                      icon={<TrendingDown className="size-3" />}
                       title="Local minima"
                       points={analysis.localMinima}
                       color={analysis.color}
@@ -765,7 +765,7 @@ export function PlotAnalysisPanel({
 
                     {/* Inflection points */}
                     <SectionRow
-                      icon={<GitCommitHorizontal className="h-3 w-3" />}
+                      icon={<GitCommitHorizontal className="size-3" />}
                       title="Inflections"
                       points={analysis.inflectionPoints}
                       color={analysis.color}
@@ -785,7 +785,7 @@ export function PlotAnalysisPanel({
                   aria-label="Intersection points"
                 >
                   <div className="flex items-center gap-2">
-                    <Crosshair className="h-3.5 w-3.5 text-amber-400" />
+                    <Crosshair className="size-3.5 text-amber-400" />
                     <span className="text-xs font-semibold text-amber-300">Intersections</span>
                   </div>
 
@@ -808,11 +808,11 @@ export function PlotAnalysisPanel({
                           {/* Tiny dual color dot */}
                           <span className="flex gap-0.5">
                             <span
-                              className="w-1.5 h-1.5 rounded-full"
+                              className="size-1.5 rounded-full"
                               style={{ background: pt.colors[0] }}
                             />
                             <span
-                              className="w-1.5 h-1.5 rounded-full"
+                              className="size-1.5 rounded-full"
                               style={{ background: pt.colors[1] }}
                             />
                           </span>

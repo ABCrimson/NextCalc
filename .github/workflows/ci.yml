@@ -134,6 +134,13 @@ jobs:
   # Typecheck (advisory) — TypeScript 7 native preview (tsgo). Non-blocking
   # (continue-on-error); runs side-by-side with the tsc gate to surface
   # TS7-forward issues early without blocking merges.
+  #
+  # @nextcalc/web and @nextcalc/plot-engine are excluded: both consume
+  # three.js@0.185 TSL (Three Shading Language) node types, whose operator
+  # overloads (e.g. `node.add(...)`) expand into unions the native compiler
+  # cannot yet resolve — tsgo hangs on them (tsc 6.x in the gate handles them
+  # fine). This is an upstream tsgo/three limitation, not a type error in our
+  # code. Re-include these packages once tsgo or three's TSL types improve.
   # ---------------------------------------------------------------------------
   typecheck-fast:
     name: Typecheck (TS7 tsgo, advisory)
@@ -165,7 +172,7 @@ jobs:
           fail-on-cache-miss: true
 
       - name: Run tsgo (advisory)
-        run: pnpm turbo run typecheck:fast
+        run: pnpm turbo run typecheck:fast --filter='!@nextcalc/web' --filter='!@nextcalc/plot-engine'
 
   # ---------------------------------------------------------------------------
   # Test (Vitest across math-engine, plot-engine, web, api)

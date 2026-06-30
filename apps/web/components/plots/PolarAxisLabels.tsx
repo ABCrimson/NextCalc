@@ -7,7 +7,7 @@
  * @module components/plots/PolarAxisLabels
  */
 
-import { m } from 'framer-motion';
+import { m } from 'motion/react';
 import { useMemo } from 'react';
 
 export interface PolarAxisLabelsProps {
@@ -189,7 +189,7 @@ export function PolarAxisLabels({
         variants={centerPointVariants}
         initial="hidden"
         animate="visible"
-        className="absolute w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_12px_oklch(0.7148_0.1257_215.22_/_0.6)]"
+        className="absolute size-3 rounded-full bg-cyan-400 shadow-[0_0_12px_oklch(0.7148_0.1257_215.22_/_0.6)]"
         style={{
           left: `${centerX}px`,
           top: `${centerY}px`,
@@ -257,7 +257,7 @@ export function PolarAxisLabels({
             shadow-[0_2px_8px_0_oklch(0.7148_0.1257_215.22_/_0.15)]
             ${
               tick.isCardinal
-                ? 'text-cyan-100 bg-gradient-to-br from-cyan-900/90 to-cyan-800/90 border-2 border-cyan-400/60 font-semibold'
+                ? 'text-cyan-100 bg-linear-to-br/oklab from-cyan-900/90 to-cyan-800/90 border-2 border-cyan-400/60 font-semibold'
                 : 'text-cyan-300/90 bg-background/80 border border-cyan-500/30 font-medium'
             }
           `}
@@ -281,7 +281,7 @@ export function PolarAxisLabels({
         animate="visible"
         className="
           absolute text-sm font-semibold
-          text-cyan-100 bg-gradient-to-br from-background/90 to-card/90
+          text-cyan-100 bg-linear-to-br/oklab from-background/90 to-card/90
           backdrop-blur-md px-3 py-1.5 rounded-lg
           border border-cyan-500/40
           shadow-[0_4px_16px_0_oklch(0.7148_0.1257_215.22_/_0.2)]

@@ -112,7 +112,7 @@ export default function SignInPage() {
     <Suspense
       fallback={
         <div className="flex min-h-screen items-center justify-center bg-background">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <Loader2 className="size-8 animate-spin text-muted-foreground" />
         </div>
       }
     >
@@ -179,12 +179,12 @@ function SignInContent() {
           >
             <div className="relative">
               <Calculator
-                className="h-8 w-8 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110"
+                className="size-8 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110"
                 aria-hidden="true"
               />
               <div className="absolute -inset-1.5 rounded-full bg-primary/20 blur-md opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent">
+            <span className="text-xl font-bold bg-linear-to-r/oklab from-foreground via-foreground to-primary bg-clip-text text-transparent">
               NextCalc Pro
             </span>
           </Link>
@@ -204,7 +204,7 @@ function SignInContent() {
             aria-live="assertive"
             className="flex items-start gap-3 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
           >
-            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+            <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
             <p>{errorMessage || redirectError}</p>
           </div>
         )}
@@ -232,9 +232,9 @@ function SignInContent() {
                 )}
               >
                 {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  <Loader2 className="size-4 animate-spin" aria-hidden="true" />
                 ) : (
-                  <Icon className="h-4 w-4" aria-hidden="true" />
+                  <Icon className="size-4" aria-hidden="true" />
                 )}
                 <span>{isLoading ? t('redirecting') : t(label)}</span>
               </button>

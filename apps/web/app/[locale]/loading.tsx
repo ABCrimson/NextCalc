@@ -1,13 +1,13 @@
 'use client';
 
-import { m } from 'framer-motion';
+import { m } from 'motion/react';
 import { useTranslations } from 'next-intl';
 
 export default function Loading() {
   const t = useTranslations();
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-background/95 to-background">
+    <div className="flex min-h-screen items-center justify-center bg-linear-to-br/oklab from-background via-background/95 to-background">
       <m.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -25,7 +25,7 @@ export default function Loading() {
               repeat: Number.POSITIVE_INFINITY,
               ease: 'linear',
             }}
-            className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full"
+            className="size-16 border-4 border-primary/30 border-t-primary rounded-full"
           />
         </div>
 
@@ -61,7 +61,7 @@ export default function Loading() {
                 repeat: Number.POSITIVE_INFINITY,
                 delay: index * 0.2,
               }}
-              className="w-2 h-2 rounded-full bg-primary"
+              className="size-2 rounded-full bg-primary"
             />
           ))}
         </div>

@@ -1,8 +1,8 @@
 'use client';
 
 import { type ShorResult, shorAlgorithm } from '@nextcalc/math-engine';
-import { AnimatePresence, m } from 'framer-motion';
 import { Activity, ChevronRight, Cpu, Info, Pause, Play, RotateCcw, X, Zap } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -227,7 +227,7 @@ function GateBox({
   const p = GATE_PALETTE[gateKey];
   return (
     <m.div
-      className="relative flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center text-base font-bold select-none z-10"
+      className="relative flex-shrink-0 size-12 rounded-lg flex items-center justify-center text-base font-bold select-none z-10"
       style={{
         background: isActive ? p.bg : isExecuted ? 'rgba(25,22,50,0.7)' : `${p.bg}28`,
         border: `2px solid ${isActive ? p.border : isExecuted ? '#2a2a40' : `${p.border}66`}`,
@@ -499,7 +499,7 @@ export function QuantumSimulator({
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <CardTitle className="text-3xl font-bold flex items-center gap-2">
-                <Cpu className="h-8 w-8 text-primary" />
+                <Cpu className="size-8 text-primary" />
                 Quantum Circuit Simulator
               </CardTitle>
               <CardDescription>
@@ -531,7 +531,7 @@ export function QuantumSimulator({
           >
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5 text-primary" />
+                <Activity className="size-5 text-primary" />
                 State Vector
               </CardTitle>
             </CardHeader>
@@ -600,7 +600,7 @@ export function QuantumSimulator({
                     disabled={circuit.length === 0}
                     aria-label={isExecuting ? 'Stop' : 'Run circuit'}
                   >
-                    {isExecuting ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                    {isExecuting ? <Pause className="size-4" /> : <Play className="size-4" />}
                   </Button>
                   <Button
                     variant="outline"
@@ -608,7 +608,7 @@ export function QuantumSimulator({
                     onClick={measure}
                     aria-label="Measure quantum state"
                   >
-                    <Zap className="h-4 w-4 mr-1" />
+                    <Zap className="size-4 mr-1" />
                     Measure
                   </Button>
                 </div>
@@ -623,7 +623,7 @@ export function QuantumSimulator({
                     border: '2px dashed rgba(80,60,160,0.4)',
                   }}
                 >
-                  <Activity className="h-12 w-12 mb-3 opacity-30 text-primary" />
+                  <Activity className="size-12 mb-3 opacity-30 text-primary" />
                   <p className="text-sm text-muted-foreground">
                     No gates in circuit. Add gates from the control panel.
                   </p>
@@ -742,7 +742,7 @@ export function QuantumSimulator({
                       className="flex items-center gap-1.5 text-xs text-muted-foreground"
                     >
                       <div
-                        className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold"
+                        className="size-5 rounded flex items-center justify-center text-[10px] font-bold"
                         style={{ background: p.bg, color: p.text }}
                       >
                         {p.label}
@@ -768,7 +768,7 @@ export function QuantumSimulator({
                         border: '1px solid rgba(61,201,138,0.4)',
                       }}
                     >
-                      <Zap className="h-4 w-4" style={{ color: '#3dc98a' }} />
+                      <Zap className="size-4" style={{ color: '#3dc98a' }} />
                       <div className="ml-2">
                         <strong>Measurement Result:</strong>{' '}
                         <span className="font-mono text-base" style={{ color: '#3dc98a' }}>
@@ -819,7 +819,7 @@ export function QuantumSimulator({
               </div>
               <Separator />
               <Button variant="outline" className="w-full" onClick={reset}>
-                <RotateCcw className="h-4 w-4 mr-2" />
+                <RotateCcw className="size-4 mr-2" />
                 Reset Circuit
               </Button>
             </CardContent>
@@ -909,7 +909,7 @@ export function QuantumSimulator({
                       {preset.description}
                     </div>
                   </div>
-                  <ChevronRight className="h-4 w-4 ml-2 shrink-0" />
+                  <ChevronRight className="size-4 ml-2 shrink-0" />
                 </Button>
               ))}
             </CardContent>
@@ -954,9 +954,9 @@ export function QuantumSimulator({
                             size="sm"
                             onClick={() => removeGate(i)}
                             disabled={isExecuting}
-                            className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                            className="size-6 p-0 text-muted-foreground hover:text-destructive"
                           >
-                            <X className="h-3 w-3" />
+                            <X className="size-3" />
                           </Button>
                         </div>
                       );
@@ -974,7 +974,7 @@ export function QuantumSimulator({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Info className="h-5 w-5" />
+              <Info className="size-5" />
               Understanding Quantum Computing
             </CardTitle>
           </CardHeader>
@@ -1058,7 +1058,7 @@ export function QuantumSimulator({
                       }}
                     >
                       <div
-                        className="w-8 h-8 rounded shrink-0 flex items-center justify-center text-sm font-bold"
+                        className="size-8 rounded shrink-0 flex items-center justify-center text-sm font-bold"
                         style={{ background: p.bg, color: p.text }}
                       >
                         {p.label}
@@ -1141,18 +1141,18 @@ export function QuantumSimulator({
                     >
                       {shorExecuting ? (
                         <>
-                          <Activity className="h-4 w-4 mr-2 animate-spin" />
+                          <Activity className="size-4 mr-2 animate-spin" />
                           Running...
                         </>
                       ) : (
                         <>
-                          <Play className="h-4 w-4 mr-2" />
+                          <Play className="size-4 mr-2" />
                           Run Shor's Algorithm
                         </>
                       )}
                     </Button>
                     <Button variant="outline" onClick={resetShorDemo} disabled={shorExecuting}>
-                      <RotateCcw className="h-4 w-4" />
+                      <RotateCcw className="size-4" />
                     </Button>
                   </div>
                   {shorResult && (

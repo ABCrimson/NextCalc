@@ -8,7 +8,6 @@
  */
 
 import { useMutation, useQuery } from '@apollo/client/react';
-import { m, useReducedMotion } from 'framer-motion';
 import {
   AlertCircle,
   ArrowLeft,
@@ -20,18 +19,16 @@ import {
   Pin,
   Send,
 } from 'lucide-react';
-import { useLocale, useTranslations } from 'next-intl';
+import { m, useReducedMotion } from 'motion/react';
+import { useFormatter, useTranslations } from 'next-intl';
 import { useCallback, useState } from 'react';
 import { CommentThread } from '@/components/forum/comment-thread';
 import { ForumBackground } from '@/components/forum/forum-background';
 import {
   type ForumPostDetail,
-  formatDate,
-  formatNumber,
   getInitials,
   getPostHue,
   getTierFromRole,
-  timeAgo,
 } from '@/components/forum/forum-shared';
 import { TagPill } from '@/components/forum/post-card';
 import { UpvoteButton } from '@/components/forum/upvote-button';
@@ -61,7 +58,7 @@ function DetailSkeleton() {
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-2/3" />
         <div className="flex items-center gap-3 pt-4">
-          <Skeleton className="h-12 w-12 rounded-full" />
+          <Skeleton className="size-12 rounded-full" />
           <div className="space-y-2">
             <Skeleton className="h-4 w-32" />
             <Skeleton className="h-3 w-24" />
@@ -71,7 +68,7 @@ function DetailSkeleton() {
       <div className="space-y-3">
         {(['sk-c-0', 'sk-c-1', 'sk-c-2'] as const).map((k) => (
           <div key={k} className="flex gap-3 py-3">
-            <Skeleton className="h-8 w-8 rounded-full shrink-0" />
+            <Skeleton className="size-8 rounded-full shrink-0" />
             <div className="space-y-2 flex-1">
               <Skeleton className="h-3 w-24" />
               <Skeleton className="h-4 w-full" />
@@ -95,7 +92,7 @@ interface PostDetailClientProps {
 export function PostDetailClient({ id }: PostDetailClientProps) {
   const t = useTranslations('forum');
   const tAuth = useTranslations('auth');
-  const locale = useLocale();
+  const format = useFormatter();
   const prefersReduced = useReducedMotion();
   const router = useRouter();
   const { status: authStatus } = useSession();
@@ -160,7 +157,7 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
               onClick={() => router.push('/forum')}
               className="gap-2 text-muted-foreground hover:text-foreground"
             >
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="size-4" />
               {t('backToForum')}
             </Button>
           </m.div>
@@ -171,7 +168,7 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
           {/* Post not found (loaded but null) */}
           {!loading && !error && !post && (
             <div className="rounded-2xl border border-destructive/30 p-6 bg-destructive/10 backdrop-blur-md text-center">
-              <AlertCircle className="h-10 w-10 mx-auto text-destructive mb-3" />
+              <AlertCircle className="size-10 mx-auto text-destructive mb-3" />
               <p className="text-sm text-destructive">{t('postNotFound')}</p>
               <p className="text-xs text-muted-foreground mt-1">{t('postNotFoundHint')}</p>
               <Button variant="outline" className="mt-4" onClick={() => router.push('/forum')}>
@@ -183,7 +180,7 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
           {/* Network / GraphQL error */}
           {error && !post && (
             <div className="rounded-2xl border border-destructive/30 p-6 bg-destructive/10 backdrop-blur-md text-center">
-              <AlertCircle className="h-10 w-10 mx-auto text-destructive mb-3" />
+              <AlertCircle className="size-10 mx-auto text-destructive mb-3" />
               <p className="text-sm text-destructive">{t('postNotFound')}</p>
               <p className="text-xs text-muted-foreground mt-1">{t('postNotFoundHint')}</p>
               <Button variant="outline" className="mt-4" onClick={() => router.push('/forum')}>
@@ -228,7 +225,7 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
                           variant="outline"
                           className="gap-1 text-[10px] py-0 h-5 bg-amber-500/10 border-amber-500/30 text-amber-400"
                         >
-                          <Pin className="h-2.5 w-2.5" />
+                          <Pin className="size-2.5" />
                           {t('pinned')}
                         </Badge>
                       )}
@@ -237,7 +234,7 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
                           variant="outline"
                           className="gap-1 text-[10px] py-0 h-5 bg-red-500/10 border-red-500/30 text-red-400"
                         >
-                          <Lock className="h-2.5 w-2.5" />
+                          <Lock className="size-2.5" />
                           {t('closed')}
                         </Badge>
                       )}
@@ -267,18 +264,23 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
                 {/* Meta stats */}
                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
-                    <Eye className="h-3 w-3" />
-                    {t('viewsCount', { count: formatNumber(post.views) })}
+                    <Eye className="size-3" />
+                    {t('viewsCount', {
+                      count: format.number(post.views, {
+                        notation: 'compact',
+                        maximumFractionDigits: 1,
+                      }),
+                    })}
                   </span>
                   <span className="flex items-center gap-1">
-                    <MessageSquare className="h-3 w-3" />
+                    <MessageSquare className="size-3" />
                     {t('commentsCount', {
                       count: post.commentCount ?? post.comments.length,
                     })}
                   </span>
                   <span className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    {timeAgo(post.createdAt)}
+                    <Clock className="size-3" />
+                    {format.relativeTime(new Date(post.createdAt), { style: 'narrow' })}
                   </span>
                 </div>
 
@@ -297,8 +299,8 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
                   >
                     <div
                       className={cn(
-                        'flex h-12 w-12 shrink-0 items-center justify-center rounded-full font-bold text-sm',
-                        'bg-gradient-to-br from-indigo-500/30 to-purple-500/30 border border-indigo-500/30',
+                        'flex size-12 shrink-0 items-center justify-center rounded-full font-bold text-sm',
+                        'bg-linear-to-br/oklab from-indigo-500/30 to-purple-500/30 border border-indigo-500/30',
                       )}
                     >
                       {post.user.image ? (
@@ -306,7 +308,7 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
                         <img
                           src={post.user.image}
                           alt={post.user.name ?? t('anonymous')}
-                          className="h-full w-full rounded-full object-cover"
+                          className="size-full rounded-full object-cover"
                         />
                       ) : (
                         <span className="text-indigo-300">{getInitials(post.user.name)}</span>
@@ -320,7 +322,7 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
                         {(() => {
                           const tier = getTierFromRole(post.user.role);
                           const TIcon = tier.icon;
-                          return TIcon ? <TIcon className={cn('h-3.5 w-3.5', tier.color)} /> : null;
+                          return TIcon ? <TIcon className={cn('size-3.5', tier.color)} /> : null;
                         })()}
                       </div>
                       <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
@@ -328,7 +330,13 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
                           <span className="truncate max-w-48">{post.user.bio}</span>
                         )}
                         <span>
-                          {t('joined', { date: formatDate(post.user.createdAt, locale) })}
+                          {t('joined', {
+                            date: format.dateTime(new Date(post.user.createdAt), {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                            }),
+                          })}
                         </span>
                       </div>
                     </div>
@@ -339,7 +347,7 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
               {/* Comments section */}
               <div className="rounded-2xl border border-border p-6 backdrop-blur-md bg-card/50 space-y-4">
                 <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5 text-indigo-400" />
+                  <MessageSquare className="size-5 text-indigo-400" />
                   {t('commentsCount', {
                     count: post.commentCount ?? post.comments.length,
                   })}
@@ -355,7 +363,7 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
 
                 {post.comments.length === 0 && (
                   <div className="text-center py-8">
-                    <MessageSquare className="h-10 w-10 mx-auto text-muted-foreground/30 mb-3" />
+                    <MessageSquare className="size-10 mx-auto text-muted-foreground/30 mb-3" />
                     <p className="text-sm text-muted-foreground">{t('noCommentsYet')}</p>
                     <p className="text-xs text-muted-foreground/60 mt-1">{t('beFirstComment')}</p>
                   </div>
@@ -378,12 +386,12 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
                           <Button
                             onClick={handleSubmitComment}
                             disabled={!commentContent.trim() || submitting}
-                            className="gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white"
+                            className="gap-2 bg-linear-to-r/oklab from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white"
                           >
                             {submitting ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
+                              <Loader2 className="size-4 animate-spin" />
                             ) : (
-                              <Send className="h-4 w-4" />
+                              <Send className="size-4" />
                             )}
                             {t('comment')}
                           </Button>
@@ -412,7 +420,7 @@ export function PostDetailClient({ id }: PostDetailClientProps) {
 
                 {post.isClosed && (
                   <div className="text-center py-4 text-sm text-muted-foreground flex items-center justify-center gap-2">
-                    <Lock className="h-4 w-4" />
+                    <Lock className="size-4" />
                     {t('discussionClosed')}
                   </div>
                 )}

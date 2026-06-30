@@ -164,7 +164,7 @@ export function InstallPWA() {
       aria-describedby="install-pwa-description"
     >
       <div
-        className="flex flex-col gap-3 p-4 bg-gradient-to-r from-primary to-calculator-operator text-white rounded-2xl shadow-2xl shadow-primary/30 border border-white/10 backdrop-blur-sm transition-all duration-300 animate-slide-up"
+        className="flex flex-col gap-3 p-4 bg-linear-to-r/oklab from-primary to-calculator-operator text-white rounded-2xl shadow-2xl shadow-primary/30 border border-white/10 backdrop-blur-sm transition-all duration-300 animate-slide-up"
         style={{
           // Respect prefers-reduced-motion
           animationDuration: prefersReducedMotion ? '0.01ms' : '300ms',
@@ -185,11 +185,11 @@ export function InstallPWA() {
             variant="ghost"
             size="icon"
             onClick={handleDismiss}
-            className="h-8 w-8 text-white hover:bg-white/20 rounded-full flex-shrink-0"
+            className="size-8 text-white hover:bg-white/20 rounded-full flex-shrink-0"
             aria-label="Dismiss install prompt"
             title="Dismiss (Escape)"
           >
-            <X className="h-4 w-4" />
+            <X className="size-4" />
           </Button>
         </div>
 
@@ -202,22 +202,22 @@ export function InstallPWA() {
           aria-label="Install NextCalc Pro Progressive Web App"
           aria-describedby="install-pwa-description"
         >
-          <Download className="mr-2 h-5 w-5" aria-hidden="true" />
+          <Download className="mr-2 size-5" aria-hidden="true" />
           {isInstalling ? 'Installing...' : 'Install App'}
         </Button>
 
         {/* Benefits list */}
         <ul className="text-xs text-white/80 space-y-1 mt-1">
           <li className="flex items-center gap-2">
-            <span className="w-1 h-1 bg-white/60 rounded-full" aria-hidden="true" />
+            <span className="size-1 bg-white/60 rounded-full" aria-hidden="true" />
             <span>Works offline</span>
           </li>
           <li className="flex items-center gap-2">
-            <span className="w-1 h-1 bg-white/60 rounded-full" aria-hidden="true" />
+            <span className="size-1 bg-white/60 rounded-full" aria-hidden="true" />
             <span>Fast & lightweight</span>
           </li>
           <li className="flex items-center gap-2">
-            <span className="w-1 h-1 bg-white/60 rounded-full" aria-hidden="true" />
+            <span className="size-1 bg-white/60 rounded-full" aria-hidden="true" />
             <span>Home screen access</span>
           </li>
         </ul>

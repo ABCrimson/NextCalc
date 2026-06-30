@@ -4,6 +4,7 @@ import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Component, type ComponentType, type ErrorInfo, type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { captureError } from '@/lib/monitoring/error-tracking';
 
 interface ErrorBoundaryProps {
   readonly children: ReactNode;
@@ -60,8 +61,16 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     // Call optional error handler
     this.props.onError?.(error, errorInfo);
 
-    // In production, you would send this to an error reporting service
-    // Example: Sentry.captureException(error, { contexts: { react: errorInfo } });
+    // Report to the error-tracking service. This routes to Sentry when a DSN is
+    // configured (see instrumentation-client.ts), and to the structured-log
+    // console fallback otherwise.
+    void captureError(error, {
+      component: 'ErrorBoundary',
+      level: 'error',
+      ...(errorInfo.componentStack
+        ? { metadata: { componentStack: errorInfo.componentStack } }
+        : {}),
+    });
   }
 
   reset = (): void => {
@@ -77,12 +86,12 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
       // Default fallback UI
       return (
-        <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-background via-background/95 to-background">
+        <div className="min-h-screen flex items-center justify-center p-6 bg-linear-to-br/oklab from-background via-background/95 to-background">
           <Card className="max-w-2xl w-full p-8 bg-card backdrop-blur-sm border-red-500/20">
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0">
-                <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center">
-                  <AlertTriangle className="h-6 w-6 text-red-500" />
+                <div className="size-12 rounded-full bg-red-500/10 flex items-center justify-center">
+                  <AlertTriangle className="size-6 text-red-500" />
                 </div>
               </div>
 
@@ -116,9 +125,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 <div className="flex gap-3 pt-2">
                   <Button
                     onClick={this.reset}
-                    className="bg-gradient-to-r from-primary to-calculator-equals"
+                    className="bg-linear-to-r/oklab from-primary to-calculator-equals"
                   >
-                    <RefreshCw className="h-4 w-4 mr-2" />
+                    <RefreshCw className="size-4 mr-2" />
                     Try Again
                   </Button>
 

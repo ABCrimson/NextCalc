@@ -55,7 +55,7 @@ export default async function ProblemPage({ params }: { params: Promise<{ id: st
       <div className="mb-6">
         <Button variant="ghost" asChild>
           <Link href="/problems">
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="size-4 mr-2" />
             {t('backToProblems')}
           </Link>
         </Button>
@@ -103,7 +103,7 @@ export default async function ProblemPage({ params }: { params: Promise<{ id: st
       {/* Share Section */}
       <div className="mt-6 flex justify-center">
         <Button variant="outline" size="sm">
-          <Share2 className="h-4 w-4 mr-2" />
+          <Share2 className="size-4 mr-2" />
           {t('shareProblem')}
         </Button>
       </div>

@@ -1,8 +1,8 @@
 'use client';
 
 import type { SolutionStep } from '@nextcalc/math-engine/problems';
-import { AnimatePresence, m } from 'framer-motion';
 import { Activity, Code, Pause, Play, RotateCcw, SkipForward, Zap } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -62,7 +62,7 @@ export function StepVisualizer({
                 onClick={() => setIsPlaying(!isPlaying)}
                 aria-label={isPlaying ? 'Pause' : 'Play'}
               >
-                {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                {isPlaying ? <Pause className="size-4" /> : <Play className="size-4" />}
               </Button>
               <Button
                 variant="outline"
@@ -71,7 +71,7 @@ export function StepVisualizer({
                 disabled={currentStep >= steps.length - 1}
                 aria-label="Next step"
               >
-                <SkipForward className="h-4 w-4" />
+                <SkipForward className="size-4" />
               </Button>
               <Button
                 variant="outline"
@@ -82,7 +82,7 @@ export function StepVisualizer({
                 }}
                 aria-label="Reset"
               >
-                <RotateCcw className="h-4 w-4" />
+                <RotateCcw className="size-4" />
               </Button>
             </div>
 
@@ -131,7 +131,7 @@ export function StepVisualizer({
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary font-semibold">
+                  <div className="flex items-center justify-center size-10 rounded-full bg-primary/10 text-primary font-semibold">
                     {currentStep + 1}
                   </div>
                   <div>
@@ -179,7 +179,7 @@ export function StepVisualizer({
                   <m.div
                     initial={{ width: 0 }}
                     animate={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
-                    className="h-full bg-gradient-to-r from-primary to-primary/60"
+                    className="h-full bg-linear-to-r/oklab from-primary to-primary/60"
                     transition={{ duration: 0.3 }}
                   />
                 </div>
@@ -296,7 +296,7 @@ export function AlgorithmVisualizer({
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="flex items-center gap-2">
-                  <Code className="h-5 w-5" />
+                  <Code className="size-5" />
                   {algorithm.name}
                 </CardTitle>
                 <CardDescription className="mt-1">{algorithm.description}</CardDescription>
@@ -341,7 +341,7 @@ export function AlgorithmVisualizer({
                   onClick={() => setIsPlaying(!isPlaying)}
                   aria-label={isPlaying ? 'Pause' : 'Play'}
                 >
-                  {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                  {isPlaying ? <Pause className="size-4" /> : <Play className="size-4" />}
                 </Button>
                 <Button
                   variant="outline"
@@ -352,7 +352,7 @@ export function AlgorithmVisualizer({
                   disabled={currentStep >= algorithm.steps.length - 1}
                   aria-label="Next step"
                 >
-                  <SkipForward className="h-4 w-4" />
+                  <SkipForward className="size-4" />
                 </Button>
                 <Button
                   variant="outline"
@@ -363,7 +363,7 @@ export function AlgorithmVisualizer({
                   }}
                   aria-label="Reset"
                 >
-                  <RotateCcw className="h-4 w-4" />
+                  <RotateCcw className="size-4" />
                 </Button>
               </div>
 
@@ -391,7 +391,7 @@ export function AlgorithmVisualizer({
         <Card className="border-l-4 border-l-primary">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Activity className="h-5 w-5" />
+              <Activity className="size-5" />
               Current Step
             </CardTitle>
           </CardHeader>
@@ -404,7 +404,7 @@ export function AlgorithmVisualizer({
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Zap className="h-5 w-5" />
+              <Zap className="size-5" />
               Variables
             </CardTitle>
           </CardHeader>

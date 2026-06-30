@@ -1,8 +1,8 @@
 'use client';
 
 import { Complex } from '@nextcalc/math-engine/complex';
-import { AnimatePresence, m } from 'framer-motion';
 import { AlertCircle, ArrowLeftRight, Check, Copy, RefreshCw, Zap } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -748,7 +748,7 @@ function ResultDisplay({ result }: ResultDisplayProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 shrink-0 transition-all duration-150"
+            className="size-8 shrink-0 transition-all duration-150"
             style={
               copied === row.key
                 ? { color: 'oklch(0.72 0.20 155)', background: 'oklch(0.65 0.18 155 / 0.12)' }
@@ -758,9 +758,9 @@ function ResultDisplay({ result }: ResultDisplayProps) {
             aria-label={`Copy ${row.label} form`}
           >
             {copied === row.key ? (
-              <Check className="h-4 w-4" />
+              <Check className="size-4" />
             ) : (
-              <Copy className="h-4 w-4 text-muted-foreground" />
+              <Copy className="size-4 text-muted-foreground" />
             )}
           </Button>
         </m.div>
@@ -838,7 +838,7 @@ function ArgandDiagramCard({ points }: ArgandDiagramCardProps) {
       >
         <div className="flex items-center gap-2">
           <div
-            className="w-2 h-2 rounded-full"
+            className="size-2 rounded-full"
             style={{
               background: 'oklch(0.65 0.22 264)',
               boxShadow: '0 0 6px oklch(0.65 0.22 264 / 0.8)',
@@ -870,7 +870,7 @@ function ArgandDiagramCard({ points }: ArgandDiagramCardProps) {
             style={{ color: 'oklch(0.70 0.06 264)' }}
           >
             <span
-              className="inline-block w-2.5 h-2.5 rounded-full"
+              className="inline-block size-2.5 rounded-full"
               style={{ background: p.color, boxShadow: `0 0 5px ${p.glowColor}` }}
               aria-hidden="true"
             />
@@ -1460,7 +1460,7 @@ export function ComplexPanel() {
         style={{ borderColor: 'oklch(0.65 0.22 264 / 0.15)' }}
       >
         <div
-          className="flex items-center justify-center w-10 h-10 rounded-xl"
+          className="flex items-center justify-center size-10 rounded-xl"
           style={{
             background:
               'linear-gradient(135deg, oklch(0.65 0.22 264 / 0.25), oklch(0.58 0.22 300 / 0.25))',
@@ -1581,7 +1581,7 @@ export function ComplexPanel() {
                         setBinaryOp(op);
                         setBinaryResult(null);
                       }}
-                      className="w-10 h-10 rounded-lg text-lg font-bold transition-all duration-150 border"
+                      className="size-10 rounded-lg text-lg font-bold transition-all duration-150 border"
                       style={
                         binaryOp === op
                           ? {
@@ -1607,12 +1607,12 @@ export function ComplexPanel() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 mt-1 text-muted-foreground hover:text-foreground"
+                  className="size-8 mt-1 text-muted-foreground hover:text-foreground"
                   onClick={swapOperands}
                   aria-label="Swap z1 and z2"
                   title="Swap operands"
                 >
-                  <ArrowLeftRight className="h-4 w-4" />
+                  <ArrowLeftRight className="size-4" />
                 </Button>
               </div>
 
@@ -1668,7 +1668,7 @@ export function ComplexPanel() {
               onClick={handleBinaryCalculate}
               disabled={!parsedZ1 || !parsedZ2}
             >
-              <Zap className="h-4 w-4" />
+              <Zap className="size-4" />
               Calculate z₁ {BINARY_OP_LABELS[binaryOp]} z₂
             </button>
 
@@ -1681,7 +1681,7 @@ export function ComplexPanel() {
                   exit={{ opacity: 0, height: 0 }}
                 >
                   <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
+                    <AlertCircle className="size-4" />
                     <AlertDescription>{binaryError}</AlertDescription>
                   </Alert>
                 </m.div>
@@ -1830,7 +1830,7 @@ export function ComplexPanel() {
               onClick={handleUnaryCalculate}
               disabled={!parsedUZ}
             >
-              <Zap className="h-4 w-4" />
+              <Zap className="size-4" />
               Calculate {UNARY_OP_LABELS[unaryOp]}
             </button>
 
@@ -1843,7 +1843,7 @@ export function ComplexPanel() {
                   exit={{ opacity: 0, height: 0 }}
                 >
                   <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
+                    <AlertCircle className="size-4" />
                     <AlertDescription>{unaryError}</AlertDescription>
                   </Alert>
                 </m.div>
@@ -1888,7 +1888,7 @@ export function ComplexPanel() {
             {history.length === 0 ? (
               <div className="text-center py-16 text-muted-foreground">
                 <div
-                  className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center"
+                  className="size-16 rounded-2xl mx-auto mb-4 flex items-center justify-center"
                   style={{
                     background: 'oklch(0.65 0.22 264 / 0.08)',
                     border: '1px solid oklch(0.65 0.22 264 / 0.15)',
@@ -1917,7 +1917,7 @@ export function ComplexPanel() {
                     onClick={() => setHistory([])}
                     className="text-xs text-muted-foreground gap-1"
                   >
-                    <RefreshCw className="h-3 w-3" />
+                    <RefreshCw className="size-3" />
                     Clear
                   </Button>
                 </div>
@@ -2020,7 +2020,7 @@ export function ComplexPanel() {
                     {items.map((item) => (
                       <li key={item} className="flex items-start gap-1.5">
                         <span
-                          className="mt-1.5 w-1 h-1 rounded-full shrink-0"
+                          className="mt-1.5 size-1 rounded-full shrink-0"
                           style={{ background: `oklch(0.65 0.15 ${hue} / 0.7)` }}
                         />
                         {item}

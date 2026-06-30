@@ -17,12 +17,12 @@ export default async function MatrixPage() {
       {/* ─── Animated gradient background ─────────────────────────────── */}
       <div className="fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
         {/* Base gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background" />
+        <div className="absolute inset-0 bg-linear-to-br/oklab from-background via-background/95 to-background" />
 
         {/* Noise texture overlay using SVG feTurbulence */}
         <svg
           aria-hidden="true"
-          className="absolute inset-0 w-full h-full opacity-[0.025] pointer-events-none"
+          className="absolute inset-0 size-full opacity-[0.025] pointer-events-none"
           xmlns="http://www.w3.org/2000/svg"
         >
           <filter id="matrix-noise">
@@ -102,7 +102,7 @@ export default async function MatrixPage() {
 
             <div>
               {/* Gradient heading */}
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold bg-linear-to-r/oklab from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
                 {t('pageTitle')}
               </h1>
               <p className="text-base text-muted-foreground mt-1">{t('pageSubtitle')}</p>
@@ -152,7 +152,7 @@ export default async function MatrixPage() {
             }}
           >
             <span
-              className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-indigo-600 text-white text-sm font-bold"
+              className="inline-flex items-center justify-center size-8 rounded-lg bg-linear-to-br/oklab from-violet-600 to-indigo-600 text-white text-sm font-bold"
               style={{ color: 'white' }}
               aria-hidden="true"
             >

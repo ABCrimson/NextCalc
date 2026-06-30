@@ -1,7 +1,7 @@
 'use client';
 
-import { AnimatePresence, m } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Filter, Grid3x3, Heart, List, Search } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import { useCallback, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -217,7 +217,7 @@ export function ProblemBrowser({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative flex-1 max-w-md">
           <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+            className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
             aria-hidden="true"
           />
           <Input
@@ -242,7 +242,7 @@ export function ProblemBrowser({
               aria-pressed={showOnlyFavorites}
             >
               <Heart
-                className={cn('h-4 w-4', showOnlyFavorites && 'fill-current')}
+                className={cn('size-4', showOnlyFavorites && 'fill-current')}
                 aria-hidden="true"
               />
               <span className="ml-2 hidden sm:inline">Favorites</span>
@@ -256,9 +256,9 @@ export function ProblemBrowser({
             aria-label={`Switch to ${viewMode === 'grid' ? 'list' : 'grid'} view`}
           >
             {viewMode === 'grid' ? (
-              <List className="h-4 w-4" aria-hidden="true" />
+              <List className="size-4" aria-hidden="true" />
             ) : (
-              <Grid3x3 className="h-4 w-4" aria-hidden="true" />
+              <Grid3x3 className="size-4" aria-hidden="true" />
             )}
           </Button>
         </div>
@@ -267,7 +267,7 @@ export function ProblemBrowser({
       {/* Filters */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+          <Filter className="size-4 text-muted-foreground" aria-hidden="true" />
           <span className="text-sm font-medium">Filters</span>
           {hasActiveFilters && (
             <Button variant="ghost" size="sm" onClick={clearFilters} className="h-7 text-xs">
@@ -389,7 +389,7 @@ export function ProblemBrowser({
             disabled={currentPage === 1}
             aria-label="Previous page"
           >
-            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+            <ChevronLeft className="size-4" aria-hidden="true" />
           </Button>
 
           <div className="flex items-center gap-1">
@@ -427,7 +427,7 @@ export function ProblemBrowser({
             disabled={currentPage === totalPages}
             aria-label="Next page"
           >
-            <ChevronRight className="h-4 w-4" aria-hidden="true" />
+            <ChevronRight className="size-4" aria-hidden="true" />
           </Button>
         </nav>
       )}
@@ -482,7 +482,7 @@ function ProblemCard({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0"
+                className="size-8 p-0"
                 onClick={(e) => {
                   e.stopPropagation();
                   onToggleFavorite(problem.id);
@@ -491,7 +491,7 @@ function ProblemCard({
               >
                 <Heart
                   className={cn(
-                    'h-4 w-4 transition-colors',
+                    'size-4 transition-colors',
                     problem.isFavorite && 'fill-red-500 text-red-500',
                   )}
                   aria-hidden="true"

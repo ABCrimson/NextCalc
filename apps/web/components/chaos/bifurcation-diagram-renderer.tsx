@@ -1,7 +1,7 @@
 'use client';
 
-import { AnimatePresence, m } from 'framer-motion';
 import { ChevronDown, Cpu, Zap } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import {
   type MouseEvent,
   type TouchEvent as ReactTouchEvent,
@@ -927,10 +927,10 @@ export function BifurcationDiagramRenderer({
         : 'from-indigo-500/20 to-violet-500/20 border-indigo-500/40 text-indigo-300';
 
   return (
-    <div ref={containerRef} className="relative w-full h-full">
+    <div ref={containerRef} className="relative size-full">
       <canvas
         ref={canvasRef}
-        className="w-full h-full"
+        className="size-full"
         style={{ cursor: isPanning ? 'grabbing' : 'grab', touchAction: 'none' }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -958,7 +958,7 @@ export function BifurcationDiagramRenderer({
         >
           Presets
           <ChevronDown
-            className={`w-3 h-3 transition-transform duration-150 ${showPresets ? 'rotate-180' : ''}`}
+            className={`size-3 transition-transform duration-150 ${showPresets ? 'rotate-180' : ''}`}
             aria-hidden="true"
           />
         </button>
@@ -1159,15 +1159,15 @@ export function BifurcationDiagramRenderer({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15 }}
         className={`absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-lg
-          text-[11px] font-mono font-semibold border bg-gradient-to-r ${gpuBadgeColor}
+          text-[11px] font-mono font-semibold border bg-linear-to-r/oklab ${gpuBadgeColor}
           backdrop-blur-sm pointer-events-none`}
         aria-live="polite"
         aria-label={`Rendering backend: ${gpuBadgeLabel}`}
       >
         {gpuStatus === 'done' ? (
-          <Zap className="w-3 h-3" aria-hidden="true" />
+          <Zap className="size-3" aria-hidden="true" />
         ) : (
-          <Cpu className="w-3 h-3" aria-hidden="true" />
+          <Cpu className="size-3" aria-hidden="true" />
         )}
         {gpuBadgeLabel}
       </m.div>
@@ -1211,7 +1211,7 @@ export function BifurcationDiagramRenderer({
               <m.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
-                className="w-7 h-7 rounded-full border-2 border-indigo-400 border-t-transparent"
+                className="size-7 rounded-full border-2 border-indigo-400 border-t-transparent"
                 aria-hidden="true"
               />
               <div className="text-sm font-semibold text-indigo-300">WebGPU Compute Running...</div>
@@ -1231,7 +1231,7 @@ export function BifurcationDiagramRenderer({
         <button
           type="button"
           onClick={() => zoomBy(1.3)}
-          className="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-bold
+          className="size-8 flex items-center justify-center rounded-lg text-sm font-bold
             bg-black/60 backdrop-blur-sm border border-white/10 text-white/80
             hover:bg-white/10 hover:text-white hover:border-white/25
             focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring
@@ -1252,7 +1252,7 @@ export function BifurcationDiagramRenderer({
         <button
           type="button"
           onClick={() => zoomBy(1 / 1.3)}
-          className="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-bold
+          className="size-8 flex items-center justify-center rounded-lg text-sm font-bold
             bg-black/60 backdrop-blur-sm border border-white/10 text-white/80
             hover:bg-white/10 hover:text-white hover:border-white/25
             focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring

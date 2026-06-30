@@ -1,8 +1,8 @@
 'use client';
 
-import { AnimatePresence, m } from 'framer-motion';
 import { Moon, Sun } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { AnimatePresence, m } from 'motion/react';
+import { useEffect, useEffectEvent, useState } from 'react';
 import { Button } from '@/components/ui/button';
 
 /**
@@ -70,21 +70,27 @@ export function ThemeToggle() {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  // Keyboard shortcut: Alt+T
-  // biome-ignore lint/correctness/useExhaustiveDependencies: Re-register handler when theme changes so toggleTheme has current state
+  // Effect Event (React 19.3): always sees the current theme without making the
+  // keydown listener reactive, so we register it once instead of re-binding on
+  // every theme change.
+  const onShortcut = useEffectEvent(() => {
+    toggleTheme();
+  });
+
+  // Keyboard shortcut: Alt+T — listener registered once on mount.
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.altKey && e.key === 't') {
         e.preventDefault();
-        toggleTheme();
+        onShortcut();
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [theme]);
+  }, []);
 
-  const toggleTheme = () => {
+  function toggleTheme() {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
@@ -95,7 +101,7 @@ export function ThemeToggle() {
 
     // Tailwind 4.x: Set data-theme attribute instead of class
     document.documentElement.setAttribute('data-theme', newTheme);
-  };
+  }
 
   // Prevent flash during SSR
   if (!mounted) {
@@ -107,7 +113,7 @@ export function ThemeToggle() {
         disabled
         aria-label="Loading theme toggle"
       >
-        <div className="h-5 w-5 animate-pulse bg-muted rounded" />
+        <div className="size-5 animate-pulse bg-muted rounded" />
       </Button>
     );
   }
@@ -136,7 +142,7 @@ export function ThemeToggle() {
               exit={{ rotate: 90, scale: 0 }}
               transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
             >
-              <Moon className="h-5 w-5 text-blue-300" aria-hidden="true" />
+              <Moon className="size-5 text-blue-300" aria-hidden="true" />
             </m.div>
           ) : (
             <m.div
@@ -146,7 +152,7 @@ export function ThemeToggle() {
               exit={{ rotate: 90, scale: 0 }}
               transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
             >
-              <Sun className="h-5 w-5 text-amber-500" aria-hidden="true" />
+              <Sun className="size-5 text-amber-500" aria-hidden="true" />
             </m.div>
           )}
         </AnimatePresence>

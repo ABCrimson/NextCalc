@@ -15,7 +15,7 @@ export default async function ComplexPage() {
       {/* Animated gradient background matching other pages */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
         {/* Base gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background" />
+        <div className="absolute inset-0 bg-linear-to-br/oklab from-background via-background/95 to-background" />
 
         {/* Animated orb - top right: blue/indigo for real part */}
         <div
@@ -152,7 +152,7 @@ export default async function ComplexPage() {
                 }}
               />
               <div
-                className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20"
+                className="absolute top-0 right-0 size-24 rounded-bl-full opacity-20"
                 style={{
                   background:
                     'radial-gradient(circle at top right, oklch(0.65 0.22 264 / 0.4), transparent)',
@@ -161,7 +161,7 @@ export default async function ComplexPage() {
               <div className="relative">
                 <div className="flex items-center gap-2 mb-3">
                   <div
-                    className="w-2 h-2 rounded-full"
+                    className="size-2 rounded-full"
                     style={{
                       background: 'oklch(0.65 0.22 264)',
                       boxShadow: '0 0 8px oklch(0.65 0.22 264 / 0.8)',
@@ -253,7 +253,7 @@ export default async function ComplexPage() {
                 }}
               />
               <div
-                className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20"
+                className="absolute top-0 right-0 size-24 rounded-bl-full opacity-20"
                 style={{
                   background:
                     'radial-gradient(circle at top right, oklch(0.63 0.20 300 / 0.4), transparent)',
@@ -262,7 +262,7 @@ export default async function ComplexPage() {
               <div className="relative">
                 <div className="flex items-center gap-2 mb-3">
                   <div
-                    className="w-2 h-2 rounded-full"
+                    className="size-2 rounded-full"
                     style={{
                       background: 'oklch(0.63 0.20 300)',
                       boxShadow: '0 0 8px oklch(0.63 0.20 300 / 0.8)',
@@ -299,7 +299,7 @@ export default async function ComplexPage() {
                 }}
               />
               <div
-                className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20"
+                className="absolute top-0 right-0 size-24 rounded-bl-full opacity-20"
                 style={{
                   background:
                     'radial-gradient(circle at top right, oklch(0.65 0.18 155 / 0.4), transparent)',
@@ -308,7 +308,7 @@ export default async function ComplexPage() {
               <div className="relative">
                 <div className="flex items-center gap-2 mb-3">
                   <div
-                    className="w-2 h-2 rounded-full"
+                    className="size-2 rounded-full"
                     style={{
                       background: 'oklch(0.65 0.18 155)',
                       boxShadow: '0 0 8px oklch(0.65 0.18 155 / 0.8)',
@@ -345,7 +345,7 @@ export default async function ComplexPage() {
                 }}
               />
               <div
-                className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-20"
+                className="absolute top-0 right-0 size-24 rounded-bl-full opacity-20"
                 style={{
                   background:
                     'radial-gradient(circle at top right, oklch(0.65 0.20 30 / 0.4), transparent)',
@@ -354,7 +354,7 @@ export default async function ComplexPage() {
               <div className="relative">
                 <div className="flex items-center gap-2 mb-3">
                   <div
-                    className="w-2 h-2 rounded-full"
+                    className="size-2 rounded-full"
                     style={{
                       background: 'oklch(0.65 0.20 30)',
                       boxShadow: '0 0 8px oklch(0.65 0.20 30 / 0.8)',

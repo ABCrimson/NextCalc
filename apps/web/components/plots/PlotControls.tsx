@@ -8,7 +8,6 @@
  */
 
 import { downloadAsCSV2D, downloadAsPNG, downloadAsSVG, type Point2D } from '@nextcalc/plot-engine';
-import { AnimatePresence, m } from 'framer-motion';
 import {
   Download,
   FileImage,
@@ -20,6 +19,7 @@ import {
   ZoomIn,
   ZoomOut,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import { type RefObject, useCallback, useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import {
@@ -234,7 +234,7 @@ export function PlotControls({
       <m.div
         className={`
           relative flex items-center gap-2 p-2 rounded-xl
-          bg-gradient-to-br from-background/60 via-card/50 to-background/60
+          bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60
           backdrop-blur-md border border-border
           shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]
           ${className}
@@ -244,7 +244,7 @@ export function PlotControls({
         transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] as const }}
       >
         {/* Subtle gradient overlay for depth */}
-        <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-500/5 to-purple-500/5 pointer-events-none" />
+        <div className="absolute inset-0 rounded-xl bg-linear-to-br/oklab from-cyan-500/5 to-purple-500/5 pointer-events-none" />
 
         <div className="relative flex items-center gap-2">
           {/* Zoom controls - only for 2D plots */}
@@ -272,7 +272,7 @@ export function PlotControls({
                         disabled:opacity-50 disabled:cursor-not-allowed
                       "
                     >
-                      <ZoomIn className="h-4 w-4" />
+                      <ZoomIn className="size-4" />
                     </Button>
                   </m.div>
                 </TooltipTrigger>
@@ -310,7 +310,7 @@ export function PlotControls({
                         disabled:opacity-50 disabled:cursor-not-allowed
                       "
                     >
-                      <ZoomOut className="h-4 w-4" />
+                      <ZoomOut className="size-4" />
                     </Button>
                   </m.div>
                 </TooltipTrigger>
@@ -346,7 +346,7 @@ export function PlotControls({
                     disabled:opacity-50 disabled:cursor-not-allowed
                   "
                 >
-                  <Maximize2 className="h-4 w-4" />
+                  <Maximize2 className="size-4" />
                 </Button>
               </m.div>
             </TooltipTrigger>
@@ -382,7 +382,7 @@ export function PlotControls({
                       disabled={exportState.isExporting}
                       aria-label="Export plot"
                       className="
-                        bg-gradient-to-br from-blue-900/30 to-purple-900/30
+                        bg-linear-to-br/oklab from-blue-900/30 to-purple-900/30
                         border-blue-500/40 hover:border-blue-400/60
                         hover:from-blue-800/40 hover:to-purple-800/40
                         text-blue-200 hover:text-blue-100
@@ -394,12 +394,12 @@ export function PlotControls({
                     >
                       {exportState.isExporting ? (
                         <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          <Loader2 className="size-4 mr-2 animate-spin" />
                           <span className="text-xs">{exportState.progress}%</span>
                         </>
                       ) : (
                         <>
-                          <Download className="h-4 w-4 mr-2" />
+                          <Download className="size-4 mr-2" />
                           Export
                         </>
                       )}
@@ -430,7 +430,7 @@ export function PlotControls({
                   cursor-pointer
                 "
               >
-                <FileImage className="h-4 w-4 mr-2 text-cyan-400" />
+                <FileImage className="size-4 mr-2 text-cyan-400" />
                 <span>Export as PNG</span>
                 <span className="ml-auto text-xs text-muted-foreground/70">High quality</span>
               </DropdownMenuItem>
@@ -445,7 +445,7 @@ export function PlotControls({
                       cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
                     "
                   >
-                    <FileText className="h-4 w-4 mr-2 text-purple-400" />
+                    <FileText className="size-4 mr-2 text-purple-400" />
                     <span>Export as SVG</span>
                     <span className="ml-auto text-xs text-muted-foreground/70">Vector</span>
                   </DropdownMenuItem>
@@ -460,7 +460,7 @@ export function PlotControls({
                       cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
                     "
                   >
-                    <FileSpreadsheet className="h-4 w-4 mr-2 text-green-400" />
+                    <FileSpreadsheet className="size-4 mr-2 text-green-400" />
                     <span>Export as CSV</span>
                     <span className="ml-auto text-xs text-muted-foreground/70">Data only</span>
                   </DropdownMenuItem>
@@ -484,7 +484,7 @@ export function PlotControls({
                     focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring
                   "
                 >
-                  <Keyboard className="h-4 w-4" />
+                  <Keyboard className="size-4" />
                 </Button>
               </m.div>
             </TooltipTrigger>

@@ -2,7 +2,7 @@
 
 **Scientific Calculator & Mathematical Visualization Platform**
 
-> **Current Release: v1.3.0** (June 29, 2026) — [Release Notes](https://github.com/ABCrimson/NextCalc/releases/tag/v1.3.0)
+> **Current Release: v1.4.0** (June 29, 2026) — [Release Notes](https://github.com/ABCrimson/NextCalc/releases/tag/v1.4.0)
 
 [Live Demo](https://nextcalc.io) | [GitHub Repository](https://github.com/ABCrimson/NextCalc) | [Releases](https://github.com/ABCrimson/NextCalc/releases)
 
@@ -23,7 +23,14 @@ NextCalc Pro is a comprehensive scientific calculator and mathematical visualiza
 
 ---
 
-## Latest Updates (v1.3.0)
+## Latest Updates (v1.4.0)
+
+- **Forum localization fix**: post views, upvotes, and relative timestamps now render in your selected locale — they were using the runtime default across all 7 non-English locales (ru, es, uk, de, fr, ja, zh)
+- **Idiom modernization** (behavior-preserving): code rewritten to the newest idioms of each pinned dependency — Zod 4 (`z.url()`/`z.uuid()`), `motion/react`, Tailwind v4 `bg-linear-*/oklab` + `size-*`, React 19.3 `useEffectEvent`, shadcn `data-slot` across all UI primitives, Hono `zValidator` across all 3 Workers
+- **Observability**: real Sentry capture wired (manual errors + error boundaries were console-only) and `instrumentation-client.ts` migration (restores client-side Sentry/navigation tracing under Turbopack)
+- **TS7-forward**: the advisory `tsgo` (TypeScript 7 native preview) typecheck is green across the 7 non-Three.js-TSL packages
+
+### Previously (v1.3.0)
 
 - **Push-to-newest modernization**: every dependency upgraded to its absolute-newest channel — Next.js 16.3, React 19.3, TypeScript 6.0.3, Apollo Server 5.5.1 / Client 4.3, Prisma 7.9, Tailwind 4.3, Three.js 0.184, Biome 2.5.1, Vitest 5, next-intl 4.13 — with code migrated to each version's current idioms
 - **Stricter TypeScript**: re-enabled `exactOptionalPropertyTypes`, `noPropertyAccessFromIndexSignature`, and `noUnusedLocals` across web + api (143 real fixes, zero `as any`)

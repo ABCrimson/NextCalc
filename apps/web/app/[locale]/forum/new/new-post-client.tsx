@@ -7,8 +7,8 @@
  * with the standard forum background.
  */
 
-import { m, useReducedMotion } from 'framer-motion';
 import { ArrowLeft, PenLine } from 'lucide-react';
+import { m, useReducedMotion } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import { ForumBackground } from '@/components/forum/forum-background';
 import { PostForm } from '@/components/forum/post-form';
@@ -30,7 +30,7 @@ export function NewPostClient() {
         <ForumBackground />
         <div className="relative z-10 flex items-center justify-center min-h-screen">
           <div className="text-center">
-            <div className="h-8 w-8 mx-auto border-2 border-indigo-400 border-t-transparent rounded-full animate-spin mb-4" />
+            <div className="size-8 mx-auto border-2 border-indigo-400 border-t-transparent rounded-full animate-spin mb-4" />
             <p className="text-sm text-muted-foreground">{tAuth('checkingAuth')}</p>
           </div>
         </div>
@@ -60,7 +60,7 @@ export function NewPostClient() {
               onClick={() => router.push('/forum')}
               className="gap-2 text-muted-foreground hover:text-foreground"
             >
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="size-4" />
               {t('backToForum')}
             </Button>
           </m.div>
@@ -77,8 +77,8 @@ export function NewPostClient() {
                 })}
           >
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 backdrop-blur-sm">
-                <PenLine className="w-6 h-6 text-indigo-400" />
+              <div className="p-2.5 rounded-xl bg-linear-to-br/oklab from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 backdrop-blur-sm">
+                <PenLine className="size-6 text-indigo-400" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-foreground">{t('newDiscussion')}</h1>

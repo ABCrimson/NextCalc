@@ -24,5 +24,11 @@ export default getRequestConfig(async ({ requestLocale }) => {
   return {
     locale,
     messages,
+    // Stamp a single server-side reference time per request. next-intl forwards
+    // this to the client provider so `useFormatter().relativeTime(...)` resolves
+    // to the same baseline on the server and during hydration (no mismatch, no
+    // dev "now wasn't provided" warning). Relative times are frozen at page
+    // load, matching the prior hand-rolled behaviour.
+    now: new Date(),
   };
 });

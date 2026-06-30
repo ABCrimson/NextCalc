@@ -20,8 +20,8 @@
  */
 
 import { extractVariables } from '@nextcalc/math-engine';
-import { AnimatePresence, m } from 'framer-motion';
 import { ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import type { ChangeEvent, KeyboardEvent } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -274,8 +274,8 @@ function SliderRow({ name, config, onValueChange, onMinChange, onMaxChange }: Sl
       {/* Parameter name badge */}
       <span
         className={[
-          'flex-shrink-0 w-6 h-6 flex items-center justify-center',
-          'rounded bg-gradient-to-br from-cyan-500/20 to-blue-500/20',
+          'flex-shrink-0 size-6 flex items-center justify-center',
+          'rounded bg-linear-to-br/oklab from-cyan-500/20 to-blue-500/20',
           'border border-cyan-500/30',
           'text-xs font-bold font-mono text-cyan-300',
         ].join(' ')}
@@ -304,11 +304,11 @@ function SliderRow({ name, config, onValueChange, onMinChange, onMaxChange }: Sl
           className={[
             'w-full h-1.5 cursor-pointer appearance-none rounded-full',
             // Track styling via CSS custom properties injected below
-            'bg-gradient-to-r from-cyan-500/40 to-blue-500/40',
+            'bg-linear-to-r/oklab from-cyan-500/40 to-blue-500/40',
             '[&::-webkit-slider-thumb]:appearance-none',
             '[&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:h-3.5',
             '[&::-webkit-slider-thumb]:rounded-full',
-            '[&::-webkit-slider-thumb]:bg-gradient-to-br',
+            '[&::-webkit-slider-thumb]:bg-linear-to-br/oklab',
             '[&::-webkit-slider-thumb]:from-cyan-400 [&::-webkit-slider-thumb]:to-blue-400',
             '[&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-cyan-300/50',
             '[&::-webkit-slider-thumb]:shadow-[0_0_6px_oklch(0.7148_0.1257_215.22_/_0.6)]',
@@ -317,7 +317,7 @@ function SliderRow({ name, config, onValueChange, onMinChange, onMaxChange }: Sl
             '[&::-webkit-slider-thumb]:hover:scale-125',
             '[&::-moz-range-thumb]:w-3.5 [&::-moz-range-thumb]:h-3.5',
             '[&::-moz-range-thumb]:rounded-full',
-            '[&::-moz-range-thumb]:bg-gradient-to-br',
+            '[&::-moz-range-thumb]:bg-linear-to-br/oklab',
             '[&::-moz-range-thumb]:from-cyan-400 [&::-moz-range-thumb]:to-blue-400',
             '[&::-moz-range-thumb]:border [&::-moz-range-thumb]:border-cyan-300/50',
             '[&::-moz-range-thumb]:cursor-grab',
@@ -445,7 +445,7 @@ export function VariableSliders({ expressions, onChange, className = '' }: Varia
       transition={{ duration: 0.25 }}
       className={[
         'relative rounded-xl overflow-hidden',
-        'bg-gradient-to-br from-background/60 via-card/50 to-background/60',
+        'bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60',
         'backdrop-blur-md border border-border',
         'shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]',
         className,
@@ -455,7 +455,7 @@ export function VariableSliders({ expressions, onChange, className = '' }: Varia
     >
       {/* Subtle gradient overlay */}
       <div
-        className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-blue-500/5 pointer-events-none"
+        className="absolute inset-0 bg-linear-to-br/oklab from-cyan-500/5 to-blue-500/5 pointer-events-none"
         aria-hidden="true"
       />
 
@@ -474,7 +474,7 @@ export function VariableSliders({ expressions, onChange, className = '' }: Varia
         >
           <div className="flex items-center gap-2">
             <SlidersHorizontal
-              className="h-3.5 w-3.5 text-cyan-400 flex-shrink-0"
+              className="size-3.5 text-cyan-400 flex-shrink-0"
               aria-hidden="true"
             />
             <span className="text-xs font-semibold text-foreground">Parameters</span>
@@ -487,11 +487,7 @@ export function VariableSliders({ expressions, onChange, className = '' }: Varia
             </span>
           </div>
           <span className="text-muted-foreground" aria-hidden="true">
-            {collapsed ? (
-              <ChevronDown className="h-3.5 w-3.5" />
-            ) : (
-              <ChevronUp className="h-3.5 w-3.5" />
-            )}
+            {collapsed ? <ChevronDown className="size-3.5" /> : <ChevronUp className="size-3.5" />}
           </span>
         </button>
 

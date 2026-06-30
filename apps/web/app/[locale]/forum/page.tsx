@@ -11,7 +11,6 @@
  */
 
 import { useQuery } from '@apollo/client/react';
-import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import {
   AlertCircle,
   ArrowUpRight,
@@ -30,6 +29,7 @@ import {
   Users,
   Zap,
 } from 'lucide-react';
+import { AnimatePresence, m, useReducedMotion } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ForumBackground } from '@/components/forum/forum-background';
@@ -64,7 +64,7 @@ function PostSkeleton() {
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Skeleton className="h-10 w-10 rounded-full" />
+            <Skeleton className="size-10 rounded-full" />
             <Skeleton className="h-3 w-24" />
           </div>
           <div className="flex gap-3">
@@ -221,13 +221,13 @@ export default function ForumPage() {
           >
             <div className="flex items-center gap-4 mb-3">
               <div className="relative">
-                <div className="p-3 rounded-2xl bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-pink-500/20 border border-indigo-500/30 backdrop-blur-sm">
-                  <MessageSquare className="w-9 h-9 text-indigo-400" />
+                <div className="p-3 rounded-2xl bg-linear-to-br/oklab from-indigo-500/20 via-purple-500/20 to-pink-500/20 border border-indigo-500/30 backdrop-blur-sm">
+                  <MessageSquare className="size-9 text-indigo-400" />
                 </div>
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-500/10 to-pink-500/10 blur-xl animate-pulse" />
+                <div className="absolute inset-0 rounded-2xl bg-linear-to-br/oklab from-indigo-500/10 to-pink-500/10 blur-xl animate-pulse" />
               </div>
               <div>
-                <h1 className="text-5xl font-extrabold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent tracking-tight">
+                <h1 className="text-5xl font-extrabold bg-linear-to-r/oklab from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent tracking-tight">
                   {t('title')}
                 </h1>
                 <p className="text-muted-foreground mt-1">{t('subtitle')}</p>
@@ -240,28 +240,28 @@ export default function ForumPage() {
                 variant="outline"
                 className="gap-1.5 py-1 px-3 backdrop-blur-sm bg-muted/30 border-border text-foreground"
               >
-                <MessageSquare className="w-3.5 h-3.5 text-indigo-400" />
+                <MessageSquare className="size-3.5 text-indigo-400" />
                 {t('discussions', { count: totalPosts })}
               </Badge>
               <Badge
                 variant="outline"
                 className="gap-1.5 py-1 px-3 backdrop-blur-sm bg-muted/30 border-border text-foreground"
               >
-                <Users className="w-3.5 h-3.5 text-purple-400" />
+                <Users className="size-3.5 text-purple-400" />
                 {t('contributors', { count: totalContributors })}
               </Badge>
               <Badge
                 variant="outline"
                 className="gap-1.5 py-1 px-3 backdrop-blur-sm bg-muted/30 border-border text-foreground"
               >
-                <MessageSquare className="w-3.5 h-3.5 text-pink-400" />
+                <MessageSquare className="size-3.5 text-pink-400" />
                 {t('replies', { count: totalComments })}
               </Badge>
               <Badge
                 variant="outline"
                 className="gap-1.5 py-1 px-3 backdrop-blur-sm bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
               >
-                <Sparkles className="w-3.5 h-3.5" />
+                <Sparkles className="size-3.5" />
                 {tCommon('realTime')}
               </Badge>
             </div>
@@ -284,7 +284,7 @@ export default function ForumPage() {
               >
                 {/* Search */}
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                   <Input
                     placeholder={t('search')}
                     value={searchInput}
@@ -308,11 +308,11 @@ export default function ForumPage() {
                         'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all',
                         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
                         sortMode === mode
-                          ? 'bg-gradient-to-br from-indigo-500/20 to-purple-500/20 text-foreground shadow-sm border border-indigo-500/30'
+                          ? 'bg-linear-to-br/oklab from-indigo-500/20 to-purple-500/20 text-foreground shadow-sm border border-indigo-500/30'
                           : 'text-muted-foreground hover:text-foreground hover:bg-muted/40',
                       )}
                     >
-                      <Icon className="h-3.5 w-3.5" />
+                      <Icon className="size-3.5" />
                       {label}
                     </button>
                   ))}
@@ -321,9 +321,9 @@ export default function ForumPage() {
                 {/* New Post */}
                 <Button
                   onClick={handleNewPost}
-                  className="gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-[0_4px_24px_oklch(0.55_0.27_264/0.3)] hover:shadow-[0_6px_32px_oklch(0.55_0.27_264/0.45)] transition-all"
+                  className="gap-2 bg-linear-to-r/oklab from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-[0_4px_24px_oklch(0.55_0.27_264/0.3)] hover:shadow-[0_6px_32px_oklch(0.55_0.27_264/0.45)] transition-all"
                 >
-                  <Plus className="h-4 w-4" />
+                  <Plus className="size-4" />
                   {t('newPost')}
                 </Button>
               </m.div>
@@ -337,7 +337,7 @@ export default function ForumPage() {
                     exit={{ opacity: 0, height: 0 }}
                     className="flex items-center gap-2"
                   >
-                    <Filter className="h-3.5 w-3.5 text-muted-foreground" />
+                    <Filter className="size-3.5 text-muted-foreground" />
                     <span className="text-xs text-muted-foreground">{tCommon('filterBy')}</span>
                     <TagPill name={selectedTag} />
                     <button
@@ -363,7 +363,7 @@ export default function ForumPage() {
               {/* Error state */}
               {error && !loading && (
                 <div className="rounded-2xl border border-destructive/30 p-6 bg-destructive/10 backdrop-blur-md text-center">
-                  <AlertCircle className="h-10 w-10 mx-auto text-destructive mb-3" />
+                  <AlertCircle className="size-10 mx-auto text-destructive mb-3" />
                   <p className="text-sm text-destructive">{t('loadError')}</p>
                   <p className="text-xs text-muted-foreground mt-1">{t('loadErrorHint')}</p>
                 </div>
@@ -380,7 +380,7 @@ export default function ForumPage() {
 
                   {sortedPosts.length === 0 && !loading && (
                     <div className="text-center py-16">
-                      <Search className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
+                      <Search className="size-12 mx-auto text-muted-foreground/30 mb-4" />
                       <p className="text-muted-foreground">{t('noDiscussions')}</p>
                       <p className="text-xs text-muted-foreground/60 mt-1">
                         {t('noDiscussionsHint')}
@@ -402,7 +402,7 @@ export default function ForumPage() {
                   >
                     {loadingMore ? (
                       <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <Loader2 className="size-4 animate-spin" />
                         {tCommon('loading')}
                       </>
                     ) : (
@@ -428,7 +428,7 @@ export default function ForumPage() {
               <Card className="backdrop-blur-md bg-card/50 border-border">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2">
-                    <Hash className="h-4 w-4 text-indigo-400" />
+                    <Hash className="size-4 text-indigo-400" />
                     {t('popularTopics')}
                   </CardTitle>
                 </CardHeader>
@@ -443,7 +443,7 @@ export default function ForumPage() {
                         }
                         className={cn(
                           'px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all',
-                          'border backdrop-blur-sm bg-gradient-to-r',
+                          'border backdrop-blur-sm bg-linear-to-r/oklab',
                           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
                           tag.color,
                           selectedTag === tag.name && 'ring-2 ring-white/20 scale-105',
@@ -457,10 +457,10 @@ export default function ForumPage() {
               </Card>
 
               {/* Community guidelines */}
-              <Card className="backdrop-blur-md bg-gradient-to-br from-indigo-950/40 to-purple-950/40 border-indigo-500/30">
+              <Card className="backdrop-blur-md bg-linear-to-br/oklab from-indigo-950/40 to-purple-950/40 border-indigo-500/30">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2 text-indigo-300">
-                    <Sparkles className="h-4 w-4" />
+                    <Sparkles className="size-4" />
                     {t('communityGuidelines')}
                   </CardTitle>
                 </CardHeader>
@@ -472,7 +472,7 @@ export default function ForumPage() {
                     { icon: Zap, text: t('guideline.useLatex') },
                   ].map(({ icon: Icon, text }) => (
                     <div key={text} className="flex items-start gap-2">
-                      <Icon className="h-3.5 w-3.5 mt-0.5 text-indigo-400/80 shrink-0" />
+                      <Icon className="size-3.5 mt-0.5 text-indigo-400/80 shrink-0" />
                       <span className="text-xs text-indigo-200/70">{text}</span>
                     </div>
                   ))}
@@ -483,13 +483,13 @@ export default function ForumPage() {
               <Card className="backdrop-blur-md bg-card/50 border-border">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm flex items-center gap-2">
-                    <Award className="h-4 w-4 text-amber-400" />
+                    <Award className="size-4 text-amber-400" />
                     {t('topContributors')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-col items-center justify-center py-6 text-center">
-                    <Users className="h-8 w-8 text-muted-foreground/30 mb-2" />
+                    <Users className="size-8 text-muted-foreground/30 mb-2" />
                     <p className="text-xs text-muted-foreground">{t('noContributorsYet')}</p>
                   </div>
                 </CardContent>
@@ -514,7 +514,7 @@ export default function ForumPage() {
                       className="flex items-center justify-between px-2 py-1.5 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                     >
                       {link.label}
-                      <ArrowUpRight className="h-3 w-3" />
+                      <ArrowUpRight className="size-3" />
                     </Link>
                   ))}
                 </CardContent>

@@ -93,12 +93,12 @@ export function ExportMenu({ latex, className }: ExportMenuProps) {
             )}
           >
             {isExporting ? (
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
             ) : (
-              <Download className="h-4 w-4" aria-hidden="true" />
+              <Download className="size-4" aria-hidden="true" />
             )}
             <span>Export</span>
-            <ChevronDown className="h-3 w-3 opacity-60" aria-hidden="true" />
+            <ChevronDown className="size-3 opacity-60" aria-hidden="true" />
           </Button>
         </DropdownMenuTrigger>
 
@@ -121,9 +121,9 @@ export function ExportMenu({ latex, className }: ExportMenuProps) {
             className="gap-2 cursor-pointer"
           >
             {activeFormat === 'pdf' ? (
-              <Loader2 className="h-4 w-4 animate-spin text-red-400" aria-hidden="true" />
+              <Loader2 className="size-4 animate-spin text-red-400" aria-hidden="true" />
             ) : (
-              <FileText className="h-4 w-4 text-red-400" aria-hidden="true" />
+              <FileText className="size-4 text-red-400" aria-hidden="true" />
             )}
             <span>PDF document</span>
           </DropdownMenuItem>
@@ -137,9 +137,9 @@ export function ExportMenu({ latex, className }: ExportMenuProps) {
             className="gap-2 cursor-pointer"
           >
             {activeFormat === 'png' ? (
-              <Loader2 className="h-4 w-4 animate-spin text-cyan-400" aria-hidden="true" />
+              <Loader2 className="size-4 animate-spin text-cyan-400" aria-hidden="true" />
             ) : (
-              <Image className="h-4 w-4 text-cyan-400" aria-hidden="true" />
+              <Image className="size-4 text-cyan-400" aria-hidden="true" />
             )}
             <span>PNG image</span>
           </DropdownMenuItem>
@@ -153,9 +153,9 @@ export function ExportMenu({ latex, className }: ExportMenuProps) {
             className="gap-2 cursor-pointer"
           >
             {activeFormat === 'svg' ? (
-              <Loader2 className="h-4 w-4 animate-spin text-purple-400" aria-hidden="true" />
+              <Loader2 className="size-4 animate-spin text-purple-400" aria-hidden="true" />
             ) : (
-              <FileCode className="h-4 w-4 text-purple-400" aria-hidden="true" />
+              <FileCode className="size-4 text-purple-400" aria-hidden="true" />
             )}
             <span>SVG vector</span>
           </DropdownMenuItem>

@@ -1,7 +1,6 @@
 'use client';
 
 import type { Hint, Problem, SolutionStep } from '@nextcalc/math-engine/problems';
-import { AnimatePresence, m } from 'framer-motion';
 import {
   ArrowRight,
   BookOpen,
@@ -17,6 +16,7 @@ import {
   Trophy,
   XCircle,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -195,11 +195,11 @@ export function InteractiveSolver({
             </div>
             <div className="flex flex-col gap-2 text-sm">
               <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
+                <Clock className="size-4 text-muted-foreground" />
                 <span className="text-muted-foreground">Time: {formatTime(timeSpent)}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Trophy className="h-4 w-4 text-muted-foreground" />
+                <Trophy className="size-4 text-muted-foreground" />
                 <span className="text-muted-foreground">
                   Points: {currentScore} / {potentialPoints}
                 </span>
@@ -224,7 +224,7 @@ export function InteractiveSolver({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-primary" />
+                <Sparkles className="size-5 text-primary" />
                 Your Work Area
               </CardTitle>
               <CardDescription>
@@ -260,7 +260,7 @@ export function InteractiveSolver({
                   >
                     {isCorrect ? (
                       <>
-                        <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
+                        <CheckCircle2 className="size-5 text-green-500 mt-0.5 shrink-0" />
                         <div className="flex-1">
                           <h4 className="font-semibold text-green-700 dark:text-green-400 mb-1">
                             Correct!
@@ -272,7 +272,7 @@ export function InteractiveSolver({
                       </>
                     ) : (
                       <>
-                        <XCircle className="h-5 w-5 text-red-500 mt-0.5 shrink-0" />
+                        <XCircle className="size-5 text-red-500 mt-0.5 shrink-0" />
                         <div className="flex-1">
                           <h4 className="font-semibold text-red-700 dark:text-red-400 mb-1">
                             Not quite right
@@ -295,7 +295,7 @@ export function InteractiveSolver({
                   className="flex-1 sm:flex-none"
                   aria-label="Check answer"
                 >
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  <CheckCircle2 className="size-4 mr-2" />
                   Check Answer
                   <kbd className="ml-2 hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium">
                     <span className="text-xs">Ctrl+↵</span>
@@ -315,7 +315,7 @@ export function InteractiveSolver({
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-primary" />
+                  <BookOpen className="size-5 text-primary" />
                   Solution Steps
                 </CardTitle>
                 <div className="flex gap-2">
@@ -329,12 +329,12 @@ export function InteractiveSolver({
                   >
                     {revealState === 'hidden' ? (
                       <>
-                        <Eye className="h-4 w-4 mr-2" />
+                        <Eye className="size-4 mr-2" />
                         Show Solution
                       </>
                     ) : (
                       <>
-                        <EyeOff className="h-4 w-4 mr-2" />
+                        <EyeOff className="size-4 mr-2" />
                         Hide Solution
                       </>
                     )}
@@ -370,7 +370,7 @@ export function InteractiveSolver({
                     exit={{ opacity: 0 }}
                     className="text-center py-12 text-muted-foreground"
                   >
-                    <EyeOff className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <EyeOff className="size-12 mx-auto mb-4 opacity-50" />
                     <p>Click "Show Solution" to reveal the step-by-step solution.</p>
                     <p className="text-sm mt-2">Try solving it yourself first!</p>
                   </m.div>
@@ -396,7 +396,7 @@ export function InteractiveSolver({
                       <Card className="bg-primary/5 border-primary/20">
                         <CardHeader>
                           <CardTitle className="text-base flex items-center gap-2">
-                            <Lightbulb className="h-4 w-4 text-primary" />
+                            <Lightbulb className="size-4 text-primary" />
                             Key Insights
                           </CardTitle>
                         </CardHeader>
@@ -404,7 +404,7 @@ export function InteractiveSolver({
                           <ul className="space-y-2 text-sm">
                             {problem.solution.insights.map((insight) => (
                               <li key={insight} className="flex items-start gap-2">
-                                <ChevronRight className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                                <ChevronRight className="size-4 text-primary mt-0.5 shrink-0" />
                                 <span>{insight}</span>
                               </li>
                             ))}
@@ -425,7 +425,7 @@ export function InteractiveSolver({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <Lightbulb className="h-5 w-5 text-yellow-500" />
+                <Lightbulb className="size-5 text-yellow-500" />
                 Hints
                 {revealedHints.length > 0 && (
                   <Badge variant="outline" className="ml-auto">
@@ -474,7 +474,7 @@ export function InteractiveSolver({
                 onClick={onPreviousProblem}
                 disabled={!onPreviousProblem}
               >
-                <ChevronLeft className="h-4 w-4 mr-2" />
+                <ChevronLeft className="size-4 mr-2" />
                 Previous Problem
               </Button>
               <Button
@@ -484,7 +484,7 @@ export function InteractiveSolver({
                 disabled={!onNextProblem}
               >
                 Next Problem
-                <ChevronRight className="h-4 w-4 ml-2" />
+                <ChevronRight className="size-4 ml-2" />
               </Button>
             </CardContent>
           </Card>
@@ -505,7 +505,7 @@ export function InteractiveSolver({
                       asChild
                     >
                       <a href={`/problems/${relatedId}`}>
-                        <ArrowRight className="h-3 w-3 mr-2" />
+                        <ArrowRight className="size-3 mr-2" />
                         Problem {relatedId}
                       </a>
                     </Button>
@@ -547,13 +547,13 @@ function SolutionStepCard({ step, isExpanded, onToggle }: SolutionStepCardProps)
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-sm">
+                <div className="flex items-center justify-center size-8 rounded-full bg-primary/10 text-primary font-semibold text-sm">
                   {step.stepNumber}
                 </div>
                 <CardTitle className="text-base">{step.description}</CardTitle>
               </div>
               <m.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                <ChevronDown className="size-5 text-muted-foreground" />
               </m.div>
             </div>
           </CardHeader>
@@ -637,7 +637,7 @@ function HintCard({ hint, index, isRevealed, onReveal, disabled }: HintCardProps
             className="w-full"
             aria-label={`Reveal hint ${index + 1}`}
           >
-            <Eye className="h-3 w-3 mr-2" />
+            <Eye className="size-3 mr-2" />
             Reveal Hint
           </Button>
         )}

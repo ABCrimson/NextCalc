@@ -1,7 +1,6 @@
 'use client';
 
 import { RangeProof } from '@nextcalc/math-engine/algorithms';
-import { AnimatePresence, m, useReducedMotion, type Variants } from 'framer-motion';
 // import { Progress } from '@/components/ui/progress'; // Unused
 import {
   AlertTriangle,
@@ -24,6 +23,7 @@ import {
   X,
   Zap,
 } from 'lucide-react';
+import { AnimatePresence, m, useReducedMotion, type Variants } from 'motion/react';
 import { useCallback, useMemo, useState } from 'react';
 import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -478,13 +478,13 @@ function ProtocolSequenceDiagram({
                   : { type: 'spring', stiffness: 260, damping: 18, delay: 0.1 }
               }
               className={cn(
-                'flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
+                'flex size-8 shrink-0 items-center justify-center rounded-full',
                 verified
                   ? 'bg-[oklch(0.62_0.20_145/0.20)] text-[oklch(0.78_0.18_145)]'
                   : 'bg-[oklch(0.58_0.22_25/0.20)] text-[oklch(0.78_0.18_25)]',
               )}
             >
-              {verified ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
+              {verified ? <Check className="size-4" /> : <X className="size-4" />}
             </m.div>
 
             <div className="min-w-0">
@@ -921,7 +921,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
         >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Key className="h-5 w-5 text-primary" />
+              <Key className="size-5 text-primary" />
               Prover (Alice)
             </CardTitle>
             <CardDescription>Has secret, generates proof</CardDescription>
@@ -933,7 +933,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
                   Generate secret x and public key y = g^x mod p
                 </p>
                 <Button onClick={schnorrSetup} className="w-full">
-                  <Unlock className="h-4 w-4 mr-2" />
+                  <Unlock className="size-4 mr-2" />
                   Generate Secret
                 </Button>
               </div>
@@ -962,7 +962,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
                     className="absolute top-1 right-1"
                     onClick={() => setShowSecret(!showSecret)}
                   >
-                    {showSecret ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                    {showSecret ? <EyeOff className="size-3" /> : <Eye className="size-3" />}
                   </Button>
                 </div>
               </div>
@@ -984,7 +984,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
 
             {schnorrState.step === 'commitment' && (
               <Button onClick={schnorrCommitment} className="w-full">
-                <Hash className="h-4 w-4 mr-2" />
+                <Hash className="size-4 mr-2" />
                 Create Commitment
               </Button>
             )}
@@ -1012,7 +1012,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
                   </code>
                 </div>
                 <Button onClick={schnorrResponse} className="w-full">
-                  <Zap className="h-4 w-4 mr-2" />
+                  <Zap className="size-4 mr-2" />
                   Compute Response
                 </Button>
               </div>
@@ -1044,7 +1044,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
         >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Lock className="h-5 w-5 text-secondary" />
+              <Lock className="size-5 text-secondary" />
               Verifier (Bob)
             </CardTitle>
             <CardDescription>Verifies proof without learning secret</CardDescription>
@@ -1068,7 +1068,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
                   </code>
                 </div>
                 <Button onClick={schnorrChallenge} className="w-full">
-                  <Zap className="h-4 w-4 mr-2" />
+                  <Zap className="size-4 mr-2" />
                   Send Challenge
                 </Button>
               </div>
@@ -1092,11 +1092,11 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
                   </code>
                 </div>
                 <Button onClick={schnorrVerify} className="w-full">
-                  <ShieldCheck className="h-4 w-4 mr-2" />
+                  <ShieldCheck className="size-4 mr-2" />
                   Verify Proof
                 </Button>
                 <Alert className="text-xs">
-                  <Info className="h-4 w-4" />
+                  <Info className="size-4" />
                   <p className="ml-2">Check: g^s ≡ t·y^c (mod p)</p>
                 </Alert>
               </div>
@@ -1106,7 +1106,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
               <Alert variant={schnorrState.verified ? 'default' : 'destructive'}>
                 {schnorrState.verified ? (
                   <>
-                    <Check className="h-4 w-4" />
+                    <Check className="size-4" />
                     <div className="ml-2">
                       <h4 className="font-semibold">Proof Verified!</h4>
                       <p className="text-sm mt-1">
@@ -1116,7 +1116,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
                   </>
                 ) : (
                   <>
-                    <X className="h-4 w-4" />
+                    <X className="size-4" />
                     <div className="ml-2">
                       <h4 className="font-semibold">Proof Failed</h4>
                       <p className="text-sm mt-1">Invalid proof</p>
@@ -1133,7 +1133,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
       <Card>
         <CardHeader>
           <CardTitle className="text-sm flex items-center gap-2">
-            <ArrowRight className="h-4 w-4 text-primary" aria-hidden="true" />
+            <ArrowRight className="size-4 text-primary" aria-hidden="true" />
             Protocol Message Flow
           </CardTitle>
           <CardDescription className="text-xs">
@@ -1153,7 +1153,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
       {/* Controls */}
       <div className="flex gap-2">
         <Button onClick={resetSchnorr} variant="outline" className="flex-1">
-          <RotateCcw className="h-4 w-4 mr-2" />
+          <RotateCcw className="size-4 mr-2" />
           Reset
         </Button>
       </div>
@@ -1197,7 +1197,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
               </div>
 
               <Button onClick={pedersenCommit} className="w-full">
-                <Lock className="h-4 w-4 mr-2" />
+                <Lock className="size-4 mr-2" />
                 Generate Commitment
               </Button>
 
@@ -1216,7 +1216,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
                   </div>
 
                   <Alert>
-                    <Info className="h-4 w-4" />
+                    <Info className="size-4" />
                     <p className="ml-2 text-xs">
                       The commitment reveals nothing about the value m due to random blinding factor
                       r
@@ -1239,7 +1239,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
             <CardContent className="space-y-4">
               {!pedersenState.commitment ? (
                 <Alert>
-                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTriangle className="size-4" />
                   <p className="ml-2 text-sm">Create a commitment first in the Commit tab</p>
                 </Alert>
               ) : (
@@ -1252,7 +1252,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
                   </div>
 
                   <Button onClick={pedersenOpen} className="w-full">
-                    <Unlock className="h-4 w-4 mr-2" />
+                    <Unlock className="size-4 mr-2" />
                     Open Commitment
                   </Button>
 
@@ -1260,7 +1260,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
                     <Alert variant={pedersenState.opened ? 'default' : 'destructive'}>
                       {pedersenState.opened ? (
                         <>
-                          <Check className="h-4 w-4" />
+                          <Check className="size-4" />
                           <div className="ml-2">
                             <h4 className="font-semibold">Commitment Opened Successfully</h4>
                             <p className="text-sm mt-1">Value: {pedersenState.value?.toString()}</p>
@@ -1271,7 +1271,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
                         </>
                       ) : (
                         <>
-                          <X className="h-4 w-4" />
+                          <X className="size-4" />
                           <div className="ml-2">
                             <h4 className="font-semibold">Invalid Opening</h4>
                             <p className="text-sm mt-1">
@@ -1296,7 +1296,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
             </CardHeader>
             <CardContent className="space-y-4">
               <Button onClick={pedersenHomomorphic} className="w-full">
-                <Zap className="h-4 w-4 mr-2" />
+                <Zap className="size-4 mr-2" />
                 Demonstrate Homomorphic Addition
               </Button>
 
@@ -1321,7 +1321,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
                   </div>
 
                   <div className="flex items-center justify-center">
-                    <ChevronRight className="h-6 w-6 text-muted-foreground" />
+                    <ChevronRight className="size-6 text-muted-foreground" />
                   </div>
 
                   <div className="space-y-2">
@@ -1334,7 +1334,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
                   <Alert variant={pedersenState.opened ? 'default' : 'destructive'}>
                     {pedersenState.opened ? (
                       <>
-                        <Check className="h-4 w-4" />
+                        <Check className="size-4" />
                         <div className="ml-2">
                           <h4 className="font-semibold">Homomorphic Property Verified</h4>
                           <p className="text-sm mt-1">C(10) · C(15) = C(25) ✓</p>
@@ -1342,7 +1342,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
                       </>
                     ) : (
                       <>
-                        <X className="h-4 w-4" />
+                        <X className="size-4" />
                         <div className="ml-2">
                           <h4 className="font-semibold">Verification Failed</h4>
                         </div>
@@ -1357,7 +1357,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
       </Tabs>
 
       <Button onClick={resetPedersen} variant="outline" className="w-full">
-        <RotateCcw className="h-4 w-4 mr-2" />
+        <RotateCcw className="size-4 mr-2" />
         Reset
       </Button>
     </div>
@@ -1416,7 +1416,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
       <div className="space-y-4">
         {rangeState.step === 'setup' && (
           <Button onClick={rangeSetup} className="w-full">
-            <Play className="h-4 w-4 mr-2" />
+            <Play className="size-4 mr-2" />
             Start Range Proof
           </Button>
         )}
@@ -1431,7 +1431,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
                 Decompose value into binary representation
               </p>
               <Button onClick={rangeDecompose} className="w-full">
-                <Binary className="h-4 w-4 mr-2" />
+                <Binary className="size-4 mr-2" />
                 Decompose into Bits
               </Button>
             </CardContent>
@@ -1469,7 +1469,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
                 Create cryptographic proof that value is in valid range
               </p>
               <Button onClick={rangeProve} className="w-full">
-                <ShieldCheck className="h-4 w-4 mr-2" />
+                <ShieldCheck className="size-4 mr-2" />
                 Generate Range Proof
               </Button>
             </CardContent>
@@ -1506,7 +1506,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
                 Verify that the proof is valid without learning the value
               </p>
               <Button onClick={rangeVerify} className="w-full">
-                <FileCheck className="h-4 w-4 mr-2" />
+                <FileCheck className="size-4 mr-2" />
                 Verify Range Proof
               </Button>
             </CardContent>
@@ -1517,7 +1517,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
           <Alert variant={rangeState.verified ? 'default' : 'destructive'}>
             {rangeState.verified ? (
               <>
-                <Check className="h-4 w-4" />
+                <Check className="size-4" />
                 <div className="ml-2">
                   <h4 className="font-semibold">Range Proof Verified</h4>
                   <p className="text-sm mt-1">
@@ -1530,7 +1530,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
               </>
             ) : (
               <>
-                <X className="h-4 w-4" />
+                <X className="size-4" />
                 <div className="ml-2">
                   <h4 className="font-semibold">Proof Failed</h4>
                   <p className="text-sm mt-1">Invalid range proof</p>
@@ -1542,7 +1542,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
       </div>
 
       <Button onClick={resetRange} variant="outline" className="w-full">
-        <RotateCcw className="h-4 w-4 mr-2" />
+        <RotateCcw className="size-4 mr-2" />
         Reset
       </Button>
     </div>
@@ -1561,14 +1561,14 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
           {/* Completeness */}
           <div className="space-y-3">
             <div className="flex items-start gap-3">
-              <Check className="h-5 w-5 text-green-500 mt-0.5" />
+              <Check className="size-5 text-green-500 mt-0.5" />
               <div className="flex-1">
                 <h3 className="font-semibold">Completeness</h3>
                 <p className="text-sm text-muted-foreground mt-1">
                   If the statement is true, an honest verifier will be convinced by an honest prover
                 </p>
                 <Alert className="mt-3">
-                  <Info className="h-4 w-4" />
+                  <Info className="size-4" />
                   <p className="ml-2 text-xs">
                     Valid proofs always verify successfully. Try the Schnorr protocol above!
                   </p>
@@ -1582,7 +1582,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
           {/* Soundness */}
           <div className="space-y-3">
             <div className="flex items-start gap-3">
-              <ShieldCheck className="h-5 w-5 text-blue-500 mt-0.5" />
+              <ShieldCheck className="size-5 text-blue-500 mt-0.5" />
               <div className="flex-1">
                 <h3 className="font-semibold">Soundness</h3>
                 <p className="text-sm text-muted-foreground mt-1">
@@ -1590,7 +1590,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
                   with negligible probability)
                 </p>
                 <Alert className="mt-3">
-                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTriangle className="size-4" />
                   <p className="ml-2 text-xs">
                     Without the secret, verification will fail. The probability of cheating
                     successfully is cryptographically negligible.
@@ -1605,14 +1605,14 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
           {/* Zero-Knowledge */}
           <div className="space-y-3">
             <div className="flex items-start gap-3">
-              <EyeOff className="h-5 w-5 text-purple-500 mt-0.5" />
+              <EyeOff className="size-5 text-purple-500 mt-0.5" />
               <div className="flex-1">
                 <h3 className="font-semibold">Zero-Knowledge</h3>
                 <p className="text-sm text-muted-foreground mt-1">
                   The verifier learns nothing beyond the validity of the statement
                 </p>
                 <Alert className="mt-3">
-                  <Info className="h-4 w-4" />
+                  <Info className="size-4" />
                   <p className="ml-2 text-xs">
                     The proof transcript (commitment, challenge, response) reveals no information
                     about the secret value x.
@@ -1696,7 +1696,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
           <div className="flex items-start justify-between min-w-0">
             <div className="space-y-1 min-w-0 flex-1">
               <CardTitle className="text-2xl sm:text-3xl font-bold flex items-center gap-2 flex-wrap">
-                <ShieldCheck className="h-7 w-7 sm:h-8 sm:w-8 text-primary shrink-0" />
+                <ShieldCheck className="size-7 sm:size-8 text-primary shrink-0" />
                 <span className="break-words">Zero-Knowledge Proof Demonstrations</span>
               </CardTitle>
               <CardDescription className="break-words">
@@ -1737,7 +1737,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
                     size="sm"
                     onClick={() => setRoleView('both')}
                   >
-                    <Users className="h-4 w-4 mr-1" />
+                    <Users className="size-4 mr-1" />
                     Both
                   </Button>
                   <Button
@@ -1745,7 +1745,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
                     size="sm"
                     onClick={() => setRoleView('prover')}
                   >
-                    <Key className="h-4 w-4 mr-1" />
+                    <Key className="size-4 mr-1" />
                     Prover
                   </Button>
                   <Button
@@ -1753,7 +1753,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
                     size="sm"
                     onClick={() => setRoleView('verifier')}
                   >
-                    <Lock className="h-4 w-4 mr-1" />
+                    <Lock className="size-4 mr-1" />
                     Verifier
                   </Button>
                 </div>
@@ -1776,7 +1776,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Info className="h-5 w-5" />
+              <Info className="size-5" />
               Understanding Zero-Knowledge Proofs
             </CardTitle>
           </CardHeader>
@@ -1858,7 +1858,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
                 <div className="space-y-4">
                   <div>
                     <h4 className="font-semibold flex items-center gap-2">
-                      <Check className="h-4 w-4 text-green-500" />
+                      <Check className="size-4 text-green-500" />
                       Completeness
                     </h4>
                     <p className="text-muted-foreground mt-1">
@@ -1869,7 +1869,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
 
                   <div>
                     <h4 className="font-semibold flex items-center gap-2">
-                      <ShieldCheck className="h-4 w-4 text-blue-500" />
+                      <ShieldCheck className="size-4 text-blue-500" />
                       Soundness
                     </h4>
                     <p className="text-muted-foreground mt-1">
@@ -1880,7 +1880,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
 
                   <div>
                     <h4 className="font-semibold flex items-center gap-2">
-                      <EyeOff className="h-4 w-4 text-purple-500" />
+                      <EyeOff className="size-4 text-purple-500" />
                       Zero-Knowledge
                     </h4>
                     <p className="text-muted-foreground mt-1">
@@ -1891,7 +1891,7 @@ export function ZKPDemo({ showExplanations = true, onProofCompleted, className }
                   </div>
 
                   <Alert className="mt-4">
-                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTriangle className="size-4" />
                     <p className="ml-2 text-xs">
                       <strong>Note:</strong> This demo uses small numbers for educational purposes.
                       Production systems use 2048+ bit primes and additional security measures

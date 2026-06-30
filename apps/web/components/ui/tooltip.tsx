@@ -2,11 +2,29 @@ import { Tooltip as TooltipPrimitive } from 'radix-ui';
 import type { ComponentPropsWithoutRef, ComponentRef, Ref } from 'react';
 import { cn } from '@/lib/utils';
 
-const TooltipProvider = TooltipPrimitive.Provider;
+function TooltipProvider({
+  ...props
+}: ComponentPropsWithoutRef<typeof TooltipPrimitive.Provider> & {
+  ref?: Ref<ComponentRef<typeof TooltipPrimitive.Provider>>;
+}) {
+  return <TooltipPrimitive.Provider data-slot="tooltip-provider" {...props} />;
+}
 
-const Tooltip = TooltipPrimitive.Root;
+function Tooltip({
+  ...props
+}: ComponentPropsWithoutRef<typeof TooltipPrimitive.Root> & {
+  ref?: Ref<ComponentRef<typeof TooltipPrimitive.Root>>;
+}) {
+  return <TooltipPrimitive.Root data-slot="tooltip" {...props} />;
+}
 
-const TooltipTrigger = TooltipPrimitive.Trigger;
+function TooltipTrigger({
+  ...props
+}: ComponentPropsWithoutRef<typeof TooltipPrimitive.Trigger> & {
+  ref?: Ref<ComponentRef<typeof TooltipPrimitive.Trigger>>;
+}) {
+  return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />;
+}
 
 interface TooltipContentProps extends ComponentPropsWithoutRef<typeof TooltipPrimitive.Content> {
   ref?: Ref<ComponentRef<typeof TooltipPrimitive.Content>>;
@@ -15,6 +33,7 @@ interface TooltipContentProps extends ComponentPropsWithoutRef<typeof TooltipPri
 function TooltipContent({ className, sideOffset = 4, ref, ...props }: TooltipContentProps) {
   return (
     <TooltipPrimitive.Content
+      data-slot="tooltip-content"
       ref={ref}
       sideOffset={sideOffset}
       className={cn(

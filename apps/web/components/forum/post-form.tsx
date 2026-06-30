@@ -8,8 +8,8 @@
  */
 
 import { useMutation } from '@apollo/client/react';
-import { m, useReducedMotion } from 'framer-motion';
 import { AlertCircle, Hash, Loader2, Send } from 'lucide-react';
+import { m, useReducedMotion } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
 import { getTagStyle, TAGS } from '@/components/forum/forum-shared';
@@ -138,7 +138,7 @@ export function PostForm() {
 
       <div className="space-y-2">
         <Label className="text-foreground flex items-center gap-1.5">
-          <Hash className="h-3.5 w-3.5 text-indigo-400" />
+          <Hash className="size-3.5 text-indigo-400" />
           Tags
         </Label>
         <div className="flex flex-wrap gap-2">
@@ -151,7 +151,7 @@ export function PostForm() {
                 onClick={() => toggleTag(tag.name)}
                 className={cn(
                   'px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all',
-                  'border backdrop-blur-sm bg-gradient-to-r',
+                  'border backdrop-blur-sm bg-linear-to-r/oklab',
                   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
                   getTagStyle(tag.name),
                   isSelected && 'ring-2 ring-white/20 scale-105',
@@ -169,7 +169,7 @@ export function PostForm() {
 
       {validationError && (
         <div className="flex items-center gap-2 text-sm text-destructive bg-destructive/10 border border-destructive/30 rounded-lg px-3 py-2">
-          <AlertCircle className="h-4 w-4 shrink-0" />
+          <AlertCircle className="size-4 shrink-0" />
           {validationError}
         </div>
       )}
@@ -181,9 +181,9 @@ export function PostForm() {
         <Button
           onClick={handleSubmit}
           disabled={loading}
-          className="gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-[0_4px_24px_oklch(0.55_0.27_264/0.3)]"
+          className="gap-2 bg-linear-to-r/oklab from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-[0_4px_24px_oklch(0.55_0.27_264/0.3)]"
         >
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+          {loading ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
           Publish Post
         </Button>
       </div>

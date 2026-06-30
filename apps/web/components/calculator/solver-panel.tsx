@@ -1,6 +1,5 @@
 'use client';
 
-import { AnimatePresence, m } from 'framer-motion';
 import {
   AlertCircle,
   BookOpen,
@@ -15,6 +14,7 @@ import {
   Sigma,
   TrendingUp,
 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import type { KeyboardEvent } from 'react';
 import { useCallback, useId, useState, useTransition } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -787,7 +787,7 @@ function StepCard({ step, index, isExpanded, onToggle, isFinal }: StepCardProps)
         {/* Step number bubble */}
         <span
           className={cn(
-            'flex-none mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold shrink-0',
+            'flex-none mt-0.5 inline-flex size-6 items-center justify-center rounded-full text-xs font-bold shrink-0',
             isFinal ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground',
           )}
           aria-hidden="true"
@@ -811,7 +811,7 @@ function StepCard({ step, index, isExpanded, onToggle, isFinal }: StepCardProps)
 
         {/* Expand/collapse chevron */}
         <span className="flex-none mt-0.5 text-muted-foreground" aria-hidden="true">
-          {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          {isExpanded ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
         </span>
       </button>
 
@@ -955,12 +955,12 @@ function ResultsPanel({ solution, onCopyAnswer, copied }: ResultsPanelProps) {
           >
             {allExpanded ? (
               <>
-                <ChevronUp className="h-3 w-3 mr-1" aria-hidden="true" />
+                <ChevronUp className="size-3 mr-1" aria-hidden="true" />
                 Collapse all
               </>
             ) : (
               <>
-                <ChevronDown className="h-3 w-3 mr-1" aria-hidden="true" />
+                <ChevronDown className="size-3 mr-1" aria-hidden="true" />
                 Expand all
               </>
             )}
@@ -1036,7 +1036,7 @@ function ResultsPanel({ solution, onCopyAnswer, copied }: ResultsPanelProps) {
             size="icon"
             onClick={onCopyAnswer}
             aria-label="Copy final answer to clipboard"
-            className="flex-none h-8 w-8 text-muted-foreground hover:text-foreground"
+            className="flex-none size-8 text-muted-foreground hover:text-foreground"
           >
             <AnimatePresence mode="wait" initial={false}>
               {copied ? (
@@ -1047,7 +1047,7 @@ function ResultsPanel({ solution, onCopyAnswer, copied }: ResultsPanelProps) {
                   exit={{ scale: 0.7, opacity: 0 }}
                   transition={{ duration: 0.15 }}
                 >
-                  <Check className="h-4 w-4 text-green-500" aria-hidden="true" />
+                  <Check className="size-4 text-green-500" aria-hidden="true" />
                 </m.span>
               ) : (
                 <m.span
@@ -1057,7 +1057,7 @@ function ResultsPanel({ solution, onCopyAnswer, copied }: ResultsPanelProps) {
                   exit={{ scale: 0.7, opacity: 0 }}
                   transition={{ duration: 0.15 }}
                 >
-                  <Copy className="h-4 w-4" aria-hidden="true" />
+                  <Copy className="size-4" aria-hidden="true" />
                 </m.span>
               )}
             </AnimatePresence>
@@ -1310,22 +1310,22 @@ export function SolverPanel() {
         <Tabs value={mode} onValueChange={handleModeChange}>
           <TabsList className="grid grid-cols-4 w-full" aria-label="Problem type">
             <TabsTrigger value="equation" className="gap-1.5 text-xs sm:text-sm">
-              <Calculator className="h-3.5 w-3.5 flex-none" aria-hidden="true" />
+              <Calculator className="size-3.5 flex-none" aria-hidden="true" />
               <span className="hidden sm:inline">Equation</span>
               <span className="sm:hidden">Eq.</span>
             </TabsTrigger>
             <TabsTrigger value="simplify" className="gap-1.5 text-xs sm:text-sm">
-              <Brackets className="h-3.5 w-3.5 flex-none" aria-hidden="true" />
+              <Brackets className="size-3.5 flex-none" aria-hidden="true" />
               <span className="hidden sm:inline">Simplify</span>
               <span className="sm:hidden">Simp.</span>
             </TabsTrigger>
             <TabsTrigger value="derivative" className="gap-1.5 text-xs sm:text-sm">
-              <TrendingUp className="h-3.5 w-3.5 flex-none" aria-hidden="true" />
+              <TrendingUp className="size-3.5 flex-none" aria-hidden="true" />
               <span className="hidden sm:inline">Derivative</span>
               <span className="sm:hidden">d/dx</span>
             </TabsTrigger>
             <TabsTrigger value="integral" className="gap-1.5 text-xs sm:text-sm">
-              <Sigma className="h-3.5 w-3.5 flex-none" aria-hidden="true" />
+              <Sigma className="size-3.5 flex-none" aria-hidden="true" />
               <span className="hidden sm:inline">Integral</span>
               <span className="sm:hidden">∫</span>
             </TabsTrigger>
@@ -1398,12 +1398,12 @@ export function SolverPanel() {
                 >
                   {isPending ? (
                     <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />
+                      <Loader2 className="size-4 mr-2 animate-spin" aria-hidden="true" />
                       Computing…
                     </>
                   ) : (
                     <>
-                      <BookOpen className="h-4 w-4 mr-2" aria-hidden="true" />
+                      <BookOpen className="size-4 mr-2" aria-hidden="true" />
                       Show Steps
                     </>
                   )}
@@ -1417,7 +1417,7 @@ export function SolverPanel() {
                     aria-label="Clear results"
                     title="Clear results"
                   >
-                    <RotateCcw className="h-4 w-4" aria-hidden="true" />
+                    <RotateCcw className="size-4" aria-hidden="true" />
                   </Button>
                 )}
               </div>
@@ -1445,7 +1445,7 @@ export function SolverPanel() {
                 aria-atomic="true"
                 id={errorId}
               >
-                <AlertCircle className="h-4 w-4" aria-hidden="true" />
+                <AlertCircle className="size-4" aria-hidden="true" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             </m.div>

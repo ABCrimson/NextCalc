@@ -13,8 +13,8 @@
  * @module components/plots/AnnotationToolbar
  */
 
-import { AnimatePresence, m } from 'framer-motion';
 import { MousePointerClick, MoveRight, Tag, Trash2 } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import type { ReactNode } from 'react';
 import { useEffect } from 'react';
 
@@ -159,7 +159,7 @@ export function AnnotationToolbar({
         <ToolbarButton
           label="Add Label"
           title="Add a text label (click to place)"
-          icon={<Tag className="w-3.5 h-3.5" />}
+          icon={<Tag className="size-3.5" />}
           isActive={mode === 'placing-label'}
           onClick={() => onModeChange(mode === 'placing-label' ? 'idle' : 'placing-label')}
         />
@@ -174,7 +174,7 @@ export function AnnotationToolbar({
                 : 'Add Arrow'
           }
           title="Add an arrow annotation (click start, then end)"
-          icon={<MoveRight className="w-3.5 h-3.5" />}
+          icon={<MoveRight className="size-3.5" />}
           isActive={mode === 'placing-arrow-tail' || mode === 'placing-arrow-head'}
           onClick={() => {
             if (mode === 'placing-arrow-tail' || mode === 'placing-arrow-head') {
@@ -189,7 +189,7 @@ export function AnnotationToolbar({
         <ToolbarButton
           label="Clear All"
           title="Remove all annotations"
-          icon={<Trash2 className="w-3.5 h-3.5" />}
+          icon={<Trash2 className="size-3.5" />}
           isDestructive
           disabled={annotationCount === 0}
           onClick={onClearAll}
@@ -225,7 +225,7 @@ export function AnnotationToolbar({
             role="status"
             aria-live="polite"
           >
-            <MousePointerClick className="w-3.5 h-3.5 shrink-0 animate-pulse" />
+            <MousePointerClick className="size-3.5 shrink-0 animate-pulse" />
             <span>{hint}</span>
             <span className="ml-auto text-[10px] text-cyan-400/60 shrink-0">Esc to cancel</span>
           </m.div>

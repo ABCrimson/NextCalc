@@ -183,14 +183,14 @@ export default function FourierAnalysisPage() {
   }, [frequency1, frequency2, amplitude1, amplitude2, sampleSize, sampleRate, algorithm]);
 
   return (
-    <main className="min-h-screen py-12 px-4 bg-gradient-to-br from-background via-background/95 to-background">
+    <main className="min-h-screen py-12 px-4 bg-linear-to-br/oklab from-background via-background/95 to-background">
       <div className="container mx-auto max-w-7xl">
         <header className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-emerald-500/20 to-purple-500/20 border border-emerald-500/30">
-              <Activity className="w-8 h-8 text-emerald-400" />
+            <div className="p-2 rounded-xl bg-linear-to-br/oklab from-emerald-500/20 to-purple-500/20 border border-emerald-500/30">
+              <Activity className="size-8 text-emerald-400" />
             </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold bg-linear-to-r/oklab from-emerald-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
               {t('title')}
             </h1>
           </div>
@@ -200,7 +200,7 @@ export default function FourierAnalysisPage() {
               variant="outline"
               className="border-emerald-500/50 text-emerald-400 bg-emerald-500/10"
             >
-              <Zap className="w-3 h-3 mr-1" />
+              <Zap className="size-3 mr-1" />
               GPU Accelerated
             </Badge>
             <Badge variant="outline" className="border-cyan-500/50 text-cyan-400 bg-cyan-500/10">
@@ -217,7 +217,7 @@ export default function FourierAnalysisPage() {
 
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Control Panel */}
-          <Card className="lg:col-span-1 bg-gradient-to-br from-background/90 to-card/90 border-border backdrop-blur-xl">
+          <Card className="lg:col-span-1 bg-linear-to-br/oklab from-background/90 to-card/90 border-border backdrop-blur-xl">
             <CardHeader>
               <CardTitle className="text-emerald-400">{t('signalGenerator')}</CardTitle>
               <CardDescription className="text-muted-foreground">
@@ -346,7 +346,7 @@ export default function FourierAnalysisPage() {
                 <p className="text-xs text-muted-foreground/70">{t('algorithmComplexity')}</p>
                 {algorithmTiming && (
                   <div className="flex items-center gap-2 mt-1 px-3 py-2 rounded-lg bg-muted/60 border border-border">
-                    <Clock className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                    <Clock className="size-3.5 text-cyan-400 shrink-0" />
                     <span className="text-xs font-mono text-cyan-300">
                       {algorithmTiming.algorithm.toUpperCase()}
                     </span>
@@ -427,10 +427,10 @@ export default function FourierAnalysisPage() {
           {/* Visualizations */}
           <div className="lg:col-span-2 space-y-6">
             {/* Time Domain Visualization */}
-            <Card className="bg-gradient-to-br from-background/90 to-card/90 border-border backdrop-blur-xl">
+            <Card className="bg-linear-to-br/oklab from-background/90 to-card/90 border-border backdrop-blur-xl">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-cyan-400">
-                  <Waves className="w-5 h-5" />
+                  <Waves className="size-5" />
                   {t('timeDomainSignal')}
                 </CardTitle>
                 <CardDescription className="text-muted-foreground">
@@ -453,10 +453,10 @@ export default function FourierAnalysisPage() {
 
             {/* Frequency Domain Results */}
             {frequencyData && (
-              <Card className="bg-gradient-to-br from-background/90 to-card/90 border-border backdrop-blur-xl">
+              <Card className="bg-linear-to-br/oklab from-background/90 to-card/90 border-border backdrop-blur-xl">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-purple-400">
-                    <Waves className="w-5 h-5" />
+                    <Waves className="size-5" />
                     {t('frequencySpectrum')}
                   </CardTitle>
                   <CardDescription className="text-muted-foreground">
@@ -513,26 +513,26 @@ export default function FourierAnalysisPage() {
           <h2 className="text-2xl font-semibold text-foreground">{t('aboutTitle')}</h2>
 
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="group relative p-6 rounded-lg bg-gradient-to-br from-emerald-950/40 to-emerald-900/40 border border-emerald-500/40 hover:border-emerald-400/70 transition-all duration-300">
+            <div className="group relative p-6 rounded-lg bg-linear-to-br/oklab from-emerald-950/40 to-emerald-900/40 border border-emerald-500/40 hover:border-emerald-400/70 transition-all duration-300">
               <h3 className="text-lg font-semibold mb-2 text-emerald-300">{t('fftTitle')}</h3>
               <p className="text-sm text-emerald-200/80">{t('fftAbout')}</p>
             </div>
 
-            <div className="group relative p-6 rounded-lg bg-gradient-to-br from-purple-950/40 to-purple-900/40 border border-purple-500/40 hover:border-purple-400/70 transition-all duration-300">
+            <div className="group relative p-6 rounded-lg bg-linear-to-br/oklab from-purple-950/40 to-purple-900/40 border border-purple-500/40 hover:border-purple-400/70 transition-all duration-300">
               <h3 className="text-lg font-semibold mb-2 text-purple-300">
                 {t('applicationsTitle')}
               </h3>
               <p className="text-sm text-purple-200/80">{t('applicationsAbout')}</p>
             </div>
 
-            <div className="group relative p-6 rounded-lg bg-gradient-to-br from-cyan-950/40 to-cyan-900/40 border border-cyan-500/40 hover:border-cyan-400/70 transition-all duration-300">
+            <div className="group relative p-6 rounded-lg bg-linear-to-br/oklab from-cyan-950/40 to-cyan-900/40 border border-cyan-500/40 hover:border-cyan-400/70 transition-all duration-300">
               <h3 className="text-lg font-semibold mb-2 text-cyan-300">
                 {t('frequencyResolution')}
               </h3>
               <p className="text-sm text-cyan-200/80">{t('frequencyResolutionAbout')}</p>
             </div>
 
-            <div className="group relative p-6 rounded-lg bg-gradient-to-br from-indigo-950/40 to-indigo-900/40 border border-indigo-500/40 hover:border-indigo-400/70 transition-all duration-300">
+            <div className="group relative p-6 rounded-lg bg-linear-to-br/oklab from-indigo-950/40 to-indigo-900/40 border border-indigo-500/40 hover:border-indigo-400/70 transition-all duration-300">
               <h3 className="text-lg font-semibold mb-2 text-indigo-300">{t('nyquistTheorem')}</h3>
               <p className="text-sm text-indigo-200/80">{t('nyquistTheoremAbout')}</p>
             </div>

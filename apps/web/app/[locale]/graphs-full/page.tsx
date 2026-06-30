@@ -1,7 +1,6 @@
 'use client';
 
 import { kruskal, prim } from '@nextcalc/math-engine/graph-theory';
-import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import {
   BookOpen,
   Info,
@@ -12,6 +11,7 @@ import {
   Sparkles,
   Trash2,
 } from 'lucide-react';
+import { AnimatePresence, m, useReducedMotion } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent } from 'react';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
@@ -1459,7 +1459,7 @@ function ContextMenu({ target, onDeleteNode, onDeleteEdge, onClose }: ContextMen
         }}
         className="flex w-full items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
       >
-        <Trash2 className="w-3.5 h-3.5" />
+        <Trash2 className="size-3.5" />
         Delete {target.kind === 'node' ? 'node' : 'edge'}
       </button>
     </m.div>
@@ -2108,7 +2108,7 @@ export default function GraphAlgorithmsPage() {
   // RENDER
   // -------------------------------------------------------------------------
   const glassPanel =
-    'bg-gradient-to-br from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]';
+    'bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]';
 
   return (
     <main className="min-h-screen py-10 px-4 relative">
@@ -2156,7 +2156,7 @@ export default function GraphAlgorithmsPage() {
         {/* SVG noise texture overlay */}
         <svg
           aria-hidden="true"
-          className="absolute inset-0 w-full h-full opacity-[0.03]"
+          className="absolute inset-0 size-full opacity-[0.03]"
           xmlns="http://www.w3.org/2000/svg"
         >
           <filter id="graphs-noise">
@@ -2181,9 +2181,9 @@ export default function GraphAlgorithmsPage() {
         >
           <div className="flex items-center gap-3 mb-2 min-w-0">
             <div className="p-2 rounded-xl bg-primary/10 border border-primary/20 shrink-0">
-              <Network className="w-8 h-8 text-primary" />
+              <Network className="size-8 text-primary" />
             </div>
-            <h1 className="text-4xl font-bold tracking-tight min-w-0 break-words bg-gradient-to-r from-emerald-400 via-teal-400 to-blue-400 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold tracking-tight min-w-0 break-words bg-linear-to-r/oklab from-emerald-400 via-teal-400 to-blue-400 bg-clip-text text-transparent">
               {t('title')}
             </h1>
           </div>
@@ -2312,7 +2312,7 @@ export default function GraphAlgorithmsPage() {
 
                 {/* Run button */}
                 <Button onClick={runAlgorithm} className="w-full" size="lg">
-                  <Route className="w-4 h-4 mr-2" />
+                  <Route className="size-4 mr-2" />
                   Run Algorithm
                 </Button>
 
@@ -2368,7 +2368,7 @@ export default function GraphAlgorithmsPage() {
                       onClick={addEdgeFromForm}
                       className="w-full h-8"
                     >
-                      <Plus className="w-3.5 h-3.5 mr-1.5" />
+                      <Plus className="size-3.5 mr-1.5" />
                       Add Edge
                     </Button>
                   </div>
@@ -2411,9 +2411,9 @@ export default function GraphAlgorithmsPage() {
                             type="button"
                             onClick={() => deleteEdge(index)}
                             aria-label={`Delete edge ${edge.from} to ${edge.to}`}
-                            className="ml-auto flex-shrink-0 h-6 w-6 rounded flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                            className="ml-auto flex-shrink-0 size-6 rounded flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                           >
-                            <Trash2 className="w-3 h-3" />
+                            <Trash2 className="size-3" />
                           </button>
                         </m.li>
                       ))}
@@ -2452,7 +2452,7 @@ export default function GraphAlgorithmsPage() {
                         showParticles ? 'Disable edge flow particles' : 'Enable edge flow particles'
                       }
                     >
-                      <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                      <Sparkles className="size-3.5 mr-1.5" />
                       Particles
                     </Button>
                     <Button
@@ -2463,12 +2463,12 @@ export default function GraphAlgorithmsPage() {
                     >
                       {addingNode ? (
                         <>
-                          <MousePointer2 className="w-3.5 h-3.5 mr-1.5" />
+                          <MousePointer2 className="size-3.5 mr-1.5" />
                           Click canvas
                         </>
                       ) : (
                         <>
-                          <Plus className="w-3.5 h-3.5 mr-1.5" />
+                          <Plus className="size-3.5 mr-1.5" />
                           Add Node
                         </>
                       )}
@@ -2478,15 +2478,15 @@ export default function GraphAlgorithmsPage() {
 
                 <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
-                    <span className="inline-block w-2 h-2 rounded-full bg-primary/60" />
+                    <span className="inline-block size-2 rounded-full bg-primary/60" />
                     Drag node to move
                   </span>
                   <span className="flex items-center gap-1">
-                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-500/60" />
+                    <span className="inline-block size-2 rounded-full bg-emerald-500/60" />
                     Shift+drag to connect
                   </span>
                   <span className="flex items-center gap-1">
-                    <Info className="w-3 h-3" />
+                    <Info className="size-3" />
                     Right-click to delete
                   </span>
                 </div>
@@ -2929,7 +2929,7 @@ export default function GraphAlgorithmsPage() {
                     ref={particleCanvasRef}
                     aria-hidden="true"
                     tabIndex={-1}
-                    className="absolute inset-0 w-full h-full pointer-events-none"
+                    className="absolute inset-0 size-full pointer-events-none"
                     style={{ mixBlendMode: 'screen' }}
                   />
 
@@ -2968,7 +2968,7 @@ export default function GraphAlgorithmsPage() {
                 </CardHeader>
                 <CardContent>
                   {result.type === 'shortest-path' && (
-                    <div className="p-4 rounded-lg bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/25">
+                    <div className="p-4 rounded-lg bg-linear-to-br/oklab from-emerald-500/10 to-emerald-500/5 border border-emerald-500/25">
                       <p className="text-sm font-semibold text-emerald-500 mb-3">Shortest Path</p>
                       <div className="space-y-2">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -2977,7 +2977,7 @@ export default function GraphAlgorithmsPage() {
                             {result.path && result.path.length > 0 ? (
                               result.path.map((nodeId, i) => (
                                 <span key={nodeId} className="flex items-center gap-1">
-                                  <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-500 font-mono font-bold text-sm">
+                                  <span className="inline-flex items-center justify-center size-7 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-500 font-mono font-bold text-sm">
                                     {nodeId}
                                   </span>
                                   {i < (result.path?.length ?? 0) - 1 && (
@@ -3005,14 +3005,14 @@ export default function GraphAlgorithmsPage() {
                   )}
 
                   {result.type === 'traversal' && result.order && (
-                    <div className="p-4 rounded-lg bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/25">
+                    <div className="p-4 rounded-lg bg-linear-to-br/oklab from-emerald-500/10 to-emerald-500/5 border border-emerald-500/25">
                       <p className="text-sm font-semibold text-emerald-500 mb-3">
                         {algorithm === 'bfs' ? 'BFS' : 'DFS'} Traversal Order
                       </p>
                       <div className="flex items-center gap-1 flex-wrap">
                         {result.order.map((nodeId, i) => (
                           <span key={nodeId} className="flex items-center gap-1">
-                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-500 font-mono font-bold text-sm">
+                            <span className="inline-flex items-center justify-center size-7 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-500 font-mono font-bold text-sm">
                               {nodeId}
                             </span>
                             {i < result.order!.length - 1 && (
@@ -3028,14 +3028,14 @@ export default function GraphAlgorithmsPage() {
                   )}
 
                   {result.type === 'topological' && result.order && (
-                    <div className="p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-purple-500/5 border border-purple-500/25">
+                    <div className="p-4 rounded-lg bg-linear-to-br/oklab from-purple-500/10 to-purple-500/5 border border-purple-500/25">
                       <p className="text-sm font-semibold text-purple-500 mb-3">
                         Topological Order
                       </p>
                       <div className="flex items-center gap-1 flex-wrap">
                         {result.order.map((nodeId, i) => (
                           <span key={nodeId} className="flex items-center gap-1">
-                            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-500 font-mono font-bold text-sm">
+                            <span className="inline-flex items-center justify-center size-7 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-500 font-mono font-bold text-sm">
                               {nodeId}
                             </span>
                             {i < result.order!.length - 1 && (
@@ -3051,7 +3051,7 @@ export default function GraphAlgorithmsPage() {
                   )}
 
                   {result.type === 'scc' && result.components && (
-                    <div className="p-4 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/25">
+                    <div className="p-4 rounded-lg bg-linear-to-br/oklab from-primary/10 to-primary/5 border border-primary/25">
                       <p className="text-sm font-semibold text-primary mb-3">
                         Strongly Connected Components ({result.components.length})
                       </p>
@@ -3077,7 +3077,7 @@ export default function GraphAlgorithmsPage() {
                               {component.map((nodeId) => (
                                 <span
                                   key={nodeId}
-                                  className={`inline-flex items-center justify-center w-7 h-7 rounded-full border font-mono font-bold text-sm ${colorClass}`}
+                                  className={`inline-flex items-center justify-center size-7 rounded-full border font-mono font-bold text-sm ${colorClass}`}
                                 >
                                   {nodeId}
                                 </span>
@@ -3090,7 +3090,7 @@ export default function GraphAlgorithmsPage() {
                   )}
 
                   {result.type === 'mst' && (
-                    <div className="p-4 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/25">
+                    <div className="p-4 rounded-lg bg-linear-to-br/oklab from-primary/10 to-primary/5 border border-primary/25">
                       <p className="text-sm font-semibold text-primary mb-3">
                         Minimum Spanning Tree
                       </p>
@@ -3189,7 +3189,7 @@ export default function GraphAlgorithmsPage() {
               <Card className="bg-card/30 backdrop-blur-xl border-border/50 shadow-2xl">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg flex items-center gap-2 text-foreground">
-                    <BookOpen className="w-5 h-5 text-primary" />
+                    <BookOpen className="size-5 text-primary" />
                     Detailed Proof
                   </CardTitle>
                   <CardDescription>Why the algorithm produced this result</CardDescription>
@@ -3274,12 +3274,12 @@ export default function GraphAlgorithmsPage() {
                 {...(!prefersReducedMotion ? { whileHover: { y: -2 } } : {})}
                 transition={{ duration: 0.2 }}
                 className={`group relative p-5 rounded-xl border transition-all duration-300
-                  ${accent === 'blue' ? 'bg-gradient-to-br from-blue-500/8 to-blue-500/3 border-blue-500/20 hover:border-blue-500/40' : ''}
-                  ${accent === 'emerald' ? 'bg-gradient-to-br from-emerald-500/8 to-emerald-500/3 border-emerald-500/20 hover:border-emerald-500/40' : ''}
-                  ${accent === 'purple' ? 'bg-gradient-to-br from-purple-500/8 to-purple-500/3 border-purple-500/20 hover:border-purple-500/40' : ''}
-                  ${accent === 'rose' ? 'bg-gradient-to-br from-rose-500/8 to-rose-500/3 border-rose-500/20 hover:border-rose-500/40' : ''}
-                  ${accent === 'amber' ? 'bg-gradient-to-br from-amber-500/8 to-amber-500/3 border-amber-500/20 hover:border-amber-500/40' : ''}
-                  ${accent === 'cyan' ? 'bg-gradient-to-br from-cyan-500/8 to-cyan-500/3 border-cyan-500/20 hover:border-cyan-500/40' : ''}
+                  ${accent === 'blue' ? 'bg-linear-to-br/oklab from-blue-500/8 to-blue-500/3 border-blue-500/20 hover:border-blue-500/40' : ''}
+                  ${accent === 'emerald' ? 'bg-linear-to-br/oklab from-emerald-500/8 to-emerald-500/3 border-emerald-500/20 hover:border-emerald-500/40' : ''}
+                  ${accent === 'purple' ? 'bg-linear-to-br/oklab from-purple-500/8 to-purple-500/3 border-purple-500/20 hover:border-purple-500/40' : ''}
+                  ${accent === 'rose' ? 'bg-linear-to-br/oklab from-rose-500/8 to-rose-500/3 border-rose-500/20 hover:border-rose-500/40' : ''}
+                  ${accent === 'amber' ? 'bg-linear-to-br/oklab from-amber-500/8 to-amber-500/3 border-amber-500/20 hover:border-amber-500/40' : ''}
+                  ${accent === 'cyan' ? 'bg-linear-to-br/oklab from-cyan-500/8 to-cyan-500/3 border-cyan-500/20 hover:border-cyan-500/40' : ''}
                 `}
               >
                 <h3

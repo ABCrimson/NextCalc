@@ -1,7 +1,7 @@
 'use client';
 
-import { AnimatePresence, m } from 'framer-motion';
 import { Book, Bookmark, ChevronRight, ExternalLink, Lightbulb, Search } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import { useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -149,7 +149,7 @@ export function KnowledgeExplorer({
             {/* Search */}
             <div className="relative">
               <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+                className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground"
                 aria-hidden="true"
               />
               <Input
@@ -209,7 +209,7 @@ export function KnowledgeExplorer({
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-6 w-6 p-0"
+                              className="size-6 p-0"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 onToggleBookmark(item.id);
@@ -220,7 +220,7 @@ export function KnowledgeExplorer({
                             >
                               <Bookmark
                                 className={cn(
-                                  'h-4 w-4',
+                                  'size-4',
                                   bookmarkedIds.has(item.id) && 'fill-primary text-primary',
                                 )}
                                 aria-hidden="true"
@@ -290,7 +290,7 @@ export function KnowledgeExplorer({
                       <Separator />
                       <div className="space-y-4">
                         <div className="flex items-center gap-2 text-lg font-semibold">
-                          <Lightbulb className="h-5 w-5 text-yellow-500" aria-hidden="true" />
+                          <Lightbulb className="size-5 text-yellow-500" aria-hidden="true" />
                           <span>Examples</span>
                         </div>
                         {selectedItem.examples.map((example) => (
@@ -327,7 +327,7 @@ export function KnowledgeExplorer({
                               onClick={() => handleItemSelect(item)}
                             >
                               <ChevronRight
-                                className="h-4 w-4 mr-2 flex-shrink-0"
+                                className="size-4 mr-2 flex-shrink-0"
                                 aria-hidden="true"
                               />
                               <div className="text-left">
@@ -356,7 +356,7 @@ export function KnowledgeExplorer({
                               rel="noopener noreferrer"
                               className="flex items-center gap-2 text-sm text-primary hover:underline"
                             >
-                              <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                              <ExternalLink className="size-4" aria-hidden="true" />
                               {ref.title}
                             </a>
                           ))}
@@ -370,7 +370,7 @@ export function KnowledgeExplorer({
           ) : (
             <Card>
               <CardContent className="flex flex-col items-center justify-center h-[600px] text-center">
-                <Book className="h-16 w-16 text-muted-foreground mb-4" aria-hidden="true" />
+                <Book className="size-16 text-muted-foreground mb-4" aria-hidden="true" />
                 <CardTitle className="mb-2">Select an Item</CardTitle>
                 <CardDescription>
                   Choose a definition, theorem, or concept to explore

@@ -129,7 +129,7 @@ export default async function TopicPage({ params }: { params: Promise<{ topic: s
       <div className="mb-6">
         <Button variant="ghost" asChild>
           <Link href="/learn">
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="size-4 mr-2" />
             {t('backToLearningHub')}
           </Link>
         </Button>
@@ -138,7 +138,7 @@ export default async function TopicPage({ params }: { params: Promise<{ topic: s
       {/* Topic Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2">
-          <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <span className="bg-linear-to-r/oklab from-blue-600 to-purple-600 bg-clip-text text-transparent">
             {topic}
           </span>
         </h1>
@@ -150,7 +150,7 @@ export default async function TopicPage({ params }: { params: Promise<{ topic: s
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-blue-500" />
+              <BookOpen className="size-5 text-blue-500" />
               {t('definitions')}
             </CardTitle>
           </CardHeader>
@@ -178,7 +178,7 @@ export default async function TopicPage({ params }: { params: Promise<{ topic: s
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Puzzle className="h-5 w-5 text-purple-500" />
+              <Puzzle className="size-5 text-purple-500" />
               {t('practiceProblems')}
             </CardTitle>
           </CardHeader>
@@ -196,7 +196,7 @@ export default async function TopicPage({ params }: { params: Promise<{ topic: s
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Code className="h-5 w-5 text-green-500" />
+              <Code className="size-5 text-green-500" />
               {t('algorithms')}
             </CardTitle>
           </CardHeader>

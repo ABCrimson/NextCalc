@@ -1,7 +1,7 @@
 'use client';
 
-import type { Variants } from 'framer-motion';
-import { m } from 'framer-motion';
+import type { Variants } from 'motion/react';
+import { m } from 'motion/react';
 
 interface CategoryCard {
   icon: string;
@@ -52,7 +52,7 @@ export function UnitsBackground() {
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
       {/* Base gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background" />
+      <div className="absolute inset-0 bg-linear-to-br/oklab from-background via-background/95 to-background" />
 
       {/* Orb 1 — top right: blue-cyan for length/data categories */}
       <m.div
@@ -125,7 +125,7 @@ export function UnitsBackground() {
       {/* SVG feTurbulence noise texture overlay */}
       <svg
         aria-hidden="true"
-        className="absolute inset-0 w-full h-full opacity-[0.025] pointer-events-none"
+        className="absolute inset-0 size-full opacity-[0.025] pointer-events-none"
         xmlns="http://www.w3.org/2000/svg"
       >
         <filter id="units-noise">
@@ -160,13 +160,13 @@ export function UnitsCategories({ categoryCards }: UnitsClientProps) {
         <m.div
           key={card.label}
           variants={cardVariants}
-          className={`group relative p-5 rounded-xl bg-gradient-to-br ${card.colorClasses} border backdrop-blur-md transition-all duration-300`}
+          className={`group relative p-5 rounded-xl bg-linear-to-br/oklab ${card.colorClasses} border backdrop-blur-md transition-all duration-300`}
         >
           {/* Hover shimmer overlay */}
-          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute inset-0 rounded-xl bg-linear-to-br/oklab from-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
           {/* Corner accent glow */}
-          <div className="absolute top-0 right-0 w-20 h-20 rounded-bl-full opacity-10 bg-gradient-to-bl from-white to-transparent" />
+          <div className="absolute top-0 right-0 size-20 rounded-bl-full opacity-10 bg-linear-to-bl/oklab from-white to-transparent" />
 
           {/* Content scales on hover per requirement */}
           <div className="relative transition-transform duration-300 group-hover:scale-[1.02]">
@@ -174,7 +174,7 @@ export function UnitsCategories({ categoryCards }: UnitsClientProps) {
               className={`text-base font-semibold mb-1 flex items-center gap-2 ${card.headingClasses}`}
             >
               <span
-                className="text-xl w-7 h-7 flex items-center justify-center shrink-0"
+                className="text-xl size-7 flex items-center justify-center shrink-0"
                 aria-hidden="true"
               >
                 {card.icon}

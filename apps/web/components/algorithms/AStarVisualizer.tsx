@@ -16,8 +16,8 @@
  * ```
  */
 
-import { m } from 'framer-motion';
 import { Compass, Info, Pause, Play, RotateCcw, SkipForward } from 'lucide-react';
+import { m } from 'motion/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -494,7 +494,7 @@ export function AStarVisualizer() {
       >
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <h2 className="text-3xl font-bold bg-linear-to-r/oklab from-purple-600 to-pink-600 bg-clip-text text-transparent">
               A* Search Algorithm
             </h2>
             <p className="text-muted-foreground mt-2">
@@ -507,7 +507,7 @@ export function AStarVisualizer() {
               variant="outline"
               className="bg-purple-500/10 text-purple-700 dark:text-purple-300"
             >
-              <Compass className="h-3 w-3 mr-1" />
+              <Compass className="size-3 mr-1" />
               Heuristic
             </Badge>
           </div>
@@ -529,7 +529,7 @@ export function AStarVisualizer() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="w-full h-[600px] rounded-lg border bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950">
+            <div className="w-full h-[600px] rounded-lg border bg-linear-to-br/oklab from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950">
               <UnifiedGraphRenderer
                 nodes={visualNodes}
                 edges={visualEdges}
@@ -605,21 +605,21 @@ export function AStarVisualizer() {
                   >
                     {isPlaying ? (
                       <>
-                        <Pause className="h-4 w-4 mr-2" />
+                        <Pause className="size-4 mr-2" />
                         Pause
                       </>
                     ) : (
                       <>
-                        <Play className="h-4 w-4 mr-2" />
+                        <Play className="size-4 mr-2" />
                         Play
                       </>
                     )}
                   </Button>
                   <Button onClick={handleStepForward} variant="outline" size="icon">
-                    <SkipForward className="h-4 w-4" />
+                    <SkipForward className="size-4" />
                   </Button>
                   <Button onClick={handleReset} variant="outline" size="icon">
-                    <RotateCcw className="h-4 w-4" />
+                    <RotateCcw className="size-4" />
                   </Button>
                 </div>
 
@@ -660,7 +660,7 @@ export function AStarVisualizer() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Info className="h-5 w-5" />
+                <Info className="size-5" />
                 Statistics
               </CardTitle>
             </CardHeader>

@@ -22,8 +22,8 @@
  * - ARIA labels, live regions, keyboard navigation.
  */
 
-import { AnimatePresence, m } from 'framer-motion';
 import { BarChart2, Cpu, Info, Lock, Play, RotateCcw, ShieldCheck, X, Zap } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import type { KeyboardEvent } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -62,7 +62,7 @@ const DEMO_P = 32452843;
 const DEMO_G = 5;
 
 const GLASS_CARD =
-  'bg-gradient-to-br from-background/60 via-card/50 to-background/60 ' +
+  'bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 ' +
   'backdrop-blur-md border border-border ' +
   'shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]';
 
@@ -344,7 +344,7 @@ export function ZKPComputeVisualizer({
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-indigo-500/15 border border-indigo-500/25">
-              <Zap className="w-5 h-5 text-indigo-400" aria-hidden="true" />
+              <Zap className="size-5 text-indigo-400" aria-hidden="true" />
             </div>
             <div>
               <h3 className="font-bold text-lg text-foreground">GPU Batch ZKP Verification</h3>
@@ -367,7 +367,7 @@ export function ZKPComputeVisualizer({
                 role="status"
                 aria-label={`WebGPU ${webGPUSupported ? 'available' : 'unavailable — CPU fallback'}`}
               >
-                {webGPUSupported ? <Zap className="w-3 h-3" /> : <Cpu className="w-3 h-3" />}
+                {webGPUSupported ? <Zap className="size-3" /> : <Cpu className="size-3" />}
                 {webGPUSupported ? 'WebGPU available' : 'CPU fallback'}
               </span>
             )}
@@ -383,7 +383,7 @@ export function ZKPComputeVisualizer({
                 disabled:opacity-40 transition-colors"
               aria-label="Generate new rounds"
             >
-              <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
+              <RotateCcw className="size-3.5" aria-hidden="true" />
               New Rounds
             </button>
 
@@ -397,7 +397,7 @@ export function ZKPComputeVisualizer({
                 disabled:opacity-40 transition-colors shadow-[0_4px_14px_oklch(0.5854_0.2041_277.12_/_0.3)]"
               aria-label="Run batch verification"
             >
-              <Play className="w-3.5 h-3.5" aria-hidden="true" />
+              <Play className="size-3.5" aria-hidden="true" />
               {phase === 'gpu'
                 ? 'GPU running...'
                 : phase === 'cpu'
@@ -413,7 +413,7 @@ export function ZKPComputeVisualizer({
         {/* Commitment cell grid */}
         <div className={`rounded-2xl p-5 ${GLASS_CARD}`}>
           <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-            <Lock className="w-4 h-4 text-indigo-400" aria-hidden="true" />
+            <Lock className="size-4 text-indigo-400" aria-hidden="true" />
             Commitment Cells
             <span className="ml-auto text-xs text-muted-foreground font-normal">
               Click a cell to inspect
@@ -474,10 +474,10 @@ export function ZKPComputeVisualizer({
                     role="gridcell"
                   >
                     {cell.state === 'verified' && (
-                      <ShieldCheck className="w-3 h-3 text-emerald-400" aria-hidden="true" />
+                      <ShieldCheck className="size-3 text-emerald-400" aria-hidden="true" />
                     )}
                     {cell.state === 'failed' && (
-                      <X className="w-3 h-3 text-red-400" aria-hidden="true" />
+                      <X className="size-3 text-red-400" aria-hidden="true" />
                     )}
                     {(cell.state === 'idle' || cell.state === 'verifying') && (
                       <span className={`text-[8px] ${cellTextColor(cell.state)}`}>
@@ -505,7 +505,7 @@ export function ZKPComputeVisualizer({
             ).map(({ state, label }) => (
               <div key={state} className="flex items-center gap-1.5">
                 <div
-                  className={`w-3 h-3 rounded-sm border ${cellColor(state)}`}
+                  className={`size-3 rounded-sm border ${cellColor(state)}`}
                   aria-hidden="true"
                 />
                 <span className="text-[11px] text-muted-foreground">{label}</span>
@@ -523,7 +523,7 @@ export function ZKPComputeVisualizer({
             aria-label="Verification progress"
           >
             <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-              <BarChart2 className="w-4 h-4 text-indigo-400" aria-hidden="true" />
+              <BarChart2 className="size-4 text-indigo-400" aria-hidden="true" />
               Progress
             </h4>
             <dl className="space-y-2">
@@ -545,7 +545,7 @@ export function ZKPComputeVisualizer({
             {stats.total > 0 && (
               <div className="mt-3 h-2 rounded-full bg-muted/50 overflow-hidden">
                 <m.div
-                  className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500"
+                  className="h-full rounded-full bg-linear-to-r/oklab from-emerald-500 to-cyan-500"
                   animate={{ width: `${((stats.verified + stats.failed) / stats.total) * 100}%` }}
                   transition={{ duration: 0.3 }}
                   aria-hidden="true"
@@ -565,14 +565,14 @@ export function ZKPComputeVisualizer({
                 aria-label="Timing comparison"
               >
                 <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-amber-400" aria-hidden="true" />
+                  <Zap className="size-4 text-amber-400" aria-hidden="true" />
                   Timing
                 </h4>
                 <dl className="space-y-2">
                   {gpuResult && (
                     <div className="flex items-center justify-between">
                       <dt className="text-xs text-muted-foreground flex items-center gap-1">
-                        <Zap className="w-3 h-3 text-emerald-400" aria-hidden="true" />
+                        <Zap className="size-3 text-emerald-400" aria-hidden="true" />
                         GPU
                       </dt>
                       <dd className="text-sm font-bold font-mono text-emerald-300">
@@ -583,7 +583,7 @@ export function ZKPComputeVisualizer({
                   {cpuResult && (
                     <div className="flex items-center justify-between">
                       <dt className="text-xs text-muted-foreground flex items-center gap-1">
-                        <Cpu className="w-3 h-3 text-amber-400" aria-hidden="true" />
+                        <Cpu className="size-3 text-amber-400" aria-hidden="true" />
                         CPU
                       </dt>
                       <dd className="text-sm font-bold font-mono text-amber-300">
@@ -601,7 +601,7 @@ export function ZKPComputeVisualizer({
                   )}
                   {gpuResult === null && cpuResult !== null && (
                     <p className="text-[11px] text-amber-400 flex items-start gap-1 mt-1">
-                      <Info className="w-3 h-3 mt-0.5 shrink-0" aria-hidden="true" />
+                      <Info className="size-3 mt-0.5 shrink-0" aria-hidden="true" />
                       WebGPU unavailable — CPU fallback used
                     </p>
                   )}
@@ -628,7 +628,7 @@ export function ZKPComputeVisualizer({
                   aria-label={`Round ${cell.index + 1} details`}
                 >
                   <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-                    <Lock className="w-4 h-4 text-indigo-400" aria-hidden="true" />
+                    <Lock className="size-4 text-indigo-400" aria-hidden="true" />
                     Round {cell.index + 1}
                     <span
                       className={`ml-auto text-[11px] font-semibold px-2 py-0.5 rounded-full border
@@ -693,7 +693,7 @@ export function ZKPComputeVisualizer({
         role="note"
         aria-label="Educational note about this demo"
       >
-        <Info className="w-4 h-4 text-indigo-400 mt-0.5 shrink-0" aria-hidden="true" />
+        <Info className="size-4 text-indigo-400 mt-0.5 shrink-0" aria-hidden="true" />
         <p className="text-xs text-muted-foreground leading-relaxed">
           <span className="text-foreground font-semibold">How the GPU kernel works: </span>
           Each workgroup invocation computes g^s mod p and t·y^c mod p independently using a

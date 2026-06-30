@@ -360,7 +360,7 @@ export function CommandPalette({ className }: CommandPaletteProps) {
         aria-label="Open command palette (Ctrl+K)"
         aria-keyshortcuts="Control+K Meta+K"
       >
-        <Search className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+        <Search className="size-3.5 shrink-0" aria-hidden="true" />
         <span className="flex-1 text-left">Search...</span>
         <kbd
           className="hidden lg:inline-flex items-center gap-0.5 rounded border border-border/70 bg-background px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
@@ -387,7 +387,7 @@ export function CommandPalette({ className }: CommandPaletteProps) {
       >
         {/* Search input */}
         <div className="flex items-center gap-2 border-b border-border/50 px-4">
-          <Search className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+          <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
           <Command.Input
             placeholder="Search pages, actions, recent…"
             className="w-full bg-transparent py-4 text-sm text-foreground outline-none placeholder:text-muted-foreground"
@@ -410,7 +410,7 @@ export function CommandPalette({ className }: CommandPaletteProps) {
                 onSelect={() => runAndClose(() => router.push(page.href))}
                 className={ITEM_CLASS}
               >
-                <page.icon className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                <page.icon className="size-4 shrink-0 text-primary" aria-hidden="true" />
                 <span className="font-medium">{page.label}</span>
                 <span className="ml-auto truncate pl-3 text-xs text-muted-foreground">
                   {page.description}
@@ -429,7 +429,7 @@ export function CommandPalette({ className }: CommandPaletteProps) {
                 onSelect={() => runAndClose(action.run)}
                 className={ITEM_CLASS}
               >
-                <action.icon className="h-4 w-4 shrink-0 text-violet-400" aria-hidden="true" />
+                <action.icon className="size-4 shrink-0 text-violet-400" aria-hidden="true" />
                 <span className="font-medium">{action.label}</span>
                 <span className="ml-auto truncate pl-3 text-xs text-muted-foreground">
                   {action.description}
@@ -454,7 +454,7 @@ export function CommandPalette({ className }: CommandPaletteProps) {
                   }
                   className={ITEM_CLASS}
                 >
-                  <Clock className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                  <Clock className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
                   <span className="truncate font-mono">{entry.expression}</span>
                   <span className="ml-auto shrink-0 pl-3 font-mono text-xs text-emerald-400">
                     = {entry.result}

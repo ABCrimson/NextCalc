@@ -9,11 +9,15 @@ interface ScrollAreaProps extends ComponentPropsWithoutRef<typeof ScrollAreaPrim
 function ScrollArea({ className, children, ref, ...props }: ScrollAreaProps) {
   return (
     <ScrollAreaPrimitive.Root
+      data-slot="scroll-area"
       ref={ref}
       className={cn('relative overflow-hidden', className)}
       {...props}
     >
-      <ScrollAreaPrimitive.Viewport className="h-full w-full rounded-[inherit]">
+      <ScrollAreaPrimitive.Viewport
+        data-slot="scroll-area-viewport"
+        className="size-full rounded-[inherit]"
+      >
         {children}
       </ScrollAreaPrimitive.Viewport>
       <ScrollBar />
@@ -30,6 +34,7 @@ interface ScrollBarProps
 function ScrollBar({ className, orientation = 'vertical', ref, ...props }: ScrollBarProps) {
   return (
     <ScrollAreaPrimitive.ScrollAreaScrollbar
+      data-slot="scroll-area-scrollbar"
       ref={ref}
       orientation={orientation}
       className={cn(
@@ -40,7 +45,10 @@ function ScrollBar({ className, orientation = 'vertical', ref, ...props }: Scrol
       )}
       {...props}
     >
-      <ScrollAreaPrimitive.ScrollAreaThumb className="relative flex-1 rounded-full bg-border" />
+      <ScrollAreaPrimitive.ScrollAreaThumb
+        data-slot="scroll-area-thumb"
+        className="relative flex-1 rounded-full bg-border"
+      />
     </ScrollAreaPrimitive.ScrollAreaScrollbar>
   );
 }

@@ -95,7 +95,7 @@ export function AlgorithmMetadata({
         {/* Category */}
         <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3">
           <dt className="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm sm:min-w-[100px]">
-            <Layers className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" aria-hidden="true" />
+            <Layers className="size-3.5 sm:size-4 shrink-0" aria-hidden="true" />
             <span>{t('page.category')}</span>
           </dt>
           <dd className="font-medium text-sm sm:text-base pl-5 sm:pl-0 min-w-0 break-words">
@@ -106,7 +106,7 @@ export function AlgorithmMetadata({
         {/* Difficulty */}
         <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3">
           <dt className="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm sm:min-w-[100px]">
-            <Layers className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" aria-hidden="true" />
+            <Layers className="size-3.5 sm:size-4 shrink-0" aria-hidden="true" />
             <span>{t('page.difficulty')}</span>
           </dt>
           <dd className="pl-5 sm:pl-0 min-w-0">
@@ -124,7 +124,7 @@ export function AlgorithmMetadata({
         {/* Time Complexity */}
         <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3">
           <dt className="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm sm:min-w-[100px]">
-            <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" aria-hidden="true" />
+            <Clock className="size-3.5 sm:size-4 shrink-0" aria-hidden="true" />
             <span>{t('page.timeComplexity')}</span>
           </dt>
           <dd className="font-mono text-xs sm:text-sm bg-muted/20 px-2 py-1 rounded border border-border inline-block ml-5 sm:ml-0 max-w-full overflow-x-auto whitespace-nowrap">
@@ -135,7 +135,7 @@ export function AlgorithmMetadata({
         {/* Space Complexity */}
         <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3">
           <dt className="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm sm:min-w-[100px]">
-            <Layers className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" aria-hidden="true" />
+            <Layers className="size-3.5 sm:size-4 shrink-0" aria-hidden="true" />
             <span>{t('page.spaceComplexity')}</span>
           </dt>
           <dd className="font-mono text-xs sm:text-sm bg-muted/20 px-2 py-1 rounded border border-border inline-block ml-5 sm:ml-0 max-w-full overflow-x-auto whitespace-nowrap">
@@ -147,7 +147,7 @@ export function AlgorithmMetadata({
         {yearIntroduced && (
           <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3">
             <dt className="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm sm:min-w-[100px]">
-              <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" aria-hidden="true" />
+              <Calendar className="size-3.5 sm:size-4 shrink-0" aria-hidden="true" />
               <span>{t('page.yearIntroduced')}</span>
             </dt>
             <dd className="font-medium text-sm sm:text-base pl-5 sm:pl-0">{yearIntroduced}</dd>
@@ -158,7 +158,7 @@ export function AlgorithmMetadata({
         {tags && tags.length > 0 && (
           <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3">
             <dt className="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm sm:min-w-[100px] shrink-0">
-              <Tag className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" aria-hidden="true" />
+              <Tag className="size-3.5 sm:size-4 shrink-0" aria-hidden="true" />
               <span>{t('page.tags')}</span>
             </dt>
             <dd className="flex flex-wrap gap-1.5 sm:gap-2 pl-5 sm:pl-0">

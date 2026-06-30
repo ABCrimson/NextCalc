@@ -168,7 +168,7 @@ export function TopicTag({
           className="ml-1 rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition-colors"
           aria-label={`Remove ${config.label} tag`}
         >
-          <X className="h-3 w-3" aria-hidden="true" />
+          <X className="size-3" aria-hidden="true" />
         </button>
       )}
     </Badge>

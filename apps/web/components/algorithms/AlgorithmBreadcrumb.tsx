@@ -56,7 +56,7 @@ export function AlgorithmBreadcrumb({ items, className }: AlgorithmBreadcrumbPro
             className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded-sm"
             aria-label={t('breadcrumbHome')}
           >
-            <Home className="h-4 w-4" aria-hidden="true" />
+            <Home className="size-4" aria-hidden="true" />
             <span className="sr-only">{t('breadcrumbHome')}</span>
           </Link>
         </li>
@@ -68,7 +68,7 @@ export function AlgorithmBreadcrumb({ items, className }: AlgorithmBreadcrumbPro
           return (
             <li key={item.label} className="flex items-center gap-2">
               {/* Separator */}
-              <ChevronRight className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+              <ChevronRight className="size-4 text-muted-foreground" aria-hidden="true" />
 
               {/* Link or text */}
               {item.href && !isLast ? (

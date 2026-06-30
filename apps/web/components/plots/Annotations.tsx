@@ -14,8 +14,8 @@
  * @module components/plots/Annotations
  */
 
-import { AnimatePresence, m } from 'framer-motion';
 import { X } from 'lucide-react';
+import { AnimatePresence, m } from 'motion/react';
 import { useCallback, useId, useMemo } from 'react';
 
 // ---------------------------------------------------------------------------
@@ -151,7 +151,7 @@ function DeleteButton({ onDelete, label }: DeleteButtonProps) {
       }}
       className="
         absolute -top-2.5 -right-2.5
-        w-5 h-5 flex items-center justify-center
+        size-5 flex items-center justify-center
         rounded-full bg-red-600 border border-red-400
         text-white shadow-md
         hover:bg-red-500 transition-colors duration-150
@@ -159,7 +159,7 @@ function DeleteButton({ onDelete, label }: DeleteButtonProps) {
       "
       aria-label={`Delete annotation: ${label}`}
     >
-      <X className="w-3 h-3" />
+      <X className="size-3" />
     </button>
   );
 }
@@ -456,7 +456,7 @@ export function Annotations({
             >
               {/* Small anchor dot connecting label to its math point */}
               <span
-                className="absolute bottom-0 left-1/2 w-1.5 h-1.5 rounded-full"
+                className="absolute bottom-0 left-1/2 size-1.5 rounded-full"
                 style={{
                   transform: 'translate(-50%, 200%)',
                   backgroundColor: color,

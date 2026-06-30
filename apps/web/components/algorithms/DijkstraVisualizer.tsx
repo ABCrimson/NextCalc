@@ -17,8 +17,8 @@
  * ```
  */
 
-import { m } from 'framer-motion';
 import { Info, Pause, Play, RotateCcw, SkipForward, Zap } from 'lucide-react';
+import { m } from 'motion/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -428,7 +428,7 @@ export function DijkstraVisualizer() {
       >
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h2 className="text-3xl font-bold bg-linear-to-r/oklab from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Dijkstra's Shortest Path Algorithm
             </h2>
             <p className="text-muted-foreground mt-2">
@@ -438,7 +438,7 @@ export function DijkstraVisualizer() {
 
           <div className="flex gap-2">
             <Badge variant="outline" className="bg-blue-500/10 text-blue-700 dark:text-blue-300">
-              <Zap className="h-3 w-3 mr-1" />
+              <Zap className="size-3 mr-1" />
               O((V+E) log V)
             </Badge>
           </div>
@@ -460,7 +460,7 @@ export function DijkstraVisualizer() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="w-full h-[600px] rounded-lg border bg-gradient-to-br from-background to-blue-50 dark:from-background dark:to-blue-950">
+            <div className="w-full h-[600px] rounded-lg border bg-linear-to-br/oklab from-background to-blue-50 dark:from-background dark:to-blue-950">
               <UnifiedGraphRenderer
                 nodes={visualNodes}
                 edges={visualEdges}
@@ -517,23 +517,23 @@ export function DijkstraVisualizer() {
                   >
                     {isPlaying ? (
                       <>
-                        <Pause className="h-4 w-4 mr-2" />
+                        <Pause className="size-4 mr-2" />
                         Pause
                       </>
                     ) : (
                       <>
-                        <Play className="h-4 w-4 mr-2" />
+                        <Play className="size-4 mr-2" />
                         Play
                       </>
                     )}
                   </Button>
 
                   <Button onClick={handleStepForward} variant="outline" size="icon">
-                    <SkipForward className="h-4 w-4" />
+                    <SkipForward className="size-4" />
                   </Button>
 
                   <Button onClick={handleReset} variant="outline" size="icon">
-                    <RotateCcw className="h-4 w-4" />
+                    <RotateCcw className="size-4" />
                   </Button>
                 </div>
 
@@ -578,7 +578,7 @@ export function DijkstraVisualizer() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Info className="h-5 w-5" />
+                <Info className="size-5" />
                 Algorithm Status
               </CardTitle>
             </CardHeader>

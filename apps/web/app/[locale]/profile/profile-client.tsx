@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@apollo/client/react';
-import { m } from 'framer-motion';
+import { m } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import { AchievementGrid } from '@/components/profile/achievement-grid';
 import { AnalyticsCharts } from '@/components/profile/analytics-charts';
@@ -113,7 +113,7 @@ function ProfileSkeleton() {
       {/* Hero card skeleton */}
       <div className="rounded-xl border border-border bg-card p-6">
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
-          <Skeleton className="h-24 w-24 flex-shrink-0 rounded-full" />
+          <Skeleton className="size-24 flex-shrink-0 rounded-full" />
           <div className="min-w-0 flex-1 space-y-3">
             <Skeleton className="h-7 w-48" />
             <Skeleton className="h-4 w-72" />
@@ -128,7 +128,7 @@ function ProfileSkeleton() {
           // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length skeleton placeholder; index is stable positional identity
           <div key={i} className="rounded-xl border border-border bg-card p-4">
             <div className="flex items-center gap-3">
-              <Skeleton className="h-9 w-9 rounded-lg" />
+              <Skeleton className="size-9 rounded-lg" />
               <div className="space-y-1.5">
                 <Skeleton className="h-3 w-16" />
                 <Skeleton className="h-6 w-20" />
@@ -156,7 +156,7 @@ function ProfileSkeleton() {
           {Array.from({ length: 5 }, (_, i) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length skeleton placeholder; index is stable positional identity
             <div key={i} className="flex items-center gap-3 py-2">
-              <Skeleton className="h-8 w-8 rounded-md flex-shrink-0" />
+              <Skeleton className="size-8 rounded-md flex-shrink-0" />
               <div className="flex-1 space-y-1.5">
                 <Skeleton className="h-4 w-full" />
                 <Skeleton className="h-3 w-3/4" />
@@ -233,7 +233,7 @@ function SignInPrompt() {
         transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
       >
         <div
-          className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border-2 border-border"
+          className="mx-auto mb-6 flex size-20 items-center justify-center rounded-full border-2 border-border"
           style={{
             background:
               'linear-gradient(135deg, oklch(0.55 0.27 264 / 0.15), oklch(0.58 0.22 300 / 0.15))',
