@@ -7,10 +7,11 @@
  * Uses Apollo Client for data fetching.
  */
 
-import { useQuery } from '@apollo/client/react';
+import { useSuspenseQuery } from '@apollo/client/react';
 import { AlertCircle, ArrowLeft, Clock, Eye, MessageSquare, ThumbsUp } from 'lucide-react';
 import { m, useReducedMotion } from 'motion/react';
 import { useFormatter, useTranslations } from 'next-intl';
+import { Suspense } from 'react';
 import { ForumBackground } from '@/components/forum/forum-background';
 import { getPostHue, type UserProfileData } from '@/components/forum/forum-shared';
 import { TagPill } from '@/components/forum/post-card';
@@ -55,18 +56,169 @@ interface UserProfileClientProps {
   id: string;
 }
 
-export function UserProfileClient({ id }: UserProfileClientProps) {
+function UserProfileContent({ id }: UserProfileClientProps) {
   const t = useTranslations('forum');
   const format = useFormatter();
   const prefersReduced = useReducedMotion();
   const router = useRouter();
 
-  const { data, loading, error } = useQuery<{ user: UserProfileData | null }>(USER_PROFILE_QUERY, {
+  const { data, error } = useSuspenseQuery<{ user: UserProfileData | null }>(USER_PROFILE_QUERY, {
     variables: { id },
     fetchPolicy: 'cache-and-network',
+    errorPolicy: 'all',
   });
 
   const user: UserProfileData | null = data?.user ?? null;
+
+  return (
+    <>
+      {/* User not found (loaded but null) */}
+      {!error && !user && (
+        <div className="rounded-2xl border border-destructive/30 p-6 bg-destructive/10 backdrop-blur-md text-center">
+          <AlertCircle className="size-10 mx-auto text-destructive mb-3" />
+          <p className="text-sm text-destructive">{t('userNotFound')}</p>
+          <p className="text-xs text-muted-foreground mt-1">{t('userNotFoundHint')}</p>
+          <Button variant="outline" className="mt-4" onClick={() => router.push('/forum')}>
+            {t('backToForum')}
+          </Button>
+        </div>
+      )}
+
+      {/* Network / GraphQL error */}
+      {error && !user && (
+        <div className="rounded-2xl border border-destructive/30 p-6 bg-destructive/10 backdrop-blur-md text-center">
+          <AlertCircle className="size-10 mx-auto text-destructive mb-3" />
+          <p className="text-sm text-destructive">{t('userNotFound')}</p>
+          <p className="text-xs text-muted-foreground mt-1">{t('userNotFoundHint')}</p>
+          <Button variant="outline" className="mt-4" onClick={() => router.push('/forum')}>
+            {t('backToForum')}
+          </Button>
+        </div>
+      )}
+
+      {/* Profile */}
+      {user && (
+        <m.div
+          className="space-y-6"
+          {...(prefersReduced
+            ? {}
+            : {
+                initial: { opacity: 0, y: 20 },
+                animate: { opacity: 1, y: 0 },
+                transition: { duration: 0.4 },
+              })}
+        >
+          {/* Profile card */}
+          <UserProfileCard user={user} />
+
+          {/* Tabs */}
+          <Tabs defaultValue="posts" className="w-full">
+            <TabsList className="backdrop-blur-sm bg-muted/30 border border-border w-full justify-start">
+              <TabsTrigger value="posts" className="gap-1.5">
+                <MessageSquare className="size-3.5" />
+                {t('postsCount', { count: user.forumPosts.length })}
+              </TabsTrigger>
+              <TabsTrigger value="activity" className="gap-1.5">
+                <Clock className="size-3.5" />
+                {t('activityTab')}
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="posts" className="space-y-3 mt-4">
+              {user.forumPosts.length === 0 ? (
+                <div className="text-center py-12">
+                  <MessageSquare className="size-10 mx-auto text-muted-foreground/30 mb-3" />
+                  <p className="text-sm text-muted-foreground">{t('noPostsYet')}</p>
+                </div>
+              ) : (
+                user.forumPosts.map((post, i) => {
+                  const hue = getPostHue(post.id);
+                  return (
+                    <m.div
+                      key={post.id}
+                      {...(prefersReduced
+                        ? {}
+                        : {
+                            initial: { opacity: 0, y: 8 },
+                            animate: { opacity: 1, y: 0 },
+                            transition: { delay: i * 0.04, duration: 0.3 },
+                          })}
+                    >
+                      <Link
+                        href={`/forum/${post.id}`}
+                        className="block group rounded-xl border p-4 transition-all duration-200 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                        style={{
+                          background: `oklch(0.20 0.02 ${hue} / 0.35)`,
+                          borderColor: `oklch(0.45 0.06 ${hue} / 0.25)`,
+                          backdropFilter: 'blur(12px)',
+                        }}
+                      >
+                        <div
+                          className="absolute left-0 top-2 bottom-2 w-[2px] rounded-full"
+                          style={{ background: `oklch(0.65 0.20 ${hue})` }}
+                        />
+
+                        <h3 className="text-sm font-semibold text-foreground group-hover:text-indigo-400 transition-colors mb-2 ml-2">
+                          {post.title}
+                        </h3>
+
+                        <div className="flex items-center gap-3 ml-2">
+                          <div className="flex flex-wrap gap-1.5">
+                            {post.tags.map((tag) => (
+                              <TagPill key={tag} name={tag} />
+                            ))}
+                          </div>
+
+                          <div className="flex items-center gap-3 ml-auto text-[10px] text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <ThumbsUp className="size-3" />
+                              {format.number(post.upvoteCount, {
+                                notation: 'compact',
+                                maximumFractionDigits: 1,
+                              })}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Eye className="size-3" />
+                              {format.number(post.views, {
+                                notation: 'compact',
+                                maximumFractionDigits: 1,
+                              })}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Clock className="size-3" />
+                              {format.relativeTime(new Date(post.createdAt), {
+                                style: 'narrow',
+                              })}
+                            </span>
+                          </div>
+                        </div>
+                      </Link>
+                    </m.div>
+                  );
+                })
+              )}
+            </TabsContent>
+
+            <TabsContent value="activity" className="mt-4">
+              <div className="rounded-2xl border border-border p-6 backdrop-blur-md bg-card/50 text-center">
+                <Clock className="size-10 mx-auto text-muted-foreground/30 mb-3" />
+                <p className="text-sm text-muted-foreground">{t('activityComingSoon')}</p>
+                <p className="text-xs text-muted-foreground/60 mt-1">
+                  {t('activityComingSoonHint')}
+                </p>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </m.div>
+      )}
+    </>
+  );
+}
+
+export function UserProfileClient({ id }: UserProfileClientProps) {
+  const t = useTranslations('forum');
+  const prefersReduced = useReducedMotion();
+  const router = useRouter();
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-background">
@@ -95,148 +247,9 @@ export function UserProfileClient({ id }: UserProfileClientProps) {
             </Button>
           </m.div>
 
-          {/* Loading */}
-          {loading && !user && <ProfileSkeleton />}
-
-          {/* User not found (loaded but null) */}
-          {!loading && !error && !user && (
-            <div className="rounded-2xl border border-destructive/30 p-6 bg-destructive/10 backdrop-blur-md text-center">
-              <AlertCircle className="size-10 mx-auto text-destructive mb-3" />
-              <p className="text-sm text-destructive">{t('userNotFound')}</p>
-              <p className="text-xs text-muted-foreground mt-1">{t('userNotFoundHint')}</p>
-              <Button variant="outline" className="mt-4" onClick={() => router.push('/forum')}>
-                {t('backToForum')}
-              </Button>
-            </div>
-          )}
-
-          {/* Network / GraphQL error */}
-          {error && !user && (
-            <div className="rounded-2xl border border-destructive/30 p-6 bg-destructive/10 backdrop-blur-md text-center">
-              <AlertCircle className="size-10 mx-auto text-destructive mb-3" />
-              <p className="text-sm text-destructive">{t('userNotFound')}</p>
-              <p className="text-xs text-muted-foreground mt-1">{t('userNotFoundHint')}</p>
-              <Button variant="outline" className="mt-4" onClick={() => router.push('/forum')}>
-                {t('backToForum')}
-              </Button>
-            </div>
-          )}
-
-          {/* Profile */}
-          {user && (
-            <m.div
-              className="space-y-6"
-              {...(prefersReduced
-                ? {}
-                : {
-                    initial: { opacity: 0, y: 20 },
-                    animate: { opacity: 1, y: 0 },
-                    transition: { duration: 0.4 },
-                  })}
-            >
-              {/* Profile card */}
-              <UserProfileCard user={user} />
-
-              {/* Tabs */}
-              <Tabs defaultValue="posts" className="w-full">
-                <TabsList className="backdrop-blur-sm bg-muted/30 border border-border w-full justify-start">
-                  <TabsTrigger value="posts" className="gap-1.5">
-                    <MessageSquare className="size-3.5" />
-                    {t('postsCount', { count: user.forumPosts.length })}
-                  </TabsTrigger>
-                  <TabsTrigger value="activity" className="gap-1.5">
-                    <Clock className="size-3.5" />
-                    {t('activityTab')}
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="posts" className="space-y-3 mt-4">
-                  {user.forumPosts.length === 0 ? (
-                    <div className="text-center py-12">
-                      <MessageSquare className="size-10 mx-auto text-muted-foreground/30 mb-3" />
-                      <p className="text-sm text-muted-foreground">{t('noPostsYet')}</p>
-                    </div>
-                  ) : (
-                    user.forumPosts.map((post, i) => {
-                      const hue = getPostHue(post.id);
-                      return (
-                        <m.div
-                          key={post.id}
-                          {...(prefersReduced
-                            ? {}
-                            : {
-                                initial: { opacity: 0, y: 8 },
-                                animate: { opacity: 1, y: 0 },
-                                transition: { delay: i * 0.04, duration: 0.3 },
-                              })}
-                        >
-                          <Link
-                            href={`/forum/${post.id}`}
-                            className="block group rounded-xl border p-4 transition-all duration-200 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-                            style={{
-                              background: `oklch(0.20 0.02 ${hue} / 0.35)`,
-                              borderColor: `oklch(0.45 0.06 ${hue} / 0.25)`,
-                              backdropFilter: 'blur(12px)',
-                            }}
-                          >
-                            <div
-                              className="absolute left-0 top-2 bottom-2 w-[2px] rounded-full"
-                              style={{ background: `oklch(0.65 0.20 ${hue})` }}
-                            />
-
-                            <h3 className="text-sm font-semibold text-foreground group-hover:text-indigo-400 transition-colors mb-2 ml-2">
-                              {post.title}
-                            </h3>
-
-                            <div className="flex items-center gap-3 ml-2">
-                              <div className="flex flex-wrap gap-1.5">
-                                {post.tags.map((tag) => (
-                                  <TagPill key={tag} name={tag} />
-                                ))}
-                              </div>
-
-                              <div className="flex items-center gap-3 ml-auto text-[10px] text-muted-foreground">
-                                <span className="flex items-center gap-1">
-                                  <ThumbsUp className="size-3" />
-                                  {format.number(post.upvoteCount, {
-                                    notation: 'compact',
-                                    maximumFractionDigits: 1,
-                                  })}
-                                </span>
-                                <span className="flex items-center gap-1">
-                                  <Eye className="size-3" />
-                                  {format.number(post.views, {
-                                    notation: 'compact',
-                                    maximumFractionDigits: 1,
-                                  })}
-                                </span>
-                                <span className="flex items-center gap-1">
-                                  <Clock className="size-3" />
-                                  {format.relativeTime(new Date(post.createdAt), {
-                                    style: 'narrow',
-                                  })}
-                                </span>
-                              </div>
-                            </div>
-                          </Link>
-                        </m.div>
-                      );
-                    })
-                  )}
-                </TabsContent>
-
-                <TabsContent value="activity" className="mt-4">
-                  <div className="rounded-2xl border border-border p-6 backdrop-blur-md bg-card/50 text-center">
-                    <Clock className="size-10 mx-auto text-muted-foreground/30 mb-3" />
-                    <p className="text-sm text-muted-foreground">{t('activityComingSoon')}</p>
-                    <p className="text-xs text-muted-foreground/60 mt-1">
-                      {t('activityComingSoonHint')}
-                    </p>
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </m.div>
-          )}
+          <Suspense fallback={<ProfileSkeleton />}>
+            <UserProfileContent id={id} />
+          </Suspense>
         </div>
       </div>
     </main>
