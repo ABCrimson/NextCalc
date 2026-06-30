@@ -12,10 +12,10 @@
  * @version 1.0.0
  */
 
+import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
-import { z } from 'zod';
 import { differentiateMathExpression } from './handlers/differentiate.js';
 import { computeArcLength, integrateMathExpression } from './handlers/integrate.js';
 import { solveMathExpression } from './handlers/solve.js';
@@ -25,7 +25,6 @@ import {
   differentiateSchema,
   integrateSchema,
   solveSchema,
-  validateRequest,
 } from './utils/validators.js';
 
 /**
@@ -138,29 +137,33 @@ app.get('/', (c) => {
  *   }
  * }
  */
-app.post('/solve', async (c) => {
-  try {
-    const body = await c.req.json();
-
-    // Validate request body
-    const validatedRequest = validateRequest(body, solveSchema);
-
-    // Solve equation
-    const result = await solveMathExpression(validatedRequest);
-
-    return c.json(result, result.success ? 200 : 400);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
+app.post(
+  '/solve',
+  zValidator('json', solveSchema, (result, c) => {
+    if (!result.success) {
       return c.json(
-        createErrorResponse('Validation error', 'VALIDATION_ERROR', { errors: error.issues }),
+        createErrorResponse('Validation error', 'VALIDATION_ERROR', {
+          errors: result.error.issues,
+        }),
         400,
       );
     }
+    return undefined;
+  }),
+  async (c) => {
+    try {
+      const validatedRequest = c.req.valid('json');
 
-    console.error('Error in /solve:', error);
-    return c.json(createErrorResponse('Failed to process solve request', 'SOLVE_ERROR'), 500);
-  }
-});
+      // Solve equation
+      const result = await solveMathExpression(validatedRequest);
+
+      return c.json(result, result.success ? 200 : 400);
+    } catch (error) {
+      console.error('Error in /solve:', error);
+      return c.json(createErrorResponse('Failed to process solve request', 'SOLVE_ERROR'), 500);
+    }
+  },
+);
 
 /**
  * Compute symbolic derivatives
@@ -191,32 +194,36 @@ app.post('/solve', async (c) => {
  *   }
  * }
  */
-app.post('/differentiate', async (c) => {
-  try {
-    const body = await c.req.json();
-
-    // Validate request body
-    const validatedRequest = validateRequest(body, differentiateSchema);
-
-    // Compute derivative
-    const result = await differentiateMathExpression(validatedRequest);
-
-    return c.json(result, result.success ? 200 : 400);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
+app.post(
+  '/differentiate',
+  zValidator('json', differentiateSchema, (result, c) => {
+    if (!result.success) {
       return c.json(
-        createErrorResponse('Validation error', 'VALIDATION_ERROR', { errors: error.issues }),
+        createErrorResponse('Validation error', 'VALIDATION_ERROR', {
+          errors: result.error.issues,
+        }),
         400,
       );
     }
+    return undefined;
+  }),
+  async (c) => {
+    try {
+      const validatedRequest = c.req.valid('json');
 
-    console.error('Error in /differentiate:', error);
-    return c.json(
-      createErrorResponse('Failed to process differentiate request', 'DIFFERENTIATE_ERROR'),
-      500,
-    );
-  }
-});
+      // Compute derivative
+      const result = await differentiateMathExpression(validatedRequest);
+
+      return c.json(result, result.success ? 200 : 400);
+    } catch (error) {
+      console.error('Error in /differentiate:', error);
+      return c.json(
+        createErrorResponse('Failed to process differentiate request', 'DIFFERENTIATE_ERROR'),
+        500,
+      );
+    }
+  },
+);
 
 /**
  * Compute symbolic or numeric integrals
@@ -249,32 +256,36 @@ app.post('/differentiate', async (c) => {
  *   }
  * }
  */
-app.post('/integrate', async (c) => {
-  try {
-    const body = await c.req.json();
-
-    // Validate request body
-    const validatedRequest = validateRequest(body, integrateSchema);
-
-    // Compute integral
-    const result = await integrateMathExpression(validatedRequest);
-
-    return c.json(result, result.success ? 200 : 400);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
+app.post(
+  '/integrate',
+  zValidator('json', integrateSchema, (result, c) => {
+    if (!result.success) {
       return c.json(
-        createErrorResponse('Validation error', 'VALIDATION_ERROR', { errors: error.issues }),
+        createErrorResponse('Validation error', 'VALIDATION_ERROR', {
+          errors: result.error.issues,
+        }),
         400,
       );
     }
+    return undefined;
+  }),
+  async (c) => {
+    try {
+      const validatedRequest = c.req.valid('json');
 
-    console.error('Error in /integrate:', error);
-    return c.json(
-      createErrorResponse('Failed to process integrate request', 'INTEGRATE_ERROR'),
-      500,
-    );
-  }
-});
+      // Compute integral
+      const result = await integrateMathExpression(validatedRequest);
+
+      return c.json(result, result.success ? 200 : 400);
+    } catch (error) {
+      console.error('Error in /integrate:', error);
+      return c.json(
+        createErrorResponse('Failed to process integrate request', 'INTEGRATE_ERROR'),
+        500,
+      );
+    }
+  },
+);
 
 /**
  * Compute arc length of a curve
@@ -292,36 +303,41 @@ app.post('/integrate', async (c) => {
  *   "upperBound": 1
  * }
  */
-app.post('/arc-length', async (c) => {
-  try {
-    const body = await c.req.json();
-
-    const validatedRequest = validateRequest(body, arcLengthSchema);
-
-    // Compute arc length
-    const result = await computeArcLength(
-      validatedRequest.expression,
-      validatedRequest.variable,
-      validatedRequest.lowerBound,
-      validatedRequest.upperBound,
-    );
-
-    return c.json(result, result.success ? 200 : 400);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
+app.post(
+  '/arc-length',
+  zValidator('json', arcLengthSchema, (result, c) => {
+    if (!result.success) {
       return c.json(
-        createErrorResponse('Validation error', 'VALIDATION_ERROR', { errors: error.issues }),
+        createErrorResponse('Validation error', 'VALIDATION_ERROR', {
+          errors: result.error.issues,
+        }),
         400,
       );
     }
+    return undefined;
+  }),
+  async (c) => {
+    try {
+      const validatedRequest = c.req.valid('json');
 
-    console.error('Error in /arc-length:', error);
-    return c.json(
-      createErrorResponse('Failed to process arc-length request', 'ARC_LENGTH_ERROR'),
-      500,
-    );
-  }
-});
+      // Compute arc length
+      const result = await computeArcLength(
+        validatedRequest.expression,
+        validatedRequest.variable,
+        validatedRequest.lowerBound,
+        validatedRequest.upperBound,
+      );
+
+      return c.json(result, result.success ? 200 : 400);
+    } catch (error) {
+      console.error('Error in /arc-length:', error);
+      return c.json(
+        createErrorResponse('Failed to process arc-length request', 'ARC_LENGTH_ERROR'),
+        500,
+      );
+    }
+  },
+);
 
 /**
  * 404 handler for unknown routes

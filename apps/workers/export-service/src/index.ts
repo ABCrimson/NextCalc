@@ -12,6 +12,7 @@
  * @version 1.0.0
  */
 
+import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
@@ -51,6 +52,57 @@ type Bindings = {
  * Initialize Hono application with type-safe bindings
  */
 const app = new Hono<{ Bindings: Bindings }>();
+
+/**
+ * Request validation schemas (hoisted to module scope for use with
+ * `@hono/zod-validator`'s `zValidator('json', …)` middleware).
+ */
+const pdfExportSchema = z.object({
+  latex: z.string().min(1).max(10000),
+  userId: z.uuid().optional(),
+  options: z
+    .object({
+      pageSize: z.enum(['letter', 'a4', 'legal']).optional(),
+      margin: z.number().min(0).max(2).optional(),
+      fontSize: z.number().min(8).max(24).optional(),
+      title: z.string().max(200).optional(),
+      includeMetadata: z.boolean().optional(),
+    })
+    .optional(),
+});
+
+const pngExportSchema = z.object({
+  latex: z.string().min(1).max(10000),
+  userId: z.uuid().optional(),
+  options: z
+    .object({
+      width: z.number().min(100).max(4000).optional(),
+      height: z.number().min(50).max(2000).optional(),
+      dpi: z.number().min(72).max(600).optional(),
+      backgroundColor: z
+        .string()
+        .regex(/^#[0-9A-Fa-f]{6}$/)
+        .optional(),
+      transparent: z.boolean().optional(),
+    })
+    .optional(),
+});
+
+const svgExportSchema = z.object({
+  latex: z.string().min(1).max(10000),
+  userId: z.uuid().optional(),
+  options: z
+    .object({
+      fontSize: z.number().min(8).max(72).optional(),
+      color: z
+        .string()
+        .regex(/^#[0-9A-Fa-f]{6}$/)
+        .optional(),
+      backgroundColor: z.string().optional(),
+      inline: z.boolean().optional(),
+    })
+    .optional(),
+});
 
 /**
  * Middleware configuration
@@ -145,83 +197,77 @@ app.get('/', (c) => {
  *   }
  * }
  */
-app.post('/export/pdf', async (c) => {
-  try {
-    const body = await c.req.json();
-
-    // Validate request
-    const schema = z.object({
-      latex: z.string().min(1).max(10000),
-      userId: z.uuid().optional(),
-      options: z
-        .object({
-          pageSize: z.enum(['letter', 'a4', 'legal']).optional(),
-          margin: z.number().min(0).max(2).optional(),
-          fontSize: z.number().min(8).max(24).optional(),
-          title: z.string().max(200).optional(),
-          includeMetadata: z.boolean().optional(),
-        })
-        .optional(),
-    });
-
-    const validated = schema.parse(body) as PdfExportRequest;
-
-    // Validate LaTeX syntax
-    if (!validateLatexSyntax(validated.latex)) {
-      return c.json(
-        {
-          success: false,
-          error: {
-            message: 'Invalid LaTeX syntax',
-            code: 'INVALID_LATEX',
-          },
-        },
-        400,
-      );
-    }
-
-    // Determine which bucket to use
-    const isPrivate = validated.userId !== undefined;
-    const bucket = isPrivate ? c.env.EXPORTS_PRIVATE : c.env.EXPORTS_PUBLIC;
-    const r2Config = r2ConfigFromEnv(c.env);
-
-    const maxFileSize = parseInt(c.env.MAX_FILE_SIZE || '5242880', 10);
-
-    // Export to PDF
-    const result = await exportToPdf(validated, bucket, maxFileSize, isPrivate, r2Config);
-
-    return c.json({
-      success: true,
-      data: result,
-    });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
+app.post(
+  '/export/pdf',
+  zValidator('json', pdfExportSchema, (result, c) => {
+    if (!result.success) {
       return c.json(
         {
           success: false,
           error: {
             message: 'Validation error',
             code: 'VALIDATION_ERROR',
-            details: error.issues,
+            details: result.error.issues,
           },
         },
         400,
       );
     }
+    return undefined;
+  }),
+  async (c) => {
+    try {
+      const validated = c.req.valid('json');
 
-    console.error('Error in /export/pdf:', error);
-    return c.json(
-      {
-        success: false,
-        error: {
-          message: 'Failed to export PDF',
-          code: 'EXPORT_ERROR',
+      // Validate LaTeX syntax
+      if (!validateLatexSyntax(validated.latex)) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              message: 'Invalid LaTeX syntax',
+              code: 'INVALID_LATEX',
+            },
+          },
+          400,
+        );
+      }
+
+      // Determine which bucket to use
+      const isPrivate = validated.userId !== undefined;
+      const bucket = isPrivate ? c.env.EXPORTS_PRIVATE : c.env.EXPORTS_PUBLIC;
+      const r2Config = r2ConfigFromEnv(c.env);
+
+      const maxFileSize = parseInt(c.env.MAX_FILE_SIZE || '5242880', 10);
+
+      // Export to PDF
+      const result = await exportToPdf(
+        validated as PdfExportRequest,
+        bucket,
+        maxFileSize,
+        isPrivate,
+        r2Config,
+      );
+
+      return c.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      console.error('Error in /export/pdf:', error);
+      return c.json(
+        {
+          success: false,
+          error: {
+            message: 'Failed to export PDF',
+            code: 'EXPORT_ERROR',
+          },
         },
-      },
-      500,
-    );
-  }
-});
+        500,
+      );
+    }
+  },
+);
 
 /**
  * Export LaTeX expression to PNG
@@ -242,86 +288,77 @@ app.post('/export/pdf', async (c) => {
  *   }
  * }
  */
-app.post('/export/png', async (c) => {
-  try {
-    const body = await c.req.json();
-
-    // Validate request
-    const schema = z.object({
-      latex: z.string().min(1).max(10000),
-      userId: z.uuid().optional(),
-      options: z
-        .object({
-          width: z.number().min(100).max(4000).optional(),
-          height: z.number().min(50).max(2000).optional(),
-          dpi: z.number().min(72).max(600).optional(),
-          backgroundColor: z
-            .string()
-            .regex(/^#[0-9A-Fa-f]{6}$/)
-            .optional(),
-          transparent: z.boolean().optional(),
-        })
-        .optional(),
-    });
-
-    const validated = schema.parse(body) as PngExportRequest;
-
-    // Validate LaTeX syntax
-    if (!validateLatexSyntax(validated.latex)) {
-      return c.json(
-        {
-          success: false,
-          error: {
-            message: 'Invalid LaTeX syntax',
-            code: 'INVALID_LATEX',
-          },
-        },
-        400,
-      );
-    }
-
-    // Determine which bucket to use
-    const isPrivate = validated.userId !== undefined;
-    const bucket = isPrivate ? c.env.EXPORTS_PRIVATE : c.env.EXPORTS_PUBLIC;
-    const r2Config = r2ConfigFromEnv(c.env);
-
-    const maxFileSize = parseInt(c.env.MAX_FILE_SIZE || '5242880', 10);
-
-    // Export to PNG
-    const result = await exportToPng(validated, bucket, maxFileSize, isPrivate, r2Config);
-
-    return c.json({
-      success: true,
-      data: result,
-    });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
+app.post(
+  '/export/png',
+  zValidator('json', pngExportSchema, (result, c) => {
+    if (!result.success) {
       return c.json(
         {
           success: false,
           error: {
             message: 'Validation error',
             code: 'VALIDATION_ERROR',
-            details: error.issues,
+            details: result.error.issues,
           },
         },
         400,
       );
     }
+    return undefined;
+  }),
+  async (c) => {
+    try {
+      const validated = c.req.valid('json');
 
-    console.error('Error in /export/png:', error);
-    return c.json(
-      {
-        success: false,
-        error: {
-          message: 'Failed to export PNG',
-          code: 'EXPORT_ERROR',
+      // Validate LaTeX syntax
+      if (!validateLatexSyntax(validated.latex)) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              message: 'Invalid LaTeX syntax',
+              code: 'INVALID_LATEX',
+            },
+          },
+          400,
+        );
+      }
+
+      // Determine which bucket to use
+      const isPrivate = validated.userId !== undefined;
+      const bucket = isPrivate ? c.env.EXPORTS_PRIVATE : c.env.EXPORTS_PUBLIC;
+      const r2Config = r2ConfigFromEnv(c.env);
+
+      const maxFileSize = parseInt(c.env.MAX_FILE_SIZE || '5242880', 10);
+
+      // Export to PNG
+      const result = await exportToPng(
+        validated as PngExportRequest,
+        bucket,
+        maxFileSize,
+        isPrivate,
+        r2Config,
+      );
+
+      return c.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      console.error('Error in /export/png:', error);
+      return c.json(
+        {
+          success: false,
+          error: {
+            message: 'Failed to export PNG',
+            code: 'EXPORT_ERROR',
+          },
         },
-      },
-      500,
-    );
-  }
-});
+        500,
+      );
+    }
+  },
+);
 
 /**
  * Export LaTeX expression to SVG
@@ -341,85 +378,77 @@ app.post('/export/png', async (c) => {
  *   }
  * }
  */
-app.post('/export/svg', async (c) => {
-  try {
-    const body = await c.req.json();
-
-    // Validate request
-    const schema = z.object({
-      latex: z.string().min(1).max(10000),
-      userId: z.uuid().optional(),
-      options: z
-        .object({
-          fontSize: z.number().min(8).max(72).optional(),
-          color: z
-            .string()
-            .regex(/^#[0-9A-Fa-f]{6}$/)
-            .optional(),
-          backgroundColor: z.string().optional(),
-          inline: z.boolean().optional(),
-        })
-        .optional(),
-    });
-
-    const validated = schema.parse(body) as SvgExportRequest;
-
-    // Validate LaTeX syntax
-    if (!validateLatexSyntax(validated.latex)) {
-      return c.json(
-        {
-          success: false,
-          error: {
-            message: 'Invalid LaTeX syntax',
-            code: 'INVALID_LATEX',
-          },
-        },
-        400,
-      );
-    }
-
-    // Determine which bucket to use
-    const isPrivate = validated.userId !== undefined;
-    const bucket = isPrivate ? c.env.EXPORTS_PRIVATE : c.env.EXPORTS_PUBLIC;
-    const r2Config = r2ConfigFromEnv(c.env);
-
-    const maxFileSize = parseInt(c.env.MAX_FILE_SIZE || '5242880', 10);
-
-    // Export to SVG
-    const result = await exportToSvg(validated, bucket, maxFileSize, isPrivate, r2Config);
-
-    return c.json({
-      success: true,
-      data: result,
-    });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
+app.post(
+  '/export/svg',
+  zValidator('json', svgExportSchema, (result, c) => {
+    if (!result.success) {
       return c.json(
         {
           success: false,
           error: {
             message: 'Validation error',
             code: 'VALIDATION_ERROR',
-            details: error.issues,
+            details: result.error.issues,
           },
         },
         400,
       );
     }
+    return undefined;
+  }),
+  async (c) => {
+    try {
+      const validated = c.req.valid('json');
 
-    console.error('Error in /export/svg:', error);
-    return c.json(
-      {
-        success: false,
-        error: {
-          message: 'Failed to export SVG',
-          code: 'EXPORT_ERROR',
+      // Validate LaTeX syntax
+      if (!validateLatexSyntax(validated.latex)) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              message: 'Invalid LaTeX syntax',
+              code: 'INVALID_LATEX',
+            },
+          },
+          400,
+        );
+      }
+
+      // Determine which bucket to use
+      const isPrivate = validated.userId !== undefined;
+      const bucket = isPrivate ? c.env.EXPORTS_PRIVATE : c.env.EXPORTS_PUBLIC;
+      const r2Config = r2ConfigFromEnv(c.env);
+
+      const maxFileSize = parseInt(c.env.MAX_FILE_SIZE || '5242880', 10);
+
+      // Export to SVG
+      const result = await exportToSvg(
+        validated as SvgExportRequest,
+        bucket,
+        maxFileSize,
+        isPrivate,
+        r2Config,
+      );
+
+      return c.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      console.error('Error in /export/svg:', error);
+      return c.json(
+        {
+          success: false,
+          error: {
+            message: 'Failed to export SVG',
+            code: 'EXPORT_ERROR',
+          },
         },
-      },
-      500,
-    );
-  }
-});
+        500,
+      );
+    }
+  },
+);
 
 /**
  * Get recommended DPI for different use cases
