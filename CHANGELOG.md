@@ -4,6 +4,9 @@ All notable changes to NextCalc Pro are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- **Tailwind CSS 4.3.1 → 4.3.2** — patch bump to the latest release. The homepage tech badge now reads "Tailwind 4.3.2" (corrected from a stale "4.3.0").
+
 ## [1.4.0] - 2026-06-29
 
 > Idiom modernization follow-up to the v1.3.0 push-to-newest. Every change adopts the newest idioms of an already-pinned dependency and is behavior-preserving — except one genuine user-facing fix (forum localization). The pre-push gate (typecheck, lint, build) and tests are green.
