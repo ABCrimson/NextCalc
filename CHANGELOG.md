@@ -4,6 +4,27 @@ All notable changes to NextCalc Pro are documented in this file.
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-06-29
+
+> Idiom modernization follow-up to the v1.3.0 push-to-newest. Every change adopts the newest idioms of an already-pinned dependency and is behavior-preserving — except one genuine user-facing fix (forum localization). The pre-push gate (typecheck, lint, build) and tests are green.
+
+### Fixed
+- **Forum content now renders in the user's selected locale.** Post view counts, upvote counts, and relative timestamps were formatted with the runtime default locale instead of the active request locale, so they appeared wrong across all 7 non-English locales (ru, es, uk, de, fr, ja, zh). All six forum components now use next-intl's `useFormatter`, which binds the active locale automatically. Output is otherwise unchanged (compact numbers, narrow relative times, long dates), and relative times are now hydration-stable via a server-stamped `now`.
+
+### Changed
+- **Zod 4 idioms** — chained string-format validators replaced with top-level helpers (`z.string().url()` → `z.url()`, `z.string().uuid()` → `z.uuid()`) and `z.ZodSchema` → `z.ZodType`.
+- **`motion` package** — migrated all framer-motion imports (93 specifiers across 92 files) to the `motion/react` entry point that motion 12 mandates. Same API, no behavior change.
+- **Prisma preview flags** — dropped three now-GA preview features (`fullTextSearchPostgres`, `nativeDistinct`, `relationJoins`); only `partialIndexes` remains required.
+- **Tailwind v4 idioms** — deprecated `bg-gradient-to-*` utilities migrated to `bg-linear-to-*/oklab` (preserving the oklab interpolation byte-for-byte with an sRGB fallback), and equal width/height pairs collapsed to the `size-*` shorthand. No visual change.
+- **React 19.3 `useEffectEvent`** — adopted for the two effects where it genuinely fits (theme-toggle keyboard shortcut, calculator share-param restore), removing their dependency-list suppressions outright.
+- **shadcn/ui `data-slot` convention** — added to every standard UI primitive part; purely additive, no className, variant, or behavior changes.
+- **Hono `zValidator` middleware** — all three Cloudflare Workers migrated from hand-rolled `req.json()` + `schema.parse()` to `@hono/zod-validator`, with byte-identical validation error responses.
+- **TS7-forward tsgo advisory** — the non-blocking native-preview typecheck job now scopes past the two packages whose Three.js TSL types the Go compiler cannot yet resolve, keeping the advisory green and meaningful (7/7 packages pass).
+
+### Added
+- **Real Sentry capture** — manual error capture (`captureError`, `captureMessage`, breadcrumbs, error boundaries) and `onRequestError` are now wired to Sentry instead of only logging to the console, via a code-split adapter.
+- **`instrumentation-client.ts` migration** — replaced the deprecated `sentry.client.config.ts` (which does not run under Turbopack, so client-side Sentry was dead in dev) with the Next 15.3+/16 convention, including `onRouterTransitionStart` navigation tracing.
+
 ## [1.3.0] — Modernization (push-to-newest) — 2026-06-29
 
 > Branch `modernization/foundation` (PR #50). A bleeding-edge dependency modernization: every dependency pushed to its absolute-newest published version (canary/preview/dev where that is newest), code rewritten to each version's newest idioms, and a complete Biome lint sweep. The pre-push gate (`turbo run typecheck lint build`) is green; tests pass (see remaining browser/deploy QA in [docs/ROADMAP.md](docs/ROADMAP.md)).
