@@ -11,12 +11,29 @@
  * ProblemBrowser with appropriate fallbacks.
  */
 
+import { unstable_cacheLife as cacheLife } from 'next/cache';
 import type { DifficultyLevel } from '@/components/ui/difficulty-badge';
 import type { MathTopic } from '@/components/ui/topic-tag';
 import { getAllTopics } from '@/components/ui/topic-tag';
 import { ProblemManager } from '@/lib/cms/problem-manager';
 import type { Problem } from '@/types/problems';
 import ProblemsPageClient from './problems-page-client';
+
+// ---------------------------------------------------------------------------
+// Cached data load
+//
+// The problems list is non-user-specific content, so it can be prerendered
+// with cached data under Next.js `cacheComponents`. Wrapping the DB read in a
+// `'use cache'` helper lets the page statically prerender (the per-user fields
+// status/isFavorite/successRate/averageTime are intentionally omitted here).
+// ---------------------------------------------------------------------------
+
+async function getCachedProblems() {
+  'use cache';
+  cacheLife('hours');
+
+  return ProblemManager.getProblems({});
+}
 
 // ---------------------------------------------------------------------------
 // Difficulty enum mapping: Prisma SCREAMING_SNAKE_CASE → UI lowercase
@@ -99,11 +116,11 @@ function ProblemsError({ message }: { message: string }) {
 // ---------------------------------------------------------------------------
 
 export default async function ProblemsPage() {
-  // Fetch real problems from the database
-  let result: Awaited<ReturnType<typeof ProblemManager.getProblems>>;
+  // Fetch real problems from the database (cached for prerendering)
+  let result: Awaited<ReturnType<typeof getCachedProblems>>;
 
   try {
-    result = await ProblemManager.getProblems({});
+    result = await getCachedProblems();
   } catch (err) {
     const message =
       err instanceof Error ? err.message : 'An unexpected error occurred. Please try again later.';

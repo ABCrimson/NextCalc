@@ -64,6 +64,12 @@ export default function WorksheetsPage() {
   const t = useTranslations('worksheets');
   const format = useFormatter();
 
+  // Gate runtime-data access (no-store fetch + Date.now()/new Date() in the
+  // render path) behind `mounted` so the SSR/prerender pass renders a stable,
+  // deterministic skeleton instead of touching uncached/runtime data. This is
+  // required by Next.js 16 cacheComponents — prerendering must not observe
+  // runtime data outside a Suspense boundary or `use cache`.
+  const [mounted, setMounted] = useState(false);
   const [worksheets, setWorksheets] = useState<WorksheetSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -75,8 +81,11 @@ export default function WorksheetsPage() {
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const pendingDeleteRef = useRef<string | null>(null);
 
-  // Load worksheets
+  // Load worksheets (client-only — `cache: 'no-store'` runtime fetch must not
+  // run during prerender). Marking `mounted` here also unblocks the date-based
+  // render helpers below.
   useEffect(() => {
+    setMounted(true);
     let cancelled = false;
     setLoading(true);
     fetchWorksheets().then((ws) => {
@@ -124,22 +133,26 @@ export default function WorksheetsPage() {
     setDeleteConfirmId(null);
   }, []);
 
-  // Filter and sort
-  const filtered = worksheets
-    .filter(
-      (w) =>
-        w.title.toLowerCase().includes(search.toLowerCase()) ||
-        (w.description ?? '').toLowerCase().includes(search.toLowerCase()),
-    )
-    .sort((a, b) => {
-      let cmp: number;
-      if (sortField === 'title') {
-        cmp = a.title.localeCompare(b.title);
-      } else {
-        cmp = new Date(a[sortField]).getTime() - new Date(b[sortField]).getTime();
-      }
-      return sortDir === 'asc' ? cmp : -cmp;
-    });
+  // Filter and sort. The sort comparator reads `new Date(...)` (runtime data),
+  // so it must only run after mount; pre-mount it stays empty and the page
+  // shows the skeleton below.
+  const filtered = mounted
+    ? worksheets
+        .filter(
+          (w) =>
+            w.title.toLowerCase().includes(search.toLowerCase()) ||
+            (w.description ?? '').toLowerCase().includes(search.toLowerCase()),
+        )
+        .sort((a, b) => {
+          let cmp: number;
+          if (sortField === 'title') {
+            cmp = a.title.localeCompare(b.title);
+          } else {
+            cmp = new Date(a[sortField]).getTime() - new Date(b[sortField]).getTime();
+          }
+          return sortDir === 'asc' ? cmp : -cmp;
+        })
+    : [];
 
   // Relative time formatter
   const relativeTime = (date: string) => {
@@ -236,15 +249,15 @@ export default function WorksheetsPage() {
         </div>
       </div>
 
-      {/* Loading */}
-      {loading && (
+      {/* Loading (also the deterministic prerender shell while `!mounted`) */}
+      {(!mounted || loading) && (
         <div className="flex items-center justify-center py-20">
           <Loader2 className="size-8 animate-spin text-muted-foreground" />
         </div>
       )}
 
       {/* Empty state */}
-      {!loading && worksheets.length === 0 && (
+      {mounted && !loading && worksheets.length === 0 && (
         <div className="text-center py-20">
           <FileText className="size-12 text-muted-foreground mx-auto mb-4 opacity-50" />
           <h2 className="text-lg font-medium text-foreground mb-2">{t('emptyTitle')}</h2>
@@ -260,7 +273,7 @@ export default function WorksheetsPage() {
       )}
 
       {/* No results */}
-      {!loading && worksheets.length > 0 && filtered.length === 0 && (
+      {mounted && !loading && worksheets.length > 0 && filtered.length === 0 && (
         <div className="text-center py-12">
           <Search className="size-8 text-muted-foreground mx-auto mb-3 opacity-50" />
           <p className="text-muted-foreground text-sm">{t('noResults')}</p>
@@ -268,7 +281,7 @@ export default function WorksheetsPage() {
       )}
 
       {/* Grid view */}
-      {!loading && filtered.length > 0 && viewMode === 'grid' && (
+      {mounted && !loading && filtered.length > 0 && viewMode === 'grid' && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <AnimatePresence mode="popLayout">
             {filtered.map((ws) => (
@@ -326,7 +339,7 @@ export default function WorksheetsPage() {
       )}
 
       {/* List view */}
-      {!loading && filtered.length > 0 && viewMode === 'list' && (
+      {mounted && !loading && filtered.length > 0 && viewMode === 'list' && (
         <div className="rounded-2xl border border-border overflow-hidden">
           <AnimatePresence mode="popLayout">
             {filtered.map((ws, i) => (

@@ -8,7 +8,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { ProblemManager } from '@/lib/cms/problem-manager';
 
-export const dynamic = 'force-dynamic';
+
 
 export async function GET(_request: NextRequest, context: { params: Promise<{ id: string }> }) {
   const { params } = context;

@@ -7,7 +7,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { KnowledgeBaseManager } from '@/lib/cms/knowledge-base';
 
-export const dynamic = 'force-dynamic';
+
 
 export async function GET(_request: NextRequest, context: { params: Promise<{ slug: string }> }) {
   const { params } = context;

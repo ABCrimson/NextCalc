@@ -22,4 +22,4 @@ export const POST = (
   ctx: { params: Promise<Record<string, string>> },
 ): Promise<Response> => handler.POST(req as NextRequest, ctx);
 
-export const dynamic = 'force-dynamic';
+

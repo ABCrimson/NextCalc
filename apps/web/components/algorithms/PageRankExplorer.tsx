@@ -183,15 +183,25 @@ function generateLargeGraph(
 }
 
 /**
- * Preset graph templates
+ * A preset graph definition. Large/random presets are provided as thunks so
+ * their `Math.random()`-based edge generation runs lazily (on demand, after
+ * mount) instead of at module-evaluation time — the latter would access
+ * runtime data during prerendering and break Next.js `cacheComponents`.
  */
-const PRESET_GRAPHS: Record<
-  string,
-  Omit<Graph, 'nodes' | 'edges'> & {
-    nodeLabels: string[];
-    edgeList: Array<[number, number, number]>;
-  }
-> = {
+type PresetGraph = Omit<Graph, 'nodes' | 'edges'> & {
+  nodeLabels: string[];
+  edgeList: Array<[number, number, number]>;
+};
+
+/**
+ * Preset graph templates.
+ *
+ * Deterministic presets are plain objects; the random "large" stress-test
+ * presets are lazy thunks so `generateLargeGraph` (which calls `Math.random()`)
+ * is only invoked when the user loads that preset, never during module
+ * evaluation / SSR / prerender.
+ */
+const PRESET_GRAPHS: Record<string, PresetGraph | (() => PresetGraph)> = {
   linear: {
     dampingFactor: 0.85,
     nodeLabels: ['A', 'B', 'C', 'D'],
@@ -241,15 +251,25 @@ const PRESET_GRAPHS: Record<
       [4, 2, 1],
     ],
   },
-  large50: {
+  large50: () => ({
     dampingFactor: 0.85,
     ...generateLargeGraph(50, 0.08),
-  },
-  large100: {
+  }),
+  large100: () => ({
     dampingFactor: 0.85,
     ...generateLargeGraph(100, 0.04),
-  },
+  }),
 };
+
+/**
+ * Resolve a preset entry, invoking the thunk for lazily-generated random
+ * presets. Returns `undefined` for unknown keys.
+ */
+function resolvePreset(presetName: string): PresetGraph | undefined {
+  const entry = PRESET_GRAPHS[presetName];
+  if (!entry) return undefined;
+  return typeof entry === 'function' ? entry() : entry;
+}
 
 /**
  * Interactive PageRank Explorer Component
@@ -284,10 +304,12 @@ export function PageRankExplorer({
       };
     }
 
-    // Default: 'web' preset laid out on a 800x600 canvas
+    // Default: 'web' preset laid out on a 800x600 canvas. This preset is
+    // deterministic (no Math.random), so it is safe to build during the
+    // initial (prerender/SSR) render.
     const defaultWidth = 800;
     const defaultHeight = 600;
-    const preset = PRESET_GRAPHS['web'];
+    const preset = resolvePreset('web');
 
     // Guard: preset must exist (it always does, but the Record type is wide)
     if (!preset) {
@@ -579,7 +601,9 @@ export function PageRankExplorer({
   // Load preset graph
   const loadPreset = useCallback(
     (presetName: string) => {
-      const preset = PRESET_GRAPHS[presetName];
+      // Resolve lazily — random "large" presets generate their edges here
+      // (on user interaction, after mount), never during prerender.
+      const preset = resolvePreset(presetName);
       if (!preset) return;
 
       // Prefer measured container dimensions, fall back to renderer dimensions

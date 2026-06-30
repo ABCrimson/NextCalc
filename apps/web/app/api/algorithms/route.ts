@@ -8,7 +8,7 @@ import type { AlgorithmCategory } from '@nextcalc/database';
 import { type NextRequest, NextResponse } from 'next/server';
 import { AlgorithmRepository } from '@/lib/cms/algorithm-repository';
 
-export const dynamic = 'force-dynamic';
+
 
 export async function GET(_request: NextRequest) {
   try {

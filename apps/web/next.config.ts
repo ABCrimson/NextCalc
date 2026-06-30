@@ -19,6 +19,14 @@ import createNextIntlPlugin from 'next-intl/plugin';
 const nextConfig: NextConfig = {
   reactStrictMode: true,
 
+  // Cache Components (Next.js 16) — the top-level successor to `ppr` +
+  // `experimental.useCache`. Routes combine a prerendered static shell with
+  // dynamic content streamed in (Partial Prerendering); cacheable data/UI is
+  // opted in via the `use cache` directive (plus `cacheLife`/`cacheTag`).
+  // Dynamic values (cookies/headers/uncached fetch/`new Date()`) must sit inside
+  // a Suspense boundary or be cached, otherwise prerendering bails to dynamic.
+  cacheComponents: true,
+
   // Turbopack configuration - stable in Next.js 16.0
   turbopack: {
     root: resolve(import.meta.dirname, '../../'),
@@ -62,10 +70,8 @@ const nextConfig: NextConfig = {
     // 182x faster incremental builds without CSS changes
     turbopackFileSystemCacheForDev: true,
 
-    // Enable the 'use cache' directive for server-side data fetching functions.
-    // This allows per-function opt-in caching without conflicting with
-    // 'export const dynamic' / 'export const runtime' in API routes.
-    useCache: true,
+    // `useCache` is enabled by the top-level `cacheComponents` above
+    // (which supersedes both `experimental.useCache` and `experimental.ppr`).
 
     // Optimize package imports (expanded for better bundle size)
     optimizePackageImports: [

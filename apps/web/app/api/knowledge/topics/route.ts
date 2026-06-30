@@ -10,7 +10,7 @@ import { z } from 'zod';
 import { KnowledgeBaseManager } from '@/lib/cms/knowledge-base';
 import { TopicQuerySchema } from '@/lib/validations/learning';
 
-export const dynamic = 'force-dynamic';
+
 
 export async function GET(request: NextRequest) {
   try {

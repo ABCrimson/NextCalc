@@ -11,7 +11,7 @@ import { z } from 'zod';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 
-export const dynamic = 'force-dynamic';
+
 
 const FavoriteSchema = z.object({
   problemId: z.string(),

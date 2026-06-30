@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 
-export const dynamic = 'force-dynamic';
+
 
 /**
  * GET /api/worksheets — List current user's worksheets

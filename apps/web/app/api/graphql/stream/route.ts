@@ -134,4 +134,4 @@ export const POST = async (req: Request) => {
   }
 };
 
-export const dynamic = 'force-dynamic';
+
