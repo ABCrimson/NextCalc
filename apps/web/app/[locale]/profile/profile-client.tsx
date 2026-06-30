@@ -1,8 +1,9 @@
 'use client';
 
-import { useQuery } from '@apollo/client/react';
+import { useSuspenseQuery } from '@apollo/client/react';
 import { m } from 'motion/react';
 import { useTranslations } from 'next-intl';
+import { Suspense } from 'react';
 import { AchievementGrid } from '@/components/profile/achievement-grid';
 import { AnalyticsCharts } from '@/components/profile/analytics-charts';
 import { PracticeHistoryTable } from '@/components/profile/practice-history-table';
@@ -311,54 +312,43 @@ interface ProfileDashboardProps {
   userId: string;
 }
 
-function ProfileDashboard({ userId }: ProfileDashboardProps) {
+function ProfileDashboardContent({ userId }: ProfileDashboardProps) {
   const tProfile = useTranslations('profile');
 
   const {
     data: profileData,
-    loading: profileLoading,
     error: profileError,
     refetch: refetchProfile,
-  } = useQuery<UserProfileData>(USER_PROFILE_QUERY, {
+  } = useSuspenseQuery<UserProfileData>(USER_PROFILE_QUERY, {
     variables: { userId },
     errorPolicy: 'all',
   });
 
   const {
     data: activityData,
-    loading: activityLoading,
     error: activityError,
     refetch: refetchActivity,
-  } = useQuery<UserActivityData>(USER_ACTIVITY_QUERY, {
+  } = useSuspenseQuery<UserActivityData>(USER_ACTIVITY_QUERY, {
     variables: { userId },
     errorPolicy: 'all',
   });
 
   const {
     data: analyticsData,
-    loading: analyticsLoading,
     error: analyticsError,
     refetch: refetchAnalytics,
-  } = useQuery<UserAnalyticsData>(USER_ANALYTICS_QUERY, {
+  } = useSuspenseQuery<UserAnalyticsData>(USER_ANALYTICS_QUERY, {
     variables: { userId },
     errorPolicy: 'all',
   });
 
-  const {
-    data: recentData,
-    loading: recentLoading,
-    error: recentError,
-  } = useQuery<DashboardRecentActivityData>(DASHBOARD_RECENT_ACTIVITY_QUERY, {
-    variables: { userId },
-    errorPolicy: 'all',
-  });
-
-  const isLoading = profileLoading || activityLoading || analyticsLoading || recentLoading;
-
-  // Show skeleton while any required query is loading and no data yet
-  if (isLoading && !profileData) {
-    return <ProfileSkeleton />;
-  }
+  const { data: recentData, error: recentError } = useSuspenseQuery<DashboardRecentActivityData>(
+    DASHBOARD_RECENT_ACTIVITY_QUERY,
+    {
+      variables: { userId },
+      errorPolicy: 'all',
+    },
+  );
 
   // Show error if profile query fails and we have no fallback data
   if (profileError && !profileData) {
@@ -455,6 +445,14 @@ function ProfileDashboard({ userId }: ProfileDashboardProps) {
         </TabsContent>
       </Tabs>
     </m.div>
+  );
+}
+
+function ProfileDashboard({ userId }: ProfileDashboardProps) {
+  return (
+    <Suspense fallback={<ProfileSkeleton />}>
+      <ProfileDashboardContent userId={userId} />
+    </Suspense>
   );
 }
 

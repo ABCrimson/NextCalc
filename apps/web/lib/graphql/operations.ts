@@ -7,14 +7,14 @@
  * Operations match the GraphQL schema defined in apps/api/src/graphql/schema.ts.
  */
 
-import { gql } from '@apollo/client';
+import { graphql } from '@/lib/graphql/generated';
 
 // ============================================================================
 // USER MUTATIONS
 // ============================================================================
 
 /** Update the authenticated user's profile (name, bio) */
-export const UPDATE_PROFILE_MUTATION = gql`
+export const UPDATE_PROFILE_MUTATION = graphql(`
   mutation UpdateProfile($input: UpdateProfileInput!) {
     updateProfile(input: $input) {
       id
@@ -24,14 +24,14 @@ export const UPDATE_PROFILE_MUTATION = gql`
       updatedAt
     }
   }
-`;
+`);
 
 // ============================================================================
 // USER QUERIES
 // ============================================================================
 
 /** Get the currently authenticated user's profile */
-export const ME_QUERY = gql`
+export const ME_QUERY = graphql(`
   query Me {
     me {
       id
@@ -45,10 +45,10 @@ export const ME_QUERY = gql`
       worksheetCount
     }
   }
-`;
+`);
 
 /** Get a user by ID */
-export const USER_QUERY = gql`
+export const USER_QUERY = graphql(`
   query User($id: ID!) {
     user(id: $id) {
       id
@@ -61,14 +61,14 @@ export const USER_QUERY = gql`
       worksheetCount
     }
   }
-`;
+`);
 
 // ============================================================================
 // WORKSHEET QUERIES
 // ============================================================================
 
 /** Get a single worksheet by ID */
-export const WORKSHEET_QUERY = gql`
+export const WORKSHEET_QUERY = graphql(`
   query Worksheet($id: ID!) {
     worksheet(id: $id) {
       id
@@ -95,10 +95,10 @@ export const WORKSHEET_QUERY = gql`
       }
     }
   }
-`;
+`);
 
 /** Get paginated worksheets for the current user */
-export const WORKSHEETS_QUERY = gql`
+export const WORKSHEETS_QUERY = graphql(`
   query Worksheets(
     $limit: Int = 20
     $offset: Int = 0
@@ -142,10 +142,10 @@ export const WORKSHEETS_QUERY = gql`
       }
     }
   }
-`;
+`);
 
 /** Get public worksheets (gallery) */
-export const PUBLIC_WORKSHEETS_QUERY = gql`
+export const PUBLIC_WORKSHEETS_QUERY = graphql(`
   query PublicWorksheets(
     $limit: Int = 20
     $offset: Int = 0
@@ -176,14 +176,14 @@ export const PUBLIC_WORKSHEETS_QUERY = gql`
       }
     }
   }
-`;
+`);
 
 // ============================================================================
 // WORKSHEET MUTATIONS
 // ============================================================================
 
 /** Create a new worksheet */
-export const CREATE_WORKSHEET_MUTATION = gql`
+export const CREATE_WORKSHEET_MUTATION = graphql(`
   mutation CreateWorksheet($input: CreateWorksheetInput!) {
     createWorksheet(input: $input) {
       id
@@ -193,10 +193,10 @@ export const CREATE_WORKSHEET_MUTATION = gql`
       createdAt
     }
   }
-`;
+`);
 
 /** Update an existing worksheet */
-export const UPDATE_WORKSHEET_MUTATION = gql`
+export const UPDATE_WORKSHEET_MUTATION = graphql(`
   mutation UpdateWorksheet($id: ID!, $input: UpdateWorksheetInput!) {
     updateWorksheet(id: $id, input: $input) {
       id
@@ -207,21 +207,21 @@ export const UPDATE_WORKSHEET_MUTATION = gql`
       updatedAt
     }
   }
-`;
+`);
 
 /** Delete a worksheet (soft delete) */
-export const DELETE_WORKSHEET_MUTATION = gql`
+export const DELETE_WORKSHEET_MUTATION = graphql(`
   mutation DeleteWorksheet($id: ID!) {
     deleteWorksheet(id: $id)
   }
-`;
+`);
 
 // ============================================================================
 // FOLDER QUERIES & MUTATIONS
 // ============================================================================
 
 /** Get user's folders */
-export const FOLDERS_QUERY = gql`
+export const FOLDERS_QUERY = graphql(`
   query Folders($userId: ID) {
     folders(userId: $userId) {
       id
@@ -238,10 +238,10 @@ export const FOLDERS_QUERY = gql`
       }
     }
   }
-`;
+`);
 
 /** Create a new folder */
-export const CREATE_FOLDER_MUTATION = gql`
+export const CREATE_FOLDER_MUTATION = graphql(`
   mutation CreateFolder($input: CreateFolderInput!) {
     createFolder(input: $input) {
       id
@@ -249,14 +249,14 @@ export const CREATE_FOLDER_MUTATION = gql`
       description
     }
   }
-`;
+`);
 
 // ============================================================================
 // CALCULATION QUERIES & MUTATIONS
 // ============================================================================
 
 /** Perform a server-side calculation */
-export const CALCULATE_QUERY = gql`
+export const CALCULATE_QUERY = graphql(`
   query Calculate($input: CalculationInput!) {
     calculate(input: $input) {
       input
@@ -266,10 +266,10 @@ export const CALCULATE_QUERY = gql`
       timestamp
     }
   }
-`;
+`);
 
 /** Get calculation history */
-export const CALCULATION_HISTORY_QUERY = gql`
+export const CALCULATION_HISTORY_QUERY = graphql(`
   query CalculationHistory($limit: Int = 50, $offset: Int = 0) {
     calculationHistory(limit: $limit, offset: $offset) {
       id
@@ -280,10 +280,10 @@ export const CALCULATION_HISTORY_QUERY = gql`
       timestamp
     }
   }
-`;
+`);
 
 /** Save a calculation to history */
-export const SAVE_CALCULATION_MUTATION = gql`
+export const SAVE_CALCULATION_MUTATION = graphql(`
   mutation SaveCalculation($input: CalculationInput!) {
     saveCalculation(input: $input) {
       id
@@ -292,21 +292,21 @@ export const SAVE_CALCULATION_MUTATION = gql`
       timestamp
     }
   }
-`;
+`);
 
 /** Clear calculation history */
-export const CLEAR_CALCULATION_HISTORY_MUTATION = gql`
+export const CLEAR_CALCULATION_HISTORY_MUTATION = graphql(`
   mutation ClearCalculationHistory {
     clearCalculationHistory
   }
-`;
+`);
 
 // ============================================================================
 // SHARED CALCULATION QUERIES & MUTATIONS
 // ============================================================================
 
 /** Share a calculation and receive a short code */
-export const SHARE_CALCULATION_MUTATION = gql`
+export const SHARE_CALCULATION_MUTATION = graphql(`
   mutation ShareCalculation(
     $latex: String!
     $expression: String!
@@ -331,10 +331,10 @@ export const SHARE_CALCULATION_MUTATION = gql`
       createdAt
     }
   }
-`;
+`);
 
 /** Get a shared calculation by short code */
-export const SHARED_CALCULATION_QUERY = gql`
+export const SHARED_CALCULATION_QUERY = graphql(`
   query SharedCalculation($shortCode: String!) {
     sharedCalculation(shortCode: $shortCode) {
       id
@@ -353,7 +353,7 @@ export const SHARED_CALCULATION_QUERY = gql`
       }
     }
   }
-`;
+`);
 
 // ============================================================================
 // DASHBOARD RECENT ACTIVITY QUERY
@@ -364,7 +364,7 @@ export const SHARED_CALCULATION_QUERY = gql`
  * Fetches last 10 calculations and last 10 worksheets so the client
  * can merge and sort them into a unified feed.
  */
-export const DASHBOARD_RECENT_ACTIVITY_QUERY = gql`
+export const DASHBOARD_RECENT_ACTIVITY_QUERY = graphql(`
   query DashboardRecentActivity($userId: ID!) {
     calculationHistory(limit: 10, offset: 0) {
       id
@@ -390,14 +390,14 @@ export const DASHBOARD_RECENT_ACTIVITY_QUERY = gql`
       }
     }
   }
-`;
+`);
 
 // ============================================================================
 // HEALTH QUERY
 // ============================================================================
 
 /** System health check */
-export const HEALTH_QUERY = gql`
+export const HEALTH_QUERY = graphql(`
   query Health {
     health {
       status
@@ -415,14 +415,14 @@ export const HEALTH_QUERY = gql`
       version
     }
   }
-`;
+`);
 
 // ============================================================================
 // USER PROFILE & ANALYTICS QUERIES
 // ============================================================================
 
 /** Get a user's full profile dashboard data */
-export const USER_PROFILE_QUERY = gql`
+export const USER_PROFILE_QUERY = graphql(`
   query UserProfile($userId: ID!) {
     userProfile(userId: $userId) {
       user {
@@ -457,20 +457,20 @@ export const USER_PROFILE_QUERY = gql`
       calculationCount
     }
   }
-`;
+`);
 
 /** Get a user's activity heatmap data */
-export const USER_ACTIVITY_QUERY = gql`
+export const USER_ACTIVITY_QUERY = graphql(`
   query UserActivity($userId: ID!, $days: Int) {
     userActivity(userId: $userId, days: $days) {
       date
       count
     }
   }
-`;
+`);
 
 /** Get a user's detailed analytics */
-export const USER_ANALYTICS_QUERY = gql`
+export const USER_ANALYTICS_QUERY = graphql(`
   query UserAnalytics($userId: ID!) {
     userAnalytics(userId: $userId) {
       topicMastery {
@@ -496,4 +496,4 @@ export const USER_ANALYTICS_QUERY = gql`
       }
     }
   }
-`;
+`);

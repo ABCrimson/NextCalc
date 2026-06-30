@@ -7,14 +7,14 @@
  * Operations match the forum-related types in apps/api/src/graphql/schema.ts.
  */
 
-import { gql } from '@apollo/client';
+import { graphql } from '@/lib/graphql/generated';
 
 // ============================================================================
 // FORUM QUERIES
 // ============================================================================
 
 /** Get paginated forum posts for the main listing */
-export const FORUM_POSTS_QUERY = gql`
+export const FORUM_POSTS_QUERY = graphql(`
   query ForumPosts($limit: Int = 20, $offset: Int = 0, $tags: [String!], $searchQuery: String) {
     forumPosts(limit: $limit, offset: $offset, tags: $tags, searchQuery: $searchQuery) {
       nodes {
@@ -44,10 +44,10 @@ export const FORUM_POSTS_QUERY = gql`
       }
     }
   }
-`;
+`);
 
 /** Get a single forum post with all comments */
-export const FORUM_POST_QUERY = gql`
+export const FORUM_POST_QUERY = graphql(`
   query ForumPost($id: ID!) {
     forumPost(id: $id) {
       id
@@ -99,11 +99,11 @@ export const FORUM_POST_QUERY = gql`
       }
     }
   }
-`;
+`);
 
 /** Get a user profile with their posts */
-export const USER_PROFILE_QUERY = gql`
-  query UserProfile($id: ID!) {
+export const USER_PROFILE_QUERY = graphql(`
+  query ForumUserProfile($id: ID!) {
     user(id: $id) {
       id
       name
@@ -122,14 +122,14 @@ export const USER_PROFILE_QUERY = gql`
       }
     }
   }
-`;
+`);
 
 // ============================================================================
 // FORUM MUTATIONS
 // ============================================================================
 
 /** Create a new forum post */
-export const CREATE_FORUM_POST_MUTATION = gql`
+export const CREATE_FORUM_POST_MUTATION = graphql(`
   mutation CreateForumPost($input: CreateForumPostInput!) {
     createForumPost(input: $input) {
       id
@@ -149,10 +149,10 @@ export const CREATE_FORUM_POST_MUTATION = gql`
       }
     }
   }
-`;
+`);
 
 /** Update an existing forum post */
-export const UPDATE_FORUM_POST_MUTATION = gql`
+export const UPDATE_FORUM_POST_MUTATION = graphql(`
   mutation UpdateForumPost($id: ID!, $input: UpdateForumPostInput!) {
     updateForumPost(id: $id, input: $input) {
       id
@@ -162,27 +162,27 @@ export const UPDATE_FORUM_POST_MUTATION = gql`
       updatedAt
     }
   }
-`;
+`);
 
 /** Delete a forum post */
-export const DELETE_FORUM_POST_MUTATION = gql`
+export const DELETE_FORUM_POST_MUTATION = graphql(`
   mutation DeleteForumPost($id: ID!) {
     deleteForumPost(id: $id)
   }
-`;
+`);
 
 /** Toggle upvote on a post or comment */
-export const TOGGLE_UPVOTE_MUTATION = gql`
+export const TOGGLE_UPVOTE_MUTATION = graphql(`
   mutation ToggleUpvote($targetId: ID!, $targetType: UpvoteTargetType!) {
     toggleUpvote(targetId: $targetId, targetType: $targetType) {
       upvoted
       upvoteCount
     }
   }
-`;
+`);
 
 /** Create a comment on a post */
-export const CREATE_COMMENT_MUTATION = gql`
+export const CREATE_COMMENT_MUTATION = graphql(`
   mutation CreateComment($input: CreateCommentInput!) {
     createComment(input: $input) {
       id
@@ -203,10 +203,10 @@ export const CREATE_COMMENT_MUTATION = gql`
       }
     }
   }
-`;
+`);
 
 /** Update a comment */
-export const UPDATE_COMMENT_MUTATION = gql`
+export const UPDATE_COMMENT_MUTATION = graphql(`
   mutation UpdateComment($id: ID!, $input: UpdateCommentInput!) {
     updateComment(id: $id, input: $input) {
       id
@@ -214,11 +214,11 @@ export const UPDATE_COMMENT_MUTATION = gql`
       updatedAt
     }
   }
-`;
+`);
 
 /** Delete a comment */
-export const DELETE_COMMENT_MUTATION = gql`
+export const DELETE_COMMENT_MUTATION = graphql(`
   mutation DeleteComment($id: ID!) {
     deleteComment(id: $id)
   }
-`;
+`);
