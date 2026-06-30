@@ -593,6 +593,12 @@ export function UnifiedGraphRenderer({
   const [hoveredNode, setHoveredNode] = useState<NodeId | null>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [renderMode, setRenderMode] = useState<'webgpu' | 'canvas2d' | 'detecting'>('detecting');
+  // Random initial node positions must not run during prerender/SSR (uncached
+  // runtime data). Defer the Math.random() seeding until after mount.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const fullConfig: Required<GraphConfig> = useMemo(
     () => ({
@@ -610,14 +616,24 @@ export function UnifiedGraphRenderer({
   );
 
   const initializedNodes = useMemo(() => {
-    return nodes.map((node) => ({
-      ...node,
-      x: node.x ?? Math.random() * fullConfig.width,
-      y: node.y ?? Math.random() * fullConfig.height,
-      vx: node.vx ?? 0,
-      vy: node.vy ?? 0,
-    }));
-  }, [nodes, fullConfig.width, fullConfig.height]);
+    return nodes.map((node, index) => {
+      // Before mount (incl. SSR/prerender) use a deterministic placeholder
+      // layout; after mount, fall back to random seeding for unset positions.
+      const fallbackX = mounted
+        ? Math.random() * fullConfig.width
+        : ((index + 1) * 0.0123 * fullConfig.width) % fullConfig.width;
+      const fallbackY = mounted
+        ? Math.random() * fullConfig.height
+        : ((index + 1) * 0.0197 * fullConfig.height) % fullConfig.height;
+      return {
+        ...node,
+        x: node.x ?? fallbackX,
+        y: node.y ?? fallbackY,
+        vx: node.vx ?? 0,
+        vy: node.vy ?? 0,
+      };
+    });
+  }, [nodes, fullConfig.width, fullConfig.height, mounted]);
 
   // -------------------------------------------------------------------------
   // Canvas 2D render (fallback – identical to original)

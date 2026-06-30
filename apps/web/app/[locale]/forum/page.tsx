@@ -111,6 +111,14 @@ export default function ForumPage() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
+  // Gate time-based "hot" ranking behind mount so Date.now() never runs during
+  // the prerender pass (cacheComponents). Until mounted we fall back to "new"
+  // ordering, which is deterministic.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Debounce search for GraphQL query
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(searchInput), 300);
@@ -162,7 +170,11 @@ export default function ForumPage() {
     const pinned = posts.filter((p) => p.isPinned);
     const unpinned = posts.filter((p) => !p.isPinned);
 
-    switch (sortMode) {
+    // Before mount, "hot" relies on Date.now() (runtime data that breaks
+    // prerender). Fall back to deterministic "new" ordering until mounted.
+    const effectiveSort = sortMode === 'hot' && !mounted ? 'new' : sortMode;
+
+    switch (effectiveSort) {
       case 'hot': {
         const now = Date.now();
         unpinned.sort((a, b) => {
@@ -183,7 +195,7 @@ export default function ForumPage() {
     }
 
     return [...pinned, ...unpinned];
-  }, [graphqlPosts, sortMode]);
+  }, [graphqlPosts, sortMode, mounted]);
 
   // Stats from real data
   const totalPosts = data?.forumPosts?.pageInfo?.totalCount ?? graphqlPosts.length;

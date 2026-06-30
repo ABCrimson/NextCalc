@@ -1,7 +1,7 @@
 'use client';
 
 import { useFormatter } from 'next-intl';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 interface ActivityCalendarProps {
   data: Array<{ date: string; count: number }>;
@@ -51,7 +51,21 @@ export function ActivityCalendar({ data }: ActivityCalendarProps) {
   const format = useFormatter();
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
+  // `new Date()` is runtime data; computing the calendar grid during prerender
+  // would bake the build time into the output. Defer it until after mount.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const { grid, monthPositions, maxCount } = useMemo(() => {
+    const empty = {
+      grid: [] as Array<Array<{ dateStr: string; count: number; inRange: boolean }>>,
+      monthPositions: [] as Array<{ label: string; weekIndex: number }>,
+      maxCount: 0,
+    };
+    if (!mounted) return empty;
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -97,7 +111,7 @@ export function ActivityCalendar({ data }: ActivityCalendarProps) {
     }
 
     return { grid: cells, monthPositions: monthPos, maxCount: currentMax };
-  }, [data]);
+  }, [data, mounted]);
 
   const formatDate = (dateStr: string): string => {
     return format.dateTime(new Date(dateStr), { month: 'short', day: 'numeric', year: 'numeric' });

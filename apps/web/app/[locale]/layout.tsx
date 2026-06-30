@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
-import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { setRequestLocale } from 'next-intl/server';
 import type { ReactNode } from 'react';
 import { Navigation } from '@/components/layout/navigation';
+import { SkipToContent } from '@/components/layout/skip-to-content';
 import { ApolloWrapper } from '@/components/providers/apollo-provider';
 import { MotionProvider } from '@/components/providers/motion-provider';
 import { AuthSessionProvider } from '@/components/providers/session-provider';
@@ -157,7 +158,6 @@ export default async function LocaleLayout({
     notFound();
   }
   setRequestLocale(locale);
-  const t = await getTranslations('accessibility');
   const jsonLd = getJsonLd(locale);
 
   // No `messages` prop: in next-intl v4 NextIntlClientProvider rendered by a
@@ -170,12 +170,7 @@ export default async function LocaleLayout({
         // biome-ignore lint/security/noDangerouslySetInnerHtml: static JSON-LD; server-generated typed object, never user input
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <a
-        href="#main-content"
-        className="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-4 focus-visible:left-4 focus-visible:z-[100] focus-visible:rounded-lg focus-visible:bg-primary focus-visible:px-4 focus-visible:py-2 focus-visible:text-primary-foreground focus-visible:shadow-lg"
-      >
-        {t('skipToContent')}
-      </a>
+      <SkipToContent />
       <MotionProvider>
         <ApolloWrapper>
           <AuthSessionProvider>

@@ -245,8 +245,8 @@ export function PlotExportToolbar({
           ? plotConfig.title
           : plotConfig.type);
 
-  const basename = buildBasename(resolvedLabel);
-
+  // Built lazily inside each export handler (not at render time) because it
+  // calls `new Date()` via dateStamp(), which would break prerendering.
   // ------------------------------------------------------------------
   // PNG export
   // ------------------------------------------------------------------
@@ -256,6 +256,7 @@ export function PlotExportToolbar({
       setIsExporting(true);
       setLastError(null);
       try {
+        const basename = buildBasename(resolvedLabel);
         const options: ExportPNGOptions = {
           width: canvas.width,
           height: canvas.height,
@@ -272,7 +273,7 @@ export function PlotExportToolbar({
         setIsExporting(false);
       }
     },
-    [canvas, basename],
+    [canvas, resolvedLabel],
   );
 
   // ------------------------------------------------------------------
@@ -282,6 +283,7 @@ export function PlotExportToolbar({
     setIsExporting(true);
     setLastError(null);
     try {
+      const basename = buildBasename(resolvedLabel);
       const series = derivePointSeries(plotConfig);
       const viewport = deriveViewport(plotConfig, series);
       const svgWidth = 800;
@@ -299,7 +301,7 @@ export function PlotExportToolbar({
     } finally {
       setIsExporting(false);
     }
-  }, [plotConfig, basename]);
+  }, [plotConfig, resolvedLabel]);
 
   // ------------------------------------------------------------------
   // CSV export
@@ -308,6 +310,7 @@ export function PlotExportToolbar({
     setIsExporting(true);
     setLastError(null);
     try {
+      const basename = buildBasename(resolvedLabel);
       const series = derivePointSeries(plotConfig);
 
       if (series.length === 0) {
@@ -364,7 +367,7 @@ export function PlotExportToolbar({
     } finally {
       setIsExporting(false);
     }
-  }, [plotConfig, basename]);
+  }, [plotConfig, resolvedLabel]);
 
   // ------------------------------------------------------------------
   // Render
