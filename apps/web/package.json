@@ -18,7 +18,7 @@
     "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@apollo/client": "4.3.0-alpha.1",
+    "@apollo/client": "4.3.0-alpha.2",
     "@apollo/client-integration-nextjs": "0.14.5",
     "@auth/prisma-adapter": "2.11.2",
     "@nextcalc/api": "workspace:*",
