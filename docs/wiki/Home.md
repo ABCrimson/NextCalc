@@ -23,7 +23,9 @@ NextCalc Pro is a comprehensive scientific calculator and mathematical visualiza
 
 ---
 
-## Latest Updates (v1.5.0)
+## Latest Updates (v1.5.x)
+
+**v1.5.1 hotfix** — restored the level-icon avatars (they were data-referenced, not dead code), fixed comment upvotes (a schema defect dating to February — they had never worked), comment posting no longer collapses the thread, Lorenz GPU particles render again (upright, in their cage), ODE view auto-fits the solution, PDE 3D colormap works in the default view, and the profile owner gained an admin-only avatar icon picker.
 
 - **Evergreen dependency sweep**: every dependency at its absolute-newest published version in any channel — Next.js 16.3 canary, React 19.3 canary, graphql 17, Vitest 5, Prisma 7.9, pnpm 11 GA — and **TypeScript 7.1 (native Go compiler) is now the blocking typecheck gate for 8 of the 10 packages** (full-workspace typecheck ~6 min → ~22 s); `@nextcalc/web` and `@nextcalc/plot-engine` remain on classic TypeScript 6.0.x pending upstream fixes -- see [[Architecture]]
 - **React Compiler enabled** across the web app, plus GraphQL fragment masking with `useFragment`

@@ -2,6 +2,21 @@
 
 All notable changes to NextCalc Pro are documented in this file.
 
+## [1.5.1] - 2026-07-10
+
+> Hotfix for 8 user-reported production issues found hours after v1.5.0 went live. Root-caused systematically: only one was a v1.5.0 code regression — the rest were pre-existing defects that the release unmasked or that had never been visible.
+
+### Fixed
+- **All avatars broken (v1.5.0 regression + two pre-existing defects it unmasked)** — the sweep deleted `public/icons/levels/` as "dead code," but the 103 SVGs are referenced by production `User.image` database rows, which no code-grep can see; restored, with a README warning in the directory. Compounding: the OAuth sign-in sync force-overwrote the curated same-origin avatar with the provider photo (now guarded — same-origin avatars survive sign-ins), and the CSP `img-src 'self'` had silently blocked external provider photos since v1.0.0 (Google/GitHub avatar hosts allow-listed). Forum/comment avatars also gained the `onError`→initials fallback the profile hero already had.
+- **Comment upvotes never worked** (pre-existing since February) — the `Upvote` model declared two conflicting foreign keys on the same polymorphic `targetId` column, so every comment upvote threw an FK violation (logged in prod since March 3); the polymorphic relations are removed (integrity enforced by the resolver's existence check, deletes are soft). The button UI also swallowed both errors and successes — the optimistic flip now lives inside an async transition, confirmed counts write back to the Apollo cache, and failures surface inline.
+- **Posting a comment collapsed the thread to a skeleton until reload** (PR #63 regression) — `refetch()` on a `useSuspenseQuery` outside a transition re-suspends the whole tree; both refetch sites now run in `startTransition`. Also fixed the latent SSR failure PR #63 activated: the Apollo `HttpLink` used a relative `/api/graphql` URI that Node fetch can't parse during streaming SSR — server-side requests now build an absolute origin.
+- **Lorenz attractor particles rendered nothing** (pre-existing; broken by the three.js r184+ WebGPU behavior change) — `storageBuffer.toAttribute()` no longer feeds per-vertex data to a non-instanced points draw; the vertex stage now reads the buffer directly via `element(vertexIndex)`. Also unified the axis convention (math z is now THREE's y-up for trail, particles, cage, and floor — the attractor stands upright in its cage) and centered the orbit target. Verified behaviorally: 50K-particle swarm renders and flows along the trajectory.
+- **ODE solver never rescaled its view** (pre-existing) — solutions leaving the preset window were silently clipped (a bell curve or steep parabola was invisible); solve now auto-fits the domain to the finite trajectory range with 10% padding, behind an "Auto-fit view" toggle (default on) that respects manual domain edits.
+- **PDE 3D colormap was a no-op in the default view** (pre-existing) — isosurface mode hardcoded its material color and ignored the colormap prop; the selected map now drives the surface tint in every render mode.
+
+### Added
+- **Admin-only avatar icon picker** — the profile owner (role `ADMIN`) can set any of the 103 level icons as their avatar; enforced server-side (session + role check + whitelist validation), invisible to everyone else.
+
 ## [1.5.0] - 2026-07-10
 
 > Evergreen sweep 2026-07 (PR #74): every dependency pushed to its absolute-newest published version in any channel, every-package idiom audit + fixes, dead-code purge (net −9k lines), docs overhaul, and a competitive accuracy benchmark locked in as a regression suite — shipped through a pre-merge adversarial review pass whose confirmed findings (including two criticals) are all fixed below.

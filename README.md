@@ -15,7 +15,7 @@
 
 ### What's New
 
-> **Current release: v1.5.0** — the 2026-07 evergreen sweep: every dependency at its absolute-newest published version (TypeScript 7.1 native compiler as the typecheck gate for 8 of 10 packages), React Compiler enabled, real cross-instance GraphQL subscriptions, a competitive-accuracy regression suite, a net −9k-line dead-code purge, and a pre-merge adversarial review whose findings (including a years-old CAS infinite loop) are all fixed. Full detail in [CHANGELOG.md](CHANGELOG.md).
+> **Current release: v1.5.1** — hotfix restoring avatars, comment upvotes, comment posting, Lorenz particles, ODE auto-fit, and the PDE 3D colormap (see CHANGELOG), on top of the 2026-07 evergreen sweep: every dependency at its absolute-newest published version (TypeScript 7.1 native compiler as the typecheck gate for 8 of 10 packages), React Compiler enabled, real cross-instance GraphQL subscriptions, a competitive-accuracy regression suite, a net −9k-line dead-code purge, and a pre-merge adversarial review whose findings (including a years-old CAS infinite loop) are all fixed. Full detail in [CHANGELOG.md](CHANGELOG.md).
 
 <details>
 <summary><strong>Highlights</strong></summary>
