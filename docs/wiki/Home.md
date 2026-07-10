@@ -23,22 +23,22 @@ NextCalc Pro is a comprehensive scientific calculator and mathematical visualiza
 
 ---
 
-## Latest Updates (v1.4.0)
+## Latest Updates (v1.5.0)
+
+- **Evergreen dependency sweep**: every dependency at its absolute-newest published version in any channel — Next.js 16.3 canary, React 19.3 canary, graphql 17, Vitest 5, Prisma 7.9, pnpm 11 GA — and **TypeScript 7.1 (native Go compiler) is now the blocking typecheck gate for 8 of the 10 packages** (full-workspace typecheck ~6 min → ~22 s); `@nextcalc/web` and `@nextcalc/plot-engine` remain on classic TypeScript 6.0.x pending upstream fixes -- see [[Architecture]]
+- **React Compiler enabled** across the web app, plus GraphQL fragment masking with `useFragment`
+- **Real cross-instance GraphQL subscriptions**: Redis Streams events are actually consumed (overlap-proof, tip-anchored polling) — multi-instance SSE delivery now works
+- **Plot correctness**: adaptive-sampling fixes (grid-resonance aliasing that flattened functions like sin(10πx), lost discontinuity breaks at asymptotes, an inverted refinement criterion), bounded sample cache, stale-geometry and VAO fixes — see [[Plot-Engine]]
+- **Math engine**: `Complex.pow` for arbitrary exponents, compound unit expressions (`km/h`, `kg*m/s^2`), a 16-problem competitive-accuracy regression suite, and CAS polynomial-division fixes including a long-masked infinite loop in `lcmPolynomials` — see [[Math-Engine]]
+- **Localization**: the full worksheets namespace now exists, properly translated, in all 8 locales
+- **Dead-code purge**: ~115 dead files removed (net −9k lines), shipped through a pre-merge adversarial review (42 agents; 19/20 findings confirmed and fixed)
+
+### Previously (v1.4.0)
 
 - **Forum localization fix**: post views, upvotes, and relative timestamps now render in your selected locale — they were using the runtime default across all 7 non-English locales (ru, es, uk, de, fr, ja, zh)
 - **Idiom modernization** (behavior-preserving): code rewritten to the newest idioms of each pinned dependency — Zod 4 (`z.url()`/`z.uuid()`), `motion/react`, Tailwind v4 `bg-linear-*/oklab` + `size-*`, React 19.3 `useEffectEvent`, shadcn `data-slot` across all UI primitives, Hono `zValidator` across all 3 Workers
 - **Observability**: real Sentry capture wired (manual errors + error boundaries were console-only) and `instrumentation-client.ts` migration (restores client-side Sentry/navigation tracing under Turbopack)
-- **TS7-forward**: the advisory `tsgo` (TypeScript 7 native preview) typecheck shipped green in v1.4.0 across the non-Three.js-TSL packages. It has since graduated: TypeScript 7 native is now the real, blocking `typecheck` gate for 8 of the 10 packages (the standalone advisory job was removed). `@nextcalc/web` and `@nextcalc/plot-engine` remain on classic TypeScript 6.0.x pending upstream fixes -- see [[Architecture]]
-
-### Previously (v1.3.0)
-
-- **Push-to-newest modernization**: every dependency upgraded to its absolute-newest channel — Next.js 16.3, React 19.3, TypeScript 6.0.3, Apollo Server 5.5.1 / Client 4.3, Prisma 7.9, Tailwind 4.3, Three.js 0.184, Biome 2.5.1, Vitest 5, next-intl 4.13 — with code migrated to each version's current idioms
-- **Stricter TypeScript**: re-enabled `exactOptionalPropertyTypes`, `noPropertyAccessFromIndexSignature`, and `noUnusedLocals` across web + api (143 real fixes, zero `as any`)
-- **Accessibility**: ZKP commitment-cell grid restructured to a WAI-ARIA `grid`/`row`/`gridcell` pattern (axe-core verified)
-- **Auth**: client session migrated to NextAuth (Auth.js v5) `SessionProvider` + a `useSession` adapter — one shared session context replaces per-component fetch/poll
-- **Design**: topic colors and box-shadows moved to semantic OKLCH tokens (verified pixel-identical, zero visual change)
-- **math-engine**: iterative cycle-detection DFS (no recursion-depth limits); `astEquals` deduplicated to a single canonical, unary-aware implementation
-- **Documentation**: codebase-verified audit of all 38 Markdown files; the GitHub wiki re-synced to match
+- **TS7-forward**: the advisory `tsgo` (TypeScript 7 native preview) typecheck shipped green across the non-Three.js-TSL packages — the groundwork for v1.5.0's native gate
 
 ---
 

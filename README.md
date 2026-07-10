@@ -15,7 +15,7 @@
 
 ### What's New
 
-> **Current release: v1.4.0** — idiom modernization across the stack (the newest idioms of each pinned dependency, behavior-preserving) plus a forum localization fix, built on the v1.3.0 push-to-newest dependency sweep. Full detail in [CHANGELOG.md](CHANGELOG.md).
+> **Current release: v1.5.0** — the 2026-07 evergreen sweep: every dependency at its absolute-newest published version (TypeScript 7.1 native compiler as the typecheck gate for 8 of 10 packages), React Compiler enabled, real cross-instance GraphQL subscriptions, a competitive-accuracy regression suite, a net −9k-line dead-code purge, and a pre-merge adversarial review whose findings (including a years-old CAS infinite loop) are all fixed. Full detail in [CHANGELOG.md](CHANGELOG.md).
 
 <details>
 <summary><strong>Highlights</strong></summary>

@@ -2,9 +2,9 @@
 
 All notable changes to NextCalc Pro are documented in this file.
 
-## [Unreleased]
+## [1.5.0] - 2026-07-10
 
-> Evergreen sweep 2026-07 (branch `chore/evergreen-sweep-2026-07`): every dependency pushed to its absolute-newest published version in any channel, every-package idiom audit + fixes, dead-code purge (net −9k lines), docs overhaul, and a competitive accuracy benchmark locked in as a regression suite.
+> Evergreen sweep 2026-07 (PR #74): every dependency pushed to its absolute-newest published version in any channel, every-package idiom audit + fixes, dead-code purge (net −9k lines), docs overhaul, and a competitive accuracy benchmark locked in as a regression suite — shipped through a pre-merge adversarial review pass whose confirmed findings (including two criticals) are all fixed below.
 
 ### Dependencies (headline bumps)
 - **TypeScript 7.1.0-dev nightly (native Go compiler) is now the typecheck gate for 8 of 10 packages** — full-workspace typecheck dropped from ~6 min to ~22 s. `apps/web` and `packages/plot-engine` stay on tsc 6.0.3 (upstream blockers: Next's build checker + graphql-codegen need the TS JS API shipping in 7.1; three.js TSL node-union types hang typescript-go). `@typescript/native-preview`, the tsgo advisory CI job, and all `typecheck:fast` scripts removed — the gate itself is native now.
