@@ -54,7 +54,7 @@ cd apps/workers/export-service && pnpm run deploy
 cd apps/workers/rate-limiter && pnpm run deploy
 ```
 
-Or via GitHub Actions: `.github/workflows/deploy-workers.yml` triggers on changes to `apps/workers/` and `pnpm-lock.yaml`, and supports `workflow_dispatch` for manual runs. Requires `CLOUDFLARE_API_TOKEN` GitHub secret. Each worker deploys independently (`fail-fast: false`). Uses `actions/checkout@v6` and `actions/setup-node@v6`.
+Or via GitHub Actions: `.github/workflows/deploy-workers.yml` triggers on changes to `apps/workers/` and `pnpm-lock.yaml`, and supports `workflow_dispatch` for manual runs. Requires `CLOUDFLARE_API_TOKEN` GitHub secret. Each worker deploys independently (`fail-fast: false`). Uses `actions/checkout@v7` and `actions/setup-node@v6`.
 
 ### Worker URLs
 
@@ -68,16 +68,15 @@ Or via GitHub Actions: `.github/workflows/deploy-workers.yml` triggers on change
 
 ## CI/CD Pipeline
 
-`.github/workflows/ci.yml` runs on every push (6 jobs, all passing as of v1.2.2):
+`.github/workflows/ci.yml` runs on every push (5 jobs, all passing):
 
 1. **Install** -- pnpm install + dependency caching
-2. **Lint** -- Biome 2.5.1
-3. **Typecheck** -- TypeScript 6.0.3
-4. **Typecheck (TS7 tsgo, advisory)** -- `typecheck:fast` via tsgo; non-blocking (`continue-on-error`), surfaces TS7-forward issues without blocking merges.
-5. **Test** -- Vitest
-6. **Build** -- Turborepo (all packages). Requires `AUTH_SECRET` env var for NextAuth.
+2. **Lint** -- Biome
+3. **Typecheck** -- TypeScript 7 native gates 8/10 packages; `@nextcalc/web` and `@nextcalc/plot-engine` stay on classic `tsc` 6.0.x (upstream blockers -- see [[Home]] and `DEVELOPMENT.md`). One job, no separate advisory track.
+4. **Test** -- Vitest
+5. **Build** -- Turborepo (all packages). Requires `AUTH_SECRET` env var for NextAuth.
 
-**CI tooling** (v1.2.2): `actions/checkout@v6`, `actions/setup-node@v6`, and `pnpm/action-setup@v6` (pnpm 11). CI runs on Node 26, while the Vercel runtime caps at Node 24.x.
+**CI tooling**: `actions/checkout@v7`, `actions/setup-node@v6`, and `pnpm/action-setup@v6` (pnpm 11 GA). CI runs on Node 26, while the Vercel runtime caps at Node 24.x.
 
 ---
 

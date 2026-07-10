@@ -4,8 +4,59 @@ All notable changes to NextCalc Pro are documented in this file.
 
 ## [Unreleased]
 
+> Evergreen sweep 2026-07 (branch `chore/evergreen-sweep-2026-07`): every dependency pushed to its absolute-newest published version in any channel, every-package idiom audit + fixes, dead-code purge (net −9k lines), docs overhaul, and a competitive accuracy benchmark locked in as a regression suite.
+
+### Dependencies (headline bumps)
+- **TypeScript 7.1.0-dev nightly (native Go compiler) is now the typecheck gate for 8 of 10 packages** — full-workspace typecheck dropped from ~6 min to ~22 s. `apps/web` and `packages/plot-engine` stay on tsc 6.0.3 (upstream blockers: Next's build checker + graphql-codegen need the TS JS API shipping in 7.1; three.js TSL node-union types hang typescript-go). `@typescript/native-preview`, the tsgo advisory CI job, and all `typecheck:fast` scripts removed — the gate itself is native now.
+- **pnpm 11.0.0-alpha.11 → 11.11.0 GA** — supply-chain defaults on (`minimumReleaseAge` with recorded exclusions for <24 h pins), `.npmrc` deleted (alpha-era settings superseded), CI resolves pnpm from `packageManager`.
+- next 16.3.0-canary.81, react/react-dom 19.3.0-canary (2026-07-08), graphql 17.0.2, @cloudflare/workers-types **v5**, vitest 5.0.0-beta.6, hono 4.12.28 (security fixes: SSR context leak, XSS, CORS bypass), immer 11.1.11 (prototype-pollution fix), radix-ui 1.6.3-rc, zod 4.5.0-canary, @apollo/client 4.3.0-alpha.2, prisma 7.9.0-dev.19, wrangler 4.110.0, turbo 2.10.5-canary.4, @sentry/nextjs 10.64.0, playwright 1.62.0-alpha, plus ~35 more. All remaining `^` ranges pinned exact.
+
+### Added
+- **React Compiler enabled** (`reactCompiler: true`, stable top-level option in Next 16.3) — automatic memoization at build time across the whole web app.
+- **GraphQL fragment masking + `useFragment`** — the upstream blocker (client-preset "spread.directives is not iterable" under graphql 17) was fixed in client-preset 6.1.0; `UserSummary`/`PublicUserSummary` fragments now replace 10+ duplicated selection sets, with masked fragment types flowing to child components.
+- **`Complex.pow` supports arbitrary real and complex exponents** (principal branch, `z^w = exp(w·Log z)`) — `i^i` now evaluates to `e^(−π/2)`; integer fast path unchanged.
+- **Compound unit expressions** in the math engine — `findUnit`/`createQuantity` now parse `km/h`, `m/s^2`, `kg*m/s^2` etc., composing dimensions and linear conversion factors.
+- **Competitive accuracy regression suite** — 16 ground-truth problems (hand-verified during the July 2026 competitive analysis vs Wolfram Alpha/Symbolab/GeoGebra), including edge cases where commercial solvers disagree; the engine passes 17/17 checks in ~6 ms total.
+- **Real cross-instance GraphQL subscriptions** — Redis Streams events are now actually consumed (instance-tagged XADD + polling XRANGE merged into the local PubSub iterator); previously published events were never read, so multi-instance SSE delivery silently didn't exist. The poller is a self-scheduling loop (a slow round-trip can never overlap the next tick and double-deliver) with its cursor anchored to the stream's own tip ID rather than the local clock, and payloads round-trip through the Upstash client's own serializer — a pre-merge adversarial review caught the initial implementation double-parsing payloads (dropping every cross-instance event) with test mocks that encoded the wrong client contract.
+- **Schema-parity regression test** — the executable schema (gql template in `schema.ts`) and the codegen source (`schema.graphql`) are two hand-maintained copies that had already drifted (`Worksheet.version` existed only in one); a new test asserts bidirectional type/field/argument/directive parity so the drift class is dead.
+- **`WorksheetShare.worksheet` resolver + `worksheetById` DataLoader** — nested share queries previously crashed with a non-nullable field error.
+- **N+1 elimination** — new batched DataLoaders (`worksheetsByUserId`, `foldersByUserId`, `forumPostsByUserId`, `commentsByPostId`); 16 loaders total.
+- **Real Apollo cache control** — the no-op response-caching plugin replaced with `ApolloServerPluginCacheControl` + per-resolver hints on public listings, plus `@cacheControl(inheritMaxAge: true)` on the composite types those roots reach (without it, unhinted child fields forced every policy to maxAge 0 and the hints were inert). Viewer-specific `ForumPost.hasUpvoted` is explicitly `@cacheControl(maxAge: 0, scope: PRIVATE)`; user-scoped types stay unannotated so selecting them keeps responses uncacheable. `updateWorksheet` now increments `Worksheet.version` per the schema contract.
+- **Worksheet `version` exposed in the GraphQL schema** — the SSE collab subscription had been selecting a field that didn't exist, failing schema validation at runtime and silently degrading to polling; caught by migrating the raw query strings to codegen-typed documents.
+
+### Fixed
+- **CAS polynomial division returned reversed quotients and could hang forever** (pre-existing, exposed while shipping this sweep): `dividePolynomials` built ascending coefficients and then `.reverse()`d them into the wrong convention, and a zero remainder in empty-array form sent `gcdPolynomials`→`dividePolynomials` into a synchronous infinite loop — `lcmPolynomials(x−2, x−3)` never returned. Division now canonicalizes polynomials (trailing zeros stripped, zero = `[0]`), throws on zero-polynomial divisors, and exact-value regression tests replaced the `toBeDefined()` assertions that let both bugs pass.
+- **CI's vitest-hang guard could mask real hangs** — `timeout` exit 124 was unconditionally treated as success, which had been hiding the CAS infinite loop for the suite's entire lifetime; 124 is now accepted only when the captured log shows zero failures and zero worker errors.
+- **Apollo Server double-start** — the module-scope default handler and the web route's `createHandler` both started the one shared server; every `next build` logged a startup error. Handlers now own their server instance (via `createApolloServer()`) and the stub-auth default is lazy; the orphaned singleton + SIGTERM block were removed.
+- **Adaptive sampler refinement criterion was inverted** — straight segments subdivided to the 8193-point cap while sharp spikes were accepted as smooth; corrected, with the subdivision probe moved to the golden-ratio conjugate of each cell (kills all grid-commensurate resonance deterministically — `sin(10πx)` previously rendered as a flat line) and the initial budget raised 100→256.
+- **Discontinuity breaks lost in shared sampling** — the sampler silently dropped non-finite/throwing samples, so all three 2D renderers drew chords across asymptotes and domain gaps (e.g. `sqrt(x²−1)` bridged (−1,1)); explicit break markers now split strokes/strips in canvas, WebGL, and WebGPU paths.
+- **Unbounded sample cache** — every pan/zoom frame minted a new viewport key retained until dispose; now a 128-entry LRU.
+- **WebGL3D type errors** — passing a 2D config surfaced an opaque WeakMap TypeError instead of the descriptive unsupported-type error; a `Plot3DConfig` guard now validates before hashing (and makes the mismatch a compile error).
+- **Worksheets i18n namespace missing in half the locales** — the new worksheets page referenced keys that didn't exist: 2 keys missing in all 8 locales, and the entire 24-key `worksheets` namespace missing in ru/es/uk/de; all added, properly translated (ICU plurals for ru/uk).
+- **Stale-geometry bug in the 3D renderer** — the render cache hash ignored the plotted function's identity, so editing a formula with unchanged viewport/resolution kept drawing the old surface.
+- **WebGL2D VAO corruption** — cached vertex-array objects pointed at stale pooled buffers; multiple plotted functions could render garbage. Buffers are now rebound per use and VAOs keyed per function.
+- **Sentry double-initialization** — legacy `sentry.server.config.ts` deleted (instrumentation.ts is the single init point; edge runtime init added).
+- **`.gitignore` anchoring bug** — `public/sw.js` patterns never matched `apps/web/public/`, so the generated service worker churned through 18 commits; now untracked and correctly ignored.
+- **Line endings normalized** — repo-wide `.gitattributes` (`eol=lf`) added; 339 CRLF working-tree files re-smudged.
+- Canvas2D renderer now contains per-sample evaluation errors like the GPU renderers; PNG export uses async `toBlob`; blob URLs revoked safely after download.
+
 ### Changed
+- **Worksheets page is a Server Component** — auth + Prisma query moved server-side (was a client `useEffect`+fetch waterfall); adds `metadata`, `loading.tsx`, and a real signed-out state.
+- **10 algorithm pages converted to Server Components** via `getTranslations`, removing unnecessary client boundaries; breadcrumb/metadata components are now presentational.
+- **Reference-data API routes adopt `use cache`** + `cacheLife`/`cacheTag` (algorithms catalog, knowledge topics) instead of `force-dynamic`.
+- **2D renderers use shared adaptive sampling with per-function caching** (replacing fixed 1000-point resampling every frame); broken worker-serialization sampling path deleted.
+- **Matrix hot loops rewritten** — LU decomposition/row-echelon no longer allocate an immutable Matrix per inner-loop step (was effectively O(n⁵) with O(n³) allocations); `inverse()` no longer computes a redundant determinant.
+- Number-theory helpers (`gcd`/`modPow`/`isPrime`) consolidated to single canonical exports (were reimplemented 5-6×); `|| 0` → `?? 0` at 26 indexed-access fallbacks in transformer code (stops masking NaN).
+- Workers migrated to `wrangler.jsonc` with `compatibility_date` 2026-07-08; hand-rolled R2/resvg ambient types deleted in favor of real package types.
+- `chaos`/`game-theory` now export via standard `./chaos`, `./game-theory` subpaths with index barrels.
+- Locale-aware `Link` everywhere; `size-*` utility adoption; icon-button aria-labels; difficulty badge + calculator/matrix feature cards translated (new keys in all 8 locales).
+- Docs de-hardcoded from exact version strings repo-wide; ROADMAP rewritten forward-looking; new READMEs for `apps/web`, `packages/math-engine`, `packages/database`, `packages/types`, and the wiki sync process; DataLoader table deduplicated to one canonical copy.
 - **Tailwind CSS 4.3.1 → 4.3.2** — patch bump to the latest release. The homepage tech badge now reads "Tailwind 4.3.2" (corrected from a stale "4.3.0").
+
+### Removed
+- ~115 dead files: orphaned static level-icon subsystem (103 SVGs + generator + component), favicon design explorations, unused generic components (`error-boundary`, `algorithm-visualizer`, `math/visualizers`, `calculator-animations`), dead hooks (`use-keyboard-shortcuts`, `use-math-worker`), duplicate `apps/api/prisma/seed.ts`, obsolete handoff spec, one-off PWA icon script, dead lib/auth duplicates, unused sampling worker, ~16 dead shader exports.
+- typedoc (unreferenced by any pipeline; TS7-incompatible), `d3` + `@nextcalc/math-engine` from plot-engine (declared but never imported; −71 packages), `@types/react` from packages/types.
+- Dead `deploy:staging` scripts from all three workers (they invoked a wrangler env that has never existed in any config) and the workers-README section documenting it.
 
 ## [1.4.0] - 2026-06-29
 

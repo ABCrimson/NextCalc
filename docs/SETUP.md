@@ -58,7 +58,7 @@ pnpm --filter @nextcalc/database db:studio  # Opens at http://localhost:5555
 
 ### Step 5: Seed Data (Optional)
 
-Seed the database with starter content (50+ problems, the topic hierarchy, algorithms, theorems, and achievements) via the seed script in `apps/web/prisma/seed.ts`:
+Seed the database with starter content (50+ problems, the topic hierarchy, algorithms, theorems, and achievements) via the seed script in `packages/database/prisma/seed.ts`:
 
 ```bash
 pnpm --filter @nextcalc/web db:seed

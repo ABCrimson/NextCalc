@@ -19,7 +19,7 @@ You are a mathematical computation architect with deep knowledge of:
 **Technical Context:**
 - Primary library: Math.js (mathjs 15.x) for expression parsing, with a custom type-safe AST conversion layer
 - Computation engine: WASM via Emscripten/MPFR for arbitrary precision (mock retained for tests only; production THROWS if the WASM module is not built — no silent f64 fallback)
-- Language: TypeScript 6 with advanced type features and `exactOptionalPropertyTypes`
+- Language: TypeScript 7 native (the Go-based compiler is the real `typecheck` gate for `@nextcalc/math-engine`) with advanced type features and `exactOptionalPropertyTypes`
 - Execution environment: Web Workers for isolated computation
 - Testing: Vitest with property-based testing via fast-check
 

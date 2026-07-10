@@ -1,6 +1,6 @@
 # GraphQL API Reference
 
-The API is served at `/api/graphql` via Apollo Server 5.5.1 integrated into the Next.js app.
+The API is served at `/api/graphql` via Apollo Server 5.5 integrated into the Next.js app.
 
 **Playground**: `http://localhost:3005/api/graphql` (dev) or `https://nextcalc.io/api/graphql`
 
@@ -227,18 +227,26 @@ enum ErrorCode {
 
 ## DataLoaders
 
-11 DataLoader instances for N+1 prevention (created per-request):
-- `userById`
-- `folderById`
-- `worksheetSharesByWorksheetId`
-- `childFoldersByParentId`
-- `upvoteCountByTargetId`
-- `commentCountByPostId`
-- `forumPostById`
-- `commentById`
-- `repliesByParentCommentId`
-- `worksheetsByFolderId`
-- `hasUpvoted` (composite key: `userId:targetId:targetType`)
+This is the canonical, up-to-date list of DataLoader instances (defined in `apps/api/src/lib/dataloaders.ts`, created fresh per-request for N+1 prevention). Other docs (root `ARCHITECTURE.md`, `apps/api/README.md`, `docs/wiki/Architecture.md`) link here instead of duplicating this table -- update it first if the loader set changes.
+
+| DataLoader | Batches |
+|:-----------|:--------|
+| `userById` | `User` lookups by ID |
+| `folderById` | `Folder` lookups by ID |
+| `worksheetById` | `Worksheet` lookups by ID |
+| `worksheetSharesByWorksheetId` | Share records per worksheet |
+| `childFoldersByParentId` | Child folders per parent folder |
+| `upvoteCountByTargetId` | Upvote counts per target |
+| `commentCountByPostId` | Comment counts for post listings |
+| `forumPostById` | Forum post lookups by ID |
+| `commentById` | Comment lookups by ID |
+| `repliesByParentCommentId` | Nested comment replies |
+| `worksheetsByFolderId` | Worksheets per folder |
+| `foldersByUserId` | Folders per user (capped at 200) |
+| `forumPostsByUserId` | Forum posts per user (capped at the default page size, 20) |
+| `commentsByPostId` | Top-level comments per post (capped at 20; excludes replies, which come from `repliesByParentCommentId`) |
+| `worksheetsByUserId` | Worksheets per user for `User.worksheets` default-args listing. Composite key `userId:scope`, where `scope` is `all` (owner/admin, every non-deleted worksheet) or `public` (any other viewer, `PUBLIC` only) -- the scope must be part of the key so a restricted viewer never misses public worksheets that fall outside the target's most recent rows |
+| `hasUpvoted` | Current user's upvote status. Composite key `userId:targetId:targetType` |
 
 ---
 
@@ -272,21 +280,7 @@ This translates to `UPDATE ... SET views = views + 1` at the SQL level, which is
 
 ### DataLoader Optimization
 
-11 DataLoader instances batch and deduplicate database queries within each request:
-
-| DataLoader | Keys | Resolves |
-|:-----------|:-----|:---------|
-| `userById` | User ID | `User` on Worksheet, ForumPost, Comment |
-| `folderById` | Folder ID | `Folder` on Worksheet |
-| `worksheetSharesByWorksheetId` | Worksheet ID | `[WorksheetShare]` on Worksheet |
-| `childFoldersByParentId` | Parent Folder ID | `[Folder]` on Folder |
-| `upvoteCountByTargetId` | Target ID | `Int` on ForumPost, Comment |
-| `commentCountByPostId` | Post ID | `Int` on ForumPost |
-| `forumPostById` | Post ID | `ForumPost` for lookups |
-| `commentById` | Comment ID | `Comment` for lookups |
-| `repliesByParentCommentId` | Parent Comment ID | `[Comment]` nested replies |
-| `worksheetsByFolderId` | Folder ID | `[Worksheet]` on Folder |
-| `hasUpvoted` | Composite key `userId:targetId:targetType` | `Boolean` on ForumPost, Comment |
+DataLoader instances batch and deduplicate database queries within each request. See the canonical table in [DataLoaders](#dataloaders) above for the full, current list and what each batches.
 
 ### Query Complexity Analysis
 

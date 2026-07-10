@@ -10,7 +10,7 @@ Three edge microservices deployed to Cloudflare's global network for sub-50ms re
 | Export Service | `export.nextcalc.io` | LaTeX to PDF/PNG/SVG | R2 bucket |
 | Rate Limiter | `ratelimit.nextcalc.io` | API quota enforcement | Durable Object (+ KV index) |
 
-**Tech**: Hono 4.12, Wrangler 4.104, Zod, TypeScript strict mode
+**Tech**: Hono 4.12, Wrangler 4.x, Zod, TypeScript 7 native, strict mode
 
 ---
 
@@ -86,7 +86,7 @@ cd apps/workers/export-service && pnpm dev   # Port 8787 (default)
 cd apps/workers/rate-limiter && pnpm dev     # Port 8787 (default)
 ```
 
-> **Note:** No custom dev port is configured in any `wrangler.toml`, so each worker defaults to `8787`. To run them concurrently, pass `--port` (e.g. `pnpm dev -- --port 8788`).
+> **Note:** No custom dev port is configured in any `wrangler.jsonc`, so each worker defaults to `8787`. To run them concurrently, pass `--port` (e.g. `pnpm dev -- --port 8788`).
 
 ## Deployment
 
@@ -97,13 +97,13 @@ cd apps/workers/export-service && pnpm run deploy
 cd apps/workers/rate-limiter && pnpm run deploy
 ```
 
-**CI/CD:** Push to `apps/workers/**` or `pnpm-lock.yaml` on `main` triggers `.github/workflows/deploy-workers.yml`. Also supports `workflow_dispatch` for manual runs. Requires the `CLOUDFLARE_API_TOKEN` GitHub secret (the account is hardcoded as `account_id` in each `wrangler.toml`, so no `CLOUDFLARE_ACCOUNT_ID` secret is needed). Each worker deploys independently (`fail-fast: false`). Uses `actions/checkout@v6` and `actions/setup-node@v6`.
+**CI/CD:** Push to `apps/workers/**` or `pnpm-lock.yaml` on `main` triggers `.github/workflows/deploy-workers.yml`. Also supports `workflow_dispatch` for manual runs. Requires the `CLOUDFLARE_API_TOKEN` GitHub secret (the account is hardcoded as `account_id` in each `wrangler.jsonc`, so no `CLOUDFLARE_ACCOUNT_ID` secret is needed). Each worker deploys independently (`fail-fast: false`). Uses `actions/checkout@v7` and `actions/setup-node@v6`.
 
 > **Note:** Use `pnpm run deploy` (not `pnpm deploy`) — pnpm 11 treats `deploy` as a built-in command.
 
 ## Monitoring
 
-All workers have OpenTelemetry observability enabled in `wrangler.toml`. Monitor via Cloudflare Dashboard > Workers & Pages.
+All workers have OpenTelemetry observability enabled in `wrangler.jsonc`. Monitor via Cloudflare Dashboard > Workers & Pages.
 
 ## Security (v1.1.0+)
 
@@ -116,8 +116,8 @@ All workers have OpenTelemetry observability enabled in `wrangler.toml`. Monitor
 
 Common issues and solutions:
 
-- **`wrangler deploy` fails** -- Verify that `CLOUDFLARE_API_TOKEN` is set (GitHub secret or local env) and that `account_id` in `wrangler.toml` matches your Cloudflare account.
+- **`wrangler deploy` fails** -- Verify that `CLOUDFLARE_API_TOKEN` is set (GitHub secret or local env) and that `account_id` in `wrangler.jsonc` matches your Cloudflare account.
 - **CORS errors in browser** -- Check that the `ALLOWED_ORIGINS` environment variable on the worker includes your frontend domain (e.g., `https://nextcalc.io`). Multiple origins can be comma-separated.
-- **Rate limit false positives** -- Ensure Durable Object bindings are correctly configured in `wrangler.toml`. If bindings are missing, the rate limiter cannot track per-client state.
-- **R2 upload failures (export-service)** -- Confirm the R2 bucket binding name in `wrangler.toml` matches the code. Check that the bucket exists via `wrangler r2 bucket list`.
-- **KV read errors (rate-limiter)** -- Verify the KV namespace ID in `wrangler.toml`. Use `wrangler kv namespace list` to confirm.
+- **Rate limit false positives** -- Ensure Durable Object bindings are correctly configured in `wrangler.jsonc`. If bindings are missing, the rate limiter cannot track per-client state.
+- **R2 upload failures (export-service)** -- Confirm the R2 bucket binding name in `wrangler.jsonc` matches the code. Check that the bucket exists via `wrangler r2 bucket list`.
+- **KV read errors (rate-limiter)** -- Verify the KV namespace ID in `wrangler.jsonc`. Use `wrangler kv namespace list` to confirm.

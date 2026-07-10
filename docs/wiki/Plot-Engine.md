@@ -1,6 +1,6 @@
 # Plot Engine
 
-`@nextcalc/plot-engine` is a GPU-accelerated mathematical visualization engine.
+`@nextcalc/plot-engine` is a GPU-accelerated mathematical visualization engine. It is one of two packages in the monorepo still built with classic TypeScript 6.0.x rather than the TypeScript 7 native compiler, because three.js's TSL union types hang the native `typescript-go` checker (see [[Architecture]]).
 
 ## Renderer Pipeline
 
@@ -23,7 +23,7 @@ const renderer = await createBest2DRenderer(canvas);
 
 - **WebGPU 2D Renderer** -- Priority backend; WGSL shaders for cartesian/polar/parametric/implicit/vector-field plots
 - **WebGL 2D Renderer** -- Lightweight (~15KB target), GLSL shaders
-- **Three.js 0.184 3D Renderer** -- Surface plots, parametric curves (lazy-loaded, ~563KB target)
+- **Three.js 0.185-line 3D Renderer** -- Surface plots, parametric curves (lazy-loaded, ~563KB target)
 - **Canvas 2D Fallback** -- Cartesian, polar, parametric for legacy browsers
 - **Adaptive Sampling** -- Recursive subdivision for smooth curves
 - **Interactive Controls** -- 2D: pan, zoom (mouse, touch, keyboard); 3D: orbit/rotate camera

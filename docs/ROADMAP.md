@@ -1,27 +1,32 @@
 # NextCalc Pro - Roadmap
 
-## Modernization (Unreleased — branch `modernization/foundation`, PR #50)
+The push-to-newest modernization and idiom-adoption work tracked here previously (branch `modernization/foundation`, PR #50) has shipped -- see [CHANGELOG.md](../CHANGELOG.md) for the full per-package version delta and idiom rewrites under **[1.3.0]** and **[1.4.0]**. This document now tracks what's genuinely still open.
 
-A push-to-newest dependency modernization plus a full Biome lint sweep (2,222 warnings → 0). The complete per-package version delta and idiom rewrites live in [CHANGELOG.md](../CHANGELOG.md) under **[Unreleased]**.
+## Upstream-Blocked Items
 
-### Done
-- [x] Every dependency pushed to its absolute-newest published version (Next 16.3-preview, React 19.3 canary, TypeScript 6.0.3, GraphQL 17, Apollo 5.5, Prisma 7.9-dev, Three 0.184, Biome 2.5, Turbo 2.10, Vitest 5, Wrangler 4.104, …)
-- [x] Code rewritten to each version's newest idioms (TSL-compute Lorenz particles, GTAO SSAO, next-intl `useFormatter`, serwist 10 `createSerwist`, tagged-PDF export via modern-pdf-lib 0.40)
-- [x] Biome lint sweep → 0 warnings (real fixes; only documented, principled overrides)
-- [x] Wave 4 — `@types/node` 26 + CI Node 26; TS7 `tsgo` advisory (non-blocking) typecheck
-- [x] Dogfood — `modern-cmdk` adopted for the command palette
-- [x] CI Test job green (export-service `modern-pdf-lib` mock realigned with the 0.40.2 API)
+Parked pending changes outside this repo's control. Each has a concrete resume condition.
 
-### Remaining — browser/deploy QA (not verifiable headlessly)
-- [ ] Lorenz GPU particles — verified in a sandbox WebGPU browser; confirm on the deployed site
-- [ ] serwist 10 PWA — service-worker registration verified; the **offline-nav fallback still needs a deployed-site smoke test**
-- [ ] modern-pdf-lib WASM — confirm `initWasm` in the deployed export-service Worker (auto-falls back to pure-JS; valid PDFs either way)
+| Item | Blocked on | Resume condition |
+|:-----|:-----------|:------------------|
+| **TypeScript 7 unification** for `@nextcalc/web` and `@nextcalc/plot-engine` | Next.js's build-time type checker and `graphql-codegen` both need the TypeScript **JS API**, which doesn't ship until TS 7.1; separately, three.js's TSL union types hang the native `typescript-go` checker (upstream limitation) | TS 7.1 ships its JS API **and** Next.js adds native-compiler support **and** the TSL type-expansion issue is fixed upstream in `typescript-go`. See [DEVELOPMENT.md](../DEVELOPMENT.md#typescript) for the current split. |
+| **`cacheComponents` (Next.js 16 Partial Prerendering)** ⟂ **next-intl** | [next-intl issue #1493](https://github.com/amannn/next-intl/issues/1493) is still open as of 2026-07 — `cacheComponents` isn't a config flip here, it's a real per-page migration blocked by how next-intl accesses the request locale; a migration attempt was made and reverted | Issue #1493 resolves upstream, or next-intl ships a cacheComponents-compatible locale API |
+| **graphql 17 peer support** | `graphql-ws` and `graphql-sse` (and `@apollo/server`'s own peer range) still pin `graphql@16`; this repo forces `graphql@17` via a `pnpm-workspace.yaml` peer override, not a fork | [graphql-ws PR #672](https://github.com/enisdenjo/graphql-ws/pull/672) merges and ships, and the other packages follow with a `graphql@17` peer range |
 
-### Remaining — provisioning & upstream packages
-- [ ] Verify Cloudflare R2 bucket provisioning + S3 secrets for export-service (`apps/workers/export-service/wrangler.toml` still carries a create-buckets TODO)
-- [ ] MPFR/Emscripten WASM build for math-engine arbitrary precision (currently a JS mock fallback)
-- [ ] Complete i18n placeholder translations — locales are not all at full key parity (en 1,278; others 1,224–1,275)
-- [ ] Upstream: ship `modern-xlsx` wasm-bindgen JS glue (currently broken → XLSX export deferred); expose `modern-pdf-lib` `.wasm` so consumers can pass `pngWasm`/`deflateWasm`
+## WASM Native Build (math-engine arbitrary precision)
+
+`packages/math-engine/src/wasm/` is fully scaffolded (`getWASMManager()`, `getHighPrecision()`), but there is no compiled native module yet -- it **throws in production** if the WASM isn't built (no silent f64 fallback; the mock is test/dev-only). Building the real module needs an Emscripten/MPFR toolchain, which hasn't been set up. This is the last piece of the arbitrary-precision story and remains the single biggest scaffolded-but-unbuilt gap in the codebase.
+
+## Other Open Items
+
+- [ ] Verify Cloudflare R2 bucket provisioning + S3 secrets for export-service (`apps/workers/export-service/wrangler.jsonc` still carries a create-buckets TODO)
+- [ ] Complete i18n key parity — locales are not all at full parity with `en` (see [docs/wiki/Internationalization.md](wiki/Internationalization.md) for current counts)
+- [ ] Upstream: `modern-xlsx` ships without its wasm-bindgen JS glue and fails to import/bundle — XLSX export stays deferred until a working release lands
+- [ ] Upstream: `modern-pdf-lib` ships no `.wasm` binaries in its published dist (`initWasm` always falls back to pure-JS, which still produces valid PDFs) — expose `.wasm` so consumers can pass `pngWasm`/`deflateWasm`
+- [ ] serwist PWA offline-nav fallback — service-worker registration and precaching are verified, but the offline-navigation fallback still needs a smoke test against the deployed site (local `next start` + `git restore public/sw.js` desyncs the precache manifest, so this isn't verifiable headlessly)
+
+## Competitive Feature Roadmap
+
+*Placeholder.* To be filled in by the in-flight competitive analysis (NextCalc Pro vs. Desmos, Wolfram Alpha, GeoGebra, and similar tools). Check back once that analysis lands.
 
 ---
 
@@ -122,7 +127,7 @@ A push-to-newest dependency modernization plus a full Biome lint sweep (2,222 wa
 - [x] Structured JSON logging across API and web app
 - [x] Apollo Server request/error logging plugin
 - [x] Next.js instrumentation hooks (register + onRequestError)
-- [x] Sentry stub configs (activate with DSN + @sentry/nextjs)
+- [x] Real Sentry capture (`@sentry/nextjs`) — manual error capture, breadcrumbs, error boundaries, and `onRequestError` wired via `instrumentation.ts` / `instrumentation-client.ts` (the old client/server stub configs were folded in; activate by setting a DSN)
 - [x] Content Security Policy (CSP) headers -- Nosecone with nonces, HSTS, permissions policy
 - [x] Rate limiter wired to GraphQL SSE stream endpoint
 - [x] `next-intl` configured with ~1,278 translation keys (en) across 48 page routes — 8 locales (en, ru, es, uk, de, fr, ja, zh; not all at full key parity)
@@ -269,8 +274,7 @@ All technical debt items have been addressed as of v1.0.0:
 - [x] 10 named tiers (Novice → Transcendent) + admin-only Architect (L101)
 - [x] OKLCH color progression per level, XP formatting helpers
 - [x] Programmatic crystal SVG component (`LevelIcon`) with 10 visual tiers
-- [x] Pre-generated 103 SVG files via Node.js script (`generate-level-icons.ts`)
-- [x] Static SVG loader component (`LevelIconStatic`)
+- [x] ~~Pre-generated 103 SVG files via Node.js script (`generate-level-icons.ts`)~~ and ~~static SVG loader component (`LevelIconStatic`)~~ -- removed in the 2026-07 evergreen sweep as dead weight; `LevelIcon` renders every tier live and was the only one actually used
 - [x] 3 L101 special variants: Prismatic Crown, Cosmic Nexus, Phoenix Crystal
 - [x] Level icon as default avatar in navigation and profile
 - [x] XP bar with tier name display in profile HeroCard

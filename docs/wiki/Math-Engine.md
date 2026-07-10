@@ -17,8 +17,8 @@
 | Fourier | `@nextcalc/math-engine/fourier` | FFT, IFFT, spectral analysis, Fourier series |
 | Graph Theory | `@nextcalc/math-engine/graph-theory` | MST, SCC, coloring, max flow, TSP |
 | Algorithms | `@nextcalc/math-engine/algorithms` | Sorting, searching, graph, DP, greedy, string algorithms |
-| Game Theory | `@nextcalc/math-engine/game-theory/game-theory` | Nash equilibrium, dominant strategies |
-| Chaos Theory | `@nextcalc/math-engine/chaos/chaos-theory` | Lorenz attractor, bifurcation |
+| Game Theory | `@nextcalc/math-engine/game-theory` | Nash equilibrium, dominant strategies |
+| Chaos Theory | `@nextcalc/math-engine/chaos` | Lorenz attractor, bifurcation |
 | Calculus | `@nextcalc/math-engine/calculus` | Vector calculus, line/surface integrals |
 | Differential | `@nextcalc/math-engine/differential` | ODE/PDE support |
 | Problems | `@nextcalc/math-engine/problems` | Practice problem generation |
