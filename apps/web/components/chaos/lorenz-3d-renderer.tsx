@@ -15,6 +15,7 @@ import {
   uniform,
   vec3,
   vec4,
+  vertexIndex,
 } from 'three/tsl';
 import * as THREE from 'three/webgpu';
 import { PointsNodeMaterial, RenderPipeline, WebGPUBackend, WebGPURenderer } from 'three/webgpu';
@@ -195,7 +196,9 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
     // --- Camera ---
     const camera = new THREE.PerspectiveCamera(48, containerWidth / containerHeight, 0.1, 1000);
     camera.position.set(65, 45, 65);
-    camera.lookAt(0, 0, 25);
+    // The trajectory is centroid-centred at the scene origin (see the
+    // normalisation + y-up axis mapping below), so frame the origin.
+    camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
 
     // Track whether the effect is still mounted to guard async init
@@ -254,7 +257,7 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
       controls.zoomSpeed = 1.2;
       controls.minDistance = 30;
       controls.maxDistance = 160;
-      controls.target.set(0, 0, 25);
+      controls.target.set(0, 0, 0);
       controlsRef.current = controls;
 
       controls.addEventListener('start', () => setIsInteracting(true));
@@ -285,13 +288,16 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
       const cz = (Math.min(...zs) + Math.max(...zs)) / 2;
 
       // --- Trail geometry with vertex colors ---
+      // Axis convention: Lorenz math is z-up, THREE is y-up. Map math
+      // (x, y, z) → THREE (x, z, y) so the attractor's z axis is vertical,
+      // agreeing with the floor grid, cage, and GPU particle positionNode.
       const positions: number[] = [];
       const colors: number[] = [];
 
       for (let i = 0; i < data.length; i++) {
         const p = data[i];
         if (!p) continue;
-        positions.push(p.x - cx, p.y - cy, p.z - cz);
+        positions.push(p.x - cx, p.z - cz, p.y - cy);
 
         const t = i / (data.length - 1);
         const c = new THREE.Color();
@@ -351,6 +357,7 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
       scene.add(axesHelper);
 
       const gridHelper = new THREE.GridHelper(80, 16, 0x1a2744, 0x111827);
+      // Vertical (THREE-y) extent is math-z; sit the floor just below it.
       gridHelper.position.y = Math.min(...zs) - cz - 4;
       (gridHelper.material as THREE.Material).transparent = true;
       (gridHelper.material as THREE.Material).opacity = 0.12;
@@ -364,8 +371,9 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
       const cageHalfY = ((Math.max(...ys) - Math.min(...ys)) / 2) * (1 + padFrac);
       const cageHalfZ = ((Math.max(...zs) - Math.min(...zs)) / 2) * (1 + padFrac);
 
-      // THREE.js is y-up; our math uses (x, y, z) → THREE (x-cx, y-cy, z-cz)
-      // where math-z maps to THREE-y.  The cage spans:
+      // THREE.js is y-up; the trajectory maps math (x, y, z) → THREE
+      // (x-cx, z-cz, y-cy), i.e. math-z is vertical. The cage spans the
+      // same swapped extents:
       //   THREE-x: [-cageHalfX, cageHalfX]
       //   THREE-y: [-cageHalfZ, cageHalfZ]   (math z → THREE y)
       //   THREE-z: [-cageHalfY, cageHalfY]   (math y → THREE z)
@@ -487,20 +495,23 @@ export function Lorenz3DRenderer({ data, showCage = false }: Lorenz3DRendererPro
         })().compute(count, [TSL_WORKGROUP_SIZE]);
 
         // --- Render material: PointsNodeMaterial reading from the storage buffer ---
-        // For a THREE.Points draw the per-point index is the VERTEX index, and a
-        // non-instanced draw has instanceIndex === 0 — so reading the storage
-        // buffer via .element(instanceIndex) in the render nodes would collapse
-        // every point onto particle 0. Bind the same storage buffer as a
-        // per-vertex attribute instead (the documented compute-points idiom);
-        // the GPU then fetches the correct vec4 per point. (instanceIndex stays
-        // correct inside the compute kernel, where it is the invocation index.)
-        const particleAttribute = particleBuffer.toAttribute();
+        // For a non-instanced THREE.Points draw the per-point index is the
+        // VERTEX index (instanceIndex is 0 for every point — it is only the
+        // invocation index inside the compute kernel above). Read the storage
+        // buffer by index in the vertex stage: the WGSL builder rebinds it
+        // read-only (`var<storage, read>`) outside compute, so each point
+        // fetches its own vec4 via element(vertexIndex) — the current TSL
+        // compute→render idiom for points.
+        const particle = particleBuffer.element(vertexIndex);
 
-        // positionNode: read the vec4 attribute, subtract centroid to align with trail.
-        const positionNode = particleAttribute.xyz.sub(centroidUniform);
+        // positionNode: centre on the math-space centroid, then swizzle math
+        // (x, y, z) → THREE (x, z, y) so Lorenz-z is vertical, matching the
+        // trail geometry, cage, and floor grid.
+        const centered = particle.xyz.sub(centroidUniform);
+        const positionNode = vec3(centered.x, centered.z, centered.y);
 
         // colorNode: speed-based color (cool blue slow → hot red fast).
-        const speedNode = particleAttribute.w;
+        const speedNode = particle.w;
         // t = min(speed / 50, 1) maps speed to [0,1]
         const t = min(speedNode.div(50), float(1));
         const colorNode = vec3(
