@@ -190,6 +190,21 @@ export class ServiceUnavailableError extends BaseGraphQLError {
 }
 
 /**
+ * Query complexity exceeded the configured limit (DoS protection).
+ *
+ * Uses Apollo's GRAPHQL_VALIDATION_FAILED code since a too-complex query is
+ * effectively rejected at validation time, before any resolver runs.
+ */
+export class QueryComplexityError extends BaseGraphQLError {
+  constructor(complexity: number, maxComplexity: number) {
+    super(`Query too complex: ${complexity} (max: ${maxComplexity})`, 'GRAPHQL_VALIDATION_FAILED', {
+      statusCode: 400,
+      extensions: { complexity, maxComplexity },
+    });
+  }
+}
+
+/**
  * Helper to check if an error is a custom GraphQL error
  */
 export const isGraphQLError = (error: unknown): error is BaseGraphQLError => {

@@ -253,11 +253,16 @@ function createMockLoaders() {
   return {
     userById: { load: vi.fn().mockResolvedValue(mockUser) },
     folderById: { load: vi.fn().mockResolvedValue(mockFolder) },
+    worksheetById: { load: vi.fn().mockResolvedValue(mockWorksheet) },
     worksheetSharesByWorksheetId: { load: vi.fn().mockResolvedValue([]) },
     childFoldersByParentId: { load: vi.fn().mockResolvedValue([]) },
     upvoteCountByTargetId: { load: vi.fn().mockResolvedValue(0) },
     commentCountByPostId: { load: vi.fn().mockResolvedValue(0) },
     worksheetsByFolderId: { load: vi.fn().mockResolvedValue([]) },
+    worksheetsByUserId: { load: vi.fn().mockResolvedValue([]) },
+    foldersByUserId: { load: vi.fn().mockResolvedValue([]) },
+    forumPostsByUserId: { load: vi.fn().mockResolvedValue([]) },
+    commentsByPostId: { load: vi.fn().mockResolvedValue([]) },
     forumPostById: { load: vi.fn().mockResolvedValue(null) },
     commentById: { load: vi.fn().mockResolvedValue(null) },
     repliesByParentCommentId: { load: vi.fn().mockResolvedValue([]) },
@@ -344,70 +349,84 @@ describe('User Resolvers', () => {
   });
 
   describe('User field resolvers', () => {
-    it('worksheets – returns all worksheets for owner', async () => {
-      const prisma = createMockPrisma();
-      prisma.worksheet.findMany.mockResolvedValue([mockWorksheet]);
-      const ctx = userContext(prisma);
+    it('worksheets – default args load via worksheetsByUserId DataLoader (scope "all" for owner)', async () => {
+      const loaders = createMockLoaders();
+      loaders.worksheetsByUserId.load.mockResolvedValue([mockWorksheet]);
+      const ctx = makeContext({ loaders: loaders as unknown as GraphQLContext['loaders'] });
 
       const result = await userResolvers.User.worksheets(mockUser, {}, ctx);
       expect(result).toEqual([mockWorksheet]);
-      // Owner: no visibility filter added
-      expect(prisma.worksheet.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: expect.objectContaining({ userId: 'user1', deletedAt: null }),
-        }),
-      );
+      // Owner viewing their own worksheets => "all" scope (no visibility filter)
+      expect(loaders.worksheetsByUserId.load).toHaveBeenCalledWith('user1:all');
     });
 
-    it('worksheets – restricts to PUBLIC when viewed by another user', async () => {
-      const prisma = createMockPrisma();
-      prisma.worksheet.findMany.mockResolvedValue([]);
+    it('worksheets – default args use "public" scope when viewed by another user', async () => {
+      const loaders = createMockLoaders();
+      loaders.worksheetsByUserId.load.mockResolvedValue([]);
       const ctx = makeContext({
         user: mockOtherUser,
-        prisma: prisma as unknown as GraphQLContext['prisma'],
+        loaders: loaders as unknown as GraphQLContext['loaders'],
       });
 
       await userResolvers.User.worksheets(mockUser, {}, ctx);
 
-      const callArg = (prisma.worksheet.findMany as Mock).mock.calls[0]?.[0];
-      expect(callArg.where.visibility).toBe('PUBLIC');
+      expect(loaders.worksheetsByUserId.load).toHaveBeenCalledWith('user1:public');
     });
 
-    it('worksheets – respects visibility filter for owner', async () => {
+    it('worksheets – admin viewing another user gets "all" scope', async () => {
+      const loaders = createMockLoaders();
+      loaders.worksheetsByUserId.load.mockResolvedValue([]);
+      const ctx = makeContext({
+        user: mockAdmin,
+        loaders: loaders as unknown as GraphQLContext['loaders'],
+      });
+
+      await userResolvers.User.worksheets(mockUser, {}, ctx);
+
+      expect(loaders.worksheetsByUserId.load).toHaveBeenCalledWith('user1:all');
+    });
+
+    it('worksheets – respects visibility filter for owner (bypasses the DataLoader)', async () => {
       const prisma = createMockPrisma();
       prisma.worksheet.findMany.mockResolvedValue([]);
-      const ctx = userContext(prisma);
+      const loaders = createMockLoaders();
+      const ctx = makeContext({
+        prisma: prisma as unknown as GraphQLContext['prisma'],
+        loaders: loaders as unknown as GraphQLContext['loaders'],
+      });
 
       await userResolvers.User.worksheets(mockUser, { visibility: 'UNLISTED' }, ctx);
 
       const callArg = (prisma.worksheet.findMany as Mock).mock.calls[0]?.[0];
       expect(callArg.where.visibility).toBe('UNLISTED');
+      expect(loaders.worksheetsByUserId.load).not.toHaveBeenCalled();
     });
 
-    it('worksheets – uses default limit of 20 when not specified', async () => {
+    it('worksheets – custom limit/offset bypasses the DataLoader and hits Prisma directly', async () => {
       const prisma = createMockPrisma();
       prisma.worksheet.findMany.mockResolvedValue([]);
-      const ctx = userContext(prisma);
+      const loaders = createMockLoaders();
+      const ctx = makeContext({
+        prisma: prisma as unknown as GraphQLContext['prisma'],
+        loaders: loaders as unknown as GraphQLContext['loaders'],
+      });
 
-      await userResolvers.User.worksheets(mockUser, {}, ctx);
+      await userResolvers.User.worksheets(mockUser, { limit: 5, offset: 10 }, ctx);
 
       const callArg = (prisma.worksheet.findMany as Mock).mock.calls[0]?.[0];
-      expect(callArg.take).toBe(20);
-      expect(callArg.skip).toBe(0);
+      expect(callArg.take).toBe(5);
+      expect(callArg.skip).toBe(10);
+      expect(loaders.worksheetsByUserId.load).not.toHaveBeenCalled();
     });
 
-    it('folders – returns user folders ordered by name', async () => {
-      const prisma = createMockPrisma();
-      prisma.folder.findMany.mockResolvedValue([mockFolder]);
-      const ctx = userContext(prisma);
+    it('folders – loads via foldersByUserId DataLoader', async () => {
+      const loaders = createMockLoaders();
+      loaders.foldersByUserId.load.mockResolvedValue([mockFolder]);
+      const ctx = makeContext({ loaders: loaders as unknown as GraphQLContext['loaders'] });
 
       const result = await userResolvers.User.folders(mockUser, {}, ctx);
       expect(result).toEqual([mockFolder]);
-      expect(prisma.folder.findMany).toHaveBeenCalledWith({
-        where: { userId: 'user1' },
-        orderBy: { name: 'asc' },
-        take: 200,
-      });
+      expect(loaders.foldersByUserId.load).toHaveBeenCalledWith('user1');
     });
 
     it('worksheetCount – returns total non-deleted worksheet count', async () => {
@@ -422,17 +441,32 @@ describe('User Resolvers', () => {
       });
     });
 
-    it('forumPosts – returns user posts with pagination defaults', async () => {
-      const prisma = createMockPrisma();
-      prisma.forumPost.findMany.mockResolvedValue([mockForumPost]);
-      const ctx = userContext(prisma);
+    it('forumPosts – default args load via forumPostsByUserId DataLoader', async () => {
+      const loaders = createMockLoaders();
+      loaders.forumPostsByUserId.load.mockResolvedValue([mockForumPost]);
+      const ctx = makeContext({ loaders: loaders as unknown as GraphQLContext['loaders'] });
 
       const result = await userResolvers.User.forumPosts(mockUser, {}, ctx);
       expect(result).toEqual([mockForumPost]);
+      expect(loaders.forumPostsByUserId.load).toHaveBeenCalledWith('user1');
+    });
+
+    it('forumPosts – custom limit/offset bypasses the DataLoader and hits Prisma directly', async () => {
+      const prisma = createMockPrisma();
+      prisma.forumPost.findMany.mockResolvedValue([mockForumPost]);
+      const loaders = createMockLoaders();
+      const ctx = makeContext({
+        prisma: prisma as unknown as GraphQLContext['prisma'],
+        loaders: loaders as unknown as GraphQLContext['loaders'],
+      });
+
+      const result = await userResolvers.User.forumPosts(mockUser, { limit: 5, offset: 10 }, ctx);
+      expect(result).toEqual([mockForumPost]);
       const callArg = (prisma.forumPost.findMany as Mock).mock.calls[0]?.[0];
-      expect(callArg.take).toBe(20);
-      expect(callArg.skip).toBe(0);
+      expect(callArg.take).toBe(5);
+      expect(callArg.skip).toBe(10);
       expect(callArg.where.deletedAt).toBeNull();
+      expect(loaders.forumPostsByUserId.load).not.toHaveBeenCalled();
     });
   });
 });
@@ -945,6 +979,37 @@ describe('Worksheet Resolvers', () => {
       const result = await worksheetResolvers.Worksheet.shares(mockWorksheet, {}, ctx);
       expect(result).toEqual(shareEntry);
       expect(loaders.worksheetSharesByWorksheetId.load).toHaveBeenCalledWith('ws1');
+    });
+  });
+
+  describe('WorksheetShare field resolvers', () => {
+    // Exercises the full worksheet { shares { worksheet { id } } } shape:
+    // Worksheet.shares -> worksheetSharesByWorksheetId loader, then each
+    // share's WorksheetShare.worksheet -> worksheetById loader.
+    it('worksheet { shares { worksheet { id } } } resolves the nested worksheet via worksheetById', async () => {
+      const share = { id: 'share1', worksheetId: 'ws1', sharedWith: 'collab@test.com' };
+      const loaders = createMockLoaders();
+      loaders.worksheetSharesByWorksheetId.load.mockResolvedValue([share]);
+      loaders.worksheetById.load.mockResolvedValue(mockWorksheet);
+      const ctx = makeContext({ loaders: loaders as unknown as GraphQLContext['loaders'] });
+
+      const shares = await worksheetResolvers.Worksheet.shares(mockWorksheet, {}, ctx);
+      expect(shares).toEqual([share]);
+
+      const resolvedWorksheet = await worksheetResolvers.WorksheetShare.worksheet(share, {}, ctx);
+      expect(resolvedWorksheet).toEqual(mockWorksheet);
+      expect(loaders.worksheetById.load).toHaveBeenCalledWith('ws1');
+    });
+
+    it('worksheet – throws NotFoundError when the worksheet is truly missing', async () => {
+      const share = { id: 'share1', worksheetId: 'missing-ws', sharedWith: 'collab@test.com' };
+      const loaders = createMockLoaders();
+      loaders.worksheetById.load.mockResolvedValue(null);
+      const ctx = makeContext({ loaders: loaders as unknown as GraphQLContext['loaders'] });
+
+      await expect(worksheetResolvers.WorksheetShare.worksheet(share, {}, ctx)).rejects.toThrow(
+        'not found',
+      );
     });
   });
 });
@@ -1767,15 +1832,36 @@ describe('Forum Resolvers', () => {
       expect(loaders.userById.load).toHaveBeenCalledWith('user1');
     });
 
-    it('comments – returns top-level comments only', async () => {
-      const prisma = createMockPrisma();
-      prisma.comment.findMany.mockResolvedValue([mockComment]);
-      const ctx = userContext(prisma);
+    it('comments – default args load via commentsByPostId DataLoader', async () => {
+      const loaders = createMockLoaders();
+      loaders.commentsByPostId.load.mockResolvedValue([mockComment]);
+      const ctx = makeContext({ loaders: loaders as unknown as GraphQLContext['loaders'] });
 
       const result = await forumResolvers.ForumPost.comments(mockForumPost, {}, ctx);
       expect(result).toEqual([mockComment]);
+      expect(loaders.commentsByPostId.load).toHaveBeenCalledWith(CUID_POST);
+    });
+
+    it('comments – custom limit/offset bypasses the DataLoader and hits Prisma directly (top-level only)', async () => {
+      const prisma = createMockPrisma();
+      prisma.comment.findMany.mockResolvedValue([mockComment]);
+      const loaders = createMockLoaders();
+      const ctx = makeContext({
+        prisma: prisma as unknown as GraphQLContext['prisma'],
+        loaders: loaders as unknown as GraphQLContext['loaders'],
+      });
+
+      const result = await forumResolvers.ForumPost.comments(
+        mockForumPost,
+        { limit: 5, offset: 10 },
+        ctx,
+      );
+      expect(result).toEqual([mockComment]);
       const callArg = (prisma.comment.findMany as Mock).mock.calls[0]?.[0];
       expect(callArg.where.parentId).toBeNull();
+      expect(callArg.take).toBe(5);
+      expect(callArg.skip).toBe(10);
+      expect(loaders.commentsByPostId.load).not.toHaveBeenCalled();
     });
 
     it('upvoteCount – loads count via DataLoader', async () => {

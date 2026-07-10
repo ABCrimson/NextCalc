@@ -13,6 +13,7 @@ import type {
   GraphQLRequestListener,
 } from '@apollo/server';
 import type { GraphQLContext } from '../lib/context';
+import { QueryComplexityError } from '../lib/errors';
 import { logger } from '../lib/logger';
 import { sendError, sendMetrics, sendUsage } from '../lib/monitoring';
 
@@ -112,33 +113,6 @@ export const performanceMonitoringPlugin = (): ApolloServerPlugin<GraphQLContext
 });
 
 /**
- * Response caching hints for queries.
- */
-export const responseCachingPlugin = (): ApolloServerPlugin<GraphQLContext> => ({
-  async requestDidStart() {
-    return {
-      async willSendResponse(requestContext) {
-        if (requestContext.operation?.operation === 'query' && !requestContext.errors?.length) {
-          let scope: 'PRIVATE' | 'PUBLIC' = 'PRIVATE';
-          let maxAge = 60;
-
-          if (requestContext.operationName?.includes('public')) {
-            scope = 'PUBLIC';
-            maxAge = 300;
-          }
-
-          logger.debug('Cache hint applied', {
-            operationName: requestContext.operationName ?? 'anonymous',
-            scope,
-            maxAge,
-          });
-        }
-      },
-    };
-  },
-});
-
-/**
  * Count selections recursively to compute query complexity.
  *
  * Each leaf field contributes a base cost of 1. Nested selection sets
@@ -195,7 +169,7 @@ export const queryComplexityPlugin = (
         const estimatedComplexity = countSelections(selections, 10);
 
         if (estimatedComplexity > maxComplexity) {
-          throw new Error(`Query too complex: ${estimatedComplexity} (max: ${maxComplexity})`);
+          throw new QueryComplexityError(estimatedComplexity, maxComplexity);
         }
       },
     };

@@ -53,6 +53,7 @@ export const resolvers = {
   // Type resolvers
   User: userResolvers.User,
   Worksheet: worksheetResolvers.Worksheet,
+  WorksheetShare: worksheetResolvers.WorksheetShare,
   Folder: folderResolvers.Folder,
   ForumPost: forumResolvers.ForumPost,
   Comment: commentResolvers.Comment,

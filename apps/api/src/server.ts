@@ -11,22 +11,24 @@
  */
 
 import { ApolloServer } from '@apollo/server';
+import { unwrapResolverError } from '@apollo/server/errors';
+import { ApolloServerPluginCacheControl } from '@apollo/server/plugin/cacheControl';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import {
   ApolloServerPluginLandingPageLocalDefault,
   ApolloServerPluginLandingPageProductionDefault,
 } from '@apollo/server/plugin/landingPage/default';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import type { GraphQLFormattedError } from 'graphql';
+import { GraphQLError, type GraphQLFormattedError } from 'graphql';
 import { resolvers } from './graphql/resolvers';
 import { typeDefs } from './graphql/schema';
 import type { GraphQLContext } from './lib/context';
 import { createDataLoaders } from './lib/dataloaders';
+import { sanitizeError } from './lib/errors';
 import {
   errorTrackingPlugin,
   performanceMonitoringPlugin,
   queryComplexityPlugin,
-  responseCachingPlugin,
   usageReportingPlugin,
 } from './plugins';
 
@@ -42,27 +44,40 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
  * AS5 formatError using unwrapResolverError
  *
  * unwrapResolverError extracts the original error thrown by the resolver,
- * stripping away Apollo's wrapper. Error logging is handled by
- * errorTrackingPlugin (didEncounterErrors hook) — formatError only
- * masks internal details in production responses.
+ * stripping away Apollo's wrapper, so we can tell whether the error was one
+ * of our structured BaseGraphQLError subclasses or an arbitrary thrown
+ * value. Masking itself is delegated entirely to `sanitizeError` (lib/errors.ts)
+ * — the single implementation of "hide internal details in production" —
+ * instead of duplicating that logic here. Error logging is handled
+ * separately by errorTrackingPlugin (didEncounterErrors hook).
  */
 const formatError = (
   formattedError: GraphQLFormattedError,
-  _error: unknown,
+  error: unknown,
 ): GraphQLFormattedError => {
-  // In production, mask internal server errors to avoid leaking implementation details
-  if (
-    !isDevelopment &&
-    (formattedError.extensions?.['code'] === 'INTERNAL_SERVER_ERROR' ||
-      !formattedError.extensions?.['code'])
-  ) {
-    return {
-      message: 'An internal error occurred',
-      extensions: { code: 'INTERNAL_SERVER_ERROR' },
-    };
+  const originalError = unwrapResolverError(error);
+
+  // Reconstruct a GraphQLError to run through sanitizeError. When the
+  // original error already is one (the common case — BaseGraphQLError
+  // subclasses and graphql-js validation/parse errors), reuse it directly
+  // so extensions/path/locations are preserved exactly.
+  const graphQLError =
+    originalError instanceof GraphQLError
+      ? originalError
+      : new GraphQLError(formattedError.message, { extensions: formattedError.extensions });
+
+  const sanitized = sanitizeError(graphQLError);
+
+  // sanitizeError left the error untouched (dev mode, or a non-internal
+  // error code) — return Apollo's fully formatted error unmodified so
+  // locations/path stay intact.
+  if (sanitized === graphQLError) {
+    return formattedError;
   }
 
-  return formattedError;
+  // sanitizeError replaced it with a masked InternalServerError — strip
+  // everything but the generic message/code.
+  return { message: sanitized.message, extensions: sanitized.extensions };
 };
 
 /**
@@ -89,10 +104,16 @@ export function createApolloServer(httpServer?: import('node:http').Server) {
             footer: false,
           }),
 
+      // Real response cache-hint plugin (AS5). Resolvers set per-field hints
+      // via setCacheHint() from lib/cache-control.ts (see e.g.
+      // Query.publicWorksheets, Query.forumPosts). defaultMaxAge: 0 means
+      // fields without an explicit hint are treated as uncacheable rather
+      // than silently cached.
+      ApolloServerPluginCacheControl({ defaultMaxAge: 0, calculateHttpHeaders: true }),
+
       // Custom plugins (errorTrackingPlugin handles contextCreationDidFail
       // and unexpectedErrorProcessingRequest — no inline duplicates needed)
       performanceMonitoringPlugin(),
-      responseCachingPlugin(),
       queryComplexityPlugin(1000),
       errorTrackingPlugin(),
       usageReportingPlugin(),
@@ -102,24 +123,6 @@ export function createApolloServer(httpServer?: import('node:http').Server) {
     cache: 'bounded',
     nodeEnv: process.env.NODE_ENV,
   });
-}
-
-/** Default server instance for Next.js API routes */
-export const server = createApolloServer();
-
-/** Graceful shutdown handler */
-export async function shutdownServer() {
-  await server.stop();
-}
-
-// Handle process termination in production
-if (process.env.NODE_ENV === 'production') {
-  const shutdown = async () => {
-    await shutdownServer();
-    process.exit(0);
-  };
-  process.on('SIGTERM', shutdown);
-  process.on('SIGINT', shutdown);
 }
 
 export { rateLimit } from './lib/cache';

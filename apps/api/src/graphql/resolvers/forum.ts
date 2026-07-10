@@ -5,6 +5,8 @@
  */
 
 import type { ForumPost, Prisma } from '@nextcalc/database';
+import type { GraphQLResolveInfo } from 'graphql';
+import { setCacheHint } from '../../lib/cache-control';
 import type { GraphQLContext } from '../../lib/context';
 import { requireAuth, requireOwnership } from '../../lib/context';
 import {
@@ -43,7 +45,13 @@ export const forumResolvers = {
         searchQuery?: string;
       },
       context: GraphQLContext,
+      info?: GraphQLResolveInfo,
     ) => {
+      // Public listing, same for every viewer — cache briefly. Shorter than
+      // the worksheet gallery since forum activity (new posts/comments)
+      // changes the list more frequently.
+      setCacheHint(info, { maxAge: 30, scope: 'PUBLIC' });
+
       const limit = Math.min(args.limit ?? 20, 100);
       const offset = args.offset ?? 0;
 
@@ -92,7 +100,10 @@ export const forumResolvers = {
         searchQuery?: string;
       },
       context: GraphQLContext,
+      info?: GraphQLResolveInfo,
     ) => {
+      setCacheHint(info, { maxAge: 30, scope: 'PUBLIC' });
+
       const where: Prisma.ForumPostWhereInput = { deletedAt: null };
 
       if (args.tags?.length) {
@@ -208,11 +219,24 @@ export const forumResolvers = {
       return context.loaders.userById.load(parent.userId);
     },
 
+    /**
+     * Top-level comments for a post. Default-args path is batched via the
+     * commentsByPostId DataLoader (prevents N+1 when resolving comments for
+     * many posts, e.g. a forum listing); custom limit/offset falls back to
+     * a direct query since per-call pagination can't be batched behind a
+     * single DataLoader key without losing correctness.
+     */
     comments: async (
       parent: ForumPost,
       args: { limit?: number; offset?: number },
       context: GraphQLContext,
     ) => {
+      const usesDefaultArgs = (args.limit ?? 20) === 20 && (args.offset ?? 0) === 0;
+
+      if (usesDefaultArgs) {
+        return context.loaders.commentsByPostId.load(parent.id);
+      }
+
       return context.prisma.comment.findMany({
         where: {
           postId: parent.id,
