@@ -387,4 +387,69 @@ describe('Matrix', () => {
       expect(latex).toContain('\\end{bmatrix}');
     });
   });
+
+  describe('performance and large matrices', () => {
+    it('computes determinant of a 60x60 matrix well under a second', () => {
+      const n = 60;
+      const data = Array.from({ length: n }, () =>
+        Array.from({ length: n }, () => Math.random() * 20 - 10),
+      );
+      const m = new Matrix(data);
+
+      const start = performance.now();
+      const result = m.determinant();
+      const elapsed = performance.now() - start;
+
+      expect(Number.isFinite(result)).toBe(true);
+      expect(elapsed).toBeLessThan(1000);
+    });
+
+    it('computes inverse of a 60x60 matrix well under a second and round-trips to identity', () => {
+      const n = 60;
+      // Diagonally dominant so the matrix is guaranteed non-singular
+      const data = Array.from({ length: n }, (_, i) =>
+        Array.from({ length: n }, (_, j) => (i === j ? n * 2 : Math.random() * 2 - 1)),
+      );
+      const m = new Matrix(data);
+
+      const start = performance.now();
+      const mInv = m.inverse();
+      const elapsed = performance.now() - start;
+
+      const identity = m.multiply(mInv);
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          expect(identity.get(i, j)).toBeCloseTo(i === j ? 1 : 0, 5);
+        }
+      }
+
+      expect(elapsed).toBeLessThan(1000);
+    });
+
+    it('computes determinant of a known upper-triangular matrix correctly at scale', () => {
+      // Determinant of a triangular matrix is the product of its diagonal
+      const n = 20;
+      const data = Array.from({ length: n }, (_, i) =>
+        Array.from({ length: n }, (_, j) => {
+          if (j < i) return 0;
+          return i === j ? 2 : 1;
+        }),
+      );
+      const m = new Matrix(data);
+
+      const expected = 2 ** n;
+      const actual = m.determinant();
+      expect(Math.abs(actual - expected) / expected).toBeLessThan(1e-6);
+    });
+
+    it('computes rank of a large rank-deficient matrix correctly', () => {
+      const n = 40;
+      // Every row is a scalar multiple of the same base vector => rank 1
+      const base = Array.from({ length: n }, (_, j) => j + 1);
+      const data = Array.from({ length: n }, (_, i) => base.map((v) => v * (i + 1)));
+      const m = new Matrix(data);
+
+      expect(m.rank()).toBe(1);
+    });
+  });
 });

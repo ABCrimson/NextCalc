@@ -75,17 +75,17 @@
       "types": "./src/calculus/index.ts",
       "default": "./src/calculus/index.ts"
     },
-    "./chaos/chaos-theory": {
-      "types": "./src/chaos/chaos-theory.ts",
-      "default": "./src/chaos/chaos-theory.ts"
+    "./chaos": {
+      "types": "./src/chaos/index.ts",
+      "default": "./src/chaos/index.ts"
     },
     "./fourier": {
       "types": "./src/fourier/index.ts",
       "default": "./src/fourier/index.ts"
     },
-    "./game-theory/game-theory": {
-      "types": "./src/game-theory/game-theory.ts",
-      "default": "./src/game-theory/game-theory.ts"
+    "./game-theory": {
+      "types": "./src/game-theory/index.ts",
+      "default": "./src/game-theory/index.ts"
     },
     "./graph-theory": {
       "types": "./src/graph-theory/index.ts",

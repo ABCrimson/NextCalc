@@ -94,8 +94,13 @@ describe('Zero-Knowledge Proofs', () => {
 
       const schnorr = new SchnorrProof(p, g, y);
 
-      const { commitment } = schnorr.nonInteractiveProof(secret);
-      const forgedResponse = 999n; // Random forged value
+      const { commitment, response } = schnorr.nonInteractiveProof(secret);
+      // For a fixed commitment + Fiat-Shamir challenge there is exactly one
+      // valid response modulo the exponent-group order, so an off-by-one
+      // forgery is deterministically invalid. (A fixed literal like 999n is
+      // only *usually* wrong — it collides with the valid response whenever
+      // the random nonce lines up, ~1/22 of runs with p = 23.)
+      const forgedResponse = response + 1n;
 
       const verified = schnorr.verifyNonInteractive(commitment, forgedResponse);
 
@@ -312,9 +317,11 @@ describe('Zero-Knowledge Proofs', () => {
       const pedersen = new PedersenCommitment(p, g, h);
 
       const value = 7n;
-      const { commitment } = pedersen.commit(value);
+      const { commitment, randomness } = pedersen.commit(value);
 
-      const opened = pedersen.open(commitment, value, 999n); // Wrong randomness!
+      // Off-by-one from the real blinding factor is deterministically wrong;
+      // a fixed literal collides with the real randomness ~1/22 of runs.
+      const opened = pedersen.open(commitment, value, randomness + 1n);
 
       expect(opened).toBe(false);
     });
@@ -349,12 +356,13 @@ describe('Zero-Knowledge Proofs', () => {
 
       const pedersen = new PedersenCommitment(p, g, h);
 
-      const { commitment: c1 } = pedersen.commit(7n);
-      const { commitment: c2 } = pedersen.commit(8n);
+      const { commitment: c1, randomness: r1 } = pedersen.commit(7n);
 
-      // High probability of being different (randomness varies)
-      // Note: Could be same with small probability
-      expect(c1).not.toBe(c2);
+      // Two independent commitments CAN collide in a 23-element demo group
+      // (~1/23 of runs), so compare under the same blinding factor instead:
+      // g^7·h^r ≠ g^8·h^r deterministically, i.e. c1 must not open as 8.
+      expect(pedersen.open(c1, 8n, r1)).toBe(false);
+      expect(pedersen.open(c1, 7n, r1)).toBe(true);
     });
 
     it('property: commitment is binding (can open to only one value)', () => {
@@ -395,11 +403,14 @@ describe('Zero-Knowledge Proofs', () => {
 
       const result = schnorr.interactiveProof(secret);
 
-      // Transcript should not contain secret directly
-      expect(result.transcript.commitment).not.toBe(secret);
-      expect(result.transcript.response).not.toBe(secret);
-
-      // But proof should still verify
+      // 'Does not reveal the secret' cannot be asserted as `!== secret`:
+      // with a 23-element demo group the response is a near-uniform exponent
+      // and equals any particular value ~1/22 of runs (statistical flake).
+      // Assert the deterministic contract instead: the response is reduced
+      // into the exponent range (not a raw secret-derived value) and the
+      // transcript verifies.
+      expect(result.transcript.response >= 0n).toBe(true);
+      expect(result.transcript.response < p - 1n).toBe(true);
       expect(result.success).toBe(true);
     });
 
@@ -411,11 +422,15 @@ describe('Zero-Knowledge Proofs', () => {
       const pedersen = new PedersenCommitment(p, g, h);
 
       const secretValue = 13n;
-      const { commitment } = pedersen.commit(secretValue);
+      const { commitment, randomness } = pedersen.commit(secretValue);
 
-      // Commitment should not directly reveal value
-      expect(commitment).not.toBe(secretValue);
-      expect(commitment % secretValue).not.toBe(0n); // Not a simple multiple
+      // With p = 23 the commitment is a near-uniform group element, so any
+      // 'commitment != f(value)' assertion is statistical and flaky (~9%/run).
+      // Assert the deterministic properties instead: the commitment opens
+      // only with the exact (value, randomness) pair — without the blinding
+      // factor the committed value cannot be confirmed.
+      expect(pedersen.open(commitment, secretValue, randomness)).toBe(true);
+      expect(pedersen.open(commitment, secretValue + 1n, randomness)).toBe(false);
     });
 
     it('should maintain soundness: invalid proofs should fail', () => {

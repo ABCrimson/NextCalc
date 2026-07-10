@@ -161,20 +161,23 @@ export function fft(signal: number[], sampleRate = 1.0): FFTResult {
 }
 
 /**
- * FFT implementation for complex input
+ * Iterative Cooley-Tukey FFT core operating directly on Float64Array
+ * real/imaginary parts (bit-reversal permutation + butterfly computation).
  *
- * Iterative Cooley-Tukey FFT using bit-reversal permutation and butterfly
- * computation.  Uses Float64Array for real and imaginary parts to eliminate
- * O(N log N) object allocations.
+ * This is the typed-array-in/out fast path: it never boxes samples into
+ * {real, imag} Complex objects, so callers that only need the raw
+ * coefficients (e.g. powerSpectralDensity, autocorrelation) can skip that
+ * allocation entirely. `fftComplex` below is a thin Complex[] wrapper
+ * around this core for the public Complex[]-based API.
  *
- * @param x - Complex input sequence
- * @returns Complex output sequence
+ * @param reIn - Real parts of the input sequence (length must be a power of 2)
+ * @param imIn - Imaginary parts of the input sequence (same length as reIn)
+ * @returns Real and imaginary parts of the transformed sequence
  */
-function fftComplex(x: Complex[]): Complex[] {
-  const n = x.length;
-  if (n <= 1) return x;
+function fftTyped(reIn: Float64Array, imIn: Float64Array): { re: Float64Array; im: Float64Array } {
+  const n = reIn.length;
+  if (n <= 1) return { re: reIn, im: imIn };
 
-  // Use typed arrays for real and imaginary parts
   const re = new Float64Array(n);
   const im = new Float64Array(n);
 
@@ -185,9 +188,8 @@ function fftComplex(x: Complex[]): Complex[] {
     for (let b = 0; b < bits; b++) {
       rev = (rev << 1) | ((i >> b) & 1);
     }
-    const xi = x[i]!;
-    re[rev] = xi.real;
-    im[rev] = xi.imag;
+    re[rev] = reIn[i]!;
+    im[rev] = imIn[i]!;
   }
 
   // Butterfly computation
@@ -215,6 +217,52 @@ function fftComplex(x: Complex[]): Complex[] {
       }
     }
   }
+
+  return { re, im };
+}
+
+/**
+ * Real-signal fast path: zero-pads a real signal to the next power of two
+ * and runs the typed-array FFT core directly, skipping the Complex[]
+ * boxing that `fft()`/`fftComplex()` do for their public API.
+ *
+ * @param signal - Real-valued input signal
+ * @returns Real and imaginary parts of the transformed (zero-padded) signal
+ */
+function fftRealTyped(signal: number[]): { re: Float64Array; im: Float64Array } {
+  const n = nextPowerOfTwo(signal.length);
+  const reIn = new Float64Array(n);
+  for (let i = 0; i < signal.length; i++) {
+    reIn[i] = signal[i]!;
+  }
+  const imIn = new Float64Array(n); // Zero-initialized
+
+  return fftTyped(reIn, imIn);
+}
+
+/**
+ * FFT implementation for complex input
+ *
+ * Iterative Cooley-Tukey FFT using bit-reversal permutation and butterfly
+ * computation. Thin Complex[]-boxing wrapper around the typed-array core
+ * (`fftTyped`) to preserve the public Complex[] API.
+ *
+ * @param x - Complex input sequence
+ * @returns Complex output sequence
+ */
+function fftComplex(x: Complex[]): Complex[] {
+  const n = x.length;
+  if (n <= 1) return x;
+
+  const reIn = new Float64Array(n);
+  const imIn = new Float64Array(n);
+  for (let i = 0; i < n; i++) {
+    const xi = x[i]!;
+    reIn[i] = xi.real;
+    imIn[i] = xi.imag;
+  }
+
+  const { re, im } = fftTyped(reIn, imIn);
 
   // Convert back to Complex array
   const result: Complex[] = Array(n);
@@ -519,19 +567,25 @@ export function powerSpectralDensity(
   // Apply window
   const windowed = applyWindow(signal, windowType);
 
-  // Compute FFT
-  const spectrum = fft(windowed, sampleRate);
+  // Compute FFT via the typed-array fast path (skips Complex[] boxing —
+  // this function only needs |X[k]|² and the frequency bins, not the
+  // full magnitude/phase Complex[] result that fft() builds).
+  const { re, im } = fftRealTyped(windowed);
+  const n = re.length;
 
   // Compute PSD: |X[k]|² / (Fs * N)
-  const n = spectrum.magnitude.length;
-  const psd = spectrum.magnitude.map((mag) => (mag * mag) / (sampleRate * n));
+  const psd = new Array<number>(n);
+  for (let k = 0; k < n; k++) {
+    const magSq = re[k]! * re[k]! + im[k]! * im[k]!;
+    psd[k] = magSq / (sampleRate * n);
+  }
 
   // Total power (Parseval's theorem)
   const totalPower = psd.reduce((sum, p) => sum + p, 0);
 
   // Only return positive frequencies (0 to Nyquist)
   const halfN = Math.floor(n / 2) + 1;
-  const frequencies = spectrum.frequencies.slice(0, halfN);
+  const frequencies = Array.from({ length: halfN }, (_, k) => (k * sampleRate) / n);
   const psdHalf = psd.slice(0, halfN);
 
   return {
@@ -646,13 +700,24 @@ export function zeroPad(signal: number[], length: number): number[] {
  * @returns Autocorrelation sequence
  */
 export function autocorrelation(signal: number[]): number[] {
-  // Compute FFT
-  const spectrum = fft(signal);
+  // Compute FFT via the typed-array fast path (skips Complex[] boxing)
+  const { re, im } = fftRealTyped(signal);
+  const n = re.length;
 
-  // Compute power spectrum |X[k]|²
-  const power = spectrum.real.map((r, i) => r * r + (spectrum.imag[i] ?? 0) ** 2);
+  // Compute power spectrum |X[k]|² (as a real-valued signal, imag = 0)
+  const powerRe = new Float64Array(n);
+  for (let k = 0; k < n; k++) {
+    powerRe[k] = re[k]! * re[k]! + im[k]! * im[k]!;
+  }
+  const powerIm = new Float64Array(n); // Zero-initialized
 
-  // Inverse FFT of power spectrum gives autocorrelation
-  const imag = Array(power.length).fill(0);
-  return ifft(power, imag);
+  // Inverse FFT of power spectrum gives autocorrelation.
+  // Equivalent to ifft(power, zeros): IFFT(X) = conj(FFT(conj(X)))/N, and
+  // since the imaginary part is zero, conj(X) === X here.
+  const { re: outRe } = fftTyped(powerRe, powerIm);
+  const result = new Array<number>(n);
+  for (let k = 0; k < n; k++) {
+    result[k] = outRe[k]! / n;
+  }
+  return result;
 }

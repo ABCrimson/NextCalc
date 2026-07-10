@@ -324,7 +324,7 @@ describe('Positional Encoding', () => {
     it('property: rotation preserves vector norms', () => {
       fc.assert(
         fc.property(
-          fc.array(fc.float({ min: -10, max: 10 }), { minLength: 4, maxLength: 4 }),
+          fc.array(fc.float({ min: -10, max: 10, noNaN: true }), { minLength: 4, maxLength: 4 }),
           fc.integer({ min: 0, max: 100 }),
           (vector, position) => {
             const vectors: Matrix = [vector];

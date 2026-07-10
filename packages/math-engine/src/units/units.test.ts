@@ -511,3 +511,48 @@ describe('formatQuantity', () => {
     expect(formatted).toContain('km');
   });
 });
+
+describe('compound unit expressions', () => {
+  it('resolves km/h and converts to m/s', () => {
+    const kmh = findUnit('km/h');
+    expect(kmh).not.toBeNull();
+    const ms = findUnit('m/s');
+    expect(ms).not.toBeNull();
+    if (!kmh || !ms) return;
+    const converted = convertUnit(createQuantity(100, 'km/h'), ms);
+    expect(converted.value).toBeCloseTo(250 / 9, 6);
+  });
+
+  it('resolves m/s^2 with the acceleration dimension', () => {
+    const unit = findUnit('m/s^2');
+    expect(unit).not.toBeNull();
+    expect(unit?.dimension).toEqual([1, 0, -2, 0, 0, 0, 0]);
+    expect(unit?.toSI).toBe(1);
+  });
+
+  it('resolves kg*m/s^2 equivalent to the newton', () => {
+    const compound = findUnit('kg*m/s^2');
+    const newton = findUnit('N');
+    expect(compound).not.toBeNull();
+    expect(newton).not.toBeNull();
+    if (!compound || !newton) return;
+    expect(compound.dimension).toEqual(newton.dimension);
+    expect(compound.toSI).toBeCloseTo(newton.toSI, 12);
+  });
+
+  it('evaluates left-to-right for chained division', () => {
+    // m/s/s === m/s^2
+    const chained = findUnit('m/s/s');
+    expect(chained?.dimension).toEqual([1, 0, -2, 0, 0, 0, 0]);
+  });
+
+  it('rejects offset (temperature) units inside compounds', () => {
+    expect(findUnit('°C/s')).toBeNull();
+  });
+
+  it('rejects unknown factors and malformed input', () => {
+    expect(findUnit('flurbs/h')).toBeNull();
+    expect(findUnit('km//h')).toBeNull();
+    expect(findUnit('km/')).toBeNull();
+  });
+});

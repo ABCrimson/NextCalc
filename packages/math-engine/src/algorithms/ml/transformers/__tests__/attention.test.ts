@@ -101,10 +101,13 @@ describe('Attention Mechanisms', () => {
     it('property: attention is permutation-equivariant over key-value pairs', () => {
       fc.assert(
         fc.property(
-          fc.array(fc.array(fc.float({ min: -10, max: 10 }), { minLength: 3, maxLength: 3 }), {
-            minLength: 2,
-            maxLength: 4,
-          }),
+          fc.array(
+            fc.array(fc.float({ min: -10, max: 10, noNaN: true }), { minLength: 3, maxLength: 3 }),
+            {
+              minLength: 2,
+              maxLength: 4,
+            },
+          ),
           (kvPairs) => {
             const queries: Matrix = [[1, 0, 1]];
             const keys = kvPairs;
@@ -448,10 +451,13 @@ describe('Attention Mechanisms', () => {
     it('property: attention weights are non-negative', () => {
       fc.assert(
         fc.property(
-          fc.array(fc.array(fc.float({ min: -10, max: 10 }), { minLength: 3, maxLength: 3 }), {
-            minLength: 1,
-            maxLength: 5,
-          }),
+          fc.array(
+            fc.array(fc.float({ min: -10, max: 10, noNaN: true }), { minLength: 3, maxLength: 3 }),
+            {
+              minLength: 1,
+              maxLength: 5,
+            },
+          ),
           (queries) => {
             const keys: Matrix = [
               [1, 0, 0],

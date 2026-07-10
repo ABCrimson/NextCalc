@@ -157,12 +157,8 @@ export class Matrix {
       throw new Error('Inverse only defined for square matrices');
     }
 
-    const det = this.determinant();
-    if (Math.abs(det) < 1e-10) {
-      throw new Error('Matrix is singular (determinant ≈ 0)');
-    }
-
-    // Gauss-Jordan elimination
+    // Gauss-Jordan elimination detects singularity itself (zero pivot), so
+    // there's no need to run a separate O(n³) determinant pass first.
     return this.gaussJordanInverse();
   }
 
@@ -207,7 +203,9 @@ export class Matrix {
       }
       const pivotValue = currentRow[i];
       if (pivotValue === undefined || Math.abs(pivotValue) < 1e-10) {
-        throw new Error('Matrix is singular (cannot invert)');
+        // Same message inverse() used to throw from its (now removed)
+        // redundant determinant pre-check.
+        throw new Error('Matrix is singular (determinant ≈ 0)');
       }
 
       // Scale pivot row
@@ -245,18 +243,21 @@ export class Matrix {
   private luDecomposition(): { L: Matrix; U: Matrix; P: Matrix; determinant: number } {
     const n = this.rows;
     const L = Matrix.identity(n);
-    let U = new Matrix(this.data);
     const P = Matrix.identity(n);
+
+    // Mutate a local plain array instead of going through the immutable
+    // Matrix.set() (full O(n²) deep copy) inside this O(n³) hot loop.
+    const u: number[][] = this.data.map((row) => [...row]);
 
     let det = 1;
 
     for (let k = 0; k < n; k++) {
       // Find pivot
       let maxRow = k;
-      let maxVal = Math.abs(U.get(k, k));
+      let maxVal = Math.abs(u[k]![k]!);
 
       for (let i = k + 1; i < n; i++) {
-        const val = Math.abs(U.get(i, k));
+        const val = Math.abs(u[i]![k]!);
         if (val > maxVal) {
           maxVal = val;
           maxRow = i;
@@ -265,32 +266,29 @@ export class Matrix {
 
       if (maxVal < 1e-10) {
         // Singular matrix
-        return { L, U, P, determinant: 0 };
+        return { L, U: new Matrix(u), P, determinant: 0 };
       }
 
-      // Swap rows in U and P if needed
+      // Swap rows in U if needed
       if (maxRow !== k) {
         det = -det; // Sign change for row swap
-        // Swap rows in U
-        for (let j = 0; j < n; j++) {
-          const temp = U.get(k, j);
-          U = U.set(k, j, U.get(maxRow, j));
-          U = U.set(maxRow, j, temp);
-        }
+        const temp = u[k]!;
+        u[k] = u[maxRow]!;
+        u[maxRow] = temp;
       }
 
-      det *= U.get(k, k);
+      det *= u[k]![k]!;
 
       // Elimination
       for (let i = k + 1; i < n; i++) {
-        const factor = U.get(i, k) / U.get(k, k);
+        const factor = u[i]![k]! / u[k]![k]!;
         for (let j = k; j < n; j++) {
-          U = U.set(i, j, U.get(i, j) - factor * U.get(k, j));
+          u[i]![j] = u[i]![j]! - factor * u[k]![j]!;
         }
       }
     }
 
-    return { L, U, P, determinant: det };
+    return { L, U: new Matrix(u), P, determinant: det };
   }
 
   // Static factory methods
@@ -399,7 +397,9 @@ export class Matrix {
    * Convert matrix to row echelon form (for rank calculation)
    */
   private rowEchelonForm(): Matrix {
-    let result = new Matrix(this.data);
+    // Mutate a local plain array instead of going through the immutable
+    // Matrix.set() (full O(n²) deep copy) inside this O(n³) hot loop.
+    const m: number[][] = this.data.map((row) => [...row]);
     let lead = 0;
 
     for (let r = 0; r < this.rows; r++) {
@@ -407,7 +407,7 @@ export class Matrix {
 
       // Find pivot
       let i = r;
-      while (Math.abs(result.get(i, lead)) < 1e-10) {
+      while (Math.abs(m[i]![lead]!) < 1e-10) {
         i++;
         if (i === this.rows) {
           i = r;
@@ -420,25 +420,23 @@ export class Matrix {
 
       // Swap rows
       if (i !== r) {
-        for (let j = 0; j < this.cols; j++) {
-          const temp = result.get(r, j);
-          result = result.set(r, j, result.get(i, j));
-          result = result.set(i, j, temp);
-        }
+        const temp = m[r]!;
+        m[r] = m[i]!;
+        m[i] = temp;
       }
 
       // Scale pivot row
-      const pivot = result.get(r, lead);
+      const pivot = m[r]![lead]!;
       if (Math.abs(pivot) > 1e-10) {
         for (let j = 0; j < this.cols; j++) {
-          result = result.set(r, j, result.get(r, j) / pivot);
+          m[r]![j] = m[r]![j]! / pivot;
         }
 
         // Eliminate below
         for (let i = r + 1; i < this.rows; i++) {
-          const factor = result.get(i, lead);
+          const factor = m[i]![lead]!;
           for (let j = 0; j < this.cols; j++) {
-            result = result.set(i, j, result.get(i, j) - factor * result.get(r, j));
+            m[i]![j] = m[i]![j]! - factor * m[r]![j]!;
           }
         }
       }
@@ -446,7 +444,7 @@ export class Matrix {
       lead++;
     }
 
-    return result;
+    return new Matrix(m);
   }
 
   /**
@@ -694,14 +692,20 @@ export class Matrix {
    * Used for solving systems and finding nullspace
    */
   private reducedRowEchelonForm(): Matrix {
-    let result = this.rowEchelonForm();
+    // toArray() already deep-copies, so this is a local plain array we can
+    // mutate directly instead of going through the immutable Matrix.set()
+    // (full O(n²) deep copy) inside this O(n³) hot loop.
+    const m: number[][] = this.rowEchelonForm().toArray();
+    const cols = m[0]?.length ?? this.cols;
 
     // Back substitution to make leading entries the only non-zero in their columns
-    for (let i = result.rows - 1; i >= 0; i--) {
+    for (let i = m.length - 1; i >= 0; i--) {
+      const row = m[i]!;
+
       // Find leading entry
       let leadCol = -1;
-      for (let j = 0; j < result.cols; j++) {
-        if (Math.abs(result.get(i, j)) > 1e-10) {
+      for (let j = 0; j < cols; j++) {
+        if (Math.abs(row[j]!) > 1e-10) {
           leadCol = j;
           break;
         }
@@ -711,14 +715,15 @@ export class Matrix {
 
       // Eliminate above
       for (let k = 0; k < i; k++) {
-        const factor = result.get(k, leadCol);
-        for (let j = 0; j < result.cols; j++) {
-          result = result.set(k, j, result.get(k, j) - factor * result.get(i, j));
+        const kRow = m[k]!;
+        const factor = kRow[leadCol]!;
+        for (let j = 0; j < cols; j++) {
+          kRow[j] = kRow[j]! - factor * row[j]!;
         }
       }
     }
 
-    return result;
+    return new Matrix(m);
   }
 
   /**

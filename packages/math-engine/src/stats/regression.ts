@@ -7,6 +7,7 @@
  * @module stats/regression
  */
 
+import { solveLinearSystem } from '../matrix';
 import { mean } from './descriptive';
 
 /**
@@ -214,6 +215,9 @@ export function polynomialRegression(
 
   // Solve the system using Gaussian elimination
   const coefficients = solveLinearSystem(XtX, Xty);
+  if (!coefficients) {
+    throw new Error('polynomialRegression: Matrix is singular or nearly singular');
+  }
 
   // Calculate R²
   const yPredicted = x.map((xi) => {
@@ -230,106 +234,6 @@ export function polynomialRegression(
   const r2 = calculateR2(y, yPredicted);
 
   return { coefficients, r2 };
-}
-
-/**
- * Solves a linear system Ax = b using Gaussian elimination with partial pivoting.
- *
- * @param A - Coefficient matrix (will not be modified)
- * @param b - Right-hand side vector (will not be modified)
- * @returns Solution vector x
- * @throws {Error} If system is singular or incompatible
- */
-function solveLinearSystem(A: number[][], b: number[]): number[] {
-  const n = A.length;
-
-  // Create augmented matrix [A|b] by copying to avoid mutation
-  const aug: number[][] = A.map((row, i) => {
-    const bVal = b[i];
-    if (bVal === undefined) {
-      throw new Error('solveLinearSystem: Invalid b vector');
-    }
-    return [...row, bVal];
-  });
-
-  // Forward elimination with partial pivoting
-  for (let i = 0; i < n; i++) {
-    // Find pivot
-    let maxRow = i;
-    for (let k = i + 1; k < n; k++) {
-      const kRow = aug[k];
-      const maxRowData = aug[maxRow];
-      if (kRow && maxRowData) {
-        const kVal = kRow[i];
-        const maxVal = maxRowData[i];
-        if (kVal !== undefined && maxVal !== undefined && Math.abs(kVal) > Math.abs(maxVal)) {
-          maxRow = k;
-        }
-      }
-    }
-
-    // Swap rows
-    const iRow = aug[i];
-    const maxRowData = aug[maxRow];
-    if (!iRow || !maxRowData) {
-      throw new Error('solveLinearSystem: Invalid matrix row');
-    }
-    [aug[i], aug[maxRow]] = [maxRowData, iRow];
-
-    // Check for singular matrix
-    const currentRow = aug[i];
-    if (!currentRow) {
-      throw new Error('solveLinearSystem: Invalid matrix row');
-    }
-    const pivotVal = currentRow[i];
-    if (pivotVal === undefined || Math.abs(pivotVal) < 1e-10) {
-      throw new Error('solveLinearSystem: Matrix is singular or nearly singular');
-    }
-
-    // Eliminate below
-    for (let k = i + 1; k < n; k++) {
-      const kRow = aug[k];
-      if (!kRow) continue;
-      const kVal = kRow[i];
-      if (kVal === undefined) continue;
-      const factor = kVal / pivotVal;
-      for (let j = i; j <= n; j++) {
-        const kRowVal = kRow[j];
-        const iRowVal = currentRow[j];
-        if (kRowVal !== undefined && iRowVal !== undefined) {
-          kRow[j] = kRowVal - factor * iRowVal;
-        }
-      }
-    }
-  }
-
-  // Back substitution
-  const x: number[] = new Array(n);
-  for (let i = n - 1; i >= 0; i--) {
-    const iRow = aug[i];
-    if (!iRow) {
-      throw new Error('solveLinearSystem: Invalid matrix row during back substitution');
-    }
-    const sumStart = iRow[n];
-    if (sumStart === undefined) {
-      throw new Error('solveLinearSystem: Invalid augmented column');
-    }
-    let sum = sumStart;
-    for (let j = i + 1; j < n; j++) {
-      const iRowVal = iRow[j];
-      const xVal = x[j];
-      if (iRowVal !== undefined && xVal !== undefined) {
-        sum -= iRowVal * xVal;
-      }
-    }
-    const pivotVal = iRow[i];
-    if (pivotVal === undefined) {
-      throw new Error('solveLinearSystem: Invalid pivot during back substitution');
-    }
-    x[i] = sum / pivotVal;
-  }
-
-  return x;
 }
 
 /**

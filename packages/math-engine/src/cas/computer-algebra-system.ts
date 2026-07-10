@@ -940,46 +940,83 @@ export class ComputerAlgebraSystem {
   }
 
   /**
+   * Strip trailing (highest-degree) zero coefficients in place.
+   */
+  private trimTrailingZeros(coefficients: Array<number>): void {
+    while (coefficients.length > 0 && coefficients[coefficients.length - 1] === 0) {
+      coefficients.pop();
+    }
+  }
+
+  /**
+   * Canonical Polynomial from ascending coefficients. The zero polynomial is
+   * always represented as { coefficients: [0], degree: 0 } so callers can
+   * rely on degree/length invariants (an empty array would yield degree -1
+   * and break division/GCD termination).
+   */
+  private toPolynomial(coefficients: Array<number>, variable: string): Polynomial {
+    const coeffs = coefficients.length > 0 ? coefficients : [0];
+    return { coefficients: coeffs, variable, degree: coeffs.length - 1 };
+  }
+
+  /**
+   * True for the zero polynomial in any representation ([], [0], [0, 0], …).
+   */
+  private isZeroPolynomial(poly: Polynomial): boolean {
+    return poly.coefficients.every((c) => c === 0);
+  }
+
+  /**
    * Polynomial division (returns quotient and remainder)
+   *
+   * Coefficients are ascending: coefficients[i] is the x^i term. Both results
+   * are returned in canonical form (trailing zeros stripped, zero polynomial
+   * as [0] with degree 0).
+   *
+   * @throws {Error} when dividing by the zero polynomial
    */
   dividePolynomials(
     dividend: Polynomial,
     divisor: Polynomial,
   ): { quotient: Polynomial; remainder: Polynomial } {
+    const divisorCoeffs = [...divisor.coefficients];
+    this.trimTrailingZeros(divisorCoeffs);
+    const divisorLeading = divisorCoeffs[divisorCoeffs.length - 1];
+    if (divisorLeading === undefined) {
+      throw new Error('Polynomial division by the zero polynomial');
+    }
+    const divisorDegree = divisorCoeffs.length - 1;
+
     const quotientCoeffs: Array<number> = [];
     const remainder = [...dividend.coefficients];
-
-    const divisorDegree = divisor.degree;
-    const divisorLeading = divisor.coefficients[divisorDegree] || 1;
+    this.trimTrailingZeros(remainder);
 
     while (remainder.length - 1 >= divisorDegree) {
       const remainderDegree = remainder.length - 1;
-      const remainderLeading = remainder[remainderDegree] || 0;
+      const remainderLeading = remainder[remainderDegree] ?? 0;
       const coeff = remainderLeading / divisorLeading;
 
+      // unshift keeps coefficients ascending: each later iteration produces
+      // the next-lower-degree quotient term, so no post-loop reverse.
       quotientCoeffs.unshift(coeff);
 
       // Subtract divisor * coeff from remainder
       for (let i = 0; i <= divisorDegree; i++) {
         const idx = remainderDegree - divisorDegree + i;
-        const divisorCoeff = divisor.coefficients[i] || 0;
-        remainder[idx] = (remainder[idx] || 0) - coeff * divisorCoeff;
+        const divisorCoeff = divisorCoeffs[i] ?? 0;
+        remainder[idx] = (remainder[idx] ?? 0) - coeff * divisorCoeff;
       }
 
+      // The leading term cancels exactly by construction; further trailing
+      // zeros (multi-term cancellation) must also be stripped or the loop
+      // re-divides positions that are already zero.
       remainder.pop();
+      this.trimTrailingZeros(remainder);
     }
 
     return {
-      quotient: {
-        coefficients: quotientCoeffs.reverse(),
-        variable: dividend.variable,
-        degree: quotientCoeffs.length - 1,
-      },
-      remainder: {
-        coefficients: remainder,
-        variable: dividend.variable,
-        degree: remainder.length - 1,
-      },
+      quotient: this.toPolynomial(quotientCoeffs, dividend.variable),
+      remainder: this.toPolynomial(remainder, dividend.variable),
     };
   }
 
@@ -987,7 +1024,7 @@ export class ComputerAlgebraSystem {
    * GCD of two polynomials using Euclidean algorithm
    */
   gcdPolynomials(a: Polynomial, b: Polynomial): Polynomial {
-    if (b.degree === 0 && (b.coefficients[0] === 0 || b.coefficients[0] === undefined)) {
+    if (this.isZeroPolynomial(b)) {
       return a;
     }
 

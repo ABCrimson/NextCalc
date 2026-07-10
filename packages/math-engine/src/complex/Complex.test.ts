@@ -325,9 +325,11 @@ describe('Complex Numbers', () => {
       expect(result.imag).toBeCloseTo(0, 10);
     });
 
-    it('throws on non-integer exponent', () => {
+    it('computes non-integer exponents via the principal branch', () => {
       const z = new Complex(3, 4);
-      expect(() => z.pow(1.5)).toThrow();
+      // z^1.5 = exp(1.5 * Log z); |z^1.5| = |z|^1.5 = 5^1.5
+      const result = z.pow(1.5);
+      expect(result.magnitude).toBeCloseTo(5 ** 1.5, 10);
     });
   });
 
@@ -596,5 +598,45 @@ describe('Complex Numbers', () => {
       expect(z1.real).toBe(3);
       expect(z1.imag).toBe(4);
     });
+  });
+});
+
+describe('pow — non-integer and complex exponents (principal branch)', () => {
+  it('computes i^i = e^(-pi/2)', () => {
+    const result = Complex.i.pow(Complex.i);
+    expect(result.real).toBeCloseTo(Math.exp(-Math.PI / 2), 12);
+    expect(result.imag).toBeCloseTo(0, 12);
+  });
+
+  it('computes (-1)^0.5 = i (principal square root)', () => {
+    const result = new Complex(-1, 0).pow(0.5);
+    expect(result.real).toBeCloseTo(0, 12);
+    expect(result.imag).toBeCloseTo(1, 12);
+  });
+
+  it('matches real exponentiation for positive real bases', () => {
+    const result = new Complex(2, 0).pow(1.5);
+    expect(result.real).toBeCloseTo(2 ** 1.5, 12);
+    expect(result.imag).toBeCloseTo(0, 12);
+  });
+
+  it('computes e^(i*pi) round trip: (e^i)^pi stays on the unit circle', () => {
+    const eToI = new Complex(Math.E, 0).pow(Complex.i);
+    expect(eToI.magnitude).toBeCloseTo(1, 12);
+    expect(eToI.real).toBeCloseTo(Math.cos(1), 12);
+    expect(eToI.imag).toBeCloseTo(Math.sin(1), 12);
+  });
+
+  it('returns zero for 0^positive-real and throws for 0^complex', () => {
+    expect(Complex.zero.pow(2.5).equals(Complex.zero)).toBe(true);
+    expect(() => Complex.zero.pow(Complex.i)).toThrow();
+    expect(() => Complex.zero.pow(-1.5)).toThrow();
+  });
+
+  it('keeps exact integer semantics unchanged', () => {
+    const z = new Complex(1, 1);
+    const viaInteger = z.pow(3);
+    expect(viaInteger.real).toBeCloseTo(-2, 12);
+    expect(viaInteger.imag).toBeCloseTo(2, 12);
   });
 });

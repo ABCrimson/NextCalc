@@ -12,6 +12,7 @@
  * @module number-theory/modular
  */
 
+import { gcd } from './gcd';
 import { isPrime, trialDivision } from './primes';
 
 // ============================================================================
@@ -201,16 +202,6 @@ export function crt(remainders: ReadonlyArray<number>, moduli: ReadonlyArray<num
   }
 
   return Number(((x % bigM) + bigM) % bigM);
-}
-
-/**
- * GCD using Euclidean algorithm
- */
-function gcd(a: number, b: number): number {
-  while (b !== 0) {
-    [a, b] = [b, a % b];
-  }
-  return Math.abs(a);
 }
 
 // ============================================================================

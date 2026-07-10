@@ -18,11 +18,6 @@
  * // Adam optimizer
  * const optimizer = new AdamWOptimizer({ lr: 0.001, weightDecay: 0.01 });
  * const updated = optimizer.step(params, gradients);
- *
- * // Zero-knowledge proof
- * const zkp = new SchnorrProtocol();
- * const proof = zkp.prove(secret, challenge);
- * const valid = zkp.verify(proof, publicKey, challenge);
  * ```
  */
 
