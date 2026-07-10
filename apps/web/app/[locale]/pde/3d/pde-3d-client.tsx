@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { m, useReducedMotion } from 'motion/react';
 import dynamic from 'next/dynamic';
+import { useFormatter } from 'next-intl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { RenderMode } from '@/components/plots/PDE3DRenderer';
 import { Badge } from '@/components/ui/badge';
@@ -122,6 +123,7 @@ function FloatingOrb({
 // ---------------------------------------------------------------------------
 
 export function PDE3DClient() {
+  const format = useFormatter();
   // -- Equation settings --
   const [equationType, setEquationType] = useState<EquationType>('heat');
   const [gridSize, setGridSize] = useState(64);
@@ -249,16 +251,16 @@ export function PDE3DClient() {
       {/* ---- Animated background ---- */}
       <div className="pointer-events-none fixed inset-0" aria-hidden="true">
         <FloatingOrb
-          className="-top-40 -right-40 w-[700px] h-[700px]"
+          className="-top-40 -right-40 size-[700px]"
           gradient="radial-gradient(circle, oklch(0.55 0.28 280 / 0.10) 0%, oklch(0.55 0.28 280 / 0.04) 50%, transparent 100%)"
         />
         <FloatingOrb
-          className="-bottom-60 -left-40 w-[800px] h-[800px]"
+          className="-bottom-60 -left-40 size-[800px]"
           gradient="radial-gradient(circle, oklch(0.50 0.25 240 / 0.08) 0%, oklch(0.50 0.25 240 / 0.03) 50%, transparent 100%)"
           delay={5}
         />
         <FloatingOrb
-          className="top-1/3 right-1/4 w-[500px] h-[500px]"
+          className="top-1/3 right-1/4 size-[500px]"
           gradient="radial-gradient(circle, oklch(0.58 0.22 200 / 0.06) 0%, transparent 70%)"
           delay={10}
         />
@@ -364,7 +366,7 @@ export function PDE3DClient() {
                 {/* Grid size */}
                 <div className="space-y-2">
                   <Label className="text-xs">
-                    Grid Size: {gridSize} ({gridSize}^3 = {(gridSize ** 3).toLocaleString()} cells)
+                    Grid Size: {gridSize} ({gridSize}^3 = {format.number(gridSize ** 3)} cells)
                   </Label>
                   <Slider
                     min={32}

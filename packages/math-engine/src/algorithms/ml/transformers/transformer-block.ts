@@ -95,9 +95,9 @@ export function feedForwardNetwork(input: Matrix, weights: FFNWeights, config: F
   for (let i = 0; i < seqLen; i++) {
     hidden[i] = [];
     for (let j = 0; j < weights.w1[0]!.length; j++) {
-      let sum = weights.b1[j] || 0;
+      let sum = weights.b1[j] ?? 0;
       for (let k = 0; k < input[i]!.length; k++) {
-        sum += (input[i]?.[k] || 0) * (weights.w1[k]?.[j] || 0);
+        sum += (input[i]?.[k] ?? 0) * (weights.w1[k]?.[j] ?? 0);
       }
       // ReLU activation
       hidden[i]![j] = Math.max(0, sum);
@@ -112,9 +112,9 @@ export function feedForwardNetwork(input: Matrix, weights: FFNWeights, config: F
   for (let i = 0; i < seqLen; i++) {
     output[i] = [];
     for (let j = 0; j < weights.w2[0]!.length; j++) {
-      let sum = weights.b2[j] || 0;
+      let sum = weights.b2[j] ?? 0;
       for (let k = 0; k < droppedHidden[i]!.length; k++) {
-        sum += (droppedHidden[i]?.[k] || 0) * (weights.w2[k]?.[j] || 0);
+        sum += (droppedHidden[i]?.[k] ?? 0) * (weights.w2[k]?.[j] ?? 0);
       }
       output[i]![j] = sum;
     }
@@ -132,7 +132,7 @@ export function feedForwardNetwork(input: Matrix, weights: FFNWeights, config: F
  */
 export function layerNorm(input: Matrix, params: LayerNormParams, epsilon = 1e-6): Matrix {
   const seqLen = input.length;
-  const dim = input[0]?.length || 0;
+  const dim = input[0]?.length ?? 0;
   const output: number[][] = [];
 
   for (let i = 0; i < seqLen; i++) {
@@ -148,7 +148,7 @@ export function layerNorm(input: Matrix, params: LayerNormParams, epsilon = 1e-6
     output[i] = [];
     for (let j = 0; j < dim; j++) {
       const normalized = (row[j]! - mean) / Math.sqrt(variance + epsilon);
-      output[i]![j] = params.gamma[j]! * normalized + (params.beta[j] || 0);
+      output[i]![j] = params.gamma[j]! * normalized + (params.beta[j] ?? 0);
     }
   }
 
@@ -281,13 +281,13 @@ export function transformerDecoderBlock(
  */
 function addResidual(input: Matrix, output: Matrix): Matrix {
   const seqLen = input.length;
-  const dim = input[0]?.length || 0;
+  const dim = input[0]?.length ?? 0;
   const result: number[][] = [];
 
   for (let i = 0; i < seqLen; i++) {
     result[i] = [];
     for (let j = 0; j < dim; j++) {
-      result[i]![j] = (input[i]?.[j] || 0) + (output[i]?.[j] || 0);
+      result[i]![j] = (input[i]?.[j] ?? 0) + (output[i]?.[j] ?? 0);
     }
   }
 

@@ -12,6 +12,7 @@
  * @module algebra/fields
  */
 
+import { isPrime, modPow } from '../number-theory';
 import type { Polynomial } from './rings';
 import { evaluatePolynomial } from './rings';
 
@@ -231,21 +232,6 @@ export function createFiniteField(p: number): Field<number> {
 }
 
 /**
- * Simple primality test
- */
-function isPrime(n: number): boolean {
-  if (n < 2) return false;
-  if (n === 2) return true;
-  if (n % 2 === 0) return false;
-
-  for (let i = 3; i * i <= n; i += 2) {
-    if (n % i === 0) return false;
-  }
-
-  return true;
-}
-
-/**
  * Checks if a number is a primitive root modulo p
  *
  * g is a primitive root mod p if ord(g) = p-1 in the multiplicative group
@@ -279,29 +265,6 @@ export function isPrimitiveRoot(g: number, p: number): boolean {
   }
 
   return true;
-}
-
-/**
- * Modular exponentiation: computes (base^exp) mod mod
- */
-function modPow(base: number, exp: number, mod: number): number {
-  // BigInt internally: the intermediate products (result * base) and (base * base)
-  // overflow Number.MAX_SAFE_INTEGER for moduli beyond ~2^26, silently corrupting
-  // results. The final value is < mod, so it fits back into a Number.
-  const m = BigInt(mod);
-  let result = 1n;
-  let b = BigInt(base) % m;
-  let e = BigInt(exp);
-
-  while (e > 0n) {
-    if (e % 2n === 1n) {
-      result = (result * b) % m;
-    }
-    e /= 2n;
-    b = (b * b) % m;
-  }
-
-  return Number(result);
 }
 
 /**

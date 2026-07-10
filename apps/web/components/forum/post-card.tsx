@@ -10,7 +10,6 @@
 
 import { ChevronRight, Clock, Eye, Hash, MessageSquare, Pin } from 'lucide-react';
 import { m, useReducedMotion } from 'motion/react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useFormatter } from 'next-intl';
 import { useCallback } from 'react';
@@ -22,6 +21,9 @@ import {
 } from '@/components/forum/forum-shared';
 import { UpvoteButton } from '@/components/forum/upvote-button';
 import { Badge } from '@/components/ui/badge';
+import { Link } from '@/i18n/navigation';
+import { useFragment } from '@/lib/graphql/generated';
+import { UserSummaryFragmentDoc } from '@/lib/graphql/generated/graphql';
 import { cn } from '@/lib/utils';
 
 // ============================================================================
@@ -82,6 +84,7 @@ export function PostCard({ post, index }: PostCardProps) {
   const router = useRouter();
   const hue = getPostHue(post.id);
   const commentCount = post.commentCount ?? post.comments?.length ?? 0;
+  const user = useFragment(UserSummaryFragmentDoc, post.user);
 
   const handleClick = useCallback(() => {
     router.push(`/forum/${post.id}`);
@@ -167,14 +170,14 @@ export function PostCard({ post, index }: PostCardProps) {
         {/* Footer: author + stats */}
         <div className="flex items-center justify-between pt-1">
           <Link
-            href={`/forum/user/${post.user.id}`}
+            href={`/forum/user/${user.id}`}
             onClick={(e) => e.stopPropagation()}
             className="flex items-center gap-2 rounded-lg p-0.5 -m-0.5 hover:bg-white/5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
-            <AuthorAvatar name={post.user.name} image={post.user.image} />
+            <AuthorAvatar name={user.name} image={user.image} />
             <div className="min-w-0">
               <span className="text-xs font-semibold text-foreground hover:text-indigo-400 transition-colors truncate block">
-                {post.user.name ?? 'Anonymous'}
+                {user.name ?? 'Anonymous'}
               </span>
             </div>
           </Link>

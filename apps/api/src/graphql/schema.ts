@@ -25,6 +25,26 @@ export const typeDefs = gql`
   """
   scalar JSON
 
+  """
+  Static cache hints consumed by ApolloServerPluginCacheControl (server.ts).
+  Types reached by publicly-cacheable root fields opt in via inheritMaxAge: true
+  so they don't reset the root's maxAge to 0; user-scoped fields opt out with
+  maxAge: 0 so any query selecting them stays uncacheable.
+  """
+  directive @cacheControl(
+    maxAge: Int
+    scope: CacheControlScope
+    inheritMaxAge: Boolean
+  ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
+
+  """
+  Cache scope for the @cacheControl directive
+  """
+  enum CacheControlScope {
+    PUBLIC
+    PRIVATE
+  }
+
   # ============================================================================
   # USER TYPES
   # ============================================================================
@@ -222,13 +242,16 @@ export const typeDefs = gql`
   """
   Complete worksheet with cells
   """
-  type Worksheet {
+  type Worksheet @cacheControl(inheritMaxAge: true) {
     id: ID!
     title: String!
     description: String
     content: JSON!
     visibility: WorksheetVisibility!
     views: Int!
+
+    "Optimistic-concurrency revision, incremented on every update"
+    version: Int!
     createdAt: DateTime!
     updatedAt: DateTime!
 
@@ -283,7 +306,7 @@ export const typeDefs = gql`
   """
   Forum post in the community
   """
-  type ForumPost {
+  type ForumPost @cacheControl(inheritMaxAge: true) {
     id: ID!
     title: String!
     content: String!
@@ -307,7 +330,7 @@ export const typeDefs = gql`
     upvoteCount: Int!
 
     "Whether the current user has upvoted"
-    hasUpvoted: Boolean!
+    hasUpvoted: Boolean! @cacheControl(maxAge: 0, scope: PRIVATE)
   }
 
   """
@@ -341,7 +364,7 @@ export const typeDefs = gql`
   """
   Paginated forum post list
   """
-  type ForumPostConnection {
+  type ForumPostConnection @cacheControl(inheritMaxAge: true) {
     nodes: [ForumPost!]!
     pageInfo: PageInfo!
   }
@@ -353,7 +376,7 @@ export const typeDefs = gql`
   """
   Offset-based pagination information (legacy)
   """
-  type PageInfo {
+  type PageInfo @cacheControl(inheritMaxAge: true) {
     hasNextPage: Boolean!
     hasPreviousPage: Boolean!
     totalCount: Int!
@@ -364,7 +387,7 @@ export const typeDefs = gql`
   """
   Offset-paginated worksheet list (legacy)
   """
-  type WorksheetConnection {
+  type WorksheetConnection @cacheControl(inheritMaxAge: true) {
     nodes: [Worksheet!]!
     pageInfo: PageInfo!
   }
@@ -376,7 +399,7 @@ export const typeDefs = gql`
   """
   Cursor-based pagination information following the Relay specification
   """
-  type CursorPageInfo {
+  type CursorPageInfo @cacheControl(inheritMaxAge: true) {
     "Whether there are more items after the last edge"
     hasNextPage: Boolean!
     "Whether there are more items before the first edge"
@@ -390,7 +413,7 @@ export const typeDefs = gql`
   """
   Cursor-paginated worksheet list
   """
-  type WorksheetCursorConnection {
+  type WorksheetCursorConnection @cacheControl(inheritMaxAge: true) {
     edges: [WorksheetEdge!]!
     pageInfo: CursorPageInfo!
     totalCount: Int!
@@ -399,7 +422,7 @@ export const typeDefs = gql`
   """
   A worksheet edge in a cursor-paginated connection
   """
-  type WorksheetEdge {
+  type WorksheetEdge @cacheControl(inheritMaxAge: true) {
     node: Worksheet!
     cursor: String!
   }
@@ -424,7 +447,7 @@ export const typeDefs = gql`
   """
   Cursor-paginated forum post list
   """
-  type ForumPostCursorConnection {
+  type ForumPostCursorConnection @cacheControl(inheritMaxAge: true) {
     edges: [ForumPostEdge!]!
     pageInfo: CursorPageInfo!
     totalCount: Int!
@@ -433,7 +456,7 @@ export const typeDefs = gql`
   """
   A forum post edge in a cursor-paginated connection
   """
-  type ForumPostEdge {
+  type ForumPostEdge @cacheControl(inheritMaxAge: true) {
     node: ForumPost!
     cursor: String!
   }

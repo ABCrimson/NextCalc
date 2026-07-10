@@ -18,6 +18,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useSession } from '@/lib/auth/hooks';
 import { CREATE_COMMENT_MUTATION, DELETE_COMMENT_MUTATION } from '@/lib/graphql/forum-operations';
+import { useFragment } from '@/lib/graphql/generated';
+import { UserSummaryFragmentDoc } from '@/lib/graphql/generated/graphql';
 import { cn } from '@/lib/utils';
 
 // ============================================================================
@@ -77,7 +79,8 @@ function SingleComment({
     setShowDeleteConfirm(false);
   }, [deleteComment, comment.id]);
 
-  const isOwner = currentUserId === comment.user.id;
+  const user = useFragment(UserSummaryFragmentDoc, comment.user);
+  const isOwner = currentUserId === user.id;
 
   return (
     <m.div
@@ -93,15 +96,15 @@ function SingleComment({
       <div className="flex gap-3 py-3">
         {/* Avatar */}
         <div className="flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold bg-linear-to-br/oklab from-muted/60 to-muted/30 border border-border">
-          {comment.user.image ? (
+          {user.image ? (
             // biome-ignore lint/performance/noImgElement: external OAuth avatar URL not in next/image remotePatterns
             <img
-              src={comment.user.image}
-              alt={comment.user.name ?? 'User'}
+              src={user.image}
+              alt={user.name ?? 'User'}
               className="size-full rounded-full object-cover"
             />
           ) : (
-            <span className="text-muted-foreground">{getInitials(comment.user.name)}</span>
+            <span className="text-muted-foreground">{getInitials(user.name)}</span>
           )}
         </div>
 
@@ -109,7 +112,7 @@ function SingleComment({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs font-semibold text-foreground">
-              {comment.user.name ?? 'Anonymous'}
+              {user.name ?? 'Anonymous'}
             </span>
             <span className="text-[10px] text-muted-foreground">
               {format.relativeTime(new Date(comment.createdAt), { style: 'narrow' })}

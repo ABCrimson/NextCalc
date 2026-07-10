@@ -193,24 +193,37 @@ export class Complex {
   }
 
   /**
-   * Raises this complex number to an integer power.
+   * Raises this complex number to an arbitrary power.
    *
-   * Uses repeated multiplication for positive powers and De Moivre's formula
-   * for large exponents: z^n = r^n * (cos(nθ) + i*sin(nθ))
+   * Integer exponents use exact repeated multiplication (small n) or
+   * De Moivre's formula: z^n = r^n * (cos(nθ) + i*sin(nθ)).
+   * Non-integer and complex exponents use the principal branch:
+   * z^w = exp(w · Log z), where Log z = ln|z| + i·Arg(z), Arg(z) ∈ (-π, π].
    *
-   * @param n - Integer exponent
-   * @returns This complex number raised to the nth power
-   * @throws {Error} If n is not an integer
+   * @param exponent - Real or complex exponent
+   * @returns This complex number raised to the given power (principal value)
+   * @throws {Error} If the base is zero and the exponent is not a positive real
    *
    * @example
-   * new Complex(0, 1).pow(2) // -1+0i (i² = -1)
-   * new Complex(1, 1).pow(3) // -2+2i
+   * new Complex(0, 1).pow(2)         // -1+0i (i² = -1)
+   * new Complex(1, 1).pow(3)         // -2+2i
+   * Complex.i.pow(Complex.i)         // e^(-π/2) ≈ 0.2079 (i^i, principal value)
+   * new Complex(-1, 0).pow(0.5)      // ~0+1i (principal square root)
    */
-  pow(n: number): Complex {
-    if (!Number.isInteger(n)) {
-      throw new Error('Complex.pow: Exponent must be an integer');
+  pow(exponent: number | Complex): Complex {
+    // Complex or non-integer real exponent: principal branch z^w = exp(w·Log z)
+    if (exponent instanceof Complex || !Number.isInteger(exponent)) {
+      const w = exponent instanceof Complex ? exponent : new Complex(exponent, 0);
+      if (this.real === 0 && this.imag === 0) {
+        if (w.imag === 0 && w.real > 0) {
+          return Complex.zero; // 0^positive-real = 0
+        }
+        throw new Error('Complex.pow: 0 cannot be raised to a non-positive or complex power');
+      }
+      return w.multiply(this.ln()).exp();
     }
 
+    const n = exponent;
     if (n === 0) {
       return Complex.one;
     }

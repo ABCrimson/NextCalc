@@ -2,8 +2,8 @@
  * Calculator Store
  *
  * State management using:
- * - Zustand 5.0.11 for state management
- * - Immer 11.1.4 for immutable state updates
+ * - Zustand for state management
+ * - Immer for immutable state updates
  *
  * @see https://zustand.pmnd.rs/
  * @see https://immerjs.github.io/immer/
@@ -217,7 +217,7 @@ async function evaluateExpression(state: CalculatorState): Promise<CalculatorSta
 /**
  * Calculator Store
  *
- * Zustand 5.0.11 with Immer 11.1.4 middleware for cleaner state updates.
+ * Zustand with Immer middleware for cleaner state updates.
  * Immer 11.1 provides improved TypeScript types and auto-enabled features.
  */
 export const useCalculatorStore = create<CalculatorStore>()(

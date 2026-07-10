@@ -95,8 +95,8 @@ curl -X POST https://cas.nextcalc.io/solve \
 - Hono web framework
 - Cloudflare R2 for file storage (with aws4fetch for S3-compatible presigning)
 - KaTeX (server-side `renderToString`) for LaTeX → SVG
-- @cf-wasm/resvg 0.3.4 for SVG → PNG rasterization
-- modern-pdf-lib 0.40.2 for PDF generation
+- @cf-wasm/resvg for SVG → PNG rasterization
+- modern-pdf-lib for PDF generation (see `package.json` for the pinned version)
 - Zod for validation
 
 **Example Usage:**
@@ -198,7 +198,7 @@ X-RateLimit-Tier: pro
 - Node.js 24+ (26 recommended)
 - pnpm 11+
 - Cloudflare account
-- Wrangler CLI (4.104.0)
+- Wrangler CLI 4.x (see each worker's `package.json` for the exact pin)
 
 ### Setup
 
@@ -217,13 +217,13 @@ pnpm install
 
 2. **Configure Cloudflare resources:**
 
-See each worker's `wrangler.toml` for resource configuration. You will need to create:
+See each worker's `wrangler.jsonc` for resource configuration. You will need to create:
 - R2 buckets
 - KV namespaces
 - D1 databases (future)
 - Hyperdrive connections (future)
 
-3. **Update wrangler.toml files:**
+3. **Update wrangler.jsonc files:**
 
 Replace placeholder IDs with your actual resource IDs:
 - KV namespace IDs
@@ -253,7 +253,7 @@ pnpm dev
 # Runs on http://localhost:8787
 ```
 
-> No `[dev]` port is configured in any `wrangler.toml`, so each worker
+> No `[dev]` port is configured in any `wrangler.jsonc`, so each worker
 > defaults to port 8787. To run more than one worker at the same time, pass
 > distinct ports explicitly (e.g. `pnpm dev --port 8788`).
 
@@ -304,21 +304,10 @@ cd apps/workers/rate-limiter
 pnpm run deploy
 ```
 
-### Environment-Specific Deployment
-
-Deploy to specific environments:
-
-```bash
-# Staging (the only [env.*] block defined in wrangler.toml)
-wrangler deploy --env staging
-# or, equivalently, via the package script:
-pnpm deploy:staging
-```
-
 ### CI/CD Workflow
 
 The GitHub Actions deploy workflow (`deploy-workers.yml`) supports:
-- **v6 actions**: Updated to actions/checkout@v6, actions/setup-node@v6, and pnpm/action-setup@v6
+- **CI actions**: actions/checkout@v7, actions/setup-node@v6, and pnpm/action-setup@v6
 - **Lockfile trigger**: Deployments automatically trigger on `pnpm-lock.yaml` changes affecting workers
 - **Manual dispatch**: Supports `workflow_dispatch` for on-demand deployments
 
@@ -330,7 +319,7 @@ Before deploying to production:
 - [ ] TypeScript compiles without errors (`pnpm typecheck`)
 - [ ] Environment variables configured
 - [ ] Cloudflare resources created (R2, KV, etc.)
-- [ ] wrangler.toml updated with correct IDs
+- [ ] wrangler.jsonc updated with correct IDs
 - [ ] CORS origins configured
 - [ ] Rate limits tested
 - [ ] Observability enabled
@@ -362,7 +351,7 @@ Monitor workers in the Cloudflare dashboard:
 
 ### OpenTelemetry
 
-All workers have observability enabled in `wrangler.toml`:
+All workers have observability enabled in `wrangler.jsonc`:
 
 ```toml
 [observability]
@@ -384,10 +373,10 @@ This provides:
 Error: KV namespace binding RATE_LIMITS not found
 ```
 
-Solution: Create KV namespace and update `wrangler.toml`:
+Solution: Create KV namespace and update `wrangler.jsonc`:
 ```bash
 wrangler kv namespace create "RATE_LIMITS"
-# Copy the ID to wrangler.toml
+# Copy the ID to wrangler.jsonc
 ```
 
 **2. R2 Bucket Not Found**
@@ -402,7 +391,7 @@ wrangler r2 bucket create nextcalc-exports-public
 
 **3. CORS Errors**
 
-Solution: Verify `ALLOWED_ORIGINS` in `wrangler.toml`:
+Solution: Verify `ALLOWED_ORIGINS` in `wrangler.jsonc`:
 ```toml
 [vars]
 ALLOWED_ORIGINS = "http://localhost:3005,https://nextcalc.io"
@@ -484,8 +473,8 @@ Typical performance metrics:
 
 ### Code Style
 
-- TypeScript strict mode required
-- Biome 2.5.1 for linting and formatting
+- TypeScript strict mode required (TypeScript 7 native gate)
+- Biome 2.x for linting and formatting
 - Single quotes, 2-space indent, trailing commas
 - JSDoc comments for all public functions
 

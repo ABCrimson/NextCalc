@@ -10,6 +10,7 @@
  * All transformations are immutable and preserve mathematical equivalence.
  */
 
+import { gcd } from '../number-theory';
 import type { ExpressionNode, FunctionNode, OperatorNode, UnaryOperatorNode } from '../parser/ast';
 import {
   createConstantNode,
@@ -1156,20 +1157,6 @@ function termsToExpression(terms: PolynomialTerm[], variable: string): Expressio
   }
 
   return result;
-}
-
-/**
- * Calculate GCD of two numbers
- */
-function gcd(a: number, b: number): number {
-  a = Math.abs(Math.round(a));
-  b = Math.abs(Math.round(b));
-  while (b !== 0) {
-    const t = b;
-    b = a % b;
-    a = t;
-  }
-  return a;
 }
 
 /**

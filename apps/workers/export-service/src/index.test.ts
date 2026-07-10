@@ -148,32 +148,28 @@ import app from './index.js';
 // R2 mock factory
 // ---------------------------------------------------------------------------
 
-interface MockR2Object {
-  key: string;
-  version: string;
-  size: number;
-  etag: string;
-  httpEtag: string;
-  uploaded: Date;
-  httpMetadata?: { contentType?: string };
-  customMetadata?: Record<string, string>;
-}
+// R2Object / R2Bucket are ambient globals from @cloudflare/workers-types
+// (see tsconfig.json "types") — no import needed.
+type MockR2Object = R2Object;
 
 function createMockR2Bucket(
   overrides: Partial<{
     putResult: MockR2Object | null;
   }> = {},
-) {
+): R2Bucket {
   const defaultPutResult: MockR2Object = {
     key: 'public/2026-02-18/mock-uuid.svg',
     version: '1',
     size: 1024,
     etag: 'abc123',
     httpEtag: '"abc123"',
+    checksums: { toJSON: () => ({}) },
     uploaded: new Date(),
     httpMetadata: { contentType: 'image/svg+xml' },
     customMetadata: {},
-  };
+    storageClass: 'Standard',
+    writeHttpMetadata: vi.fn(),
+  } as MockR2Object;
 
   return {
     put: vi.fn().mockResolvedValue(overrides.putResult ?? defaultPutResult),
@@ -181,7 +177,9 @@ function createMockR2Bucket(
     delete: vi.fn().mockResolvedValue(undefined),
     head: vi.fn().mockResolvedValue(null),
     list: vi.fn().mockResolvedValue({ objects: [], truncated: false, delimitedPrefixes: [] }),
-  };
+    createMultipartUpload: vi.fn(),
+    resumeMultipartUpload: vi.fn(),
+  } as R2Bucket;
 }
 
 // ---------------------------------------------------------------------------

@@ -96,11 +96,11 @@ wrangler login
 ```bash
 # For rate-limiter: create KV namespace
 wrangler kv namespace create "RATE_LIMITS"
-# Copy the namespace ID to apps/workers/rate-limiter/wrangler.toml
+# Copy the namespace ID to apps/workers/rate-limiter/wrangler.jsonc
 
 # For export-service: create R2 bucket
 wrangler r2 bucket create nextcalc-exports-public
-# Update bucket name in apps/workers/export-service/wrangler.toml
+# Update bucket name in apps/workers/export-service/wrangler.jsonc
 ```
 
 ### Deploy Each Worker
@@ -142,44 +142,11 @@ curl https://your-rate-limiter.workers.dev/health
 
 ## Database Setup (Neon PostgreSQL)
 
-### 1. Create Neon Project
+Full step-by-step account creation, connection-string configuration, and OAuth setup live in [docs/SETUP.md](./SETUP.md) -- follow that guide first. The production-specific differences are:
 
-1. Sign up at [neon.tech](https://neon.tech)
-2. Create project named `nextcalc-pro`
-3. Choose PostgreSQL 15+ and your closest region
-4. Copy the **pooled connection string** (recommended for serverless)
-
-### 2. Configure Connection Strings
-
-```env
-DATABASE_URL="postgresql://user:password@host.neon.tech:5432/database?sslmode=require"
-DIRECT_DATABASE_URL="postgresql://user:password@host.neon.tech:5432/database?sslmode=require"
-```
-
-For production with connection pooling:
-
-```
-postgresql://user:pass@host.neon.tech/db?sslmode=require&pgbouncer=true
-```
-
-### 3. Apply Schema
-
-```bash
-# From project root
-pnpm --filter @nextcalc/database db:push
-```
-
-For production migrations:
-
-```bash
-pnpm --filter @nextcalc/database db:migrate:deploy
-```
-
-### 4. Verify
-
-```bash
-pnpm --filter @nextcalc/database db:studio
-```
+- Use the **pooled connection string** (`?sslmode=require&pgbouncer=true`) for `DATABASE_URL` in Vercel, and a non-pooled `DIRECT_DATABASE_URL` for migrations.
+- Apply schema changes with `pnpm --filter @nextcalc/database db:migrate:deploy` (not `db:push`, which is dev-only) once the project is live.
+- Verify with `pnpm --filter @nextcalc/database db:studio` against the production `DATABASE_URL`.
 
 ---
 
@@ -252,19 +219,18 @@ Create **separate** OAuth apps for production:
 
 ### GitHub Actions CI Pipeline
 
-The CI pipeline (`.github/workflows/ci.yml`) runs 6 jobs on every push to `main` and on pull requests:
+The CI pipeline (`.github/workflows/ci.yml`) runs 5 jobs on every push to `main` and on pull requests:
 
 | Job | What It Does | Timeout |
 |-----|-------------|---------|
 | **Install** | `pnpm install --frozen-lockfile` + Prisma generate + cache `node_modules` | 10 min |
-| **Lint** | `pnpm turbo run lint` (Biome 2.5.1) | 10 min |
-| **Typecheck** | `pnpm turbo run typecheck` (TypeScript 6.0) | 15 min |
-| **Typecheck (fast, advisory)** | `pnpm turbo run typecheck:fast` (TS7 `tsgo`, non-blocking via `continue-on-error`) | 10 min |
+| **Lint** | `pnpm turbo run lint` (Biome) | 10 min |
+| **Typecheck** | `pnpm turbo run typecheck` -- TypeScript 7 native (the Go-based compiler) gates 8 of the 10 packages; `@nextcalc/web` and `@nextcalc/plot-engine` still run classic `tsc` 6.0.x (see [DEVELOPMENT.md](../DEVELOPMENT.md#typescript) for why). There is no separate advisory/`tsgo` job -- this single job is the real gate for every package. | 15 min |
 | **Build** | `pnpm turbo run build` (requires `AUTH_SECRET` env var) | 20 min |
 | **Test** | `pnpm turbo run test` (Vitest, with 300s timeout) | 10 min |
 
 **Key details:**
-- Actions: `actions/checkout@v6`, `actions/setup-node@v6`, `pnpm/action-setup@v6`
+- Actions: `actions/checkout@v7`, `actions/setup-node@v6`, `pnpm/action-setup@v6`
 - Node 26 (the `engines.node` floor stays `>=24` for Vercel's cap), pnpm 11 with `--frozen-lockfile`
 - `AUTH_SECRET: ci-build-placeholder` must be set in the Build step (NextAuth requires it at build time)
 - Turbo remote caching via `TURBO_TOKEN` / `TURBO_TEAM` secrets

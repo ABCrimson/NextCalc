@@ -43,6 +43,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Link, useRouter } from '@/i18n/navigation';
 import { useSession } from '@/lib/auth/hooks';
 import { FORUM_POSTS_QUERY } from '@/lib/graphql/forum-operations';
+import { useFragment } from '@/lib/graphql/generated';
+import { UserSummaryFragmentDoc } from '@/lib/graphql/generated/graphql';
 import { cn } from '@/lib/utils';
 
 // ============================================================================
@@ -191,7 +193,11 @@ export default function ForumPage() {
     (sum: number, p: ForumPostNode) => sum + (p.commentCount ?? 0),
     0,
   );
-  const totalContributors = new Set(graphqlPosts.map((p: ForumPostNode) => p.user.id)).size;
+  const contributors = useFragment(
+    UserSummaryFragmentDoc,
+    graphqlPosts.map((p: ForumPostNode) => p.user),
+  );
+  const totalContributors = new Set(contributors.map((u) => u.id)).size;
 
   const handleNewPost = useCallback(() => {
     if (authStatus !== 'authenticated') {

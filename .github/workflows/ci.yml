@@ -27,8 +27,6 @@ jobs:
       - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v6
-        with:
-          version: 11.0.0-alpha.11
 
       - uses: actions/setup-node@v6
         with:
@@ -66,8 +64,6 @@ jobs:
       - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v6
-        with:
-          version: 11.0.0-alpha.11
 
       - uses: actions/setup-node@v6
         with:
@@ -90,6 +86,14 @@ jobs:
 
   # ---------------------------------------------------------------------------
   # Typecheck (tsc --noEmit across all packages via turbo)
+  #
+  # TypeScript 7 (native compiler) is the gate for every package except:
+  # - @nextcalc/web: Next.js build-time checking + graphql-codegen need the
+  #   TypeScript JS API, which ships in TS 7.1 (web stays on tsc 6.0.3)
+  # - @nextcalc/plot-engine: three.js TSL node-union types hang the native
+  #   checker (upstream typescript-go limitation; stays on tsc 6.0.3)
+  # Re-unify on TS 7.x when Next.js supports the native compiler and the
+  # TSL type expansion is fixed upstream.
   # ---------------------------------------------------------------------------
   typecheck:
     name: Typecheck
@@ -100,8 +104,6 @@ jobs:
       - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v6
-        with:
-          version: 11.0.0-alpha.11
 
       - uses: actions/setup-node@v6
         with:
@@ -131,50 +133,6 @@ jobs:
         run: pnpm turbo run typecheck
 
   # ---------------------------------------------------------------------------
-  # Typecheck (advisory) — TypeScript 7 native preview (tsgo). Non-blocking
-  # (continue-on-error); runs side-by-side with the tsc gate to surface
-  # TS7-forward issues early without blocking merges.
-  #
-  # @nextcalc/web and @nextcalc/plot-engine are excluded: both consume
-  # three.js@0.185 TSL (Three Shading Language) node types, whose operator
-  # overloads (e.g. `node.add(...)`) expand into unions the native compiler
-  # cannot yet resolve — tsgo hangs on them (tsc 6.x in the gate handles them
-  # fine). This is an upstream tsgo/three limitation, not a type error in our
-  # code. Re-include these packages once tsgo or three's TSL types improve.
-  # ---------------------------------------------------------------------------
-  typecheck-fast:
-    name: Typecheck (TS7 tsgo, advisory)
-    needs: install
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: pnpm/action-setup@v6
-        with:
-          version: 11.0.0-alpha.11
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Restore node_modules cache
-        uses: actions/cache/restore@v6
-        with:
-          path: |
-            node_modules
-            apps/*/node_modules
-            apps/workers/*/node_modules
-            packages/*/node_modules
-            packages/database/src/generated
-          key: nm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
-          fail-on-cache-miss: true
-
-      - name: Run tsgo (advisory)
-        run: pnpm turbo run typecheck:fast --filter='!@nextcalc/web' --filter='!@nextcalc/plot-engine'
-
-  # ---------------------------------------------------------------------------
   # Test (Vitest across math-engine, plot-engine, web, api)
   # ---------------------------------------------------------------------------
   test:
@@ -186,8 +144,6 @@ jobs:
       - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v6
-        with:
-          version: 11.0.0-alpha.11
 
       - uses: actions/setup-node@v6
         with:
@@ -215,18 +171,24 @@ jobs:
 
       - name: Run tests
         run: |
-          # Run tests with a timeout. Use exit code directly for pass/fail.
-          # Vitest may hang during cleanup (known issue); exit 124 from
-          # timeout is treated as success since tests themselves completed.
-          timeout 300 pnpm turbo run test || {
-            code=$?
-            if [ $code -eq 124 ]; then
-              echo "::notice::Tests passed but process cleanup timed out (known vitest issue)"
-              exit 0
+          # Vitest (web) may hang in process cleanup AFTER printing results
+          # (known issue), so the run is bounded by `timeout`. Exit 124 is
+          # accepted ONLY when the captured log shows no failures and no
+          # worker/unhandled errors — a genuinely hanging test also produces
+          # exit 124, and that must fail the job. (An unconditional
+          # 124-is-success guard previously masked an infinite loop in
+          # math-engine's polynomial LCM for the suite's entire lifetime.)
+          timeout 300 pnpm turbo run test 2>&1 | tee test-output.log
+          code=${PIPESTATUS[0]}
+          if [ "$code" -eq 124 ]; then
+            if grep -qE "(Tests|Test Files)[^|]*failed|Unhandled Error|Worker exited unexpectedly" test-output.log; then
+              echo "::error::Test run timed out WITH failures or worker errors — not a benign cleanup hang"
+              exit 1
             fi
-            echo "::error::Tests failed (exit code $code)"
-            exit 1
-          }
+            echo "::notice::Tests passed but process cleanup timed out (known vitest issue)"
+            exit 0
+          fi
+          exit "$code"
 
   # ---------------------------------------------------------------------------
   # Build (full production build via turbo)
@@ -240,8 +202,6 @@ jobs:
       - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v6
-        with:
-          version: 11.0.0-alpha.11
 
       - uses: actions/setup-node@v6
         with:

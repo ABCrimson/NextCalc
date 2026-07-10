@@ -2,7 +2,7 @@
 
 import { dft, fft } from '@nextcalc/math-engine/fourier';
 import { Activity, Clock, Waves, Zap } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { FrequencySpectrumRenderer } from '@/components/fourier/frequency-spectrum-renderer';
 import { TimeDomainRenderer } from '@/components/fourier/time-domain-renderer';
@@ -28,6 +28,7 @@ interface AlgorithmTiming {
 
 export default function FourierAnalysisPage() {
   const t = useTranslations('fourier');
+  const format = useFormatter();
   const [sampleSize, setSampleSize] = useState<number>(128);
   const [sampleRate, setSampleRate] = useState<number>(44100);
   const [algorithm, setAlgorithm] = useState<'fft' | 'dft'>('fft');
@@ -257,7 +258,7 @@ export default function FourierAnalysisPage() {
                   className="w-full"
                 />
                 <p className="text-xs text-muted-foreground/70">
-                  Max frequency = {(sampleRate / 2).toLocaleString()} Hz (Nyquist)
+                  Max frequency = {format.number(sampleRate / 2)} Hz (Nyquist)
                 </p>
               </div>
 

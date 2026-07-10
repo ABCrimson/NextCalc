@@ -1,0 +1,8 @@
+# Enforce LF in working trees on every platform (Biome formats/checks LF).
+* text=auto eol=lf
+
+# Binary assets — never convert.
+*.png binary
+*.ico binary
+*.woff2 binary
+*.wasm binary

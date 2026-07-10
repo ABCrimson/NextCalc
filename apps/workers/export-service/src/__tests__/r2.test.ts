@@ -20,13 +20,13 @@ import {
   generateExportUrl,
   getMimeType,
   listR2Objects,
-  type R2Bucket,
-  type R2Object,
-  type R2ObjectBody,
   type R2S3Config,
   uploadToR2,
   validateFileSize,
 } from '../utils/r2.js';
+
+// R2Bucket / R2Object / R2ObjectBody are ambient globals from
+// @cloudflare/workers-types (see tsconfig.json "types") — no import needed.
 
 // ---------------------------------------------------------------------------
 // aws4fetch mock — keeps tests offline; records the URL that would be signed.
@@ -80,10 +80,13 @@ function createMockR2Object(overrides: Partial<R2Object> = {}): R2Object {
     size: 1024,
     etag: '"abc123"',
     httpEtag: '"abc123"',
+    checksums: { toJSON: () => ({}) },
     uploaded: new Date('2026-03-01T00:00:00Z'),
     httpMetadata: { contentType: 'application/pdf' },
+    storageClass: 'Standard',
+    writeHttpMetadata: vi.fn(),
     ...overrides,
-  };
+  } as R2Object;
 }
 
 function createMockR2ObjectBody(overrides: Partial<R2Object> = {}): R2ObjectBody {
@@ -91,7 +94,9 @@ function createMockR2ObjectBody(overrides: Partial<R2Object> = {}): R2ObjectBody
   return {
     ...obj,
     body: new ReadableStream(),
+    bodyUsed: false,
     arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(1024)),
+    bytes: vi.fn().mockResolvedValue(new Uint8Array(1024)),
     text: vi.fn().mockResolvedValue('file content'),
     json: vi.fn().mockResolvedValue({ data: 'test' }),
     blob: vi.fn().mockResolvedValue(new Blob(['test'])),
@@ -109,8 +114,10 @@ function createMockBucket(overrides: Partial<R2Bucket> = {}): R2Bucket {
       truncated: false,
       delimitedPrefixes: [],
     }),
+    createMultipartUpload: vi.fn(),
+    resumeMultipartUpload: vi.fn(),
     ...overrides,
-  };
+  } as R2Bucket;
 }
 
 // ---------------------------------------------------------------------------

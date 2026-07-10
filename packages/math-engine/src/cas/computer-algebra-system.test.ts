@@ -344,8 +344,46 @@ describe('ComputerAlgebraSystem', () => {
 
       const result = cas.dividePolynomials(dividend, divisor);
 
-      expect(result.quotient).toBeDefined();
-      expect(result.remainder).toBeDefined();
+      // (x^2 - 5x + 6) / (x - 2) = x - 3 exactly — ascending coefficients
+      expect(result.quotient.coefficients).toEqual([-3, 1]);
+      expect(result.quotient.degree).toBe(1);
+      expect(result.remainder.coefficients).toEqual([0]);
+      expect(result.remainder.degree).toBe(0);
+    });
+
+    it('should throw when dividing by the zero polynomial', () => {
+      const cas = createCAS();
+
+      const dividend = {
+        coefficients: [1, 1],
+        variable: 'x',
+        degree: 1,
+      };
+
+      // Zero polynomial in a non-canonical shape (empty coefficients) —
+      // regression: this used to enter an infinite loop instead of throwing.
+      expect(() =>
+        cas.dividePolynomials(dividend, { coefficients: [], variable: 'x', degree: -1 }),
+      ).toThrow('zero polynomial');
+      expect(() =>
+        cas.dividePolynomials(dividend, { coefficients: [0], variable: 'x', degree: 0 }),
+      ).toThrow('zero polynomial');
+    });
+
+    it('should terminate GCD of coprime polynomials with a constant', () => {
+      const cas = createCAS();
+
+      // gcd(x - 2, x - 3): the Euclidean remainder collapses to a constant,
+      // then to the zero polynomial — regression for the infinite loop when
+      // the zero remainder was represented as an empty coefficient array.
+      const gcd = cas.gcdPolynomials(
+        { coefficients: [-2, 1], variable: 'x', degree: 1 },
+        { coefficients: [-3, 1], variable: 'x', degree: 1 },
+      );
+
+      expect(gcd.degree).toBe(0);
+      expect(gcd.coefficients).toHaveLength(1);
+      expect(gcd.coefficients[0]).not.toBe(0);
     });
 
     it('should compute GCD of polynomials', () => {
@@ -386,8 +424,9 @@ describe('ComputerAlgebraSystem', () => {
 
       const lcm = cas.lcmPolynomials(a, b);
 
-      expect(lcm).toBeDefined();
-      expect(lcm.degree).toBe(2); // Should be degree 2
+      // lcm(x - 2, x - 3) = (x - 2)(x - 3) = x^2 - 5x + 6
+      expect(lcm.degree).toBe(2);
+      expect(lcm.coefficients).toEqual([6, -5, 1]);
     });
   });
 

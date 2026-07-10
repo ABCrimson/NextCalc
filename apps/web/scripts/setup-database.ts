@@ -129,7 +129,7 @@ async function setupDatabase() {
 
   const continueSeed = await question('Seed database with sample data? (y/N): ');
   if (continueSeed.toLowerCase() === 'y') {
-    executeCommand('pnpm tsx scripts/seed-database.ts', 'Seeding database');
+    executeCommand('pnpm --filter @nextcalc/database db:seed:samples', 'Seeding database');
   }
 
   // Step 6: Verify setup

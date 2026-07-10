@@ -1,40 +1,28 @@
-'use client';
-
 import { Brain } from 'lucide-react';
-import dynamic from 'next/dynamic';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
-
-const TransformerVisualizer = dynamic(
-  () =>
-    import('@/components/algorithms/TransformerVisualizer').then((m) => ({
-      default: m.TransformerVisualizer,
-    })),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="animate-pulse space-y-4">
-        <div className="h-8 bg-muted rounded-lg w-48" />
-        <div className="h-80 bg-muted rounded-xl" />
-      </div>
-    ),
-  },
-);
+import { TransformerVisualizerLazy } from './transformer-visualizer-lazy';
 
 /**
  * Transformers Algorithm Page
  *
  * Interactive visualization of transformer attention mechanisms.
  * Shows query, key, and value matrix operations in real-time.
+ *
+ * Server Component — page-level strings are translated on the server and
+ * passed to the client `AlgorithmPage` shell as plain props. The visualizer
+ * is client-side lazy-loaded via `transformer-visualizer-lazy.tsx`.
  */
-export default function TransformersPage() {
-  const t = useTranslations('algorithms.transformers');
-  const ta = useTranslations('algorithms');
+export default async function TransformersPage() {
+  const [t, ta] = await Promise.all([
+    getTranslations('algorithms.transformers'),
+    getTranslations('algorithms'),
+  ]);
 
   return (
     <AlgorithmPage
       title={t('title')}
-      icon={Brain}
+      icon={<Brain />}
       category="machine-learning"
       difficulty="intermediate"
       timeComplexity="O(n²d)"
@@ -75,7 +63,7 @@ export default function TransformersPage() {
         },
       ]}
     >
-      <TransformerVisualizer showExplanations={true} />
+      <TransformerVisualizerLazy showExplanations={true} />
     </AlgorithmPage>
   );
 }

@@ -306,7 +306,7 @@ function SliderRow({ name, config, onValueChange, onMinChange, onMaxChange }: Sl
             // Track styling via CSS custom properties injected below
             'bg-linear-to-r/oklab from-cyan-500/40 to-blue-500/40',
             '[&::-webkit-slider-thumb]:appearance-none',
-            '[&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:h-3.5',
+            '[&::-webkit-slider-thumb]:size-3.5',
             '[&::-webkit-slider-thumb]:rounded-full',
             '[&::-webkit-slider-thumb]:bg-linear-to-br/oklab',
             '[&::-webkit-slider-thumb]:from-cyan-400 [&::-webkit-slider-thumb]:to-blue-400',
@@ -315,7 +315,7 @@ function SliderRow({ name, config, onValueChange, onMinChange, onMaxChange }: Sl
             '[&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:active:cursor-grabbing',
             '[&::-webkit-slider-thumb]:transition-transform',
             '[&::-webkit-slider-thumb]:hover:scale-125',
-            '[&::-moz-range-thumb]:w-3.5 [&::-moz-range-thumb]:h-3.5',
+            '[&::-moz-range-thumb]:size-3.5',
             '[&::-moz-range-thumb]:rounded-full',
             '[&::-moz-range-thumb]:bg-linear-to-br/oklab',
             '[&::-moz-range-thumb]:from-cyan-400 [&::-moz-range-thumb]:to-blue-400',

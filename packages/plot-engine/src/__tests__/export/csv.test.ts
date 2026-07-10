@@ -197,9 +197,12 @@ describe('downloadAsCSV2D', () => {
     expect(mockLink.download).toBe('export.csv');
   });
 
-  it('should create a Blob and revoke the object URL', () => {
+  it('should create a Blob and revoke the object URL (deferred to the next tick)', async () => {
     downloadAsCSV2D([{ x: 1, y: 2 }], 'test');
     expect(URL.createObjectURL).toHaveBeenCalled();
+    expect(URL.revokeObjectURL).not.toHaveBeenCalled();
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
     expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock-url');
   });
 });

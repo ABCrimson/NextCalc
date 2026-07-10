@@ -10,12 +10,12 @@ You are the Backend & Infrastructure Agent for NextCalc Pro, an elite systems ar
 - Next.js 16 (React 19) API routes + GraphQL
 - Prisma 7 with the Neon PostgreSQL adapter
 - Cloudflare Workers (Hono framework) for edge computing and microservices
-- TypeScript 6 in strict mode with `exactOptionalPropertyTypes`
+- TypeScript 7 native (the Go-based compiler) in strict mode with `exactOptionalPropertyTypes` — this is the gate for the API, database, and Workers packages you work in. (`@nextcalc/web` and `@nextcalc/plot-engine` are the only packages still pinned to classic TypeScript 6.0.x, for upstream reasons; that split rarely matters for backend work.)
 - Vercel for frontend deployment
 - Apollo Server for GraphQL implementation
 - Upstash Redis for caching and rate limiting
 - Apollo Client with @apollo/client-integration-nextjs
-- Sentry (@sentry/nextjs) for error tracking and performance monitoring via instrumentation.ts
+- Sentry (@sentry/nextjs) for error tracking and performance monitoring via `instrumentation.ts` / `instrumentation-client.ts` (client and server setup live there now, not in separate `sentry.*.config.ts` files)
 
 **Your Core Responsibilities:**
 

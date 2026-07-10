@@ -205,7 +205,7 @@ function AnimatedBackground({ shouldReduceMotion }: { shouldReduceMotion: boolea
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none" aria-hidden="true">
       {/* Orb 1 — top-right: blue/indigo */}
       <m.div
-        className="absolute -top-40 -right-40 w-[640px] h-[640px] rounded-full blur-3xl"
+        className="absolute -top-40 -right-40 size-[640px] rounded-full blur-3xl"
         style={{
           background:
             'radial-gradient(circle, oklch(0.65 0.22 264 / 0.14) 0%, oklch(0.58 0.18 264 / 0.07) 55%, transparent 100%)',
@@ -216,7 +216,7 @@ function AnimatedBackground({ shouldReduceMotion }: { shouldReduceMotion: boolea
 
       {/* Orb 2 — bottom-left: purple/violet */}
       <m.div
-        className="absolute -bottom-48 -left-48 w-[700px] h-[700px] rounded-full blur-3xl"
+        className="absolute -bottom-48 -left-48 size-[700px] rounded-full blur-3xl"
         style={{
           background:
             'radial-gradient(circle, oklch(0.60 0.22 300 / 0.13) 0%, oklch(0.55 0.18 300 / 0.06) 55%, transparent 100%)',
@@ -227,7 +227,7 @@ function AnimatedBackground({ shouldReduceMotion }: { shouldReduceMotion: boolea
 
       {/* Orb 3 — center-left: indigo accent */}
       <m.div
-        className="absolute top-1/2 -left-24 w-[480px] h-[480px] rounded-full blur-3xl"
+        className="absolute top-1/2 -left-24 size-[480px] rounded-full blur-3xl"
         style={{
           background:
             'radial-gradient(circle, oklch(0.62 0.20 245 / 0.10) 0%, oklch(0.55 0.15 245 / 0.04) 60%, transparent 100%)',

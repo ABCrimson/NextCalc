@@ -110,7 +110,7 @@ export default function ProblemsPageClient({ problems, stats }: ProblemsPageClie
 
         {/* Orb 1 — indigo, top-right quadrant */}
         <m.div
-          className="absolute top-[-10%] right-[-5%] w-[560px] h-[560px] rounded-full blur-3xl"
+          className="absolute top-[-10%] right-[-5%] size-[560px] rounded-full blur-3xl"
           style={{
             background:
               'radial-gradient(circle, oklch(0.55 0.27 264 / 0.18) 0%, oklch(0.55 0.27 264 / 0.04) 60%, transparent 100%)',
@@ -129,7 +129,7 @@ export default function ProblemsPageClient({ problems, stats }: ProblemsPageClie
 
         {/* Orb 2 — blue, bottom-left quadrant */}
         <m.div
-          className="absolute bottom-[-15%] left-[-10%] w-[640px] h-[640px] rounded-full blur-3xl"
+          className="absolute bottom-[-15%] left-[-10%] size-[640px] rounded-full blur-3xl"
           style={{
             background:
               'radial-gradient(circle, oklch(0.60 0.22 230 / 0.16) 0%, oklch(0.60 0.22 230 / 0.04) 60%, transparent 100%)',
@@ -148,7 +148,7 @@ export default function ProblemsPageClient({ problems, stats }: ProblemsPageClie
 
         {/* Orb 3 — cyan, center */}
         <m.div
-          className="absolute top-[35%] left-[40%] w-[420px] h-[420px] rounded-full blur-3xl"
+          className="absolute top-[35%] left-[40%] size-[420px] rounded-full blur-3xl"
           style={{
             background:
               'radial-gradient(circle, oklch(0.70 0.18 200 / 0.12) 0%, oklch(0.70 0.18 200 / 0.03) 60%, transparent 100%)',

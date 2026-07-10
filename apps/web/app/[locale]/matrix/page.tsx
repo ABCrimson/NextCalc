@@ -39,7 +39,7 @@ export default async function MatrixPage() {
 
         {/* Orb 1 – top-right: blue/indigo */}
         <div
-          className="absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full blur-3xl"
+          className="absolute -top-32 -right-32 size-[600px] rounded-full blur-3xl"
           style={{
             background:
               'radial-gradient(circle, oklch(0.65 0.22 264 / 0.14) 0%, oklch(0.55 0.27 264 / 0.07) 60%, transparent 100%)',
@@ -49,7 +49,7 @@ export default async function MatrixPage() {
 
         {/* Orb 2 – bottom-left: indigo/purple */}
         <div
-          className="absolute -bottom-40 -left-40 w-[700px] h-[700px] rounded-full blur-3xl"
+          className="absolute -bottom-40 -left-40 size-[700px] rounded-full blur-3xl"
           style={{
             background:
               'radial-gradient(circle, oklch(0.60 0.22 290 / 0.12) 0%, oklch(0.55 0.24 290 / 0.06) 60%, transparent 100%)',
@@ -59,7 +59,7 @@ export default async function MatrixPage() {
 
         {/* Orb 3 – center: subtle violet */}
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-3xl"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[500px] rounded-full blur-3xl"
           style={{
             background: 'radial-gradient(circle, oklch(0.62 0.18 275 / 0.08) 0%, transparent 70%)',
             animation: 'float 32s ease-in-out infinite 8s',

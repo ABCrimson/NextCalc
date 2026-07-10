@@ -12,6 +12,9 @@
  * @module number-theory/primes
  */
 
+import { gcd } from './gcd';
+import { modPow } from './modular';
+
 /**
  * Prime factorization result
  */
@@ -100,29 +103,6 @@ export function millerRabin(n: number, rounds = 5): boolean {
   }
 
   return true; // Probably prime
-}
-
-/**
- * Modular exponentiation: (base^exp) mod mod
- *
- * Uses BigInt to avoid overflow for large numbers.
- * Time Complexity: O(log exp)
- */
-function modPow(base: number, exp: number, mod: number): number {
-  let b = BigInt(base) % BigInt(mod);
-  let e = BigInt(exp);
-  const m = BigInt(mod);
-  let result = 1n;
-
-  while (e > 0n) {
-    if (e & 1n) {
-      result = (result * b) % m;
-    }
-    e >>= 1n;
-    b = (b * b) % m;
-  }
-
-  return Number(result);
 }
 
 /**
@@ -420,16 +400,6 @@ export function primeFactorize(n: number): PrimeFactorization {
 
   factorize(n);
   return { factors, n };
-}
-
-/**
- * Greatest Common Divisor using Euclidean algorithm
- */
-function gcd(a: number, b: number): number {
-  while (b !== 0) {
-    [a, b] = [b, a % b];
-  }
-  return a;
 }
 
 /**

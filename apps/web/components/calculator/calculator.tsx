@@ -2,10 +2,11 @@
 
 import type { CalculatorAction } from '@nextcalc/types';
 import { BarChart3, Sigma } from 'lucide-react';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useEffect, useEffectEvent, useOptimistic, useRef, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
+import { Link } from '@/i18n/navigation';
 import { parseShareParams } from '@/lib/share';
 import {
   useCalculatorAngleMode,
@@ -19,6 +20,7 @@ import { Keyboard } from './keyboard';
 import { ShortcutsModal } from './shortcuts-modal';
 
 export function Calculator() {
+  const t = useTranslations('calc');
   // React 19.3.0: useTransition for non-blocking state updates
   const [isPending, startTransition] = useTransition();
 
@@ -146,7 +148,7 @@ export function Calculator() {
             size="lg"
           >
             <BarChart3 className="size-5 mr-2" />
-            <span className="font-semibold">Plot Functions</span>
+            <span className="font-semibold">{t('plotFunctions')}</span>
           </Button>
         </Link>
 
@@ -157,7 +159,7 @@ export function Calculator() {
             size="lg"
           >
             <Sigma className="size-5 mr-2" />
-            <span className="font-semibold">Symbolic Math</span>
+            <span className="font-semibold">{t('symbolicMath')}</span>
           </Button>
         </Link>
       </div>

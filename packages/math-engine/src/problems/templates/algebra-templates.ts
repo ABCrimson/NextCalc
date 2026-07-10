@@ -12,6 +12,7 @@
  * - Radical equations
  */
 
+import { gcd } from '../../number-theory';
 import { createTemplate, narrow, type ProblemTemplate } from './template-engine';
 
 /**
@@ -536,22 +537,6 @@ export const rationalSimplificationTemplate = createTemplate({
   prerequisites: ['fractions', 'factoring'],
   learningObjectives: ['Simplify rational expressions', 'Find common factors'],
 });
-
-/**
- * Helper function: GCD
- */
-function gcd(a: number, b: number): number {
-  a = Math.abs(a);
-  b = Math.abs(b);
-
-  while (b !== 0) {
-    const temp = b;
-    b = a % b;
-    a = temp;
-  }
-
-  return a;
-}
 
 /**
  * Helper function: Flip inequality

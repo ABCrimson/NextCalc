@@ -645,6 +645,10 @@
       "explore": "Explorer",
       "comingSoon": "Bientôt disponible"
     },
+    "controls": {
+      "stepForward": "Step forward",
+      "reset": "Reset simulation"
+    },
     "page": {
       "tryItYourself": "Essayez par vous-même",
       "realWorldApplications": "Applications réelles",
@@ -898,6 +902,15 @@
       "predictions": "Prédictions"
     }
   },
+  "difficulty": {
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "master": "Master",
+    "badgeLabel": "Difficulty: {level}",
+    "scaleLabel": "Difficulty scale",
+    "currentLabel": "Current difficulty: {level}"
+  },
   "matrix": {
     "title": "Opérations matricielles",
     "description": "Algèbre linéaire avec matrices — addition, multiplication, déterminant, inverse, valeurs propres, et plus",
@@ -936,6 +949,32 @@
       "eigen": "Valeurs propres et vecteurs propres",
       "gaussJordan": "Élimination de Gauss-Jordan",
       "complex": "Matrices complexes"
+    },
+    "cards": {
+      "basicOperations": {
+        "title": "Basic Operations",
+        "description": "Add, subtract, and scalar multiply matrices. Supports matrices of any size."
+      },
+      "matrixMultiplication": {
+        "title": "Matrix Multiplication",
+        "description": "Compute matrix products with automatic dimension checking."
+      },
+      "determinant": {
+        "title": "Determinant",
+        "description": "Calculate determinants using LU decomposition for square matrices."
+      },
+      "matrixInverse": {
+        "title": "Matrix Inverse",
+        "description": "Find inverses using Gauss-Jordan elimination. Handles singular matrices gracefully."
+      },
+      "transpose": {
+        "title": "Transpose",
+        "description": "Transpose matrices to swap rows and columns."
+      },
+      "specialMatrices": {
+        "title": "Special Matrices",
+        "description": "Create identity, zero, ones, and random matrices."
+      }
     }
   },
   "solver": {
@@ -1417,8 +1456,10 @@
     "emptyDescription": "Créez votre premier cahier mathématique pour commencer.",
     "createFirst": "Créer une feuille de calcul",
     "noResults": "Aucune feuille de calcul ne correspond à votre recherche.",
+    "deleteConfirmTitle": "Supprimer la feuille de calcul ?",
     "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cette feuille de calcul ?",
     "delete": "Supprimer la feuille de calcul",
+    "cancel": "Annuler",
     "cellCount": "{count, plural, one {# cellule} other {# cellules}}",
     "views": "vues",
     "justNow": "à l'instant",

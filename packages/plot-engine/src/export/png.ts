@@ -7,10 +7,17 @@ import type { ExportPNGOptions } from '../types/index';
 import { colorToString } from '../utils/color';
 
 /**
- * Exports a canvas to PNG data URL
+ * Exports a canvas to a PNG object URL.
+ *
+ * Uses `canvas.toBlob()` (async, off the main thread's synchronous encode
+ * path) instead of `canvas.toDataURL()`, which synchronously base64-encodes
+ * the entire image on the calling thread and produces a ~33% larger string.
+ * The returned `blob:` URL must eventually be released with
+ * `URL.revokeObjectURL()` — `downloadAsPNG` below does this automatically.
+ *
  * @param canvas Canvas element to export
  * @param options Export options
- * @returns PNG data URL
+ * @returns Object URL (`blob:...`) pointing at the encoded PNG
  */
 export async function exportToPNG(
   canvas: HTMLCanvasElement,
@@ -38,8 +45,16 @@ export async function exportToPNG(
   ctx.scale(scale, scale);
   ctx.drawImage(canvas, 0, 0, width, height);
 
-  // Convert to data URL
-  return exportCanvas.toDataURL('image/png');
+  // Convert to a PNG blob, then to an object URL.
+  return new Promise<string>((resolve, reject) => {
+    exportCanvas.toBlob((blob) => {
+      if (!blob) {
+        reject(new Error('Failed to encode canvas as PNG'));
+        return;
+      }
+      resolve(URL.createObjectURL(blob));
+    }, 'image/png');
+  });
 }
 
 /**
@@ -53,13 +68,17 @@ export async function downloadAsPNG(
   filename: string,
   options: ExportPNGOptions,
 ): Promise<void> {
-  const dataUrl = await exportToPNG(canvas, options);
+  const url = await exportToPNG(canvas, options);
 
   // Create download link
   const link = document.createElement('a');
   link.download = filename.endsWith('.png') ? filename : `${filename}.png`;
-  link.href = dataUrl;
+  link.href = url;
   document.body.appendChild(link);
   link.click();
   link.remove();
+
+  // Defer revocation to the next tick — revoking synchronously can race the
+  // browser's own read of `link.href` when it kicks off the download.
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 }

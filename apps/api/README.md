@@ -5,16 +5,19 @@ Backend GraphQL API for NextCalc Pro, built with Apollo Server, Prisma, and Next
 ## Tech Stack
 
 - **Database:** Neon PostgreSQL with Prisma 7 (via the shared `@nextcalc/database` package)
-- **API:** GraphQL (graphql 17.0.1) with Apollo Server 5.5.1
-- **Authentication:** Auth.js v5 (NextAuth 5.0.0-beta.31) with OAuth + jose 6.2.3 JWT verification
+- **API:** GraphQL (graphql 17) with Apollo Server 5.5
+- **Authentication:** Auth.js v5 (NextAuth 5.0 beta) with OAuth + jose 6.2 JWT verification
 - **Caching:** Upstash Redis
 - **Rate Limiting:** Upstash Rate Limit
 - **Connection Pooling:** Neon Serverless Driver
-- **Linting/Formatting:** Biome 2.5
+- **Language:** TypeScript 7 native (this package is one of the 8/10 gated by the native `tsc` Go compiler -- see [DEVELOPMENT.md](../../DEVELOPMENT.md#typescript))
+- **Linting/Formatting:** Biome 2.x
+
+> Exact pinned versions live in [`apps/api/package.json`](package.json).
 
 ## Prerequisites
 
-- Node.js 22+ (26 recommended)
+- Node.js 24+ (26 recommended)
 - pnpm 11+
 - PostgreSQL database (Neon recommended)
 - Upstash Redis account (free tier)
@@ -83,7 +86,7 @@ apps/api/
 │   │       └── shared-calculation.ts  # Shared calculations
 │   ├── lib/
 │   │   ├── context.ts         # GraphQLContext type + auth helpers (requireAuth/requireRole/requireOwnership)
-│   │   ├── dataloaders.ts     # 11 DataLoader instances (N+1 prevention)
+│   │   ├── dataloaders.ts     # DataLoader instances (N+1 prevention) -- see docs/wiki/GraphQL-API.md for the current list
 │   │   ├── prisma.ts          # Prisma client re-export
 │   │   ├── auth-stub.ts       # Configurable auth function (setAuthFunction injection point)
 │   │   ├── cache.ts           # Upstash Redis caching (with invalidateByPrefix)
@@ -323,7 +326,7 @@ pnpm prisma migrate reset
 
 ### Optimization Strategies
 
-1. **DataLoaders** - 11 DataLoader instances batch and cache database queries (userById, folderById, worksheetSharesByWorksheetId, childFoldersByParentId, upvoteCountByTargetId, commentCountByPostId, forumPostById, commentById, repliesByParentCommentId, worksheetsByFolderId, hasUpvoted)
+1. **DataLoaders** - batch and cache database queries within each request; see [docs/wiki/GraphQL-API.md](../../docs/wiki/GraphQL-API.md#dataloaders) for the canonical, current list
 2. **Indexes** - Optimize common query patterns
 3. **Connection pooling** - Neon serverless driver
 4. **Cursor pagination** - Efficient for large datasets

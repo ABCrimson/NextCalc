@@ -645,6 +645,10 @@
       "explore": "探索",
       "comingSoon": "即将推出"
     },
+    "controls": {
+      "stepForward": "Step forward",
+      "reset": "Reset simulation"
+    },
     "page": {
       "tryItYourself": "亲自尝试",
       "realWorldApplications": "实际应用",
@@ -898,6 +902,15 @@
       "predictions": "预测"
     }
   },
+  "difficulty": {
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "master": "Master",
+    "badgeLabel": "Difficulty: {level}",
+    "scaleLabel": "Difficulty scale",
+    "currentLabel": "Current difficulty: {level}"
+  },
   "matrix": {
     "title": "矩阵运算",
     "description": "矩阵线性代数 — 加法、乘法、行列式、逆矩阵、特征值及更多",
@@ -936,6 +949,32 @@
       "eigen": "特征值和特征向量",
       "gaussJordan": "Gauss-Jordan 消元法",
       "complex": "复数矩阵"
+    },
+    "cards": {
+      "basicOperations": {
+        "title": "Basic Operations",
+        "description": "Add, subtract, and scalar multiply matrices. Supports matrices of any size."
+      },
+      "matrixMultiplication": {
+        "title": "Matrix Multiplication",
+        "description": "Compute matrix products with automatic dimension checking."
+      },
+      "determinant": {
+        "title": "Determinant",
+        "description": "Calculate determinants using LU decomposition for square matrices."
+      },
+      "matrixInverse": {
+        "title": "Matrix Inverse",
+        "description": "Find inverses using Gauss-Jordan elimination. Handles singular matrices gracefully."
+      },
+      "transpose": {
+        "title": "Transpose",
+        "description": "Transpose matrices to swap rows and columns."
+      },
+      "specialMatrices": {
+        "title": "Special Matrices",
+        "description": "Create identity, zero, ones, and random matrices."
+      }
     }
   },
   "solver": {
@@ -1417,8 +1456,10 @@
     "emptyDescription": "创建您的第一个数学笔记本开始吧。",
     "createFirst": "创建工作表",
     "noResults": "没有工作表匹配您的搜索。",
+    "deleteConfirmTitle": "删除工作表？",
     "deleteConfirm": "确定要删除此工作表吗？",
     "delete": "删除工作表",
+    "cancel": "取消",
     "cellCount": "{count, plural, one {# 个单元格} other {# 个单元格}}",
     "views": "次浏览",
     "justNow": "刚刚",

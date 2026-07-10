@@ -8,6 +8,5 @@ export {
   errorTrackingPlugin,
   performanceMonitoringPlugin,
   queryComplexityPlugin,
-  responseCachingPlugin,
   usageReportingPlugin,
 } from './performance-monitoring';

@@ -8,7 +8,11 @@
 
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { SHARED_CALCULATION_QUERY } from '@/lib/graphql/operations';
+import type { FragmentType } from '@/lib/graphql/generated';
+import {
+  type PUBLIC_USER_SUMMARY_FRAGMENT,
+  SHARED_CALCULATION_QUERY,
+} from '@/lib/graphql/operations';
 import { query } from '@/lib/graphql/rsc-client';
 import { SharedCalculationView } from './shared-calculation-view';
 
@@ -26,11 +30,8 @@ interface SharedCalculationData {
   result: string | null;
   createdAt: string;
   expiresAt: string | null;
-  user: {
-    id: string;
-    name: string | null;
-    image: string | null;
-  } | null;
+  /** Masked — unwrap with `useFragment(PublicUserSummaryFragmentDoc, user)` before reading fields */
+  user: FragmentType<typeof PUBLIC_USER_SUMMARY_FRAGMENT> | null;
 }
 
 interface PageProps {
@@ -48,8 +49,7 @@ async function getSharedCalculation(shortCode: string): Promise<SharedCalculatio
       variables: { shortCode },
     });
 
-    const result = data as { sharedCalculation: SharedCalculationData | null } | undefined;
-    return result?.sharedCalculation ?? null;
+    return data?.sharedCalculation ?? null;
   } catch {
     return null;
   }

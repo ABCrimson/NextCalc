@@ -14,18 +14,63 @@ allowBuilds:
   sharp: true
   workerd: true
 
+minimumReleaseAgeExclude:
+  - '@next/env@16.3.0-canary.81'
+  - '@next/swc-darwin-arm64@16.3.0-canary.81'
+  - '@next/swc-darwin-x64@16.3.0-canary.81'
+  - '@next/swc-linux-arm64-gnu@16.3.0-canary.81'
+  - '@next/swc-linux-arm64-musl@16.3.0-canary.81'
+  - '@next/swc-linux-x64-gnu@16.3.0-canary.81'
+  - '@next/swc-linux-x64-musl@16.3.0-canary.81'
+  - '@next/swc-win32-arm64-msvc@16.3.0-canary.81'
+  - '@next/swc-win32-x64-msvc@16.3.0-canary.81'
+  - '@playwright/test@1.62.0-alpha-1783623505000'
+  - '@prisma/adapter-neon@7.9.0-dev.19'
+  - '@prisma/client-runtime-utils@7.9.0-dev.19'
+  - '@prisma/client@7.9.0-dev.19'
+  - '@prisma/config@7.9.0-dev.19'
+  - '@prisma/debug@7.9.0-dev.19'
+  - '@prisma/driver-adapter-utils@7.9.0-dev.19'
+  - '@prisma/engines@7.9.0-dev.19'
+  - '@prisma/fetch-engine@7.9.0-dev.19'
+  - '@prisma/get-platform@7.9.0-dev.19'
+  - '@radix-ui/react-slider@1.4.4-rc.1783608040088'
+  - '@turbo/darwin-64@2.10.5-canary.4'
+  - '@turbo/darwin-arm64@2.10.5-canary.4'
+  - '@turbo/linux-64@2.10.5-canary.4'
+  - '@turbo/linux-arm64@2.10.5-canary.4'
+  - '@turbo/windows-64@2.10.5-canary.4'
+  - '@turbo/windows-arm64@2.10.5-canary.4'
+  - '@types/three@0.185.1'
+  - lucide-react@1.24.0
+  - miniflare@4.20260708.1
+  - next@16.3.0-canary.81
+  - playwright-core@1.62.0-alpha-1783623505000
+  - playwright@1.62.0-alpha-1783623505000
+  - prisma@7.9.0-dev.19
+  - radix-ui@1.6.3-rc.1783608040088
+  - react-dom@19.3.0-canary-5123b063-20260708
+  - react@19.3.0-canary-5123b063-20260708
+  - scheduler@0.28.0-canary-5123b063-20260708
+  - turbo@2.10.5-canary.4
+  - wrangler@4.110.0
+
 # Force a single React copy (deduplicate the 19.3 canary across all consumers).
 # rxjs: force 8 for @apollo/client (its runtime is rxjs-8-compatible; the <8 peer pin is cosmetic).
 overrides:
-  react: '19.3.0-canary-99e86060-20260623'
-  react-dom: '19.3.0-canary-99e86060-20260623'
+  react: '19.3.0-canary-5123b063-20260708'
+  react-dom: '19.3.0-canary-5123b063-20260708'
   rxjs: '8.0.0-alpha.14'
   # graphql 17: force across graphql-sse/@apollo/server/graphql-ws (all peer-pin <=16);
   # their code uses graphql's public API, which is 17-compatible (no @defer in this app).
-  graphql: '17.0.1'
+  graphql: '17.0.2'
 
 # Silence the cosmetic peer-range warnings for the forced majors above.
 peerDependencyRules:
   allowedVersions:
     rxjs: '8'
     graphql: '17'
+    # @vercel/analytics & speed-insights canaries declare non-optional nuxt peers
+    # (SvelteKit/Nuxt support), dragging in a nuxt graph with an internally
+    # mismatched @nuxt/schema; irrelevant to this Next.js app.
+    '@nuxt/schema': '4'

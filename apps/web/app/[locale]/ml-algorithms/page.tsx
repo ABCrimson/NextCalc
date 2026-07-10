@@ -202,7 +202,7 @@ export default function MLAlgorithmsPage() {
 
         {/* Orb 1 — top-right: blue (real-axis hue 264) */}
         <m.div
-          className="absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full blur-3xl"
+          className="absolute -top-32 -right-32 size-[600px] rounded-full blur-3xl"
           style={{
             background:
               'radial-gradient(circle, oklch(0.65 0.22 264 / 0.14) 0%, oklch(0.55 0.27 264 / 0.07) 60%, transparent 100%)',
@@ -213,7 +213,7 @@ export default function MLAlgorithmsPage() {
 
         {/* Orb 2 — bottom-left: purple/pink (hue 300-320) */}
         <m.div
-          className="absolute -bottom-40 -left-40 w-[700px] h-[700px] rounded-full blur-3xl"
+          className="absolute -bottom-40 -left-40 size-[700px] rounded-full blur-3xl"
           style={{
             background:
               'radial-gradient(circle, oklch(0.63 0.20 310 / 0.14) 0%, oklch(0.58 0.22 310 / 0.07) 60%, transparent 100%)',
@@ -224,7 +224,7 @@ export default function MLAlgorithmsPage() {
 
         {/* Orb 3 — center: rose/pink (hue 355) */}
         <m.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-3xl"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[500px] rounded-full blur-3xl"
           style={{
             background: 'radial-gradient(circle, oklch(0.65 0.18 355 / 0.08) 0%, transparent 70%)',
           }}

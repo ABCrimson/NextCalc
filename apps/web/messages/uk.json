@@ -612,6 +612,10 @@
       "explore": "Дослідити",
       "comingSoon": "Незабаром"
     },
+    "controls": {
+      "stepForward": "Step forward",
+      "reset": "Reset simulation"
+    },
     "page": {
       "tryItYourself": "Спробуйте самі",
       "realWorldApplications": "Застосування в реальному світі",
@@ -865,6 +869,15 @@
       "predictions": "Predictions"
     }
   },
+  "difficulty": {
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "master": "Master",
+    "badgeLabel": "Difficulty: {level}",
+    "scaleLabel": "Difficulty scale",
+    "currentLabel": "Current difficulty: {level}"
+  },
   "matrix": {
     "title": "Операції з матрицями",
     "description": "Лінійна алгебра з матрицями — додавання, множення, визначник, обернена, власні значення та інше",
@@ -903,6 +916,32 @@
       "eigen": "Eigenvalues & Eigenvectors",
       "gaussJordan": "Gauss-Jordan Elimination",
       "complex": "Complex Matrices"
+    },
+    "cards": {
+      "basicOperations": {
+        "title": "Basic Operations",
+        "description": "Add, subtract, and scalar multiply matrices. Supports matrices of any size."
+      },
+      "matrixMultiplication": {
+        "title": "Matrix Multiplication",
+        "description": "Compute matrix products with automatic dimension checking."
+      },
+      "determinant": {
+        "title": "Determinant",
+        "description": "Calculate determinants using LU decomposition for square matrices."
+      },
+      "matrixInverse": {
+        "title": "Matrix Inverse",
+        "description": "Find inverses using Gauss-Jordan elimination. Handles singular matrices gracefully."
+      },
+      "transpose": {
+        "title": "Transpose",
+        "description": "Transpose matrices to swap rows and columns."
+      },
+      "specialMatrices": {
+        "title": "Special Matrices",
+        "description": "Create identity, zero, ones, and random matrices."
+      }
     }
   },
   "solver": {
@@ -1368,6 +1407,32 @@
     "noResults": "Шаблони не знайдено для поточних фільтрів.",
     "howToTitle": "Як використовувати шаблони",
     "howToDescription": "Введіть значення в поля з підписами та натисніть Enter або кнопку «Обчислити», щоб побачити результат."
+  },
+  "worksheets": {
+    "title": "Мої робочі аркуші",
+    "subtitle": "Ваші збережені математичні зошити",
+    "newWorksheet": "Новий робочий аркуш",
+    "searchPlaceholder": "Пошук робочих аркушів...",
+    "sortDirection": "Змінити напрямок сортування",
+    "sortUpdated": "Останнє оновлення",
+    "sortCreated": "Дата створення",
+    "sortTitle": "Назва",
+    "gridView": "Вигляд сіткою",
+    "listView": "Вигляд списком",
+    "emptyTitle": "Робочих аркушів поки немає",
+    "emptyDescription": "Створіть свій перший математичний зошит, щоб почати.",
+    "createFirst": "Створити робочий аркуш",
+    "noResults": "Немає робочих аркушів, що відповідають вашому запиту.",
+    "deleteConfirmTitle": "Видалити робочий аркуш?",
+    "deleteConfirm": "Ви впевнені, що хочете видалити цей робочий аркуш?",
+    "delete": "Видалити робочий аркуш",
+    "cancel": "Скасувати",
+    "cellCount": "{count, plural, one {# комірка} few {# комірки} many {# комірок} other {# комірки}}",
+    "views": "переглядів",
+    "justNow": "щойно",
+    "minutesAgo": "{count, plural, one {# хвилину тому} few {# хвилини тому} many {# хвилин тому} other {# хвилини тому}}",
+    "hoursAgo": "{count, plural, one {# годину тому} few {# години тому} many {# годин тому} other {# години тому}}",
+    "daysAgo": "{count, plural, one {# день тому} few {# дні тому} many {# днів тому} other {# дня тому}}"
   },
   "home": {
     "hero": {

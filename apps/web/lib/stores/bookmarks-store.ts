@@ -1,7 +1,7 @@
 /**
  * Bookmarks Store
  *
- * Zustand 5.0.11 store for learning bookmarks. Users can bookmark topics,
+ * Zustand store for learning bookmarks. Users can bookmark topics,
  * definitions, and problems for quick access. Persisted to localStorage.
  */
 

@@ -88,21 +88,7 @@ Client --> Cloudflare Worker --> Rate Limit Check (KV)
 
 All GraphQL resolvers use [DataLoader](https://github.com/graphql/dataloader) to prevent N+1 query problems. DataLoader instances are created per-request in the Apollo Server context and batch database calls within a single event loop tick.
 
-**Location**: `apps/api/src/lib/dataloaders.ts`
-
-| DataLoader | Batches | Used by |
-|:-----------|:--------|:--------|
-| `userById` | `User` lookups by ID | Worksheet, ForumPost, Comment resolvers |
-| `folderById` | `Folder` lookups by ID | Worksheet resolver |
-| `worksheetSharesByWorksheetId` | Share records per worksheet | Worksheet resolver |
-| `childFoldersByParentId` | Child folders per parent | Folder resolver |
-| `upvoteCountByTargetId` | Upvote counts per target | ForumPost, Comment resolvers |
-| `commentCountByPostId` | Comment counts for post listings | ForumPost resolver |
-| `forumPostById` | Forum post lookups by ID | Forum resolvers |
-| `commentById` | Comment lookups by ID | Comment resolvers |
-| `repliesByParentCommentId` | Nested comment replies | Comment resolver |
-| `worksheetsByFolderId` | Worksheets per folder | Folder resolver |
-| `hasUpvoted` | Current user's upvote status (composite key) | ForumPost, Comment resolvers |
+**Location**: `apps/api/src/lib/dataloaders.ts`. The canonical, up-to-date list of loaders (what each batches and which resolvers use them) lives in [[GraphQL API]] -- see the [DataLoaders section](GraphQL-API#dataloaders) rather than a duplicated table here.
 
 **How it works**: When resolving a list of forum posts, instead of issuing one `SELECT * FROM users WHERE id = ?` per post, DataLoader collects all user IDs and issues a single `SELECT * FROM users WHERE id IN (?, ?, ...)` query.
 
@@ -175,9 +161,9 @@ Custom geometric crystal favicon using the OKLCH glass-morphism design language.
 - **XP Formula**: RS3-style `sum(floor(i + 300 * 2^(i/7)) / 4)` — exponential curve, 100 levels
 - **10 Tiers**: Novice (1-10), Apprentice (11-20), Journeyman (21-30), Adept (31-40), Expert (41-50), Master (51-60), Grandmaster (61-70), Legend (71-80), Mythic (81-90), Transcendent (91-100)
 - **Admin Tier**: Architect (L101) — admin-only, 3 special icon variants
-- **Level Icons**: Programmatic crystal SVGs (`LevelIcon` component) + 103 pre-generated SVG files
+- **Level Icons**: Programmatic crystal SVGs rendered live by the `LevelIcon` component (the pre-generated static-SVG variant and its generator script were removed in the 2026-07 evergreen sweep as dead weight -- `LevelIcon` covers all tiers on its own)
 - **OKLCH Colors**: Per-level hue progression through full spectrum, per-tier CSS classes
-- **Files**: `apps/web/components/profile/level-utils.ts`, `level-icon.tsx`, `level-icon-static.tsx`
+- **Files**: `apps/web/components/profile/level-utils.ts`, `level-icon.tsx`
 
 ## Internationalization
 

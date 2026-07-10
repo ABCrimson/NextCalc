@@ -50,7 +50,7 @@ export function generatePositionalEncoding(maxLen: number, dim: number): Matrix 
  */
 export function addPositionalEncoding(embeddings: Matrix, positionalEncoding: Matrix): Matrix {
   const seqLen = embeddings.length;
-  const dim = embeddings[0]?.length || 0;
+  const dim = embeddings[0]?.length ?? 0;
 
   if (seqLen > positionalEncoding.length) {
     throw new Error(`Sequence length ${seqLen} exceeds max length ${positionalEncoding.length}`);
@@ -61,7 +61,7 @@ export function addPositionalEncoding(embeddings: Matrix, positionalEncoding: Ma
   for (let i = 0; i < seqLen; i++) {
     result[i] = [];
     for (let j = 0; j < dim; j++) {
-      result[i]![j] = (embeddings[i]?.[j] || 0) + (positionalEncoding[i]?.[j] || 0);
+      result[i]![j] = (embeddings[i]?.[j] ?? 0) + (positionalEncoding[i]?.[j] ?? 0);
     }
   }
 
@@ -121,7 +121,7 @@ export class LearnedPositionalEmbedding {
     for (let i = 0; i < seqLen; i++) {
       result[i] = [];
       for (let j = 0; j < this.dim; j++) {
-        result[i]![j] = (embeddings[i]?.[j] || 0) + (this.embeddings[i]?.[j] || 0);
+        result[i]![j] = (embeddings[i]?.[j] ?? 0) + (this.embeddings[i]?.[j] ?? 0);
       }
     }
 
@@ -139,7 +139,7 @@ export class LearnedPositionalEmbedding {
       for (let j = 0; j < this.dim; j++) {
         const currentVal = mutableEmbeddings[i]?.[j];
         if (currentVal !== undefined) {
-          mutableEmbeddings[i]![j] = currentVal - learningRate * (gradients[i]?.[j] || 0);
+          mutableEmbeddings[i]![j] = currentVal - learningRate * (gradients[i]?.[j] ?? 0);
         }
       }
     }
@@ -203,8 +203,8 @@ export class RelativePositionalEncoding {
     for (let i = 0; i < seqLen; i++) {
       biasedScores[i] = [];
       for (let j = 0; j < seqLen; j++) {
-        const bias = this.getBias(i, j)[headIndex] || 0;
-        biasedScores[i]![j] = (attentionScores[i]?.[j] || 0) + bias;
+        const bias = this.getBias(i, j)[headIndex] ?? 0;
+        biasedScores[i]![j] = (attentionScores[i]?.[j] ?? 0) + bias;
       }
     }
 
@@ -239,8 +239,8 @@ export function applyRotaryEmbedding(
       const cos = Math.cos(angle);
       const sin = Math.sin(angle);
 
-      const x = vectors[i]?.[j] || 0;
-      const y = vectors[i]?.[j + 1] || 0;
+      const x = vectors[i]?.[j] ?? 0;
+      const y = vectors[i]?.[j + 1] ?? 0;
 
       // Rotation matrix application
       result[i]![j] = x * cos - y * sin;
@@ -285,7 +285,7 @@ export class ALiBiPositionalBias {
    */
   applyBias(attentionScores: Matrix, headIndex: number): Matrix {
     const numQueries = attentionScores.length;
-    const numKeys = attentionScores[0]?.length || 0;
+    const numKeys = attentionScores[0]?.length ?? 0;
     const slope = this.slopes[headIndex] || 1;
     const biasedScores: number[][] = [];
 
@@ -295,7 +295,7 @@ export class ALiBiPositionalBias {
         // Bias is proportional to distance: -(i - j) * slope
         const distance = i - j;
         const bias = -Math.abs(distance) * slope;
-        biasedScores[i]![j] = (attentionScores[i]?.[j] || 0) + bias;
+        biasedScores[i]![j] = (attentionScores[i]?.[j] ?? 0) + bias;
       }
     }
 
@@ -308,7 +308,7 @@ export class ALiBiPositionalBias {
  */
 export function visualizePositionalEncoding(encoding: Matrix, maxDisplay = 10): string {
   const seqLen = Math.min(encoding.length, maxDisplay);
-  const dim = Math.min(encoding[0]?.length || 0, 20);
+  const dim = Math.min(encoding[0]?.length ?? 0, 20);
 
   let output = 'Positional Encoding Visualization:\n';
   output += `(Showing first ${seqLen} positions, ${dim} dimensions)\n\n`;
@@ -328,7 +328,7 @@ export function visualizePositionalEncoding(encoding: Matrix, maxDisplay = 10): 
   for (let i = 0; i < seqLen; i++) {
     output += `${i.toString().padStart(3)} |`;
     for (let j = 0; j < dim; j++) {
-      const val = encoding[i]?.[j] || 0;
+      const val = encoding[i]?.[j] ?? 0;
       output += ` ${val.toFixed(2).padStart(5)}`;
     }
     output += '\n';

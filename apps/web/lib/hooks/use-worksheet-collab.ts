@@ -29,8 +29,10 @@
 
 'use client';
 
+import { print } from 'graphql';
 import { createClient } from 'graphql-sse';
 import { useCallback, useEffect, useRef } from 'react';
+import { WORKSHEET_SYNC_QUERY, WORKSHEET_UPDATED_SUBSCRIPTION } from '@/lib/graphql/operations';
 import {
   COLLAB_COLORS,
   type CollabColor,
@@ -107,17 +109,12 @@ interface RemoteWorksheet {
 }
 
 /**
- * GraphQL query mirroring the `worksheetUpdated` subscription selection set so
- * the polling fallback applies identical data through the same LWW merge.
+ * Serialised typed documents (from codegen) for the raw fetch / graphql-sse
+ * transports. Keeping these as graphql() documents means schema drift fails
+ * codegen/typecheck instead of surfacing as runtime validation errors.
  */
-const WORKSHEET_POLL_QUERY = `query WorksheetSync($worksheetId: ID!) {
-  worksheet(id: $worksheetId) {
-    id
-    title
-    content
-    updatedAt
-  }
-}`;
+const WORKSHEET_POLL_QUERY = print(WORKSHEET_SYNC_QUERY);
+const WORKSHEET_UPDATED_SUBSCRIPTION_QUERY = print(WORKSHEET_UPDATED_SUBSCRIPTION);
 
 // SSE client for cross-device subscription (graphql-sse 2.6.0)
 const sseClient =
@@ -502,11 +499,7 @@ export function useWorksheetCollab(worksheetSessionId: string | null) {
 
       const dispose = sseClient.subscribe(
         {
-          query: `subscription WorksheetUpdated($worksheetId: ID!) {
-            worksheetUpdated(worksheetId: $worksheetId) {
-              id title content version updatedAt
-            }
-          }`,
+          query: WORKSHEET_UPDATED_SUBSCRIPTION_QUERY,
           variables: { worksheetId },
         },
         {

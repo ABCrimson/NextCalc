@@ -5,32 +5,66 @@
  */
 
 import type { AlgorithmCategory } from '@nextcalc/database';
+import { cacheLife, cacheTag } from 'next/cache';
 import { type NextRequest, NextResponse } from 'next/server';
-import { AlgorithmRepository } from '@/lib/cms/algorithm-repository';
+import { prisma } from '@/lib/prisma';
 
-export const dynamic = 'force-dynamic';
+/**
+ * Cached read of the full algorithm catalog.
+ *
+ * The catalog is static reference content, so the complete dataset is cached
+ * (`'use cache'` + hourly revalidation, invalidatable via the `algorithms`
+ * tag) while query-param filtering and pagination stay per-request.
+ */
+async function getAlgorithmCatalog() {
+  'use cache';
+  cacheLife('hours');
+  cacheTag('algorithms');
 
-export async function GET(_request: NextRequest) {
+  return prisma.algorithm.findMany({
+    include: {
+      _count: {
+        select: {
+          implementations: true,
+        },
+      },
+    },
+    orderBy: { name: 'asc' },
+  });
+}
+
+export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = _request.nextUrl;
+    const { searchParams } = request.nextUrl;
 
-    const categoryParam = searchParams.get('category');
-    const search = searchParams.get('search');
+    const category = searchParams.get('category') as AlgorithmCategory | null;
+    const search = searchParams.get('search')?.toLowerCase() ?? null;
     const limit = Number(searchParams.get('limit')) || 50;
     const offset = Number(searchParams.get('offset')) || 0;
 
-    const filters: Parameters<typeof AlgorithmRepository.getAlgorithms>[0] = {};
+    const catalog = await getAlgorithmCatalog();
 
-    if (categoryParam) filters.category = categoryParam as AlgorithmCategory;
-    if (search) filters.search = search;
-    if (limit) filters.limit = limit;
-    if (offset) filters.offset = offset;
+    const filtered = catalog.filter((algorithm) => {
+      if (category && algorithm.category !== category) return false;
+      if (search) {
+        return (
+          algorithm.name.toLowerCase().includes(search) ||
+          algorithm.description.toLowerCase().includes(search)
+        );
+      }
+      return true;
+    });
 
-    const result = await AlgorithmRepository.getAlgorithms(filters);
+    const total = filtered.length;
+    const algorithms = filtered.slice(offset, offset + limit);
 
     return NextResponse.json({
       success: true,
-      data: result,
+      data: {
+        algorithms,
+        total,
+        hasMore: offset + limit < total,
+      },
     });
   } catch (error) {
     console.error('Error fetching algorithms:', error);

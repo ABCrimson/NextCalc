@@ -2,8 +2,8 @@
 
 import { ArrowRight, type LucideIcon } from 'lucide-react';
 import { m } from 'motion/react';
-import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 
 /**

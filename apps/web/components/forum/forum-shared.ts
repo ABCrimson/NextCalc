@@ -6,6 +6,8 @@
  */
 
 import { Award, type LucideIcon, Sparkles, Zap } from 'lucide-react';
+import type { FragmentType } from '@/lib/graphql/generated';
+import type { USER_SUMMARY_FRAGMENT } from '@/lib/graphql/operations';
 
 // ============================================================================
 // TYPES
@@ -23,11 +25,8 @@ export interface ForumPostNode {
   createdAt: string;
   upvoteCount: number;
   hasUpvoted: boolean;
-  user: {
-    id: string;
-    name: string | null;
-    image: string | null;
-  };
+  /** Masked — unwrap with `useFragment(UserSummaryFragmentDoc, user)` before reading fields */
+  user: FragmentType<typeof USER_SUMMARY_FRAGMENT>;
   commentCount: number;
   comments?: { id: string }[];
 }
@@ -39,11 +38,8 @@ export interface CommentNode {
   createdAt: string;
   upvoteCount: number;
   hasUpvoted: boolean;
-  user: {
-    id: string;
-    name: string | null;
-    image: string | null;
-  };
+  /** Masked — unwrap with `useFragment(UserSummaryFragmentDoc, user)` before reading fields */
+  user: FragmentType<typeof USER_SUMMARY_FRAGMENT>;
   parent: { id: string } | null;
   replies: CommentReply[];
 }
@@ -55,11 +51,8 @@ export interface CommentReply {
   createdAt: string;
   upvoteCount: number;
   hasUpvoted: boolean;
-  user: {
-    id: string;
-    name: string | null;
-    image: string | null;
-  };
+  /** Masked — unwrap with `useFragment(UserSummaryFragmentDoc, user)` before reading fields */
+  user: FragmentType<typeof USER_SUMMARY_FRAGMENT>;
 }
 
 /** Full post detail shape from FORUM_POST_QUERY */
@@ -76,10 +69,12 @@ export interface ForumPostDetail {
   upvoteCount: number;
   hasUpvoted: boolean;
   commentCount?: number;
-  user: {
-    id: string;
-    name: string | null;
-    image: string | null;
+  /**
+   * Masked (id/name/image) plus the extra fields the post detail selection
+   * adds on top of UserSummary. Unwrap with `useFragment(UserSummaryFragmentDoc, user)`
+   * to read id/name/image; the extras are readable directly.
+   */
+  user: FragmentType<typeof USER_SUMMARY_FRAGMENT> & {
     bio: string | null;
     role: string;
     createdAt: string;

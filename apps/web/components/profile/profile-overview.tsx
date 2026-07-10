@@ -2,7 +2,6 @@
 
 import { useMutation } from '@apollo/client/react';
 import { AnimatePresence, m } from 'motion/react';
-import Link from 'next/link';
 import { useFormatter, useLocale, useTranslations } from 'next-intl';
 import type { FormEvent } from 'react';
 import { useCallback, useState } from 'react';
@@ -17,6 +16,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Link } from '@/i18n/navigation';
 import { UPDATE_PROFILE_MUTATION } from '@/lib/graphql/operations';
 import { ActivityCalendar } from './activity-calendar';
 import { LevelIcon } from './level-icon';
@@ -201,28 +201,27 @@ interface QuickAction {
   gradient: string;
 }
 
-function QuickActions({ locale }: { locale?: string }) {
+function QuickActions() {
   const t = useTranslations('profile');
-  const base = locale ? `/${locale}` : '';
 
   const actions: QuickAction[] = [
     {
       label: t('quickAction.newWorksheet'),
-      href: `${base}/worksheet`,
+      href: '/worksheet',
       icon: '📄',
       description: 'Create a new math worksheet',
       gradient: 'from-blue-500/10 to-violet-500/10 hover:from-blue-500/20 hover:to-violet-500/20',
     },
     {
       label: t('quickAction.newCalculation'),
-      href: `${base}/`,
+      href: '/',
       icon: '🔢',
       description: 'Open the calculator',
       gradient: 'from-emerald-500/10 to-teal-500/10 hover:from-emerald-500/20 hover:to-teal-500/20',
     },
     {
       label: t('quickAction.viewForums'),
-      href: `${base}/forum`,
+      href: '/forum',
       icon: '💬',
       description: 'Browse community forums',
       gradient: 'from-amber-500/10 to-orange-500/10 hover:from-amber-500/20 hover:to-orange-500/20',
@@ -284,13 +283,11 @@ function visibilityBadge(v: 'PRIVATE' | 'UNLISTED' | 'PUBLIC'): string {
 interface RecentActivityFeedProps {
   calculations: RecentCalculation[];
   worksheets: RecentWorksheet[];
-  locale?: string;
 }
 
-function RecentActivityFeed({ calculations, worksheets, locale }: RecentActivityFeedProps) {
+function RecentActivityFeed({ calculations, worksheets }: RecentActivityFeedProps) {
   const t = useTranslations('profile');
   const format = useFormatter();
-  const base = locale ? `/${locale}` : '';
 
   const entries: ActivityEntry[] = [
     ...calculations.map(
@@ -364,7 +361,7 @@ function RecentActivityFeed({ calculations, worksheets, locale }: RecentActivity
             <div className="flex flex-wrap items-start gap-x-2 gap-y-0.5">
               {entry.kind === 'worksheet' ? (
                 <Link
-                  href={`${base}/worksheet?id=${entry.id.replace('ws-', '')}`}
+                  href={`/worksheet?id=${entry.id.replace('ws-', '')}`}
                   className="truncate text-sm font-medium text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring"
                 >
                   {entry.label}

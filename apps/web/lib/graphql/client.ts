@@ -1,5 +1,5 @@
 /**
- * Apollo Client 4.2.0-alpha.0 — Client Component Factory
+ * Apollo Client — Client Component Factory
  *
  * Creates an ApolloClient instance for use in Next.js Client Components.
  * Uses the @apollo/client-integration-nextjs patched ApolloClient/InMemoryCache
@@ -76,7 +76,7 @@ export function makeClient() {
     return {
       headers: {
         ...headers,
-        'x-apollo-client': '4.3.0-alpha.1',
+        'x-apollo-client': 'browser',
       },
     };
   });

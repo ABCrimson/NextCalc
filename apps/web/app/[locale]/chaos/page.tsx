@@ -1,9 +1,9 @@
 'use client';
 
-import { LogisticMap, LorenzAttractor } from '@nextcalc/math-engine/chaos/chaos-theory';
+import { LogisticMap, LorenzAttractor } from '@nextcalc/math-engine/chaos';
 import { GitBranch, Wind, Zap } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { BifurcationDiagramRenderer } from '@/components/chaos/bifurcation-diagram-renderer';
 import { LogisticMapRenderer } from '@/components/chaos/logistic-map-renderer';
@@ -44,6 +44,7 @@ const GLASS_CARD =
 
 export default function ChaosTheoryPage() {
   const t = useTranslations('chaos');
+  const format = useFormatter();
   // Lorenz parameters
   const [sigma, setSigma] = useState(10);
   const [rho, setRho] = useState(28);
@@ -218,7 +219,7 @@ export default function ChaosTheoryPage() {
                   <div className="space-y-2">
                     <Label htmlFor="steps" className="text-foreground">
                       Time Steps:{' '}
-                      <span className="text-amber-400 font-mono">{timeSteps.toLocaleString()}</span>
+                      <span className="text-amber-400 font-mono">{format.number(timeSteps)}</span>
                     </Label>
                     <Slider
                       id="steps"
@@ -417,7 +418,7 @@ export default function ChaosTheoryPage() {
                     <div className="p-2 bg-background/50 rounded border border-border">
                       <div className="text-emerald-400 font-semibold">{t('totalPoints')}</div>
                       <div className="text-muted-foreground font-mono">
-                        {bifurcationData.length.toLocaleString()}
+                        {format.number(bifurcationData.length)}
                       </div>
                     </div>
                     <div className="p-2 bg-background/50 rounded border border-border">

@@ -75,17 +75,17 @@
       "types": "./src/calculus/index.ts",
       "default": "./src/calculus/index.ts"
     },
-    "./chaos/chaos-theory": {
-      "types": "./src/chaos/chaos-theory.ts",
-      "default": "./src/chaos/chaos-theory.ts"
+    "./chaos": {
+      "types": "./src/chaos/index.ts",
+      "default": "./src/chaos/index.ts"
     },
     "./fourier": {
       "types": "./src/fourier/index.ts",
       "default": "./src/fourier/index.ts"
     },
-    "./game-theory/game-theory": {
-      "types": "./src/game-theory/game-theory.ts",
-      "default": "./src/game-theory/game-theory.ts"
+    "./game-theory": {
+      "types": "./src/game-theory/index.ts",
+      "default": "./src/game-theory/index.ts"
     },
     "./graph-theory": {
       "types": "./src/graph-theory/index.ts",
@@ -100,8 +100,6 @@
     "rebuild": "pnpm clean && pnpm build",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
-    "typecheck:fast": "tsgo --noEmit",
-    "docs": "typedoc",
     "lint": "biome check .",
     "lint:fix": "biome check --write ."
   },
@@ -109,10 +107,9 @@
     "mathjs": "15.2.0"
   },
   "devDependencies": {
-    "@types/node": "26.0.1",
-    "fast-check": "4.8.0",
-    "typedoc": "0.28.19",
-    "typescript": "6.0.3",
-    "vitest": "5.0.0-beta.5"
+    "@types/node": "26.1.1",
+    "fast-check": "4.9.0",
+    "typescript": "7.1.0-dev.20260708.3",
+    "vitest": "5.0.0-beta.6"
   }
 }

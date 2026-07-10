@@ -1,17 +1,21 @@
-'use client';
-
 import { Atom } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
 import { QuantumSimulator } from '@/components/algorithms/QuantumSimulator';
 
-export default function QuantumPage() {
-  const t = useTranslations('algorithms');
+/**
+ * Quantum Computing Page
+ *
+ * Server Component — page-level strings are translated on the server and
+ * passed to the client `AlgorithmPage` shell as plain props.
+ */
+export default async function QuantumPage() {
+  const t = await getTranslations('algorithms');
 
   return (
     <AlgorithmPage
       title={t('quantumTitle')}
-      icon={Atom}
+      icon={<Atom />}
       category="quantum"
       difficulty="expert"
       timeComplexity="O(2ⁿ)"

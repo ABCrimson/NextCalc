@@ -24,6 +24,7 @@
 
 import { BarChart2, Cpu, Info, Lock, Play, RotateCcw, ShieldCheck, X, Zap } from 'lucide-react';
 import { AnimatePresence, m } from 'motion/react';
+import { useFormatter } from 'next-intl';
 import type { KeyboardEvent } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -134,6 +135,7 @@ export function ZKPComputeVisualizer({
   injectFailures = true,
   className,
 }: ZKPComputeVisualizerProps) {
+  const format = useFormatter();
   // ── State ──────────────────────────────────────────────────────────────────
   const [cells, setCells] = useState<CommitmentCell[]>([]);
   const [gpuResult, setGpuResult] = useState<BatchVerifyResult | null>(null);
@@ -657,7 +659,7 @@ export function ZKPComputeVisualizer({
                         <dt className="text-muted-foreground">{label}</dt>
                         <dd>
                           <code className="block font-mono text-[10px] bg-muted/40 px-2 py-1 rounded border border-border/50 text-foreground break-all">
-                            {value.toLocaleString()}
+                            {format.number(value)}
                           </code>
                         </dd>
                       </div>

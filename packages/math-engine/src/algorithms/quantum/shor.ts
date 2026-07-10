@@ -15,6 +15,12 @@
  * Space Complexity: O(N)
  */
 
+import { gcd, modPow } from '../../number-theory';
+
+// Re-exported: this module's own tests (and algorithms/index.ts) import
+// modPow/gcd directly from here rather than from number-theory.
+export { gcd, modPow };
+
 /**
  * Shor's algorithm result
  */
@@ -178,37 +184,6 @@ export function findPeriod(a: number, n: number): number {
   }
 
   return n; // Should not happen if gcd(a,n) = 1
-}
-
-/**
- * Modular exponentiation: a^b mod m
- *
- * Uses binary exponentiation for efficiency.
- * Time complexity: O(log b)
- */
-export function modPow(a: number, b: number, m: number): number {
-  let result = 1;
-  a = a % m;
-
-  while (b > 0) {
-    if (b % 2 === 1) {
-      result = (result * a) % m;
-    }
-    b = Math.floor(b / 2);
-    a = (a * a) % m;
-  }
-
-  return result;
-}
-
-/**
- * Greatest common divisor
- */
-export function gcd(a: number, b: number): number {
-  while (b !== 0) {
-    [a, b] = [b, a % b];
-  }
-  return a;
 }
 
 /**

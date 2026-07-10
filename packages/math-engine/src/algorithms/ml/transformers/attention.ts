@@ -87,7 +87,7 @@ export function scaledDotProductAttention(
     for (let j = 0; j < m; j++) {
       let score = 0;
       for (let k = 0; k < embedDim; k++) {
-        score += (queries[i]?.[k] || 0) * (keys[j]?.[k] || 0);
+        score += (queries[i]?.[k] ?? 0) * (keys[j]?.[k] ?? 0);
       }
 
       // Scale by √d_k to prevent softmax saturation
@@ -107,16 +107,16 @@ export function scaledDotProductAttention(
 
   // Step 4: Compute weighted sum of values
   const output: number[][] = [];
-  const valueDim = values[0]?.length || 0;
+  const valueDim = values[0]?.length ?? 0;
 
   for (let i = 0; i < n; i++) {
     output[i] = new Array(valueDim).fill(0);
     for (let j = 0; j < m; j++) {
-      const weight = droppedWeights[i]?.[j] || 0;
+      const weight = droppedWeights[i]?.[j] ?? 0;
       for (let k = 0; k < valueDim; k++) {
         const currentVal = output[i]?.[k];
         if (currentVal !== undefined) {
-          output[i]![k] = currentVal + weight * (values[j]?.[k] || 0);
+          output[i]![k] = currentVal + weight * (values[j]?.[k] ?? 0);
         }
       }
     }
@@ -191,10 +191,10 @@ export function additiveAttention(
       for (let d = 0; d < w1.length; d++) {
         let sum = 0;
         for (let e = 0; e < q.length; e++) {
-          sum += (w1[d]?.[e] || 0) * (q[e] || 0);
+          sum += (w1[d]?.[e] ?? 0) * (q[e] ?? 0);
         }
         for (let e = 0; e < k.length; e++) {
-          sum += (w2[d]?.[e] || 0) * (k[e] || 0);
+          sum += (w2[d]?.[e] ?? 0) * (k[e] ?? 0);
         }
         combined[d] = Math.tanh(sum);
       }
@@ -202,7 +202,7 @@ export function additiveAttention(
       // v^T × tanh(...)
       let score = 0;
       for (let d = 0; d < v.length; d++) {
-        score += (v[d] || 0) * combined[d]!;
+        score += (v[d] ?? 0) * combined[d]!;
       }
 
       scores[i]![j] = score;
@@ -214,16 +214,16 @@ export function additiveAttention(
 
   // Compute weighted values
   const output: number[][] = [];
-  const valueDim = values[0]?.length || 0;
+  const valueDim = values[0]?.length ?? 0;
 
   for (let i = 0; i < n; i++) {
     output[i] = new Array(valueDim).fill(0);
     for (let j = 0; j < m; j++) {
-      const weight = weights[i]?.[j] || 0;
+      const weight = weights[i]?.[j] ?? 0;
       for (let k = 0; k < valueDim; k++) {
         const currentVal = output[i]?.[k];
         if (currentVal !== undefined) {
-          output[i]![k] = currentVal + weight * (values[j]?.[k] || 0);
+          output[i]![k] = currentVal + weight * (values[j]?.[k] ?? 0);
         }
       }
     }
@@ -269,7 +269,7 @@ export function causalAttention(
 
       let score = 0;
       for (let k = 0; k < embedDim; k++) {
-        score += (queries[i]?.[k] || 0) * (keys[j]?.[k] || 0);
+        score += (queries[i]?.[k] ?? 0) * (keys[j]?.[k] ?? 0);
       }
 
       if (scaled) {
@@ -285,16 +285,16 @@ export function causalAttention(
 
   // Compute output
   const output: number[][] = [];
-  const valueDim = values[0]?.length || 0;
+  const valueDim = values[0]?.length ?? 0;
 
   for (let i = 0; i < n; i++) {
     output[i] = new Array(valueDim).fill(0);
     for (let j = 0; j < m; j++) {
-      const weight = weights[i]?.[j] || 0;
+      const weight = weights[i]?.[j] ?? 0;
       for (let k = 0; k < valueDim; k++) {
         const currentVal = output[i]?.[k];
         if (currentVal !== undefined) {
-          output[i]![k] = currentVal + weight * (values[j]?.[k] || 0);
+          output[i]![k] = currentVal + weight * (values[j]?.[k] ?? 0);
         }
       }
     }
@@ -343,7 +343,7 @@ function applyDropout(matrix: number[][], probability: number): number[][] {
  */
 function matmul(a: Matrix, b: Matrix): Matrix {
   const m = a.length;
-  const n = b[0]?.length || 0;
+  const n = b[0]?.length ?? 0;
   const p = b.length;
 
   if (a[0]?.length !== p) {
@@ -357,7 +357,7 @@ function matmul(a: Matrix, b: Matrix): Matrix {
     for (let j = 0; j < n; j++) {
       let sum = 0;
       for (let k = 0; k < p; k++) {
-        sum += (a[i]?.[k] || 0) * (b[k]?.[j] || 0);
+        sum += (a[i]?.[k] ?? 0) * (b[k]?.[j] ?? 0);
       }
       result[i]![j] = sum;
     }

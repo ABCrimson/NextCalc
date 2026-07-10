@@ -35,24 +35,18 @@
     "build": "tsc",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
-    "typecheck:fast": "tsgo --noEmit",
-    "docs": "typedoc",
     "lint": "biome check .",
     "lint:fix": "biome check --write ."
   },
   "dependencies": {
-    "@nextcalc/math-engine": "workspace:*",
-    "d3": "7.9.0",
-    "three": "0.185.0"
+    "three": "0.185.1"
   },
   "devDependencies": {
-    "@types/d3": "7.4.3",
-    "@types/node": "26.0.1",
-    "@types/three": "0.185.0",
+    "@types/node": "26.1.1",
+    "@types/three": "0.185.1",
     "@webgpu/types": "0.1.71",
-    "fast-check": "4.8.0",
-    "typedoc": "0.28.19",
+    "fast-check": "4.9.0",
     "typescript": "6.0.3",
-    "vitest": "5.0.0-beta.5"
+    "vitest": "5.0.0-beta.6"
   }
 }

@@ -1,7 +1,5 @@
-'use client';
-
 import { GitBranch } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
 import { GraphTraversalVisualizer } from '@/components/algorithms/GraphTraversalVisualizer';
 
@@ -10,15 +8,20 @@ import { GraphTraversalVisualizer } from '@/components/algorithms/GraphTraversal
  *
  * Interactive comparison of breadth-first and depth-first search.
  * Educational visualization showing the differences between the two approaches.
+ *
+ * Server Component — page-level strings are translated on the server and
+ * passed to the client `AlgorithmPage` shell as plain props.
  */
-export default function GraphTraversalPage() {
-  const t = useTranslations('algorithms.graphTraversal');
-  const ta = useTranslations('algorithms');
+export default async function GraphTraversalPage() {
+  const [t, ta] = await Promise.all([
+    getTranslations('algorithms.graphTraversal'),
+    getTranslations('algorithms'),
+  ]);
 
   return (
     <AlgorithmPage
       title={t('title')}
-      icon={GitBranch}
+      icon={<GitBranch />}
       category="graph-theory"
       difficulty="beginner"
       timeComplexity="O(V + E)"

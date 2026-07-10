@@ -1,18 +1,24 @@
-'use client';
-
 import { Network } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
 import { PageRankExplorer } from '@/components/algorithms/PageRankExplorer';
 
-export default function PageRankPage() {
-  const t = useTranslations('algorithms.pagerank');
-  const ta = useTranslations('algorithms');
+/**
+ * PageRank Algorithm Page
+ *
+ * Server Component — page-level strings are translated on the server and
+ * passed to the client `AlgorithmPage` shell as plain props.
+ */
+export default async function PageRankPage() {
+  const [t, ta] = await Promise.all([
+    getTranslations('algorithms.pagerank'),
+    getTranslations('algorithms'),
+  ]);
 
   return (
     <AlgorithmPage
       title={t('title')}
-      icon={Network}
+      icon={<Network />}
       category="graph-theory"
       difficulty="intermediate"
       timeComplexity="O(kn)"

@@ -24,6 +24,7 @@ import type {
   RenderBackend,
   Viewport,
 } from '../types/index';
+import { CartesianSampleCache } from '../utils/sample-cache';
 
 /** Resolve a Color union to a CSS string */
 function colorToCSS(c: Color | undefined, fallback: string): string {
@@ -43,6 +44,10 @@ export class Canvas2DRenderer implements IRenderer {
   private lastFrameTime = 0;
   private pointCount = 0;
   private drawCalls = 0;
+
+  // Adaptive-sample cache for Cartesian y = f(x) functions, keyed by
+  // function identity + viewport domain (see utils/sample-cache.ts)
+  private sampleCache: CartesianSampleCache = new CartesianSampleCache();
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -92,6 +97,7 @@ export class Canvas2DRenderer implements IRenderer {
   }
 
   dispose(): void {
+    this.sampleCache.clear();
     this.ctx = null;
   }
 
@@ -245,21 +251,23 @@ export class Canvas2DRenderer implements IRenderer {
       ctx.lineJoin = 'round';
       ctx.beginPath();
 
-      const steps = Math.max(this.canvas.width, 500);
+      // Curvature-aware adaptive sampling, cached per function identity +
+      // viewport domain (see utils/sample-cache.ts). The sampler emits
+      // explicit break markers (NaN y) at poles and domain gaps — reset the
+      // subpath there so asymptotes are never bridged by a chord.
+      const points = this.sampleCache.get(fn.fn, vp.xMin, vp.xMax);
+      this.pointCount += points.length;
+
       let started = false;
-
-      for (let i = 0; i <= steps; i++) {
-        const x = vp.xMin + (i / steps) * (vp.xMax - vp.xMin);
-        const y = fn.fn(x);
-        this.pointCount++;
-
-        if (!Number.isFinite(y)) {
+      for (const point of points) {
+        if (!Number.isFinite(point.y)) {
+          // Discontinuity marker — break the current subpath.
           started = false;
           continue;
         }
 
-        const cx = this.worldToCanvasX(x, vp);
-        const cy = this.worldToCanvasY(y, vp);
+        const cx = this.worldToCanvasX(point.x, vp);
+        const cy = this.worldToCanvasY(point.y, vp);
 
         if (!started) {
           ctx.moveTo(cx, cy);
@@ -345,8 +353,16 @@ export class Canvas2DRenderer implements IRenderer {
       for (let i = 0; i <= steps; i++) {
         const theta =
           config.thetaRange.min + (i / steps) * (config.thetaRange.max - config.thetaRange.min);
-        const r = fn.fn(theta);
         this.pointCount++;
+
+        let r: number;
+        try {
+          r = fn.fn(theta);
+        } catch {
+          // Domain error / discontinuity — break the current subpath.
+          started = false;
+          continue;
+        }
 
         if (!Number.isFinite(r)) {
           started = false;
@@ -399,9 +415,18 @@ export class Canvas2DRenderer implements IRenderer {
 
       for (let i = 0; i <= steps; i++) {
         const t = config.tRange.min + (i / steps) * (config.tRange.max - config.tRange.min);
-        const x = fn.x(t);
-        const y = fn.y(t);
         this.pointCount++;
+
+        let x: number;
+        let y: number;
+        try {
+          x = fn.x(t);
+          y = fn.y(t);
+        } catch {
+          // Domain error / discontinuity — break the current subpath.
+          started = false;
+          continue;
+        }
 
         if (!Number.isFinite(x) || !Number.isFinite(y)) {
           started = false;

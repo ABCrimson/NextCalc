@@ -714,12 +714,12 @@ export default function PlotsExamplesPage() {
       <div className="fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute inset-0 bg-linear-to-br/oklab from-background via-background/95 to-background" />
         <m.div
-          className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-linear-to-br/oklab from-cyan-500/10 to-blue-500/10 blur-3xl"
+          className="absolute top-0 right-0 size-[500px] rounded-full bg-linear-to-br/oklab from-cyan-500/10 to-blue-500/10 blur-3xl"
           animate={{ x: [0, 100, 0], y: [0, 50, 0], scale: [1, 1.2, 1] }}
           transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
         />
         <m.div
-          className="absolute bottom-0 left-0 w-[600px] h-[600px] rounded-full bg-linear-to-br/oklab from-purple-500/10 to-pink-500/10 blur-3xl"
+          className="absolute bottom-0 left-0 size-[600px] rounded-full bg-linear-to-br/oklab from-purple-500/10 to-pink-500/10 blur-3xl"
           animate={{ x: [0, -100, 0], y: [0, -50, 0], scale: [1, 1.1, 1] }}
           transition={{ duration: 25, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
         />

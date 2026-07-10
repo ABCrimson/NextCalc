@@ -303,9 +303,12 @@ describe('downloadAsSVG', () => {
     expect(mockLink.download).toBe('chart.svg');
   });
 
-  it('should create and revoke a Blob URL', () => {
+  it('should create and revoke a Blob URL (deferred to the next tick)', async () => {
     downloadAsSVG([[]], defaultViewport, 'test', defaultOptions);
     expect(URL.createObjectURL).toHaveBeenCalled();
+    expect(URL.revokeObjectURL).not.toHaveBeenCalled();
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
     expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock-svg-url');
   });
 });

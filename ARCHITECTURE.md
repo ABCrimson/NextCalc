@@ -9,7 +9,7 @@ graph TB
     end
     subgraph Vercel["Vercel Edge Network"]
         B["App Router + SSR"]
-        C["GraphQL API (Apollo 5.5.1)"]
+        C["GraphQL API (Apollo Server 5.5)"]
     end
     subgraph CF["Cloudflare Workers"]
         D["CAS Service"]
@@ -88,7 +88,7 @@ Core mathematical computation library with subpath exports.
 | `content/` | Educational content | lessons, explanations |
 | `wasm/` | WASM arbitrary precision (scaffolded) | `getWASMManager()`, `getHighPrecision()` (throws in production if unbuilt; mock is tests/dev only) |
 
-**Tech:** Math.js 15.2, TypeScript 6.0.3, Vitest 5
+**Tech:** Math.js 15.2, TypeScript 7 native, Vitest 5
 
 ### @nextcalc/plot-engine
 
@@ -102,7 +102,7 @@ GPU-accelerated mathematical visualization engine.
 | `export/` | PNG, SVG, CSV export |
 | `types/` | Plot configuration types |
 
-**Tech:** Three.js 0.184.0, D3 7.9.0, WebGL 2, WebGPU (progressive enhancement)
+**Tech:** Three.js 0.185-line, D3 7.9, WebGL 2, WebGPU (progressive enhancement); TypeScript stays on 6.0.x here (see [DEVELOPMENT.md](DEVELOPMENT.md#typescript))
 
 ### @nextcalc/database
 
@@ -115,7 +115,7 @@ Shared Prisma 7 database package.
 
 **Tables:** 30 models in total. Core tables include users, accounts, sessions, worksheets, folders, forum_posts, comments, upvotes, audit_logs; the remainder cover the learning/content domain (problems, hints, test cases, topics, theorems, algorithms, user progress, attempts, achievements, etc.).
 
-**Tech:** Prisma 7.9.0-dev.13, @neondatabase/serverless 1.1.0, @prisma/adapter-neon 7.9.0-dev.13
+**Tech:** Prisma 7.9 dev, @neondatabase/serverless 1.1, @prisma/adapter-neon 7.9 dev (exact pins in `packages/database/package.json`)
 
 ### @nextcalc/api
 
@@ -128,12 +128,12 @@ GraphQL API integrated into the Next.js app via route handler.
 
 **Key features:**
 - Auth is configurable via `setAuthFunction()` -- real NextAuth injected from the web route handler
-- 11 DataLoaders for N+1 prevention (userById, folderById, worksheetSharesByWorksheetId, childFoldersByParentId, upvoteCountByTargetId, commentCountByPostId, forumPostById, commentById, repliesByParentCommentId, worksheetsByFolderId, hasUpvoted)
+- DataLoaders for N+1 prevention (see the canonical table in [docs/wiki/GraphQL-API.md](docs/wiki/GraphQL-API.md) for the current list)
 - Resolvers: user, worksheet, folder, calculation, forum, comment, upvote
 - Upstash Redis caching in `src/lib/cache.ts` with `invalidateByPrefix` via SCAN
 - API package exports source `.ts` files (not dist/) for monorepo dev
 
-**Tech:** Apollo Server 5.5.1, GraphQL 17.0.1, DataLoader 2.2.3, Zod
+**Tech:** Apollo Server 5.5, GraphQL 17, DataLoader 2.2, Zod, TypeScript 7 native
 
 ### @nextcalc/types
 
@@ -151,7 +151,7 @@ Three edge microservices deployed to Cloudflare's global network:
 | export-service | LaTeX to PDF/PNG/SVG conversion | 8788 | R2 bucket |
 | rate-limiter | API quota enforcement (sliding window) | 8789 | Durable Object (+ KV id index) |
 
-**Tech:** Hono 4.12.27, Wrangler 4.104.0, Zod
+**Tech:** Hono 4.12, Wrangler 4.x, Zod, TypeScript 7 native
 
 ## Data Flow
 
@@ -255,7 +255,7 @@ Theme colors: `#3B47FF` (primary), `#0F1629` (background) -- derived from `oklch
 
 ## State Management
 
-- **Zustand 5.0.14** -- Global state with immer middleware for calculator, worksheets, collaboration
+- **Zustand 5.0** -- Global state with immer middleware for calculator, worksheets, collaboration
 - **React 19 cache** -- Server-side caching for data fetching
 - **Apollo Client** -- GraphQL cache for server data
 
@@ -281,23 +281,9 @@ Key differences from Prisma 6 that affect this codebase:
 
 ## DataLoader Architecture
 
-The API uses 11 DataLoaders (defined in `apps/api/src/lib/dataloaders.ts`) to batch N+1 queries per GraphQL request lifecycle:
+The API batches N+1 queries per GraphQL request lifecycle using DataLoader instances defined in `apps/api/src/lib/dataloaders.ts`, created fresh per request (via the Apollo Server context factory) to ensure proper request-scoped batching and no cross-request data leakage.
 
-| DataLoader | Batches |
-|:-----------|:--------|
-| `userById` | User lookups across resolvers |
-| `folderById` | Folder lookups for worksheets |
-| `worksheetSharesByWorksheetId` | Share permissions per worksheet |
-| `childFoldersByParentId` | Nested folder tree traversal |
-| `upvoteCountByTargetId` | Upvote counts for posts/comments |
-| `commentCountByPostId` | Comment counts for post listings |
-| `forumPostById` | Forum post lookups by ID |
-| `commentById` | Comment lookups by ID |
-| `repliesByParentCommentId` | Nested comment replies |
-| `worksheetsByFolderId` | Worksheets per folder |
-| `hasUpvoted` | Current user's upvote status (composite key: targetId + userId) |
-
-Each DataLoader is created fresh per request (via the Apollo Server context factory) to ensure proper request-scoped batching and no cross-request data leakage.
+The canonical, up-to-date list of DataLoaders and what each batches lives in [docs/wiki/GraphQL-API.md](docs/wiki/GraphQL-API.md#dataloaders) -- refer there rather than duplicating the table.
 
 ## Key Design Decisions
 

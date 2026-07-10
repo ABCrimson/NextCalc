@@ -132,7 +132,7 @@ function AnimatedBackground({ prefersReduced }: { prefersReduced: boolean }) {
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none" aria-hidden="true">
       {/* Orb 1 — orange, top-left quadrant */}
       <m.div
-        className="absolute w-[500px] h-[500px] rounded-full blur-3xl"
+        className="absolute size-[500px] rounded-full blur-3xl"
         style={{
           background: 'radial-gradient(circle, oklch(0.72 0.22 55 / 0.18) 0%, transparent 70%)',
           top: '-10%',
@@ -155,7 +155,7 @@ function AnimatedBackground({ prefersReduced }: { prefersReduced: boolean }) {
 
       {/* Orb 2 — amber/rose, bottom-right quadrant */}
       <m.div
-        className="absolute w-[600px] h-[600px] rounded-full blur-3xl"
+        className="absolute size-[600px] rounded-full blur-3xl"
         style={{
           background: 'radial-gradient(circle, oklch(0.70 0.20 25 / 0.14) 0%, transparent 70%)',
           bottom: '-15%',
@@ -179,7 +179,7 @@ function AnimatedBackground({ prefersReduced }: { prefersReduced: boolean }) {
 
       {/* Orb 3 — rose/pink, center-upper area */}
       <m.div
-        className="absolute w-[380px] h-[380px] rounded-full blur-3xl"
+        className="absolute size-[380px] rounded-full blur-3xl"
         style={{
           background: 'radial-gradient(circle, oklch(0.68 0.18 0 / 0.12) 0%, transparent 70%)',
           top: '35%',

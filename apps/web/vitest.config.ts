@@ -44,7 +44,6 @@ export default defineConfig({
         '**/*.d.ts',
         'e2e/**',
       ],
-      // Vitest 4.0: Enhanced thresholds - enforce quality standards
       thresholds: {
         lines: 80,
         functions: 80,
@@ -53,18 +52,13 @@ export default defineConfig({
       },
     },
 
-    // Vitest 4.0: Better test isolation
-    isolate: true,
-
-    // Restore mocks after each test for proper isolation
+    // Full mock isolation between tests. Vitest 5 defaults clearMocks to true;
+    // restoreMocks/mockReset are deliberate overrides of the (false) defaults.
     restoreMocks: true,
-    clearMocks: true,
     mockReset: true,
 
-    // Vitest 4.0: Improved watch mode
     watch: false,
 
-    // Vitest 4.0: Enhanced reporters
     reporters: ['default'],
 
     // Increase timeout for async tests
@@ -72,10 +66,10 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': resolve(__dirname, './'),
-      '@/components': resolve(__dirname, './components'),
-      '@/lib': resolve(__dirname, './lib'),
-      '@/app': resolve(__dirname, './app'),
+      '@': resolve(import.meta.dirname, './'),
+      '@/components': resolve(import.meta.dirname, './components'),
+      '@/lib': resolve(import.meta.dirname, './lib'),
+      '@/app': resolve(import.meta.dirname, './app'),
     },
   },
 });

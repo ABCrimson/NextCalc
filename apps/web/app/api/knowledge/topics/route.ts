@@ -5,12 +5,37 @@
  */
 
 import type { Category } from '@nextcalc/database';
+import { cacheLife, cacheTag } from 'next/cache';
 import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { KnowledgeBaseManager } from '@/lib/cms/knowledge-base';
+import { KnowledgeBaseManager, type TopicNode } from '@/lib/cms/knowledge-base';
 import { TopicQuerySchema } from '@/lib/validations/learning';
 
-export const dynamic = 'force-dynamic';
+/**
+ * Cached read of the full topic tree.
+ *
+ * The knowledge base is static reference content, so the complete tree is
+ * cached (`'use cache'` + hourly revalidation, invalidatable via the
+ * `knowledge` tag) while category filtering stays per-request.
+ */
+async function getFullTopicTree(): Promise<TopicNode[]> {
+  'use cache';
+  cacheLife('hours');
+  cacheTag('knowledge');
+
+  return KnowledgeBaseManager.getTopicTree();
+}
+
+/**
+ * Prune the cached tree to a single category. Mirrors the DB-level filter in
+ * `getTopicTree(category)`: only topics of the category are kept, so a branch
+ * ends as soon as a node stops matching.
+ */
+function pruneTreeByCategory(nodes: TopicNode[], category: Category): TopicNode[] {
+  return nodes
+    .filter((node) => node.category === category)
+    .map((node) => ({ ...node, children: pruneTreeByCategory(node.children, category) }));
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,8 +47,8 @@ export async function GET(request: NextRequest) {
 
     const { category } = TopicQuerySchema.parse(queryParams);
 
-    // Get topic tree
-    const topicTree = await KnowledgeBaseManager.getTopicTree(category as Category | undefined);
+    const fullTree = await getFullTopicTree();
+    const topicTree = category ? pruneTreeByCategory(fullTree, category as Category) : fullTree;
 
     return NextResponse.json({
       success: true,

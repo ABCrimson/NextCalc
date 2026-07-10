@@ -612,6 +612,10 @@
       "explore": "Erkunden",
       "comingSoon": "Demnächst"
     },
+    "controls": {
+      "stepForward": "Step forward",
+      "reset": "Reset simulation"
+    },
     "page": {
       "tryItYourself": "Selbst ausprobieren",
       "realWorldApplications": "Praxisanwendungen",
@@ -865,6 +869,15 @@
       "predictions": "Predictions"
     }
   },
+  "difficulty": {
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "master": "Master",
+    "badgeLabel": "Difficulty: {level}",
+    "scaleLabel": "Difficulty scale",
+    "currentLabel": "Current difficulty: {level}"
+  },
   "matrix": {
     "title": "Matrixoperationen",
     "description": "Lineare Algebra mit Matrizen — Addition, Multiplikation, Determinante, Inverse, Eigenwerte und mehr",
@@ -903,6 +916,32 @@
       "eigen": "Eigenvalues & Eigenvectors",
       "gaussJordan": "Gauss-Jordan Elimination",
       "complex": "Complex Matrices"
+    },
+    "cards": {
+      "basicOperations": {
+        "title": "Basic Operations",
+        "description": "Add, subtract, and scalar multiply matrices. Supports matrices of any size."
+      },
+      "matrixMultiplication": {
+        "title": "Matrix Multiplication",
+        "description": "Compute matrix products with automatic dimension checking."
+      },
+      "determinant": {
+        "title": "Determinant",
+        "description": "Calculate determinants using LU decomposition for square matrices."
+      },
+      "matrixInverse": {
+        "title": "Matrix Inverse",
+        "description": "Find inverses using Gauss-Jordan elimination. Handles singular matrices gracefully."
+      },
+      "transpose": {
+        "title": "Transpose",
+        "description": "Transpose matrices to swap rows and columns."
+      },
+      "specialMatrices": {
+        "title": "Special Matrices",
+        "description": "Create identity, zero, ones, and random matrices."
+      }
     }
   },
   "solver": {
@@ -1368,6 +1407,32 @@
     "noResults": "Keine Vorlagen entsprechen den aktuellen Filtern.",
     "howToTitle": "So verwenden Sie Vorlagen",
     "howToDescription": "Geben Sie Werte in die beschrifteten Eingabefelder ein und drücken Sie Enter oder klicken Sie auf Berechnen."
+  },
+  "worksheets": {
+    "title": "Meine Arbeitsblätter",
+    "subtitle": "Ihre gespeicherten mathematischen Notizbücher",
+    "newWorksheet": "Neues Arbeitsblatt",
+    "searchPlaceholder": "Arbeitsblätter durchsuchen...",
+    "sortDirection": "Sortierrichtung umschalten",
+    "sortUpdated": "Zuletzt aktualisiert",
+    "sortCreated": "Erstellungsdatum",
+    "sortTitle": "Titel",
+    "gridView": "Rasteransicht",
+    "listView": "Listenansicht",
+    "emptyTitle": "Noch keine Arbeitsblätter",
+    "emptyDescription": "Erstellen Sie Ihr erstes mathematisches Notizbuch, um loszulegen.",
+    "createFirst": "Arbeitsblatt erstellen",
+    "noResults": "Keine Arbeitsblätter entsprechen Ihrer Suche.",
+    "deleteConfirmTitle": "Arbeitsblatt löschen?",
+    "deleteConfirm": "Möchten Sie dieses Arbeitsblatt wirklich löschen?",
+    "delete": "Arbeitsblatt löschen",
+    "cancel": "Abbrechen",
+    "cellCount": "{count, plural, one {# Zelle} other {# Zellen}}",
+    "views": "Aufrufe",
+    "justNow": "gerade eben",
+    "minutesAgo": "{count, plural, one {vor # Minute} other {vor # Minuten}}",
+    "hoursAgo": "{count, plural, one {vor # Stunde} other {vor # Stunden}}",
+    "daysAgo": "{count, plural, one {vor # Tag} other {vor # Tagen}}"
   },
   "home": {
     "hero": {

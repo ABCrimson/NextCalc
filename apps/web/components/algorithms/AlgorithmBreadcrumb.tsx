@@ -1,8 +1,5 @@
-'use client';
-
 import { ChevronRight, Home } from 'lucide-react';
-import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 
 export interface BreadcrumbItem {
@@ -15,6 +12,8 @@ export interface BreadcrumbItem {
 export interface AlgorithmBreadcrumbProps {
   /** Breadcrumb trail items */
   items: BreadcrumbItem[];
+  /** Pre-translated accessible label for the home link */
+  homeLabel: string;
   /** Additional CSS classes */
   className?: string;
 }
@@ -24,6 +23,9 @@ export interface AlgorithmBreadcrumbProps {
  *
  * Provides hierarchical navigation for algorithm pages.
  * Always starts with Home icon, follows with trail items.
+ *
+ * Purely presentational — all labels arrive pre-translated as props, so it
+ * renders in both Server and Client Components.
  *
  * Accessibility:
  * - Semantic nav element with aria-label
@@ -35,6 +37,7 @@ export interface AlgorithmBreadcrumbProps {
  * @example
  * ```tsx
  * <AlgorithmBreadcrumb
+ *   homeLabel="Home"
  *   items={[
  *     { label: 'Algorithms', href: '/algorithms' },
  *     { label: 'Machine Learning', href: '/algorithms?category=machine-learning' },
@@ -43,9 +46,7 @@ export interface AlgorithmBreadcrumbProps {
  * />
  * ```
  */
-export function AlgorithmBreadcrumb({ items, className }: AlgorithmBreadcrumbProps) {
-  const t = useTranslations('algorithms.page');
-
+export function AlgorithmBreadcrumb({ items, homeLabel, className }: AlgorithmBreadcrumbProps) {
   return (
     <nav aria-label="Breadcrumb navigation" className={cn('flex items-center text-sm', className)}>
       <ol className="flex items-center gap-2 flex-wrap">
@@ -54,10 +55,10 @@ export function AlgorithmBreadcrumb({ items, className }: AlgorithmBreadcrumbPro
           <Link
             href="/"
             className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded-sm"
-            aria-label={t('breadcrumbHome')}
+            aria-label={homeLabel}
           >
             <Home className="size-4" aria-hidden="true" />
-            <span className="sr-only">{t('breadcrumbHome')}</span>
+            <span className="sr-only">{homeLabel}</span>
           </Link>
         </li>
 

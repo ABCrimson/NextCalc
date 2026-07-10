@@ -2,12 +2,34 @@
  * GraphQL Operation Documents
  *
  * All gql-tagged operations for the NextCalc Pro frontend.
- * Used with Apollo Client 4.2.0-alpha.0 hooks (useQuery, useMutation, useSuspenseQuery).
+ * Used with Apollo Client hooks (useQuery, useMutation, useSuspenseQuery).
  *
  * Operations match the GraphQL schema defined in apps/api/src/graphql/schema.ts.
  */
 
 import { graphql } from '@/lib/graphql/generated';
+
+// ============================================================================
+// FRAGMENTS
+// ============================================================================
+
+/** Minimal author/profile summary reused across worksheet, forum, and calculation queries */
+export const USER_SUMMARY_FRAGMENT = graphql(`
+  fragment UserSummary on User {
+    id
+    name
+    image
+  }
+`);
+
+/** Same minimal shape for fields typed as PublicUser (e.g. shared calculations) */
+export const PUBLIC_USER_SUMMARY_FRAGMENT = graphql(`
+  fragment PublicUserSummary on PublicUser {
+    id
+    name
+    image
+  }
+`);
 
 // ============================================================================
 // USER MUTATIONS
@@ -34,10 +56,8 @@ export const UPDATE_PROFILE_MUTATION = graphql(`
 export const ME_QUERY = graphql(`
   query Me {
     me {
-      id
+      ...UserSummary
       email
-      name
-      image
       bio
       role
       createdAt
@@ -80,9 +100,7 @@ export const WORKSHEET_QUERY = graphql(`
       createdAt
       updatedAt
       user {
-        id
-        name
-        image
+        ...UserSummary
       }
       folder {
         id
@@ -124,9 +142,7 @@ export const WORKSHEETS_QUERY = graphql(`
         createdAt
         updatedAt
         user {
-          id
-          name
-          image
+          ...UserSummary
         }
         folder {
           id
@@ -163,9 +179,7 @@ export const PUBLIC_WORKSHEETS_QUERY = graphql(`
         views
         createdAt
         user {
-          id
-          name
-          image
+          ...UserSummary
         }
       }
       pageInfo {
@@ -347,9 +361,7 @@ export const SHARED_CALCULATION_QUERY = graphql(`
       createdAt
       expiresAt
       user {
-        id
-        name
-        image
+        ...PublicUserSummary
       }
     }
   }
@@ -494,6 +506,34 @@ export const USER_ANALYTICS_QUERY = graphql(`
         date
         streak
       }
+    }
+  }
+`);
+
+/**
+ * Worksheet realtime-sync operations (SSE subscription + polling fallback).
+ * Typed documents so schema drift fails codegen/typecheck; the collab hook
+ * serialises them with print() for its raw fetch / graphql-sse transports.
+ */
+export const WORKSHEET_SYNC_QUERY = graphql(`
+  query WorksheetSync($worksheetId: ID!) {
+    worksheet(id: $worksheetId) {
+      id
+      title
+      content
+      updatedAt
+    }
+  }
+`);
+
+export const WORKSHEET_UPDATED_SUBSCRIPTION = graphql(`
+  subscription WorksheetUpdated($worksheetId: ID!) {
+    worksheetUpdated(worksheetId: $worksheetId) {
+      id
+      title
+      content
+      version
+      updatedAt
     }
   }
 `);

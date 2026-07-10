@@ -23,7 +23,6 @@ import {
 import {
   generateExportKey,
   getMimeType,
-  type R2Bucket,
   type R2S3Config,
   type UploadResult,
   uploadToR2,

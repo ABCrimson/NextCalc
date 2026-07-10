@@ -56,3 +56,56 @@ export async function createBest2DRenderer(canvas: HTMLCanvasElement): Promise<I
   // Supports Cartesian, polar, and parametric 2D plots.
   return new Canvas2DRenderer(canvas);
 }
+
+/**
+ * Creates AND initializes the best available 2D renderer, falling through to
+ * the next candidate if `initialize()` itself throws — not just when the
+ * capability probe (`detectBestBackend`) predicted unavailability.
+ *
+ * `createBest2DRenderer` only picks a constructor based on feature detection
+ * (`navigator.gpu` presence, etc.); it never calls `initialize()`, so a
+ * WebGPU adapter that exists but fails to produce a working device (driver
+ * bug, exhausted GPU process, disabled in a sandboxed context, ...) still
+ * gets selected and only fails later, when the caller invokes
+ * `renderer.initialize()` themselves — with no fallback in place.
+ *
+ * This helper tries each backend in order (WebGPU → WebGL2 → Canvas2D),
+ * calling `initialize()` on each candidate and moving to the next one on
+ * failure, so the caller always gets back a renderer that has *already*
+ * initialized successfully (or an error if every backend failed).
+ *
+ * @param canvas  The HTMLCanvasElement to render into.
+ * @returns       Promise resolving to an already-initialized IRenderer.
+ *
+ * @example
+ * const renderer = await createAndInitBest2DRenderer(canvas);
+ * renderer.render(config); // no separate initialize() call needed
+ */
+export async function createAndInitBest2DRenderer(canvas: HTMLCanvasElement): Promise<IRenderer> {
+  const factories: Array<() => IRenderer> = [
+    () => new WebGPU2DRenderer(canvas),
+    () => new WebGL2DRenderer(canvas),
+    () => new Canvas2DRenderer(canvas),
+  ];
+
+  let lastError: unknown;
+  for (const create of factories) {
+    const renderer = create();
+    try {
+      await renderer.initialize();
+      return renderer;
+    } catch (error) {
+      lastError = error;
+      try {
+        renderer.dispose();
+      } catch {
+        // Best-effort cleanup of a partially-initialized renderer — ignore.
+      }
+    }
+  }
+
+  throw new Error(
+    `createAndInitBest2DRenderer: every rendering backend failed to initialize ` +
+      `(WebGPU, WebGL2, Canvas2D). Last error: ${String(lastError)}`,
+  );
+}

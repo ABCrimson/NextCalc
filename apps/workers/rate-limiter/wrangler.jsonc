@@ -1,0 +1,80 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "nextcalc-rate-limiter",
+  "account_id": "95fec9f47d9285b4ad7a28e9262bd20e",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-08",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // Observability and monitoring
+  "observability": {
+    "enabled": true
+  },
+
+  // Durable Object binding — one instance per rate-limited identifier.
+  // The counter is always stored here; KV is used only as an identifier index.
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "RATE_LIMITER",
+        "class_name": "RateLimiterDurableObject"
+      }
+    ]
+  },
+
+  // Migration: declare RateLimiterDurableObject as a SQLite-backed DO class.
+  // The `new_sqlite_classes` key tells the runtime to provision a SQLite
+  // storage database for each new instance of this class.
+  //
+  // DEFERRED (2026-07-09): wrangler 4.107+ supports a declarative
+  // `"exports"` map (`{ "RateLimiterDurableObject": { "type": "durable-object",
+  // "state": "created", "storage": "sqlite" } }`) as a replacement for this
+  // legacy `migrations` array — `exports` and `migrations` are mutually
+  // exclusive per node_modules/wrangler/config-schema.json. This worker is
+  // ALREADY deployed to production with the `v1` `new_sqlite_classes`
+  // migration tag applied. The schema's own description of `exports` state
+  // "created" is "(default, live)" — i.e. it appears to represent any live
+  // DO class, not only a brand-new one — but Cloudflare's public Durable
+  // Objects migrations docs (developers.cloudflare.com/durable-objects/
+  // reference/durable-objects-migrations/) do not yet document this
+  // declarative `exports` surface at all, so there is no first-party
+  // confirmation that switching an already-migrated class to `exports` is a
+  // safe no-op rather than something that could be (mis)interpreted as
+  // re-provisioning the namespace. Per this repo's real-fixes-no-workarounds
+  // discipline, we do not guess with a production Durable Object's storage.
+  // Keeping the proven `migrations` array here until Cloudflare documents
+  // the exact semantics of `exports.state: "created"` for a class that was
+  // originally provisioned via `migrations`, at which point this should
+  // migrate to the declarative form.
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["RateLimiterDurableObject"]
+    }
+  ],
+
+  // KV namespace retained for the identifier index only (used by /admin/keys).
+  // Rate-limit counters are NOT stored here — the DO owns all state.
+  "kv_namespaces": [
+    {
+      "binding": "RATE_LIMITS",
+      "id": "65390e47b1ca4604bd58e5c4078e063b",
+      // Using production namespace for preview; create a separate preview namespace if needed
+      "preview_id": "65390e47b1ca4604bd58e5c4078e063b"
+    }
+  ],
+
+  // Custom domain routing
+  "routes": [
+    {
+      "pattern": "ratelimit.nextcalc.io",
+      "custom_domain": true
+    }
+  ],
+
+  // CORS configuration and shared variables
+  // ADMIN_KEY is set via `wrangler secret put ADMIN_KEY` (not in vars)
+  "vars": {
+    "ALLOWED_ORIGINS": "http://localhost:3005,https://nextcalc.io,https://nextcalc.pro"
+  }
+}

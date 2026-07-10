@@ -39,7 +39,7 @@ export { AlgorithmBreadcrumb } from './AlgorithmBreadcrumb';
 export type { AlgorithmCardProps, AlgorithmCategory, DifficultyLevel } from './AlgorithmCard';
 // UI Components
 export { AlgorithmCard } from './AlgorithmCard';
-export type { AlgorithmMetadataProps } from './AlgorithmMetadata';
+export type { AlgorithmMetadataLabels, AlgorithmMetadataProps } from './AlgorithmMetadata';
 export { AlgorithmMetadata } from './AlgorithmMetadata';
 export type { AlgorithmPageProps, Reference, RelatedAlgorithm } from './AlgorithmPage';
 export { AlgorithmPage } from './AlgorithmPage';

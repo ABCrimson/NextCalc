@@ -27,6 +27,7 @@ import {
   TrendingDown,
 } from 'lucide-react';
 import { m } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -253,6 +254,7 @@ function* dfsGenerator(
 // ============================================================================
 
 export function GraphTraversalVisualizer() {
+  const t = useTranslations('algorithms');
   const [selectedPreset, setSelectedPreset] = useState(0);
   const [traversalType, setTraversalType] = useState<TraversalType>('bfs');
   const [isPlaying, setIsPlaying] = useState(false);
@@ -505,11 +507,21 @@ export function GraphTraversalVisualizer() {
                     )}
                   </Button>
 
-                  <Button onClick={handleStepForward} variant="outline" size="icon">
+                  <Button
+                    onClick={handleStepForward}
+                    variant="outline"
+                    size="icon"
+                    aria-label={t('controls.stepForward')}
+                  >
                     <SkipForward className="size-4" />
                   </Button>
 
-                  <Button onClick={handleReset} variant="outline" size="icon">
+                  <Button
+                    onClick={handleReset}
+                    variant="outline"
+                    size="icon"
+                    aria-label={t('controls.reset')}
+                  >
                     <RotateCcw className="size-4" />
                   </Button>
                 </div>

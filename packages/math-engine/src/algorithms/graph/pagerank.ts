@@ -137,10 +137,13 @@ export function personalizedPageRank(
 
   // Normalize personal vector
   const sum = personalVector.reduce((a, b) => a + b, 0);
-  const normalized = personalVector.map((v) => v / sum);
+  const normalized = new Float64Array(n);
+  for (let i = 0; i < n; i++) {
+    normalized[i] = (personalVector[i] ?? 0) / sum;
+  }
 
-  let ranks = [...normalized];
-  let newRanks = new Array<number>(n).fill(0);
+  let ranks = new Float64Array(normalized);
+  let newRanks = new Float64Array(n);
 
   const outdegrees = graph.map((neighbors) => neighbors.length);
 
@@ -179,7 +182,7 @@ export function personalizedPageRank(
     [ranks, newRanks] = [newRanks, ranks];
   }
 
-  return ranks;
+  return Array.from(ranks);
 }
 
 /**

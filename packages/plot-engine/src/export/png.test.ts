@@ -3,10 +3,10 @@
  * @module export/png.test
  *
  * exportToPNG and downloadAsPNG both require HTMLCanvasElement with a working
- * 2D rendering context and toDataURL. We exercise:
+ * 2D rendering context and toBlob. We exercise:
  *   - parameter validation / option defaults (scale, transparent, backgroundColor)
  *   - the downloadAsPNG filename normalisation logic (same pattern as csv/svg)
- *   - error propagation when the canvas context is unavailable
+ *   - error propagation when the canvas context is unavailable, or toBlob fails
  *
  * We intentionally do NOT mock deep WebGL/canvas rendering; the tests use a
  * lightweight stub that satisfies the interface surface the code touches.
@@ -22,11 +22,11 @@ import { downloadAsPNG, exportToPNG } from './png';
 
 /**
  * Returns a fake HTMLCanvasElement whose getContext('2d') returns a minimal
- * CanvasRenderingContext2D stub.  The fake toDataURL always returns a small
- * valid-looking data URL.
+ * CanvasRenderingContext2D stub. The fake toBlob synchronously invokes its
+ * callback with a real Blob (so URL.createObjectURL works unmodified).
  */
 function makeCanvasStub(
-  options: { failContext?: boolean; dataUrl?: string } = {},
+  options: { failContext?: boolean; blobFails?: boolean; blobType?: string } = {},
 ): HTMLCanvasElement {
   const ctxStub = {
     fillStyle: '' as string | CanvasGradient | CanvasPattern,
@@ -42,7 +42,13 @@ function makeCanvasStub(
       if (type === '2d' && !options.failContext) return ctxStub;
       return null;
     }),
-    toDataURL: vi.fn(() => options.dataUrl ?? 'data:image/png;base64,abc123'),
+    toBlob: vi.fn((callback: (blob: Blob | null) => void, type?: string) => {
+      if (options.blobFails) {
+        callback(null);
+        return;
+      }
+      callback(new Blob(['fake-png-bytes'], { type: options.blobType ?? type ?? 'image/png' }));
+    }),
     style: { cursor: '' },
   } as unknown as HTMLCanvasElement;
 
@@ -82,15 +88,15 @@ afterEach(() => {
 // ---------------------------------------------------------------------------
 
 describe('exportToPNG', () => {
-  it('should return a data URL string', async () => {
+  it('should return a blob object URL string', async () => {
     const sourceCanvas = makeCanvasStub();
-    const exportCanvas = makeCanvasStub({ dataUrl: 'data:image/png;base64,TESTPNG' });
+    const exportCanvas = makeCanvasStub();
     const restore = patchCreateElement(exportCanvas);
 
     try {
       const result = await exportToPNG(sourceCanvas, { width: 100, height: 100 });
       expect(typeof result).toBe('string');
-      expect(result).toMatch(/^data:image\/png/);
+      expect(result).toMatch(/^blob:/);
     } finally {
       restore();
     }
@@ -204,14 +210,15 @@ describe('exportToPNG', () => {
     }
   });
 
-  it('should call toDataURL with image/png mime type', async () => {
+  it('should call toBlob with image/png mime type', async () => {
     const sourceCanvas = makeCanvasStub();
     const exportCanvas = makeCanvasStub();
     const restore = patchCreateElement(exportCanvas);
 
     try {
       await exportToPNG(sourceCanvas, { width: 100, height: 100 });
-      expect(exportCanvas.toDataURL).toHaveBeenCalledWith('image/png');
+      const toBlob = exportCanvas.toBlob as ReturnType<typeof vi.fn>;
+      expect(toBlob).toHaveBeenCalledWith(expect.any(Function), 'image/png');
     } finally {
       restore();
     }
@@ -231,6 +238,20 @@ describe('exportToPNG', () => {
     }
   });
 
+  it('should reject when toBlob yields a null blob', async () => {
+    const sourceCanvas = makeCanvasStub();
+    const exportCanvas = makeCanvasStub({ blobFails: true });
+    const restore = patchCreateElement(exportCanvas);
+
+    try {
+      await expect(exportToPNG(sourceCanvas, { width: 100, height: 100 })).rejects.toThrow(
+        'Failed to encode canvas as PNG',
+      );
+    } finally {
+      restore();
+    }
+  });
+
   it('should accept an object backgroundColor', async () => {
     const sourceCanvas = makeCanvasStub();
     const exportCanvas = makeCanvasStub();
@@ -244,7 +265,7 @@ describe('exportToPNG', () => {
         transparent: false,
         backgroundColor: { r: 0, g: 128, b: 255 },
       };
-      await expect(exportToPNG(sourceCanvas, options)).resolves.toMatch(/^data:image\/png/);
+      await expect(exportToPNG(sourceCanvas, options)).resolves.toMatch(/^blob:/);
     } finally {
       restore();
     }
@@ -345,6 +366,28 @@ describe('downloadAsPNG', () => {
       await expect(
         downloadAsPNG(sourceCanvas, 'chart', { width: 100, height: 100 }),
       ).rejects.toThrow('Failed to get 2D context for export');
+    } finally {
+      restore();
+    }
+  });
+
+  it('should revoke the object URL after a deferred tick, not synchronously', async () => {
+    const sourceCanvas = makeCanvasStub();
+    const exportCanvas = makeCanvasStub();
+    const restore = patchCreateElement(exportCanvas);
+    const createSpy = vi.spyOn(URL, 'createObjectURL');
+    const revokeSpy = vi.spyOn(URL, 'revokeObjectURL');
+
+    try {
+      await downloadAsPNG(sourceCanvas, 'chart', { width: 100, height: 100 });
+      const createdUrl = createSpy.mock.results.at(-1)?.value as string;
+
+      // downloadAsPNG's own revoke() call hasn't fired yet — it's scheduled
+      // via setTimeout(0), not awaited by the function itself.
+      expect(revokeSpy).not.toHaveBeenCalledWith(createdUrl);
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(revokeSpy).toHaveBeenCalledWith(createdUrl);
     } finally {
       restore();
     }

@@ -5,9 +5,12 @@
 import type { Dimension } from './dimensions';
 import {
   DERIVED_DIMENSIONS,
+  DIMENSIONLESS,
   DimensionalError,
   dimensionsEqual,
+  divideDimensions,
   multiplyDimensions,
+  powerDimension,
   SI_BASE_DIMENSIONS,
 } from './dimensions';
 
@@ -259,16 +262,82 @@ export function createQuantity(value: number, unitSymbol: string): Quantity {
 }
 
 /**
- * Find unit by symbol or name
+ * Find unit by symbol or name.
+ *
+ * Also resolves compound unit expressions built from known units with `*`,
+ * `/` and integer powers — e.g. `km/h`, `m/s^2`, `kg*m/s^2`, `m^3`.
+ * Compound parsing composes dimensions and linear conversion factors;
+ * offset units (temperatures) are rejected inside compounds since they do
+ * not compose linearly.
  */
 export function findUnit(symbolOrName: string): UnitDefinition | null {
-  // Try exact match on symbol
+  const direct = findSimpleUnit(symbolOrName);
+  if (direct) {
+    return direct;
+  }
+  return parseCompoundUnit(symbolOrName);
+}
+
+/** Exact symbol/name lookup with no compound parsing. */
+function findSimpleUnit(symbolOrName: string): UnitDefinition | null {
   for (const unit of Object.values(ALL_UNITS)) {
     if (unit.symbol === symbolOrName || unit.name === symbolOrName) {
       return unit;
     }
   }
   return null;
+}
+
+/**
+ * Parse a compound unit expression (`km/h`, `m/s^2`, `kg*m/s^2`, `m^3`)
+ * into a derived UnitDefinition. Evaluates strictly left-to-right, so
+ * `a/b*c` means `(a/b)*c` and `a/b/c` means `(a/b)/c`.
+ */
+function parseCompoundUnit(expression: string): UnitDefinition | null {
+  const trimmed = expression.trim();
+  // Must contain an operator or power to qualify as compound
+  if (!/[*/^·⋅]/.test(trimmed)) {
+    return null;
+  }
+
+  // Tokenise into alternating factors and operators (· and ⋅ are multiplication)
+  const parts = trimmed.split(/([*/·⋅])/).map((p) => p.trim());
+  if (parts.some((p) => p === '') || parts.length % 2 === 0) {
+    return null;
+  }
+
+  let dimension: Dimension = DIMENSIONLESS;
+  let toSI = 1;
+  let nextOp: '*' | '/' = '*';
+
+  for (const [index, part] of parts.entries()) {
+    if (index % 2 === 1) {
+      nextOp = part === '/' ? '/' : '*';
+      continue;
+    }
+
+    const powerMatch = /^(.+?)\^(-?\d+)$/.exec(part);
+    const baseSymbol = powerMatch?.[1] ?? part;
+    const power = powerMatch ? Number.parseInt(powerMatch[2] ?? '1', 10) : 1;
+
+    const base = findSimpleUnit(baseSymbol);
+    if (!base || base.offset !== undefined || power === 0) {
+      return null; // unknown factor, offset (non-linear) unit, or degenerate power
+    }
+
+    const factorDimension = powerDimension(base.dimension, power);
+    const factorToSI = base.toSI ** power;
+
+    if (nextOp === '/') {
+      dimension = divideDimensions(dimension, factorDimension);
+      toSI /= factorToSI;
+    } else {
+      dimension = multiplyDimensions(dimension, factorDimension);
+      toSI *= factorToSI;
+    }
+  }
+
+  return { name: trimmed, symbol: trimmed, dimension, toSI };
 }
 
 /**

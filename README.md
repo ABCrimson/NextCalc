@@ -5,7 +5,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Next.js-16.3-000?logo=nextdotjs&logoColor=white" alt="Next.js" />
   <img src="https://img.shields.io/badge/React-19.3-61DAFB?logo=react&logoColor=white" alt="React" />
-  <img src="https://img.shields.io/badge/TypeScript-6.0-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/TypeScript-7-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/github/actions/workflow/status/ABCrimson/NextCalc/ci.yml?branch=main&label=CI&logo=github" alt="CI" />
   <img src="https://img.shields.io/badge/license-MIT-22c55e" alt="License" />
   <img src="https://img.shields.io/badge/deploy-nextcalc.io-000?logo=vercel&logoColor=white" alt="Deployed" />
@@ -22,10 +22,10 @@
 
 | Category | Improvements |
 |:---------|:-------------|
-| **Dependencies** | Next.js 16.3-preview, React 19.3 canary, TypeScript 6.0.3, GraphQL 17, Apollo 5.5, Prisma 7.9-dev, Three.js 0.184, Biome 2.5, Turbo 2.10, Vitest 5, Wrangler 4.104 |
-| **Newest idioms** | TSL-compute Lorenz particles, GTAO SSAO, next-intl `useFormatter`, serwist 10, tagged-PDF export (modern-pdf-lib 0.40), modern-cmdk command palette |
-| **Lint sweep** | Biome 2.5.1 — 2,222 warnings + 221 infos → 0 warnings (real fixes; only documented, principled overrides) |
-| **CI/CD** | Node 26, non-blocking TS7 `tsgo` typecheck, gate green |
+| **Dependencies** | Next.js 16.3 canary, React 19.3 canary, TypeScript 7 native (6 for web + plot-engine), GraphQL 17, Apollo 5.5, Prisma 7.9 dev, Three.js 0.185-line, Biome 2.x, Turbo 2.10, Vitest 5, Wrangler 4.x |
+| **Newest idioms** | TSL-compute Lorenz particles, GTAO SSAO, next-intl `useFormatter`, serwist 10, tagged-PDF export (modern-pdf-lib), modern-cmdk command palette |
+| **Lint sweep** | Biome 2.x — 2,222 warnings + 221 infos → 0 warnings (real fixes; only documented, principled overrides) |
+| **CI/CD** | Node 26, TypeScript 7 native typecheck gates 8/10 packages (web + plot-engine stay on TS 6 pending upstream), gate green |
 
 </details>
 
@@ -136,25 +136,25 @@ graph TB
 
 | Category | Technology | Version |
 |:---------|:-----------|:--------|
-| Language | TypeScript | 6.0.3 |
-| Framework | Next.js | 16.3 |
-| UI Library | React | 19.3 |
+| Language | TypeScript | 7 native (8/10 packages); 6 for `web` + `plot-engine` |
+| Framework | Next.js | 16.3 canary |
+| UI Library | React | 19.3 canary |
 | Styling | Tailwind CSS | 4.3 |
 | Components | Radix UI (unified) | 1.6 |
-| Animation | Framer Motion | 12.41 |
+| Animation | Motion (`motion/react`) | 12.x |
 | State | Zustand | 5.0 |
 | Math | Math.js | 15.2 |
-| 3D Rendering | Three.js | 0.184 |
+| 3D Rendering | Three.js | 0.185-line |
 | 2D Charts | D3.js | 7.9 |
 | LaTeX | KaTeX | 0.17 |
-| ORM | Prisma | 7.9-dev |
+| ORM | Prisma | 7.9 dev |
 | Auth | NextAuth + jose | 5.0 / 6.2 |
 | GraphQL | Apollo Server / Client | 5.5 / 4.3 |
 | GraphQL spec | graphql | 17 |
 | Cache | Upstash Redis | 1.38 |
 | Workers | Hono on Cloudflare | 4.12 |
-| Build | Turborepo | 2.10 |
-| Linting | Biome | 2.5 |
+| Build | Turborepo | 2.10 canary |
+| Linting | Biome | 2.x |
 | Testing | Vitest + Playwright | 5.0 |
 
 > Exact pinned versions live in each package's `package.json`.

@@ -3,7 +3,7 @@
  * Converts LaTeX math expressions to SVG format using KaTeX
  */
 
-import type { R2Bucket, R2S3Config } from '../utils/r2.js';
+import type { R2S3Config } from '../utils/r2.js';
 import {
   generateExportKey,
   getMimeType,

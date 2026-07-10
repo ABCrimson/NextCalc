@@ -48,7 +48,16 @@ export const userResolvers = {
 
   User: {
     /**
-     * Get user's worksheets with optional filtering
+     * Get user's worksheets with optional filtering.
+     *
+     * The `limit`/`offset`/`visibility` args are schema-default-filled
+     * (limit: Int = 20, offset: Int = 0), so "default args" means the
+     * caller didn't override any of them. That path is batched via the
+     * worksheetsByUserId DataLoader (N+1 prevention when resolving many
+     * User.worksheets fields, e.g. a forum author list). Custom args
+     * (explicit pagination or an explicit visibility filter) fall back to
+     * a direct, per-call Prisma query since those can't be batched behind
+     * a single DataLoader key without losing correctness.
      */
     worksheets: async (
       parent: User,
@@ -60,6 +69,15 @@ export const userResolvers = {
       context: GraphQLContext,
     ) => {
       const requestingUser = context.user;
+      const isOwnerOrAdmin = requestingUser?.id === parent.id || requestingUser?.role === 'ADMIN';
+
+      const usesDefaultArgs =
+        (args.limit ?? 20) === 20 && (args.offset ?? 0) === 0 && !args.visibility;
+
+      if (usesDefaultArgs) {
+        const scope = isOwnerOrAdmin ? 'all' : 'public';
+        return context.loaders.worksheetsByUserId.load(`${parent.id}:${scope}`);
+      }
 
       // Build where clause based on visibility and permissions
       const where: {
@@ -72,7 +90,7 @@ export const userResolvers = {
       };
 
       // If not the owner or admin, only show PUBLIC worksheets
-      if (requestingUser?.id !== parent.id && requestingUser?.role !== 'ADMIN') {
+      if (!isOwnerOrAdmin) {
         where.visibility = 'PUBLIC';
       } else if (args.visibility) {
         where.visibility = args.visibility;
@@ -87,14 +105,11 @@ export const userResolvers = {
     },
 
     /**
-     * Get user's folders
+     * Get user's folders (batched via DataLoader — no pagination args on
+     * this field, so it's always eligible for batching)
      */
     folders: async (parent: User, _args: unknown, context: GraphQLContext) => {
-      return context.prisma.folder.findMany({
-        where: { userId: parent.id },
-        orderBy: { name: 'asc' },
-        take: 200,
-      });
+      return context.loaders.foldersByUserId.load(parent.id);
     },
 
     /**
@@ -110,13 +125,21 @@ export const userResolvers = {
     },
 
     /**
-     * Get user's forum posts
+     * Get user's forum posts. Default-args path is batched via the
+     * forumPostsByUserId DataLoader; custom limit/offset falls back to a
+     * direct query (see worksheets() above for the same rationale).
      */
     forumPosts: async (
       parent: User,
       args: { limit?: number; offset?: number },
       context: GraphQLContext,
     ) => {
+      const usesDefaultArgs = (args.limit ?? 20) === 20 && (args.offset ?? 0) === 0;
+
+      if (usesDefaultArgs) {
+        return context.loaders.forumPostsByUserId.load(parent.id);
+      }
+
       return context.prisma.forumPost.findMany({
         where: {
           userId: parent.id,

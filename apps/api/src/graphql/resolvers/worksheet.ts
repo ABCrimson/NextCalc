@@ -10,7 +10,9 @@
  */
 
 import type { Prisma, SharePermission, Worksheet, WorksheetVisibility } from '@nextcalc/database';
+import type { GraphQLResolveInfo } from 'graphql';
 import { queryCache } from '../../lib/cache';
+import { setCacheHint } from '../../lib/cache-control';
 import type { GraphQLContext } from '../../lib/context';
 import { requireAuth, requireOwnership } from '../../lib/context';
 import {
@@ -148,7 +150,12 @@ export const worksheetResolvers = {
         searchQuery?: string;
       },
       context: GraphQLContext,
+      info?: GraphQLResolveInfo,
     ) => {
+      // Public gallery listing — same response for every viewer, safe to
+      // cache at the shared/CDN level for a short window.
+      setCacheHint(info, { maxAge: 60, scope: 'PUBLIC' });
+
       const limit = Math.min(args.limit || 20, 100);
       const offset = args.offset || 0;
 
@@ -253,7 +260,12 @@ export const worksheetResolvers = {
         searchQuery?: string;
       },
       context: GraphQLContext,
+      info?: GraphQLResolveInfo,
     ) => {
+      // Public gallery listing — same response for every viewer, safe to
+      // cache at the shared/CDN level for a short window.
+      setCacheHint(info, { maxAge: 60, scope: 'PUBLIC' });
+
       const where: Prisma.WorksheetWhereInput = {
         deletedAt: null,
         visibility: 'PUBLIC',
@@ -373,6 +385,9 @@ export const worksheetResolvers = {
           ...(input.content !== undefined ? { content: input.content as object } : {}),
           ...(input.visibility !== undefined ? { visibility: input.visibility } : {}),
           ...(input.folderId !== undefined ? { folderId: input.folderId } : {}),
+          // Optimistic-concurrency revision — schema documents version as
+          // "incremented on every update" (matches the web server action).
+          version: { increment: 1 },
         },
       });
 
@@ -590,6 +605,22 @@ export const worksheetResolvers = {
      */
     shares: async (parent: Worksheet, _args: unknown, context: GraphQLContext) => {
       return context.loaders.worksheetSharesByWorksheetId.load(parent.id);
+    },
+  },
+
+  WorksheetShare: {
+    /**
+     * Resolve the share's worksheet (batched via DataLoader).
+     * `worksheet` is non-null in the schema — soft-deleted worksheets
+     * (deletedAt set) still resolve since the FK row still exists, but a
+     * truly missing worksheet throws NotFoundError to honor the contract.
+     */
+    worksheet: async (parent: { worksheetId: string }, _args: unknown, context: GraphQLContext) => {
+      const worksheet = await context.loaders.worksheetById.load(parent.worksheetId);
+      if (!worksheet) {
+        throw new NotFoundError('Worksheet', parent.worksheetId);
+      }
+      return worksheet;
     },
   },
 };

@@ -21,11 +21,13 @@ import { z } from 'zod';
 import { exportToPdf, type PdfExportRequest, validateLatexSyntax } from './handlers/pdf.js';
 import { exportToPng, getRecommendedDpi, type PngExportRequest } from './handlers/png.js';
 import { exportToSvg, type SvgExportRequest } from './handlers/svg.js';
-import type { R2Bucket } from './utils/r2.js';
 import { r2ConfigFromEnv } from './utils/r2.js';
 
 /**
  * Cloudflare Worker environment bindings.
+ *
+ * `R2Bucket` is the ambient global type from `@cloudflare/workers-types`
+ * (see tsconfig.json `"types"`) — no import needed.
  *
  * R2 S3 secrets (required for private export presigned URLs):
  *   wrangler secret put R2_ACCOUNT_ID

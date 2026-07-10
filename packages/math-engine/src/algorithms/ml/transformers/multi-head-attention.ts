@@ -256,7 +256,7 @@ function causalMaskedAttention(
       } else {
         let score = 0;
         for (let k = 0; k < embedDim; k++) {
-          score += (queries[i]?.[k] || 0) * (keys[j]?.[k] || 0);
+          score += (queries[i]?.[k] ?? 0) * (keys[j]?.[k] ?? 0);
         }
         score /= Math.sqrt(embedDim);
         scores[i]![j] = score;
@@ -268,16 +268,16 @@ function causalMaskedAttention(
 
   // Compute output
   const output: number[][] = [];
-  const valueDim = values[0]?.length || 0;
+  const valueDim = values[0]?.length ?? 0;
 
   for (let i = 0; i < n; i++) {
     output[i] = new Array(valueDim).fill(0);
     for (let j = 0; j < m; j++) {
-      const weight = weights[i]?.[j] || 0;
+      const weight = weights[i]?.[j] ?? 0;
       for (let k = 0; k < valueDim; k++) {
         const currentVal = output[i]?.[k];
         if (currentVal !== undefined) {
-          output[i]![k] = currentVal + weight * (values[j]?.[k] || 0);
+          output[i]![k] = currentVal + weight * (values[j]?.[k] ?? 0);
         }
       }
     }
@@ -311,7 +311,7 @@ function concatenateHeads(heads: ReadonlyArray<Matrix>): Matrix {
  */
 function matmul(a: Matrix, b: Matrix): Matrix {
   const m = a.length;
-  const n = b[0]?.length || 0;
+  const n = b[0]?.length ?? 0;
   const p = b.length;
 
   if (a[0]?.length !== p) {
@@ -325,7 +325,7 @@ function matmul(a: Matrix, b: Matrix): Matrix {
     for (let j = 0; j < n; j++) {
       let sum = 0;
       for (let k = 0; k < p; k++) {
-        sum += (a[i]?.[k] || 0) * (b[k]?.[j] || 0);
+        sum += (a[i]?.[k] ?? 0) * (b[k]?.[j] ?? 0);
       }
       result[i]![j] = sum;
     }

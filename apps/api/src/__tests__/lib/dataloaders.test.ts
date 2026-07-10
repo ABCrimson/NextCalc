@@ -1,7 +1,7 @@
 /**
  * DataLoaders Unit Tests
  *
- * Tests all 11 DataLoader instances returned by createDataLoaders() by:
+ * Tests all 16 DataLoader instances returned by createDataLoaders() by:
  * - Mocking PrismaClient with vi.fn() for each model method used
  * - Verifying correct data mapping for single and batched IDs
  * - Ensuring null/empty defaults for missing records
@@ -263,6 +263,51 @@ describe('createDataLoaders', () => {
       expect(r2).toBeNull();
       expect(r3).toEqual(f3);
       expect(prisma.folder.findMany).toHaveBeenCalledOnce();
+    });
+  });
+
+  // =========================================================================
+  // worksheetById
+  // =========================================================================
+
+  describe('worksheetById', () => {
+    it('returns the correct worksheet for a single ID', async () => {
+      const worksheet = makeWorksheet('ws1');
+      prisma.worksheet.findMany.mockResolvedValueOnce([worksheet]);
+
+      const result = await loaders.worksheetById.load('ws1');
+
+      expect(result).toEqual(worksheet);
+      expect(prisma.worksheet.findMany).toHaveBeenCalledWith({
+        where: { id: { in: ['ws1'] } },
+      });
+    });
+
+    it('batches and preserves order, returning null for missing worksheets', async () => {
+      const ws1 = makeWorksheet('ws1');
+      const ws3 = makeWorksheet('ws3');
+      // ws2 is missing (e.g. hard-deleted)
+      prisma.worksheet.findMany.mockResolvedValueOnce([ws3, ws1]);
+
+      const [r1, r2, r3] = await Promise.all([
+        loaders.worksheetById.load('ws1'),
+        loaders.worksheetById.load('ws2'),
+        loaders.worksheetById.load('ws3'),
+      ]);
+
+      expect(r1).toEqual(ws1);
+      expect(r2).toBeNull();
+      expect(r3).toEqual(ws3);
+      expect(prisma.worksheet.findMany).toHaveBeenCalledOnce();
+    });
+
+    it('returns soft-deleted worksheets (no deletedAt filter — the FK row still exists)', async () => {
+      const softDeleted = makeWorksheet('ws1', { deletedAt: NOW });
+      prisma.worksheet.findMany.mockResolvedValueOnce([softDeleted]);
+
+      const result = await loaders.worksheetById.load('ws1');
+
+      expect(result).toEqual(softDeleted);
     });
   });
 
@@ -619,6 +664,178 @@ describe('createDataLoaders', () => {
   });
 
   // =========================================================================
+  // foldersByUserId
+  // =========================================================================
+
+  describe('foldersByUserId', () => {
+    it('returns folders grouped by userId, ordered by name', async () => {
+      const f1 = makeFolder('f1', { userId: 'u1', name: 'Alpha' });
+      const f2 = makeFolder('f2', { userId: 'u1', name: 'Beta' });
+      const f3 = makeFolder('f3', { userId: 'u2', name: 'Gamma' });
+      prisma.folder.findMany.mockResolvedValueOnce([f1, f2, f3]);
+
+      const [r1, r2] = await Promise.all([
+        loaders.foldersByUserId.load('u1'),
+        loaders.foldersByUserId.load('u2'),
+      ]);
+
+      expect(r1).toEqual([f1, f2]);
+      expect(r2).toEqual([f3]);
+      expect(prisma.folder.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ orderBy: { name: 'asc' } }),
+      );
+    });
+
+    it('returns empty array for users with no folders', async () => {
+      prisma.folder.findMany.mockResolvedValueOnce([]);
+
+      const result = await loaders.foldersByUserId.load('u-empty');
+
+      expect(result).toEqual([]);
+    });
+
+    it('batches multiple userIds into a single query', async () => {
+      prisma.folder.findMany.mockResolvedValueOnce([]);
+
+      await Promise.all([loaders.foldersByUserId.load('u1'), loaders.foldersByUserId.load('u2')]);
+
+      expect(prisma.folder.findMany).toHaveBeenCalledOnce();
+    });
+  });
+
+  // =========================================================================
+  // forumPostsByUserId
+  // =========================================================================
+
+  describe('forumPostsByUserId', () => {
+    it('returns posts grouped by userId, ordered by createdAt desc', async () => {
+      const p1 = makeForumPost('p1', { userId: 'u1' });
+      const p2 = makeForumPost('p2', { userId: 'u2' });
+      prisma.forumPost.findMany.mockResolvedValueOnce([p1, p2]);
+
+      const [r1, r2] = await Promise.all([
+        loaders.forumPostsByUserId.load('u1'),
+        loaders.forumPostsByUserId.load('u2'),
+      ]);
+
+      expect(r1).toEqual([p1]);
+      expect(r2).toEqual([p2]);
+      expect(prisma.forumPost.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ deletedAt: null }),
+          orderBy: { createdAt: 'desc' },
+        }),
+      );
+    });
+
+    it('returns empty array for users with no posts', async () => {
+      prisma.forumPost.findMany.mockResolvedValueOnce([]);
+
+      const result = await loaders.forumPostsByUserId.load('u-empty');
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  // =========================================================================
+  // commentsByPostId
+  // =========================================================================
+
+  describe('commentsByPostId', () => {
+    it('returns top-level, non-deleted comments grouped by postId', async () => {
+      const c1 = makeComment('c1', 'p1');
+      const c2 = makeComment('c2', 'p2');
+      prisma.comment.findMany.mockResolvedValueOnce([c1, c2]);
+
+      const [r1, r2] = await Promise.all([
+        loaders.commentsByPostId.load('p1'),
+        loaders.commentsByPostId.load('p2'),
+      ]);
+
+      expect(r1).toEqual([c1]);
+      expect(r2).toEqual([c2]);
+      expect(prisma.comment.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ parentId: null, deletedAt: null }),
+          orderBy: { createdAt: 'asc' },
+        }),
+      );
+    });
+
+    it('returns empty array for posts with no comments', async () => {
+      prisma.comment.findMany.mockResolvedValueOnce([]);
+
+      const result = await loaders.commentsByPostId.load('p-empty');
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  // =========================================================================
+  // worksheetsByUserId
+  // =========================================================================
+
+  describe('worksheetsByUserId', () => {
+    it('scope "all" fetches every non-deleted worksheet for the user', async () => {
+      const w1 = makeWorksheet('w1', { userId: 'u1', visibility: 'PRIVATE' });
+      const w2 = makeWorksheet('w2', { userId: 'u1', visibility: 'PUBLIC' });
+      prisma.worksheet.findMany.mockResolvedValueOnce([w1, w2]);
+
+      const result = await loaders.worksheetsByUserId.load('u1:all');
+
+      expect(result).toEqual([w1, w2]);
+      expect(prisma.worksheet.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { userId: { in: ['u1'] }, deletedAt: null },
+        }),
+      );
+    });
+
+    it('scope "public" only fetches PUBLIC worksheets for the user', async () => {
+      const publicWs = makeWorksheet('w1', { userId: 'u1', visibility: 'PUBLIC' });
+      prisma.worksheet.findMany.mockResolvedValueOnce([publicWs]);
+
+      const result = await loaders.worksheetsByUserId.load('u1:public');
+
+      expect(result).toEqual([publicWs]);
+      expect(prisma.worksheet.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { userId: { in: ['u1'] }, deletedAt: null, visibility: 'PUBLIC' },
+        }),
+      );
+    });
+
+    it('batches "all" and "public" scopes for different users into two queries', async () => {
+      prisma.worksheet.findMany
+        .mockResolvedValueOnce([makeWorksheet('w1', { userId: 'u1' })]) // "all" query
+        .mockResolvedValueOnce([makeWorksheet('w2', { userId: 'u2', visibility: 'PUBLIC' })]); // "public" query
+
+      const [all, pub] = await Promise.all([
+        loaders.worksheetsByUserId.load('u1:all'),
+        loaders.worksheetsByUserId.load('u2:public'),
+      ]);
+
+      expect(all).toHaveLength(1);
+      expect(pub).toHaveLength(1);
+      expect(prisma.worksheet.findMany).toHaveBeenCalledTimes(2);
+    });
+
+    it('a "public" scope viewer never sees a same-user "all" scope result and vice versa', async () => {
+      prisma.worksheet.findMany
+        .mockResolvedValueOnce([makeWorksheet('private-and-public', { userId: 'u1' })])
+        .mockResolvedValueOnce([]); // no PUBLIC worksheets for u1
+
+      const [ownerView, strangerView] = await Promise.all([
+        loaders.worksheetsByUserId.load('u1:all'),
+        loaders.worksheetsByUserId.load('u1:public'),
+      ]);
+
+      expect(ownerView).toHaveLength(1);
+      expect(strangerView).toHaveLength(0);
+    });
+  });
+
+  // =========================================================================
   // hasUpvoted
   // =========================================================================
 
@@ -777,10 +994,11 @@ describe('createDataLoaders', () => {
   // =========================================================================
 
   describe('createDataLoaders return structure', () => {
-    it('returns an object with all 11 DataLoader instances', () => {
+    it('returns an object with all 16 DataLoader instances', () => {
       const loaderKeys: (keyof DataLoaders)[] = [
         'userById',
         'folderById',
+        'worksheetById',
         'worksheetSharesByWorksheetId',
         'childFoldersByParentId',
         'upvoteCountByTargetId',
@@ -789,6 +1007,10 @@ describe('createDataLoaders', () => {
         'commentById',
         'repliesByParentCommentId',
         'worksheetsByFolderId',
+        'foldersByUserId',
+        'forumPostsByUserId',
+        'commentsByPostId',
+        'worksheetsByUserId',
         'hasUpvoted',
       ];
 

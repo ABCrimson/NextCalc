@@ -1,11 +1,15 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
-  "globalDependencies": ["**/.env.*local"],
+  "globalDependencies": [
+    "**/.env.*local"
+  ],
   "tasks": {
     "build": {
       "description": "Build all workspaces in dependency order",
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "env": [
         "DATABASE_URL",
         "DIRECT_DATABASE_URL",
@@ -34,7 +38,11 @@
         "NEXT_PUBLIC_SENTRY_DSN",
         "NEXT_PUBLIC_EXPORT_SERVICE_URL"
       ],
-      "outputs": [".next/**", "dist/**", "build/**"],
+      "outputs": [
+        ".next/**",
+        "dist/**",
+        "build/**"
+      ],
       "outputLogs": "new-only"
     },
     "dev": {
@@ -44,8 +52,12 @@
     },
     "test": {
       "description": "Run unit tests across workspaces",
-      "dependsOn": ["^build"],
-      "outputs": ["coverage/**"],
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "coverage/**"
+      ],
       "outputLogs": "new-only"
     },
     "lint": {
@@ -59,12 +71,9 @@
     },
     "typecheck": {
       "description": "Type-check all workspaces with tsc",
-      "dependsOn": ["^build"],
-      "outputs": []
-    },
-    "typecheck:fast": {
-      "description": "Advisory type-check with TypeScript 7 (tsgo) — non-blocking, NOT part of the gate",
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "outputs": []
     }
   }

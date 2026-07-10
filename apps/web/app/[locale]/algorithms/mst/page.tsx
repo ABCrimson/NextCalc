@@ -1,7 +1,5 @@
-'use client';
-
 import { GitMerge } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
 import { MSTVisualizer } from '@/components/algorithms/MSTVisualizer';
 
@@ -10,15 +8,20 @@ import { MSTVisualizer } from '@/components/algorithms/MSTVisualizer';
  *
  * Interactive visualization of Kruskal's algorithm for finding
  * the minimum spanning tree of a weighted graph.
+ *
+ * Server Component — page-level strings are translated on the server and
+ * passed to the client `AlgorithmPage` shell as plain props.
  */
-export default function MSTPage() {
-  const t = useTranslations('algorithms.mst');
-  const ta = useTranslations('algorithms');
+export default async function MSTPage() {
+  const [t, ta] = await Promise.all([
+    getTranslations('algorithms.mst'),
+    getTranslations('algorithms'),
+  ]);
 
   return (
     <AlgorithmPage
       title={t('title')}
-      icon={GitMerge}
+      icon={<GitMerge />}
       category="graph-theory"
       difficulty="intermediate"
       timeComplexity="O(E log E)"

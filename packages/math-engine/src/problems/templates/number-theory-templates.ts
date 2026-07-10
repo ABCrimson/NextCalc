@@ -8,6 +8,7 @@
  * - Diophantine equations
  */
 
+import { gcd } from '../../number-theory';
 import { createTemplate, narrow, type ProblemTemplate } from './template-engine';
 
 /**
@@ -137,18 +138,6 @@ function primeFactorize(n: number): [number, number][] {
   }
 
   return factors;
-}
-
-/**
- * Helper: GCD
- */
-function gcd(a: number, b: number): number {
-  while (b !== 0) {
-    const temp = b;
-    b = a % b;
-    a = temp;
-  }
-  return a;
 }
 
 /**

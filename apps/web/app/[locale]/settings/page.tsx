@@ -342,12 +342,12 @@ export default function SettingsPage() {
       <div className="fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
         <div className="absolute inset-0 bg-linear-to-br/oklab from-background via-background/95 to-background" />
         <m.div
-          className="absolute top-[-10%] right-[-5%] w-[480px] h-[480px] rounded-full bg-linear-to-br/oklab from-violet-500/10 to-indigo-500/10 blur-3xl"
+          className="absolute top-[-10%] right-[-5%] size-[480px] rounded-full bg-linear-to-br/oklab from-violet-500/10 to-indigo-500/10 blur-3xl"
           animate={{ x: [0, 60, 0], y: [0, 40, 0], scale: [1, 1.15, 1] }}
           transition={{ duration: 22, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
         />
         <m.div
-          className="absolute bottom-[-10%] left-[-5%] w-[560px] h-[560px] rounded-full bg-linear-to-br/oklab from-sky-500/10 to-cyan-500/10 blur-3xl"
+          className="absolute bottom-[-10%] left-[-5%] size-[560px] rounded-full bg-linear-to-br/oklab from-sky-500/10 to-cyan-500/10 blur-3xl"
           animate={{ x: [0, -60, 0], y: [0, -40, 0], scale: [1, 1.1, 1] }}
           transition={{ duration: 28, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
         />

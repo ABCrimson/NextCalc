@@ -18,6 +18,7 @@
 
 import { Info, Pause, Play, RotateCcw, SkipForward, Zap } from 'lucide-react';
 import { m } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -286,6 +287,7 @@ function* kruskalGenerator(nodes: GraphNode[], edges: GraphEdge[]): Generator<MS
 // ============================================================================
 
 export function MSTVisualizer() {
+  const t = useTranslations('algorithms');
   const [selectedPreset, setSelectedPreset] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState(800);
@@ -486,11 +488,21 @@ export function MSTVisualizer() {
                     )}
                   </Button>
 
-                  <Button onClick={handleStepForward} variant="outline" size="icon">
+                  <Button
+                    onClick={handleStepForward}
+                    variant="outline"
+                    size="icon"
+                    aria-label={t('controls.stepForward')}
+                  >
                     <SkipForward className="size-4" />
                   </Button>
 
-                  <Button onClick={handleReset} variant="outline" size="icon">
+                  <Button
+                    onClick={handleReset}
+                    variant="outline"
+                    size="icon"
+                    aria-label={t('controls.reset')}
+                  >
                     <RotateCcw className="size-4" />
                   </Button>
                 </div>

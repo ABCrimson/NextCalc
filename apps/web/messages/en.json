@@ -646,6 +646,10 @@
       "explore": "Explore",
       "comingSoon": "Coming Soon"
     },
+    "controls": {
+      "stepForward": "Step forward",
+      "reset": "Reset simulation"
+    },
     "page": {
       "tryItYourself": "Try It Yourself",
       "realWorldApplications": "Real-World Applications",
@@ -899,6 +903,15 @@
       "predictions": "Predictions"
     }
   },
+  "difficulty": {
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "master": "Master",
+    "badgeLabel": "Difficulty: {level}",
+    "scaleLabel": "Difficulty scale",
+    "currentLabel": "Current difficulty: {level}"
+  },
   "matrix": {
     "title": "Matrix Operations",
     "description": "Linear algebra with matrices - add, multiply, determinant, inverse, eigenvalues, and more",
@@ -937,6 +950,32 @@
       "eigen": "Eigenvalues & Eigenvectors",
       "gaussJordan": "Gauss-Jordan Elimination",
       "complex": "Complex Matrices"
+    },
+    "cards": {
+      "basicOperations": {
+        "title": "Basic Operations",
+        "description": "Add, subtract, and scalar multiply matrices. Supports matrices of any size."
+      },
+      "matrixMultiplication": {
+        "title": "Matrix Multiplication",
+        "description": "Compute matrix products with automatic dimension checking."
+      },
+      "determinant": {
+        "title": "Determinant",
+        "description": "Calculate determinants using LU decomposition for square matrices."
+      },
+      "matrixInverse": {
+        "title": "Matrix Inverse",
+        "description": "Find inverses using Gauss-Jordan elimination. Handles singular matrices gracefully."
+      },
+      "transpose": {
+        "title": "Transpose",
+        "description": "Transpose matrices to swap rows and columns."
+      },
+      "specialMatrices": {
+        "title": "Special Matrices",
+        "description": "Create identity, zero, ones, and random matrices."
+      }
     }
   },
   "solver": {
@@ -1420,8 +1459,10 @@
     "emptyDescription": "Create your first mathematical notebook to get started.",
     "createFirst": "Create Worksheet",
     "noResults": "No worksheets match your search.",
+    "deleteConfirmTitle": "Delete worksheet?",
     "deleteConfirm": "Are you sure you want to delete this worksheet?",
     "delete": "Delete worksheet",
+    "cancel": "Cancel",
     "cellCount": "{count, plural, one {# cell} other {# cells}}",
     "views": "views",
     "justNow": "just now",

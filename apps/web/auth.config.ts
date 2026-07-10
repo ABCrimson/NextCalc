@@ -1,5 +1,5 @@
 /**
- * NextAuth.js v5 (next-auth@5.0.0-beta.30) Configuration
+ * NextAuth.js v5 Configuration
  *
  * This file contains the core authentication configuration including:
  * - OAuth providers (Google, GitHub) — only enabled when credentials are set

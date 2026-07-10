@@ -56,7 +56,7 @@ export function UnitsBackground() {
 
       {/* Orb 1 — top right: blue-cyan for length/data categories */}
       <m.div
-        className="absolute -top-40 -right-40 w-[650px] h-[650px] rounded-full blur-3xl"
+        className="absolute -top-40 -right-40 size-[650px] rounded-full blur-3xl"
         style={{
           background:
             'radial-gradient(circle, oklch(0.65 0.22 230 / 0.13) 0%, oklch(0.55 0.27 230 / 0.06) 60%, transparent 100%)',
@@ -75,7 +75,7 @@ export function UnitsBackground() {
 
       {/* Orb 2 — bottom left: cyan-emerald for conversion theme */}
       <m.div
-        className="absolute -bottom-48 -left-48 w-[750px] h-[750px] rounded-full blur-3xl"
+        className="absolute -bottom-48 -left-48 size-[750px] rounded-full blur-3xl"
         style={{
           background:
             'radial-gradient(circle, oklch(0.65 0.18 175 / 0.12) 0%, oklch(0.58 0.20 175 / 0.05) 60%, transparent 100%)',
@@ -95,7 +95,7 @@ export function UnitsBackground() {
 
       {/* Orb 3 — center: subtle indigo accent */}
       <m.div
-        className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-3xl"
+        className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[500px] rounded-full blur-3xl"
         style={{
           background: 'radial-gradient(circle, oklch(0.62 0.16 264 / 0.07) 0%, transparent 70%)',
         }}

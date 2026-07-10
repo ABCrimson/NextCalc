@@ -2115,7 +2115,7 @@ export default function GraphAlgorithmsPage() {
       {/* Animated background orbs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         <m.div
-          className="absolute -top-32 -left-32 w-[600px] h-[600px] rounded-full opacity-20"
+          className="absolute -top-32 -left-32 size-[600px] rounded-full opacity-20"
           style={{
             background:
               'radial-gradient(circle at 40% 40%, oklch(0.75 0.18 160), oklch(0.55 0.14 180), transparent 70%)',
@@ -2128,7 +2128,7 @@ export default function GraphAlgorithmsPage() {
             : {})}
         />
         <m.div
-          className="absolute top-1/2 -right-40 w-[500px] h-[500px] rounded-full opacity-15"
+          className="absolute top-1/2 -right-40 size-[500px] rounded-full opacity-15"
           style={{
             background:
               'radial-gradient(circle at 60% 50%, oklch(0.72 0.16 195), oklch(0.52 0.18 220), transparent 70%)',
@@ -2141,7 +2141,7 @@ export default function GraphAlgorithmsPage() {
             : {})}
         />
         <m.div
-          className="absolute -bottom-40 left-1/3 w-[550px] h-[550px] rounded-full opacity-15"
+          className="absolute -bottom-40 left-1/3 size-[550px] rounded-full opacity-15"
           style={{
             background:
               'radial-gradient(circle at 50% 60%, oklch(0.68 0.20 240), oklch(0.50 0.15 260), transparent 70%)',

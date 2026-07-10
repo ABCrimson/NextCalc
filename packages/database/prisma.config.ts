@@ -12,9 +12,9 @@ import dotenv from 'dotenv';
 import { defineConfig } from 'prisma/config';
 
 // Load env from multiple locations (first match wins for each var)
-dotenv.config({ path: path.join(__dirname, '..', '..', 'apps', 'web', '.env.local') });
-dotenv.config({ path: path.join(__dirname, '..', '..', '.env') });
-dotenv.config({ path: path.join(__dirname, '.env') });
+dotenv.config({ path: path.join(import.meta.dirname, '..', '..', 'apps', 'web', '.env.local') });
+dotenv.config({ path: path.join(import.meta.dirname, '..', '..', '.env') });
+dotenv.config({ path: path.join(import.meta.dirname, '.env') });
 
 // Prefer DIRECT_DATABASE_URL for CLI operations (bypasses PgBouncer).
 // Fall back to DATABASE_URL for general use.
@@ -25,9 +25,9 @@ const url = process.env.DIRECT_DATABASE_URL || process.env.DATABASE_URL;
 const datasourceUrl = url || 'postgresql://placeholder:placeholder@localhost:5432/placeholder';
 
 export default defineConfig({
-  schema: path.join(__dirname, 'prisma', 'schema.prisma'),
+  schema: path.join(import.meta.dirname, 'prisma', 'schema.prisma'),
   migrations: {
-    path: path.join(__dirname, 'prisma', 'migrations'),
+    path: path.join(import.meta.dirname, 'prisma', 'migrations'),
   },
   datasource: {
     url: datasourceUrl,
