@@ -24,7 +24,9 @@
     "db:migrate:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
     "typecheck": "tsc --noEmit",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:seed:samples": "tsx scripts/seed-samples.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "1.1.0",

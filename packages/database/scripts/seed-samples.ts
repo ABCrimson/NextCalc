@@ -7,9 +7,16 @@
  * - Sample worksheets
  * - Forum posts and comments
  *
- * Usage:
- *   pnpm tsx scripts/seed-database.ts
+ * Usage (from packages/database):
+ *   pnpm db:seed:samples
  */
+
+import path from 'node:path';
+import dotenv from 'dotenv';
+
+// Load env the same way prisma.config.ts does (first match wins per var).
+dotenv.config({ path: path.join(import.meta.dirname, '..', '..', '..', 'apps', 'web', '.env.local') });
+dotenv.config({ path: path.join(import.meta.dirname, '..', '..', '..', '.env') });
 
 import { prisma, UserRole, WorksheetVisibility } from '@nextcalc/database';
 

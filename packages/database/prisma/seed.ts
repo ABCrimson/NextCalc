@@ -11,6 +11,13 @@
  * Run with: pnpm db:seed
  */
 
+import path from 'node:path';
+import dotenv from 'dotenv';
+
+// Load env the same way prisma.config.ts does (first match wins per var).
+dotenv.config({ path: path.join(import.meta.dirname, '..', '..', '..', 'apps', 'web', '.env.local') });
+dotenv.config({ path: path.join(import.meta.dirname, '..', '..', '..', '.env') });
+
 import {
   type AchievementType,
   type AlgorithmCategory,
