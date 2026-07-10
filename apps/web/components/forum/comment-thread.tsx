@@ -46,6 +46,7 @@ function SingleComment({
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [replyContent, setReplyContent] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
 
   const [createComment, { loading: submitting }] = useMutation(CREATE_COMMENT_MUTATION, {
     onCompleted() {
@@ -96,12 +97,13 @@ function SingleComment({
       <div className="flex gap-3 py-3">
         {/* Avatar */}
         <div className="flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold bg-linear-to-br/oklab from-muted/60 to-muted/30 border border-border">
-          {user.image ? (
+          {user.image && !avatarError ? (
             // biome-ignore lint/performance/noImgElement: external OAuth avatar URL not in next/image remotePatterns
             <img
               src={user.image}
               alt={user.name ?? 'User'}
               className="size-full rounded-full object-cover"
+              onError={() => setAvatarError(true)}
             />
           ) : (
             <span className="text-muted-foreground">{getInitials(user.name)}</span>

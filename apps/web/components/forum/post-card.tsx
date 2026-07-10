@@ -12,7 +12,7 @@ import { ChevronRight, Clock, Eye, Hash, MessageSquare, Pin } from 'lucide-react
 import { m, useReducedMotion } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import { useFormatter } from 'next-intl';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import {
   type ForumPostNode,
   getInitials,
@@ -51,6 +51,7 @@ export function TagPill({ name }: { name: string }) {
 // ============================================================================
 
 function AuthorAvatar({ name, image }: { name: string | null; image: string | null }) {
+  const [imgError, setImgError] = useState(false);
   const initials = getInitials(name);
   return (
     <div
@@ -59,9 +60,14 @@ function AuthorAvatar({ name, image }: { name: string | null; image: string | nu
         'bg-linear-to-br/oklab from-muted/60 to-muted/30 border border-border',
       )}
     >
-      {image ? (
+      {image && !imgError ? (
         // biome-ignore lint/performance/noImgElement: external OAuth avatar URL not in next/image remotePatterns
-        <img src={image} alt={name ?? 'User'} className="size-full rounded-full object-cover" />
+        <img
+          src={image}
+          alt={name ?? 'User'}
+          className="size-full rounded-full object-cover"
+          onError={() => setImgError(true)}
+        />
       ) : (
         <span className="text-muted-foreground">{initials}</span>
       )}
