@@ -45,7 +45,14 @@ const noseconeConfig: Options = {
       ],
       workerSrc: ["'self'", 'blob:'],
       styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", 'data:', 'blob:'],
+      imgSrc: [
+        "'self'",
+        'data:',
+        'blob:',
+        // OAuth provider avatars synced into User.image by the signIn event (auth.ts)
+        'https://lh3.googleusercontent.com',
+        'https://avatars.githubusercontent.com',
+      ],
       fontSrc: ["'self'"],
       connectSrc: ["'self'", 'https://exports.nextcalc.pro', 'https://*.upstash.io'],
       frameAncestors: ["'none'"],

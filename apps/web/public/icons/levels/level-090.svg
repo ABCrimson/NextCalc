@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="g9" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="oklch(0.55 0.30 28.5)"/><stop offset="50%" stop-color="oklch(0.65 0.28 43.5)"/><stop offset="100%" stop-color="oklch(0.72 0.25 58.5)"/>
+    </linearGradient>
+    <radialGradient id="fl"><stop offset="0%" stop-color="oklch(0.80 0.25 58.5)" stop-opacity="0.5"/><stop offset="60%" stop-color="oklch(0.65 0.28 28.5)" stop-opacity="0.2"/><stop offset="100%" stop-color="oklch(0.65 0.28 28.5)" stop-opacity="0"/></radialGradient>
+  </defs>
+  <ellipse cx="32" cy="28.16" rx="26.88" ry="32.64" fill="url(#fl)"/>
+  <circle cx="32.00" cy="12.80" r="0.6" fill="oklch(0.85 0.22 28.5)" opacity="0.50"/>
+  <circle cx="44.00" cy="11.22" r="1" fill="oklch(0.85 0.22 48.5)" opacity="0.65"/>
+  <circle cx="56.94" cy="17.60" r="0.6" fill="oklch(0.85 0.22 68.5)" opacity="0.80"/>
+  <circle cx="51.20" cy="32.00" r="1" fill="oklch(0.85 0.22 88.5)" opacity="0.50"/>
+  <circle cx="52.78" cy="44.00" r="0.6" fill="oklch(0.85 0.22 108.5)" opacity="0.65"/>
+  <circle cx="46.40" cy="56.94" r="1" fill="oklch(0.85 0.22 128.5)" opacity="0.80"/>
+  <circle cx="32.00" cy="51.20" r="0.6" fill="oklch(0.85 0.22 148.5)" opacity="0.50"/>
+  <circle cx="20.00" cy="52.78" r="1" fill="oklch(0.85 0.22 168.5)" opacity="0.65"/>
+  <circle cx="7.06" cy="46.40" r="0.6" fill="oklch(0.85 0.22 188.5)" opacity="0.80"/>
+  <circle cx="12.80" cy="32.00" r="1" fill="oklch(0.85 0.22 208.5)" opacity="0.50"/>
+  <circle cx="11.22" cy="20.00" r="0.6" fill="oklch(0.85 0.22 228.5)" opacity="0.65"/>
+  <circle cx="17.60" cy="7.06" r="1" fill="oklch(0.85 0.22 248.5)" opacity="0.80"/>
+  <polygon points="32.00,12.80 48.63,22.40 48.63,41.60 32.00,51.20 15.37,41.60 15.37,22.40" fill="url(#g9)" stroke="oklch(0.72 0.28 28.5)" stroke-width="1.5"/>
+  <polygon points="32.00,23.36 33.47,28.45 38.11,25.89 35.55,30.53 40.64,32.00 35.55,33.47 38.11,38.11 33.47,35.55 32.00,40.64 30.53,35.55 25.89,38.11 28.45,33.47 23.36,32.00 28.45,30.53 25.89,25.89 30.53,28.45" fill="oklch(0.80 0.24 43.5)" opacity="0.4"/>
+</svg>

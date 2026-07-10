@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="pg" x1="50%" y1="100%" x2="50%" y2="0%">
+      <stop offset="0%" stop-color="oklch(0.55 0.30 25)"/><stop offset="40%" stop-color="oklch(0.70 0.28 40)"/><stop offset="70%" stop-color="oklch(0.78 0.25 55)"/><stop offset="100%" stop-color="oklch(0.85 0.20 70)"/>
+    </linearGradient>
+    <radialGradient id="pfl"><stop offset="0%" stop-color="oklch(0.85 0.28 55)" stop-opacity="0.6"/><stop offset="60%" stop-color="oklch(0.70 0.30 30)" stop-opacity="0.2"/><stop offset="100%" stop-color="oklch(0.55 0.25 15)" stop-opacity="0"/></radialGradient>
+  </defs>
+  <ellipse cx="32" cy="27.20" rx="28.80" ry="35.20" fill="url(#pfl)"/>
+  <path d="M 32 22.40 L 8.00 28.80 L 20.80 36.80 Z" fill="oklch(0.72 0.28 40 / 0.5)"/>
+  <path d="M 32 22.40 L 56.00 28.80 L 43.20 36.80 Z" fill="oklch(0.72 0.28 40 / 0.5)"/>
+  <polygon points="32.00,22.40 43.09,28.80 43.09,41.60 32.00,48.00 20.91,41.60 20.91,28.80" fill="url(#pg)" stroke="oklch(0.75 0.25 45)" stroke-width="1.2"/>
+  <polygon points="32.00,29.60 33.44,32.71 36.85,32.40 34.88,35.20 36.85,38.00 33.44,37.69 32.00,40.80 30.56,37.69 27.15,38.00 29.12,35.20 27.15,32.40 30.56,32.71" fill="oklch(0.88 0.18 55 / 0.5)"/>
+  <circle cx="12.00" cy="24.00" r="0.5" fill="oklch(0.88 0.22 30.0)" opacity="0.40"/>
+  <circle cx="16.00" cy="21.12" r="0.8" fill="oklch(0.88 0.22 35.0)" opacity="0.60"/>
+  <circle cx="20.00" cy="18.24" r="1.1" fill="oklch(0.88 0.22 40.0)" opacity="0.40"/>
+  <circle cx="24.00" cy="15.36" r="0.5" fill="oklch(0.88 0.22 45.0)" opacity="0.60"/>
+  <circle cx="28.00" cy="12.48" r="0.8" fill="oklch(0.88 0.22 50.0)" opacity="0.40"/>
+  <circle cx="32.00" cy="9.60" r="1.1" fill="oklch(0.88 0.22 55.0)" opacity="0.60"/>
+  <circle cx="36.00" cy="6.72" r="0.5" fill="oklch(0.88 0.22 60.0)" opacity="0.40"/>
+  <circle cx="40.00" cy="3.84" r="0.8" fill="oklch(0.88 0.22 65.0)" opacity="0.60"/>
+  <circle cx="44.00" cy="0.96" r="1.1" fill="oklch(0.88 0.22 70.0)" opacity="0.40"/>
+  <circle cx="48.00" cy="-1.92" r="0.5" fill="oklch(0.88 0.22 75.0)" opacity="0.60"/>
+</svg>

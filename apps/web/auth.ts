@@ -109,7 +109,9 @@ export const {
             if (providerName && providerName !== user.name) {
               updates['name'] = providerName;
             }
-            if (providerImage && providerImage !== user.image) {
+            // Custom same-origin avatars (paths like /icons/levels/*.svg) are user-curated and must survive OAuth sign-ins.
+            const imageIsSyncable = !user.image || user.image.startsWith('http');
+            if (providerImage && imageIsSyncable && providerImage !== user.image) {
               updates['image'] = providerImage;
             }
             if (Object.keys(updates).length > 0) {

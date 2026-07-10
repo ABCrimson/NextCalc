@@ -224,6 +224,10 @@
     "myProfileSubtitle": "Your stats, achievements, and learning analytics",
     "partialData": "Some analytics data could not be loaded. Partial data is shown.",
     "profileNotLoaded": "Profile data could not be loaded. Please try again.",
+    "avatarIconEdit": "Змінити іконку аватара",
+    "avatarIconTitle": "Виберіть іконку аватара",
+    "avatarIconDescription": "Встановіть одну з іконок рівнів як аватар. Лише для власника.",
+    "avatarIconError": "Не вдалося оновити іконку аватара. Будь ласка, спробуйте ще раз.",
     "tab": {
       "overview": "Огляд",
       "achievements": "Досягнення",

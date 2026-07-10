@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+    <radialGradient id="ring"><stop offset="60%" stop-color="transparent"/><stop offset="80%" stop-color="oklch(0.65 0.25 290.0 / 0.3)"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+    <linearGradient id="g5" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="oklch(0.62 0.26 290.0)"/><stop offset="100%" stop-color="oklch(0.42 0.20 330.0)"/>
+    </linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="32.83" fill="url(#ring)"/>
+  <polygon points="32.00,7.68 53.06,19.84 53.06,44.16 32.00,56.32 10.94,44.16 10.94,19.84" fill="url(#g5)" stroke="oklch(0.70 0.22 290.0)" stroke-width="1.5"/>
+  <polygon points="36.86,13.76 34.43,17.97 29.57,17.97 27.14,13.76 29.57,9.55 34.43,9.55" fill="oklch(0.75 0.18 290.0)" opacity="0.3"/>
+  <polygon points="45.36,45.33 42.93,41.12 45.36,36.91 50.23,36.91 52.66,41.12 50.23,45.33" fill="oklch(0.75 0.18 290.0)" opacity="0.3"/>
+  <polygon points="13.77,36.91 18.64,36.91 21.07,41.12 18.64,45.33 13.77,45.33 11.34,41.12" fill="oklch(0.75 0.18 290.0)" opacity="0.3"/>
+  <polygon points="32.00,23.49 34.19,28.21 39.37,27.74 36.38,32.00 39.37,36.26 34.19,35.79 32.00,40.51 29.81,35.79 24.63,36.26 27.62,32.00 24.63,27.74 29.81,28.21" fill="oklch(0.80 0.22 290.0)" opacity="0.45"/>
+</svg>

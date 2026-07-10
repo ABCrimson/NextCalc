@@ -56,6 +56,23 @@ function offsetPaginationMerge(
 }
 
 /**
+ * Absolute origin for server-side requests.
+ *
+ * During streaming SSR there is no `window` and Node's fetch cannot parse
+ * relative URLs, so every SSR'd GraphQL request needs the deployment origin.
+ * Only called on the server (`typeof window === 'undefined'` branches), so
+ * the server-only env vars are always available. Values are trimmed because
+ * Vercel encrypted env vars can carry a trailing newline.
+ */
+function serverOrigin(): string {
+  const siteUrl = process.env['NEXT_PUBLIC_SITE_URL']?.trim();
+  if (siteUrl) return siteUrl.replace(/\/+$/, '');
+  const vercelUrl = process.env['VERCEL_URL']?.trim();
+  if (vercelUrl) return `https://${vercelUrl}`;
+  return `http://localhost:${process.env['PORT']?.trim() || 3005}`;
+}
+
+/**
  * Create Apollo Client instance for Client Components.
  *
  * Called by ApolloNextAppProvider's makeClient prop.
@@ -64,7 +81,9 @@ function offsetPaginationMerge(
  */
 export function makeClient() {
   const httpLink = new HttpLink({
-    uri: '/api/graphql',
+    // Browser: same-origin relative URI (cookies flow automatically).
+    // SSR: Node fetch requires an absolute URL — resolve the deployment origin.
+    uri: typeof window === 'undefined' ? `${serverOrigin()}/api/graphql` : '/api/graphql',
     fetchOptions: { cache: 'no-store' },
   });
 
@@ -110,7 +129,7 @@ export function makeClient() {
   const sseUrl =
     typeof window !== 'undefined'
       ? `${window.location.origin}/api/graphql/stream`
-      : '/api/graphql/stream';
+      : `${serverOrigin()}/api/graphql/stream`;
 
   const sseClient = createClient({
     url: sseUrl,

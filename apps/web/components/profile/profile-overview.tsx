@@ -4,7 +4,8 @@ import { useMutation } from '@apollo/client/react';
 import { AnimatePresence, m } from 'motion/react';
 import { useFormatter, useLocale, useTranslations } from 'next-intl';
 import type { FormEvent } from 'react';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useTransition } from 'react';
+import { setAvatarIcon } from '@/app/actions/profile';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -17,7 +18,9 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Link } from '@/i18n/navigation';
+import { useUser } from '@/lib/auth/hooks';
 import { UPDATE_PROFILE_MUTATION } from '@/lib/graphql/operations';
+import { AVATAR_ICONS } from '@/lib/profile/avatar-icons';
 import { ActivityCalendar } from './activity-calendar';
 import { LevelIcon } from './level-icon';
 import { formatXp, getLevelTier, levelProgress, xpForLevelCached } from './level-utils';
@@ -602,6 +605,120 @@ function EditProfileDialog({
 }
 
 // ---------------------------------------------------------------------------
+// AvatarIconPickerDialog — owner-only (ADMIN) level-icon picker
+// ---------------------------------------------------------------------------
+
+interface AvatarIconPickerDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  currentImage: string | null;
+  onSuccess: (image: string) => void;
+}
+
+function AvatarIconPickerDialog({
+  open,
+  onOpenChange,
+  currentImage,
+  onSuccess,
+}: AvatarIconPickerDialogProps) {
+  const t = useTranslations('profile');
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  const handleSelect = useCallback(
+    (iconPath: string) => {
+      setSaveError(null);
+      startTransition(async () => {
+        const result = await setAvatarIcon(iconPath);
+        if (result.success && result.data) {
+          onSuccess(result.data.image);
+          onOpenChange(false);
+        } else {
+          setSaveError(result.error ?? t('avatarIconError'));
+        }
+      });
+    },
+    [onSuccess, onOpenChange, t],
+  );
+
+  const handleOpenChange = (next: boolean) => {
+    if (!isPending) {
+      if (!next) setSaveError(null);
+      onOpenChange(next);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{t('avatarIconTitle')}</DialogTitle>
+          <DialogDescription>{t('avatarIconDescription')}</DialogDescription>
+        </DialogHeader>
+
+        <AnimatePresence>
+          {saveError && (
+            <m.p
+              key="error"
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              role="alert"
+              className="text-sm text-destructive"
+            >
+              {saveError}
+            </m.p>
+          )}
+        </AnimatePresence>
+
+        <div className="max-h-[60vh] overflow-y-auto pr-1" aria-busy={isPending}>
+          <ul className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+            {AVATAR_ICONS.map((icon) => {
+              const selected = icon.path === currentImage;
+              return (
+                <li key={icon.path}>
+                  <button
+                    type="button"
+                    onClick={() => handleSelect(icon.path)}
+                    disabled={isPending}
+                    aria-pressed={selected}
+                    className={[
+                      'flex w-full flex-col items-center gap-1 rounded-lg border p-2 transition-colors',
+                      'disabled:cursor-not-allowed disabled:opacity-50',
+                      'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+                      selected
+                        ? 'border-primary bg-primary/10'
+                        : 'border-border hover:border-border/80 hover:bg-muted',
+                    ].join(' ')}
+                  >
+                    {/* biome-ignore lint/performance/noImgElement: static same-origin SVG catalog thumbnail */}
+                    <img
+                      src={icon.path}
+                      alt=""
+                      className="size-10"
+                      loading="lazy"
+                      aria-hidden="true"
+                    />
+                    <span
+                      className={[
+                        'w-full truncate text-center text-xs',
+                        selected ? 'font-semibold text-primary' : 'text-muted-foreground',
+                      ].join(' ')}
+                    >
+                      {icon.label}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // HeroAvatar — image with onError fallback to initials
 // ---------------------------------------------------------------------------
 
@@ -652,9 +769,11 @@ interface HeroCardProps {
   user: UserData;
   progress: ProgressData | null;
   onEditClick: () => void;
+  /** Rendered only for the signed-in ADMIN owner — opens the avatar icon picker. */
+  onAvatarEditClick?: () => void;
 }
 
-function HeroCard({ user, progress, onEditClick }: HeroCardProps) {
+function HeroCard({ user, progress, onEditClick, onAvatarEditClick }: HeroCardProps) {
   const t = useTranslations('profile');
   const format = useFormatter();
   const locale = useLocale();
@@ -668,8 +787,40 @@ function HeroCard({ user, progress, onEditClick }: HeroCardProps) {
     <Card>
       <CardContent className="p-6">
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
-          {/* Avatar */}
-          <HeroAvatar name={user.name} image={user.image} level={currentLevel} />
+          {/* Avatar — keyed by image so a stale onError fallback resets on change */}
+          <div className="relative flex-shrink-0">
+            <HeroAvatar
+              key={user.image ?? 'no-image'}
+              name={user.name}
+              image={user.image}
+              level={currentLevel}
+            />
+            {onAvatarEditClick && (
+              <button
+                type="button"
+                onClick={onAvatarEditClick}
+                aria-label={t('avatarIconEdit')}
+                aria-haspopup="dialog"
+                className="absolute -right-1 -top-1 flex size-7 items-center justify-center rounded-full border-2 border-background bg-muted text-muted-foreground transition-colors hover:bg-muted/80 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+              </button>
+            )}
+          </div>
 
           {/* Identity block */}
           <div className="min-w-0 flex-1 text-center sm:text-left">
@@ -768,7 +919,14 @@ export function ProfileOverview({
   const t = useTranslations('profile');
   const format = useFormatter();
   const [editOpen, setEditOpen] = useState(false);
+  const [avatarPickerOpen, setAvatarPickerOpen] = useState(false);
   const [localUser, setLocalUser] = useState(user);
+
+  // Owner-only avatar icon picker: shown only when the viewed profile IS the
+  // signed-in user AND they are the ADMIN. UI gate only — the setAvatarIcon
+  // server action re-checks the role against the database.
+  const sessionUser = useUser();
+  const canPickAvatarIcon = sessionUser?.id === user.id && sessionUser.role === 'ADMIN';
 
   const handleProfileUpdated = useCallback(
     (updated: { name: string | null; bio: string | null }) => {
@@ -777,6 +935,10 @@ export function ProfileOverview({
     },
     [onProfileUpdated],
   );
+
+  const handleAvatarIconSet = useCallback((image: string) => {
+    setLocalUser((prev) => ({ ...prev, image }));
+  }, []);
 
   const stats: StatCardProps[] = [
     {
@@ -818,7 +980,12 @@ export function ProfileOverview({
     <m.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
       {/* Hero card — avatar, name, bio, edit */}
       <m.div variants={itemVariants}>
-        <HeroCard user={localUser} progress={progress} onEditClick={() => setEditOpen(true)} />
+        <HeroCard
+          user={localUser}
+          progress={progress}
+          onEditClick={() => setEditOpen(true)}
+          {...(canPickAvatarIcon ? { onAvatarEditClick: () => setAvatarPickerOpen(true) } : {})}
+        />
       </m.div>
 
       {/* Stats grid — 4 primary KPIs at top, rest below */}
@@ -945,6 +1112,16 @@ export function ProfileOverview({
         initialBio={localUser.bio}
         onSuccess={handleProfileUpdated}
       />
+
+      {/* Avatar Icon Picker — owner (ADMIN) only */}
+      {canPickAvatarIcon && (
+        <AvatarIconPickerDialog
+          open={avatarPickerOpen}
+          onOpenChange={setAvatarPickerOpen}
+          currentImage={localUser.image}
+          onSuccess={handleAvatarIconSet}
+        />
+      )}
     </m.div>
   );
 }

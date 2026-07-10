@@ -224,6 +224,10 @@
     "myProfileSubtitle": "Your stats, achievements, and learning analytics",
     "partialData": "Some analytics data could not be loaded. Partial data is shown.",
     "profileNotLoaded": "Profile data could not be loaded. Please try again.",
+    "avatarIconEdit": "Avatar-Icon ändern",
+    "avatarIconTitle": "Avatar-Icon auswählen",
+    "avatarIconDescription": "Lege eines der Level-Icons als deinen Avatar fest. Nur für den Inhaber.",
+    "avatarIconError": "Avatar-Icon konnte nicht aktualisiert werden. Bitte versuche es erneut.",
     "tab": {
       "overview": "Übersicht",
       "achievements": "Erfolge",

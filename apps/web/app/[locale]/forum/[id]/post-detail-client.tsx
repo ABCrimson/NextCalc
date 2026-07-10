@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { m, useReducedMotion } from 'motion/react';
 import { useFormatter, useTranslations } from 'next-intl';
-import { Suspense, useCallback, useState } from 'react';
+import { Suspense, useCallback, useState, useTransition } from 'react';
 import { CommentThread } from '@/components/forum/comment-thread';
 import { ForumBackground } from '@/components/forum/forum-background';
 import {
@@ -152,12 +152,19 @@ function PostDetailContent({ id }: PostDetailClientProps) {
   const post: ForumPostDetail | null = data?.forumPost ?? null;
   const postAuthor = useFragment(UserSummaryFragmentDoc, post?.user);
 
+  // Wrap refetches in a transition: useSuspenseQuery's refetch() re-suspends
+  // the tree (collapsing everything to the skeleton) unless React can keep the
+  // current UI visible while the new data streams in.
+  const [, startTransition] = useTransition();
+
   // New comment form state
   const [commentContent, setCommentContent] = useState('');
   const [createComment, { loading: submitting }] = useMutation(CREATE_COMMENT_MUTATION, {
     onCompleted() {
       setCommentContent('');
-      refetch();
+      startTransition(() => {
+        refetch();
+      });
     },
   });
 
@@ -174,7 +181,9 @@ function PostDetailContent({ id }: PostDetailClientProps) {
   }, [createComment, id, commentContent]);
 
   const handleCommentAdded = useCallback(() => {
-    refetch();
+    startTransition(() => {
+      refetch();
+    });
   }, [refetch]);
 
   // Hue for this post

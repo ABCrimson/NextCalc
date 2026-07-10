@@ -224,6 +224,10 @@
     "myProfileSubtitle": "Sus estadísticas, logros y análisis de aprendizaje",
     "partialData": "Algunos datos de análisis no pudieron cargarse. Se muestran datos parciales.",
     "profileNotLoaded": "Los datos del perfil no pudieron cargarse. Por favor, inténtelo de nuevo.",
+    "avatarIconEdit": "Cambiar icono de avatar",
+    "avatarIconTitle": "Elegir icono de avatar",
+    "avatarIconDescription": "Establezca uno de los iconos de nivel como su avatar. Solo para el propietario.",
+    "avatarIconError": "No se pudo actualizar el icono de avatar. Inténtelo de nuevo.",
     "tab": {
       "overview": "Resumen",
       "achievements": "Logros",

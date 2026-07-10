@@ -3,27 +3,25 @@
 /**
  * Reusable Upvote Button
  *
- * Animated upvote button using Framer Motion and Apollo Client
- * optimistic mutations. Falls back gracefully when not authenticated.
+ * Animated upvote button using Framer Motion and an Apollo Client mutation.
+ * The flip is optimistic via React's useOptimistic: the async transition keeps
+ * the optimistic state alive until the mutation settles. On success the
+ * server-confirmed {upvoted, upvoteCount} is written onto the normalized
+ * ForumPost/Comment cache entity (the UpvoteResult payload itself carries no
+ * id, so it is never normalized), which re-renders every watching query with
+ * the confirmed values. On failure the optimistic flip reverts and the error
+ * is surfaced inline. Falls back gracefully when not authenticated.
  */
 
 import { useMutation } from '@apollo/client/react';
 import { ThumbsUp } from 'lucide-react';
 import { m, useReducedMotion } from 'motion/react';
 import { useFormatter } from 'next-intl';
-import { useCallback, useOptimistic, useTransition } from 'react';
+import { useCallback, useOptimistic, useState, useTransition } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useSession } from '@/lib/auth/hooks';
 import { TOGGLE_UPVOTE_MUTATION } from '@/lib/graphql/forum-operations';
 import { cn } from '@/lib/utils';
-
-interface ToggleUpvoteData {
-  toggleUpvote: {
-    __typename: 'UpvoteResult';
-    upvoted: boolean;
-    upvoteCount: number;
-  };
-}
 
 interface UpvoteButtonProps {
   targetId: string;
@@ -43,6 +41,7 @@ export function UpvoteButton({
   const { status } = useSession();
   const isAuthenticated = status === 'authenticated';
   const [, startTransition] = useTransition();
+  const [failed, setFailed] = useState(false);
 
   const [optimistic, setOptimistic] = useOptimistic(
     { count: initialCount, upvoted: initialUpvoted },
@@ -52,30 +51,50 @@ export function UpvoteButton({
     }),
   );
 
-  const [toggleUpvote] = useMutation<ToggleUpvoteData>(TOGGLE_UPVOTE_MUTATION);
+  const [toggleUpvote] = useMutation(TOGGLE_UPVOTE_MUTATION);
 
   const handleToggle = useCallback(() => {
     if (!isAuthenticated) return;
 
     const newUpvoted = !optimistic.upvoted;
-    startTransition(() => {
+    setFailed(false);
+    // The mutation promise must be part of the transition — otherwise React
+    // considers the transition finished immediately and reverts the optimistic
+    // flip before the server responds.
+    startTransition(async () => {
       setOptimistic(newUpvoted);
+      try {
+        const { data, error } = await toggleUpvote({
+          variables: { targetId, targetType },
+          update(cache, result) {
+            const confirmed = result.data?.toggleUpvote;
+            if (!confirmed) return;
+            const cacheId = cache.identify({
+              __typename: targetType === 'POST' ? 'ForumPost' : 'Comment',
+              id: targetId,
+            });
+            if (!cacheId) return;
+            cache.modify({
+              id: cacheId,
+              fields: {
+                upvoteCount: () => confirmed.upvoteCount,
+                hasUpvoted: () => confirmed.upvoted,
+              },
+            });
+          },
+        });
+        // errorPolicy 'all' (client default) resolves with `error` set instead
+        // of rejecting — treat both shapes as a failure.
+        if (error || !data?.toggleUpvote) {
+          throw error ?? new Error('toggleUpvote returned no data');
+        }
+      } catch (err) {
+        // Transition end reverts the optimistic flip back to the props.
+        console.error(`[ToggleUpvote] ${targetType} ${targetId}:`, err);
+        setFailed(true);
+      }
     });
-
-    toggleUpvote({
-      variables: {
-        targetId,
-        targetType,
-      },
-      optimisticResponse: {
-        toggleUpvote: {
-          __typename: 'UpvoteResult',
-          upvoted: newUpvoted,
-          upvoteCount: optimistic.count + (newUpvoted ? 1 : -1),
-        },
-      },
-    });
-  }, [isAuthenticated, optimistic, setOptimistic, toggleUpvote, targetId, targetType]);
+  }, [isAuthenticated, optimistic.upvoted, setOptimistic, toggleUpvote, targetId, targetType]);
 
   const button = (
     <m.button
@@ -133,5 +152,14 @@ export function UpvoteButton({
     );
   }
 
-  return button;
+  return (
+    <div className="flex flex-col items-center gap-1">
+      {button}
+      {failed && (
+        <span role="alert" className="text-[10px] font-medium text-destructive">
+          Upvote failed
+        </span>
+      )}
+    </div>
+  );
 }
