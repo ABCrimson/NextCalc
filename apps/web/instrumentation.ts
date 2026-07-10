@@ -103,8 +103,19 @@ export async function register() {
     // ---------------------------------------------------------------
     // Edge runtime instrumentation (Middleware, Edge API Routes)
     // ---------------------------------------------------------------
-    // Edge has limited APIs — keep this lightweight.
-    // Sentry's Edge SDK or lightweight custom tracing can go here.
+    const edgeDsn = process.env['SENTRY_DSN'] ?? process.env['NEXT_PUBLIC_SENTRY_DSN'];
+    if (edgeDsn) {
+      try {
+        const Sentry = await import('@sentry/nextjs');
+        Sentry.init({
+          dsn: edgeDsn,
+          tracesSampleRate: parseFloat(process.env['SENTRY_TRACES_SAMPLE_RATE'] ?? '0.1'),
+          environment: process.env['NODE_ENV'] ?? 'development',
+        });
+      } catch {
+        // Sentry SDK unavailable in this edge bundle — skip silently.
+      }
+    }
   }
 }
 

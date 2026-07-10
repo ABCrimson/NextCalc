@@ -15,6 +15,10 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { MathRenderer } from '@/components/ui/math-renderer';
 import { Link } from '@/i18n/navigation';
+import type { FragmentType } from '@/lib/graphql/generated';
+import { useFragment } from '@/lib/graphql/generated';
+import { PublicUserSummaryFragmentDoc } from '@/lib/graphql/generated/graphql';
+import type { PUBLIC_USER_SUMMARY_FRAGMENT } from '@/lib/graphql/operations';
 import { createPermalinkUrl } from '@/lib/share';
 import { cn } from '@/lib/utils';
 
@@ -32,11 +36,8 @@ interface SharedCalculationData {
   result: string | null;
   createdAt: string;
   expiresAt: string | null;
-  user: {
-    id: string;
-    name: string | null;
-    image: string | null;
-  } | null;
+  /** Masked — unwrap with `useFragment(PublicUserSummaryFragmentDoc, user)` before reading fields */
+  user: FragmentType<typeof PUBLIC_USER_SUMMARY_FRAGMENT> | null;
 }
 
 interface SharedCalculationViewProps {
@@ -49,6 +50,7 @@ interface SharedCalculationViewProps {
 
 export function SharedCalculationView({ shared }: SharedCalculationViewProps) {
   const format = useFormatter();
+  const user = useFragment(PublicUserSummaryFragmentDoc, shared.user);
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle');
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -204,10 +206,10 @@ export function SharedCalculationView({ shared }: SharedCalculationViewProps) {
           className="mt-6 flex items-center justify-between text-xs text-muted-foreground px-1"
         >
           <div className="flex items-center gap-2">
-            {shared.user && (
+            {user && (
               <>
                 <User className="size-3.5" aria-hidden="true" />
-                <span>Shared by {shared.user.name || 'Anonymous'}</span>
+                <span>Shared by {user.name || 'Anonymous'}</span>
               </>
             )}
           </div>

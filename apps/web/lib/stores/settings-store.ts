@@ -1,7 +1,7 @@
 /**
  * User Settings Store
  *
- * Zustand 5.0.11 store for user preferences that need to be reactive across
+ * Zustand store for user preferences that need to be reactive across
  * components (e.g. the calculator display reads `thousandsSeparator` to format
  * results). Persisted to localStorage under "nextcalc-user-settings".
  *

@@ -1,7 +1,7 @@
 /**
  * Worksheet Store
  *
- * Zustand 5.0.11 store for the Jupyter-like worksheet/notebook interface.
+ * Zustand store for the Jupyter-like worksheet/notebook interface.
  * Manages cells, variable scope across cells, auto-save, and export.
  */
 

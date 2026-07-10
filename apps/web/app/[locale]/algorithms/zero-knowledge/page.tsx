@@ -146,7 +146,7 @@ export default function ZeroKnowledgePage() {
   return (
     <AlgorithmPage
       title={t('title')}
-      icon={Shield}
+      icon={<Shield />}
       category="cryptography"
       difficulty="advanced"
       timeComplexity="O(1)"

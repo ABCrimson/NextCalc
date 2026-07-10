@@ -1,6 +1,5 @@
-'use client';
-
 import { Crown, Flame, Sparkles, Zap } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
@@ -48,25 +47,21 @@ export interface DifficultyBadgeProps {
 
 const difficultyConfig = {
   beginner: {
-    label: 'Beginner',
     icon: Sparkles,
     className:
       'bg-[oklch(0.92_0.08_145)] text-[oklch(0.35_0.10_145)] dark:bg-[oklch(0.30_0.06_145/0.30)] dark:text-[oklch(0.75_0.15_145)] border-[oklch(0.80_0.10_145)] dark:border-[oklch(0.40_0.08_145)]',
   },
   intermediate: {
-    label: 'Intermediate',
     icon: Zap,
     className:
       'bg-[oklch(0.92_0.06_250)] text-[oklch(0.35_0.10_250)] dark:bg-[oklch(0.30_0.06_250/0.30)] dark:text-[oklch(0.75_0.12_250)] border-[oklch(0.78_0.08_250)] dark:border-[oklch(0.40_0.08_250)]',
   },
   advanced: {
-    label: 'Advanced',
     icon: Flame,
     className:
       'bg-[oklch(0.92_0.08_60)] text-[oklch(0.40_0.12_60)] dark:bg-[oklch(0.30_0.06_60/0.30)] dark:text-[oklch(0.75_0.15_60)] border-[oklch(0.80_0.10_60)] dark:border-[oklch(0.40_0.08_60)]',
   },
   master: {
-    label: 'Master',
     icon: Crown,
     className:
       'bg-[oklch(0.92_0.08_300)] text-[oklch(0.35_0.12_300)] dark:bg-[oklch(0.30_0.06_300/0.30)] dark:text-[oklch(0.75_0.15_300)] border-[oklch(0.78_0.10_300)] dark:border-[oklch(0.40_0.08_300)]',
@@ -85,8 +80,10 @@ export function DifficultyBadge({
   size = 'md',
   className,
 }: DifficultyBadgeProps) {
+  const t = useTranslations('difficulty');
   const config = difficultyConfig[level];
   const Icon = config.icon;
+  const label = t(level);
 
   return (
     <Badge
@@ -98,10 +95,10 @@ export function DifficultyBadge({
         showIcon && 'gap-1.5',
         className,
       )}
-      aria-label={`Difficulty: ${config.label}`}
+      aria-label={t('badgeLabel', { level: label })}
     >
       {showIcon && <Icon className="size-3.5" aria-hidden="true" />}
-      <span>{config.label}</span>
+      <span>{label}</span>
     </Badge>
   );
 }
@@ -123,16 +120,18 @@ export function DifficultyScale({
   currentLevel: DifficultyLevel;
   className?: string;
 }) {
+  const t = useTranslations('difficulty');
   const levels: DifficultyLevel[] = ['beginner', 'intermediate', 'advanced', 'master'];
 
   return (
     <fieldset
       className={cn('flex items-center gap-2 border-0 p-0 m-0', className)}
-      aria-label="Difficulty scale"
+      aria-label={t('scaleLabel')}
     >
       {levels.map((level) => {
         const isCurrent = level === currentLevel;
         const config = difficultyConfig[level];
+        const label = t(level);
 
         return (
           <div
@@ -144,7 +143,7 @@ export function DifficultyScale({
                 ? (config.className.split(' ')[0]?.replace('bg-', 'bg-') ?? 'bg-primary') // Extract background color
                 : 'bg-muted opacity-30',
             )}
-            aria-label={isCurrent ? `Current difficulty: ${config.label}` : config.label}
+            aria-label={isCurrent ? t('currentLabel', { level: label }) : label}
             aria-current={isCurrent ? 'true' : undefined}
           />
         );

@@ -1,7 +1,5 @@
-'use client';
-
 import { Compass } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
 import { AStarVisualizer } from '@/components/algorithms/AStarVisualizer';
 
@@ -10,15 +8,20 @@ import { AStarVisualizer } from '@/components/algorithms/AStarVisualizer';
  *
  * Interactive visualization of A* pathfinding with heuristic guidance.
  * Shows how heuristics improve search efficiency.
+ *
+ * Server Component — page-level strings are translated on the server and
+ * passed to the client `AlgorithmPage` shell as plain props.
  */
-export default function AStarPage() {
-  const t = useTranslations('algorithms.astar');
-  const ta = useTranslations('algorithms');
+export default async function AStarPage() {
+  const [t, ta] = await Promise.all([
+    getTranslations('algorithms.astar'),
+    getTranslations('algorithms'),
+  ]);
 
   return (
     <AlgorithmPage
       title={t('title')}
-      icon={Compass}
+      icon={<Compass />}
       category="graph-theory"
       difficulty="advanced"
       timeComplexity="O(b^d)"

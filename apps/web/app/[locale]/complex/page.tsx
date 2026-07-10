@@ -19,7 +19,7 @@ export default async function ComplexPage() {
 
         {/* Animated orb - top right: blue/indigo for real part */}
         <div
-          className="absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full blur-3xl"
+          className="absolute -top-32 -right-32 size-[600px] rounded-full blur-3xl"
           style={{
             background:
               'radial-gradient(circle, oklch(0.65 0.22 264 / 0.12) 0%, oklch(0.55 0.27 264 / 0.06) 60%, transparent 100%)',
@@ -29,7 +29,7 @@ export default async function ComplexPage() {
 
         {/* Animated orb - bottom left: purple for imaginary part */}
         <div
-          className="absolute -bottom-40 -left-40 w-[700px] h-[700px] rounded-full blur-3xl"
+          className="absolute -bottom-40 -left-40 size-[700px] rounded-full blur-3xl"
           style={{
             background:
               'radial-gradient(circle, oklch(0.63 0.20 300 / 0.12) 0%, oklch(0.58 0.22 300 / 0.06) 60%, transparent 100%)',
@@ -39,7 +39,7 @@ export default async function ComplexPage() {
 
         {/* Animated orb - center: emerald for magnitude */}
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-3xl"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[500px] rounded-full blur-3xl"
           style={{
             background: 'radial-gradient(circle, oklch(0.65 0.18 155 / 0.07) 0%, transparent 70%)',
             animation: 'float 28s ease-in-out infinite 6s',

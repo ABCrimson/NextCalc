@@ -1,18 +1,24 @@
-'use client';
-
 import { Sparkles } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
 import { MetaLearningPlayground } from '@/components/algorithms/MetaLearningPlayground';
 
-export default function MetaLearningPage() {
-  const t = useTranslations('algorithms.metaLearning');
-  const ta = useTranslations('algorithms');
+/**
+ * Meta-Learning (MAML) Page
+ *
+ * Server Component — page-level strings are translated on the server and
+ * passed to the client `AlgorithmPage` shell as plain props.
+ */
+export default async function MetaLearningPage() {
+  const [t, ta] = await Promise.all([
+    getTranslations('algorithms.metaLearning'),
+    getTranslations('algorithms'),
+  ]);
 
   return (
     <AlgorithmPage
       title={t('title')}
-      icon={Sparkles}
+      icon={<Sparkles />}
       category="machine-learning"
       difficulty="advanced"
       timeComplexity="O(kT)"

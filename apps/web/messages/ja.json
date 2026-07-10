@@ -645,6 +645,10 @@
       "explore": "探索",
       "comingSoon": "近日公開"
     },
+    "controls": {
+      "stepForward": "Step forward",
+      "reset": "Reset simulation"
+    },
     "page": {
       "tryItYourself": "試してみよう",
       "realWorldApplications": "実世界での応用",
@@ -898,6 +902,15 @@
       "predictions": "予測"
     }
   },
+  "difficulty": {
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "master": "Master",
+    "badgeLabel": "Difficulty: {level}",
+    "scaleLabel": "Difficulty scale",
+    "currentLabel": "Current difficulty: {level}"
+  },
   "matrix": {
     "title": "行列演算",
     "description": "行列による線形代数 — 加算、乗算、行列式、逆行列、固有値など",
@@ -936,6 +949,32 @@
       "eigen": "固有値と固有ベクトル",
       "gaussJordan": "ガウス・ジョルダン消去法",
       "complex": "複素行列"
+    },
+    "cards": {
+      "basicOperations": {
+        "title": "Basic Operations",
+        "description": "Add, subtract, and scalar multiply matrices. Supports matrices of any size."
+      },
+      "matrixMultiplication": {
+        "title": "Matrix Multiplication",
+        "description": "Compute matrix products with automatic dimension checking."
+      },
+      "determinant": {
+        "title": "Determinant",
+        "description": "Calculate determinants using LU decomposition for square matrices."
+      },
+      "matrixInverse": {
+        "title": "Matrix Inverse",
+        "description": "Find inverses using Gauss-Jordan elimination. Handles singular matrices gracefully."
+      },
+      "transpose": {
+        "title": "Transpose",
+        "description": "Transpose matrices to swap rows and columns."
+      },
+      "specialMatrices": {
+        "title": "Special Matrices",
+        "description": "Create identity, zero, ones, and random matrices."
+      }
     }
   },
   "solver": {
@@ -1417,8 +1456,10 @@
     "emptyDescription": "最初の数学ノートブックを作成して始めましょう。",
     "createFirst": "ワークシートを作成",
     "noResults": "検索に一致するワークシートはありません。",
+    "deleteConfirmTitle": "ワークシートを削除しますか？",
     "deleteConfirm": "このワークシートを削除してもよろしいですか？",
     "delete": "ワークシートを削除",
+    "cancel": "キャンセル",
     "cellCount": "{count, plural, one {# セル} other {# セル}}",
     "views": "閲覧",
     "justNow": "たった今",

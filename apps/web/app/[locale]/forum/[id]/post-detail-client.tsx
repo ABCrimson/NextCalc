@@ -39,6 +39,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Link, useRouter } from '@/i18n/navigation';
 import { useSession } from '@/lib/auth/hooks';
 import { CREATE_COMMENT_MUTATION, FORUM_POST_QUERY } from '@/lib/graphql/forum-operations';
+import { useFragment } from '@/lib/graphql/generated';
+import { UserSummaryFragmentDoc } from '@/lib/graphql/generated/graphql';
 import { cn } from '@/lib/utils';
 
 // ============================================================================
@@ -148,6 +150,7 @@ function PostDetailContent({ id }: PostDetailClientProps) {
   );
 
   const post: ForumPostDetail | null = data?.forumPost ?? null;
+  const postAuthor = useFragment(UserSummaryFragmentDoc, post?.user);
 
   // New comment form state
   const [commentContent, setCommentContent] = useState('');
@@ -306,7 +309,7 @@ function PostDetailContent({ id }: PostDetailClientProps) {
             {/* Author section */}
             <div className="pt-4 border-t border-border/30">
               <Link
-                href={`/forum/user/${post.user.id}`}
+                href={`/forum/user/${postAuthor?.id ?? ''}`}
                 className="inline-flex items-center gap-3 group/author focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring rounded-lg p-1 -m-1"
               >
                 <div
@@ -315,21 +318,21 @@ function PostDetailContent({ id }: PostDetailClientProps) {
                     'bg-linear-to-br/oklab from-indigo-500/30 to-purple-500/30 border border-indigo-500/30',
                   )}
                 >
-                  {post.user.image ? (
+                  {postAuthor?.image ? (
                     /* biome-ignore lint/performance/noImgElement: external OAuth avatar URL with unpredictable domain */
                     <img
-                      src={post.user.image}
-                      alt={post.user.name ?? t('anonymous')}
+                      src={postAuthor.image}
+                      alt={postAuthor?.name ?? t('anonymous')}
                       className="size-full rounded-full object-cover"
                     />
                   ) : (
-                    <span className="text-indigo-300">{getInitials(post.user.name)}</span>
+                    <span className="text-indigo-300">{getInitials(postAuthor?.name)}</span>
                   )}
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5">
                     <span className="text-sm font-semibold text-foreground group-hover/author:text-indigo-400 transition-colors">
-                      {post.user.name ?? t('anonymous')}
+                      {postAuthor?.name ?? t('anonymous')}
                     </span>
                     {(() => {
                       const tier = getTierFromRole(post.user.role);

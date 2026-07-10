@@ -27,6 +27,7 @@ import {
   Sparkles,
   Waves,
 } from 'lucide-react';
+import { useFormatter } from 'next-intl';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -172,6 +173,7 @@ export function SurfaceEditor3D({
   width: _width = 800,
   height: _height = 600,
 }: SurfaceEditor3DProps) {
+  const format = useFormatter();
   // State
   const [selectedPreset, setSelectedPreset] = useState<PresetKey>(initialPreset);
   const [customEquation, setCustomEquation] = useState('sin(sqrt(x*x + y*y))');
@@ -403,16 +405,16 @@ export function SurfaceEditor3D({
                         <strong>
                           Extreme Resolution ({resolution}×{resolution}):
                         </strong>{' '}
-                        This will generate {(resolution * resolution).toLocaleString()} vertices.
-                        Expect significant performance impact. Consider using resolution ≤ 300 for
-                        smooth interaction.
+                        This will generate {format.number(resolution * resolution)} vertices. Expect
+                        significant performance impact. Consider using resolution ≤ 300 for smooth
+                        interaction.
                       </>
                     ) : (
                       <>
                         <strong>
                           High Resolution ({resolution}×{resolution}):
                         </strong>{' '}
-                        Generating {(resolution * resolution).toLocaleString()} vertices. May impact
+                        Generating {format.number(resolution * resolution)} vertices. May impact
                         performance on slower devices.
                       </>
                     )}

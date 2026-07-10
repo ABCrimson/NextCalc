@@ -1,7 +1,5 @@
-'use client';
-
 import { Navigation } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
 import { DijkstraVisualizer } from '@/components/algorithms/DijkstraVisualizer';
 
@@ -10,15 +8,20 @@ import { DijkstraVisualizer } from '@/components/algorithms/DijkstraVisualizer';
  *
  * Interactive visualization of Dijkstra's shortest path algorithm.
  * Demonstrates optimal pathfinding in weighted graphs.
+ *
+ * Server Component — page-level strings are translated on the server and
+ * passed to the client `AlgorithmPage` shell as plain props.
  */
-export default function DijkstraPage() {
-  const t = useTranslations('algorithms.dijkstra');
-  const ta = useTranslations('algorithms');
+export default async function DijkstraPage() {
+  const [t, ta] = await Promise.all([
+    getTranslations('algorithms.dijkstra'),
+    getTranslations('algorithms'),
+  ]);
 
   return (
     <AlgorithmPage
       title={t('title')}
-      icon={Navigation}
+      icon={<Navigation />}
       category="graph-theory"
       difficulty="intermediate"
       timeComplexity="O((V+E) log V)"

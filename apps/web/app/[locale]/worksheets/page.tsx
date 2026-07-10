@@ -1,414 +1,64 @@
-'use client';
+import type { Metadata } from 'next';
+import { auth } from '@/auth';
+import { prisma } from '@/lib/prisma';
+import { type WorksheetSummary, WorksheetsPageClient } from './worksheets-page-client';
+
+export const metadata: Metadata = {
+  title: 'My Worksheets',
+  description: 'Your saved mathematical notebooks — search, organize, and manage worksheets.',
+};
 
 /**
- * My Worksheets page — lists user's saved worksheets with search, filter,
- * and management actions (open, delete, create new).
+ * My Worksheets page — Server Component.
+ *
+ * Loads the current user's worksheets directly on the server (mirroring
+ * GET /api/worksheets) and seeds the interactive client shell with the data,
+ * eliminating the client-side fetch waterfall.
  */
+export default async function WorksheetsPage() {
+  const session = await auth();
+  const userId = session?.user?.id;
 
-import {
-  Clock,
-  Eye,
-  FileText,
-  Grid3X3,
-  List,
-  Loader2,
-  Plus,
-  Search,
-  SortAsc,
-  SortDesc,
-  Trash2,
-} from 'lucide-react';
-import { AnimatePresence, m } from 'motion/react';
-import { useFormatter, useTranslations } from 'next-intl';
-import { AlertDialog } from 'radix-ui';
-import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
-import { Button } from '@/components/ui/button';
-import { Link } from '@/i18n/navigation';
+  let worksheets: WorksheetSummary[] = [];
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-interface WorksheetSummary {
-  id: string;
-  title: string;
-  description: string | null;
-  visibility: 'PRIVATE' | 'PUBLIC' | 'UNLISTED';
-  views: number;
-  version: number;
-  cellCount: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-type SortField = 'updatedAt' | 'createdAt' | 'title';
-type SortDir = 'asc' | 'desc';
-type ViewMode = 'grid' | 'list';
-
-// ---------------------------------------------------------------------------
-// Server action to list worksheets
-// ---------------------------------------------------------------------------
-
-async function fetchWorksheets(): Promise<WorksheetSummary[]> {
-  const res = await fetch('/api/worksheets', { cache: 'no-store' });
-  if (!res.ok) return [];
-  const data = (await res.json()) as { worksheets: WorksheetSummary[] };
-  return data.worksheets;
-}
-
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
-
-export default function WorksheetsPage() {
-  const t = useTranslations('worksheets');
-  const format = useFormatter();
-
-  const [worksheets, setWorksheets] = useState<WorksheetSummary[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [sortField, setSortField] = useState<SortField>('updatedAt');
-  const [sortDir, setSortDir] = useState<SortDir>('desc');
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
-  const [_isPending, startTransition] = useTransition();
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-  const pendingDeleteRef = useRef<string | null>(null);
-
-  // Load worksheets
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    fetchWorksheets().then((ws) => {
-      if (!cancelled) {
-        setWorksheets(ws);
-        setLoading(false);
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  // Delete handler — triggered when the user confirms in the AlertDialog
-  const handleDelete = useCallback(async (id: string) => {
-    setDeletingId(id);
-    try {
-      const res = await fetch(`/api/worksheets/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        startTransition(() => {
-          setWorksheets((prev) => prev.filter((w) => w.id !== id));
-        });
-      }
-    } finally {
-      setDeletingId(null);
-    }
-  }, []);
-
-  // Prompt the user via AlertDialog before deleting
-  const promptDelete = useCallback((id: string) => {
-    pendingDeleteRef.current = id;
-    setDeleteConfirmId(id);
-  }, []);
-
-  const confirmDelete = useCallback(() => {
-    if (pendingDeleteRef.current) {
-      void handleDelete(pendingDeleteRef.current);
-      pendingDeleteRef.current = null;
-    }
-    setDeleteConfirmId(null);
-  }, [handleDelete]);
-
-  const cancelDelete = useCallback(() => {
-    pendingDeleteRef.current = null;
-    setDeleteConfirmId(null);
-  }, []);
-
-  // Filter and sort
-  const filtered = worksheets
-    .filter(
-      (w) =>
-        w.title.toLowerCase().includes(search.toLowerCase()) ||
-        (w.description ?? '').toLowerCase().includes(search.toLowerCase()),
-    )
-    .sort((a, b) => {
-      let cmp: number;
-      if (sortField === 'title') {
-        cmp = a.title.localeCompare(b.title);
-      } else {
-        cmp = new Date(a[sortField]).getTime() - new Date(b[sortField]).getTime();
-      }
-      return sortDir === 'asc' ? cmp : -cmp;
+  if (userId) {
+    const rows = await prisma.worksheet.findMany({
+      where: {
+        userId,
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        visibility: true,
+        views: true,
+        version: true,
+        content: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: 100,
     });
 
-  // Relative time formatter
-  const relativeTime = (date: string) => {
-    const diff = Date.now() - new Date(date).getTime();
-    const minutes = Math.floor(diff / 60_000);
-    if (minutes < 1) return t('justNow');
-    if (minutes < 60) return t('minutesAgo', { count: minutes });
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return t('hoursAgo', { count: hours });
-    const days = Math.floor(hours / 24);
-    if (days < 30) return t('daysAgo', { count: days });
-    return format.dateTime(new Date(date), { month: 'short', day: 'numeric', year: 'numeric' });
-  };
+    worksheets = rows.map((w) => ({
+      id: w.id,
+      title: w.title,
+      description: w.description,
+      visibility: w.visibility,
+      views: w.views,
+      version: w.version,
+      cellCount: Array.isArray(w.content) ? w.content.length : 0,
+      createdAt: w.createdAt.toISOString(),
+      updatedAt: w.updatedAt.toISOString(),
+    }));
+  }
 
   return (
-    <main className="min-h-screen px-4 py-8 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground tracking-tight">{t('title')}</h1>
-          <p className="mt-1 text-muted-foreground text-sm">{t('subtitle')}</p>
-        </div>
-        <Link
-          href="/worksheet"
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-        >
-          <Plus className="size-4" />
-          {t('newWorksheet')}
-        </Link>
-      </div>
-
-      {/* Search & Controls */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-6">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder={t('searchPlaceholder')}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-card text-foreground text-sm placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-          />
-        </div>
-
-        <div className="flex gap-2">
-          {/* Sort toggle */}
-          <button
-            type="button"
-            onClick={() => setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))}
-            className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl border border-border bg-card text-foreground text-sm hover:bg-accent transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-            title={t('sortDirection')}
-          >
-            {sortDir === 'desc' ? <SortDesc className="size-4" /> : <SortAsc className="size-4" />}
-          </button>
-
-          {/* Sort field */}
-          <select
-            value={sortField}
-            onChange={(e) => setSortField(e.target.value as SortField)}
-            className="px-3 py-2.5 rounded-xl border border-border bg-card text-foreground text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-          >
-            <option value="updatedAt">{t('sortUpdated')}</option>
-            <option value="createdAt">{t('sortCreated')}</option>
-            <option value="title">{t('sortTitle')}</option>
-          </select>
-
-          {/* View mode */}
-          <div className="flex rounded-xl border border-border overflow-hidden">
-            <button
-              type="button"
-              onClick={() => setViewMode('grid')}
-              className={`px-3 py-2.5 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${
-                viewMode === 'grid'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-card text-foreground hover:bg-accent'
-              }`}
-              aria-label={t('gridView')}
-            >
-              <Grid3X3 className="size-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('list')}
-              className={`px-3 py-2.5 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${
-                viewMode === 'list'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-card text-foreground hover:bg-accent'
-              }`}
-              aria-label={t('listView')}
-            >
-              <List className="size-4" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Loading */}
-      {loading && (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="size-8 animate-spin text-muted-foreground" />
-        </div>
-      )}
-
-      {/* Empty state */}
-      {!loading && worksheets.length === 0 && (
-        <div className="text-center py-20">
-          <FileText className="size-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-          <h2 className="text-lg font-medium text-foreground mb-2">{t('emptyTitle')}</h2>
-          <p className="text-muted-foreground text-sm mb-6">{t('emptyDescription')}</p>
-          <Link
-            href="/worksheet"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-          >
-            <Plus className="size-4" />
-            {t('createFirst')}
-          </Link>
-        </div>
-      )}
-
-      {/* No results */}
-      {!loading && worksheets.length > 0 && filtered.length === 0 && (
-        <div className="text-center py-12">
-          <Search className="size-8 text-muted-foreground mx-auto mb-3 opacity-50" />
-          <p className="text-muted-foreground text-sm">{t('noResults')}</p>
-        </div>
-      )}
-
-      {/* Grid view */}
-      {!loading && filtered.length > 0 && viewMode === 'grid' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <AnimatePresence mode="popLayout">
-            {filtered.map((ws) => (
-              <m.div
-                key={ws.id}
-                layout
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="group relative rounded-2xl border border-border bg-card/80 backdrop-blur-sm p-5 hover:border-primary/30 hover:shadow-lg transition-all">
-                  <Link href={`/worksheet?id=${ws.id}`} className="block">
-                    <h3 className="font-semibold text-foreground truncate group-hover:text-primary transition-colors">
-                      {ws.title}
-                    </h3>
-                    {ws.description && (
-                      <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
-                        {ws.description}
-                      </p>
-                    )}
-                    <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Clock className="size-3.5" />
-                        {relativeTime(ws.updatedAt)}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Eye className="size-3.5" />
-                        {ws.views}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <FileText className="size-3.5" />
-                        {t('cellCount', { count: ws.cellCount })}
-                      </span>
-                    </div>
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => promptDelete(ws.id)}
-                    disabled={deletingId === ws.id}
-                    className="absolute top-3 right-3 p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring focus-visible:opacity-100"
-                    aria-label={t('delete')}
-                  >
-                    {deletingId === ws.id ? (
-                      <Loader2 className="size-4 animate-spin" />
-                    ) : (
-                      <Trash2 className="size-4" />
-                    )}
-                  </button>
-                </div>
-              </m.div>
-            ))}
-          </AnimatePresence>
-        </div>
-      )}
-
-      {/* List view */}
-      {!loading && filtered.length > 0 && viewMode === 'list' && (
-        <div className="rounded-2xl border border-border overflow-hidden">
-          <AnimatePresence mode="popLayout">
-            {filtered.map((ws, i) => (
-              <m.div
-                key={ws.id}
-                layout
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                transition={{ duration: 0.15, delay: i * 0.03 }}
-              >
-                <div
-                  className={`group flex items-center gap-4 px-5 py-4 hover:bg-accent/50 transition-colors ${i > 0 ? 'border-t border-border' : ''}`}
-                >
-                  <Link href={`/worksheet?id=${ws.id}`} className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3">
-                      <FileText className="size-5 text-muted-foreground shrink-0" />
-                      <div className="min-w-0">
-                        <h3 className="font-medium text-foreground truncate group-hover:text-primary transition-colors">
-                          {ws.title}
-                        </h3>
-                        <p className="text-xs text-muted-foreground">
-                          {relativeTime(ws.updatedAt)} · {t('cellCount', { count: ws.cellCount })} ·{' '}
-                          {ws.views} {t('views')}
-                        </p>
-                      </div>
-                    </div>
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => promptDelete(ws.id)}
-                    disabled={deletingId === ws.id}
-                    className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring focus-visible:opacity-100"
-                    aria-label={t('delete')}
-                  >
-                    {deletingId === ws.id ? (
-                      <Loader2 className="size-4 animate-spin" />
-                    ) : (
-                      <Trash2 className="size-4" />
-                    )}
-                  </button>
-                </div>
-              </m.div>
-            ))}
-          </AnimatePresence>
-        </div>
-      )}
-      {/* Delete confirmation dialog */}
-      <AlertDialog.Root
-        open={deleteConfirmId !== null}
-        onOpenChange={(open) => {
-          if (!open) cancelDelete();
-        }}
-      >
-        <AlertDialog.Portal>
-          <AlertDialog.Overlay className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-          <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 grid w-full max-w-md -translate-x-1/2 -translate-y-1/2 gap-4 border border-border bg-background p-6 shadow-lg rounded-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95">
-            <AlertDialog.Title className="text-lg font-semibold text-foreground">
-              {t('deleteConfirmTitle')}
-            </AlertDialog.Title>
-            <AlertDialog.Description className="text-sm text-muted-foreground">
-              {t('deleteConfirm')}
-            </AlertDialog.Description>
-            <div className="flex justify-end gap-3 mt-2">
-              <AlertDialog.Cancel asChild>
-                <Button variant="outline" onClick={cancelDelete}>
-                  {t('cancel')}
-                </Button>
-              </AlertDialog.Cancel>
-              <AlertDialog.Action asChild>
-                <Button
-                  variant="destructive"
-                  onClick={confirmDelete}
-                  className="bg-red-600 hover:bg-red-700 text-white"
-                >
-                  {t('delete')}
-                </Button>
-              </AlertDialog.Action>
-            </div>
-          </AlertDialog.Content>
-        </AlertDialog.Portal>
-      </AlertDialog.Root>
-    </main>
+    <WorksheetsPageClient
+      initialWorksheets={worksheets}
+      user={userId ? { id: userId, name: session?.user?.name ?? null } : null}
+    />
   );
 }

@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit --project tsconfig.typecheck.json",
     "db:test": "tsx scripts/test-database-connection.ts",
     "db:setup": "tsx scripts/setup-database.ts",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "pnpm --filter @nextcalc/database db:seed"
   },
   "dependencies": {
     "@apollo/client": "4.3.0-alpha.2",
@@ -74,6 +74,7 @@
     "@vitest/ui": "5.0.0-beta.6",
     "@webgpu/types": "0.1.71",
     "axe-core": "4.12.1",
+    "babel-plugin-react-compiler": "0.0.0-experimental-a1856f3-20260507",
     "gray-matter": "4.0.3",
     "happy-dom": "20.10.6",
     "jest-axe": "10.0.0",

@@ -1,12 +1,12 @@
 'use client';
 
 import { m } from 'motion/react';
+import { useTranslations } from 'next-intl';
 
 interface FeatureCard {
+  key: string;
   symbol: string;
   symbolIsMono: boolean;
-  title: string;
-  description: string;
   color: string;
   hue: number;
   shadowRgb: string;
@@ -14,56 +14,49 @@ interface FeatureCard {
 
 const FEATURE_CARDS: FeatureCard[] = [
   {
+    key: 'basicOperations',
     symbol: '+',
     symbolIsMono: false,
-    title: 'Basic Operations',
-    description: 'Add, subtract, and scalar multiply matrices. Supports matrices of any size.',
     color: 'blue',
     hue: 264,
     shadowRgb: '59,130,246',
   },
   {
+    key: 'matrixMultiplication',
     symbol: '×',
     symbolIsMono: false,
-    title: 'Matrix Multiplication',
-    description: 'Compute matrix products with automatic dimension checking.',
     color: 'purple',
     hue: 300,
     shadowRgb: '168,85,247',
   },
   {
+    key: 'determinant',
     symbol: '|A|',
     symbolIsMono: true,
-    title: 'Determinant',
-    description: 'Calculate determinants using LU decomposition for square matrices.',
     color: 'emerald',
     hue: 155,
     shadowRgb: '16,185,129',
   },
   {
+    key: 'matrixInverse',
     symbol: 'A⁻¹',
     symbolIsMono: true,
-    title: 'Matrix Inverse',
-    description:
-      'Find inverses using Gauss-Jordan elimination. Handles singular matrices gracefully.',
     color: 'rose',
     hue: 0,
     shadowRgb: '244,63,94',
   },
   {
+    key: 'transpose',
     symbol: 'Aᵀ',
     symbolIsMono: true,
-    title: 'Transpose',
-    description: 'Transpose matrices to swap rows and columns.',
     color: 'amber',
     hue: 60,
     shadowRgb: '245,158,11',
   },
   {
+    key: 'specialMatrices',
     symbol: 'I',
     symbolIsMono: false,
-    title: 'Special Matrices',
-    description: 'Create identity, zero, ones, and random matrices.',
     color: 'cyan',
     hue: 200,
     shadowRgb: '6,182,212',
@@ -92,6 +85,8 @@ const cardVariants = {
 };
 
 export function MatrixFeatureCards() {
+  const t = useTranslations('matrix.cards');
+
   return (
     <m.div
       className="grid gap-6 md:grid-cols-2"
@@ -101,7 +96,7 @@ export function MatrixFeatureCards() {
     >
       {FEATURE_CARDS.map((card) => (
         <m.div
-          key={card.title}
+          key={card.key}
           variants={cardVariants}
           className="group relative p-6 rounded-xl overflow-hidden border transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5 backdrop-blur-md"
           style={{
@@ -148,7 +143,7 @@ export function MatrixFeatureCards() {
                 className="text-base font-semibold truncate"
                 style={{ color: `oklch(0.80 0.16 ${card.hue})` }}
               >
-                {card.title}
+                {t(`${card.key}.title`)}
               </h3>
             </div>
 
@@ -156,7 +151,7 @@ export function MatrixFeatureCards() {
               className="text-sm leading-relaxed"
               style={{ color: `oklch(0.74 0.08 ${card.hue})` }}
             >
-              {card.description}
+              {t(`${card.key}.description`)}
             </p>
           </div>
         </m.div>

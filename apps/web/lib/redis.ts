@@ -1,5 +1,5 @@
 /**
- * Redis Client (Upstash REST — @upstash/redis 1.37.0-rc.12)
+ * Redis Client (Upstash REST — @upstash/redis)
  *
  * Modern features enabled:
  * - Redis.fromEnv() for credential management

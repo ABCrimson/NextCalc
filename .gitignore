@@ -21,9 +21,9 @@ packages/database/src/generated/
 packages/math-engine/src/wasm/compiled/
 
 # Serwist generated service worker (built from apps/web/app/sw.ts)
-public/sw.js
-public/sw.js.map
-public/swe-worker*
+apps/web/public/sw.js
+apps/web/public/sw.js.map
+apps/web/public/swe-worker*
 
 # Git worktrees
 .worktrees/

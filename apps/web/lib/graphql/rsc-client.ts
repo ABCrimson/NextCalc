@@ -1,5 +1,5 @@
 /**
- * Apollo Client 4.2.0-alpha.0 — React Server Component Client
+ * Apollo Client — React Server Component Client
  *
  * Registered client for use in Server Components and Server Actions.
  * Uses registerApolloClient from @apollo/client-integration-nextjs

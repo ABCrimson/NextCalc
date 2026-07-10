@@ -612,6 +612,10 @@
       "explore": "Explorar",
       "comingSoon": "Próximamente"
     },
+    "controls": {
+      "stepForward": "Step forward",
+      "reset": "Reset simulation"
+    },
     "page": {
       "tryItYourself": "Pruébalo tú mismo",
       "realWorldApplications": "Aplicaciones en el mundo real",
@@ -865,6 +869,15 @@
       "predictions": "Predicciones"
     }
   },
+  "difficulty": {
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "master": "Master",
+    "badgeLabel": "Difficulty: {level}",
+    "scaleLabel": "Difficulty scale",
+    "currentLabel": "Current difficulty: {level}"
+  },
   "matrix": {
     "title": "Operaciones con matrices",
     "description": "Álgebra lineal con matrices: sumar, multiplicar, determinante, inversa, valores propios y más",
@@ -903,6 +916,32 @@
       "eigen": "Valores y vectores propios",
       "gaussJordan": "Eliminación de Gauss-Jordan",
       "complex": "Matrices complejas"
+    },
+    "cards": {
+      "basicOperations": {
+        "title": "Basic Operations",
+        "description": "Add, subtract, and scalar multiply matrices. Supports matrices of any size."
+      },
+      "matrixMultiplication": {
+        "title": "Matrix Multiplication",
+        "description": "Compute matrix products with automatic dimension checking."
+      },
+      "determinant": {
+        "title": "Determinant",
+        "description": "Calculate determinants using LU decomposition for square matrices."
+      },
+      "matrixInverse": {
+        "title": "Matrix Inverse",
+        "description": "Find inverses using Gauss-Jordan elimination. Handles singular matrices gracefully."
+      },
+      "transpose": {
+        "title": "Transpose",
+        "description": "Transpose matrices to swap rows and columns."
+      },
+      "specialMatrices": {
+        "title": "Special Matrices",
+        "description": "Create identity, zero, ones, and random matrices."
+      }
     }
   },
   "solver": {
@@ -1368,6 +1407,32 @@
     "noResults": "Ninguna plantilla coincide con los filtros actuales.",
     "howToTitle": "Cómo usar las plantillas",
     "howToDescription": "Ingrese valores en los campos etiquetados y presione Enter o haga clic en Calcular para ver el resultado."
+  },
+  "worksheets": {
+    "title": "Mis hojas de cálculo",
+    "subtitle": "Sus cuadernos matemáticos guardados",
+    "newWorksheet": "Nueva hoja de cálculo",
+    "searchPlaceholder": "Buscar hojas de cálculo...",
+    "sortDirection": "Cambiar dirección de ordenación",
+    "sortUpdated": "Última actualización",
+    "sortCreated": "Fecha de creación",
+    "sortTitle": "Título",
+    "gridView": "Vista de cuadrícula",
+    "listView": "Vista de lista",
+    "emptyTitle": "Aún no hay hojas de cálculo",
+    "emptyDescription": "Cree su primer cuaderno matemático para empezar.",
+    "createFirst": "Crear hoja de cálculo",
+    "noResults": "Ninguna hoja de cálculo coincide con su búsqueda.",
+    "deleteConfirmTitle": "¿Eliminar la hoja de cálculo?",
+    "deleteConfirm": "¿Está seguro de que desea eliminar esta hoja de cálculo?",
+    "delete": "Eliminar hoja de cálculo",
+    "cancel": "Cancelar",
+    "cellCount": "{count, plural, one {# celda} other {# celdas}}",
+    "views": "vistas",
+    "justNow": "justo ahora",
+    "minutesAgo": "{count, plural, one {hace # minuto} other {hace # minutos}}",
+    "hoursAgo": "{count, plural, one {hace # hora} other {hace # horas}}",
+    "daysAgo": "{count, plural, one {hace # día} other {hace # días}}"
   },
   "home": {
     "hero": {

@@ -612,6 +612,10 @@
       "explore": "Изучить",
       "comingSoon": "Скоро"
     },
+    "controls": {
+      "stepForward": "Step forward",
+      "reset": "Reset simulation"
+    },
     "page": {
       "tryItYourself": "Попробуйте сами",
       "realWorldApplications": "Практическое применение",
@@ -865,6 +869,15 @@
       "predictions": "Прогнозы"
     }
   },
+  "difficulty": {
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "master": "Master",
+    "badgeLabel": "Difficulty: {level}",
+    "scaleLabel": "Difficulty scale",
+    "currentLabel": "Current difficulty: {level}"
+  },
   "matrix": {
     "title": "Матричные операции",
     "description": "Линейная алгебра с матрицами — сложение, умножение, определитель, обратная, собственные значения и многое другое",
@@ -903,6 +916,32 @@
       "eigen": "Собственные значения и векторы",
       "gaussJordan": "Метод Гаусса-Жордана",
       "complex": "Комплексные матрицы"
+    },
+    "cards": {
+      "basicOperations": {
+        "title": "Basic Operations",
+        "description": "Add, subtract, and scalar multiply matrices. Supports matrices of any size."
+      },
+      "matrixMultiplication": {
+        "title": "Matrix Multiplication",
+        "description": "Compute matrix products with automatic dimension checking."
+      },
+      "determinant": {
+        "title": "Determinant",
+        "description": "Calculate determinants using LU decomposition for square matrices."
+      },
+      "matrixInverse": {
+        "title": "Matrix Inverse",
+        "description": "Find inverses using Gauss-Jordan elimination. Handles singular matrices gracefully."
+      },
+      "transpose": {
+        "title": "Transpose",
+        "description": "Transpose matrices to swap rows and columns."
+      },
+      "specialMatrices": {
+        "title": "Special Matrices",
+        "description": "Create identity, zero, ones, and random matrices."
+      }
     }
   },
   "solver": {
@@ -1368,6 +1407,32 @@
     "noResults": "Шаблоны не найдены для текущих фильтров.",
     "howToTitle": "Как использовать шаблоны",
     "howToDescription": "Введите значения в поля с подписями и нажмите Enter или кнопку «Вычислить», чтобы увидеть результат."
+  },
+  "worksheets": {
+    "title": "Мои рабочие листы",
+    "subtitle": "Ваши сохранённые математические тетради",
+    "newWorksheet": "Новый рабочий лист",
+    "searchPlaceholder": "Поиск рабочих листов...",
+    "sortDirection": "Переключить направление сортировки",
+    "sortUpdated": "Последнее обновление",
+    "sortCreated": "Дата создания",
+    "sortTitle": "Название",
+    "gridView": "Вид сеткой",
+    "listView": "Вид списком",
+    "emptyTitle": "Рабочих листов пока нет",
+    "emptyDescription": "Создайте свою первую математическую тетрадь, чтобы начать.",
+    "createFirst": "Создать рабочий лист",
+    "noResults": "Нет рабочих листов, соответствующих вашему запросу.",
+    "deleteConfirmTitle": "Удалить рабочий лист?",
+    "deleteConfirm": "Вы уверены, что хотите удалить этот рабочий лист?",
+    "delete": "Удалить рабочий лист",
+    "cancel": "Отмена",
+    "cellCount": "{count, plural, one {# ячейка} few {# ячейки} many {# ячеек} other {# ячейки}}",
+    "views": "просмотров",
+    "justNow": "только что",
+    "minutesAgo": "{count, plural, one {# минуту назад} few {# минуты назад} many {# минут назад} other {# минуты назад}}",
+    "hoursAgo": "{count, plural, one {# час назад} few {# часа назад} many {# часов назад} other {# часа назад}}",
+    "daysAgo": "{count, plural, one {# день назад} few {# дня назад} many {# дней назад} other {# дня назад}}"
   },
   "home": {
     "hero": {

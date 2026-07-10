@@ -2,7 +2,7 @@
  * Forum GraphQL Operation Documents
  *
  * All gql-tagged operations for the NextCalc Pro community forum.
- * Used with Apollo Client 4.2.0-alpha.0 hooks (useQuery, useMutation).
+ * Used with Apollo Client hooks (useQuery, useMutation).
  *
  * Operations match the forum-related types in apps/api/src/graphql/schema.ts.
  */
@@ -29,9 +29,7 @@ export const FORUM_POSTS_QUERY = graphql(`
         upvoteCount
         hasUpvoted
         user {
-          id
-          name
-          image
+          ...UserSummary
         }
         commentCount
       }
@@ -63,9 +61,7 @@ export const FORUM_POST_QUERY = graphql(`
       upvoteCount
       hasUpvoted
       user {
-        id
-        name
-        image
+        ...UserSummary
         bio
         role
         createdAt
@@ -77,9 +73,7 @@ export const FORUM_POST_QUERY = graphql(`
         upvoteCount
         hasUpvoted
         user {
-          id
-          name
-          image
+          ...UserSummary
         }
         parent {
           id
@@ -91,9 +85,7 @@ export const FORUM_POST_QUERY = graphql(`
           upvoteCount
           hasUpvoted
           user {
-            id
-            name
-            image
+            ...UserSummary
           }
         }
       }
@@ -143,9 +135,7 @@ export const CREATE_FORUM_POST_MUTATION = graphql(`
       upvoteCount
       hasUpvoted
       user {
-        id
-        name
-        image
+        ...UserSummary
       }
     }
   }
@@ -191,9 +181,7 @@ export const CREATE_COMMENT_MUTATION = graphql(`
       upvoteCount
       hasUpvoted
       user {
-        id
-        name
-        image
+        ...UserSummary
       }
       parent {
         id

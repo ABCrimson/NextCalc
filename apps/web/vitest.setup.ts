@@ -3,7 +3,7 @@
  * @testing-library/react 16.3.2
  * @testing-library/jest-dom 6.9.1
  * jest-axe 10.0.0
- * happy-dom 20.7.0
+ * happy-dom
  */
 
 import * as matchers from '@testing-library/jest-dom/matchers';
@@ -232,6 +232,34 @@ vi.mock('next/navigation', () => ({
   redirect: vi.fn(),
   notFound: vi.fn(),
 }));
+
+// Mock @/i18n/navigation (next-intl's locale-aware Link/router wrapper). The real
+// `createNavigation()` internally imports `next/navigation` in a way that vitest's
+// module runner can't resolve outside an actual Next.js build (pnpm's isolated
+// node_modules under next-intl's own dependency tree), so it's mocked wholesale —
+// same rationale as the plain `next/navigation` mock above.
+vi.mock('@/i18n/navigation', async () => {
+  const { createElement } = await import('react');
+  return {
+    Link: ({
+      href,
+      children,
+      ...props
+      // biome-ignore lint/suspicious/noExplicitAny: mock implementation — untyped by design
+    }: any) => createElement('a', { href, ...props }, children),
+    usePathname: () => '/',
+    useRouter: () => ({
+      push: vi.fn(),
+      replace: vi.fn(),
+      back: vi.fn(),
+      forward: vi.fn(),
+      refresh: vi.fn(),
+      prefetch: vi.fn(),
+    }),
+    redirect: vi.fn(),
+    getPathname: () => '/',
+  };
+});
 
 // Mock @tanstack/react-virtual for testing (virtualized lists don't render in tests)
 vi.mock('@tanstack/react-virtual', () => ({

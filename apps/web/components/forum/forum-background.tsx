@@ -48,16 +48,16 @@ export function ForumBackground() {
   return (
     <div className="pointer-events-none fixed inset-0" aria-hidden="true">
       <FloatingOrb
-        className="-top-40 -right-40 w-[700px] h-[700px]"
+        className="-top-40 -right-40 size-[700px]"
         gradient="radial-gradient(circle, oklch(0.55 0.27 264 / 0.10) 0%, oklch(0.55 0.27 264 / 0.04) 50%, transparent 100%)"
       />
       <FloatingOrb
-        className="-bottom-60 -left-40 w-[800px] h-[800px]"
+        className="-bottom-60 -left-40 size-[800px]"
         gradient="radial-gradient(circle, oklch(0.63 0.20 300 / 0.08) 0%, oklch(0.63 0.20 300 / 0.03) 50%, transparent 100%)"
         delay={5}
       />
       <FloatingOrb
-        className="top-1/3 right-1/4 w-[500px] h-[500px]"
+        className="top-1/3 right-1/4 size-[500px]"
         gradient="radial-gradient(circle, oklch(0.72 0.18 60 / 0.06) 0%, transparent 70%)"
         delay={10}
       />

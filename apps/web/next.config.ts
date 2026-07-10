@@ -5,19 +5,22 @@ import type { NextConfig } from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
 
 /**
- * Next.js 16.2.0 Configuration
+ * Next.js Configuration
  *
  * Key Features:
- * - Turbopack is stable in Next.js 16.0
- * - Enhanced caching with React 19.3.0
- * - Improved Server Components
- * - Better TypeScript 6.0 integration
- * - New experimental features in 16.2.0
+ * - React Compiler (automatic memoization at build time)
+ * - Cached server functions via the use cache directive
+ * - Turbopack dev with filesystem caching; webpack production builds
  *
  * @see https://nextjs.org/docs/app/api-reference/next-config-js
  */
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+
+  // React Compiler — automatic memoization (stable top-level option in 16.3).
+  // Manual useMemo/useCallback/memo remain valid but are no longer required
+  // for new code; the compiler optimizes components at build time.
+  reactCompiler: true,
 
   // Turbopack configuration - stable in Next.js 16.0
   turbopack: {
@@ -33,6 +36,8 @@ const nextConfig: NextConfig = {
       '@nextcalc/math-engine/units': '../../packages/math-engine/dist/units',
       '@nextcalc/math-engine/parser': '../../packages/math-engine/dist/parser',
       '@nextcalc/math-engine/wasm': '../../packages/math-engine/dist/wasm',
+      '@nextcalc/math-engine/chaos': '../../packages/math-engine/dist/chaos',
+      '@nextcalc/math-engine/game-theory': '../../packages/math-engine/dist/game-theory',
       '@nextcalc/plot-engine': '../../packages/plot-engine/dist',
     },
   },
@@ -57,7 +62,7 @@ const nextConfig: NextConfig = {
   // they don't need transpilation and it would conflict with resolveAlias.
   transpilePackages: ['@nextcalc/types'],
 
-  // Experimental features in Next.js 16.2.0
+  // Experimental features
   experimental: {
     // 182x faster incremental builds without CSS changes
     turbopackFileSystemCacheForDev: true,

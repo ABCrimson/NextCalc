@@ -1,7 +1,5 @@
-'use client';
-
 import { Network } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
 import { PageRankExplorer } from '@/components/algorithms/PageRankExplorer';
 
@@ -10,15 +8,20 @@ import { PageRankExplorer } from '@/components/algorithms/PageRankExplorer';
  *
  * This is an alias route to /algorithms/pagerank for easier discovery.
  * Demonstrates the PageRank algorithm with interactive graph visualization.
+ *
+ * Server Component — page-level strings are translated on the server and
+ * passed to the client `AlgorithmPage` shell as plain props.
  */
-export default function GraphsPage() {
-  const t = useTranslations('algorithms.pagerank');
-  const ta = useTranslations('algorithms');
+export default async function GraphsPage() {
+  const [t, ta] = await Promise.all([
+    getTranslations('algorithms.pagerank'),
+    getTranslations('algorithms'),
+  ]);
 
   return (
     <AlgorithmPage
       title={t('title')}
-      icon={Network}
+      icon={<Network />}
       category="graph-theory"
       difficulty="intermediate"
       timeComplexity="O(kn)"

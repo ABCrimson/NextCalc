@@ -121,7 +121,7 @@ function AnimatedBackground() {
 
       {/* Orb 1 - top-right: violet — CSS animation instead of Framer Motion */}
       <div
-        className="absolute -top-40 -right-40 w-[650px] h-[650px] rounded-full blur-3xl animate-[symbolic-orb1_20s_ease-in-out_infinite]"
+        className="absolute -top-40 -right-40 size-[650px] rounded-full blur-3xl animate-[symbolic-orb1_20s_ease-in-out_infinite]"
         style={{
           background:
             'radial-gradient(circle, oklch(0.62 0.22 295 / 0.14) 0%, oklch(0.55 0.25 295 / 0.07) 60%, transparent 100%)',
@@ -130,7 +130,7 @@ function AnimatedBackground() {
 
       {/* Orb 2 - bottom-left: fuchsia */}
       <div
-        className="absolute -bottom-48 -left-48 w-[720px] h-[720px] rounded-full blur-3xl animate-[symbolic-orb2_25s_ease-in-out_4s_infinite]"
+        className="absolute -bottom-48 -left-48 size-[720px] rounded-full blur-3xl animate-[symbolic-orb2_25s_ease-in-out_4s_infinite]"
         style={{
           background:
             'radial-gradient(circle, oklch(0.60 0.24 330 / 0.13) 0%, oklch(0.55 0.22 330 / 0.06) 60%, transparent 100%)',
@@ -139,7 +139,7 @@ function AnimatedBackground() {
 
       {/* Orb 3 - center: pink accent */}
       <div
-        className="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[480px] h-[480px] rounded-full blur-3xl animate-[symbolic-orb3_30s_ease-in-out_8s_infinite]"
+        className="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 size-[480px] rounded-full blur-3xl animate-[symbolic-orb3_30s_ease-in-out_8s_infinite]"
         style={{
           background: 'radial-gradient(circle, oklch(0.65 0.20 355 / 0.08) 0%, transparent 70%)',
         }}

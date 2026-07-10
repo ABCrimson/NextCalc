@@ -246,7 +246,7 @@ export function SolverPageContent() {
 
         {/* Orb 1 — emerald, top-right */}
         <m.div
-          className="absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full blur-3xl"
+          className="absolute -top-32 -right-32 size-[600px] rounded-full blur-3xl"
           style={{
             background:
               'radial-gradient(circle, oklch(0.65 0.18 155 / 0.13) 0%, oklch(0.55 0.14 155 / 0.06) 60%, transparent 100%)',
@@ -257,7 +257,7 @@ export function SolverPageContent() {
 
         {/* Orb 2 — teal/cyan, bottom-left */}
         <m.div
-          className="absolute -bottom-40 -left-40 w-[700px] h-[700px] rounded-full blur-3xl"
+          className="absolute -bottom-40 -left-40 size-[700px] rounded-full blur-3xl"
           style={{
             background:
               'radial-gradient(circle, oklch(0.65 0.20 200 / 0.13) 0%, oklch(0.58 0.16 200 / 0.06) 60%, transparent 100%)',
@@ -268,7 +268,7 @@ export function SolverPageContent() {
 
         {/* Orb 3 — purple, center */}
         <m.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-3xl"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[500px] rounded-full blur-3xl"
           style={{
             background: 'radial-gradient(circle, oklch(0.60 0.14 300 / 0.07) 0%, transparent 70%)',
           }}

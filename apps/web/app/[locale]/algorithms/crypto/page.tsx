@@ -1,7 +1,5 @@
-'use client';
-
 import { Shield } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import { AlgorithmPage } from '@/components/algorithms/AlgorithmPage';
 import { ZKPDemo } from '@/components/algorithms/ZKPDemo';
 
@@ -10,15 +8,20 @@ import { ZKPDemo } from '@/components/algorithms/ZKPDemo';
  *
  * This is an alias route to /algorithms/zero-knowledge for easier discovery.
  * Demonstrates zero-knowledge proofs using the Schnorr protocol.
+ *
+ * Server Component — page-level strings are translated on the server and
+ * passed to the client `AlgorithmPage` shell as plain props.
  */
-export default function CryptoPage() {
-  const t = useTranslations('algorithms.zkp');
-  const ta = useTranslations('algorithms');
+export default async function CryptoPage() {
+  const [t, ta] = await Promise.all([
+    getTranslations('algorithms.zkp'),
+    getTranslations('algorithms'),
+  ]);
 
   return (
     <AlgorithmPage
       title={t('title')}
-      icon={Shield}
+      icon={<Shield />}
       category="cryptography"
       difficulty="advanced"
       timeComplexity="O(1)"
