@@ -1,0 +1,79 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "nextcalc-export-service",
+  "account_id": "95fec9f47d9285b4ad7a28e9262bd20e",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-08",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // Observability and monitoring
+  "observability": {
+    "enabled": true
+  },
+
+  // R2 bucket bindings for file storage
+  //
+  // TODO: Create these R2 buckets before deploying.
+  //
+  // Production buckets (run once per Cloudflare account):
+  //   npx wrangler r2 bucket create nextcalc-exports-public
+  //   npx wrangler r2 bucket create nextcalc-exports-private
+  //
+  // Development/preview buckets:
+  //   npx wrangler r2 bucket create nextcalc-exports-public-dev
+  //   npx wrangler r2 bucket create nextcalc-exports-private-dev
+  //
+  // After creating the buckets, configure CORS on the public bucket so that
+  // browsers can fetch exported files directly from R2:
+  //   npx wrangler r2 bucket cors put nextcalc-exports-public \
+  //     --rules '[{"allowedOrigins":["https://nextcalc.pro"],"allowedMethods":["GET"],"maxAgeSeconds":3600}]'
+  //
+  // For signed URLs on the private bucket, you will also need to enable
+  // the S3-compatible API and create an R2 API token:
+  //   https://developers.cloudflare.com/r2/api/s3/tokens/
+  "r2_buckets": [
+    {
+      "binding": "EXPORTS_PUBLIC",
+      "bucket_name": "nextcalc-exports-public",
+      "preview_bucket_name": "nextcalc-exports-public-dev"
+    },
+    {
+      "binding": "EXPORTS_PRIVATE",
+      "bucket_name": "nextcalc-exports-private",
+      "preview_bucket_name": "nextcalc-exports-private-dev"
+    }
+  ],
+
+  // Custom domain routing
+  "routes": [
+    {
+      "pattern": "export.nextcalc.io",
+      "custom_domain": true
+    }
+  ],
+
+  // CORS configuration
+  //
+  // R2 S3-compatible API credentials (required for private export presigned URLs)
+  //
+  // These MUST be provisioned as encrypted secrets — do NOT put real values here.
+  // Generate an R2 API token at:
+  //   https://dash.cloudflare.com/<account_id>/r2/api-tokens
+  // Select "Object Read & Write" permissions scoped to the private bucket.
+  //
+  // Provision via:
+  //   wrangler secret put R2_ACCOUNT_ID         # e.g. 95fec9f47d9285b4ad7a28e9262bd20e
+  //   wrangler secret put R2_ACCESS_KEY_ID      # R2 API token Access Key ID
+  //   wrangler secret put R2_SECRET_ACCESS_KEY  # R2 API token Secret Access Key
+  //   wrangler secret put R2_PRIVATE_BUCKET     # e.g. nextcalc-exports-private
+  //   wrangler secret put R2_PUBLIC_BASE_URL    # e.g. https://exports.nextcalc.pro
+  //
+  // Public exports (no userId) do NOT require these secrets and will continue to
+  // work using the plain public-domain URL from R2_PUBLIC_BASE_URL.
+  // Private exports (userId-scoped) will throw a clear error if any secret is missing.
+  "vars": {
+    "ALLOWED_ORIGINS": "http://localhost:3005,https://nextcalc.io,https://nextcalc.pro",
+    "SIGNED_URL_EXPIRY": "3600",
+    "MAX_FILE_SIZE": "5242880"
+  }
+}

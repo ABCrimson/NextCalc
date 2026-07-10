@@ -9,6 +9,15 @@ import type { ApiResponse, DifferentiateRequest } from '../utils/validators.js';
 import { createErrorResponse, createSuccessResponse } from '../utils/validators.js';
 
 // Create a mathjs instance with all functionality
+//
+// NOTE (2026-07-09): `all!` is NOT needless noise here — verified by removing
+// it and running `tsc --noEmit`. mathjs 15.2.0's types/index.d.ts destructures
+// `all` from an object typed `Record<string, FactoryFunctionMap>`; combined
+// with this tsconfig's `noUncheckedIndexedAccess: true`, that makes the
+// imported `all` binding's inferred type `FactoryFunctionMap | undefined`
+// even though the runtime export is always defined. `create()`'s first
+// parameter does not accept `undefined`, so the assertion is required for a
+// clean build under this project's strict indexed-access setting.
 const math = create(all!);
 
 /**
@@ -197,7 +206,11 @@ export async function computeGradient(
   const partialsResult = await computePartialDerivatives(expression, variables);
 
   if (!partialsResult.success || !partialsResult.data) {
-    return partialsResult as unknown as ApiResponse<string[]>;
+    return createErrorResponse(
+      partialsResult.error?.message ?? 'Failed to compute partial derivatives',
+      partialsResult.error?.code ?? 'PARTIAL_DERIVATIVE_ERROR',
+      partialsResult.error?.details,
+    );
   }
 
   const data = partialsResult.data;

@@ -20,80 +20,13 @@
 import { AwsClient } from 'aws4fetch';
 
 /**
- * R2 bucket binding type from Cloudflare Workers
+ * R2 bucket, object, and options types (`R2Bucket`, `R2Object`, `R2ObjectBody`,
+ * `R2PutOptions`, `R2GetOptions`, `R2ListOptions`, `R2Objects`) come from the
+ * `@cloudflare/workers-types` ambient globals (see tsconfig.json `"types"`) —
+ * they are intentionally NOT imported or redeclared here so this file never
+ * drifts from the real Workers runtime surface (checksums, storageClass,
+ * bytes(), delete(string | string[]), put() overloads, etc.).
  */
-export interface R2Bucket {
-  put(
-    key: string,
-    value: ReadableStream | ArrayBuffer | Uint8Array | string,
-    options?: R2PutOptions,
-  ): Promise<R2Object | null>;
-  get(key: string, options?: R2GetOptions): Promise<R2ObjectBody | null>;
-  delete(key: string): Promise<void>;
-  head(key: string): Promise<R2Object | null>;
-  list(options?: R2ListOptions): Promise<R2Objects>;
-}
-
-export interface R2PutOptions {
-  httpMetadata?: {
-    contentType?: string;
-    contentLanguage?: string;
-    contentDisposition?: string;
-    contentEncoding?: string;
-    cacheControl?: string;
-    cacheExpiry?: Date;
-  };
-  customMetadata?: Record<string, string>;
-}
-
-export interface R2GetOptions {
-  range?: {
-    offset?: number;
-    length?: number;
-  };
-  onlyIf?: {
-    etagMatches?: string;
-    etagDoesNotMatch?: string;
-    uploadedBefore?: Date;
-    uploadedAfter?: Date;
-  };
-}
-
-export interface R2ListOptions {
-  limit?: number;
-  prefix?: string;
-  cursor?: string;
-  delimiter?: string;
-  startAfter?: string;
-}
-
-export interface R2Object {
-  key: string;
-  version: string;
-  size: number;
-  etag: string;
-  httpEtag: string;
-  uploaded: Date;
-  httpMetadata?: {
-    contentType?: string;
-  };
-  customMetadata?: Record<string, string>;
-}
-
-export interface R2ObjectBody extends R2Object {
-  body: ReadableStream;
-  arrayBuffer(): Promise<ArrayBuffer>;
-  text(): Promise<string>;
-  json<T>(): Promise<T>;
-  blob(): Promise<Blob>;
-}
-
-export interface R2Objects {
-  objects: R2Object[];
-  truncated: boolean;
-  cursor?: string;
-  delimitedPrefixes: string[];
-}
 
 /**
  * S3-compatible credentials for R2 presigned URL generation.

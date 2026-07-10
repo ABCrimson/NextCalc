@@ -8,6 +8,11 @@ import type { ApiResponse, SolveRequest } from '../utils/validators.js';
 import { createErrorResponse, createSuccessResponse } from '../utils/validators.js';
 
 // Create a mathjs instance with all functionality
+//
+// NOTE (2026-07-09): `all!` is NOT needless noise here — see the identical
+// comment in differentiate.ts for the full explanation (mathjs 15.2.0's
+// `all` export types as `FactoryFunctionMap | undefined` under this
+// project's `noUncheckedIndexedAccess: true`; verified via `tsc --noEmit`).
 const math = create(all!);
 
 /**

@@ -28,7 +28,7 @@ import { getRecommendedTier, RATE_LIMIT_CONFIGS, type UserTier } from './utils/s
 
 // Re-export the DO class so Wrangler can locate it as a named export of the
 // entrypoint module. Workers require the DO class to be exported from the
-// same module that is declared as `main` in wrangler.toml.
+// same module that is declared as `main` in wrangler.jsonc.
 export { RateLimiterDurableObject } from './durable-objects/rate-limiter-do.js';
 
 // ---------------------------------------------------------------------------
