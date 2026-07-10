@@ -223,7 +223,6 @@ model ForumPost {
   // Relations
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   comments Comment[]
-  upvotes  Upvote[]
 
   @@map("forum_posts")
   @@index([userId])
@@ -251,7 +250,6 @@ model Comment {
   post    ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
   parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
   replies Comment[] @relation("CommentReplies")
-  upvotes Upvote[]
 
   @@map("comments")
   @@index([postId])
@@ -270,16 +268,20 @@ enum UpvoteTarget {
   COMMENT // Comment on post
 }
 
+// Polymorphic target: `targetId` holds either a ForumPost id or a Comment id,
+// discriminated by `targetType` — deliberately NO physical FK to either table.
+// (Two FKs on the same column would require every targetId to exist in BOTH
+// tables, so any COMMENT upvote violated the post FK and vice versa.)
+// Target existence is enforced in the resolver instead:
+// apps/api/src/graphql/resolvers/upvote.ts (toggleUpvote pre-checks the target).
 model Upvote {
   id         String       @id @default(cuid(2))
   userId     String
-  targetId   String // ID of post or comment
+  targetId   String // ID of post or comment (polymorphic — see model comment)
   targetType UpvoteTarget
   createdAt  DateTime     @default(now())
 
-  user    User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post    ForumPost? @relation(fields: [targetId], references: [id], onDelete: Cascade, map: "upvotes_post_fkey")
-  comment Comment?   @relation(fields: [targetId], references: [id], onDelete: Cascade, map: "upvotes_comment_fkey")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, targetId, targetType]) // Prevent duplicate upvotes
   @@map("upvotes")
