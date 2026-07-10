@@ -171,18 +171,24 @@ jobs:
 
       - name: Run tests
         run: |
-          # Run tests with a timeout. Use exit code directly for pass/fail.
-          # Vitest may hang during cleanup (known issue); exit 124 from
-          # timeout is treated as success since tests themselves completed.
-          timeout 300 pnpm turbo run test || {
-            code=$?
-            if [ $code -eq 124 ]; then
-              echo "::notice::Tests passed but process cleanup timed out (known vitest issue)"
-              exit 0
+          # Vitest (web) may hang in process cleanup AFTER printing results
+          # (known issue), so the run is bounded by `timeout`. Exit 124 is
+          # accepted ONLY when the captured log shows no failures and no
+          # worker/unhandled errors — a genuinely hanging test also produces
+          # exit 124, and that must fail the job. (An unconditional
+          # 124-is-success guard previously masked an infinite loop in
+          # math-engine's polynomial LCM for the suite's entire lifetime.)
+          timeout 300 pnpm turbo run test 2>&1 | tee test-output.log
+          code=${PIPESTATUS[0]}
+          if [ "$code" -eq 124 ]; then
+            if grep -qE "(Tests|Test Files)[^|]*failed|Unhandled Error|Worker exited unexpectedly" test-output.log; then
+              echo "::error::Test run timed out WITH failures or worker errors — not a benign cleanup hang"
+              exit 1
             fi
-            echo "::error::Tests failed (exit code $code)"
-            exit 1
-          }
+            echo "::notice::Tests passed but process cleanup timed out (known vitest issue)"
+            exit 0
+          fi
+          exit "$code"
 
   # ---------------------------------------------------------------------------
   # Build (full production build via turbo)
