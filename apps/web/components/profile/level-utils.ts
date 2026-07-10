@@ -182,6 +182,28 @@ export function getLevelTier(level: number): LevelTier {
   return LEVEL_TIERS[0]!;
 }
 
+/**
+ * The admin-only Architect level. Levels 1-100 are earned through XP;
+ * level 101 is assigned by role (`ADMIN`), never reached via progression.
+ */
+export const ARCHITECT_LEVEL = 101;
+
+/**
+ * The level a profile DISPLAYS — as opposed to the level earned via XP.
+ *
+ * The level system was designed with an admin-only Architect tier (L101):
+ * the site owner renders as Architect regardless of earned progress, while
+ * everyone else shows their `UserProgress.level` (or 1 with no progress row).
+ * Display only — grants nothing; XP and the other progress stats stay real.
+ */
+export function resolveDisplayLevel(
+  progressLevel: number | null | undefined,
+  role: string | null | undefined,
+): number {
+  if (role === 'ADMIN') return ARCHITECT_LEVEL;
+  return progressLevel ?? 1;
+}
+
 // ============================================================================
 // OKLCH COLOR PROGRESSION
 // ============================================================================

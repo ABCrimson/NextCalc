@@ -30,6 +30,7 @@ interface UserProfileData {
       name: string | null;
       image: string | null;
       bio: string | null;
+      role: 'USER' | 'MODERATOR' | 'ADMIN';
       createdAt: string;
     };
     progress: {
