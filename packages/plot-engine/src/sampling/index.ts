@@ -4,4 +4,3 @@
  */
 
 export * from './adaptive';
-export * from './worker';

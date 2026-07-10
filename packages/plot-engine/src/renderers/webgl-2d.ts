@@ -4,10 +4,10 @@
  * Performance Optimizations:
  * - Vertex Array Objects (VAO) for efficient state management
  * - Uniform Buffer Objects (UBO) for shared transformation matrices
- * - Instanced rendering for grid lines (single draw call)
  * - Reusable vertex buffers with smart pooling
  * - WebGL context loss recovery
- * - GPU-accelerated adaptive sampling hints
+ * - Adaptive sampling (curvature-aware subdivision) for Cartesian functions,
+ *   cached per function identity + viewport domain
  * - Sub-1ms frame times for 60fps rendering
  *
  * Bundle size: <20KB (gzipped)
@@ -18,6 +18,7 @@
  * @module renderers/webgl-2d
  */
 
+import { splitSampleSegments } from '../sampling/adaptive';
 import type {
   IRenderer,
   PerformanceMetrics,
@@ -37,17 +38,9 @@ import { parseColor } from '../utils/color';
 import { marchingSquares } from '../utils/marching-squares';
 import { multiply, ortho, scaling, translation } from '../utils/matrix';
 import { getJSHeapUsage } from '../utils/memory';
+import { CartesianSampleCache } from '../utils/sample-cache';
 import { ShaderCache } from '../utils/shader-cache';
-import {
-  axisShader,
-  cartesianLineShader,
-  contourLineShader,
-  gridShader,
-  instancedGridShader,
-  markerShader,
-  polarLineShader,
-  smoothLineShader,
-} from './shaders';
+import { axisShader, cartesianLineShader, gridShader, polarLineShader } from './shaders';
 
 /**
  * VAO state management for efficient rendering
@@ -72,6 +65,10 @@ export class WebGL2DRenderer implements IRenderer {
 
   // VAO cache for efficient state management
   private vaoCache: Map<string, VAOState> = new Map();
+
+  // Adaptive-sample cache for Cartesian y = f(x) functions, keyed by
+  // function identity + viewport domain (see utils/sample-cache.ts)
+  private sampleCache: CartesianSampleCache = new CartesianSampleCache();
 
   // Performance tracking
   private metrics: PerformanceMetrics = {
@@ -190,15 +187,12 @@ export class WebGL2DRenderer implements IRenderer {
   private async compileShaders(): Promise<void> {
     if (!this.shaderCache) return;
 
+    // Only compile shaders that are actually used by a draw call below.
     const shadersToCompile = [
       { name: 'cartesian-line', source: cartesianLineShader },
       { name: 'polar-line', source: polarLineShader },
       { name: 'grid', source: gridShader },
-      { name: 'marker', source: markerShader },
       { name: 'axis', source: axisShader },
-      { name: 'smooth-line', source: smoothLineShader },
-      { name: 'instanced-grid', source: instancedGridShader },
-      { name: 'contour-line', source: contourLineShader },
     ];
 
     for (const { name, source } of shadersToCompile) {
@@ -310,16 +304,16 @@ export class WebGL2DRenderer implements IRenderer {
     // Update view matrix for viewport
     this.updateViewMatrix(config.viewport);
 
-    // Render grid using instanced rendering for better performance
-    this.renderGridInstanced(config);
+    // Render grid
+    this.renderGrid(config);
 
     // Render axes
     this.renderAxes(config);
 
     // Render each function
-    for (const func of config.functions) {
-      this.renderFunction2D(func.fn, config.viewport, func.style);
-    }
+    config.functions.forEach((func, i) => {
+      this.renderFunction2D(func.fn, config.viewport, func.style, i);
+    });
   }
 
   /**
@@ -344,9 +338,9 @@ export class WebGL2DRenderer implements IRenderer {
     this.renderPolarGrid(config);
 
     // Render each polar function
-    for (const func of config.functions) {
-      this.renderPolarFunction(func.fn, config.thetaRange, func.style);
-    }
+    config.functions.forEach((func, i) => {
+      this.renderPolarFunction(func.fn, config.thetaRange, func.style, i);
+    });
   }
 
   /**
@@ -361,55 +355,56 @@ export class WebGL2DRenderer implements IRenderer {
     this.renderGridSimple(config.viewport);
 
     // Render each parametric curve
-    for (const func of config.functions) {
-      this.renderParametricCurve(func.x, func.y, config.tRange, func.style);
-    }
+    config.functions.forEach((func, i) => {
+      this.renderParametricCurve(func.x, func.y, config.tRange, func.style, i);
+    });
   }
 
   /**
-   * Renders a mathematical function y = f(x)
-   * Uses adaptive sampling for better quality with fewer points
+   * Renders a mathematical function y = f(x).
+   * Uses curvature-aware adaptive sampling (see utils/sample-cache.ts), cached
+   * per function identity + viewport domain so an unchanged function/viewport
+   * pair skips resampling on re-render.
    */
   private renderFunction2D(
     fn: (x: number) => number,
     viewport: Viewport,
     style?: Partial<PlotStyle>,
+    functionIndex = 0,
   ): void {
     if (!this.gl || !this.shaderCache || !this.bufferPool) return;
 
-    // Sample function (uniform sampling - adaptive sampling handled by separate module)
-    const samples = 1000;
-    const dx = (viewport.xMax - viewport.xMin) / samples;
-    const points: Point2D[] = [];
+    const points = this.sampleCache.get(fn, viewport.xMin, viewport.xMax);
 
-    for (let i = 0; i <= samples; i++) {
-      const x = viewport.xMin + i * dx;
-      try {
-        const y = fn(x);
-        if (Number.isFinite(y)) {
-          points.push({ x, y });
-        }
-      } catch {
-        // Skip invalid points (discontinuities, domain errors)
+    // The sampler emits NaN-y break markers at poles/domain gaps. Split into
+    // contiguous segments and stroke each one separately so discontinuities
+    // are never bridged. All segments share a single vertex buffer; each is
+    // drawn by its own [first, count) range.
+    const segments = splitSampleSegments(points);
+    if (segments.length === 0) return;
+
+    let vertexCount = 0;
+    for (const segment of segments) vertexCount += segment.length;
+    this.metrics.pointCount += vertexCount;
+
+    // Prepare vertex data: segments packed back-to-back, draw range recorded
+    // per segment
+    const vertices = new Float32Array(vertexCount * 2);
+    const ranges: { first: number; count: number }[] = [];
+    let offset = 0;
+    for (const segment of segments) {
+      ranges.push({ first: offset, count: segment.length });
+      for (const point of segment) {
+        vertices[offset * 2] = point.x;
+        vertices[offset * 2 + 1] = point.y;
+        offset++;
       }
     }
 
-    if (points.length < 2) return;
-
-    this.metrics.pointCount += points.length;
-
-    // Prepare vertex data
-    const vertices = new Float32Array(points.length * 2);
-    for (let i = 0; i < points.length; i++) {
-      const point = points[i];
-      if (point) {
-        vertices[i * 2] = point.x;
-        vertices[i * 2 + 1] = point.y;
-      }
-    }
-
-    // Get or create VAO for this render
-    const vaoKey = 'function-line';
+    // Get or create VAO for this function. Keyed per function index so
+    // multiple functions never share a VAO (each function needs its own
+    // stable attribute binding — see the buffer-rebind fix below).
+    const vaoKey = `function-line-${functionIndex}`;
     let vaoState = this.vaoCache.get(vaoKey);
 
     const shader = this.shaderCache.compile('cartesian-line', cartesianLineShader);
@@ -419,32 +414,35 @@ export class WebGL2DRenderer implements IRenderer {
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer.buffer);
     this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.DYNAMIC_DRAW);
 
-    // Create or use VAO
     if (!vaoState) {
       const vao = this.gl.createVertexArray();
-      if (vao) {
-        this.gl.bindVertexArray(vao);
-
-        const posLoc = shader.attributes.get('a_position');
-        if (posLoc !== undefined) {
-          this.gl.enableVertexAttribArray(posLoc);
-          this.gl.vertexAttribPointer(posLoc, 2, this.gl.FLOAT, false, 0, 0);
-        }
-
-        vaoState = {
-          vao,
-          buffer: buffer.buffer,
-          vertexCount: points.length,
-          attributes: new Map([
-            ['a_position', { location: posLoc!, size: 2, type: this.gl.FLOAT }],
-          ]),
-        };
-        this.vaoCache.set(vaoKey, vaoState);
-      }
-    } else {
-      this.gl.bindVertexArray(vaoState.vao);
-      vaoState.vertexCount = points.length;
+      if (!vao) return;
+      vaoState = {
+        vao,
+        buffer: buffer.buffer,
+        vertexCount,
+        attributes: new Map(),
+      };
+      this.vaoCache.set(vaoKey, vaoState);
     }
+
+    // Bind the VAO and re-run vertexAttribPointer on EVERY use (cache hit or
+    // miss). A VAO only captures whichever buffer was ARRAY_BUFFER-bound at
+    // the moment vertexAttribPointer() was called — the buffer pool can (and
+    // does, under pool churn or multiple functions) hand back a *different*
+    // underlying WebGLBuffer than the one this VAO was last configured
+    // against. Rebinding ARRAY_BUFFER above does NOT retroactively update an
+    // already-created VAO's attribute binding, so skipping this on cache-hit
+    // silently reads stale/garbage geometry.
+    this.gl.bindVertexArray(vaoState.vao);
+    const posLoc = shader.attributes.get('a_position');
+    if (posLoc !== undefined) {
+      this.gl.enableVertexAttribArray(posLoc);
+      this.gl.vertexAttribPointer(posLoc, 2, this.gl.FLOAT, false, 0, 0);
+      vaoState.attributes.set('a_position', { location: posLoc, size: 2, type: this.gl.FLOAT });
+    }
+    vaoState.buffer = buffer.buffer;
+    vaoState.vertexCount = vertexCount;
 
     // Use shader program
     this.gl.useProgram(shader.program);
@@ -473,9 +471,12 @@ export class WebGL2DRenderer implements IRenderer {
     // Set line width - slightly thicker for better visibility
     this.gl.lineWidth(style?.line?.width ?? 3.0);
 
-    // Draw
-    this.gl.drawArrays(this.gl.LINE_STRIP, 0, points.length);
-    this.metrics.drawCalls++;
+    // Draw each contiguous segment as its own strip so discontinuity markers
+    // (poles, domain gaps) break the line instead of being bridged
+    for (const range of ranges) {
+      this.gl.drawArrays(this.gl.LINE_STRIP, range.first, range.count);
+      this.metrics.drawCalls++;
+    }
 
     // Unbind VAO
     this.gl.bindVertexArray(null);
@@ -491,6 +492,7 @@ export class WebGL2DRenderer implements IRenderer {
     fn: (theta: number) => number,
     thetaRange: { min: number; max: number },
     style?: Partial<PlotStyle>,
+    functionIndex = 0,
   ): void {
     if (!this.gl || !this.shaderCache || !this.bufferPool) return;
 
@@ -530,38 +532,33 @@ export class WebGL2DRenderer implements IRenderer {
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer.buffer);
     this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.DYNAMIC_DRAW);
 
-    // Get or create VAO for polar rendering
-    const vaoKey = 'polar';
+    // Get or create VAO for this polar function (keyed per function index —
+    // see renderFunction2D for why cross-function/cache-hit sharing is unsafe).
+    const vaoKey = `polar-${functionIndex}`;
     let vaoState = this.vaoCache.get(vaoKey);
 
     if (!vaoState) {
       const vao = this.gl.createVertexArray();
-      if (vao) {
-        this.gl.bindVertexArray(vao);
-
-        const posLoc = shader.attributes.get('a_polar');
-        if (posLoc !== undefined) {
-          this.gl.enableVertexAttribArray(posLoc);
-          this.gl.vertexAttribPointer(posLoc, 2, this.gl.FLOAT, false, 0, 0);
-        }
-
-        vaoState = {
-          vao,
-          buffer: buffer.buffer,
-          vertexCount: points.length,
-          attributes: new Map([
-            [
-              'a_polar',
-              { location: shader.attributes.get('a_polar')!, size: 2, type: this.gl.FLOAT },
-            ],
-          ]),
-        };
-        this.vaoCache.set(vaoKey, vaoState);
-      }
-    } else {
-      this.gl.bindVertexArray(vaoState.vao);
-      vaoState.vertexCount = points.length;
+      if (!vao) return;
+      vaoState = {
+        vao,
+        buffer: buffer.buffer,
+        vertexCount: points.length,
+        attributes: new Map(),
+      };
+      this.vaoCache.set(vaoKey, vaoState);
     }
+
+    // Rebind + re-run vertexAttribPointer on every use — see renderFunction2D.
+    this.gl.bindVertexArray(vaoState.vao);
+    const posLoc = shader.attributes.get('a_polar');
+    if (posLoc !== undefined) {
+      this.gl.enableVertexAttribArray(posLoc);
+      this.gl.vertexAttribPointer(posLoc, 2, this.gl.FLOAT, false, 0, 0);
+      vaoState.attributes.set('a_polar', { location: posLoc, size: 2, type: this.gl.FLOAT });
+    }
+    vaoState.buffer = buffer.buffer;
+    vaoState.vertexCount = points.length;
 
     this.gl.useProgram(shader.program);
 
@@ -601,6 +598,7 @@ export class WebGL2DRenderer implements IRenderer {
     yFn: (t: number) => number,
     tRange: { min: number; max: number },
     style?: Partial<PlotStyle>,
+    functionIndex = 0,
   ): void {
     if (!this.gl || !this.shaderCache || !this.bufferPool) return;
 
@@ -641,38 +639,33 @@ export class WebGL2DRenderer implements IRenderer {
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer.buffer);
     this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.DYNAMIC_DRAW);
 
-    // Get or create VAO for parametric curve rendering
-    const vaoKey = 'parametric';
+    // Get or create VAO for this parametric curve (keyed per function index —
+    // see renderFunction2D for why cross-function/cache-hit sharing is unsafe).
+    const vaoKey = `parametric-${functionIndex}`;
     let vaoState = this.vaoCache.get(vaoKey);
 
     if (!vaoState) {
       const vao = this.gl.createVertexArray();
-      if (vao) {
-        this.gl.bindVertexArray(vao);
-
-        const posLoc = shader.attributes.get('a_position');
-        if (posLoc !== undefined) {
-          this.gl.enableVertexAttribArray(posLoc);
-          this.gl.vertexAttribPointer(posLoc, 2, this.gl.FLOAT, false, 0, 0);
-        }
-
-        vaoState = {
-          vao,
-          buffer: buffer.buffer,
-          vertexCount: points.length,
-          attributes: new Map([
-            [
-              'a_position',
-              { location: shader.attributes.get('a_position')!, size: 2, type: this.gl.FLOAT },
-            ],
-          ]),
-        };
-        this.vaoCache.set(vaoKey, vaoState);
-      }
-    } else {
-      this.gl.bindVertexArray(vaoState.vao);
-      vaoState.vertexCount = points.length;
+      if (!vao) return;
+      vaoState = {
+        vao,
+        buffer: buffer.buffer,
+        vertexCount: points.length,
+        attributes: new Map(),
+      };
+      this.vaoCache.set(vaoKey, vaoState);
     }
+
+    // Rebind + re-run vertexAttribPointer on every use — see renderFunction2D.
+    this.gl.bindVertexArray(vaoState.vao);
+    const posLoc = shader.attributes.get('a_position');
+    if (posLoc !== undefined) {
+      this.gl.enableVertexAttribArray(posLoc);
+      this.gl.vertexAttribPointer(posLoc, 2, this.gl.FLOAT, false, 0, 0);
+      vaoState.attributes.set('a_position', { location: posLoc, size: 2, type: this.gl.FLOAT });
+    }
+    vaoState.buffer = buffer.buffer;
+    vaoState.vertexCount = points.length;
 
     this.gl.useProgram(shader.program);
 
@@ -723,7 +716,7 @@ export class WebGL2DRenderer implements IRenderer {
         xAxis: config.xAxis,
         yAxis: config.yAxis,
       };
-      this.renderGridInstanced(cartesianConfig);
+      this.renderGrid(cartesianConfig);
       this.renderAxes(cartesianConfig);
     }
 
@@ -788,7 +781,7 @@ export class WebGL2DRenderer implements IRenderer {
         xAxis: config.xAxis,
         yAxis: config.yAxis,
       };
-      this.renderGridInstanced(cartesianConfig);
+      this.renderGrid(cartesianConfig);
       this.renderAxes(cartesianConfig);
     }
 
@@ -952,33 +945,6 @@ export class WebGL2DRenderer implements IRenderer {
       ],
       { color, width: 1 },
     );
-  }
-
-  /**
-   * Renders grid using instanced rendering for better performance
-   * All grid lines rendered in a single draw call
-   */
-  private renderGridInstanced(config: Plot2DCartesianConfig): void {
-    if (!this.gl || !this.shaderCache || !this.bufferPool) return;
-
-    const viewport = config.viewport;
-    const gridStep = config.xAxis.grid.majorStep;
-
-    // Count grid lines
-    const xStart = Math.ceil(viewport.xMin / gridStep) * gridStep;
-    const xEnd = viewport.xMax;
-    const xCount = Math.floor((xEnd - xStart) / gridStep) + 1;
-
-    const yStart = Math.ceil(viewport.yMin / gridStep) * gridStep;
-    const yEnd = viewport.yMax;
-    const yCount = Math.floor((yEnd - yStart) / gridStep) + 1;
-
-    const totalLines = xCount + yCount;
-    if (totalLines === 0) return;
-
-    // For simplicity, fall back to non-instanced rendering
-    // Full instanced rendering requires more complex buffer setup
-    this.renderGrid(config);
   }
 
   /**
@@ -1381,6 +1347,7 @@ export class WebGL2DRenderer implements IRenderer {
       }
     }
     this.vaoCache.clear();
+    this.sampleCache.clear();
 
     // Dispose buffer pool and shader cache
     if (this.bufferPool) {

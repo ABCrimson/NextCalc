@@ -17,7 +17,7 @@ export {
   exportToPNG,
   exportToSVG,
 } from './export/index';
-export { createBest2DRenderer } from './renderers/index';
+export { createAndInitBest2DRenderer, createBest2DRenderer } from './renderers/index';
 // Renderers
 export { WebGL2DRenderer } from './renderers/webgl-2d';
 // Space cubemap themes
@@ -26,19 +26,10 @@ export { createProceduralHDRCubeMap, SPACE_THEMES } from './renderers/webgl-3d';
 export { WebGPU2DRenderer } from './renderers/webgpu-2d';
 // WGSL shaders (WebGPU)
 export {
-  advancedMarkerShaderWGSL,
   axisShaderWGSL,
   cartesianLineShaderWGSL,
-  contourLineShaderWGSL,
-  dashedLineShaderWGSL,
-  fxaaShaderWGSL,
-  gradientLineShaderWGSL,
   gridShaderWGSL,
-  instancedGridShaderWGSL,
   polarLineShaderWGSL,
-  smoothLineShaderWGSL,
-  solidLineShaderWGSL,
-  WGSL_SHADERS,
   type WGSLShaderSource,
 } from './renderers/wgsl-shaders';
 // Sampling
@@ -46,8 +37,9 @@ export {
   adaptiveSample1D,
   adaptiveSampleParametric2D,
   defaultSamplingConfig,
+  isSampleBreak,
   type SamplingResult,
-  SamplingWorkerManager,
+  splitSampleSegments,
   uniformSample1D,
 } from './sampling/index';
 // Types

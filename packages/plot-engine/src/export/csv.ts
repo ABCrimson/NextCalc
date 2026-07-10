@@ -15,21 +15,21 @@ import type { ExportCSVOptions, Point2D, Point3D } from '../types/index';
 export function exportToCSV2D(points: Point2D[], options: ExportCSVOptions = {}): string {
   const { delimiter = ',', includeHeader = true, precision = 6 } = options;
 
-  let csv = '';
+  const rows: string[] = [];
 
   // Header
   if (includeHeader) {
-    csv += `x${delimiter}y\n`;
+    rows.push(`x${delimiter}y`);
   }
 
   // Data rows
   for (const point of points) {
     const x = point.x.toFixed(precision);
     const y = point.y.toFixed(precision);
-    csv += `${x}${delimiter}${y}\n`;
+    rows.push(`${x}${delimiter}${y}`);
   }
 
-  return csv;
+  return rows.length > 0 ? `${rows.join('\n')}\n` : '';
 }
 
 /**
@@ -41,11 +41,11 @@ export function exportToCSV2D(points: Point2D[], options: ExportCSVOptions = {})
 export function exportToCSV3D(points: Point3D[], options: ExportCSVOptions = {}): string {
   const { delimiter = ',', includeHeader = true, precision = 6 } = options;
 
-  let csv = '';
+  const rows: string[] = [];
 
   // Header
   if (includeHeader) {
-    csv += `x${delimiter}y${delimiter}z\n`;
+    rows.push(`x${delimiter}y${delimiter}z`);
   }
 
   // Data rows
@@ -53,10 +53,10 @@ export function exportToCSV3D(points: Point3D[], options: ExportCSVOptions = {})
     const x = point.x.toFixed(precision);
     const y = point.y.toFixed(precision);
     const z = point.z.toFixed(precision);
-    csv += `${x}${delimiter}${y}${delimiter}${z}\n`;
+    rows.push(`${x}${delimiter}${y}${delimiter}${z}`);
   }
 
-  return csv;
+  return rows.length > 0 ? `${rows.join('\n')}\n` : '';
 }
 
 /**
@@ -82,7 +82,9 @@ export function downloadAsCSV2D(
   link.click();
   link.remove();
 
-  URL.revokeObjectURL(url);
+  // Defer revocation to the next tick — revoking synchronously can race the
+  // browser's own read of `link.href` when it kicks off the download.
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 /**
@@ -108,5 +110,7 @@ export function downloadAsCSV3D(
   link.click();
   link.remove();
 
-  URL.revokeObjectURL(url);
+  // Defer revocation to the next tick — revoking synchronously can race the
+  // browser's own read of `link.href` when it kicks off the download.
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 }

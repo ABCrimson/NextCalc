@@ -22,6 +22,7 @@
  * @module renderers/webgpu-2d
  */
 
+import { splitSampleSegments } from '../sampling/adaptive';
 import type {
   Color,
   IRenderer,
@@ -40,6 +41,7 @@ import { parseColor } from '../utils/color';
 import { marchingSquares } from '../utils/marching-squares';
 import { multiply, ortho, scaling, translation } from '../utils/matrix';
 import { getJSHeapUsage } from '../utils/memory';
+import { CartesianSampleCache } from '../utils/sample-cache';
 import type { WGSLShaderSource } from './wgsl-shaders';
 import {
   axisShaderWGSL,
@@ -135,6 +137,10 @@ export class WebGPU2DRenderer implements IRenderer {
   // Re-usable vertex staging buffer pool
   private vertexBuffers: FrameBuffer[] = [];
   private frameBufferIndex = 0;
+
+  // Adaptive-sample cache for Cartesian y = f(x) functions, keyed by
+  // function identity + viewport domain (see utils/sample-cache.ts)
+  private sampleCache: CartesianSampleCache = new CartesianSampleCache();
 
   // Transformation matrices
   private viewMatrix: Float32Array | null = null;
@@ -766,7 +772,9 @@ export class WebGPU2DRenderer implements IRenderer {
 
   /**
    * Evaluates fn(x) over the viewport x range, then draws the resulting
-   * polyline using the cartesian-line pipeline.
+   * polyline using the cartesian-line pipeline. The sampler emits NaN-y
+   * break markers at poles/domain gaps — each contiguous segment is drawn as
+   * its own strip so discontinuities are never bridged.
    */
   private drawFunction2D(
     pass: GPURenderPassEncoder,
@@ -775,23 +783,11 @@ export class WebGPU2DRenderer implements IRenderer {
     colorStr: string,
     _lineWidth: number,
   ): void {
-    const samples = 1000;
-    const dx = (viewport.xMax - viewport.xMin) / samples;
-    const points: Point2D[] = [];
-
-    for (let i = 0; i <= samples; i++) {
-      const x = viewport.xMin + i * dx;
-      try {
-        const y = fn(x);
-        if (Number.isFinite(y)) points.push({ x, y });
-      } catch {
-        // skip discontinuities
-      }
+    const points = this.sampleCache.get(fn, viewport.xMin, viewport.xMax);
+    for (const segment of splitSampleSegments(points)) {
+      this.metrics.pointCount += segment.length;
+      this.drawLineStrip(pass, segment, 'cartesian-line', colorStr, _lineWidth);
     }
-
-    if (points.length < 2) return;
-    this.metrics.pointCount += points.length;
-    this.drawLineStrip(pass, points, 'cartesian-line', colorStr, _lineWidth);
   }
 
   /**
@@ -1317,6 +1313,8 @@ export class WebGPU2DRenderer implements IRenderer {
   // ---------------------------------------------------------------------------
 
   dispose(): void {
+    this.sampleCache.clear();
+
     // Destroy vertex buffers
     for (const fb of this.vertexBuffers) {
       fb.gpuBuffer.destroy();

@@ -116,5 +116,7 @@ export function downloadAsSVG(
   link.click();
   link.remove();
 
-  URL.revokeObjectURL(url);
+  // Defer revocation to the next tick — revoking synchronously can race the
+  // browser's own read of `link.href` when it kicks off the download.
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 }

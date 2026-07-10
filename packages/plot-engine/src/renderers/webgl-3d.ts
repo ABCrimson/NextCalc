@@ -37,6 +37,7 @@ import type {
   RenderBackend,
 } from '../types/index';
 import { getColorFromMap } from '../utils/color';
+import { hashPlot3DConfig, isPlot3DConfig } from '../utils/config-hash-3d';
 import { getJSHeapUsage } from '../utils/memory';
 
 // ---------------------------------------------------------------------------
@@ -1626,30 +1627,18 @@ export class WebGL3DRenderer implements IRenderer {
   }
 
   /**
-   * Creates a hash of the config to detect changes.
-   */
-  private hashConfig(config: PlotConfig): string {
-    const { type } = config;
-
-    if (type === '3d-surface') {
-      const { viewport, resolution, colorMap, wireframe } = config;
-      return JSON.stringify({ type, viewport, resolution, colorMap, wireframe, fn: 'function' });
-    } else if (type === '3d-parametric') {
-      const { uRange, vRange, resolution, colorMap } = config;
-      return JSON.stringify({ type, uRange, vRange, resolution, colorMap, functions: 'functions' });
-    } else {
-      const { type: _configType, ...rest } = config as
-        | Plot3DCurveConfig
-        | Plot3DParametricCurveConfig;
-      return JSON.stringify({ type, ...rest });
-    }
-  }
-
-  /**
    * Renders a plot configuration.
    * Uses caching to avoid regenerating geometry on every frame.
    */
   render(config: PlotConfig): void {
+    // Validate the plot type BEFORE hashing: hashPlot3DConfig only accepts
+    // 3D configs (isPlot3DConfig is the single source of truth), and running
+    // it on a 2D config would die with an opaque TypeError instead of this
+    // descriptive error.
+    if (!isPlot3DConfig(config)) {
+      throw new Error(`Unsupported plot type for WebGL 3D renderer: ${config.type}`);
+    }
+
     if (!this.scene || !this.camera || !this.renderer) {
       throw new Error('Renderer not initialized');
     }
@@ -1657,7 +1646,7 @@ export class WebGL3DRenderer implements IRenderer {
     const startTime = performance.now();
 
     // Check if config has changed
-    const configHash = this.hashConfig(config);
+    const configHash = hashPlot3DConfig(config);
     const configChanged = this.lastConfigHash !== configHash;
 
     if (configChanged) {
@@ -1691,17 +1680,16 @@ export class WebGL3DRenderer implements IRenderer {
         this.currentWireframe = null;
       }
 
-      // Render based on plot type
+      // Render based on plot type (exhaustive: config is narrowed to
+      // Plot3DConfig by the isPlot3DConfig guard at the top of render())
       if (config.type === '3d-surface') {
         this.renderSurface(config);
       } else if (config.type === '3d-parametric') {
         this.renderParametricSurface(config);
       } else if (config.type === '3d-curve') {
         this.renderCurve(config);
-      } else if (config.type === '3d-parametric-curve') {
-        this.renderParametricCurve(config);
       } else {
-        throw new Error(`Unsupported plot type for WebGL 3D renderer: ${config.type}`);
+        this.renderParametricCurve(config);
       }
 
       this.metrics.renderTime = performance.now() - startTime;
