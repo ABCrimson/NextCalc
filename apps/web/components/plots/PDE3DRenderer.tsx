@@ -234,7 +234,7 @@ export function PDE3DRenderer({
     const range = fieldRange(scalarField);
 
     if (renderMode === 'isosurface') {
-      buildIsosurface(group, scalarField, N, isovalue, range);
+      buildIsosurface(group, scalarField, N, isovalue, range, colormap);
     } else if (renderMode === 'slices') {
       buildSlicePlanes(group, scalarField, N, slicePositions, range, colormap);
     } else {
@@ -261,6 +261,7 @@ function buildIsosurface(
   N: number,
   isovalue: number,
   range: { min: number; max: number },
+  colormap: ColormapName,
 ): void {
   // Map the user's 0-1 isovalue to the actual field range
   const mappedIso = range.min + isovalue * (range.max - range.min);
@@ -272,8 +273,12 @@ function buildIsosurface(
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(result.positions, 3));
   geometry.setAttribute('normal', new THREE.Float32BufferAttribute(result.normals, 3));
 
+  // Tint the surface with the colormap sample at the normalized isovalue so
+  // the material tracks both the isovalue and the selected colormap.
+  const [r, g, b] = getColor(isovalue, colormap);
+
   const material = new THREE.MeshPhysicalMaterial({
-    color: 0x6688ff,
+    color: new THREE.Color(r, g, b),
     transmission: 0.3,
     ior: 1.5,
     iridescence: 0.3,

@@ -1633,6 +1633,33 @@ function downloadCSV(csv: string, filename: string) {
 }
 
 // ============================================================================
+// VIEW AUTO-FIT
+// ============================================================================
+
+interface Extent {
+  readonly lo: number;
+  readonly hi: number;
+}
+
+/** Min/max of the finite values in a list, or null when none are finite. */
+function finiteExtent(values: readonly number[]): Extent | null {
+  let lo = Infinity;
+  let hi = -Infinity;
+  for (const v of values) {
+    if (!Number.isFinite(v)) continue;
+    if (v < lo) lo = v;
+    if (v > hi) hi = v;
+  }
+  return lo <= hi ? { lo, hi } : null;
+}
+
+/** Pad an extent by 10% of its span, falling back to 1 when the span is 0. */
+function padExtent({ lo, hi }: Extent): Extent {
+  const pad = (hi - lo) * 0.1 || 1;
+  return { lo: lo - pad, hi: hi + pad };
+}
+
+// ============================================================================
 // MAIN PAGE COMPONENT
 // ============================================================================
 
@@ -1668,6 +1695,7 @@ export default function ODESolverPage() {
   const [xMax, setXMax] = useState(10);
   const [yMin, setYMin] = useState(-0.1);
   const [yMax, setYMax] = useState(1.3);
+  const [autoFitView, setAutoFitView] = useState(true);
 
   const [trajectories, setTrajectories] = useState<Trajectory[]>([]);
   const [systemTrajectories, setSystemTrajectories] = useState<SystemTrajectory[]>([]);
@@ -1715,6 +1743,29 @@ export default function ODESolverPage() {
         ] ?? TRAJECTORY_COLORS[0]!;
       const id = `${Date.now()}-${Math.random()}`;
 
+      // Expand the view domain (never shrink) so the new solution is fully
+      // visible: x covers [x0, tEnd], y covers the padded solution range.
+      const fitScalarView = (pts: SolutionPoint[]) => {
+        const yExtent = finiteExtent(pts.map((p) => p.y));
+        if (!yExtent) return;
+        const { lo, hi } = padExtent(yExtent);
+        setXMin((prev) => Math.min(prev, initX0));
+        setXMax((prev) => Math.max(prev, tEnd));
+        setYMin((prev) => Math.min(prev, lo));
+        setYMax((prev) => Math.max(prev, hi));
+      };
+      const fitSystemView = (pts: SystemPoint[]) => {
+        const xExtent = finiteExtent(pts.map((p) => p.x));
+        const yExtent = finiteExtent(pts.map((p) => p.y));
+        if (!xExtent || !yExtent) return;
+        const xPadded = padExtent(xExtent);
+        const yPadded = padExtent(yExtent);
+        setXMin((prev) => Math.min(prev, xPadded.lo));
+        setXMax((prev) => Math.max(prev, xPadded.hi));
+        setYMin((prev) => Math.min(prev, yPadded.lo));
+        setYMax((prev) => Math.max(prev, yPadded.hi));
+      };
+
       if (odeType === 'first-order') {
         const f = compiledF as (x: number, y: number) => number;
         const pts =
@@ -1722,10 +1773,12 @@ export default function ODESolverPage() {
             ? rk4Scalar(f, initX0, initY0, tEnd, stepSize)
             : eulerScalar(f, initX0, initY0, tEnd, stepSize);
         setTrajectories((prev) => [...prev, { id, color, points: pts, x0: initX0, y0: initY0 }]);
+        if (autoFitView) fitScalarView(pts);
       } else if (odeType === 'second-order') {
         const rhs = compiledF as (x: number, y: number, yp: number) => number;
         const pts = solveSecondOrder(rhs, initX0, initY0, initYp0, tEnd, stepSize, method);
         setTrajectories((prev) => [...prev, { id, color, points: pts, x0: initX0, y0: initY0 }]);
+        if (autoFitView) fitScalarView(pts);
       } else {
         const f = compiledF as (x: number, y: number, t: number) => number;
         const g = compiledG as (x: number, y: number, t: number) => number;
@@ -1737,6 +1790,7 @@ export default function ODESolverPage() {
           ...prev,
           { id, color, points: pts, x0: initX0, y0: initY0 },
         ]);
+        if (autoFitView) fitSystemView(pts);
       }
     },
     [
@@ -1746,6 +1800,7 @@ export default function ODESolverPage() {
       method,
       tEnd,
       stepSize,
+      autoFitView,
       trajectories.length,
       systemTrajectories.length,
     ],
@@ -2114,6 +2169,28 @@ export default function ODESolverPage() {
                 <CardTitle className="text-sm">View Domain</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm text-muted-foreground">Auto-fit view</Label>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={autoFitView}
+                    aria-label="Auto-fit view"
+                    onClick={() => setAutoFitView((v) => !v)}
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${
+                      autoFitView ? 'bg-violet-500' : 'bg-muted border border-border'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block size-3.5 transform rounded-full bg-white shadow transition-transform ${
+                        autoFitView ? 'translate-x-4' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Expands the domain on solve so the solution stays in view.
+                </p>
                 <div className="grid grid-cols-2 gap-2">
                   {[
                     { label: 'x min', value: xMin, set: setXMin },
