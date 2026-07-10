@@ -28,6 +28,11 @@ import { getMainDefinition } from '@apollo/client/utilities';
 import { ApolloClient, InMemoryCache } from '@apollo/client-integration-nextjs';
 import { print } from 'graphql';
 import { createClient } from 'graphql-sse';
+// Conditional module (package.json `imports`): the `browser` condition maps
+// this specifier to ssr-schema-link.browser.ts (a dependency-free stub), so
+// the server-only module graph (executable schema + Prisma) never enters the
+// client bundle. Server bundles resolve the real ssr-schema-link.server.ts.
+import { createSsrSchemaLink } from '#graphql/ssr-schema-link';
 
 /**
  * Merge function for offset-based paginated lists.
@@ -56,13 +61,15 @@ function offsetPaginationMerge(
 }
 
 /**
- * Absolute origin for server-side requests.
+ * Absolute origin for the server-side SSE client URL.
  *
- * During streaming SSR there is no `window` and Node's fetch cannot parse
- * relative URLs, so every SSR'd GraphQL request needs the deployment origin.
- * Only called on the server (`typeof window === 'undefined'` branches), so
- * the server-only env vars are always available. Values are trimmed because
- * Vercel encrypted env vars can carry a trailing newline.
+ * Only used to give graphql-sse's lazy client a syntactically valid absolute
+ * URL during SSR — subscriptions never execute during SSR, so this URL is
+ * never actually fetched on the server. Queries/mutations do NOT go through
+ * HTTP during SSR at all: they execute in-process via SchemaLink (see
+ * ssr-schema-link.server.ts). Do not reintroduce an HTTP self-fetch here —
+ * on Vercel the self-origin (VERCEL_URL) is deployment-protected and answers
+ * anonymous POSTs with a 401 challenge instead of GraphQL JSON.
  */
 function serverOrigin(): string {
   const siteUrl = process.env['NEXT_PUBLIC_SITE_URL']?.trim();
@@ -80,12 +87,21 @@ function serverOrigin(): string {
  * the integration package handles SSR deduplication).
  */
 export function makeClient() {
-  const httpLink = new HttpLink({
-    // Browser: same-origin relative URI (cookies flow automatically).
-    // SSR: Node fetch requires an absolute URL — resolve the deployment origin.
-    uri: typeof window === 'undefined' ? `${serverOrigin()}/api/graphql` : '/api/graphql',
-    fetchOptions: { cache: 'no-store' },
-  });
+  // Terminating link for queries/mutations:
+  // - Browser: HTTP to the same-origin /api/graphql route (session cookies
+  //   flow automatically).
+  // - SSR (streaming useSuspenseQuery execution): in-process SchemaLink over
+  //   the executable schema with an anonymous context — no HTTP self-fetch,
+  //   which on Vercel would hit the deployment-protected VERCEL_URL origin
+  //   and receive a 401 challenge instead of data (the "Post not found in
+  //   streamed HTML" SEO defect). See ssr-schema-link.server.ts.
+  const terminatingLink =
+    typeof window === 'undefined'
+      ? createSsrSchemaLink()
+      : new HttpLink({
+          uri: '/api/graphql',
+          fetchOptions: { cache: 'no-store' },
+        });
 
   // Auth link: forward session cookie to GraphQL endpoint.
   // Since the GraphQL API is same-origin (/api/graphql), cookies
@@ -165,7 +181,7 @@ export function makeClient() {
       return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
     },
     sseLink,
-    from([errorLink, authLink, httpLink]),
+    from([errorLink, authLink, terminatingLink]),
   );
 
   return new ApolloClient({

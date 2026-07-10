@@ -442,6 +442,7 @@ export const USER_PROFILE_QUERY = graphql(`
         name
         image
         bio
+        role
         createdAt
       }
       progress {
