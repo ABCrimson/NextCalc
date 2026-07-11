@@ -81,10 +81,10 @@ const DEFAULT_MAX = 10;
 const DEFAULT_VALUE = 1;
 
 /** Time for one full min→max sweep at 1× speed. */
-const SWEEP_DURATION_MS = 4000;
+export const SWEEP_DURATION_MS = 4000;
 
 /** Speed multipliers cycled by the speed button. */
-const SPEED_STEPS = [0.5, 1, 2, 4] as const;
+export const SPEED_STEPS = [0.5, 1, 2, 4] as const;
 
 // ---------------------------------------------------------------------------
 // Types
@@ -175,16 +175,84 @@ function detectParameters(expressions: string[]): string[] {
 }
 
 /** Next animation mode in the loop → bounce → once cycle. */
-function nextMode(mode: SliderAnimMode): SliderAnimMode {
+export function nextMode(mode: SliderAnimMode): SliderAnimMode {
   if (mode === 'loop') return 'bounce';
   if (mode === 'bounce') return 'once';
   return 'loop';
 }
 
 /** Next speed multiplier in the 0.5× → 1× → 2× → 4× cycle. */
-function nextSpeed(speed: number): number {
+export function nextSpeed(speed: number): number {
   const idx = (SPEED_STEPS as readonly number[]).indexOf(speed);
   return SPEED_STEPS[(idx + 1) % SPEED_STEPS.length] ?? 1;
+}
+
+/** Inputs for a single rAF-driven animation step (one slider, one frame). */
+export interface SliderStepInput {
+  value: number;
+  min: number;
+  max: number;
+  mode: SliderAnimMode;
+  speed: number;
+  direction: 1 | -1;
+  /** Elapsed time since the previous frame, in milliseconds. */
+  dt: number;
+}
+
+export interface SliderStepResult {
+  /** Next slider value, already clamped to [min, max]. */
+  value: number;
+  /** Next travel direction (only ever flips in 'bounce' mode). */
+  direction: 1 | -1;
+  /** True once a 'once'-mode sweep has reached max — caller should stop it. */
+  finished: boolean;
+}
+
+/**
+ * Pure, framework-free step function for the Desmos-style slider animation.
+ * Advances `value` by `(span / SWEEP_DURATION_MS) * dt * speed` in `direction`,
+ * then applies the mode's boundary behavior:
+ *  - loop: wraps back to `min` at `max`
+ *  - bounce: clamps at the bound and flips `direction`
+ *  - once: clamps at `max` and reports `finished: true`
+ *
+ * Callers are expected to have already verified `max > min` (a degenerate
+ * span is a caller-level no-op, not a step to compute).
+ */
+export function stepSliderValue({
+  value,
+  min,
+  max,
+  mode,
+  speed,
+  direction,
+  dt,
+}: SliderStepInput): SliderStepResult {
+  const span = max - min;
+  const delta = (span / SWEEP_DURATION_MS) * dt * speed * direction;
+  let next = value + delta;
+  let nextDirection = direction;
+  let finished = false;
+
+  if (mode === 'loop') {
+    if (next >= max) next = min;
+  } else if (mode === 'bounce') {
+    if (next >= max) {
+      next = max;
+      nextDirection = -1;
+    } else if (next <= min) {
+      next = min;
+      nextDirection = 1;
+    }
+  } else {
+    // 'once' — stop exactly at max
+    if (next >= max) {
+      next = max;
+      finished = true;
+    }
+  }
+
+  return { value: next, direction: nextDirection, finished };
 }
 
 // ---------------------------------------------------------------------------
@@ -633,41 +701,35 @@ export function VariableSliders({ expressions, onChange, className = '' }: Varia
         });
         continue;
       }
-      const span = cfg.max - cfg.min;
-      if (span <= 0) continue;
+      if (cfg.max - cfg.min <= 0) continue;
 
-      const delta = (span / SWEEP_DURATION_MS) * dt * anim.speed * anim.direction;
-      let value = cfg.value + delta;
+      const result = stepSliderValue({
+        value: cfg.value,
+        min: cfg.min,
+        max: cfg.max,
+        mode: anim.mode,
+        speed: anim.speed,
+        direction: anim.direction,
+        dt,
+      });
 
-      if (anim.mode === 'loop') {
-        if (value >= cfg.max) value = cfg.min;
-      } else if (anim.mode === 'bounce') {
-        if (value >= cfg.max) {
-          value = cfg.max;
-          setAnims((prev) => {
-            const a = prev[name];
-            return a ? { ...prev, [name]: { ...a, direction: -1 } } : prev;
-          });
-        } else if (value <= cfg.min) {
-          value = cfg.min;
-          setAnims((prev) => {
-            const a = prev[name];
-            return a ? { ...prev, [name]: { ...a, direction: 1 } } : prev;
-          });
-        }
-      } else {
-        // 'once' — stop exactly at max and clear the animation entry
-        if (value >= cfg.max) {
-          value = cfg.max;
-          setAnims((prev) => {
-            const { [name]: _removed, ...rest } = prev;
-            return rest;
-          });
-        }
+      if (result.direction !== anim.direction) {
+        setAnims((prev) => {
+          const a = prev[name];
+          return a ? { ...prev, [name]: { ...a, direction: result.direction } } : prev;
+        });
+      }
+
+      if (result.finished) {
+        // 'once' sweep completed — clear the animation entry
+        setAnims((prev) => {
+          const { [name]: _removed, ...rest } = prev;
+          return rest;
+        });
       }
 
       // Route through the existing value path so onChange keeps firing
-      handleValueChange(name, value);
+      handleValueChange(name, result.value);
     }
   });
 

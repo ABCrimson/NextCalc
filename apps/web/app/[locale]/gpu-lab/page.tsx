@@ -22,6 +22,7 @@ import { useFragment } from '@/lib/graphql/generated';
 import { UserSummaryFragmentDoc } from '@/lib/graphql/generated/graphql';
 import { GPU_LAB_WORKSHEETS_QUERY, type USER_SUMMARY_FRAGMENT } from '@/lib/graphql/operations';
 import { query } from '@/lib/graphql/rsc-client';
+import { filterGalleryWorksheets } from '@/lib/simulation/gallery';
 import { isSimulationKind, SIM_REGISTRY } from '@/lib/simulation/registry';
 
 // ---------------------------------------------------------------------------
@@ -41,34 +42,6 @@ interface GalleryWorksheet {
   content: unknown;
   /** Masked — unwrap with useFragment(UserSummaryFragmentDoc, user) */
   user: FragmentType<typeof USER_SUMMARY_FRAGMENT>;
-}
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/** Narrow an unknown cell JSON blob to a simulation cell shape. */
-function isSimulationCellData(cell: unknown): cell is { kind: 'simulation'; sim: string } {
-  return (
-    typeof cell === 'object' &&
-    cell !== null &&
-    'kind' in cell &&
-    cell.kind === 'simulation' &&
-    'sim' in cell &&
-    typeof cell.sim === 'string'
-  );
-}
-
-/** Unique simulation kinds present in a worksheet's content JSON. */
-function simKindsOf(content: unknown): string[] {
-  const cells: readonly unknown[] = Array.isArray(content) ? content : [];
-  const kinds = new Set<string>();
-  for (const cell of cells) {
-    if (isSimulationCellData(cell)) {
-      kinds.add(cell.sim);
-    }
-  }
-  return [...kinds];
 }
 
 // ---------------------------------------------------------------------------
@@ -194,9 +167,7 @@ export default async function GpuLabPage({ params }: PageProps) {
   ]);
 
   // Only worksheets that actually contain a simulation cell belong here
-  const galleryItems = worksheets
-    .map((worksheet) => ({ worksheet, simKinds: simKindsOf(worksheet.content) }))
-    .filter(({ simKinds }) => simKinds.length > 0);
+  const galleryItems = filterGalleryWorksheets(worksheets);
 
   return (
     <main className="min-h-screen relative">
