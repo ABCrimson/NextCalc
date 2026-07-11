@@ -14,6 +14,14 @@ export interface CheckWorkPanelProps {
   canonical: string;
   /** Optional heading override (defaults to the checkWork.title message) */
   label?: string;
+  /**
+   * Allow a trailing "+ C" / "+ c" to be stripped from the student's input
+   * before comparison. Valid ONLY when `canonical` is an indefinite-integral
+   * antiderivative — passing this for any other mode (equation, simplify,
+   * derivative) would forgive a spurious constant the student shouldn't
+   * have added. Defaults to false.
+   */
+  allowConstantOfIntegration?: boolean;
 }
 
 /** Visual state derived from an equivalence result */
@@ -42,7 +50,11 @@ const STATUS_STYLES: Record<PanelStatus, string> = {
  * deterministic seeded numeric-probing fallback). This is a study aid,
  * separate from graded submission — it never records an attempt.
  */
-export function CheckWorkPanel({ canonical, label }: CheckWorkPanelProps) {
+export function CheckWorkPanel({
+  canonical,
+  label,
+  allowConstantOfIntegration = false,
+}: CheckWorkPanelProps) {
   const t = useTranslations('checkWork');
   const [input, setInput] = useState('');
   const [result, setResult] = useState<EquivalenceResult | null>(null);
@@ -58,7 +70,12 @@ export function CheckWorkPanel({ canonical, label }: CheckWorkPanelProps) {
       const { checkEquivalence, normalizeAnswerExpression } = await import(
         '@nextcalc/math-engine/equivalence'
       );
-      setResult(checkEquivalence(normalizeAnswerExpression(candidate), canonical));
+      setResult(
+        checkEquivalence(
+          normalizeAnswerExpression(candidate, allowConstantOfIntegration),
+          canonical,
+        ),
+      );
     });
   };
 

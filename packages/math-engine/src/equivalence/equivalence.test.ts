@@ -106,6 +106,15 @@ describe('checkEquivalence — non-equivalent and edge cases', () => {
 
     expect(checkEquivalence('2 + 3', '6').equivalent).toBe(false);
   });
+
+  it('never claims numeric agreement when floor/ceil/round is involved, even if every probe point matches', () => {
+    // floor(abs(x)/6) is 0 across the entire [-5, 5] probe window, so the
+    // two expressions agree everywhere sampled — but diverge for |x| >= 6.
+    // Agreement on a finite sample of a step function proves nothing.
+    const result = checkEquivalence('x', 'x + floor(abs(x)/6)*100');
+    expect(result.equivalent).toBe(false);
+    expect(result.reason).toBe('inconclusive');
+  });
 });
 
 describe('checkGradedAnswer — solutions kind', () => {
@@ -142,6 +151,20 @@ describe('checkGradedAnswer — solutions kind', () => {
     expect(checkGradedAnswer('x = 3', doubleRoot).correct).toBe(true);
     expect(checkGradedAnswer('3, 3', doubleRoot).correct).toBe(true);
     expect(checkGradedAnswer('3, 4', doubleRoot).correct).toBe(false);
+  });
+
+  it('rejects a duplicate-padded distinct root as a stand-in for a real extra answer', () => {
+    // 2x^2 + 3x + 1 = 0 has two DISTINCT roots (-1, -0.5) — repeating one
+    // of them should not let a 3-answer submission pass a 2-root problem.
+    const distinctRoots = {
+      kind: 'solutions',
+      equation: '2*x^2 + 3*x + 1 = 0',
+      variable: 'x',
+      values: [-1, -0.5],
+    } as const;
+    expect(checkGradedAnswer('-1, -1, -0.5', distinctRoots).correct).toBe(false);
+    expect(checkGradedAnswer('-1, -1, 5', distinctRoots).correct).toBe(false);
+    expect(checkGradedAnswer('-1, -0.5', distinctRoots).correct).toBe(true);
   });
 });
 
@@ -214,9 +237,22 @@ describe('checkGradedAnswer — expression kind', () => {
 });
 
 describe('normalizeAnswerExpression', () => {
-  it('strips assignment prefixes and + C suffixes', () => {
-    expect(normalizeAnswerExpression("f'(x) = 6*x + C")).toBe('6*x');
+  it('strips assignment prefixes but leaves a trailing "+ C" alone by default', () => {
+    // The + C strip is only valid for indefinite-integral problems; by
+    // default (no opt-in) it must not run, or a legitimate trailing "+ c"
+    // term (e.g. a perimeter formula) or a student's spurious "+ C" on a
+    // non-integral answer would be silently altered.
+    expect(normalizeAnswerExpression("f'(x) = 6*x + C")).toBe('6*x + C');
     expect(normalizeAnswerExpression('y = x^2')).toBe('x^2');
     expect(normalizeAnswerExpression('  x + 1  ')).toBe('x + 1');
+    expect(normalizeAnswerExpression('a + b + c')).toBe('a + b + c');
+  });
+
+  it('strips a trailing "+ C" only when explicitly allowed', () => {
+    expect(normalizeAnswerExpression("f'(x) = 6*x + C", true)).toBe('6*x');
+    expect(normalizeAnswerExpression('6*x + c', true)).toBe('6*x');
+    // Once opted in the strip is still a blind pattern match — callers
+    // must only pass `true` for genuine indefinite-integral problems.
+    expect(normalizeAnswerExpression('a + b + c', true)).toBe('a + b');
   });
 });

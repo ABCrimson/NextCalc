@@ -24,7 +24,12 @@
 
 import { ComputerAlgebraSystem } from '../cas';
 import { evaluate, extractVariables, parse } from '../parser';
-import { createOperatorNode, type ExpressionNode, isConstantNode } from '../parser/ast';
+import {
+  createOperatorNode,
+  type ExpressionNode,
+  isConstantNode,
+  isFunctionNode,
+} from '../parser/ast';
 import { createSeededRandom } from '../problems/templates/seeded-rng';
 import type { GradedAnswer } from '../problems/templates/template-engine';
 import { simplify } from '../symbolic/simplify';
@@ -83,6 +88,16 @@ function isZeroConstant(node: ExpressionNode): boolean {
   if (typeof node.value === 'number') return node.value === 0;
   if (typeof node.value === 'bigint') return node.value === 0n;
   return false;
+}
+
+/** Step functions whose agreement on a finite sample set proves nothing about
+ * agreement elsewhere — a numeric-agreement verdict must never rest on them. */
+const NON_ANALYTIC_FUNCTIONS = new Set(['floor', 'ceil', 'round']);
+
+/** True when the AST contains a floor/ceil/round call anywhere. */
+function containsNonAnalyticFunction(node: ExpressionNode): boolean {
+  if (isFunctionNode(node) && NON_ANALYTIC_FUNCTIONS.has(node.fn)) return true;
+  return (node.args ?? []).some((arg) => containsNonAnalyticFunction(arg));
 }
 
 /**
@@ -223,6 +238,18 @@ export function checkEquivalence(
     };
   }
 
+  // floor/ceil/round introduce discontinuities that a finite sample set
+  // cannot rule out between probe points — agreement on the samples is
+  // not evidence of agreement everywhere, so refuse to claim equivalence.
+  if (containsNonAnalyticFunction(studentAst) || containsNonAnalyticFunction(canonicalAst)) {
+    return {
+      equivalent: false,
+      method: 'numeric',
+      confidence: valid / samples,
+      reason: 'inconclusive',
+    };
+  }
+
   return {
     equivalent: true,
     method: 'numeric',
@@ -297,12 +324,16 @@ export function checkGradedAnswer(studentAnswer: string, graded: GradedAnswer): 
     case 'solutions': {
       const values = parseSolutionList(studentAnswer);
       if (!values) return { correct: false, method: 'numeric' };
-      const correct = multisetMatch(
-        dedupe(values, SOLUTION_TOLERANCE),
-        dedupe(graded.values, SOLUTION_TOLERANCE),
-        SOLUTION_TOLERANCE,
-      );
-      return { correct, method: 'numeric' };
+      const dedupedGraded = dedupe(graded.values, SOLUTION_TOLERANCE);
+      const dedupedStudent = dedupe(values, SOLUTION_TOLERANCE);
+      const setsMatch = multisetMatch(dedupedStudent, dedupedGraded, SOLUTION_TOLERANCE);
+      // A single distinct graded root may legitimately be written once or
+      // twice (a double root stated with its multiplicity). Once there is
+      // more than one distinct root, the student's fragment count must
+      // match exactly — otherwise repeating a root pads a wrong answer
+      // (e.g. an extra distinct-root problem) into a false positive.
+      const countOk = dedupedGraded.length === 1 || values.length === graded.values.length;
+      return { correct: setsMatch && countOk, method: 'numeric' };
     }
 
     case 'number': {
@@ -373,10 +404,20 @@ export function checkGradedAnswer(studentAnswer: string, graded: GradedAnswer): 
 }
 
 /**
- * Normalize a free-form answer for expression comparison: trims,
- * strips a leading assignment prefix and a trailing `+ C`.
- * Exposed for grading call-sites (e.g. server actions).
+ * Normalize a free-form answer for expression comparison: trims and
+ * strips a leading assignment prefix. The trailing `+ C` constant of
+ * integration is stripped only when `allowConstantOfIntegration` is
+ * true — that strip is only valid for indefinite-integral problems;
+ * applying it unconditionally would (a) silently drop a legitimate
+ * trailing "+ c" term from a non-integral canonical answer (e.g. a
+ * perimeter formula "a + b + c"), and (b) forgive a student's spurious
+ * "+ C" on a non-integral answer (e.g. a derivative). Callers must pass
+ * a problem-type signal to opt in.
  */
-export function normalizeAnswerExpression(input: string): string {
-  return stripConstantOfIntegration(stripLeadingAssignment(input.trim())).trim();
+export function normalizeAnswerExpression(
+  input: string,
+  allowConstantOfIntegration = false,
+): string {
+  const stripped = stripLeadingAssignment(input.trim());
+  return (allowConstantOfIntegration ? stripConstantOfIntegration(stripped) : stripped).trim();
 }

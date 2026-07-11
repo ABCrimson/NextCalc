@@ -58,7 +58,11 @@ export const basicProbabilityTemplate = createTemplate({
   learningObjectives: ['Calculate basic probability'],
   canonical: (params) => {
     const { red, blue } = narrow<{ red: number; blue: number }>(params);
-    return { kind: 'number', value: red / (red + blue) };
+    // The displayed solution rounds a non-terminating probability to 3
+    // decimals (see `answer` above) — match geometry-templates.ts's
+    // pattern and widen the tolerance so that displayed value grades as
+    // correct.
+    return { kind: 'number', value: red / (red + blue), tolerance: 1e-3 };
   },
 });
 

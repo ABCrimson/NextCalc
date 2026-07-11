@@ -24,8 +24,19 @@ import {
  * vs "x^2-5*x+6", "1/2" vs "0.5") are accepted. The equivalence checker
  * is conservative — it never claims equivalence it cannot support — and
  * unparseable expected values degrade gracefully to exact matching.
+ *
+ * `allowConstantOfIntegration` opts into stripping a trailing "+ C" / "+ c"
+ * from both sides — valid ONLY for indefinite-integral problems. Applied
+ * unconditionally, it would silently drop a legitimate trailing "+ c" term
+ * from a non-integral expected value (e.g. a perimeter formula "a + b + c")
+ * and would forgive a student's spurious "+ C" on a non-integral answer
+ * (e.g. a derivative), so callers must gate it on the problem's actual type.
  */
-function answerMatchesExpected(answer: string, expected: string): boolean {
+function answerMatchesExpected(
+  answer: string,
+  expected: string,
+  allowConstantOfIntegration = false,
+): boolean {
   // (a) Trimmed case-insensitive equality — the original grading rule
   if (expected.trim().toLowerCase() === answer.trim().toLowerCase()) {
     return true;
@@ -34,8 +45,8 @@ function answerMatchesExpected(answer: string, expected: string): boolean {
   // constant expressions compare numerically, variable expressions via
   // symbolic simplification with seeded numeric probing).
   try {
-    const normalizedAnswer = normalizeAnswerExpression(answer);
-    const normalizedExpected = normalizeAnswerExpression(expected);
+    const normalizedAnswer = normalizeAnswerExpression(answer, allowConstantOfIntegration);
+    const normalizedExpected = normalizeAnswerExpression(expected, allowConstantOfIntegration);
     if (normalizedAnswer.length === 0 || normalizedExpected.length === 0) {
       return false;
     }
@@ -101,7 +112,7 @@ export async function submitAnswer(
           where: { isHidden: false },
           orderBy: { order: 'asc' },
         },
-        topics: true,
+        topics: { include: { topic: { select: { slug: true } } } },
       },
     });
 
@@ -109,10 +120,19 @@ export async function submitAnswer(
       return { success: false, error: 'Problem not found' };
     }
 
+    // Only indefinite-integral problems may have a legitimate trailing
+    // "+ C" — gate the equivalence checker's constant-of-integration
+    // strip on that, never apply it generically (see answerMatchesExpected).
+    const isIndefiniteIntegral = problem.topics.some(
+      (pt) => pt.topic.slug === 'indefinite-integrals',
+    );
+
     // Validate answer against test cases (exact match or CAS-equivalent form)
     const isCorrect =
       problem.testCases.length > 0
-        ? problem.testCases.some((tc) => answerMatchesExpected(data.answer, tc.expected))
+        ? problem.testCases.some((tc) =>
+            answerMatchesExpected(data.answer, tc.expected, isIndefiniteIntegral),
+          )
         : true;
 
     // Get or create user progress

@@ -1069,7 +1069,12 @@ function ResultsPanel({ solution, onCopyAnswer, copied }: ResultsPanelProps) {
       </section>
 
       {/* "Check my work" — verify an equivalent form against the answer */}
-      {solution.finalRaw && <CheckWorkPanel canonical={solution.finalRaw} />}
+      {solution.finalRaw && (
+        <CheckWorkPanel
+          canonical={solution.finalRaw}
+          allowConstantOfIntegration={solution.mode === 'integral'}
+        />
+      )}
     </m.div>
   );
 }
@@ -1268,17 +1273,31 @@ export function SolverPanel() {
         const finalLatex = buildFinalLatex(stepSolution.answer, varName);
 
         // Raw parseable expression for the "Check my work" panel.
-        // For equations the canonical is the zero-form LHS − RHS (so any
-        // equivalent factoring/expansion of the polynomial verifies);
-        // for simplify/derivative it is the resulting expression itself.
+        // For equations the canonical must be the actual solved root — a
+        // student typing their correct numeric answer (e.g. "3") can never
+        // equal the zero-form LHS − RHS, which is a function of the
+        // variable, not a number. Only offer the panel when there is
+        // exactly one real root: CheckWorkPanel compares against a single
+        // canonical value, so it cannot represent "equivalent to any of
+        // several roots" without rejecting an otherwise-correct answer.
+        // For simplify/derivative the canonical is the resulting expression.
         let finalRaw: string | null = null;
         try {
           if (mode === 'equation') {
-            const eqParts = validated.split('=');
-            const lhs = eqParts[0]?.trim();
-            const rhs = eqParts[1]?.trim();
-            if (eqParts.length === 2 && lhs && rhs) {
-              finalRaw = rhs === '0' ? lhs : `(${lhs}) - (${rhs})`;
+            const solutions = stepSolution.answer;
+            if (Array.isArray(solutions) && solutions.length === 1) {
+              const value = (solutions[0] as { value: unknown } | undefined)?.value;
+              if (typeof value === 'number' && Number.isFinite(value)) {
+                finalRaw = String(value);
+              } else if (
+                value !== null &&
+                typeof value === 'object' &&
+                'real' in value &&
+                'imag' in value &&
+                Math.abs((value as { imag: number }).imag) < 1e-9
+              ) {
+                finalRaw = String((value as { real: number }).real);
+              }
             }
           } else {
             const answer = stepSolution.answer;

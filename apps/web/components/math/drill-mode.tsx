@@ -83,10 +83,18 @@ function humanizeId(id: string): string {
     .join(' ');
 }
 
-/** Group all registered templates by category (stable module-level data). */
+/**
+ * Group registered, machine-gradable templates by category (stable
+ * module-level data). Templates with no `canonical` (e.g. linear-inequality,
+ * prime-factorization) are excluded: their only fallback is exact
+ * case-insensitive string match against the raw LaTeX display answer, which
+ * no reasonable free-form student input can satisfy — offering them in the
+ * infinite-drill picker would make those drills effectively ungradeable.
+ */
 const TEMPLATE_GROUPS: ReadonlyArray<{ category: string; templates: ProblemTemplate[] }> = (() => {
   const groups = new Map<string, ProblemTemplate[]>();
   for (const template of allTemplates) {
+    if (!template.canonical) continue;
     const list = groups.get(template.category);
     if (list) {
       list.push(template);
@@ -117,6 +125,26 @@ function MathText({ text, className }: { text: string; className?: string }) {
       })}
     </span>
   );
+}
+
+/** Build the `completePracticeSession` FormData for one drill segment. */
+function buildCompleteFormData(
+  sessionId: string,
+  segment: DrillTally,
+  totalTimeSeconds: number,
+  topicSlug: string,
+): FormData {
+  const attempted = Math.max(1, segment.attempted);
+  const fd = new FormData();
+  fd.set('sessionId', sessionId);
+  fd.set('score', String(segment.correct / attempted));
+  fd.set('accuracy', String(segment.correct / attempted));
+  fd.set('bestStreak', String(segment.bestStreak));
+  fd.set('totalTime', String(Math.round(totalTimeSeconds)));
+  fd.set('pointsEarned', String(10 * segment.correct));
+  fd.set('correctCount', String(segment.correct));
+  fd.set('topicSlug', topicSlug.toLowerCase());
+  return fd;
 }
 
 /** Small stat chip for the running tally row. */
@@ -345,9 +373,18 @@ export function DrillMode({ templateId, seed, onSeedChange, onExit }: DrillModeP
     bestStreak: 0,
   });
   const [copied, setCopied] = useState(false);
+  // Plain state (not a ref) — a ref write never triggers a re-render, so
+  // reading a ref directly in the "End drill & save" button's `disabled`
+  // expression would leave it stuck disabled after the session resolves.
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [savedThisSegment, setSavedThisSegment] = useState(false);
   const totalTimeRef = useRef(0);
-  const sessionIdRef = useRef<string | null>(null);
   const sessionRequestedRef = useRef(false);
+  // Topic the *current* tally segment belongs to. Captured once, when the
+  // segment's session is requested — never re-derived from the live
+  // `template` prop, so switching the template mid-drill can't relabel
+  // problems already answered under a different topic.
+  const segmentTopicRef = useRef<string | null>(null);
 
   const [startState, startAction] = useActionState<ActionResult<StartSessionResult>, FormData>(
     startPracticeSession,
@@ -360,9 +397,16 @@ export function DrillMode({ templateId, seed, onSeedChange, onExit }: DrillModeP
 
   useEffect(() => {
     if (startState.success && startState.data?.sessionId) {
-      sessionIdRef.current = startState.data.sessionId;
+      setSessionId(startState.data.sessionId);
+      setSavedThisSegment(false);
     }
   }, [startState]);
+
+  useEffect(() => {
+    if (completeState.success) {
+      setSavedThisSegment(true);
+    }
+  }, [completeState]);
 
   const template = templateEngine.getTemplate(templateId);
   let instance: ProblemInstance | null = null;
@@ -373,6 +417,16 @@ export function DrillMode({ templateId, seed, onSeedChange, onExit }: DrillModeP
       instance = null;
     }
   }
+
+  /** Reset all per-segment tracking so the next answer starts a fresh session. */
+  const resetSegment = () => {
+    setTally({ attempted: 0, correct: 0, streak: 0, bestStreak: 0 });
+    setSessionId(null);
+    setSavedThisSegment(false);
+    sessionRequestedRef.current = false;
+    segmentTopicRef.current = null;
+    totalTimeRef.current = 0;
+  };
 
   const handleAnswered = (correct: boolean, timeSpentSeconds: number) => {
     totalTimeRef.current += timeSpentSeconds;
@@ -389,6 +443,7 @@ export function DrillMode({ templateId, seed, onSeedChange, onExit }: DrillModeP
     // Create the practice session on the first checked answer
     if (!sessionRequestedRef.current && template) {
       sessionRequestedRef.current = true;
+      segmentTopicRef.current = template.category;
       const fd = new FormData();
       fd.set('topic', template.category);
       fd.set('questionCount', '1');
@@ -402,6 +457,17 @@ export function DrillMode({ templateId, seed, onSeedChange, onExit }: DrillModeP
   };
 
   const handleTemplateChange = (nextTemplateId: string) => {
+    // Switching templates changes the topic — attribute everything
+    // answered so far to the topic the segment actually started under,
+    // then start a clean segment for the new topic. Without this, all
+    // correct answers (across every topic practiced) would be attributed
+    // to whichever template happens to be selected when the drill ends.
+    if (sessionId && segmentTopicRef.current && tally.attempted > 0) {
+      completeAction(
+        buildCompleteFormData(sessionId, tally, totalTimeRef.current, segmentTopicRef.current),
+      );
+    }
+    resetSegment();
     onSeedChange({ templateId: nextTemplateId, seed: randomSeedString() });
   };
 
@@ -418,18 +484,10 @@ export function DrillMode({ templateId, seed, onSeedChange, onExit }: DrillModeP
   };
 
   const handleEndDrill = () => {
-    if (!sessionIdRef.current || !template || tally.attempted === 0) return;
-    const attempted = Math.max(1, tally.attempted);
-    const fd = new FormData();
-    fd.set('sessionId', sessionIdRef.current);
-    fd.set('score', String(tally.correct / attempted));
-    fd.set('accuracy', String(tally.correct / attempted));
-    fd.set('bestStreak', String(tally.bestStreak));
-    fd.set('totalTime', String(Math.round(totalTimeRef.current)));
-    fd.set('pointsEarned', String(10 * tally.correct));
-    fd.set('correctCount', String(tally.correct));
-    fd.set('topicSlug', template.category.toLowerCase());
-    completeAction(fd);
+    if (!sessionId || !segmentTopicRef.current || tally.attempted === 0) return;
+    completeAction(
+      buildCompleteFormData(sessionId, tally, totalTimeRef.current, segmentTopicRef.current),
+    );
   };
 
   const sessionErrored =
@@ -574,7 +632,7 @@ export function DrillMode({ templateId, seed, onSeedChange, onExit }: DrillModeP
         <Button
           variant="outline"
           onClick={handleEndDrill}
-          disabled={tally.attempted === 0 || !sessionIdRef.current || completeState.success}
+          disabled={tally.attempted === 0 || !sessionId || savedThisSegment}
           className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         >
           <Save className="size-4 mr-2" aria-hidden="true" />
@@ -590,7 +648,7 @@ export function DrillMode({ templateId, seed, onSeedChange, onExit }: DrillModeP
       </div>
 
       {/* Session persistence status */}
-      {completeState.success && (
+      {savedThisSegment && (
         <p
           className="text-sm text-green-700 dark:text-green-400 flex items-center gap-2"
           role="status"
@@ -599,7 +657,7 @@ export function DrillMode({ templateId, seed, onSeedChange, onExit }: DrillModeP
           {t('drill.sessionSaved')}
         </p>
       )}
-      {!completeState.success && sessionErrored && (
+      {!savedThisSegment && sessionErrored && (
         <p className="text-sm text-muted-foreground flex items-center gap-2" role="status">
           <AlertCircle className="size-4" aria-hidden="true" />
           {t('drill.signInToSave')}

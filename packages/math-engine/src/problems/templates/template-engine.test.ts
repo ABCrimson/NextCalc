@@ -4,6 +4,7 @@
  */
 
 import { beforeAll, describe, expect, it } from 'vitest';
+import { checkGradedAnswer } from '../../equivalence/equivalence';
 import { evaluate } from '../../parser';
 import { allTemplates, registerAllTemplates } from './index';
 import { createSeededRandom, randomSeedString } from './seeded-rng';
@@ -215,12 +216,27 @@ describe('graded answers stay exact (solver back-substitution)', () => {
       expect(probability.graded).toEqual({
         kind: 'number',
         value: pp.red / (pp.red + pp.blue),
+        tolerance: 1e-3,
       });
 
       const modular = templateEngine.generate('modular-arithmetic-basic', seed);
       const mp = narrow<{ a: number; m: number }>(modular.parameters);
       expect(modular.graded).toEqual({ kind: 'number', value: mp.a % mp.m });
     }
+  });
+
+  it('probability-basic grades the 3-decimal value its own displayed solution shows', () => {
+    // Seed 't0' generates red=8, blue=6 → 8/14 = 0.5714285714..., which the
+    // template's own solution displays rounded as "≈ 0.571" — that exact
+    // displayed value must grade as correct (the default 1e-6 tolerance
+    // would otherwise reject it; see the 1e-3 tolerance added above).
+    const instance = templateEngine.generate('probability-basic', 't0');
+    const { red, blue } = narrow<{ red: number; blue: number }>(instance.parameters);
+    expect(red).toBe(8);
+    expect(blue).toBe(6);
+    expect(instance.solution.answer).toContain('0.571');
+    expect(instance.graded).toBeDefined();
+    expect(checkGradedAnswer('0.571', instance.graded!).correct).toBe(true);
   });
 
   it('expression-kind canonical strings are parseable', () => {
