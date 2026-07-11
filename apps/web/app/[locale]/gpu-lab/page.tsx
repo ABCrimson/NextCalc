@@ -106,7 +106,10 @@ interface GalleryCardProps {
   worksheet: GalleryWorksheet;
   badges: string[];
   byLabel: (name: string) => string;
-  viewsLabel: string;
+  /** Formatted view count for display (locale number formatting) */
+  viewsCount: string;
+  /** Full accessible label, e.g. "12 views" with locale plural rules */
+  viewsAria: string;
   updatedLabel: string;
   openLabel: string;
 }
@@ -115,7 +118,8 @@ function GalleryCard({
   worksheet,
   badges,
   byLabel,
-  viewsLabel,
+  viewsCount,
+  viewsAria,
   updatedLabel,
   openLabel,
 }: GalleryCardProps) {
@@ -164,9 +168,9 @@ function GalleryCard({
       <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
         <span className="truncate">{byLabel(user.name ?? '—')}</span>
         <span className="flex items-center gap-3 flex-shrink-0">
-          <span className="flex items-center gap-1">
+          <span className="flex items-center gap-1" aria-label={viewsAria} title={viewsAria}>
             <Eye className="size-3" aria-hidden="true" />
-            {viewsLabel}
+            {viewsCount}
           </span>
           <span>{updatedLabel}</span>
         </span>
@@ -242,7 +246,8 @@ export default async function GpuLabPage({ params }: PageProps) {
                     .filter(isSimulationKind)
                     .map((kind) => tSim(SIM_REGISTRY[kind].labelKey))}
                   byLabel={(name) => t('by', { name })}
-                  viewsLabel={format.number(worksheet.views)}
+                  viewsCount={format.number(worksheet.views)}
+                  viewsAria={t('views', { count: worksheet.views })}
                   updatedLabel={t('updated', {
                     time: format.relativeTime(new Date(worksheet.updatedAt)),
                   })}

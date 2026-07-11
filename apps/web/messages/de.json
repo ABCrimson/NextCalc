@@ -59,7 +59,8 @@
     "algorithmsMenu": "Algorithmen-Menü",
     "home": "NextCalc Pro - Startseite",
     "templates": "Vorlagen",
-    "templatesDescription": "Gebrauchsfertige Berechnungsvorlagen"
+    "templatesDescription": "Gebrauchsfertige Berechnungsvorlagen",
+    "gpuLab": "GPU Lab"
   },
   "common": {
     "language": "Sprache",
@@ -479,7 +480,61 @@
     "cellType": {
       "code": "Code",
       "markdown": "Markdown"
-    }
+    },
+    "simulation": {
+      "label": "Simulation",
+      "addCell": "Simulationszelle hinzufügen",
+      "heat": "Wärme",
+      "wave": "Welle",
+      "laplace": "Laplace",
+      "lorenz": "Lorenz",
+      "directionField": "Richtungsfeld",
+      "preset": "Voreinstellung",
+      "parameters": "Parameter",
+      "play": "Start",
+      "pause": "Pause",
+      "reset": "Zurücksetzen",
+      "dismiss": "Ausblenden",
+      "webgpuFallback": "WebGPU ist in diesem Browser nicht verfügbar — der WebGL-Fallback-Renderer wird verwendet.",
+      "noGpu": "Diese Simulation benötigt GPU-Beschleunigung (WebGPU oder WebGL 2), die in diesem Browser nicht verfügbar ist.",
+      "unknownKind": "Unbekannter Simulationstyp „{kind}“ — diese Zelle wurde in einer neueren NextCalc-Version erstellt.",
+      "params": {
+        "alpha": "Diffusivität α",
+        "waveSpeed": "Wellengeschwindigkeit c",
+        "relaxation": "Relaxation α",
+        "sigma": "Sigma σ",
+        "rho": "Rho ρ",
+        "beta": "Beta β",
+        "steps": "Trajektorienschritte",
+        "preyGrowth": "Beutewachstum a",
+        "predatorDeath": "Räubersterblichkeit b",
+        "mu": "Dämpfung μ",
+        "spiralDamping": "Spiraldämpfung α",
+        "damping": "Dämpfung γ"
+      },
+      "presets": {
+        "center": "Zentrum",
+        "line": "Linie",
+        "corners": "Ecken",
+        "ring": "Ring",
+        "cross": "Kreuz",
+        "gaussian": "Gauß-Peaks",
+        "random": "Zufällig",
+        "doubleGaussian": "Doppelte Gauß-Kurve",
+        "sawtooth": "Sägezahn",
+        "squarePulse": "Rechteckimpuls",
+        "sinc": "Sinc",
+        "classic": "Klassisch",
+        "lotka-volterra": "Lotka-Volterra",
+        "van-der-pol": "Van der Pol",
+        "stable-spiral": "Stabile Spirale",
+        "pendulum": "Pendel"
+      }
+    },
+    "publish": "Veröffentlichen",
+    "unpublish": "Veröffentlichung aufheben",
+    "published": "Veröffentlicht",
+    "publishHint": "Melde dich an und lass das Arbeitsblatt automatisch speichern, bevor du es in der GPU-Lab-Galerie veröffentlichst."
   },
   "settings": {
     "title": "Einstellungen",
@@ -1056,6 +1111,29 @@
       "2dPolar": "2D Polar",
       "2dParametric": "2D Parametric",
       "3dSurface": "3D Surface"
+    },
+    "sliders": {
+      "parameters": "Parameter",
+      "dragToAdjust": "zum Anpassen ziehen",
+      "min": "Min",
+      "max": "Max",
+      "value": "Wert",
+      "editRangeHint": "Klicke auf die Min/Max-Beschriftungen, um den Bereich zu ändern.",
+      "play": "Animation für {name} starten",
+      "pause": "Animation für {name} pausieren",
+      "animationMode": "Animationsmodus für {name}",
+      "modeLoop": "Schleife",
+      "modeBounce": "Hin und her",
+      "modeOnce": "Einmal",
+      "speed": "Animationsgeschwindigkeit für {name}: {speed}x",
+      "minFor": "Minimum für {name}",
+      "maxFor": "Maximum für {name}",
+      "editBound": "{label} bearbeiten (aktuell {value})",
+      "editBoundTitle": "Klicken, um {label} zu bearbeiten",
+      "sliderAria": "Parameter {name}, aktueller Wert {value}, Bereich {min} bis {max}",
+      "valueAria": "{name} ist gleich {value}",
+      "panelLabel": "Parameter-Schieberegler",
+      "detected": "{count, plural, one {# Parameter erkannt} other {# Parameter erkannt}}"
     }
   },
   "chaos": {
@@ -1463,5 +1541,14 @@
       "complexNumbers": "Komplexe Zahlen",
       "complexNumbersSubtitle": "Argand-Diagramm & Darstellungen"
     }
+  },
+  "gpuLab": {
+    "title": "GPU Lab",
+    "description": "Öffentliche Galerie interaktiver GPU-Simulationen: Wärme- und Wellengleichung, Lorenz-Attraktor und Richtungsfelder aus Arbeitsblättern der Community.",
+    "empty": "Noch keine veröffentlichten Simulationen. Füge einem Arbeitsblatt eine Simulationszelle hinzu und veröffentliche es.",
+    "openWorksheet": "Arbeitsblatt öffnen",
+    "by": "von {name}",
+    "views": "{count, plural, one {# Aufruf} other {# Aufrufe}}",
+    "updated": "Aktualisiert {time}"
   }
 }

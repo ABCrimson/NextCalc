@@ -61,7 +61,8 @@
     "templates": "Modèles",
     "templatesDescription": "Modèles de calcul prêts à l'emploi",
     "worksheets": "Mes feuilles de calcul",
-    "worksheetsDescription": "Consulter et gérer vos feuilles de calcul enregistrées"
+    "worksheetsDescription": "Consulter et gérer vos feuilles de calcul enregistrées",
+    "gpuLab": "GPU Lab"
   },
   "common": {
     "language": "Langue",
@@ -512,7 +513,61 @@
     "cellType": {
       "code": "Code",
       "markdown": "Markdown"
-    }
+    },
+    "simulation": {
+      "label": "Simulation",
+      "addCell": "Ajouter une cellule de simulation",
+      "heat": "Chaleur",
+      "wave": "Onde",
+      "laplace": "Laplace",
+      "lorenz": "Lorenz",
+      "directionField": "Champ de directions",
+      "preset": "Préréglage",
+      "parameters": "Paramètres",
+      "play": "Lecture",
+      "pause": "Pause",
+      "reset": "Réinitialiser",
+      "dismiss": "Masquer",
+      "webgpuFallback": "WebGPU n'est pas disponible dans ce navigateur — le rendu WebGL de secours est utilisé.",
+      "noGpu": "Cette simulation nécessite l'accélération GPU (WebGPU ou WebGL 2), indisponible dans ce navigateur.",
+      "unknownKind": "Type de simulation inconnu « {kind} » — cette cellule a été créée dans une version plus récente de NextCalc.",
+      "params": {
+        "alpha": "Diffusivité α",
+        "waveSpeed": "Vitesse d'onde c",
+        "relaxation": "Relaxation α",
+        "sigma": "Sigma σ",
+        "rho": "Rhô ρ",
+        "beta": "Bêta β",
+        "steps": "Pas de la trajectoire",
+        "preyGrowth": "Croissance des proies a",
+        "predatorDeath": "Mortalité des prédateurs b",
+        "mu": "Amortissement μ",
+        "spiralDamping": "Amortissement de la spirale α",
+        "damping": "Amortissement γ"
+      },
+      "presets": {
+        "center": "Centre",
+        "line": "Ligne",
+        "corners": "Coins",
+        "ring": "Anneau",
+        "cross": "Croix",
+        "gaussian": "Gaussiennes",
+        "random": "Aléatoire",
+        "doubleGaussian": "Double gaussienne",
+        "sawtooth": "Dents de scie",
+        "squarePulse": "Impulsion carrée",
+        "sinc": "Sinc",
+        "classic": "Classique",
+        "lotka-volterra": "Lotka-Volterra",
+        "van-der-pol": "Van der Pol",
+        "stable-spiral": "Spirale stable",
+        "pendulum": "Pendule"
+      }
+    },
+    "publish": "Publier",
+    "unpublish": "Dépublier",
+    "published": "Publié",
+    "publishHint": "Connectez-vous et laissez la feuille s'enregistrer automatiquement avant de la publier dans la galerie GPU Lab."
   },
   "settings": {
     "title": "Paramètres",
@@ -1089,6 +1144,29 @@
       "2dPolar": "2D Polaire",
       "2dParametric": "2D Paramétrique",
       "3dSurface": "Surface 3D"
+    },
+    "sliders": {
+      "parameters": "Paramètres",
+      "dragToAdjust": "glisser pour ajuster",
+      "min": "min",
+      "max": "max",
+      "value": "valeur",
+      "editRangeHint": "Cliquez sur les libellés min/max pour modifier la plage.",
+      "play": "Lancer l'animation de {name}",
+      "pause": "Mettre en pause l'animation de {name}",
+      "animationMode": "Mode d'animation de {name}",
+      "modeLoop": "Boucle",
+      "modeBounce": "Aller-retour",
+      "modeOnce": "Une fois",
+      "speed": "Vitesse d'animation de {name} : {speed}x",
+      "minFor": "minimum de {name}",
+      "maxFor": "maximum de {name}",
+      "editBound": "Modifier {label} (actuellement {value})",
+      "editBoundTitle": "Cliquez pour modifier {label}",
+      "sliderAria": "Paramètre {name}, valeur actuelle {value}, plage de {min} à {max}",
+      "valueAria": "{name} vaut {value}",
+      "panelLabel": "Curseurs de paramètres",
+      "detected": "{count, plural, one {# paramètre détecté} other {# paramètres détectés}}"
     }
   },
   "chaos": {
@@ -1496,5 +1574,14 @@
       "complexNumbers": "Nombres complexes",
       "complexNumbersSubtitle": "Diagramme d'Argand et formes"
     }
+  },
+  "gpuLab": {
+    "title": "GPU Lab",
+    "description": "Galerie publique de simulations GPU interactives : équations de la chaleur et des ondes, attracteur de Lorenz et champs de directions issus des feuilles de la communauté.",
+    "empty": "Aucune simulation publiée pour le moment. Ajoutez une cellule de simulation à une feuille de calcul et publiez-la.",
+    "openWorksheet": "Ouvrir la feuille de calcul",
+    "by": "par {name}",
+    "views": "{count, plural, one {# vue} other {# vues}}",
+    "updated": "Mis à jour {time}"
   }
 }

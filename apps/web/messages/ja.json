@@ -61,7 +61,8 @@
     "templates": "テンプレート",
     "templatesDescription": "すぐに使える計算テンプレート",
     "worksheets": "マイワークシート",
-    "worksheetsDescription": "保存済みワークシートの表示と管理"
+    "worksheetsDescription": "保存済みワークシートの表示と管理",
+    "gpuLab": "GPU Lab"
   },
   "common": {
     "language": "言語",
@@ -512,7 +513,61 @@
     "cellType": {
       "code": "コード",
       "markdown": "Markdown"
-    }
+    },
+    "simulation": {
+      "label": "シミュレーション",
+      "addCell": "シミュレーションセルを追加",
+      "heat": "熱",
+      "wave": "波動",
+      "laplace": "ラプラス",
+      "lorenz": "ローレンツ",
+      "directionField": "方向場",
+      "preset": "プリセット",
+      "parameters": "パラメータ",
+      "play": "再生",
+      "pause": "一時停止",
+      "reset": "リセット",
+      "dismiss": "閉じる",
+      "webgpuFallback": "このブラウザでは WebGPU を利用できないため、WebGL フォールバックレンダラーで実行しています。",
+      "noGpu": "このシミュレーションには GPU アクセラレーション(WebGPU または WebGL 2)が必要ですが、このブラウザでは利用できません。",
+      "unknownKind": "不明なシミュレーション種別「{kind}」— このセルは新しいバージョンの NextCalc で作成されました。",
+      "params": {
+        "alpha": "拡散係数 α",
+        "waveSpeed": "波の速度 c",
+        "relaxation": "緩和係数 α",
+        "sigma": "シグマ σ",
+        "rho": "ロー ρ",
+        "beta": "ベータ β",
+        "steps": "軌道ステップ数",
+        "preyGrowth": "被食者の増殖率 a",
+        "predatorDeath": "捕食者の死亡率 b",
+        "mu": "減衰 μ",
+        "spiralDamping": "螺旋の減衰 α",
+        "damping": "減衰 γ"
+      },
+      "presets": {
+        "center": "中央",
+        "line": "直線",
+        "corners": "四隅",
+        "ring": "リング",
+        "cross": "十字",
+        "gaussian": "ガウス群",
+        "random": "ランダム",
+        "doubleGaussian": "二重ガウス",
+        "sawtooth": "のこぎり波",
+        "squarePulse": "矩形パルス",
+        "sinc": "Sinc",
+        "classic": "クラシック",
+        "lotka-volterra": "ロトカ・ヴォルテラ",
+        "van-der-pol": "ファン・デル・ポール",
+        "stable-spiral": "安定螺旋",
+        "pendulum": "振り子"
+      }
+    },
+    "publish": "公開",
+    "unpublish": "非公開にする",
+    "published": "公開中",
+    "publishHint": "GPU Lab ギャラリーに公開するには、サインインしてワークシートの自動保存を待ってください。"
   },
   "settings": {
     "title": "設定",
@@ -1089,6 +1144,29 @@
       "2dPolar": "2D 極座標",
       "2dParametric": "2D パラメトリック",
       "3dSurface": "3D 曲面"
+    },
+    "sliders": {
+      "parameters": "パラメータ",
+      "dragToAdjust": "ドラッグで調整",
+      "min": "最小",
+      "max": "最大",
+      "value": "値",
+      "editRangeHint": "最小/最大のラベルをクリックすると範囲を編集できます。",
+      "play": "{name} のアニメーションを再生",
+      "pause": "{name} のアニメーションを一時停止",
+      "animationMode": "{name} のアニメーションモード",
+      "modeLoop": "ループ",
+      "modeBounce": "往復",
+      "modeOnce": "1回",
+      "speed": "{name} のアニメーション速度: {speed}x",
+      "minFor": "{name} の最小値",
+      "maxFor": "{name} の最大値",
+      "editBound": "{label}を編集(現在 {value})",
+      "editBoundTitle": "クリックして{label}を編集",
+      "sliderAria": "パラメータ {name}、現在の値 {value}、範囲 {min}〜{max}",
+      "valueAria": "{name} は {value}",
+      "panelLabel": "パラメータスライダー",
+      "detected": "{count, plural, other {# 個のパラメータを検出}}"
     }
   },
   "chaos": {
@@ -1496,5 +1574,14 @@
       "complexNumbers": "複素数",
       "complexNumbersSubtitle": "アルガン図と表現形式"
     }
+  },
+  "gpuLab": {
+    "title": "GPU Lab",
+    "description": "インタラクティブな GPU シミュレーションの公開ギャラリー。熱方程式・波動方程式、ローレンツアトラクタ、コミュニティのワークシートによる方向場を紹介します。",
+    "empty": "公開されたシミュレーションはまだありません。ワークシートにシミュレーションセルを追加して公開してみましょう。",
+    "openWorksheet": "ワークシートを開く",
+    "by": "作成者: {name}",
+    "views": "{count, plural, other {# 回表示}}",
+    "updated": "更新: {time}"
   }
 }

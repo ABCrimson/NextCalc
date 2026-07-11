@@ -59,7 +59,8 @@
     "algorithmsMenu": "Меню алгоритмів",
     "home": "NextCalc Pro - Головна",
     "templates": "Шаблони",
-    "templatesDescription": "Готові шаблони обчислень"
+    "templatesDescription": "Готові шаблони обчислень",
+    "gpuLab": "GPU Lab"
   },
   "common": {
     "language": "Мова",
@@ -479,7 +480,61 @@
     "cellType": {
       "code": "Код",
       "markdown": "Markdown"
-    }
+    },
+    "simulation": {
+      "label": "Симуляція",
+      "addCell": "Додати комірку симуляції",
+      "heat": "Тепло",
+      "wave": "Хвиля",
+      "laplace": "Лаплас",
+      "lorenz": "Лоренц",
+      "directionField": "Поле напрямків",
+      "preset": "Пресет",
+      "parameters": "Параметри",
+      "play": "Пуск",
+      "pause": "Пауза",
+      "reset": "Скинути",
+      "dismiss": "Приховати",
+      "webgpuFallback": "WebGPU недоступний у цьому браузері — використовується резервний рендерер WebGL.",
+      "noGpu": "Для цієї симуляції потрібне GPU-прискорення (WebGPU або WebGL 2), яке недоступне в цьому браузері.",
+      "unknownKind": "Невідомий тип симуляції «{kind}» — цю комірку створено в новішій версії NextCalc.",
+      "params": {
+        "alpha": "Коефіцієнт дифузії α",
+        "waveSpeed": "Швидкість хвилі c",
+        "relaxation": "Релаксація α",
+        "sigma": "Сигма σ",
+        "rho": "Ро ρ",
+        "beta": "Бета β",
+        "steps": "Кроки траєкторії",
+        "preyGrowth": "Приріст жертв a",
+        "predatorDeath": "Загибель хижаків b",
+        "mu": "Демпфування μ",
+        "spiralDamping": "Згасання спіралі α",
+        "damping": "Згасання γ"
+      },
+      "presets": {
+        "center": "Центр",
+        "line": "Лінія",
+        "corners": "Кути",
+        "ring": "Кільце",
+        "cross": "Хрест",
+        "gaussian": "Гауссіани",
+        "random": "Випадково",
+        "doubleGaussian": "Подвійна гауссіана",
+        "sawtooth": "Пилка",
+        "squarePulse": "Прямокутний імпульс",
+        "sinc": "Sinc",
+        "classic": "Класика",
+        "lotka-volterra": "Лотка–Вольтерра",
+        "van-der-pol": "Ван дер Поль",
+        "stable-spiral": "Стійка спіраль",
+        "pendulum": "Маятник"
+      }
+    },
+    "publish": "Опублікувати",
+    "unpublish": "Зняти з публікації",
+    "published": "Опубліковано",
+    "publishHint": "Увійдіть і зачекайте на автозбереження аркуша, щоб опублікувати його в галереї GPU Lab."
   },
   "settings": {
     "title": "Налаштування",
@@ -1056,6 +1111,29 @@
       "2dPolar": "2D Polar",
       "2dParametric": "2D Parametric",
       "3dSurface": "3D Surface"
+    },
+    "sliders": {
+      "parameters": "Параметри",
+      "dragToAdjust": "перетягніть для налаштування",
+      "min": "мін",
+      "max": "макс",
+      "value": "значення",
+      "editRangeHint": "Натисніть на підписи мін/макс, щоб змінити діапазон.",
+      "play": "Запустити анімацію {name}",
+      "pause": "Призупинити анімацію {name}",
+      "animationMode": "Режим анімації {name}",
+      "modeLoop": "Цикл",
+      "modeBounce": "Туди-назад",
+      "modeOnce": "Один раз",
+      "speed": "Швидкість анімації {name}: {speed}x",
+      "minFor": "мінімум для {name}",
+      "maxFor": "максимум для {name}",
+      "editBound": "Змінити {label} (зараз {value})",
+      "editBoundTitle": "Натисніть, щоб змінити {label}",
+      "sliderAria": "Параметр {name}, поточне значення {value}, діапазон від {min} до {max}",
+      "valueAria": "{name} дорівнює {value}",
+      "panelLabel": "Повзунки параметрів",
+      "detected": "{count, plural, one {виявлено # параметр} few {виявлено # параметри} many {виявлено # параметрів} other {виявлено # параметра}}"
     }
   },
   "chaos": {
@@ -1463,5 +1541,14 @@
       "complexNumbers": "Комплексні числа",
       "complexNumbersSubtitle": "Діаграма Арганда та форми"
     }
+  },
+  "gpuLab": {
+    "title": "GPU Lab",
+    "description": "Публічна галерея інтерактивних GPU-симуляцій: рівняння теплопровідності та хвилі, атрактор Лоренца й поля напрямків із робочих аркушів спільноти.",
+    "empty": "Опублікованих симуляцій поки немає. Додайте комірку симуляції до робочого аркуша й опублікуйте його.",
+    "openWorksheet": "Відкрити робочий аркуш",
+    "by": "автор: {name}",
+    "views": "{count, plural, one {# перегляд} few {# перегляди} many {# переглядів} other {# перегляду}}",
+    "updated": "Оновлено {time}"
   }
 }
