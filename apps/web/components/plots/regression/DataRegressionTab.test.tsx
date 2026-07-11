@@ -75,6 +75,39 @@ describe('DataRegressionTab', () => {
     expect(screen.getByText('invalidColumnName')).toBeInTheDocument();
   });
 
+  it('gates the fit with an honest failure when two columns share a name', async () => {
+    render(<DataRegressionTab />);
+    pasteIntoTable('1\t10\n2\t20\n3\t30\n4\t40');
+
+    // Rename the y column (index 1) to collide with the x column's name —
+    // buildDataRecord would otherwise silently collapse both columns into a
+    // single key, feeding a self-referential model a vacuous "perfect" fit.
+    const headers = screen.getAllByLabelText('columnName');
+    const second = headers[1];
+    if (!second) throw new Error('column header input not found');
+    fireEvent.change(second, { target: { value: 'x1' } });
+
+    fireEvent.change(screen.getByLabelText('modelLabel'), {
+      target: { value: 'x1 ~ m*x1 + b' },
+    });
+
+    expect(await screen.findByText('status.invalidModel')).toBeInTheDocument();
+    expect(screen.queryByText('1.0000')).not.toBeInTheDocument();
+  });
+
+  it('parses a comma-decimal single-column paste instead of splitting the decimal comma', () => {
+    render(<DataRegressionTab />);
+    // de/fr/ru/uk locale spreadsheets render 1.5 as "1,5"; a single-column
+    // copy is newline-separated with no tabs or semicolons.
+    pasteIntoTable('1,5\n2,5\n3,5');
+
+    expect(screen.getByDisplayValue('1.5')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('2.5')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('3.5')).toBeInTheDocument();
+    // Must NOT have been split into a bogus second column of "5"s.
+    expect(screen.queryByDisplayValue('5')).not.toBeInTheDocument();
+  });
+
   it('reports an honest failure for degenerate data (all x identical)', async () => {
     render(<DataRegressionTab />);
     pasteIntoTable('5\t1\n5\t2\n5\t3\n5\t4');

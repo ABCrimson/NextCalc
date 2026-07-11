@@ -62,6 +62,11 @@ function extractPoints(rows: readonly (number | null)[][]): OverlayPoint[] {
   return points;
 }
 
+/** True when `columns` contains the same name more than once. */
+function hasDuplicateColumns(columns: readonly string[]): boolean {
+  return columns.some((name, index) => columns.indexOf(name) !== index);
+}
+
 /** Columnar record for fitModel; rows that are entirely empty are skipped. */
 function buildDataRecord(
   columns: readonly string[],
@@ -106,10 +111,20 @@ export function DataRegressionTab() {
   const deferredRows = useDeferredValue(rows);
   const deferredModel = useDeferredValue(model);
 
+  // Duplicate column names collapse to a single key in buildDataRecord's
+  // Record<string, number[]> (the later column silently wins), which would
+  // otherwise let the fit run against corrupted data and report a
+  // meaningless "converged" result. Gate the fit instead of ever calling it.
   const fit: FitResult | null =
-    deferredModel.trim() !== ''
-      ? fitModel(buildDataRecord(deferredColumns, deferredRows), deferredModel)
-      : null;
+    deferredModel.trim() === ''
+      ? null
+      : hasDuplicateColumns(deferredColumns)
+        ? {
+            ok: false,
+            status: 'invalid-model',
+            message: 'Column names must be unique — rename the duplicate column(s) before fitting',
+          }
+        : fitModel(buildDataRecord(deferredColumns, deferredRows), deferredModel);
 
   // Fitted curve — only plottable for single-regressor models.
   const regressor =

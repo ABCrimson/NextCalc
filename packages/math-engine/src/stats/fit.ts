@@ -22,6 +22,7 @@ import {
   evaluate,
   extractVariables,
   isFunctionNode,
+  isSymbolNode,
   parse,
 } from '../parser';
 import { differentiate, simplifyDerivative } from '../symbolic/differentiate';
@@ -37,7 +38,8 @@ export type TildeModelErrorCode =
   | 'multiple-tildes'
   | 'invalid-dependent'
   | 'parse-error'
-  | 'no-parameters';
+  | 'no-parameters'
+  | 'reserved-name-collision';
 
 /** Successfully parsed tilde model (the `ok: true` arm of {@link ParsedModel}). */
 export interface TildeModel {
@@ -60,6 +62,22 @@ export interface TildeModel {
 export type ParsedModel =
   | ({ readonly ok: true } & TildeModel)
   | { readonly ok: false; readonly code: TildeModelErrorCode; readonly message: string };
+
+/** All symbol names appearing in an AST, INCLUDING built-in constants
+ *  (unlike {@link extractVariables}, which excludes them). Used to detect
+ *  when a data column shares a name with a built-in constant. */
+function collectAllSymbolNames(node: ExpressionNode): Set<string> {
+  const names = new Set<string>();
+  function traverse(n: ExpressionNode): void {
+    if (isSymbolNode(n) && n.name) {
+      names.add(n.name);
+    } else if (n.args) {
+      n.args.forEach(traverse);
+    }
+  }
+  traverse(node);
+  return names;
+}
 
 /**
  * Splits a tilde model like `y1 ~ a*exp(b*x1)` into dependent column,
@@ -113,6 +131,23 @@ export function parseTildeModel(input: string, columns: readonly string[]): Pars
   const parameters = [...symbols].filter((s) => !columnSet.has(s)).sort();
   const regressors = [...symbols].filter((s) => columnSet.has(s)).sort();
 
+  // A data column named e/pi/tau/i/phi is invisible to extractVariables (it
+  // is excluded there as a built-in constant), so it would silently never
+  // become a regressor and the constant's numeric value would be used in
+  // its place for every row. Detect the collision explicitly instead of
+  // letting the fit quietly ignore the column's actual data.
+  const allSymbols = collectAllSymbolNames(rhsAst);
+  const reservedCollisions = [...allSymbols]
+    .filter((s) => !symbols.has(s) && columnSet.has(s))
+    .sort();
+  if (reservedCollisions.length > 0) {
+    return {
+      ok: false,
+      code: 'reserved-name-collision',
+      message: `Column name "${reservedCollisions[0]}" collides with a built-in constant (e, pi, tau, i, phi) and cannot be used on the right-hand side of "~" — rename the column`,
+    };
+  }
+
   if (parameters.length === 0) {
     return {
       ok: false,
@@ -133,25 +168,104 @@ export type CannedModelKind =
   | 'logistic'
   | 'sinusoidal';
 
+/** Fallback letters tried, in order, when a canned model's hardcoded parameter
+ *  letter collides with a data column name (e.g. the y-column renamed to 'b'). */
+const PARAM_LETTER_FALLBACKS: readonly string[] = [
+  'm',
+  'a',
+  'b',
+  'c',
+  'd',
+  'k',
+  'p',
+  'q',
+  'r',
+  's',
+  'u',
+  'v',
+  'w',
+];
+
+/**
+ * Resolves a canned model's hardcoded parameter letter to one that doesn't
+ * collide with a data column name or another parameter already placed in
+ * this formula — otherwise `parseTildeModel` would silently reclassify the
+ * colliding letter as a regressor instead of a fit parameter (see
+ * buildCannedModel's honesty w.r.t. column-name collisions).
+ */
+function resolveParamLetter(
+  preferred: string,
+  reserved: ReadonlySet<string>,
+  used: Set<string>,
+): string {
+  if (!reserved.has(preferred) && !used.has(preferred)) {
+    used.add(preferred);
+    return preferred;
+  }
+  for (const candidate of PARAM_LETTER_FALLBACKS) {
+    if (!reserved.has(candidate) && !used.has(candidate)) {
+      used.add(candidate);
+      return candidate;
+    }
+  }
+  // Pathological: every fallback letter is also a column name. Suffix until unique.
+  let n = 2;
+  let candidate = `${preferred}${n}`;
+  while (reserved.has(candidate) || used.has(candidate)) {
+    n += 1;
+    candidate = `${preferred}${n}`;
+  }
+  used.add(candidate);
+  return candidate;
+}
+
 /**
  * Builds the model string for a canned model family over the given columns.
+ * Parameter letters are renamed away from `xColumn`/`yColumn` (and from each
+ * other) when they would otherwise collide with a data column name.
  *
  * @example buildCannedModel('exponential', 'x1', 'y1') // 'y1 ~ a*exp(b*x1)'
  */
 export function buildCannedModel(kind: CannedModelKind, xColumn: string, yColumn: string): string {
+  const reserved = new Set([xColumn, yColumn]);
+  const used = new Set<string>();
+  const letter = (preferred: string): string => resolveParamLetter(preferred, reserved, used);
+
   switch (kind) {
-    case 'linear':
-      return `${yColumn} ~ m*${xColumn} + b`;
-    case 'quadratic':
-      return `${yColumn} ~ a*${xColumn}^2 + b*${xColumn} + c`;
-    case 'exponential':
-      return `${yColumn} ~ a*exp(b*${xColumn})`;
-    case 'logarithmic':
-      return `${yColumn} ~ a + b*ln(${xColumn})`;
-    case 'logistic':
-      return `${yColumn} ~ L/(1 + exp(-k*(${xColumn} - x0)))`;
-    case 'sinusoidal':
-      return `${yColumn} ~ a*sin(b*${xColumn} + c) + d`;
+    case 'linear': {
+      const m = letter('m');
+      const b = letter('b');
+      return `${yColumn} ~ ${m}*${xColumn} + ${b}`;
+    }
+    case 'quadratic': {
+      const a = letter('a');
+      const b = letter('b');
+      const c = letter('c');
+      return `${yColumn} ~ ${a}*${xColumn}^2 + ${b}*${xColumn} + ${c}`;
+    }
+    case 'exponential': {
+      const a = letter('a');
+      const b = letter('b');
+      return `${yColumn} ~ ${a}*exp(${b}*${xColumn})`;
+    }
+    case 'logarithmic': {
+      const a = letter('a');
+      const b = letter('b');
+      return `${yColumn} ~ ${a} + ${b}*ln(${xColumn})`;
+    }
+    case 'logistic': {
+      const l = letter('L');
+      const k = letter('k');
+      const x0 = letter('x0');
+      return `${yColumn} ~ ${l}/(1 + exp(-${k}*(${xColumn} - ${x0})))`;
+    }
+    case 'sinusoidal': {
+      const a = letter('a');
+      const b = letter('b');
+      const c = letter('c');
+      const d = letter('d');
+      return `${yColumn} ~ ${a}*sin(${b}*${xColumn} + ${c}) + ${d}`;
+    }
   }
 }
 
@@ -220,6 +334,34 @@ export interface FitFailure {
 
 /** Discriminated fit result: check `.ok` before reading fit statistics. */
 export type FitResult = FitSuccess | FitFailure;
+
+/**
+ * Fallback solve for the damped normal equations: column-scales JᵀJ
+ * (Marquardt's original scaling) so `solveLinearSystem`'s absolute pivot
+ * threshold is scale-invariant, then un-scales the result. Used ONLY when
+ * the raw (unscaled) solve reports singular — well-conditioned fits keep
+ * their existing unscaled numeric path unchanged. Without this, well-posed
+ * data whose regressor has a tiny physical magnitude (e.g. micrometers
+ * stored as meters) can trip the solver's epsilon purely from unit choice,
+ * misreporting an identifiable fit as "singular".
+ */
+function solveScaledFallback(
+  jtj: readonly (readonly number[])[],
+  jtr: readonly number[],
+  lambda: number,
+): number[] | null {
+  const p = jtr.length;
+  const scale = jtj.map((row, j) => {
+    const diag = row[j] ?? 0;
+    return diag > 0 ? Math.sqrt(diag) : 1;
+  });
+  const scaledJtj = jtj.map((row, j) => row.map((v, k) => v / ((scale[j] ?? 1) * (scale[k] ?? 1))));
+  const dampedScaled = scaledJtj.map((row, j) => row.map((v, k) => (j === k ? v + lambda : v)));
+  const scaledJtr = jtr.map((v, j) => v / (scale[j] ?? 1));
+  const scaledDelta = solveLinearSystem(dampedScaled, scaledJtr);
+  if (scaledDelta === null) return null;
+  return Array.from({ length: p }, (_, j) => (scaledDelta[j] ?? 0) / (scale[j] ?? 1));
+}
 
 /** Coerces an evaluator result to a finite number, or null on any failure. */
 function toFiniteNumber(result: EvaluationResult): number | null {
@@ -361,9 +503,13 @@ export function fitModel(
     };
   }
 
-  // Assemble finite rows over the used columns.
+  // Assemble finite rows over the used columns. `rowCount` is the LONGEST
+  // used column (not the shortest): a ragged tail beyond a shorter column is
+  // missing data, not absent rows, and must fall into the same
+  // finite-row check below so it is counted in the 'dropped-rows' warning
+  // instead of being silently truncated away with no warning at all.
   const usedColumns = [parsed.dependent, ...parsed.regressors];
-  const rowCount = Math.min(...usedColumns.map((c) => data[c]?.length ?? 0));
+  const rowCount = Math.max(...usedColumns.map((c) => data[c]?.length ?? 0));
   const rows: Record<string, number>[] = [];
   const y: number[] = [];
   for (let i = 0; i < rowCount; i++) {
@@ -499,7 +645,7 @@ export function fitModel(
       row.map((v, k) => (j === k ? v + lambda * Math.max(v, 1e-12) : v)),
     );
 
-    const delta = solveLinearSystem(damped, jtr);
+    const delta = solveLinearSystem(damped, jtr) ?? solveScaledFallback(jtj, jtr, lambda);
     if (delta === null) {
       consecutiveSingular += 1;
       if (consecutiveSingular >= 5) {

@@ -66,8 +66,11 @@ export function DataPointsOverlay({
 }: DataPointsOverlayProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
-  // The row being dragged; a ref because dragging must not re-render per move.
-  const dragRowRef = useRef<number | null>(null);
+  // The row being dragged plus the grab offset (point − cursor, in math
+  // units, captured on pointerdown) so a click anywhere within the 12px hit
+  // circle doesn't snap the point's center to the exact cursor position.
+  // A ref because dragging must not re-render per move.
+  const dragRef = useRef<{ row: number; offsetX: number; offsetY: number } | null>(null);
 
   useEffect(() => {
     const svg = svgRef.current;
@@ -156,18 +159,26 @@ export function DataPointsOverlay({
             className="pointer-events-auto cursor-grab active:cursor-grabbing focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             onPointerDown={(event) => {
               event.currentTarget.setPointerCapture(event.pointerId);
-              dragRowRef.current = point.row;
+              const cursor = toMath(event.clientX, event.clientY);
+              dragRef.current = {
+                row: point.row,
+                offsetX: point.x - cursor.x,
+                offsetY: point.y - cursor.y,
+              };
             }}
             onPointerMove={(event) => {
-              if (dragRowRef.current !== point.row) return;
-              const { x, y } = toMath(event.clientX, event.clientY);
+              const drag = dragRef.current;
+              if (!drag || drag.row !== point.row) return;
+              const cursor = toMath(event.clientX, event.clientY);
+              const x = cursor.x + drag.offsetX;
+              const y = cursor.y + drag.offsetY;
               if (Number.isFinite(x) && Number.isFinite(y)) onPointMove(point.row, x, y);
             }}
             onPointerUp={() => {
-              dragRowRef.current = null;
+              dragRef.current = null;
             }}
             onPointerCancel={() => {
-              dragRowRef.current = null;
+              dragRef.current = null;
             }}
             onKeyDown={(event) => handleKeyDown(event, point)}
           >

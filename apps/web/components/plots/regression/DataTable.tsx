@@ -4,8 +4,10 @@
  * Editable columnar data table for the Data & Regression tab.
  *
  * - Native <table> semantics (caption + column headers) for accessibility.
- * - Spreadsheet clipboard paste: TSV (or ;/, separated) payloads fill the grid
- *   starting at the focused cell, growing rows/columns as needed.
+ * - Spreadsheet clipboard paste: TSV (or ;-separated) payloads fill the grid
+ *   starting at the focused cell, growing rows/columns as needed. `,` is
+ *   reserved as a decimal separator (de/fr/ru/uk locales), never a field
+ *   separator.
  * - Column headers are editable identifiers, validated live.
  * - Fully controlled and free of plot-specific imports so worksheets can host
  *   it later.
@@ -44,24 +46,36 @@ function nextColumnName(existing: readonly string[], index: number): string {
   }
 }
 
-/** Parses one clipboard cell to a number or null. */
+/** Matches a lone comma-decimal number, e.g. "1,5" or "-3,14" (de/fr/ru/uk locales). */
+const COMMA_DECIMAL_PATTERN = /^-?\d+,\d+$/;
+
+/**
+ * Parses one clipboard cell to a number or null. A bare comma decimal
+ * separator (no thousands grouping, no dot) is normalized to a dot first —
+ * Excel/LibreOffice in comma-decimal locales render 1.5 as "1,5".
+ */
 function parseCell(text: string): number | null {
   const trimmed = text.trim();
   if (trimmed === '') return null;
-  const value = Number(trimmed);
+  const normalized = COMMA_DECIMAL_PATTERN.test(trimmed) ? trimmed.replace(',', '.') : trimmed;
+  const value = Number(normalized);
   return Number.isFinite(value) ? value : null;
 }
 
 /**
  * Parses a spreadsheet clipboard payload into a cell matrix.
- * Cells are tab-separated; when the payload has no tabs at all, `;`/`,`
- * separators are accepted as a fallback.
+ * Cells are tab-separated; when the payload has no tabs at all, `;` is
+ * accepted as a fallback field separator. `,` is deliberately NOT treated as
+ * a field separator: comma-decimal locale spreadsheets (de/fr/ru/uk) use `;`
+ * as the field separator for exactly this reason, reserving `,` for decimal
+ * numbers (see parseCell) — otherwise a single-column paste like "1,5\n2,5"
+ * would be silently split into two bogus columns.
  */
 function parseClipboardMatrix(text: string): (number | null)[][] {
   const lines = text.split(/\r?\n/);
   while (lines.length > 0 && lines[lines.length - 1]?.trim() === '') lines.pop();
   const hasTab = text.includes('\t');
-  return lines.map((line) => (hasTab ? line.split('\t') : line.split(/[;,]/)).map(parseCell));
+  return lines.map((line) => (hasTab ? line.split('\t') : line.split(';')).map(parseCell));
 }
 
 export function DataTable({ columns, rows, onChange, className }: DataTableProps) {

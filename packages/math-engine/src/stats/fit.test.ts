@@ -68,6 +68,14 @@ describe('parseTildeModel', () => {
       expect(parsed.parameters).toEqual(['a', 'b']);
     }
   });
+
+  it('rejects a model where a data column name collides with a built-in constant', () => {
+    // A column literally named "e" would otherwise be invisible to
+    // extractVariables (excluded as the constant Math.E) and silently never
+    // become a regressor — the column's actual data would never be used.
+    const parsed = parseTildeModel('y1 ~ m*e + b', ['e', 'y1']);
+    expect(parsed).toMatchObject({ ok: false, code: 'reserved-name-collision' });
+  });
 });
 
 describe('buildCannedModel', () => {
@@ -78,6 +86,33 @@ describe('buildCannedModel', () => {
     expect(buildCannedModel('logarithmic', 'x1', 'y1')).toBe('y1 ~ a + b*ln(x1)');
     expect(buildCannedModel('logistic', 'x1', 'y1')).toBe('y1 ~ L/(1 + exp(-k*(x1 - x0)))');
     expect(buildCannedModel('sinusoidal', 'x1', 'y1')).toBe('y1 ~ a*sin(b*x1 + c) + d');
+  });
+
+  it('renames a colliding parameter letter instead of reusing the column name', () => {
+    // The y-column renamed to 'b' collides with the linear template's
+    // hardcoded intercept letter — parseTildeModel would otherwise silently
+    // reclassify 'b' as a regressor bound to the dependent column itself.
+    const model = buildCannedModel('linear', 'x1', 'b');
+    expect(model).not.toBe('b ~ m*x1 + b');
+    const parsed = parseTildeModel(model, ['x1', 'b']);
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) {
+      expect(parsed.dependent).toBe('b');
+      expect(parsed.regressors).toEqual(['x1']);
+      expect(parsed.parameters).not.toContain('b');
+    }
+  });
+
+  it('renames a colliding regressor letter (quadratic) instead of reusing the column name', () => {
+    // The x-column renamed to 'a' collides with the quadratic template's
+    // hardcoded leading-coefficient letter.
+    const model = buildCannedModel('quadratic', 'a', 'y1');
+    const parsed = parseTildeModel(model, ['a', 'y1']);
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) {
+      expect(parsed.regressors).toEqual(['a']);
+      expect(parsed.parameters).toHaveLength(3);
+    }
   });
 });
 
@@ -183,6 +218,14 @@ describe('fitModel — hygiene and honest failure', () => {
     expect(fit.parameters['b']).toBeCloseTo(1, 6);
   });
 
+  it('warns instead of silently truncating ragged (unequal-length) columns', () => {
+    // y1 has only 3 values against x1's 5 — the two extra x1 rows must be
+    // counted as dropped, not silently discarded with an empty warnings list.
+    const fit = expectOk(fitModel({ x1: [1, 2, 3, 4, 5], y1: [2, 4, 6] }, 'y1 ~ m*x1 + b'));
+    expect(fit.residuals).toHaveLength(3);
+    expect(fit.warnings).toContainEqual({ code: 'dropped-rows', count: 2 });
+  });
+
   it('fails with insufficient-data when rows do not exceed parameters', () => {
     const fit = fitModel({ x1: [1, 2], y1: [2, 4] }, 'y1 ~ m*x1 + b');
     expect(fit).toMatchObject({ ok: false, status: 'insufficient-data' });
@@ -243,6 +286,18 @@ describe('fitModel — hygiene and honest failure', () => {
     const y1 = x1.map((x) => 1 + 2 * Math.log(x));
     const fit = expectOk(fitModel({ x1, y1 }, 'y1 ~ a + b*ln(x1)'));
     expect(Number.isNaN(fit.predict({ x1: -1 }))).toBe(true);
+  });
+
+  it('identifies a well-posed exact fit even at tiny x-magnitudes (e.g. SI meters)', () => {
+    // A perfectly determined line whose x-values happen to be tiny in
+    // magnitude (e.g. metres instead of micrometres) must not be
+    // misclassified as "singular" merely because of the unit choice.
+    const x1 = [1e-7, 2e-7, 3e-7, 4e-7, 5e-7];
+    const y1 = x1.map((x) => 2e6 * x + 1);
+    const fit = expectOk(fitModel({ x1, y1 }, 'y1 ~ m*x1 + b'));
+    expect(fit.parameters['m']).toBeCloseTo(2e6, -2);
+    expect(fit.parameters['b']).toBeCloseTo(1, 6);
+    expect(fit.r2).toBeCloseTo(1, 6);
   });
 
   it('reports standard errors when the fit is overdetermined', () => {
