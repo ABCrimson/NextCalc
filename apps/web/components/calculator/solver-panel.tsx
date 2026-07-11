@@ -9,12 +9,14 @@ import {
   ChevronDown,
   ChevronUp,
   Copy,
+  Infinity as InfinityIcon,
   Loader2,
   RotateCcw,
   Sigma,
   TrendingUp,
 } from 'lucide-react';
 import { AnimatePresence, m } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import type { KeyboardEvent } from 'react';
 import { useCallback, useId, useState, useTransition } from 'react';
 import { CheckWorkPanel } from '@/components/math/check-work-panel';
@@ -53,7 +55,22 @@ type VariableName = string & { readonly __brand: unique symbol };
  * Problem mode supported by the step-by-step solver.
  * Discriminated union used to drive tab selection and example lookup.
  */
-type ProblemMode = 'equation' | 'simplify' | 'derivative' | 'integral';
+type ProblemMode = 'equation' | 'simplify' | 'derivative' | 'integral' | 'limit';
+
+/** Approach point of a limit (mirrors the engine's LimitPoint). */
+type LimitApproachPoint = number | 'infinity' | '-infinity';
+
+/** Approach direction of a limit (mirrors the engine's LimitDirection). */
+type LimitDirectionOption = 'both' | 'left' | 'right';
+
+/**
+ * Translator shape used by the localization mapper. Structural subset of
+ * next-intl's `useTranslations()` return value (call signature + `has`).
+ */
+interface SolverTranslator {
+  (key: string, values?: Readonly<Record<string, string | number>>): string;
+  has(key: string): boolean;
+}
 
 /** Category badge color mapping */
 type StepCategoryStyle = {
@@ -173,6 +190,12 @@ const CATEGORY_STYLES: Readonly<Record<string, StepCategoryStyle>> = {
     border: 'border-cyan-500/30',
     label: 'Evaluate',
   },
+  Limit: {
+    bg: 'bg-fuchsia-500/10',
+    text: 'text-fuchsia-700 dark:text-fuchsia-300',
+    border: 'border-fuchsia-500/30',
+    label: 'Limit',
+  },
 } satisfies Record<string, StepCategoryStyle>;
 
 const DEFAULT_CATEGORY_STYLE: StepCategoryStyle = {
@@ -182,10 +205,16 @@ const DEFAULT_CATEGORY_STYLE: StepCategoryStyle = {
   label: 'Step',
 };
 
+/** One selectable example expression (limit examples also carry a point) */
+interface ModeExample {
+  readonly label: string;
+  readonly input: string;
+  readonly desc: string;
+  readonly point?: string;
+}
+
 /** Example expressions per mode */
-const MODE_EXAMPLES: Readonly<
-  Record<ProblemMode, ReadonlyArray<{ label: string; input: string; desc: string }>>
-> = {
+const MODE_EXAMPLES: Readonly<Record<ProblemMode, ReadonlyArray<ModeExample>>> = {
   equation: [
     { label: 'Linear', input: '2*x + 3 = 7', desc: 'Simple linear equation' },
     {
@@ -227,6 +256,12 @@ const MODE_EXAMPLES: Readonly<
     { label: 'Constant', input: '5', desc: '∫5 dx = 5x' },
     { label: 'Log', input: '1/x', desc: '∫1/x dx = ln|x|' },
   ],
+  limit: [
+    { label: 'Standard', input: 'sin(x)/x', desc: 'Known limit → 1', point: '0' },
+    { label: "L'Hôpital", input: '(exp(x) - 1)/x', desc: "0/0 form → L'Hôpital → 1", point: '0' },
+    { label: 'Squeeze', input: '(1 - cos(x))/x^2', desc: 'Series comparison → 1/2', point: '0' },
+    { label: 'At infinity', input: '1/x', desc: '→ 0 as x → ∞', point: 'inf' },
+  ],
 };
 
 /** Mode metadata for tabs */
@@ -252,6 +287,11 @@ const MODE_META: Readonly<
     label: 'Integrate',
     placeholder: 'x^2 + 2*x',
     hint: 'Enter a function of x. The antiderivative ∫ dx will be computed symbolically.',
+  },
+  limit: {
+    label: 'Limit',
+    placeholder: 'sin(x)/x',
+    hint: 'Enter a function and the approach point (a number, inf, or -inf). Steps show the technique used.',
   },
 };
 
@@ -724,13 +764,77 @@ function validateVariable(raw: string): VariableName {
   return 'x' as VariableName;
 }
 
+/**
+ * Parse the approach-point input into a limit point.
+ * Accepts numbers plus the infinity spellings inf/∞/infinity (± variants).
+ * Returns null for anything unparseable — caller shows the error alert.
+ */
+function parseLimitPoint(raw: string): LimitApproachPoint | null {
+  const text = raw.trim().toLowerCase();
+  if (text.length === 0) return null;
+  if (['inf', '+inf', '∞', '+∞', 'infinity', '+infinity'].includes(text)) return 'infinity';
+  if (['-inf', '-∞', '-infinity'].includes(text)) return '-infinity';
+  const value = Number(text);
+  return Number.isFinite(value) ? value : null;
+}
+
+/** Narrow a Select value to a limit direction (defaults to 'both'). */
+function parseLimitDirection(raw: string): LimitDirectionOption {
+  return raw === 'left' || raw === 'right' ? raw : 'both';
+}
+
+/**
+ * Engine solution step shape consumed by the localization mapper —
+ * structural subset of math-engine's SolutionStep.
+ */
+interface EngineSolutionStep {
+  readonly stepNumber: number;
+  readonly description: string;
+  readonly explanation: string;
+  readonly operation: string;
+  readonly category: string;
+  readonly latex?: string;
+  readonly ruleId?: string;
+  readonly params?: Readonly<Record<string, string | number>>;
+  readonly to: unknown;
+}
+
+/**
+ * Localize one engine step: steps tagged with a `ruleId` whose translation
+ * exists resolve through `solver.stepRules.<ruleId>.{title,detail}` with the
+ * engine's plain-value params; untagged steps (derivative/integral/simplify
+ * modes) keep the engine's English text.
+ */
+function localizeStep(step: EngineSolutionStep, t: SolverTranslator): RenderedStep {
+  const latex = step.latex ?? astNodeToLatex(step.to);
+  const base = {
+    stepNumber: step.stepNumber,
+    operation: step.operation,
+    category: step.category,
+    latex,
+  };
+
+  if (step.ruleId && t.has(`stepRules.${step.ruleId}.title`)) {
+    const params = step.params ?? {};
+    return {
+      ...base,
+      description: t(`stepRules.${step.ruleId}.title`, params),
+      explanation: t(`stepRules.${step.ruleId}.detail`, params),
+    };
+  }
+
+  return { ...base, description: step.description, explanation: step.explanation };
+}
+
 // ============================================================================
 // SUB-COMPONENTS
 // ============================================================================
 
-/** Step category badge */
+/** Step category badge — localized label with English fallback */
 function CategoryBadge({ category }: { category: string }) {
+  const t = useTranslations('solver');
   const style = CATEGORY_STYLES[category] ?? DEFAULT_CATEGORY_STYLE;
+  const labelKey = `stepCategories.${category.charAt(0).toLowerCase()}${category.slice(1)}`;
   return (
     <span
       className={cn(
@@ -740,7 +844,7 @@ function CategoryBadge({ category }: { category: string }) {
         style.border,
       )}
     >
-      {style.label}
+      {t.has(labelKey) ? t(labelKey) : style.label}
     </span>
   );
 }
@@ -856,7 +960,7 @@ function StepCard({ step, index, isExpanded, onToggle, isFinal }: StepCardProps)
 
 interface ExampleButtonsProps {
   mode: ProblemMode;
-  onSelect: (input: string) => void;
+  onSelect: (example: ModeExample) => void;
 }
 
 function ExampleButtons({ mode, onSelect }: ExampleButtonsProps) {
@@ -872,7 +976,7 @@ function ExampleButtons({ mode, onSelect }: ExampleButtonsProps) {
           <button
             key={ex.input}
             type="button"
-            onClick={() => onSelect(ex.input)}
+            onClick={() => onSelect(ex)}
             title={ex.desc}
             className={cn(
               'inline-flex items-center gap-1.5 rounded-md border border-border bg-muted/40',
@@ -1115,10 +1219,14 @@ function ResultsPanel({ solution, onCopyAnswer, copied }: ResultsPanelProps) {
  * ```
  */
 export function SolverPanel() {
+  const t = useTranslations('solver');
+
   // ---- State ----
   const [mode, setMode] = useState<ProblemMode>('equation');
   const [input, setInput] = useState('x^2 - 4 = 0');
   const [variable, setVariable] = useState('x');
+  const [limitPoint, setLimitPoint] = useState('0');
+  const [limitDirection, setLimitDirection] = useState<LimitDirectionOption>('both');
   const [solution, setSolution] = useState<RenderedSolution | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -1126,6 +1234,8 @@ export function SolverPanel() {
 
   const inputId = useId();
   const variableId = useId();
+  const limitPointId = useId();
+  const limitDirectionId = useId();
   const hintId = useId();
   const errorId = useId();
 
@@ -1138,11 +1248,15 @@ export function SolverPanel() {
     setError(null);
     // Populate with first example for the new mode
     const first = MODE_EXAMPLES[m][0];
-    if (first) setInput(first.input);
+    if (first) {
+      setInput(first.input);
+      if (first.point !== undefined) setLimitPoint(first.point);
+    }
   }, []);
 
-  const handleExampleSelect = useCallback((expr: string) => {
-    setInput(expr);
+  const handleExampleSelect = useCallback((example: ModeExample) => {
+    setInput(example.input);
+    if (example.point !== undefined) setLimitPoint(example.point);
     setSolution(null);
     setError(null);
   }, []);
@@ -1187,6 +1301,35 @@ export function SolverPanel() {
         // Dynamic import — keeps math-engine out of the initial bundle
         const symbolic = await import('@nextcalc/math-engine/symbolic');
         const { solveWithSteps, ProblemType } = symbolic;
+
+        if (mode === 'limit') {
+          const point = parseLimitPoint(limitPoint);
+          if (point === null) {
+            setError(t('limitTab.invalidPoint'));
+            return;
+          }
+
+          const stepSolution = symbolic.limitWithSteps(validated, varName, {
+            point,
+            direction: limitDirection,
+          });
+          const elapsed = performance.now() - startTime;
+
+          const renderedSteps = stepSolution.steps.map((s) => localizeStep(s, t));
+          // The final step's LaTeX is the full "lim … = value" statement —
+          // limit values ('infinity'/'DNE') must not flow through the numeric
+          // answer formatter.
+          const finalLatex = renderedSteps.at(-1)?.latex ?? '';
+
+          setSolution({
+            problem: validated,
+            mode,
+            steps: renderedSteps,
+            finalLatex,
+            timeMs: elapsed,
+          });
+          return;
+        }
 
         if (mode === 'integral') {
           // Handle integration directly — StepSolver does not have a full
@@ -1247,7 +1390,7 @@ export function SolverPanel() {
 
         // Map UI mode → ProblemType enum
         const typeMap: Record<
-          Exclude<ProblemMode, 'integral'>,
+          Exclude<ProblemMode, 'integral' | 'limit'>,
           (typeof ProblemType)[keyof typeof ProblemType]
         > = {
           equation: ProblemType.Equation,
@@ -1259,15 +1402,9 @@ export function SolverPanel() {
         const stepSolution = solveWithSteps(problemInput, typeMap[mode]);
         const elapsed = performance.now() - startTime;
 
-        // Map SolutionStep[] → RenderedStep[]
-        const renderedSteps: RenderedStep[] = stepSolution.steps.map((s) => ({
-          stepNumber: s.stepNumber,
-          description: s.description,
-          explanation: s.explanation,
-          operation: s.operation,
-          category: s.category,
-          latex: s.latex ?? astNodeToLatex(s.to),
-        }));
+        // Map SolutionStep[] → RenderedStep[] — ruleId-tagged steps localize,
+        // untagged steps keep the engine's English text.
+        const renderedSteps: RenderedStep[] = stepSolution.steps.map((s) => localizeStep(s, t));
 
         // Build final answer LaTeX
         const finalLatex = buildFinalLatex(stepSolution.answer, varName);
@@ -1327,7 +1464,7 @@ export function SolverPanel() {
         setError(sanitizeErrorMessage(msg));
       }
     });
-  }, [input, mode, variable]);
+  }, [input, mode, variable, limitPoint, limitDirection, t]);
 
   // Handle Enter key in input
   const handleKeyDown = useCallback(
@@ -1363,7 +1500,7 @@ export function SolverPanel() {
       <CardContent className="space-y-6">
         {/* Mode tabs */}
         <Tabs value={mode} onValueChange={handleModeChange}>
-          <TabsList className="grid grid-cols-4 w-full" aria-label="Problem type">
+          <TabsList className="grid grid-cols-5 w-full" aria-label="Problem type">
             <TabsTrigger value="equation" className="gap-1.5 text-xs sm:text-sm">
               <Calculator className="size-3.5 flex-none" aria-hidden="true" />
               <span className="hidden sm:inline">Equation</span>
@@ -1384,13 +1521,23 @@ export function SolverPanel() {
               <span className="hidden sm:inline">Integral</span>
               <span className="sm:hidden">∫</span>
             </TabsTrigger>
+            <TabsTrigger value="limit" className="gap-1.5 text-xs sm:text-sm">
+              <InfinityIcon className="size-3.5 flex-none" aria-hidden="true" />
+              <span className="hidden sm:inline">{t('limitTab.label')}</span>
+              <span className="sm:hidden">{t('limitTab.shortLabel')}</span>
+            </TabsTrigger>
           </TabsList>
 
           {/* Tab panels — all share the same input form */}
-          {(['equation', 'simplify', 'derivative', 'integral'] as const).map((m) => (
+          {(['equation', 'simplify', 'derivative', 'integral', 'limit'] as const).map((m) => (
             <TabsContent key={m} value={m} className="mt-4 space-y-4">
               {/* Input row */}
-              <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
+              <div
+                className={cn(
+                  'grid gap-4',
+                  m === 'limit' ? 'sm:grid-cols-[1fr_auto_auto_auto]' : 'sm:grid-cols-[1fr_auto]',
+                )}
+              >
                 <div className="space-y-1.5">
                   <Label htmlFor={inputId}>{meta.label}</Label>
                   <Input
@@ -1418,7 +1565,7 @@ export function SolverPanel() {
                   </p>
                 </div>
 
-                {/* Variable selector — only shown for derivative/integral/equation */}
+                {/* Variable selector — only shown for derivative/integral/equation/limit */}
                 {m !== 'simplify' && (
                   <div className="space-y-1.5">
                     <Label htmlFor={variableId}>Variable</Label>
@@ -1439,6 +1586,53 @@ export function SolverPanel() {
                       </SelectContent>
                     </Select>
                   </div>
+                )}
+
+                {/* Limit-only controls: approach point + direction */}
+                {m === 'limit' && (
+                  <>
+                    <div className="space-y-1.5">
+                      <Label htmlFor={limitPointId}>{t('limitTab.approach')}</Label>
+                      <Input
+                        id={limitPointId}
+                        value={limitPoint}
+                        onChange={(e) => {
+                          setLimitPoint(e.target.value);
+                          setSolution(null);
+                          setError(null);
+                        }}
+                        onKeyDown={handleKeyDown}
+                        placeholder={t('limitTab.pointPlaceholder')}
+                        className="w-28 font-mono"
+                        spellCheck={false}
+                        autoComplete="off"
+                        autoCorrect="off"
+                        autoCapitalize="off"
+                        aria-label={t('limitTab.approach')}
+                        disabled={isPending}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor={limitDirectionId}>{t('limitTab.direction')}</Label>
+                      <Select
+                        value={limitDirection}
+                        onValueChange={(value) => setLimitDirection(parseLimitDirection(value))}
+                      >
+                        <SelectTrigger
+                          id={limitDirectionId}
+                          className="w-36"
+                          aria-label={t('limitTab.direction')}
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="both">{t('limitTab.directionBoth')}</SelectItem>
+                          <SelectItem value="left">{t('limitTab.directionLeft')}</SelectItem>
+                          <SelectItem value="right">{t('limitTab.directionRight')}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </>
                 )}
               </div>
 
@@ -1553,6 +1747,9 @@ function buildProblemInput(
     case 'integral':
       // step-solver detects "integrate" prefix
       return `integrate ${expr}`;
+    case 'limit':
+      // limits are handled by limitWithSteps before this function is reached
+      return expr;
   }
 }
 

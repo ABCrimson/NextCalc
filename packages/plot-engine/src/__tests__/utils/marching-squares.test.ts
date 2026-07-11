@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { marchingSquares } from '../../utils/marching-squares';
+import { marchingSquares, marchingSquaresFilledTriangles } from '../../utils/marching-squares';
 
 /**
  * Helper: builds a grid by evaluating f(x, y) over the given viewport with
@@ -270,5 +270,111 @@ describe('marchingSquares', () => {
     const result = marchingSquares(grid, 0, 1, 1, defaultViewport);
     // case 15 (all inside), no contour produced
     expect(result).toEqual([]);
+  });
+});
+
+// ===========================================================================
+// NaN handling (holes at singularities)
+// ===========================================================================
+
+describe('marchingSquares NaN handling', () => {
+  const defaultViewport = { xMin: -5, xMax: 5, yMin: -5, yMax: 5 };
+
+  it('skips cells with any NaN corner instead of tracing fake contours', () => {
+    // 1/x - y style hole: a NaN column through the middle of a sign change
+    const grid = [
+      [-1, Number.NaN, 1],
+      [-1, Number.NaN, 1],
+      [-1, Number.NaN, 1],
+    ];
+    const result = marchingSquares(grid, 0, 5, 5, defaultViewport);
+    expect(result).toEqual([]);
+  });
+
+  it('still traces contours in cells away from NaN corners', () => {
+    // Sign change in the right half; NaN confined to the left column
+    const grid = [
+      [Number.NaN, -1, 1],
+      [Number.NaN, -1, 1],
+      [Number.NaN, -1, 1],
+    ];
+    const result = marchingSquares(grid, 0, 5, 5, defaultViewport);
+    expect(result.length).toBeGreaterThan(0);
+  });
+});
+
+// ===========================================================================
+// marchingSquaresFilledTriangles
+// ===========================================================================
+
+/** Sums the signed area of a flat [x,y,...] triangle list. */
+function totalTriangleArea(vertices: Float32Array): number {
+  let area = 0;
+  for (let t = 0; t + 5 < vertices.length; t += 6) {
+    const ax = vertices[t]!;
+    const ay = vertices[t + 1]!;
+    const bx = vertices[t + 2]!;
+    const by = vertices[t + 3]!;
+    const cx = vertices[t + 4]!;
+    const cy = vertices[t + 5]!;
+    area += Math.abs((bx - ax) * (cy - ay) - (cx - ax) * (by - ay)) / 2;
+  }
+  return area;
+}
+
+describe('marchingSquaresFilledTriangles', () => {
+  const viewport = { xMin: -10, xMax: 10, yMin: -10, yMax: 10 };
+
+  it('fills a circle to within 2% of its true area at 256 squared', () => {
+    const { grid, dx, dy } = buildGrid((x, y) => 25 - (x * x + y * y), viewport, 257, 257);
+    const triangles = marchingSquaresFilledTriangles(grid, 0, dx, dy, viewport);
+    const area = totalTriangleArea(triangles);
+    const trueArea = Math.PI * 25;
+    expect(Math.abs(area - trueArea) / trueArea).toBeLessThan(0.02);
+  });
+
+  it('emits 2 triangles per cell for a fully-inside grid', () => {
+    const grid = [
+      [1, 1, 1],
+      [1, 1, 1],
+      [1, 1, 1],
+    ];
+    const triangles = marchingSquaresFilledTriangles(grid, 0, 1, 1, viewport);
+    // 2x2 cells x 2 triangles x 3 vertices x 2 components
+    expect(triangles).toHaveLength(48);
+    expect(totalTriangleArea(triangles)).toBeCloseTo(4, 10);
+  });
+
+  it('returns an empty array for a fully-outside grid', () => {
+    const grid = [
+      [-1, -1],
+      [-1, -1],
+    ];
+    expect(marchingSquaresFilledTriangles(grid, 0, 1, 1, viewport)).toHaveLength(0);
+  });
+
+  it('returns an empty array for empty input', () => {
+    expect(marchingSquaresFilledTriangles([], 0, 1, 1, viewport)).toHaveLength(0);
+  });
+
+  it('skips cells with NaN corners (holes, no fill through singularities)', () => {
+    const grid = [
+      [1, Number.NaN, 1],
+      [1, Number.NaN, 1],
+      [1, Number.NaN, 1],
+    ];
+    expect(marchingSquaresFilledTriangles(grid, 0, 1, 1, viewport)).toHaveLength(0);
+  });
+
+  it('fills a half-plane with sub-cell boundary accuracy', () => {
+    // y <= 0 half of the viewport: F = -y, inside where F >= 0
+    const { grid, dx, dy } = buildGrid((_x, y) => -y, viewport, 101, 101);
+    const triangles = marchingSquaresFilledTriangles(grid, 0, dx, dy, viewport);
+    const area = totalTriangleArea(triangles);
+    expect(area).toBeCloseTo(200, 0); // half of the 20x20 viewport
+    // No triangle vertex may cross above the boundary line y = 0
+    for (let t = 1; t < triangles.length; t += 2) {
+      expect(triangles[t]!).toBeLessThanOrEqual(1e-9);
+    }
   });
 });

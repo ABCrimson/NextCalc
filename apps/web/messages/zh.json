@@ -1032,6 +1032,283 @@
       "directionField": "方向场",
       "csvExport": "CSV 导出",
       "aboutTitle": "关于数值 ODE 方法"
+    },
+    "stepRules": {
+      "equation": {
+        "start": {
+          "title": "列出方程",
+          "detail": "写出原始方程,并确定要求解的变量。"
+        },
+        "moveTermsLeft": {
+          "title": "将所有项移到一边",
+          "detail": "两边同时减去 {rhs},使右边变为零。"
+        },
+        "classify": {
+          "linear": {
+            "title": "归类为一次方程",
+            "detail": "该方程为一次方程,可通过直接分离变量求解。"
+          },
+          "quadratic": {
+            "title": "归类为二次方程",
+            "detail": "该方程为二次方程,可通过因式分解或求根公式求出其根。"
+          },
+          "cubic": {
+            "title": "归类为三次方程",
+            "detail": "该方程为三次方程,需通过换元化为简化三次方程并应用卡尔达诺公式求解。"
+          },
+          "rational": {
+            "title": "归类为分式方程",
+            "detail": "该方程的分母中含有变量,求解前需先去分母。"
+          },
+          "trigonometric": {
+            "title": "归类为三角方程",
+            "detail": "该方程含有三角函数,需使用反三角函数分离变量。"
+          },
+          "exponential": {
+            "title": "归类为指数方程",
+            "detail": "变量出现在指数位置,需要使用对数或数值方法求解。"
+          },
+          "logarithmic": {
+            "title": "归类为对数方程",
+            "detail": "该方程含有变量的对数,对两边取指数即可分离变量。"
+          },
+          "transcendental": {
+            "title": "归类为超越方程",
+            "detail": "该方程同时含有代数项和超越项,需通过数值方法求解。"
+          },
+          "higherPolynomial": {
+            "title": "归类为高次多项式",
+            "detail": "该方程次数为4次或更高,需使用数值求根法而非封闭公式求解。"
+          }
+        }
+      },
+      "linear": {
+        "coefficients": {
+          "title": "确定一次方程的系数",
+          "detail": "将方程写成 a·{variable} + b = 0 的形式,其中 a = {a},b = {b}。"
+        },
+        "isolate": {
+          "title": "分离含变量的项",
+          "detail": "两边同时减去常数项,得到 {a}{variable} = {negB}。"
+        },
+        "divide": {
+          "title": "两边除以系数",
+          "detail": "两边同时除以 {a},分离出 {variable} = {solution}。"
+        },
+        "noSolution": {
+          "title": "判定无解",
+          "detail": "变量的系数为零,而常数 {b} 不为零,因此没有值能满足该方程。"
+        },
+        "allReals": {
+          "title": "判定所有实数皆为解",
+          "detail": "两个系数都为零,因此任何实数都满足该方程。"
+        }
+      },
+      "quadratic": {
+        "coefficients": {
+          "title": "确定二次方程的系数",
+          "detail": "将方程写成标准形式 a{variable}² + b{variable} + c = 0,其中 a = {a},b = {b},c = {c}。"
+        },
+        "factor": {
+          "title": "分解二次式",
+          "detail": "找出两个数,其积为 {ac}、和为 {b},由此得到根 {r1} 和 {r2}。"
+        },
+        "zeroProduct": {
+          "title": "应用零因子性质",
+          "detail": "由于分解后的乘积为零,至少有一个因子为零:{variable} = {r1} 或 {variable} = {r2}。"
+        },
+        "solveFactors": {
+          "title": "求解每个因式",
+          "detail": "令每个因式为零,得到两个解 {variable} = {r1} 和 {variable} = {r2}。"
+        },
+        "repeatedRoot": {
+          "title": "确定重根",
+          "detail": "判别式为零,因此两个根重合于 {variable} = {r},重数为2。"
+        },
+        "formula": {
+          "title": "应用求根公式",
+          "detail": "当 a = {a}、b = {b}、c = {c} 时,判别式 b² − 4ac 等于 {discriminant}。"
+        },
+        "evaluateRoots": {
+          "title": "计算根的值",
+          "detail": "代入求根公式,得到 {variable}₁ = {r1},{variable}₂ = {r2}。"
+        },
+        "complexRoots": {
+          "title": "计算复数根",
+          "detail": "判别式 {discriminant} 为负,因此得到共轭复数根 {variable} = {realPart} ± {imagPart}i。"
+        }
+      },
+      "cubic": {
+        "coefficients": {
+          "title": "确定三次方程的系数",
+          "detail": "将方程写成标准形式 a{variable}³ + b{variable}² + c{variable} + d = 0,其中 a = {a},b = {b},c = {c},d = {d}。"
+        },
+        "depress": {
+          "title": "化简三次方程",
+          "detail": "将变量平移 {shift} 可消去二次项,得到 t³ + {p}t + {q} = 0。"
+        },
+        "discriminant": {
+          "title": "计算三次方程的判别式",
+          "detail": "判别式 Δ = −4p³ − 27q² 等于 {delta},由此决定实根的个数。"
+        },
+        "roots": {
+          "title": "计算三次方程的根",
+          "detail": "应用卡尔达诺公式并回代,得到 {variable} 的根为 {roots}。"
+        }
+      },
+      "trig": {
+        "identify": {
+          "title": "识别三角函数",
+          "detail": "该方程包含 {fn}({variable}),第一步是分离出这一项。"
+        },
+        "isolate": {
+          "title": "分离三角表达式",
+          "detail": "重新整理方程,使 {fn}({variable}) 单独等于一个常数。"
+        },
+        "inverse": {
+          "title": "应用反三角函数",
+          "detail": "对两边应用 {fn} 的反函数,得到 {variable} 的主值解及其周期解族。"
+        },
+        "principal": {
+          "title": "计算主值解",
+          "detail": "通过数值方法求得的主值为 {variable} = {solutions}。"
+        }
+      },
+      "rational": {
+        "domain": {
+          "title": "给出定义域限制",
+          "detail": "所有含 {variable} 的分母都不能为零:{denominators} ≠ 0。"
+        },
+        "multiplyLcd": {
+          "title": "乘以最小公分母",
+          "detail": "两边同乘以 {lcd},消去所有分数,得到一个多项式方程。"
+        },
+        "checkExtraneous": {
+          "title": "对候选解进行定义域检验",
+          "detail": "排除增根后,共有 {kept} 个候选解满足定义域限制。"
+        },
+        "extraneousExcluded": {
+          "title": "排除增根",
+          "detail": "代入 {variable} = {root} 会使分母为零,因此该解作为增根被排除。"
+        }
+      },
+      "numeric": {
+        "newton": {
+          "title": "应用牛顿-拉夫逊迭代法",
+          "detail": "该方程没有封闭形式的解,因此从初始猜测值出发,通过迭代逐步逼近 {variable}。"
+        },
+        "converged": {
+          "title": "迭代收敛到解",
+          "detail": "迭代经过 {iterations} 步收敛,得到 {solutions}。"
+        },
+        "failed": {
+          "title": "报告未收敛",
+          "detail": "从默认初始猜测值出发,牛顿-拉夫逊迭代未能收敛。"
+        }
+      },
+      "answer": {
+        "single": {
+          "title": "给出最终答案",
+          "detail": "该方程恰有一个解:{variable} = {solution}。"
+        },
+        "multiple": {
+          "title": "给出最终答案",
+          "detail": "该方程共有 {count} 个解:{variable} = {solutions}。"
+        },
+        "none": {
+          "title": "报告无实数解",
+          "detail": "没有实数值能满足该方程。"
+        }
+      },
+      "limit": {
+        "setup": {
+          "title": "建立极限",
+          "detail": "当 {variable} 趋于 {point}{direction, select, left {(从左侧)} right {(从右侧)} other {}}时,求该表达式的极限。"
+        },
+        "pattern": {
+          "title": "识别标准极限",
+          "detail": "这是已知的标准极限 {pattern},其值直接为 {value}。"
+        },
+        "direct": {
+          "title": "直接代入该点",
+          "detail": "该表达式在此点连续,因此极限等于函数值 {value}。"
+        },
+        "indeterminate": {
+          "title": "识别不定式",
+          "detail": "直接代入得到不定式 {form},需要进一步分析。"
+        },
+        "simplify": {
+          "title": "化简表达式",
+          "detail": "通过代数化简得到一个等价表达式,其极限更容易求出。"
+        },
+        "lhopital": {
+          "title": "应用洛必达法则",
+          "detail": "由于极限为不定式 {form},该比值的极限等于其导数比值的极限。"
+        },
+        "lhopitalDifferentiate": {
+          "title": "对分子和分母求导",
+          "detail": "分别对分子和分母求导(第 {iteration} 次迭代),然后考察新商的极限。"
+        },
+        "lhopitalResult": {
+          "title": "应用洛必达法则后求值",
+          "detail": "代入求导后的商,得到 {value}。"
+        },
+        "series": {
+          "title": "展开为泰勒级数",
+          "detail": "分子首项的阶为 {numPower},分母首项的阶为 {denPower};比较两者可确定极限。"
+        },
+        "seriesResult": {
+          "title": "求值级数比较结果",
+          "detail": "首项系数之比为 {value}。"
+        },
+        "numerical": {
+          "title": "数值逼近",
+          "detail": "符号方法未能得出结论,因此在趋近极限的点上对表达式取值以检验其是否收敛。"
+        },
+        "numericalResult": {
+          "title": "确认数值收敛",
+          "detail": "采样值收敛于 {value}。"
+        },
+        "value": {
+          "title": "给出极限值",
+          "detail": "综合以上步骤,该极限等于 {value}。"
+        },
+        "infinite": {
+          "title": "指出极限为无穷",
+          "detail": "该表达式无限增长:极限为 {sign}。"
+        },
+        "dne": {
+          "title": "指出极限不存在",
+          "detail": "无法确定有限或无限的极限,因此该极限不存在。"
+        }
+      }
+    },
+    "limitTab": {
+      "label": "极限",
+      "shortLabel": "极限",
+      "approach": "趋近点",
+      "pointPlaceholder": "例如 0, inf, -inf",
+      "direction": "方向",
+      "directionBoth": "双侧",
+      "directionLeft": "从左侧",
+      "directionRight": "从右侧",
+      "invalidPoint": "请输入有效的趋近点:数字、inf 或 -inf。"
+    },
+    "stepCategories": {
+      "identification": "识别",
+      "simplification": "化简",
+      "differentiation": "求导",
+      "integration": "积分",
+      "rearrangement": "整理",
+      "isolation": "分离",
+      "factorization": "因式分解",
+      "formula": "公式",
+      "substitution": "代入",
+      "expansion": "展开",
+      "identity": "恒等",
+      "finalAnswer": "答案",
+      "evaluation": "求值",
+      "limit": "极限"
     }
   },
   "complex": {
@@ -1111,7 +1388,77 @@
       "2dCartesian": "2D 直角坐标",
       "2dPolar": "2D 极坐标",
       "2dParametric": "2D 参数化",
-      "3dSurface": "3D 曲面"
+      "3dSurface": "3D 曲面",
+      "dataRegression": "数据与回归",
+      "2dRelation": "2D 关系式"
+    },
+    "regression": {
+      "title": "数据与回归",
+      "dataTitle": "数据表",
+      "pasteHint": "可将电子表格中的数据（制表符分隔）直接粘贴到表格中。",
+      "addColumn": "添加列",
+      "addRow": "添加行",
+      "removeRow": "删除行",
+      "columnName": "列名",
+      "invalidColumnName": "列名必须以字母开头且不能重复",
+      "modelLabel": "回归模型",
+      "modelPlaceholder": "例如 y1 ~ a*exp(b*x1)",
+      "modelValid": "参数：{parameters}",
+      "cannedTitle": "模型模板",
+      "canned": {
+        "linear": "线性",
+        "quadratic": "二次",
+        "exponential": "指数",
+        "logarithmic": "对数",
+        "logistic": "逻辑斯谛",
+        "sinusoidal": "正弦"
+      },
+      "stats": {
+        "title": "拟合统计",
+        "parameters": "拟合参数",
+        "r2": "R²",
+        "rmse": "RMSE",
+        "iterations": "迭代次数"
+      },
+      "status": {
+        "converged": "已收敛",
+        "maxIterations": "未收敛（达到迭代上限）— 请谨慎对待该拟合",
+        "invalidModel": "模型无效",
+        "insufficientData": "数据点数量不足以拟合该参数个数",
+        "singular": "无法从这些数据中确定参数",
+        "diverged": "无法在这些数据上求值该模型"
+      },
+      "residualsToggle": "显示残差",
+      "dragHint": "拖动数据点即可移动，拟合会即时更新。拖动背景平移，滚轮缩放。",
+      "pointLabel": "数据点 ({x}, {y})",
+      "plotTitle": "数据与拟合曲线",
+      "warnings": {
+        "droppedRows": "已忽略 {count} 行缺失或非数值数据",
+        "boundHit": "参数 {name} 已达到边界",
+        "zeroVariance": "因变量列为常数 — R² 无意义"
+      }
+    },
+    "relation": {
+      "inputTitle": "关系式",
+      "addButton": "添加关系式",
+      "labelField": "标签",
+      "expressionField": "表达式",
+      "placeholder": "例如 x^2 + y^2 = 25",
+      "colorLabel": "{label} 的颜色",
+      "removeLabel": "移除 {label}",
+      "validSingle": "有效的关系式",
+      "validChained": "有效 — 阴影带",
+      "errorEmpty": "关系式不能为空",
+      "errorNotRelation": "需要一个关系式，例如 x^2 + y^2 = 25",
+      "errorInvalid": "关系式语法无效",
+      "emptyTitle": "尚未添加关系式",
+      "emptyHint": "点击“添加关系式”开始",
+      "helperOperators": "支持的运算符：=, <, <=, >, >=（也支持 ≤, ≥）",
+      "helperChained": "像 1 < x < 4 这样的链式比较会在两个边界之间绘制阴影带。",
+      "helperSystem": "添加多个关系式以绘制方程组 —— 每个都有自己的阴影区域。",
+      "presetsLabel": "关系式预设",
+      "plotTitle": "2D 关系式图",
+      "plotDescription": "隐函数曲线和阴影不等式区域。拖动平移，滚动缩放。"
     }
   },
   "chaos": {

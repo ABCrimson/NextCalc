@@ -4,6 +4,7 @@
  * Comprehensive statistical analysis toolkit including:
  * - Descriptive statistics (mean, median, mode, variance, standard deviation, etc.)
  * - Regression analysis (linear, polynomial, exponential)
+ * - Arbitrary-model tilde regression (Levenberg-Marquardt with analytic Jacobians)
  * - Correlation and covariance measures
  *
  * All functions are pure, immutable, and numerically stable.
@@ -32,6 +33,22 @@ export {
   sum,
   variance,
 } from './descriptive';
+// Arbitrary-model tilde regression (nonlinear least squares)
+export {
+  buildCannedModel,
+  type CannedModelKind,
+  type FitFailure,
+  type FitOptions,
+  type FitResult,
+  type FitSuccess,
+  type FitWarning,
+  fitModel,
+  type ParameterBounds,
+  type ParsedModel,
+  parseTildeModel,
+  type TildeModel,
+  type TildeModelErrorCode,
+} from './fit';
 // Regression analysis
 export {
   type ExponentialRegressionResult,
