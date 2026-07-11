@@ -90,6 +90,10 @@
     "./graph-theory": {
       "types": "./src/graph-theory/index.ts",
       "default": "./src/graph-theory/index.ts"
+    },
+    "./trace": {
+      "types": "./src/trace/index.ts",
+      "default": "./src/trace/index.ts"
     }
   },
   "scripts": {

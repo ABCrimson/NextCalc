@@ -9,10 +9,11 @@
  */
 
 import type { ExpressionNode } from '../parser/ast';
-import { createOperatorNode } from '../parser/ast';
+import { createConstantNode, createOperatorNode } from '../parser/ast';
 import { evaluate } from '../parser/evaluator';
 import { parse } from '../parser/parser';
 import { differentiate } from '../symbolic/differentiate';
+import { formatTraceNumber, type TraceCollector } from '../trace/step-trace';
 
 /**
  * Complex number for complex solutions
@@ -49,47 +50,109 @@ export interface Solution {
  * Solve linear equation: ax + b = 0
  * @returns Array of solutions
  */
-function solveLinear(a: number, b: number): Solution[] {
+function solveLinear(
+  a: number,
+  b: number,
+  trace?: TraceCollector,
+  expr?: ExpressionNode,
+): Solution[] {
+  if (trace && expr) {
+    trace.emit('linear.coefficients', expr, expr, {
+      a: formatTraceNumber(a),
+      b: formatTraceNumber(b),
+    });
+  }
+
   if (Math.abs(a) < 1e-10) {
     if (Math.abs(b) < 1e-10) {
       // 0 = 0, infinite solutions
+      if (trace && expr) trace.emit('linear.allReals', expr, expr);
       return [{ value: Number.POSITIVE_INFINITY, multiplicity: Number.POSITIVE_INFINITY }];
     }
     // 0 = b (b ≠ 0), no solution
+    if (trace && expr) trace.emit('linear.noSolution', expr, expr, { b: formatTraceNumber(b) });
     return [];
   }
 
-  return [{ value: -b / a, multiplicity: 1 }];
+  const root = -b / a;
+  if (trace && expr) {
+    trace.emit('linear.divide', expr, createConstantNode(root), {
+      a: formatTraceNumber(a),
+      solution: formatTraceNumber(root),
+    });
+  }
+  return [{ value: root, multiplicity: 1 }];
 }
 
 /**
  * Solve quadratic equation: ax² + bx + c = 0
  * @returns Array of solutions (may include complex numbers)
  */
-function solveQuadratic(a: number, b: number, c: number): Solution[] {
+function solveQuadratic(
+  a: number,
+  b: number,
+  c: number,
+  trace?: TraceCollector,
+  expr?: ExpressionNode,
+): Solution[] {
   if (Math.abs(a) < 1e-10) {
-    return solveLinear(b, c);
+    return solveLinear(b, c, trace, expr);
   }
 
   const discriminant = b * b - 4 * a * c;
 
+  if (trace && expr) {
+    trace.emit('quadratic.coefficients', expr, expr, {
+      a: formatTraceNumber(a),
+      b: formatTraceNumber(b),
+      c: formatTraceNumber(c),
+    });
+    trace.emit('quadratic.formula', expr, expr, {
+      a: formatTraceNumber(a),
+      b: formatTraceNumber(b),
+      c: formatTraceNumber(c),
+      discriminant: formatTraceNumber(discriminant),
+    });
+  }
+
   if (discriminant > 1e-10) {
     // Two real solutions
     const sqrtD = Math.sqrt(discriminant);
+    const r1 = (-b + sqrtD) / (2 * a);
+    const r2 = (-b - sqrtD) / (2 * a);
+    if (trace && expr) {
+      trace.emit('quadratic.evaluateRoots', expr, createConstantNode(r1), {
+        r1: formatTraceNumber(r1),
+        r2: formatTraceNumber(r2),
+      });
+    }
     return [
-      { value: (-b + sqrtD) / (2 * a), multiplicity: 1 },
-      { value: (-b - sqrtD) / (2 * a), multiplicity: 1 },
+      { value: r1, multiplicity: 1 },
+      { value: r2, multiplicity: 1 },
     ];
   }
 
   if (Math.abs(discriminant) < 1e-10) {
     // One repeated solution
-    return [{ value: -b / (2 * a), multiplicity: 2 }];
+    const root = -b / (2 * a);
+    if (trace && expr) {
+      trace.emit('quadratic.repeatedRoot', expr, createConstantNode(root), {
+        r: formatTraceNumber(root),
+      });
+    }
+    return [{ value: root, multiplicity: 2 }];
   }
 
   // Two complex solutions
   const real = -b / (2 * a);
   const imag = Math.sqrt(-discriminant) / (2 * a);
+  if (trace && expr) {
+    trace.emit('quadratic.complexRoots', expr, expr, {
+      realPart: formatTraceNumber(real),
+      imagPart: formatTraceNumber(imag),
+      discriminant: formatTraceNumber(discriminant),
+    });
+  }
   return [
     { value: new Complex(real, imag), multiplicity: 1 },
     { value: new Complex(real, -imag), multiplicity: 1 },
@@ -180,11 +243,15 @@ function solveNumerical(
   expr: ExpressionNode,
   variable: string,
   initialGuess = 0,
+  trace?: TraceCollector,
   tolerance = 1e-10,
   maxIterations = 100,
 ): Solution[] {
   try {
     // Newton-Raphson: x_{n+1} = x_n - f(x_n)/f'(x_n)
+    trace?.emit('numeric.newton', expr, expr, {
+      initialGuess: formatTraceNumber(initialGuess),
+    });
     const derivative = differentiate(expr, variable);
     let x = initialGuess;
 
@@ -209,6 +276,10 @@ function solveNumerical(
 
       if (Math.abs(xNew - x) < tolerance) {
         // Converged
+        trace?.emit('numeric.converged', expr, createConstantNode(xNew), {
+          root: formatTraceNumber(xNew),
+          iterations: i + 1,
+        });
         return [{ value: xNew, multiplicity: 1 }];
       }
 
@@ -217,6 +288,7 @@ function solveNumerical(
 
     throw new Error('Newton-Raphson did not converge');
   } catch (error) {
+    trace?.emit('numeric.failed', expr, expr);
     throw new Error(
       `Numerical solving failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
     );
@@ -276,9 +348,9 @@ export function solveInRange(
 export function solve(
   equation: string | ExpressionNode,
   variable = 'x',
-  options: { method?: 'auto' | 'numerical'; initialGuess?: number } = {},
+  options: { method?: 'auto' | 'numerical'; initialGuess?: number; trace?: TraceCollector } = {},
 ): Solution[] {
-  const { method = 'auto', initialGuess = 0 } = options;
+  const { method = 'auto', initialGuess = 0, trace } = options;
 
   // Parse equation if string
   let expr: ExpressionNode;
@@ -308,19 +380,19 @@ export function solve(
     // Try linear
     const linearCoeffs = extractLinearCoefficients(expr, variable);
     if (linearCoeffs) {
-      return solveLinear(linearCoeffs.a, linearCoeffs.b);
+      return solveLinear(linearCoeffs.a, linearCoeffs.b, trace, expr);
     }
 
     // Try quadratic
     const quadraticCoeffs = extractQuadraticCoefficients(expr, variable);
     if (quadraticCoeffs) {
-      return solveQuadratic(quadraticCoeffs.a, quadraticCoeffs.b, quadraticCoeffs.c);
+      return solveQuadratic(quadraticCoeffs.a, quadraticCoeffs.b, quadraticCoeffs.c, trace, expr);
     }
 
     // Fall back to numerical
-    return solveNumerical(expr, variable, initialGuess);
+    return solveNumerical(expr, variable, initialGuess, trace);
   }
 
   // Force numerical
-  return solveNumerical(expr, variable, initialGuess);
+  return solveNumerical(expr, variable, initialGuess, trace);
 }
