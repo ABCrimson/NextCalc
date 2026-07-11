@@ -1077,6 +1077,67 @@
     "inflection": "Points d'inflexion",
     "derivative": "Dérivée",
     "integral": "Intégrale",
+    "pageTitle": "Graphiques interactifs",
+    "subtitle": "Visualisation mathématique accélérée par GPU avec interactions en temps réel",
+    "badge": {
+      "fps": "60+ FPS",
+      "interactive": "Interactif",
+      "responsive": "Réactif"
+    },
+    "tab": {
+      "2dCartesian": "2D Cartésien",
+      "2dPolar": "2D Polaire",
+      "2dParametric": "2D Paramétrique",
+      "3dSurface": "Surface 3D",
+      "dataRegression": "Données et régression",
+      "2dRelation": "2D Relations"
+    },
+    "regression": {
+      "title": "Données et régression",
+      "dataTitle": "Tableau de données",
+      "pasteHint": "Collez des données d'un tableur (séparées par des tabulations) directement dans le tableau.",
+      "addColumn": "Ajouter une colonne",
+      "addRow": "Ajouter une ligne",
+      "removeRow": "Supprimer la ligne",
+      "columnName": "Nom de colonne",
+      "invalidColumnName": "Les noms de colonnes doivent commencer par une lettre et être uniques",
+      "modelLabel": "Modèle de régression",
+      "modelPlaceholder": "p. ex. y1 ~ a*exp(b*x1)",
+      "modelValid": "Paramètres : {parameters}",
+      "cannedTitle": "Modèles prédéfinis",
+      "canned": {
+        "linear": "Linéaire",
+        "quadratic": "Quadratique",
+        "exponential": "Exponentielle",
+        "logarithmic": "Logarithmique",
+        "logistic": "Logistique",
+        "sinusoidal": "Sinusoïdale"
+      },
+      "stats": {
+        "title": "Statistiques d'ajustement",
+        "parameters": "Paramètres ajustés",
+        "r2": "R²",
+        "rmse": "RMSE",
+        "iterations": "Itérations"
+      },
+      "status": {
+        "converged": "Convergence atteinte",
+        "maxIterations": "Pas de convergence (limite d'itérations atteinte) — interprétez l'ajustement avec prudence",
+        "invalidModel": "Modèle non valide",
+        "insufficientData": "Pas assez de points de données pour le nombre de paramètres",
+        "singular": "Les paramètres ne peuvent pas être identifiés à partir de ces données",
+        "diverged": "Le modèle ne peut pas être évalué sur ces données"
+      },
+      "residualsToggle": "Afficher les résidus",
+      "dragHint": "Faites glisser les points pour les déplacer ; l'ajustement se met à jour instantanément. Faites glisser l'arrière-plan pour vous déplacer, molette pour zoomer.",
+      "pointLabel": "Point de données ({x}, {y})",
+      "plotTitle": "Données et courbe ajustée",
+      "warnings": {
+        "droppedRows": "{count} lignes avec des valeurs manquantes ou non numériques ont été ignorées",
+        "boundHit": "Le paramètre {name} a atteint sa borne",
+        "zeroVariance": "La colonne dépendante est constante — R² n'est pas significatif"
+      }
+    },
     "relation": {
       "inputTitle": "Relations",
       "addButton": "Ajouter une relation",
@@ -1098,20 +1159,6 @@
       "presetsLabel": "Modèles de relations",
       "plotTitle": "Graphique de relations 2D",
       "plotDescription": "Courbes implicites et régions d’inégalité ombrées. Glissez pour déplacer, faites défiler pour zoomer."
-    },
-    "pageTitle": "Graphiques interactifs",
-    "subtitle": "Visualisation mathématique accélérée par GPU avec interactions en temps réel",
-    "badge": {
-      "fps": "60+ FPS",
-      "interactive": "Interactif",
-      "responsive": "Réactif"
-    },
-    "tab": {
-      "2dCartesian": "2D Cartésien",
-      "2dPolar": "2D Polaire",
-      "2dParametric": "2D Paramétrique",
-      "2dRelation": "2D Relations",
-      "3dSurface": "Surface 3D"
     }
   },
   "chaos": {

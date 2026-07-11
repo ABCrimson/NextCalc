@@ -35,6 +35,19 @@ export type { PolarAxisLabelsProps } from './PolarAxisLabels';
 export { PolarAxisLabels } from './PolarAxisLabels';
 export type { RelationDefinition, RelationInputProps } from './RelationInput';
 export { RELATION_COLORS, RelationInput } from './RelationInput';
+export type {
+  DataPointsOverlayProps,
+  OverlayPoint,
+  OverlayViewport,
+} from './regression/DataPointsOverlay';
+export { DataPointsOverlay } from './regression/DataPointsOverlay';
+export { DataRegressionTab } from './regression/DataRegressionTab';
+export type { DataTableProps, DataTableValue } from './regression/DataTable';
+export { DataTable } from './regression/DataTable';
+export type { FitStatsPanelProps } from './regression/FitStatsPanel';
+export { FitStatsPanel } from './regression/FitStatsPanel';
+export type { ModelParseState, RegressionModelInputProps } from './regression/RegressionModelInput';
+export { RegressionModelInput } from './regression/RegressionModelInput';
 export type { BuildRelationConfigOptions } from './relation-config';
 export { buildRelationConfig, buildRelationEntries } from './relation-config';
 export type { SurfaceEditor3DProps } from './SurfaceEditor3D';

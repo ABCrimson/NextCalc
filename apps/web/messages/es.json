@@ -1044,6 +1044,67 @@
     "inflection": "Puntos de inflexión",
     "derivative": "Derivada",
     "integral": "Integral",
+    "pageTitle": "Gráficos interactivos",
+    "subtitle": "GPU-accelerated time-frequency domain analysis with interactive visualizations",
+    "badge": {
+      "fps": "60+ FPS",
+      "interactive": "Interactivo",
+      "responsive": "Responsivo"
+    },
+    "tab": {
+      "2dCartesian": "2D Cartesiano",
+      "2dPolar": "2D Polar",
+      "2dParametric": "2D Paramétrico",
+      "3dSurface": "Superficie 3D",
+      "dataRegression": "Datos y regresión",
+      "2dRelation": "2D Relaciones"
+    },
+    "regression": {
+      "title": "Datos y regresión",
+      "dataTitle": "Tabla de datos",
+      "pasteHint": "Pega datos de una hoja de cálculo (separados por tabulaciones) directamente en la tabla.",
+      "addColumn": "Añadir columna",
+      "addRow": "Añadir fila",
+      "removeRow": "Eliminar fila",
+      "columnName": "Nombre de columna",
+      "invalidColumnName": "Los nombres de columna deben empezar por una letra y ser únicos",
+      "modelLabel": "Modelo de regresión",
+      "modelPlaceholder": "p. ej. y1 ~ a*exp(b*x1)",
+      "modelValid": "Parámetros: {parameters}",
+      "cannedTitle": "Plantillas de modelos",
+      "canned": {
+        "linear": "Lineal",
+        "quadratic": "Cuadrática",
+        "exponential": "Exponencial",
+        "logarithmic": "Logarítmica",
+        "logistic": "Logística",
+        "sinusoidal": "Sinusoidal"
+      },
+      "stats": {
+        "title": "Estadísticas del ajuste",
+        "parameters": "Parámetros ajustados",
+        "r2": "R²",
+        "rmse": "RMSE",
+        "iterations": "Iteraciones"
+      },
+      "status": {
+        "converged": "Convergió",
+        "maxIterations": "No convergió (límite de iteraciones alcanzado): interprete el ajuste con cautela",
+        "invalidModel": "Modelo no válido",
+        "insufficientData": "No hay suficientes puntos de datos para el número de parámetros",
+        "singular": "Los parámetros no pueden identificarse a partir de estos datos",
+        "diverged": "El modelo no puede evaluarse con estos datos"
+      },
+      "residualsToggle": "Mostrar residuos",
+      "dragHint": "Arrastra los puntos para moverlos; el ajuste se actualiza al instante. Arrastra el fondo para desplazarte y usa la rueda para hacer zoom.",
+      "pointLabel": "Punto de datos ({x}, {y})",
+      "plotTitle": "Datos y curva ajustada",
+      "warnings": {
+        "droppedRows": "Se ignoraron {count} filas con valores ausentes o no numéricos",
+        "boundHit": "El parámetro {name} alcanzó su límite",
+        "zeroVariance": "La columna dependiente es constante: R² no es significativo"
+      }
+    },
     "relation": {
       "inputTitle": "Relaciones",
       "addButton": "Agregar relación",
@@ -1065,20 +1126,6 @@
       "presetsLabel": "Plantillas de relaciones",
       "plotTitle": "Gráfico de relaciones 2D",
       "plotDescription": "Curvas implícitas y regiones de desigualdad sombreadas. Arrastre para desplazar, desplácese para hacer zoom."
-    },
-    "pageTitle": "Gráficos interactivos",
-    "subtitle": "GPU-accelerated time-frequency domain analysis with interactive visualizations",
-    "badge": {
-      "fps": "60+ FPS",
-      "interactive": "Interactivo",
-      "responsive": "Responsivo"
-    },
-    "tab": {
-      "2dCartesian": "2D Cartesiano",
-      "2dPolar": "2D Polar",
-      "2dParametric": "2D Paramétrico",
-      "2dRelation": "2D Relaciones",
-      "3dSurface": "Superficie 3D"
     }
   },
   "chaos": {
