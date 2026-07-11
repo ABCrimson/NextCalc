@@ -69,6 +69,13 @@ export interface GpuDirectionFieldProps {
   readonly g: (x: number, y: number, t: number) => number;
   /** Which built-in equation the GPU shader should use. */
   readonly equationType: FieldEquationType;
+  /**
+   * Optional equation parameters (param0, param1) overriding the built-in
+   * defaults for the selected equation type — e.g. worksheet sliders binding
+   * Lotka-Volterra a/b, Van der Pol μ, spiral α, or pendulum γ.
+   * Uniform layout is unchanged (f32 offsets 6/7 of the 32-byte block).
+   */
+  readonly params?: readonly [number, number];
   /** Grid resolution per axis. Default 64 → 64×64 = 4096 arrows. */
   readonly gridN?: number;
   /** Opacity of the direction field layer [0, 1]. Default 0.4. */
@@ -650,10 +657,15 @@ export function GpuDirectionField({
   f,
   g,
   equationType,
+  params,
   gridN = 64,
   opacity = 0.4,
   visible = true,
 }: GpuDirectionFieldProps) {
+  // Destructured so the render effect depends on the numbers, not on the
+  // (potentially per-render) tuple identity.
+  const paramOverride0 = params?.[0];
+  const paramOverride1 = params?.[1];
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gpuRef = useRef<FieldGpuResources | null>(null);
   const gpuActiveRef = useRef(false);
@@ -722,7 +734,9 @@ export function GpuDirectionField({
     } = r;
 
     const eqInt = eqTypeToInt(equationType);
-    const [param0, param1] = eqParams(equationType);
+    const [defaultParam0, defaultParam1] = eqParams(equationType);
+    const param0 = paramOverride0 ?? defaultParam0;
+    const param1 = paramOverride1 ?? defaultParam1;
 
     // Write compute uniforms
     writeComputeUniforms(
@@ -786,6 +800,8 @@ export function GpuDirectionField({
     yMin,
     yMax,
     equationType,
+    paramOverride0,
+    paramOverride1,
     gridN,
     opacity,
     size,
