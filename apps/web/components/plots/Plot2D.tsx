@@ -12,14 +12,21 @@
 
 import {
   type ControlEvent,
-  type Plot2DCartesianConfig,
+  createAndInitBest2DRenderer,
+  type IRenderer,
   Plot2DController,
-  type Plot2DParametricConfig,
   type Plot2DPolarConfig,
   type PlotConfig,
-  WebGL2DRenderer,
 } from '@nextcalc/plot-engine';
-import { useCallback, useEffect, useId, useRef, useState, useTransition } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useId,
+  useRef,
+  useState,
+  useTransition,
+} from 'react';
 import { type Annotation, Annotations, type Viewport } from './Annotations';
 import { type AnnotationMode, AnnotationToolbar } from './AnnotationToolbar';
 import { AxisLabels } from './AxisLabels';
@@ -63,13 +70,14 @@ export function Plot2D({
 }: Plot2DProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const rendererRef = useRef<WebGL2DRenderer | null>(null);
+  const rendererRef = useRef<IRenderer | null>(null);
   const controllerRef = useRef<Plot2DController | null>(null);
 
-  // Stable ref so the initialization effect can call the latest callback
-  // without the effect needing to re-run when the callback identity changes.
-  const onCanvasReadyRef = useRef(onCanvasReady);
-  onCanvasReadyRef.current = onCanvasReady;
+  // Effect Event: the initialization effect calls the latest callback
+  // without needing to re-run when the callback identity changes.
+  const emitCanvasReady = useEffectEvent((canvas: HTMLCanvasElement) => {
+    onCanvasReady?.(canvas);
+  });
 
   // Keep a stable ref to onViewportChange so the controller effect does not
   // have to restart every time the parent re-renders.
@@ -91,10 +99,14 @@ export function Plot2D({
   const arrowTailRef = useRef<{ x: number; y: number } | null>(null);
 
   // --- Fix 2: live viewport state drives AxisLabels so ticks update on zoom/pan ---
-  const initialCartesianViewport =
-    config.type === '2d-cartesian' || config.type === '2d-parametric'
-      ? (config as Plot2DCartesianConfig | Plot2DParametricConfig).viewport
-      : { xMin: -10, xMax: 10, yMin: -10, yMax: 10 };
+  const isViewportConfig =
+    config.type === '2d-cartesian' ||
+    config.type === '2d-parametric' ||
+    config.type === '2d-relation';
+
+  const initialCartesianViewport = isViewportConfig
+    ? config.viewport
+    : { xMin: -10, xMax: 10, yMin: -10, yMax: 10 };
 
   const [liveViewport, setLiveViewport] = useState(initialCartesianViewport);
 
@@ -109,29 +121,42 @@ export function Plot2D({
   // When the config itself changes externally (e.g. preset switch) reset live
   // viewport to whatever the new config specifies.
   useEffect(() => {
-    if (config.type === '2d-cartesian' || config.type === '2d-parametric') {
-      setLiveViewport((config as Plot2DCartesianConfig | Plot2DParametricConfig).viewport);
+    if (
+      config.type === '2d-cartesian' ||
+      config.type === '2d-parametric' ||
+      config.type === '2d-relation'
+    ) {
+      setLiveViewport(config.viewport);
     }
     if (config.type === '2d-polar') {
       setLiveRRange((config as Plot2DPolarConfig).rRange ?? { min: 0, max: 5 });
     }
   }, [config]);
 
-  // Initialize renderer
+  // Initialize the best available renderer (WebGPU -> WebGL2 -> Canvas2D).
+  // createAndInitBest2DRenderer falls through to the next backend when
+  // initialize() itself fails, so the component works on any browser.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    let cancelled = false;
+
     const initRenderer = async () => {
       try {
-        const renderer = new WebGL2DRenderer(canvas);
-        await renderer.initialize();
+        const renderer = await createAndInitBest2DRenderer(canvas);
+        if (cancelled) {
+          renderer.dispose();
+          return;
+        }
 
+        console.debug(`Plot2D renderer backend: ${renderer.backend}`);
         rendererRef.current = renderer;
         setIsReady(true);
         setError(null);
-        onCanvasReadyRef.current?.(canvas);
+        emitCanvasReady(canvas);
       } catch (err) {
+        if (cancelled) return;
         setError(err instanceof Error ? err.message : 'Failed to initialize renderer');
         console.error('Renderer initialization error:', err);
       }
@@ -140,6 +165,7 @@ export function Plot2D({
     initRenderer();
 
     return () => {
+      cancelled = true;
       if (rendererRef.current) {
         rendererRef.current.dispose();
         rendererRef.current = null;
@@ -318,16 +344,16 @@ export function Plot2D({
     if (config.type === '2d-polar') return;
 
     const viewport =
-      config.type === '2d-cartesian'
+      config.type === '2d-cartesian' ||
+      config.type === '2d-parametric' ||
+      config.type === '2d-relation'
         ? config.viewport
-        : config.type === '2d-parametric'
-          ? config.viewport
-          : {
-              xMin: -10,
-              xMax: 10,
-              yMin: -10,
-              yMax: 10,
-            };
+        : {
+            xMin: -10,
+            xMax: 10,
+            yMin: -10,
+            yMax: 10,
+          };
 
     const controller = new Plot2DController(canvas, viewport);
     controller.enable();
@@ -479,15 +505,14 @@ export function Plot2D({
   // The annotation overlay needs the live Cartesian/Parametric viewport.
   // For polar plots annotations use a synthetic ±rMax viewport so the math
   // coordinates still map sensibly onto screen pixels.
-  const annotationViewport: Viewport =
-    config.type === '2d-cartesian' || config.type === '2d-parametric'
-      ? liveViewport
-      : {
-          xMin: -liveRRange.max,
-          xMax: liveRRange.max,
-          yMin: -liveRRange.max,
-          yMax: liveRRange.max,
-        };
+  const annotationViewport: Viewport = isViewportConfig
+    ? liveViewport
+    : {
+        xMin: -liveRRange.max,
+        xMax: liveRRange.max,
+        yMin: -liveRRange.max,
+        yMax: liveRRange.max,
+      };
 
   return (
     <div ref={containerRef} className={`relative size-full min-h-[400px] ${className}`}>
@@ -527,22 +552,27 @@ export function Plot2D({
           ...(canvasCursor ? { cursor: canvasCursor } : {}),
         }}
         aria-label={
-          config.type === '2d-cartesian' && config.title ? config.title : '2D mathematical plot'
+          (config.type === '2d-cartesian' || config.type === '2d-relation') && config.title
+            ? config.title
+            : '2D mathematical plot'
         }
         role="img"
       />
 
-      {/* Axis labels overlay - Cartesian/Parametric */}
+      {/* Axis labels overlay - Cartesian/Parametric/Relation */}
       {/* Fix 2: pass liveViewport instead of config.viewport so labels update on pan/zoom */}
-      {isReady && !error && (config.type === '2d-cartesian' || config.type === '2d-parametric') && (
+      {isReady && !error && isViewportConfig && (
         <AxisLabels
           viewport={liveViewport}
           width={canvasSize.width}
           height={canvasSize.height}
           {...(config.type === '2d-cartesian' && {
-            xAxisConfig: (config as Plot2DCartesianConfig).xAxis,
-            yAxisConfig: (config as Plot2DCartesianConfig).yAxis,
+            xAxisConfig: config.xAxis,
+            yAxisConfig: config.yAxis,
           })}
+          {...(config.type === '2d-relation' && config.xAxis && config.yAxis
+            ? { xAxisConfig: config.xAxis, yAxisConfig: config.yAxis }
+            : {})}
         />
       )}
 

@@ -1090,7 +1090,8 @@
       "2dPolar": "2D Polar",
       "2dParametric": "2D Parametric",
       "3dSurface": "3D Surface",
-      "dataRegression": "Data & Regression"
+      "dataRegression": "Data & Regression",
+      "2dRelation": "2D Relations"
     },
     "regression": {
       "title": "Data & Regression",
@@ -1137,6 +1138,28 @@
         "boundHit": "Parameter {name} hit its bound",
         "zeroVariance": "The dependent column is constant — R² is not meaningful"
       }
+    },
+    "relation": {
+      "inputTitle": "Relations",
+      "addButton": "Add Relation",
+      "labelField": "Label",
+      "expressionField": "Expression",
+      "placeholder": "e.g. x^2 + y^2 = 25",
+      "colorLabel": "Color for {label}",
+      "removeLabel": "Remove {label}",
+      "validSingle": "Valid relation",
+      "validChained": "Valid — shaded band",
+      "errorEmpty": "Relation cannot be empty",
+      "errorNotRelation": "Expected a relation, e.g. x^2 + y^2 = 25",
+      "errorInvalid": "Invalid relation syntax",
+      "emptyTitle": "No relations added yet",
+      "emptyHint": "Click \"Add Relation\" to get started",
+      "helperOperators": "Supported operators: =, <, <=, >, >= (also ≤, ≥)",
+      "helperChained": "Chained comparisons like 1 < x < 4 shade the band between two boundaries.",
+      "helperSystem": "Add multiple relations to plot a system — each gets its own shaded region.",
+      "presetsLabel": "Relation Presets",
+      "plotTitle": "2D Relations Plot",
+      "plotDescription": "Implicit curves and shaded inequality regions. Drag to pan, scroll to zoom."
     }
   },
   "chaos": {

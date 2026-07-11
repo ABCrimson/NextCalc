@@ -1089,7 +1089,8 @@
       "2dPolar": "2D 极坐标",
       "2dParametric": "2D 参数化",
       "3dSurface": "3D 曲面",
-      "dataRegression": "数据与回归"
+      "dataRegression": "数据与回归",
+      "2dRelation": "2D 关系式"
     },
     "regression": {
       "title": "数据与回归",
@@ -1136,6 +1137,28 @@
         "boundHit": "参数 {name} 已达到边界",
         "zeroVariance": "因变量列为常数 — R² 无意义"
       }
+    },
+    "relation": {
+      "inputTitle": "关系式",
+      "addButton": "添加关系式",
+      "labelField": "标签",
+      "expressionField": "表达式",
+      "placeholder": "例如 x^2 + y^2 = 25",
+      "colorLabel": "{label} 的颜色",
+      "removeLabel": "移除 {label}",
+      "validSingle": "有效的关系式",
+      "validChained": "有效 — 阴影带",
+      "errorEmpty": "关系式不能为空",
+      "errorNotRelation": "需要一个关系式，例如 x^2 + y^2 = 25",
+      "errorInvalid": "关系式语法无效",
+      "emptyTitle": "尚未添加关系式",
+      "emptyHint": "点击“添加关系式”开始",
+      "helperOperators": "支持的运算符：=, <, <=, >, >=（也支持 ≤, ≥）",
+      "helperChained": "像 1 < x < 4 这样的链式比较会在两个边界之间绘制阴影带。",
+      "helperSystem": "添加多个关系式以绘制方程组 —— 每个都有自己的阴影区域。",
+      "presetsLabel": "关系式预设",
+      "plotTitle": "2D 关系式图",
+      "plotDescription": "隐函数曲线和阴影不等式区域。拖动平移，滚动缩放。"
     }
   },
   "chaos": {

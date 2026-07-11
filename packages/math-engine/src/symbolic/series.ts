@@ -1277,6 +1277,19 @@ function nodeToLatex(node: ExpressionNode, parentPrecedence = 0, isRightChild = 
       const args = n.args.map((a) => nodeToLatex(a, 0)).join(', ');
       return `${cmd}\\left(${args}\\right)`;
     },
+
+    visitRelational(n): string {
+      const relationLatex: Record<string, string> = {
+        '=': '=',
+        '<': '<',
+        '<=': '\\le',
+        '>': '>',
+        '>=': '\\ge',
+      };
+      const left = nodeToLatex(n.args[0], 0);
+      const right = nodeToLatex(n.args[1], 0);
+      return `${left} ${relationLatex[n.op] ?? n.op} ${right}`;
+    },
   });
 }
 

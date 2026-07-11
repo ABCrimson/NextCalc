@@ -39,6 +39,7 @@ export type PlotType =
   | '2d-polar'
   | '2d-parametric'
   | '2d-implicit'
+  | '2d-relation'
   | '2d-vector-field'
   | '3d-surface'
   | '3d-parametric'
@@ -219,6 +220,10 @@ export interface Plot3DCurveConfig {
  * Plot configuration for 2D implicit plots f(x,y) = 0
  * Uses marching squares algorithm to find contours where f(x,y) ≈ 0
  * Examples: x² + y² = 25 (circle), x²/16 + y²/9 = 1 (ellipse)
+ *
+ * @deprecated Use {@link Plot2DRelationConfig} ('2d-relation') instead — it
+ * renders the same zero contours plus shaded inequality regions, systems, and
+ * strict/inclusive boundary styling. This config keeps working.
  */
 export interface Plot2DImplicitConfig {
   type: '2d-implicit';
@@ -242,6 +247,69 @@ export interface Plot2DImplicitConfig {
   /** X-axis configuration */
   xAxis?: AxisConfig;
   /** Y-axis configuration */
+  yAxis?: AxisConfig;
+  title?: string;
+}
+
+/**
+ * Relational operator for 2D relation plots.
+ * Declared locally — plot-engine deliberately has no dependency on
+ * math-engine; callers pass compiled field closures plus this op union.
+ */
+export type RelationOperator = '=' | '<' | '<=' | '>' | '>=';
+
+/**
+ * A single relation to render: a compiled scalar field F(x,y) = lhs − rhs
+ * plus the operator that defines its boundary/region semantics.
+ *  - `=`  draws only the F = 0 contour
+ *  - `<`/`<=` shade F < 0; `>`/`>=` shade F > 0
+ *  - strict operators (`<`, `>`) get a dashed boundary
+ */
+export interface Plot2DRelationEntry {
+  /** Compiled scalar field F(x, y) = lhs − rhs (NaN at holes/singularities) */
+  field: (x: number, y: number) => number;
+  /** Relation operator defining region direction and boundary style */
+  op: RelationOperator;
+  label?: string;
+  /**
+   * Entries sharing a group number are always intersected (used for chained
+   * comparisons like 1 < x < 2, which decompose into two relations that
+   * together describe one band).
+   */
+  group?: number;
+  /** Visual styling for boundary line and region fill */
+  style?: {
+    line?: LineStyle;
+    fill?: { color: Color; opacity: number };
+  };
+}
+
+/**
+ * Plot configuration for 2D relations: implicit curves (equations) and
+ * shaded inequality regions, optionally combined as a system (intersection)
+ * and mixed with ordinary explicit y = f(x) functions on the same canvas.
+ */
+export interface Plot2DRelationConfig {
+  type: '2d-relation';
+  /** Relations to render (equations and inequalities) */
+  relations: Plot2DRelationEntry[];
+  /** Ordinary y = f(x) functions rendered alongside the relations */
+  explicitFunctions?: Plot2DCartesianConfig['functions'];
+  /**
+   * 'separate' (default): each relation shades its own region.
+   * 'intersection': shade only where ALL inequality relations hold.
+   * Grouped entries (see {@link Plot2DRelationEntry.group}) are always
+   * intersected regardless of this setting.
+   */
+  combine?: 'separate' | 'intersection';
+  viewport: Omit<Viewport, 'zMin' | 'zMax'>;
+  /**
+   * Scalar-field sampling resolution (default 256×256). Raise it when
+   * hunting features smaller than a coarse sampling cell (~1/48 of the
+   * viewport); the adaptive sampler only refines where signs change.
+   */
+  resolution?: { x: number; y: number };
+  xAxis?: AxisConfig;
   yAxis?: AxisConfig;
   title?: string;
 }
@@ -333,6 +401,7 @@ export type PlotConfig =
   | Plot2DPolarConfig
   | Plot2DParametricConfig
   | Plot2DImplicitConfig
+  | Plot2DRelationConfig
   | Plot2DVectorFieldConfig
   | Plot3DSurfaceConfig
   | Plot3DParametricSurfaceConfig
@@ -452,6 +521,7 @@ export function is2DPlot(
   | Plot2DPolarConfig
   | Plot2DParametricConfig
   | Plot2DImplicitConfig
+  | Plot2DRelationConfig
   | Plot2DVectorFieldConfig {
   return config.type.startsWith('2d-');
 }
@@ -488,6 +558,11 @@ export function isSurfacePlot(
 /** Type guard for implicit plots */
 export function isImplicitPlot(config: PlotConfig): config is Plot2DImplicitConfig {
   return config.type === '2d-implicit';
+}
+
+/** Type guard for relation plots (implicit curves + inequality regions) */
+export function isRelationPlot(config: PlotConfig): config is Plot2DRelationConfig {
+  return config.type === '2d-relation';
 }
 
 /** Type guard for vector field plots */

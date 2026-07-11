@@ -30,6 +30,7 @@ export {
   cartesianLineShaderWGSL,
   gridShaderWGSL,
   polarLineShaderWGSL,
+  regionFillShaderWGSL,
   type WGSLShaderSource,
 } from './renderers/wgsl-shaders';
 // Sampling
@@ -55,6 +56,7 @@ export {
   rgbaToHex,
   rgbaToString,
 } from './utils/color';
+export { dashPolyline } from './utils/dash';
 export {
   detectBestBackend,
   type GPUCapabilityReport,
@@ -62,10 +64,17 @@ export {
   isWebGPUAvailable,
   probeGPUCapabilities,
 } from './utils/gpu-detection';
-
+export {
+  combineIntersectionGrids,
+  DEFAULT_FIELD_RESOLUTION,
+  type ScalarField,
+  ScalarFieldCache,
+  sampleScalarField,
+} from './utils/implicit-field';
 export {
   type ContourSegment,
   marchingSquares,
+  marchingSquaresFilledTriangles,
 } from './utils/marching-squares';
 export {
   identity,

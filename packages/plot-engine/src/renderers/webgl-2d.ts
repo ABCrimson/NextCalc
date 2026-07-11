@@ -26,6 +26,7 @@ import type {
   Plot2DImplicitConfig,
   Plot2DParametricConfig,
   Plot2DPolarConfig,
+  Plot2DRelationConfig,
   Plot2DVectorFieldConfig,
   PlotConfig,
   PlotStyle,
@@ -35,12 +36,22 @@ import type {
 } from '../types/index';
 import { BufferPool } from '../utils/buffer-pool';
 import { parseColor } from '../utils/color';
-import { marchingSquares } from '../utils/marching-squares';
+import { dashPolyline } from '../utils/dash';
+import {
+  combineIntersectionGrids,
+  DEFAULT_FIELD_RESOLUTION,
+  ScalarFieldCache,
+} from '../utils/implicit-field';
+import { marchingSquares, marchingSquaresFilledTriangles } from '../utils/marching-squares';
 import { multiply, ortho, scaling, translation } from '../utils/matrix';
 import { getJSHeapUsage } from '../utils/memory';
 import { CartesianSampleCache } from '../utils/sample-cache';
 import { ShaderCache } from '../utils/shader-cache';
 import { axisShader, cartesianLineShader, gridShader, polarLineShader } from './shaders';
+
+/** Dash/gap length for strict-inequality boundaries, in CSS pixels. */
+const STRICT_DASH_PX = 10;
+const STRICT_GAP_PX = 6;
 
 /**
  * VAO state management for efficient rendering
@@ -69,6 +80,10 @@ export class WebGL2DRenderer implements IRenderer {
   // Adaptive-sample cache for Cartesian y = f(x) functions, keyed by
   // function identity + viewport domain (see utils/sample-cache.ts)
   private sampleCache: CartesianSampleCache = new CartesianSampleCache();
+
+  // Scalar-field cache for implicit/relation plots, keyed by field-closure
+  // identity + viewport + resolution (see utils/implicit-field.ts)
+  private fieldCache: ScalarFieldCache = new ScalarFieldCache();
 
   // Performance tracking
   private metrics: PerformanceMetrics = {
@@ -272,6 +287,9 @@ export class WebGL2DRenderer implements IRenderer {
           break;
         case '2d-implicit':
           this.renderImplicit(config);
+          break;
+        case '2d-relation':
+          this.renderRelation(config);
           break;
         case '2d-vector-field':
           this.renderVectorField(config);
@@ -720,27 +738,13 @@ export class WebGL2DRenderer implements IRenderer {
       this.renderAxes(cartesianConfig);
     }
 
-    // Sample function on grid
-    const grid: number[][] = [];
-    const dx = (viewport.xMax - viewport.xMin) / resolution.x;
-    const dy = (viewport.yMax - viewport.yMin) / resolution.y;
-
-    for (let i = 0; i <= resolution.y; i++) {
-      grid[i] = [];
-      for (let j = 0; j <= resolution.x; j++) {
-        const x = viewport.xMin + j * dx;
-        const y = viewport.yMin + i * dy;
-        try {
-          const value = fn(x, y);
-          grid[i]![j] = Number.isFinite(value) ? value : 0;
-        } catch {
-          grid[i]![j] = 0;
-        }
-      }
-    }
+    // Adaptive scalar-field sampling, cached per fn identity + viewport.
+    // Non-finite samples stay NaN (skipped by marching squares) instead of
+    // being zeroed into fake contours at singularities.
+    const field = this.fieldCache.get(fn, viewport, resolution);
 
     // Apply marching squares algorithm
-    const contours = marchingSquares(grid, 0, dx, dy, viewport);
+    const contours = marchingSquares(field.grid, 0, field.dx, field.dy, viewport);
 
     // Render contour lines
     let totalPoints = 0;
@@ -760,6 +764,126 @@ export class WebGL2DRenderer implements IRenderer {
     }
 
     this.metrics.pointCount += totalPoints;
+  }
+
+  /**
+   * Renders a 2D relation plot: shaded inequality regions (marching-squares
+   * filled triangles), implicit boundary contours (dashed for strict
+   * operators), and any explicit y = f(x) functions.
+   */
+  private renderRelation(config: Plot2DRelationConfig): void {
+    if (!this.gl || !this.shaderCache || !this.bufferPool) return;
+
+    const { viewport, resolution = DEFAULT_FIELD_RESOLUTION } = config;
+    this.updateViewMatrix(viewport);
+
+    // Render grid and axes if provided (synthetic-cartesian pattern)
+    if (config.xAxis && config.yAxis) {
+      const cartesianConfig: Plot2DCartesianConfig = {
+        type: '2d-cartesian',
+        functions: [],
+        viewport,
+        xAxis: config.xAxis,
+        yAxis: config.yAxis,
+      };
+      this.renderGrid(cartesianConfig);
+      this.renderAxes(cartesianConfig);
+    }
+
+    // Explicit y = f(x) functions rendered alongside the relations
+    const explicit = config.explicitFunctions ?? [];
+    explicit.forEach((func, i) => {
+      this.renderFunction2D(func.fn, viewport, func.style, i);
+    });
+
+    // Sample every relation's field once (cached per fn identity + viewport)
+    const fields = config.relations.map((rel) =>
+      this.fieldCache.get(rel.field, viewport, resolution),
+    );
+
+    const defaultColors = ['#06b6d4', '#a855f7', '#10b981', '#f59e0b', '#ef4444'];
+    const lineColorOf = (index: number): string => {
+      const rel = config.relations[index]!;
+      return rel.style?.line?.color && typeof rel.style.line.color === 'string'
+        ? rel.style.line.color
+        : (defaultColors[index % defaultColors.length] ?? '#06b6d4');
+    };
+
+    // --- Region fills -----------------------------------------------------
+    // Resolve entries into layer sets; each set's grids are combined into a
+    // single direction-normalized intersection mask on the CPU.
+    const fillable = config.relations
+      .map((rel, index) => ({ rel, index }))
+      .filter(({ rel }) => rel.op !== '=');
+
+    const layerSets: number[][] = [];
+    if (config.combine === 'intersection') {
+      if (fillable.length > 0) layerSets.push(fillable.map((entry) => entry.index));
+    } else {
+      const grouped = new Map<number, number[]>();
+      for (const { rel, index } of fillable) {
+        if (rel.group !== undefined) {
+          const set = grouped.get(rel.group);
+          if (set) {
+            set.push(index);
+          } else {
+            grouped.set(rel.group, [index]);
+          }
+        } else {
+          layerSets.push([index]);
+        }
+      }
+      layerSets.push(...grouped.values());
+    }
+
+    for (const indices of layerSets) {
+      const layers = indices.map((index) => {
+        const op = config.relations[index]!.op;
+        return {
+          grid: fields[index]!.grid,
+          dir: (op === '<' || op === '<=' ? -1 : 1) as 1 | -1,
+        };
+      });
+      const combined = combineIntersectionGrids(layers);
+      const first = fields[indices[0]!]!;
+      const triangles = marchingSquaresFilledTriangles(combined, 0, first.dx, first.dy, viewport);
+      if (triangles.length === 0) continue;
+
+      const rel = config.relations[indices[0]!]!;
+      const fill = rel.style?.fill;
+      const fillColor =
+        fill && typeof fill.color === 'string' ? fill.color : lineColorOf(indices[0]!);
+      this.renderTriangles(triangles, fillColor, fill?.opacity ?? 0.25);
+    }
+
+    // --- Boundary contours -------------------------------------------------
+    const cssWidth = this.canvas.clientWidth || this.canvas.width || 1;
+    const mathPerPx = (viewport.xMax - viewport.xMin) / cssWidth;
+
+    config.relations.forEach((rel, i) => {
+      const field = fields[i]!;
+      const contours = marchingSquares(field.grid, 0, field.dx, field.dy, viewport);
+      const strict = rel.op === '<' || rel.op === '>';
+      const width = rel.style?.line?.width ?? 2;
+      const color = lineColorOf(i);
+
+      let totalPoints = 0;
+      for (const contour of contours) {
+        if (contour.points.length < 2) continue;
+        totalPoints += contour.points.length;
+        if (strict) {
+          const dashes = dashPolyline(
+            contour.points,
+            STRICT_DASH_PX * mathPerPx,
+            STRICT_GAP_PX * mathPerPx,
+          );
+          if (dashes.length >= 2) this.renderLineList(dashes, { color, width });
+        } else {
+          this.renderLineSegment(contour.points, { color, width });
+        }
+      }
+      this.metrics.pointCount += totalPoints;
+    });
   }
 
   /**
@@ -889,6 +1013,123 @@ export class WebGL2DRenderer implements IRenderer {
 
     this.gl.lineWidth(lineStyle?.width ?? 2.5);
     this.gl.drawArrays(this.gl.LINE_STRIP, 0, points.length);
+    this.metrics.drawCalls++;
+
+    if (vao) {
+      this.gl.deleteVertexArray(vao);
+    }
+    this.gl.bindVertexArray(null);
+    this.bufferPool.release(buffer);
+  }
+
+  /**
+   * Renders a filled triangle list (relation region fills). Vertices are a
+   * flat [x, y, ...] math-space array (marchingSquaresFilledTriangles
+   * output); blending is enabled at init so `opacity` yields translucency.
+   */
+  private renderTriangles(vertices: Float32Array, color: string, opacity: number): void {
+    if (!this.gl || !this.shaderCache || !this.bufferPool) return;
+    if (vertices.length < 6) return;
+
+    const shader = this.shaderCache.compile('cartesian-line', cartesianLineShader);
+    const buffer = this.bufferPool.acquire(vertices.byteLength);
+
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer.buffer);
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.DYNAMIC_DRAW);
+
+    const vao = this.gl.createVertexArray();
+    if (vao) {
+      this.gl.bindVertexArray(vao);
+
+      const posLoc = shader.attributes.get('a_position');
+      if (posLoc !== undefined) {
+        this.gl.enableVertexAttribArray(posLoc);
+        this.gl.vertexAttribPointer(posLoc, 2, this.gl.FLOAT, false, 0, 0);
+      }
+    }
+
+    this.gl.useProgram(shader.program);
+
+    const matrixLoc = shader.uniforms.get('u_matrix');
+    const colorLoc = shader.uniforms.get('u_color');
+
+    if (matrixLoc && this.viewMatrix && this.projectionMatrix) {
+      const mvp = multiply(this.projectionMatrix, this.viewMatrix);
+      this.gl.uniformMatrix4fv(matrixLoc, false, mvp);
+    }
+
+    if (colorLoc) {
+      const parsed = parseColor(color);
+      this.gl.uniform4f(colorLoc, parsed.r, parsed.g, parsed.b, opacity * parsed.a);
+    }
+
+    this.gl.drawArrays(this.gl.TRIANGLES, 0, vertices.length / 2);
+    this.metrics.drawCalls++;
+
+    if (vao) {
+      this.gl.deleteVertexArray(vao);
+    }
+    this.gl.bindVertexArray(null);
+    this.bufferPool.release(buffer);
+  }
+
+  /**
+   * Renders independent line segments in LINES mode (dashed boundaries —
+   * each consecutive point pair is one dash from dashPolyline).
+   */
+  private renderLineList(
+    points: Point2D[],
+    lineStyle?: { width?: number; color?: string; opacity?: number },
+  ): void {
+    if (!this.gl || !this.shaderCache || !this.bufferPool) return;
+    if (points.length < 2) return;
+
+    const vertices = new Float32Array(points.length * 2);
+    for (let i = 0; i < points.length; i++) {
+      const point = points[i];
+      if (point) {
+        vertices[i * 2] = point.x;
+        vertices[i * 2 + 1] = point.y;
+      }
+    }
+
+    const shader = this.shaderCache.compile('cartesian-line', cartesianLineShader);
+    const buffer = this.bufferPool.acquire(vertices.byteLength);
+
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer.buffer);
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.DYNAMIC_DRAW);
+
+    const vao = this.gl.createVertexArray();
+    if (vao) {
+      this.gl.bindVertexArray(vao);
+
+      const posLoc = shader.attributes.get('a_position');
+      if (posLoc !== undefined) {
+        this.gl.enableVertexAttribArray(posLoc);
+        this.gl.vertexAttribPointer(posLoc, 2, this.gl.FLOAT, false, 0, 0);
+      }
+    }
+
+    this.gl.useProgram(shader.program);
+
+    const matrixLoc = shader.uniforms.get('u_matrix');
+    const colorLoc = shader.uniforms.get('u_color');
+
+    if (matrixLoc && this.viewMatrix && this.projectionMatrix) {
+      const mvp = multiply(this.projectionMatrix, this.viewMatrix);
+      this.gl.uniformMatrix4fv(matrixLoc, false, mvp);
+    }
+
+    if (colorLoc) {
+      // Same dark-theme brightening as renderLineSegment for visual parity
+      // between solid and dashed boundaries.
+      const color = parseColor(lineStyle?.color ?? '#f59e0b');
+      const opacity = lineStyle?.opacity ?? 1.0;
+      this.gl.uniform4f(colorLoc, color.r * 1.5, color.g * 1.5, color.b * 1.5, opacity);
+    }
+
+    this.gl.lineWidth(lineStyle?.width ?? 2.5);
+    this.gl.drawArrays(this.gl.LINES, 0, points.length);
     this.metrics.drawCalls++;
 
     if (vao) {
@@ -1348,6 +1589,7 @@ export class WebGL2DRenderer implements IRenderer {
     }
     this.vaoCache.clear();
     this.sampleCache.clear();
+    this.fieldCache.clear();
 
     // Dispose buffer pool and shader cache
     if (this.bufferPool) {

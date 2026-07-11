@@ -1089,7 +1089,8 @@
       "2dPolar": "2D 極座標",
       "2dParametric": "2D パラメトリック",
       "3dSurface": "3D 曲面",
-      "dataRegression": "データと回帰"
+      "dataRegression": "データと回帰",
+      "2dRelation": "2D 関係式"
     },
     "regression": {
       "title": "データと回帰",
@@ -1136,6 +1137,28 @@
         "boundHit": "パラメータ {name} が境界に達しました",
         "zeroVariance": "従属変数の列が一定のため、R² は意味を持ちません"
       }
+    },
+    "relation": {
+      "inputTitle": "関係式",
+      "addButton": "関係式を追加",
+      "labelField": "ラベル",
+      "expressionField": "式",
+      "placeholder": "例：x^2 + y^2 = 25",
+      "colorLabel": "{label} の色",
+      "removeLabel": "{label} を削除",
+      "validSingle": "有効な関係式です",
+      "validChained": "有効 — 帯状の領域",
+      "errorEmpty": "関係式を入力してください",
+      "errorNotRelation": "x^2 + y^2 = 25 のような関係式を入力してください",
+      "errorInvalid": "関係式の構文が無効です",
+      "emptyTitle": "関係式がまだ追加されていません",
+      "emptyHint": "「関係式を追加」をクリックして開始します",
+      "helperOperators": "対応する演算子：=, <, <=, >, >=（≤, ≥ も可）",
+      "helperChained": "1 < x < 4 のような連鎖比較は、2つの境界の間を帯状に塗りつぶします。",
+      "helperSystem": "複数の関係式を追加すると連立系になり、それぞれが独自の領域で塗りつぶされます。",
+      "presetsLabel": "関係式のプリセット",
+      "plotTitle": "2D関係式プロット",
+      "plotDescription": "陰関数曲線と塗りつぶされた不等式領域。ドラッグでパン、スクロールでズーム。"
     }
   },
   "chaos": {
