@@ -10,6 +10,8 @@ import type {
   MathFunction,
   Operator,
   OperatorNode,
+  RelationalNode,
+  RelationalOperator,
   SymbolNode,
   UnaryOperator,
   UnaryOperatorNode,
@@ -18,8 +20,10 @@ import {
   createConstantNode,
   createFunctionNode,
   createOperatorNode,
+  createRelationalNode,
   createSymbolNode,
   createUnaryOperatorNode,
+  isRelationalNode,
   NodeType,
 } from './ast';
 
@@ -50,6 +54,16 @@ interface MathJSFunctionNode extends MathNode {
 
 interface MathJSParenthesisNode extends MathNode {
   content: MathNode;
+}
+
+/**
+ * Math.js chained-comparison node (`1 < x < 2`).
+ * Shape verified against the installed mathjs 15.2: `conditionals` holds the
+ * function names ('smaller', 'larger', ...) and `params` the n+1 operands.
+ */
+interface MathJSRelationalNode extends MathNode {
+  conditionals: string[];
+  params: MathNode[];
 }
 
 /**
@@ -114,8 +128,38 @@ function convertSymbolNode(node: MathNode): SymbolNode {
   return createSymbolNode((node as MathJSSymbolNode).name);
 }
 
-function convertOperatorNode(node: MathNode): OperatorNode | UnaryOperatorNode {
+/**
+ * Maps Math.js relational operator spellings to our RelationalOperator union.
+ * mathjs parses `==` (fn `equal`); a lone `=` is normalized to `==` upstream
+ * by {@link normalizeRelationSyntax} before it ever reaches Math.js.
+ */
+const MATHJS_RELATIONAL_OPS: Readonly<Record<string, RelationalOperator>> = {
+  '==': '=',
+  '<': '<',
+  '<=': '<=',
+  '>': '>',
+  '>=': '>=',
+};
+
+function convertOperatorNode(node: MathNode): OperatorNode | UnaryOperatorNode | RelationalNode {
   const mathJSNode = node as MathJSOperatorNode;
+
+  // Relational operators become first-class RelationalNodes
+  const relationalOp = MATHJS_RELATIONAL_OPS[mathJSNode.op];
+  if (relationalOp !== undefined) {
+    const relArgs = mathJSNode.args;
+    if (relArgs?.length !== 2) {
+      throw new ParseError(`Relational operator ${mathJSNode.op} must have exactly 2 arguments`);
+    }
+    return createRelationalNode(relationalOp, [
+      convertMathJSNode(relArgs[0]!),
+      convertMathJSNode(relArgs[1]!),
+    ]);
+  }
+  if (mathJSNode.op === '!=') {
+    throw new ParseError('The != operator is not supported in relations');
+  }
+
   const op = mathJSNode.op as Operator;
   const fn = mathJSNode.fn || operatorToFunction(op);
 
@@ -245,6 +289,97 @@ export function isValidExpression(expression: string): boolean {
 }
 
 /**
+ * Matches a lone `=` that is not part of `==`, `<=`, `>=`, or `!=`.
+ * Lookbehind excludes a preceding comparison char; lookahead excludes `==`.
+ */
+const LONE_EQUALS = /(?<![<>=!])=(?!=)/g;
+
+/**
+ * Normalizes user-facing relation syntax into what Math.js can parse:
+ *  - Unicode `≤` / `≥` become `<=` / `>=`
+ *  - A lone `=` (mathematical equality) becomes `==` — Math.js would
+ *    otherwise parse `y = x^2` as an AssignmentNode and reject `x^2 = y`.
+ */
+export function normalizeRelationSyntax(expression: string): string {
+  return expression.replaceAll('≤', '<=').replaceAll('≥', '>=').replace(LONE_EQUALS, '==');
+}
+
+/**
+ * Quick check whether an expression contains relational syntax
+ * (`=`, `==`, `<`, `<=`, `>`, `>=`, `≤`, `≥`) and should be routed through
+ * {@link parseRelationSystem} instead of {@link parse}.
+ * Comparison characters have no other meaning in math expressions, so a
+ * simple character-class scan is sufficient.
+ */
+export function isRelationalExpression(expression: string): boolean {
+  return /[<>=≤≥]/.test(expression);
+}
+
+/**
+ * Parses an expression containing relational operators into one or more
+ * {@link RelationalNode}s.
+ *
+ *  - A binary relation (`x^2+y^2=25`, `y<2*x+1`) yields a single node.
+ *  - A chained comparison (`1<x<2`) decomposes into consecutive-pair
+ *    relations (`[1<x, x<2]`).
+ *  - Anything without a top-level relation throws {@link ParseError}.
+ */
+export function parseRelationSystem(expression: string): RelationalNode[] {
+  const normalized = normalizeRelationSyntax(expression);
+
+  let mathJSNode: MathNode;
+  try {
+    mathJSNode = mathJSParse(normalized);
+  } catch (error) {
+    throw new ParseError(`Failed to parse relation: ${expression}`, error);
+  }
+
+  // Chained comparison — mathjs's own RelationalNode ({conditionals, params})
+  if (mathJSNode.type === 'RelationalNode') {
+    const chained = mathJSNode as MathJSRelationalNode;
+    const relations: RelationalNode[] = [];
+    for (let i = 0; i < chained.conditionals.length; i++) {
+      const op = CHAINED_CONDITIONAL_OPS[chained.conditionals[i]!];
+      if (op === undefined) {
+        throw new ParseError(`Unsupported chained comparison operator: ${chained.conditionals[i]}`);
+      }
+      relations.push(
+        createRelationalNode(op, [
+          convertMathJSNode(chained.params[i]!),
+          convertMathJSNode(chained.params[i + 1]!),
+        ]),
+      );
+    }
+    return relations;
+  }
+
+  const converted = (() => {
+    try {
+      return convertMathJSNode(mathJSNode);
+    } catch (error) {
+      if (error instanceof ParseError) throw error;
+      throw new ParseError(`Failed to parse relation: ${expression}`, error);
+    }
+  })();
+
+  if (!isRelationalNode(converted)) {
+    throw new ParseError(`Expression is not a relation: ${expression}`);
+  }
+  return [converted];
+}
+
+/**
+ * Math.js chained-comparison conditional names → our RelationalOperator.
+ */
+const CHAINED_CONDITIONAL_OPS: Readonly<Record<string, RelationalOperator>> = {
+  equal: '=',
+  smaller: '<',
+  smallerEq: '<=',
+  larger: '>',
+  largerEq: '>=',
+};
+
+/**
  * Built-in mathematical constants that are not variables
  */
 const BUILTIN_CONSTANTS: ReadonlySet<string> = new Set([
@@ -264,7 +399,6 @@ const BUILTIN_CONSTANTS: ReadonlySet<string> = new Set([
  * @returns Set of variable names (excludes built-in constants like pi, e, tau)
  */
 export function extractVariables(expression: string | ExpressionNode): Set<string> {
-  const ast = typeof expression === 'string' ? parse(expression) : expression;
   const variables = new Set<string>();
 
   function traverse(node: ExpressionNode): void {
@@ -275,6 +409,17 @@ export function extractVariables(expression: string | ExpressionNode): Set<strin
     }
   }
 
-  traverse(ast);
+  // Relational strings ('x^2+y^2<25', '1<x<2') decompose into RelationalNodes,
+  // whose `args` make the same traversal work unchanged.
+  const roots: readonly ExpressionNode[] =
+    typeof expression === 'string'
+      ? isRelationalExpression(expression)
+        ? parseRelationSystem(expression)
+        : [parse(expression)]
+      : [expression];
+
+  for (const root of roots) {
+    traverse(root);
+  }
   return variables;
 }

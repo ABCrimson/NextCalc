@@ -1332,7 +1332,77 @@
       "2dCartesian": "2D Cartesian",
       "2dPolar": "2D Polar",
       "2dParametric": "2D Parametric",
-      "3dSurface": "3D Surface"
+      "3dSurface": "3D Surface",
+      "dataRegression": "Daten & Regression",
+      "2dRelation": "2D-Relationen"
+    },
+    "regression": {
+      "title": "Daten & Regression",
+      "dataTitle": "Datentabelle",
+      "pasteHint": "Fügen Sie Daten aus einer Tabellenkalkulation (tabulatorgetrennt) direkt in die Tabelle ein.",
+      "addColumn": "Spalte hinzufügen",
+      "addRow": "Zeile hinzufügen",
+      "removeRow": "Zeile entfernen",
+      "columnName": "Spaltenname",
+      "invalidColumnName": "Spaltennamen müssen mit einem Buchstaben beginnen und eindeutig sein",
+      "modelLabel": "Regressionsmodell",
+      "modelPlaceholder": "z. B. y1 ~ a*exp(b*x1)",
+      "modelValid": "Parameter: {parameters}",
+      "cannedTitle": "Modellvorlagen",
+      "canned": {
+        "linear": "Linear",
+        "quadratic": "Quadratisch",
+        "exponential": "Exponentiell",
+        "logarithmic": "Logarithmisch",
+        "logistic": "Logistisch",
+        "sinusoidal": "Sinusförmig"
+      },
+      "stats": {
+        "title": "Anpassungsstatistik",
+        "parameters": "Angepasste Parameter",
+        "r2": "R²",
+        "rmse": "RMSE",
+        "iterations": "Iterationen"
+      },
+      "status": {
+        "converged": "Konvergiert",
+        "maxIterations": "Nicht konvergiert (Iterationslimit erreicht) – Anpassung mit Vorsicht interpretieren",
+        "invalidModel": "Ungültiges Modell",
+        "insufficientData": "Nicht genügend Datenpunkte für die Anzahl der Parameter",
+        "singular": "Die Parameter lassen sich aus diesen Daten nicht bestimmen",
+        "diverged": "Das Modell kann mit diesen Daten nicht ausgewertet werden"
+      },
+      "residualsToggle": "Residuen anzeigen",
+      "dragHint": "Punkte ziehen, um sie zu verschieben – die Anpassung aktualisiert sich sofort. Hintergrund ziehen zum Verschieben, Scrollen zum Zoomen.",
+      "pointLabel": "Datenpunkt ({x}, {y})",
+      "plotTitle": "Daten & angepasste Kurve",
+      "warnings": {
+        "droppedRows": "{count} Zeilen mit fehlenden oder nicht numerischen Werten ignoriert",
+        "boundHit": "Parameter {name} hat seine Schranke erreicht",
+        "zeroVariance": "Die abhängige Spalte ist konstant – R² ist nicht aussagekräftig"
+      }
+    },
+    "relation": {
+      "inputTitle": "Relationen",
+      "addButton": "Relation hinzufügen",
+      "labelField": "Beschriftung",
+      "expressionField": "Ausdruck",
+      "placeholder": "z.B. x^2 + y^2 = 25",
+      "colorLabel": "Farbe für {label}",
+      "removeLabel": "{label} entfernen",
+      "validSingle": "Gültige Relation",
+      "validChained": "Gültig — schattiertes Band",
+      "errorEmpty": "Relation darf nicht leer sein",
+      "errorNotRelation": "Erwartet wird eine Relation, z.B. x^2 + y^2 = 25",
+      "errorInvalid": "Ungültige Relationssyntax",
+      "emptyTitle": "Noch keine Relationen hinzugefügt",
+      "emptyHint": "Klicken Sie auf „Relation hinzufügen“, um zu beginnen",
+      "helperOperators": "Unterstützte Operatoren: =, <, <=, >, >= (auch ≤, ≥)",
+      "helperChained": "Verkettete Vergleiche wie 1 < x < 4 schattieren das Band zwischen zwei Grenzen.",
+      "helperSystem": "Fügen Sie mehrere Relationen hinzu, um ein System zu zeichnen — jede erhält ihre eigene schattierte Region.",
+      "presetsLabel": "Relations-Vorlagen",
+      "plotTitle": "2D-Relationsdiagramm",
+      "plotDescription": "Implizite Kurven und schattierte Ungleichungsbereiche. Ziehen zum Verschieben, Scrollen zum Zoomen."
     }
   },
   "chaos": {

@@ -10,13 +10,17 @@
  *   - Two-tier bind group system:
  *       Group 0 – SceneUniforms (mvpMatrix[64] + resolution[8] + time[4] + pad[4])
  *                 Created ONCE per frame, cached until view/resize changes
- *       Group 1 – DrawUniforms (color[16] + misc floats/ints packed to 48 bytes)
- *                 Created per draw call
+ *       Group 1 – DrawUniforms: ONE bind group over a per-frame ring buffer;
+ *                 each draw writes its own 256-byte slot and binds it via a
+ *                 dynamic offset (per-draw uniforms without per-draw groups)
+ *                 (relation region fills use their own group 1: RegionUniforms
+ *                 + r32float field texture array)
  *   - Dynamic vertex data uploaded via writeBuffer every frame
  *   - Context loss recovery via device.lost promise chain
  *   - Render pass uses loadOp:'clear' + storeOp:'store'
  *
- * Supported 2D plot types: Cartesian, Polar, Parametric, Implicit, VectorField
+ * Supported 2D plot types: Cartesian, Polar, Parametric, Implicit, Relation
+ * (implicit curves + shaded inequality regions), VectorField.
  * 3D types are rejected with a helpful error (handled by WebGL3DRenderer).
  *
  * @module renderers/webgpu-2d
@@ -31,6 +35,7 @@ import type {
   Plot2DImplicitConfig,
   Plot2DParametricConfig,
   Plot2DPolarConfig,
+  Plot2DRelationConfig,
   Plot2DVectorFieldConfig,
   PlotConfig,
   Point2D,
@@ -38,6 +43,9 @@ import type {
   Viewport,
 } from '../types/index';
 import { parseColor } from '../utils/color';
+import { dashPolyline } from '../utils/dash';
+import type { ScalarField } from '../utils/implicit-field';
+import { DEFAULT_FIELD_RESOLUTION, ScalarFieldCache } from '../utils/implicit-field';
 import { marchingSquares } from '../utils/marching-squares';
 import { multiply, ortho, scaling, translation } from '../utils/matrix';
 import { getJSHeapUsage } from '../utils/memory';
@@ -48,6 +56,7 @@ import {
   cartesianLineShaderWGSL,
   gridShaderWGSL,
   polarLineShaderWGSL,
+  regionFillShaderWGSL,
 } from './wgsl-shaders';
 
 // ---------------------------------------------------------------------------
@@ -82,6 +91,37 @@ const SCENE_UNIFORM_BYTES = 80;
  * Total: 64 bytes (padded to next 16-byte boundary)
  */
 const DRAW_UNIFORM_BYTES = 64;
+
+/**
+ * Dynamic-offset stride of one draw-uniform slot in the per-frame ring
+ * buffer. Dynamic uniform offsets must be multiples of
+ * minUniformBufferOffsetAlignment, which the WebGPU spec guarantees to be at
+ * most 256 bytes on every adapter.
+ */
+const DRAW_UNIFORM_SLOT_BYTES = 256;
+
+/** Initial number of draw-uniform ring slots (grows when a frame needs more). */
+const DRAW_UNIFORM_INITIAL_SLOTS = 64;
+
+/**
+ * RegionUniforms buffer layout (bytes) — matches regionFillShaderWGSL:
+ *   fillColor    : vec4<f32>          = 16 bytes (offset  0)
+ *   viewportMin  : vec2<f32>          =  8 bytes (offset 16)
+ *   viewportSize : vec2<f32>          =  8 bytes (offset 24)
+ *   gridSize     : vec2<f32>          =  8 bytes (offset 32)
+ *   layerCount   : u32                =  4 bytes (offset 40)
+ *   _pad         : u32                =  4 bytes (offset 44)
+ *   dirs         : array<vec4<f32>,2> = 32 bytes (offset 48)
+ * Total: 80 bytes
+ */
+const REGION_UNIFORM_BYTES = 80;
+
+/** Max relations in one region draw (dirs array holds 2 × vec4 = 8 slots). */
+const REGION_MAX_LAYERS = 8;
+
+/** Dash/gap length for strict-inequality boundaries, in CSS pixels. */
+const STRICT_DASH_PX = 10;
+const STRICT_GAP_PX = 6;
 
 // ---------------------------------------------------------------------------
 // Internal types
@@ -127,12 +167,26 @@ export class WebGPU2DRenderer implements IRenderer {
   // Shared bind group layouts (2-tier: scene per-frame, draw per-call)
   private sceneBindGroupLayout: GPUBindGroupLayout | null = null;
   private drawBindGroupLayout: GPUBindGroupLayout | null = null;
+  private regionBindGroupLayout: GPUBindGroupLayout | null = null;
   private frameSceneBindGroup: GPUBindGroup | null = null;
   private sceneUniformsDirty = true;
 
-  // Persistent uniform buffers (re-written every frame)
+  // Persistent scene uniform buffer (re-written when the view changes)
   private sceneUniformBuffer: GPUBuffer | null = null;
+
+  // Per-frame draw-uniform ring buffer (dynamic-offset slots). Every draw
+  // writes its uniforms into its own 256-byte slot and binds the ONE shared
+  // bind group with a dynamic offset — queue.writeBuffer executes before
+  // submit, so a single shared buffer would be last-write-wins across the
+  // whole frame (every draw would read the final color).
   private drawUniformBuffer: GPUBuffer | null = null;
+  private drawUniformCapacity = DRAW_UNIFORM_INITIAL_SLOTS;
+  private drawSlotIndex = 0;
+  private drawBindGroup: GPUBindGroup | null = null;
+
+  // GPU resources created during a frame (region field textures/uniforms,
+  // retired ring buffers) — destroyed right after queue.submit.
+  private frameTransientResources: Array<GPUBuffer | GPUTexture> = [];
 
   // Re-usable vertex staging buffer pool
   private vertexBuffers: FrameBuffer[] = [];
@@ -141,6 +195,10 @@ export class WebGPU2DRenderer implements IRenderer {
   // Adaptive-sample cache for Cartesian y = f(x) functions, keyed by
   // function identity + viewport domain (see utils/sample-cache.ts)
   private sampleCache: CartesianSampleCache = new CartesianSampleCache();
+
+  // Scalar-field cache for implicit/relation plots, keyed by field-closure
+  // identity + viewport + resolution (see utils/implicit-field.ts)
+  private fieldCache: ScalarFieldCache = new ScalarFieldCache();
 
   // Transformation matrices
   private viewMatrix: Float32Array | null = null;
@@ -227,9 +285,10 @@ export class WebGPU2DRenderer implements IRenderer {
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
+    this.drawUniformCapacity = DRAW_UNIFORM_INITIAL_SLOTS;
     this.drawUniformBuffer = this.device.createBuffer({
-      label: 'DrawUniforms',
-      size: DRAW_UNIFORM_BYTES,
+      label: 'DrawUniforms-ring',
+      size: this.drawUniformCapacity * DRAW_UNIFORM_SLOT_BYTES,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
@@ -251,7 +310,43 @@ export class WebGPU2DRenderer implements IRenderer {
         {
           binding: 0,
           visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+          buffer: {
+            type: 'uniform',
+            hasDynamicOffset: true,
+            minBindingSize: DRAW_UNIFORM_BYTES,
+          },
+        },
+      ],
+    });
+
+    // ONE reusable draw bind group — draws select their slot via dynamic
+    // offset in setBindGroup instead of creating a bind group per draw.
+    this.drawBindGroup = this.device.createBindGroup({
+      label: 'draw-bind-group',
+      layout: this.drawBindGroupLayout,
+      entries: [
+        {
+          binding: 0,
+          resource: { buffer: this.drawUniformBuffer, offset: 0, size: DRAW_UNIFORM_BYTES },
+        },
+      ],
+    });
+
+    // Region-fill resources: uniforms + unfilterable r32float field array
+    // (r32float is not filterable without the optional 'float32-filterable'
+    // feature; the shader does manual bilinear via textureLoad)
+    this.regionBindGroupLayout = this.device.createBindGroupLayout({
+      label: 'region-bgl',
+      entries: [
+        {
+          binding: 0,
+          visibility: GPUShaderStage.FRAGMENT,
           buffer: { type: 'uniform' },
+        },
+        {
+          binding: 1,
+          visibility: GPUShaderStage.FRAGMENT,
+          texture: { sampleType: 'unfilterable-float', viewDimension: '2d-array' },
         },
       ],
     });
@@ -281,6 +376,11 @@ export class WebGPU2DRenderer implements IRenderer {
     }
     this.vertexBuffers = [];
 
+    for (const resource of this.frameTransientResources) {
+      resource.destroy();
+    }
+    this.frameTransientResources = [];
+
     if (this.sceneUniformBuffer) {
       this.sceneUniformBuffer.destroy();
       this.sceneUniformBuffer = null;
@@ -289,10 +389,13 @@ export class WebGPU2DRenderer implements IRenderer {
       this.drawUniformBuffer.destroy();
       this.drawUniformBuffer = null;
     }
+    this.drawBindGroup = null;
+    this.drawSlotIndex = 0;
 
     this.pipelines.clear();
     this.sceneBindGroupLayout = null;
     this.drawBindGroupLayout = null;
+    this.regionBindGroupLayout = null;
     this.frameSceneBindGroup = null;
     this.sceneUniformsDirty = true;
 
@@ -347,6 +450,74 @@ export class WebGPU2DRenderer implements IRenderer {
       const compiled = this.createLinePipeline(shader);
       this.pipelines.set(shader.name, compiled);
     }
+
+    this.pipelines.set(regionFillShaderWGSL.name, this.createRegionPipeline(regionFillShaderWGSL));
+  }
+
+  /**
+   * Creates the triangle-list pipeline for relation region fills.
+   * Uses the region bind group layout (uniforms + field texture array) at
+   * group 1 instead of the shared draw-uniform layout.
+   */
+  private createRegionPipeline(shader: WGSLShaderSource): CompiledPipeline {
+    const device = this.device!;
+
+    const pipelineLayout = device.createPipelineLayout({
+      label: `${shader.name}-layout`,
+      bindGroupLayouts: [this.sceneBindGroupLayout!, this.regionBindGroupLayout!],
+    });
+
+    const vertModule = device.createShaderModule({
+      label: `${shader.name}-vert`,
+      code: shader.vertex,
+    });
+
+    const fragModule = device.createShaderModule({
+      label: `${shader.name}-frag`,
+      code: shader.fragment,
+    });
+
+    const pipeline = device.createRenderPipeline({
+      label: shader.name,
+      layout: pipelineLayout,
+      vertex: {
+        module: vertModule,
+        entryPoint: 'vsMain',
+        buffers: [
+          {
+            arrayStride: 8,
+            stepMode: 'vertex',
+            attributes: [{ shaderLocation: 0, offset: 0, format: 'float32x2' }],
+          },
+        ],
+      },
+      fragment: {
+        module: fragModule,
+        entryPoint: 'fsMain',
+        targets: [
+          {
+            format: this.preferredFormat,
+            blend: {
+              color: {
+                srcFactor: 'src-alpha',
+                dstFactor: 'one-minus-src-alpha',
+                operation: 'add',
+              },
+              alpha: {
+                srcFactor: 'one',
+                dstFactor: 'one-minus-src-alpha',
+                operation: 'add',
+              },
+            },
+          },
+        ],
+      },
+      primitive: {
+        topology: 'triangle-list',
+      },
+    });
+
+    return { pipeline, bindGroupLayout: this.regionBindGroupLayout! };
   }
 
   /**
@@ -498,6 +669,7 @@ export class WebGPU2DRenderer implements IRenderer {
     this.metrics.drawCalls = 0;
     this.metrics.pointCount = 0;
     this.frameBufferIndex = 0;
+    this.drawSlotIndex = 0;
 
     // Acquire swap-chain texture
     let currentTexture: GPUTexture;
@@ -543,6 +715,9 @@ export class WebGPU2DRenderer implements IRenderer {
         case '2d-implicit':
           this.renderImplicit(renderPass, config);
           break;
+        case '2d-relation':
+          this.renderRelation(renderPass, config);
+          break;
         case '2d-vector-field':
           this.renderVectorField(renderPass, config);
           break;
@@ -559,6 +734,14 @@ export class WebGPU2DRenderer implements IRenderer {
 
     // Submit commands
     this.device.queue.submit([encoder.finish()]);
+
+    // Release per-frame GPU resources (region field textures/uniforms and
+    // any ring buffer retired by a mid-frame grow) now that the commands
+    // referencing them have been submitted.
+    for (const resource of this.frameTransientResources) {
+      resource.destroy();
+    }
+    this.frameTransientResources = [];
 
     this.metrics.renderTime = performance.now() - startTime;
     this.updateFPS();
@@ -671,26 +854,11 @@ export class WebGPU2DRenderer implements IRenderer {
       this.drawAxes(pass, viewport);
     }
 
-    // Sample function on grid
-    const dx = (viewport.xMax - viewport.xMin) / resolution.x;
-    const dy = (viewport.yMax - viewport.yMin) / resolution.y;
-    const grid: number[][] = [];
-
-    for (let i = 0; i <= resolution.y; i++) {
-      grid[i] = [];
-      for (let j = 0; j <= resolution.x; j++) {
-        const x = viewport.xMin + j * dx;
-        const y = viewport.yMin + i * dy;
-        try {
-          const val = fn(x, y);
-          grid[i]![j] = Number.isFinite(val) ? val : 0;
-        } catch {
-          grid[i]![j] = 0;
-        }
-      }
-    }
-
-    const contours = marchingSquares(grid, 0, dx, dy, viewport);
+    // Adaptive scalar-field sampling, cached per fn identity + viewport.
+    // Non-finite samples stay NaN (skipped by marching squares) instead of
+    // being zeroed into fake contours at singularities.
+    const field = this.fieldCache.get(fn, viewport, resolution);
+    const contours = marchingSquares(field.grid, 0, field.dx, field.dy, viewport);
 
     const colorStr = style?.line?.color
       ? typeof style.line.color === 'string'
@@ -705,6 +873,252 @@ export class WebGPU2DRenderer implements IRenderer {
         this.metrics.pointCount += contour.points.length;
       }
     }
+  }
+
+  /**
+   * Renders a 2D relation plot: shaded inequality regions (per-pixel sign(F)
+   * shading over r32float field textures), implicit boundary contours
+   * (dashed for strict operators), and any explicit y = f(x) functions.
+   */
+  private renderRelation(pass: GPURenderPassEncoder, config: Plot2DRelationConfig): void {
+    const { viewport, resolution = DEFAULT_FIELD_RESOLUTION } = config;
+    this.updateViewMatrix(viewport);
+
+    if (config.xAxis && config.yAxis) {
+      this.drawGrid(
+        pass,
+        viewport,
+        config.xAxis.grid.majorStep,
+        config.xAxis.grid.color,
+        config.xAxis.grid.opacity,
+      );
+      this.drawAxes(pass, viewport);
+    }
+
+    // Explicit y = f(x) functions rendered alongside the relations
+    const defaultColors = ['#06b6d4', '#a855f7', '#10b981', '#f59e0b', '#ef4444'];
+    const explicit = config.explicitFunctions ?? [];
+    for (let i = 0; i < explicit.length; i++) {
+      const func = explicit[i];
+      if (!func) continue;
+      const colorStr = func.style?.line?.color
+        ? typeof func.style.line.color === 'string'
+          ? func.style.line.color
+          : '#06b6d4'
+        : (defaultColors[i % defaultColors.length] ?? '#06b6d4');
+
+      this.drawFunction2D(pass, func.fn, viewport, colorStr, func.style?.line?.width ?? 2.0);
+    }
+
+    // Sample every relation's field once (cached per fn identity + viewport)
+    const fields = config.relations.map((rel) =>
+      this.fieldCache.get(rel.field, viewport, resolution),
+    );
+
+    // --- Region fills -----------------------------------------------------
+    // Resolve entries into layer sets: each set is drawn as ONE region pass
+    // whose in-shader mask multiplication intersects its layers.
+    const fillable = config.relations
+      .map((rel, index) => ({ rel, index }))
+      .filter(({ rel }) => rel.op !== '=');
+
+    const layerSets: number[][] = [];
+    if (config.combine === 'intersection') {
+      if (fillable.length > 0) layerSets.push(fillable.map((entry) => entry.index));
+    } else {
+      const grouped = new Map<number, number[]>();
+      for (const { rel, index } of fillable) {
+        if (rel.group !== undefined) {
+          const set = grouped.get(rel.group);
+          if (set) {
+            set.push(index);
+          } else {
+            grouped.set(rel.group, [index]);
+          }
+        } else {
+          layerSets.push([index]);
+        }
+      }
+      layerSets.push(...grouped.values());
+    }
+
+    for (const indices of layerSets) {
+      this.drawRegionFill(pass, config, fields, indices);
+    }
+
+    // --- Boundary contours -------------------------------------------------
+    const cssWidth = this.canvas.clientWidth || this.canvas.width || 1;
+    const mathPerPx = (viewport.xMax - viewport.xMin) / cssWidth;
+
+    for (let i = 0; i < config.relations.length; i++) {
+      const rel = config.relations[i]!;
+      const field = fields[i]!;
+      const contours = marchingSquares(field.grid, 0, field.dx, field.dy, viewport);
+
+      const colorStr = rel.style?.line?.color
+        ? typeof rel.style.line.color === 'string'
+          ? rel.style.line.color
+          : '#06b6d4'
+        : (defaultColors[i % defaultColors.length] ?? '#06b6d4');
+      const width = rel.style?.line?.width ?? 2.0;
+      const strict = rel.op === '<' || rel.op === '>';
+
+      for (const contour of contours) {
+        if (contour.points.length < 2) continue;
+        this.metrics.pointCount += contour.points.length;
+        if (strict) {
+          const dashes = dashPolyline(
+            contour.points,
+            STRICT_DASH_PX * mathPerPx,
+            STRICT_GAP_PX * mathPerPx,
+          );
+          if (dashes.length < 2) continue;
+          // Match drawLineStrip's dark-theme brightening for visual parity
+          // between solid and dashed boundaries.
+          const c = parseColor(colorStr);
+          this.drawLineList(pass, dashes, 'cartesian-line', [
+            Math.min(c.r * 2.0, 1.0),
+            Math.min(c.g * 2.0, 1.0),
+            Math.min(c.b * 2.0, 1.0),
+            c.a,
+          ]);
+        } else {
+          this.drawLineStrip(pass, contour.points, 'cartesian-line', colorStr, width);
+        }
+      }
+    }
+  }
+
+  /**
+   * Uploads the given field layers as one r32float texture_2d_array and
+   * records a single full-viewport region draw whose fragment stage shades
+   * pixels where every layer's dir·F is positive.
+   */
+  private drawRegionFill(
+    pass: GPURenderPassEncoder,
+    config: Plot2DRelationConfig,
+    fields: ScalarField[],
+    indices: number[],
+  ): void {
+    const device = this.device;
+    if (!device || indices.length === 0 || !this.regionBindGroupLayout) return;
+
+    const compiled = this.pipelines.get('region-fill');
+    if (!compiled) return;
+
+    const layers = indices.slice(0, REGION_MAX_LAYERS);
+    const first = fields[layers[0]!];
+    if (!first) return;
+
+    const cols = first.nx + 1;
+    const rows = first.ny + 1;
+    const { viewport } = config;
+
+    // Field texture array — one layer per relation in the set
+    const texture = device.createTexture({
+      label: 'relation-fields',
+      format: 'r32float',
+      size: { width: cols, height: rows, depthOrArrayLayers: layers.length },
+      usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+    });
+    this.frameTransientResources.push(texture);
+
+    // bytesPerRow must be 256-byte aligned (cols*4 generally is not — e.g.
+    // 257*4 = 1028), so rows are padded into a staging array. writeTexture
+    // copies the data at call time, so the staging array is safely reused
+    // across layers.
+    const bytesPerRow = Math.ceil((cols * 4) / 256) * 256;
+    const floatsPerRow = bytesPerRow / 4;
+    const staging = new Float32Array(floatsPerRow * rows);
+    for (let l = 0; l < layers.length; l++) {
+      const grid = fields[layers[l]!]!.grid;
+      for (let i = 0; i < rows; i++) {
+        const row = grid[i]!;
+        const base = i * floatsPerRow;
+        for (let j = 0; j < cols; j++) {
+          staging[base + j] = row[j]!;
+        }
+      }
+      device.queue.writeTexture(
+        { texture, origin: { x: 0, y: 0, z: l } },
+        staging,
+        { bytesPerRow, rowsPerImage: rows },
+        { width: cols, height: rows, depthOrArrayLayers: 1 },
+      );
+    }
+
+    // Region uniforms — fill style comes from the set's first entry
+    const firstRel = config.relations[layers[0]!]!;
+    const fill = firstRel.style?.fill;
+    const fillColorStr =
+      fill && typeof fill.color === 'string'
+        ? fill.color
+        : firstRel.style?.line && typeof firstRel.style.line.color === 'string'
+          ? firstRel.style.line.color
+          : '#06b6d4';
+    const fillColor = parseColor(fillColorStr);
+    const fillOpacity = fill?.opacity ?? 0.25;
+
+    const uniformData = new ArrayBuffer(REGION_UNIFORM_BYTES);
+    const f32 = new Float32Array(uniformData);
+    const u32 = new Uint32Array(uniformData);
+    f32[0] = fillColor.r;
+    f32[1] = fillColor.g;
+    f32[2] = fillColor.b;
+    f32[3] = fillColor.a * fillOpacity;
+    f32[4] = viewport.xMin;
+    f32[5] = viewport.yMin;
+    f32[6] = viewport.xMax - viewport.xMin;
+    f32[7] = viewport.yMax - viewport.yMin;
+    f32[8] = cols;
+    f32[9] = rows;
+    u32[10] = layers.length;
+    for (let l = 0; l < layers.length; l++) {
+      const op = config.relations[layers[l]!]!.op;
+      f32[12 + l] = op === '<' || op === '<=' ? -1 : 1;
+    }
+
+    const uniformBuffer = device.createBuffer({
+      label: 'region-uniforms',
+      size: REGION_UNIFORM_BYTES,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+    device.queue.writeBuffer(uniformBuffer, 0, uniformData);
+    this.frameTransientResources.push(uniformBuffer);
+
+    const bindGroup = device.createBindGroup({
+      label: 'region-bind-group',
+      layout: this.regionBindGroupLayout,
+      entries: [
+        { binding: 0, resource: { buffer: uniformBuffer } },
+        { binding: 1, resource: texture.createView({ dimension: '2d-array' }) },
+      ],
+    });
+
+    // Full-viewport quad in math space (two triangles)
+    const quad = new Float32Array([
+      viewport.xMin,
+      viewport.yMin,
+      viewport.xMax,
+      viewport.yMin,
+      viewport.xMax,
+      viewport.yMax,
+      viewport.xMin,
+      viewport.yMin,
+      viewport.xMax,
+      viewport.yMax,
+      viewport.xMin,
+      viewport.yMax,
+    ]);
+    const vertexBuffer = this.acquireVertexBuffer(quad.byteLength);
+    device.queue.writeBuffer(vertexBuffer, 0, quad);
+
+    pass.setPipeline(compiled.pipeline);
+    pass.setBindGroup(0, this.frameSceneBindGroup!);
+    pass.setBindGroup(1, bindGroup);
+    pass.setVertexBuffer(0, vertexBuffer);
+    pass.draw(6);
+    this.metrics.drawCalls++;
   }
 
   private renderVectorField(pass: GPURenderPassEncoder, config: Plot2DVectorFieldConfig): void {
@@ -1042,9 +1456,10 @@ export class WebGPU2DRenderer implements IRenderer {
     const vertexBuffer = this.acquireVertexBuffer(vertexData.byteLength);
     this.device.queue.writeBuffer(vertexBuffer, 0, vertexData);
 
-    // Update draw uniforms (scene uniforms handled by ensureFrameSceneBindGroup)
+    // Write this draw's uniforms into its own ring slot and bind the shared
+    // draw bind group at that slot's dynamic offset.
     const color = parseColor(colorStr);
-    this.writeDrawUniforms(
+    const slotOffset = this.writeDrawUniforms(
       [
         Math.min(color.r * 2.0, 1.0),
         Math.min(color.g * 2.0, 1.0),
@@ -1054,14 +1469,9 @@ export class WebGPU2DRenderer implements IRenderer {
       lineWidth,
     );
 
-    const drawBindGroup = this.device.createBindGroup({
-      layout: compiled.bindGroupLayout,
-      entries: [{ binding: 0, resource: { buffer: this.drawUniformBuffer! } }],
-    });
-
     pass.setPipeline(compiled.pipeline);
     pass.setBindGroup(0, this.frameSceneBindGroup!);
-    pass.setBindGroup(1, drawBindGroup);
+    pass.setBindGroup(1, this.drawBindGroup!, [slotOffset]);
     pass.setVertexBuffer(0, vertexBuffer);
     pass.draw(points.length);
 
@@ -1103,17 +1513,13 @@ export class WebGPU2DRenderer implements IRenderer {
     const vertexBuffer = this.acquireVertexBuffer(vertexData.byteLength);
     this.device.queue.writeBuffer(vertexBuffer, 0, vertexData);
 
-    // Update draw uniforms (scene uniforms handled by ensureFrameSceneBindGroup)
-    this.writeDrawUniforms(rgba, 1.0);
-
-    const drawBindGroup = this.device.createBindGroup({
-      layout: compiled.bindGroupLayout,
-      entries: [{ binding: 0, resource: { buffer: this.drawUniformBuffer! } }],
-    });
+    // Write this draw's uniforms into its own ring slot and bind the shared
+    // draw bind group at that slot's dynamic offset.
+    const slotOffset = this.writeDrawUniforms(rgba, 1.0);
 
     pass.setPipeline(compiled.pipeline);
     pass.setBindGroup(0, this.frameSceneBindGroup!);
-    pass.setBindGroup(1, drawBindGroup);
+    pass.setBindGroup(1, this.drawBindGroup!, [slotOffset]);
     pass.setVertexBuffer(0, vertexBuffer);
     pass.draw(points.length);
 
@@ -1152,7 +1558,10 @@ export class WebGPU2DRenderer implements IRenderer {
   }
 
   /**
-   * Writes draw-call-specific parameters to the draw uniform buffer.
+   * Writes draw-call-specific parameters into the next free 256-byte slot of
+   * the per-frame ring buffer and returns that slot's byte offset for use as
+   * a dynamic bind-group offset. The ring grows (doubling) when a frame
+   * records more draws than the current capacity.
    */
   private writeDrawUniforms(
     rgba: [number, number, number, number],
@@ -1170,8 +1579,14 @@ export class WebGPU2DRenderer implements IRenderer {
       contourValue?: number;
       contourThickness?: number;
     } = {},
-  ): void {
-    if (!this.device || !this.drawUniformBuffer) return;
+  ): number {
+    if (!this.device || !this.drawUniformBuffer) return 0;
+
+    if (this.drawSlotIndex >= this.drawUniformCapacity) {
+      this.growDrawUniformRing();
+    }
+    const slotOffset = this.drawSlotIndex * DRAW_UNIFORM_SLOT_BYTES;
+    this.drawSlotIndex++;
 
     const data = new Float32Array(DRAW_UNIFORM_BYTES / 4);
 
@@ -1210,7 +1625,41 @@ export class WebGPU2DRenderer implements IRenderer {
     // contourThickness at offset 15
     data[15] = opts.contourThickness ?? 0.01;
 
-    this.device.queue.writeBuffer(this.drawUniformBuffer, 0, data);
+    this.device.queue.writeBuffer(this.drawUniformBuffer, slotOffset, data);
+    return slotOffset;
+  }
+
+  /**
+   * Doubles the draw-uniform ring capacity mid-frame. Draws already encoded
+   * keep referencing the old buffer through the previously bound bind group,
+   * so the old buffer is retired (destroyed after submit) rather than
+   * destroyed immediately; subsequent draws bind the new group.
+   */
+  private growDrawUniformRing(): void {
+    const device = this.device;
+    if (!device || !this.drawBindGroupLayout) return;
+
+    if (this.drawUniformBuffer) {
+      this.frameTransientResources.push(this.drawUniformBuffer);
+    }
+
+    this.drawUniformCapacity *= 2;
+    this.drawUniformBuffer = device.createBuffer({
+      label: 'DrawUniforms-ring',
+      size: this.drawUniformCapacity * DRAW_UNIFORM_SLOT_BYTES,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+    this.drawBindGroup = device.createBindGroup({
+      label: 'draw-bind-group',
+      layout: this.drawBindGroupLayout,
+      entries: [
+        {
+          binding: 0,
+          resource: { buffer: this.drawUniformBuffer, offset: 0, size: DRAW_UNIFORM_BYTES },
+        },
+      ],
+    });
+    this.drawSlotIndex = 0;
   }
 
   // ---------------------------------------------------------------------------
@@ -1314,12 +1763,19 @@ export class WebGPU2DRenderer implements IRenderer {
 
   dispose(): void {
     this.sampleCache.clear();
+    this.fieldCache.clear();
 
     // Destroy vertex buffers
     for (const fb of this.vertexBuffers) {
       fb.gpuBuffer.destroy();
     }
     this.vertexBuffers = [];
+
+    // Destroy any per-frame transient resources not yet released
+    for (const resource of this.frameTransientResources) {
+      resource.destroy();
+    }
+    this.frameTransientResources = [];
 
     // Destroy uniform buffers
     if (this.sceneUniformBuffer) {
@@ -1330,11 +1786,14 @@ export class WebGPU2DRenderer implements IRenderer {
       this.drawUniformBuffer.destroy();
       this.drawUniformBuffer = null;
     }
+    this.drawBindGroup = null;
+    this.drawSlotIndex = 0;
 
     // Pipelines and shared layouts hold no GPU memory themselves, just clear
     this.pipelines.clear();
     this.sceneBindGroupLayout = null;
     this.drawBindGroupLayout = null;
+    this.regionBindGroupLayout = null;
     this.frameSceneBindGroup = null;
     this.sceneUniformsDirty = true;
 

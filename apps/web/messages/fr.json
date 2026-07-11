@@ -1365,7 +1365,77 @@
       "2dCartesian": "2D Cartésien",
       "2dPolar": "2D Polaire",
       "2dParametric": "2D Paramétrique",
-      "3dSurface": "Surface 3D"
+      "3dSurface": "Surface 3D",
+      "dataRegression": "Données et régression",
+      "2dRelation": "2D Relations"
+    },
+    "regression": {
+      "title": "Données et régression",
+      "dataTitle": "Tableau de données",
+      "pasteHint": "Collez des données d'un tableur (séparées par des tabulations) directement dans le tableau.",
+      "addColumn": "Ajouter une colonne",
+      "addRow": "Ajouter une ligne",
+      "removeRow": "Supprimer la ligne",
+      "columnName": "Nom de colonne",
+      "invalidColumnName": "Les noms de colonnes doivent commencer par une lettre et être uniques",
+      "modelLabel": "Modèle de régression",
+      "modelPlaceholder": "p. ex. y1 ~ a*exp(b*x1)",
+      "modelValid": "Paramètres : {parameters}",
+      "cannedTitle": "Modèles prédéfinis",
+      "canned": {
+        "linear": "Linéaire",
+        "quadratic": "Quadratique",
+        "exponential": "Exponentielle",
+        "logarithmic": "Logarithmique",
+        "logistic": "Logistique",
+        "sinusoidal": "Sinusoïdale"
+      },
+      "stats": {
+        "title": "Statistiques d'ajustement",
+        "parameters": "Paramètres ajustés",
+        "r2": "R²",
+        "rmse": "RMSE",
+        "iterations": "Itérations"
+      },
+      "status": {
+        "converged": "Convergence atteinte",
+        "maxIterations": "Pas de convergence (limite d'itérations atteinte) — interprétez l'ajustement avec prudence",
+        "invalidModel": "Modèle non valide",
+        "insufficientData": "Pas assez de points de données pour le nombre de paramètres",
+        "singular": "Les paramètres ne peuvent pas être identifiés à partir de ces données",
+        "diverged": "Le modèle ne peut pas être évalué sur ces données"
+      },
+      "residualsToggle": "Afficher les résidus",
+      "dragHint": "Faites glisser les points pour les déplacer ; l'ajustement se met à jour instantanément. Faites glisser l'arrière-plan pour vous déplacer, molette pour zoomer.",
+      "pointLabel": "Point de données ({x}, {y})",
+      "plotTitle": "Données et courbe ajustée",
+      "warnings": {
+        "droppedRows": "{count} lignes avec des valeurs manquantes ou non numériques ont été ignorées",
+        "boundHit": "Le paramètre {name} a atteint sa borne",
+        "zeroVariance": "La colonne dépendante est constante — R² n'est pas significatif"
+      }
+    },
+    "relation": {
+      "inputTitle": "Relations",
+      "addButton": "Ajouter une relation",
+      "labelField": "Étiquette",
+      "expressionField": "Expression",
+      "placeholder": "ex. x^2 + y^2 = 25",
+      "colorLabel": "Couleur pour {label}",
+      "removeLabel": "Supprimer {label}",
+      "validSingle": "Relation valide",
+      "validChained": "Valide — bande ombrée",
+      "errorEmpty": "La relation ne peut pas être vide",
+      "errorNotRelation": "Une relation est attendue, ex. x^2 + y^2 = 25",
+      "errorInvalid": "Syntaxe de relation invalide",
+      "emptyTitle": "Aucune relation ajoutée",
+      "emptyHint": "Cliquez sur « Ajouter une relation » pour commencer",
+      "helperOperators": "Opérateurs pris en charge : =, <, <=, >, >= (aussi ≤, ≥)",
+      "helperChained": "Les comparaisons chaînées comme 1 < x < 4 ombrent la bande entre deux limites.",
+      "helperSystem": "Ajoutez plusieurs relations pour tracer un système : chacune obtient sa propre région ombrée.",
+      "presetsLabel": "Modèles de relations",
+      "plotTitle": "Graphique de relations 2D",
+      "plotDescription": "Courbes implicites et régions d’inégalité ombrées. Glissez pour déplacer, faites défiler pour zoomer."
     }
   },
   "chaos": {

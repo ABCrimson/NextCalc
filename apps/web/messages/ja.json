@@ -1365,7 +1365,77 @@
       "2dCartesian": "2D デカルト座標",
       "2dPolar": "2D 極座標",
       "2dParametric": "2D パラメトリック",
-      "3dSurface": "3D 曲面"
+      "3dSurface": "3D 曲面",
+      "dataRegression": "データと回帰",
+      "2dRelation": "2D 関係式"
+    },
+    "regression": {
+      "title": "データと回帰",
+      "dataTitle": "データテーブル",
+      "pasteHint": "スプレッドシートのデータ（タブ区切り）をそのまま表に貼り付けられます。",
+      "addColumn": "列を追加",
+      "addRow": "行を追加",
+      "removeRow": "行を削除",
+      "columnName": "列名",
+      "invalidColumnName": "列名は英字で始まり、重複しないようにしてください",
+      "modelLabel": "回帰モデル",
+      "modelPlaceholder": "例: y1 ~ a*exp(b*x1)",
+      "modelValid": "パラメータ: {parameters}",
+      "cannedTitle": "モデルテンプレート",
+      "canned": {
+        "linear": "線形",
+        "quadratic": "二次",
+        "exponential": "指数",
+        "logarithmic": "対数",
+        "logistic": "ロジスティック",
+        "sinusoidal": "正弦波"
+      },
+      "stats": {
+        "title": "フィット統計",
+        "parameters": "推定パラメータ",
+        "r2": "R²",
+        "rmse": "RMSE",
+        "iterations": "反復回数"
+      },
+      "status": {
+        "converged": "収束",
+        "maxIterations": "収束しませんでした（反復上限に到達）— フィット結果は慎重に扱ってください",
+        "invalidModel": "無効なモデル",
+        "insufficientData": "パラメータ数に対してデータ点が不足しています",
+        "singular": "このデータからパラメータを特定できません",
+        "diverged": "このデータではモデルを評価できません"
+      },
+      "residualsToggle": "残差を表示",
+      "dragHint": "点をドラッグすると移動でき、フィットは即座に更新されます。背景をドラッグでパン、スクロールでズーム。",
+      "pointLabel": "データ点 ({x}, {y})",
+      "plotTitle": "データとフィット曲線",
+      "warnings": {
+        "droppedRows": "欠損値または数値でない値を含む {count} 行を無視しました",
+        "boundHit": "パラメータ {name} が境界に達しました",
+        "zeroVariance": "従属変数の列が一定のため、R² は意味を持ちません"
+      }
+    },
+    "relation": {
+      "inputTitle": "関係式",
+      "addButton": "関係式を追加",
+      "labelField": "ラベル",
+      "expressionField": "式",
+      "placeholder": "例：x^2 + y^2 = 25",
+      "colorLabel": "{label} の色",
+      "removeLabel": "{label} を削除",
+      "validSingle": "有効な関係式です",
+      "validChained": "有効 — 帯状の領域",
+      "errorEmpty": "関係式を入力してください",
+      "errorNotRelation": "x^2 + y^2 = 25 のような関係式を入力してください",
+      "errorInvalid": "関係式の構文が無効です",
+      "emptyTitle": "関係式がまだ追加されていません",
+      "emptyHint": "「関係式を追加」をクリックして開始します",
+      "helperOperators": "対応する演算子：=, <, <=, >, >=（≤, ≥ も可）",
+      "helperChained": "1 < x < 4 のような連鎖比較は、2つの境界の間を帯状に塗りつぶします。",
+      "helperSystem": "複数の関係式を追加すると連立系になり、それぞれが独自の領域で塗りつぶされます。",
+      "presetsLabel": "関係式のプリセット",
+      "plotTitle": "2D関係式プロット",
+      "plotDescription": "陰関数曲線と塗りつぶされた不等式領域。ドラッグでパン、スクロールでズーム。"
     }
   },
   "chaos": {
