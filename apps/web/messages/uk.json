@@ -1055,7 +1055,54 @@
       "2dCartesian": "2D Cartesian",
       "2dPolar": "2D Polar",
       "2dParametric": "2D Parametric",
-      "3dSurface": "3D Surface"
+      "3dSurface": "3D Surface",
+      "dataRegression": "Дані та регресія"
+    },
+    "regression": {
+      "title": "Дані та регресія",
+      "dataTitle": "Таблиця даних",
+      "pasteHint": "Вставте дані з електронної таблиці (розділені табуляцією) безпосередньо в таблицю.",
+      "addColumn": "Додати стовпець",
+      "addRow": "Додати рядок",
+      "removeRow": "Видалити рядок",
+      "columnName": "Назва стовпця",
+      "invalidColumnName": "Назви стовпців мають починатися з літери та бути унікальними",
+      "modelLabel": "Модель регресії",
+      "modelPlaceholder": "напр. y1 ~ a*exp(b*x1)",
+      "modelValid": "Параметри: {parameters}",
+      "cannedTitle": "Шаблони моделей",
+      "canned": {
+        "linear": "Лінійна",
+        "quadratic": "Квадратична",
+        "exponential": "Експоненційна",
+        "logarithmic": "Логарифмічна",
+        "logistic": "Логістична",
+        "sinusoidal": "Синусоїдальна"
+      },
+      "stats": {
+        "title": "Статистика підгонки",
+        "parameters": "Підібрані параметри",
+        "r2": "R²",
+        "rmse": "RMSE",
+        "iterations": "Ітерації"
+      },
+      "status": {
+        "converged": "Зійшлася",
+        "maxIterations": "Не зійшлася (досягнуто ліміт ітерацій) — інтерпретуйте підгонку з обережністю",
+        "invalidModel": "Неприпустима модель",
+        "insufficientData": "Недостатньо точок даних для кількості параметрів",
+        "singular": "Параметри неможливо визначити з цих даних",
+        "diverged": "Модель не обчислюється на цих даних"
+      },
+      "residualsToggle": "Показати залишки",
+      "dragHint": "Перетягуйте точки — підгонка оновлюється одразу. Перетягуйте фон для панорамування, коліщатко — для масштабу.",
+      "pointLabel": "Точка даних ({x}, {y})",
+      "plotTitle": "Дані та підібрана крива",
+      "warnings": {
+        "droppedRows": "Пропущено рядків із відсутніми або нечисловими значеннями: {count}",
+        "boundHit": "Параметр {name} досяг межі",
+        "zeroVariance": "Залежний стовпець сталий — R² не інформативний"
+      }
     }
   },
   "chaos": {

@@ -36,6 +36,15 @@ export interface Plot2DProps {
   onCanvasReady?: (canvas: HTMLCanvasElement) => void;
   /** When true, renders the annotation toolbar and overlay. Defaults to false. */
   enableAnnotations?: boolean;
+  /**
+   * Controlled-viewport mode: when true, external changes to `config.viewport`
+   * are pushed into the interaction controller so the next drag continues from
+   * the new viewport instead of snapping back to the controller's stale seed.
+   * Use when the parent feeds `onViewportChange` back into `config.viewport`
+   * (e.g. the Data & Regression tab's auto-fit). Defaults to false, preserving
+   * the legacy contract where `config.viewport` is only the initial view.
+   */
+  syncViewportToConfig?: boolean;
 }
 
 /**
@@ -50,6 +59,7 @@ export function Plot2D({
   onViewportChange,
   onCanvasReady,
   enableAnnotations = false,
+  syncViewportToConfig = false,
 }: Plot2DProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -355,6 +365,26 @@ export function Plot2D({
     // controller once per isReady/enableInteractions change (not on every
     // config re-render) and read config via the stable ref inside the handler.
   }, [isReady, enableInteractions, config.type]);
+
+  // Controlled-viewport mode: push external config.viewport changes into the
+  // controller. Value-compared, so the echo from the controller's own events
+  // (viewport state fed back into config by the parent) terminates immediately.
+  useEffect(() => {
+    if (!syncViewportToConfig) return;
+    if (config.type !== '2d-cartesian' && config.type !== '2d-parametric') return;
+    const controller = controllerRef.current;
+    if (!controller) return;
+    const target = config.viewport;
+    const current = controller.getViewport();
+    if (
+      current.xMin !== target.xMin ||
+      current.xMax !== target.xMax ||
+      current.yMin !== target.yMin ||
+      current.yMax !== target.yMax
+    ) {
+      controller.setViewport(target);
+    }
+  }, [syncViewportToConfig, config]);
 
   // --- Fix 1: Debounced auto-refresh when config changes ---
   // Use a ref to hold the pending timer so we can clear it on cleanup.

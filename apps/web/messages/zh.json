@@ -1088,7 +1088,54 @@
       "2dCartesian": "2D 直角坐标",
       "2dPolar": "2D 极坐标",
       "2dParametric": "2D 参数化",
-      "3dSurface": "3D 曲面"
+      "3dSurface": "3D 曲面",
+      "dataRegression": "数据与回归"
+    },
+    "regression": {
+      "title": "数据与回归",
+      "dataTitle": "数据表",
+      "pasteHint": "可将电子表格中的数据（制表符分隔）直接粘贴到表格中。",
+      "addColumn": "添加列",
+      "addRow": "添加行",
+      "removeRow": "删除行",
+      "columnName": "列名",
+      "invalidColumnName": "列名必须以字母开头且不能重复",
+      "modelLabel": "回归模型",
+      "modelPlaceholder": "例如 y1 ~ a*exp(b*x1)",
+      "modelValid": "参数：{parameters}",
+      "cannedTitle": "模型模板",
+      "canned": {
+        "linear": "线性",
+        "quadratic": "二次",
+        "exponential": "指数",
+        "logarithmic": "对数",
+        "logistic": "逻辑斯谛",
+        "sinusoidal": "正弦"
+      },
+      "stats": {
+        "title": "拟合统计",
+        "parameters": "拟合参数",
+        "r2": "R²",
+        "rmse": "RMSE",
+        "iterations": "迭代次数"
+      },
+      "status": {
+        "converged": "已收敛",
+        "maxIterations": "未收敛（达到迭代上限）— 请谨慎对待该拟合",
+        "invalidModel": "模型无效",
+        "insufficientData": "数据点数量不足以拟合该参数个数",
+        "singular": "无法从这些数据中确定参数",
+        "diverged": "无法在这些数据上求值该模型"
+      },
+      "residualsToggle": "显示残差",
+      "dragHint": "拖动数据点即可移动，拟合会即时更新。拖动背景平移，滚轮缩放。",
+      "pointLabel": "数据点 ({x}, {y})",
+      "plotTitle": "数据与拟合曲线",
+      "warnings": {
+        "droppedRows": "已忽略 {count} 行缺失或非数值数据",
+        "boundHit": "参数 {name} 已达到边界",
+        "zeroVariance": "因变量列为常数 — R² 无意义"
+      }
     }
   },
   "chaos": {

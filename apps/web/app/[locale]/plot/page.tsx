@@ -29,6 +29,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { VariableSliders } from '@/components/plot/variable-sliders';
 import {
   type AnalysisFunction,
+  DataRegressionTab,
   type FunctionDefinition,
   FunctionInput,
   Plot2D,
@@ -813,6 +814,12 @@ export default function PlotsExamplesPage() {
               >
                 {t('tab.3dSurface')}
               </TabsTrigger>
+              <TabsTrigger
+                value="data-regression"
+                className="data-[state=active]:bg-linear-to-br/oklab data-[state=active]:from-rose-900/50 data-[state=active]:to-orange-900/50 data-[state=active]:text-rose-100 data-[state=active]:border data-[state=active]:border-rose-500/50 data-[state=active]:shadow-[0_0_15px_oklch(0.645_0.246_16.44_/_0.3)] transition-all duration-200"
+              >
+                {t('tab.dataRegression')}
+              </TabsTrigger>
             </TabsList>
           </m.div>
 
@@ -1208,6 +1215,13 @@ const config = {
 />`}
               </pre>
             </div>
+          </TabsContent>
+
+          {/* ----------------------------------------------------------------
+              DATA & REGRESSION TAB
+          ---------------------------------------------------------------- */}
+          <TabsContent value="data-regression" className="space-y-6">
+            <DataRegressionTab />
           </TabsContent>
         </Tabs>
 

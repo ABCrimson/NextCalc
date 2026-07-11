@@ -1089,7 +1089,54 @@
       "2dCartesian": "2D Cartesian",
       "2dPolar": "2D Polar",
       "2dParametric": "2D Parametric",
-      "3dSurface": "3D Surface"
+      "3dSurface": "3D Surface",
+      "dataRegression": "Data & Regression"
+    },
+    "regression": {
+      "title": "Data & Regression",
+      "dataTitle": "Data table",
+      "pasteHint": "Paste data from a spreadsheet (tab-separated) directly into the table.",
+      "addColumn": "Add column",
+      "addRow": "Add row",
+      "removeRow": "Remove row",
+      "columnName": "Column name",
+      "invalidColumnName": "Column names must start with a letter and be unique",
+      "modelLabel": "Regression model",
+      "modelPlaceholder": "e.g. y1 ~ a*exp(b*x1)",
+      "modelValid": "Parameters: {parameters}",
+      "cannedTitle": "Model templates",
+      "canned": {
+        "linear": "Linear",
+        "quadratic": "Quadratic",
+        "exponential": "Exponential",
+        "logarithmic": "Logarithmic",
+        "logistic": "Logistic",
+        "sinusoidal": "Sinusoidal"
+      },
+      "stats": {
+        "title": "Fit statistics",
+        "parameters": "Fitted parameters",
+        "r2": "R²",
+        "rmse": "RMSE",
+        "iterations": "Iterations"
+      },
+      "status": {
+        "converged": "Converged",
+        "maxIterations": "Did not converge (iteration limit reached) — treat the fit with caution",
+        "invalidModel": "Invalid model",
+        "insufficientData": "Not enough data points for the number of parameters",
+        "singular": "Parameters cannot be identified from this data",
+        "diverged": "The model cannot be evaluated on this data"
+      },
+      "residualsToggle": "Show residuals",
+      "dragHint": "Drag points to move them; the fit updates live. Drag the background to pan, scroll to zoom.",
+      "pointLabel": "Data point ({x}, {y})",
+      "plotTitle": "Data & fitted curve",
+      "warnings": {
+        "droppedRows": "Ignored {count} rows with missing or non-numeric values",
+        "boundHit": "Parameter {name} hit its bound",
+        "zeroVariance": "The dependent column is constant — R² is not meaningful"
+      }
     }
   },
   "chaos": {
