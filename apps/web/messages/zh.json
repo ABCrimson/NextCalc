@@ -454,7 +454,30 @@
     "selectTopic": "选择主题",
     "selectDifficulty": "选择难度",
     "selectQuestionCount": "选择题目数量",
-    "selectTimeLimit": "选择时间限制"
+    "selectTimeLimit": "选择时间限制",
+    "drill": {
+      "title": "无限刷题",
+      "description": "无限随机题目，CAS 即时判分 — 每道题都有可分享的链接。",
+      "enter": "开始无限刷题",
+      "templateLabel": "题目类型",
+      "seedLabel": "种子",
+      "answerLabel": "你的答案",
+      "answerPlaceholder": "例如 x = 2 或 3/4",
+      "generateAnother": "再来一题",
+      "checkAnswer": "检查答案",
+      "correct": "正确！等价形式也算对。",
+      "incorrect": "不太对 — 检查一下你的解题过程再试一次。",
+      "showHint": "显示提示",
+      "hintCost": "{count, plural, other {已使用 # 条提示}}",
+      "attempted": "{count, plural, other {已答 # 题}}",
+      "correctCount": "{count, plural, other {答对 # 题}}",
+      "streak": "{count, plural, other {连对 # 题}}",
+      "copyLink": "复制链接",
+      "linkCopied": "链接已复制！",
+      "endDrill": "结束并保存",
+      "sessionSaved": "已保存本次练习 — XP 和主题进度已更新。",
+      "signInToSave": "登录即可保存进度 — 不登录也能正常刷题。"
+    }
   },
   "problems": {
     "title": "题库",
@@ -1843,5 +1866,18 @@
       "complexNumbers": "复数",
       "complexNumbersSubtitle": "Argand 图与各种形式"
     }
+  },
+  "checkWork": {
+    "title": "检查我的答案",
+    "description": "以任意形式输入你的答案 — CAS 将验证其数学等价性。",
+    "inputLabel": "待验证的表达式",
+    "inputPlaceholder": "例如 (x - 2)*(x - 3)",
+    "check": "验证",
+    "equivalent": "等价 — 你的形式与答案一致。",
+    "notEquivalent": "与预期答案不等价。",
+    "parseError": "无法解析该表达式 — 请检查语法。",
+    "inconclusive": "无法验证 — 请尝试更简单的形式。",
+    "verifiedSymbolically": "已通过符号验证",
+    "verifiedNumerically": "已通过数值验证"
   }
 }

@@ -454,7 +454,30 @@
     "selectTopic": "トピックを選択",
     "selectDifficulty": "難易度を選択",
     "selectQuestionCount": "問題数を選択",
-    "selectTimeLimit": "制限時間を選択"
+    "selectTimeLimit": "制限時間を選択",
+    "drill": {
+      "title": "無限ドリル",
+      "description": "CASによる即時採点付きのランダム問題を無限に — すべての問題に共有リンクがあります。",
+      "enter": "無限ドリルを開始",
+      "templateLabel": "問題の種類",
+      "seedLabel": "シード",
+      "answerLabel": "あなたの答え",
+      "answerPlaceholder": "例: x = 2 または 3/4",
+      "generateAnother": "次の問題を生成",
+      "checkAnswer": "答えを確認",
+      "correct": "正解！同値な形式も正解になります。",
+      "incorrect": "惜しい — 計算を見直してもう一度試してください。",
+      "showHint": "ヒントを表示",
+      "hintCost": "{count, plural, other {ヒント#個使用}}",
+      "attempted": "{count, plural, other {挑戦 #問}}",
+      "correctCount": "{count, plural, other {正解 #問}}",
+      "streak": "{count, plural, other {#問連続}}",
+      "copyLink": "リンクをコピー",
+      "linkCopied": "リンクをコピーしました！",
+      "endDrill": "ドリルを終了して保存",
+      "sessionSaved": "セッションを保存しました — XPとトピック進捗を更新しました。",
+      "signInToSave": "進捗を保存するにはサインインしてください — ドリル自体はサインインなしでも使えます。"
+    }
   },
   "problems": {
     "title": "問題ライブラリ",
@@ -1843,5 +1866,18 @@
       "complexNumbers": "複素数",
       "complexNumbersSubtitle": "アルガン図と表現形式"
     }
+  },
+  "checkWork": {
+    "title": "答え合わせ",
+    "description": "任意の形式で答えを入力してください — CASが数学的な同値性を検証します。",
+    "inputLabel": "検証する式",
+    "inputPlaceholder": "例: (x - 2)*(x - 3)",
+    "check": "検証",
+    "equivalent": "同値です — あなたの形式は答えと一致します。",
+    "notEquivalent": "期待される答えと同値ではありません。",
+    "parseError": "式を解析できませんでした — 構文を確認してください。",
+    "inconclusive": "検証できませんでした — より簡単な形式を試してください。",
+    "verifiedSymbolically": "記号的に検証済み",
+    "verifiedNumerically": "数値的に検証済み"
   }
 }

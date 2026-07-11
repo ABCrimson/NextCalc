@@ -19,6 +19,7 @@ import { AnimatePresence, m } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import type { KeyboardEvent } from 'react';
 import { useCallback, useId, useState, useTransition } from 'react';
+import { CheckWorkPanel } from '@/components/math/check-work-panel';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -101,6 +102,8 @@ interface RenderedSolution {
   readonly steps: ReadonlyArray<RenderedStep>;
   readonly finalLatex: string;
   readonly timeMs: number;
+  /** Raw parseable expression of the result — enables "Check my work" */
+  readonly finalRaw?: string;
 }
 
 // ============================================================================
@@ -1168,6 +1171,14 @@ function ResultsPanel({ solution, onCopyAnswer, copied }: ResultsPanelProps) {
           </Button>
         </div>
       </section>
+
+      {/* "Check my work" — verify an equivalent form against the answer */}
+      {solution.finalRaw && (
+        <CheckWorkPanel
+          canonical={solution.finalRaw}
+          allowConstantOfIntegration={solution.mode === 'integral'}
+        />
+      )}
     </m.div>
   );
 }
@@ -1372,6 +1383,7 @@ export function SolverPanel() {
             steps,
             finalLatex: `${resultLatex} + C`,
             timeMs: elapsed,
+            finalRaw: resultStr,
           });
           return;
         }
@@ -1397,12 +1409,55 @@ export function SolverPanel() {
         // Build final answer LaTeX
         const finalLatex = buildFinalLatex(stepSolution.answer, varName);
 
+        // Raw parseable expression for the "Check my work" panel.
+        // For equations the canonical must be the actual solved root — a
+        // student typing their correct numeric answer (e.g. "3") can never
+        // equal the zero-form LHS − RHS, which is a function of the
+        // variable, not a number. Only offer the panel when there is
+        // exactly one real root: CheckWorkPanel compares against a single
+        // canonical value, so it cannot represent "equivalent to any of
+        // several roots" without rejecting an otherwise-correct answer.
+        // For simplify/derivative the canonical is the resulting expression.
+        let finalRaw: string | null = null;
+        try {
+          if (mode === 'equation') {
+            const solutions = stepSolution.answer;
+            if (Array.isArray(solutions) && solutions.length === 1) {
+              const value = (solutions[0] as { value: unknown } | undefined)?.value;
+              if (typeof value === 'number' && Number.isFinite(value)) {
+                finalRaw = String(value);
+              } else if (
+                value !== null &&
+                typeof value === 'object' &&
+                'real' in value &&
+                'imag' in value &&
+                Math.abs((value as { imag: number }).imag) < 1e-9
+              ) {
+                finalRaw = String((value as { real: number }).real);
+              }
+            }
+          } else {
+            const answer = stepSolution.answer;
+            if (
+              answer !== null &&
+              typeof answer === 'object' &&
+              !Array.isArray(answer) &&
+              '_brand' in answer
+            ) {
+              finalRaw = symbolic.astToString(answer);
+            }
+          }
+        } catch {
+          finalRaw = null;
+        }
+
         setSolution({
           problem: validated,
           mode,
           steps: renderedSteps,
           finalLatex,
           timeMs: elapsed,
+          ...(finalRaw ? { finalRaw } : {}),
         });
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'An unexpected error occurred.';

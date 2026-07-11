@@ -56,6 +56,14 @@ export const basicProbabilityTemplate = createTemplate({
   tags: ['probability', 'basic'],
   prerequisites: ['fractions', 'counting'],
   learningObjectives: ['Calculate basic probability'],
+  canonical: (params) => {
+    const { red, blue } = narrow<{ red: number; blue: number }>(params);
+    // The displayed solution rounds a non-terminating probability to 3
+    // decimals (see `answer` above) — match geometry-templates.ts's
+    // pattern and widen the tolerance so that displayed value grades as
+    // correct.
+    return { kind: 'number', value: red / (red + blue), tolerance: 1e-3 };
+  },
 });
 
 /**
@@ -122,6 +130,10 @@ export const combinationsTemplate = createTemplate({
   tags: ['combinations', 'combinatorics'],
   prerequisites: ['factorials'],
   learningObjectives: ['Calculate combinations'],
+  canonical: (params) => {
+    const { n, r } = narrow<{ n: number; r: number }>(params);
+    return { kind: 'number', value: combinations(n, r) };
+  },
 });
 
 /**
@@ -175,6 +187,10 @@ export const permutationsTemplate = createTemplate({
   tags: ['permutations', 'combinatorics'],
   prerequisites: ['factorials'],
   learningObjectives: ['Calculate permutations'],
+  canonical: (params) => {
+    const { n, r } = narrow<{ n: number; r: number }>(params);
+    return { kind: 'number', value: permutations(n, r) };
+  },
 });
 
 /**

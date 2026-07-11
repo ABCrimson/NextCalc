@@ -455,7 +455,30 @@
     "selectTopic": "Select topic",
     "selectDifficulty": "Select difficulty",
     "selectQuestionCount": "Select question count",
-    "selectTimeLimit": "Select time limit"
+    "selectTimeLimit": "Select time limit",
+    "drill": {
+      "title": "Infinite Drill",
+      "description": "Endless randomized problems with instant CAS-verified grading — every problem has a shareable link.",
+      "enter": "Start Infinite Drill",
+      "templateLabel": "Problem type",
+      "seedLabel": "Seed",
+      "answerLabel": "Your answer",
+      "answerPlaceholder": "e.g. x = 2 or 3/4",
+      "generateAnother": "Generate another",
+      "checkAnswer": "Check answer",
+      "correct": "Correct! Equivalent forms accepted.",
+      "incorrect": "Not quite — check your work and try again.",
+      "showHint": "Show hint",
+      "hintCost": "{count, plural, one {# hint used} other {# hints used}}",
+      "attempted": "{count, plural, one {# attempted} other {# attempted}}",
+      "correctCount": "{count, plural, one {# correct} other {# correct}}",
+      "streak": "{count, plural, one {# in a row} other {# in a row}}",
+      "copyLink": "Copy link",
+      "linkCopied": "Link copied!",
+      "endDrill": "End drill & save",
+      "sessionSaved": "Session saved — XP and topic progress updated.",
+      "signInToSave": "Sign in to save your progress — the drill works without it."
+    }
   },
   "problems": {
     "title": "Problem Library",
@@ -1846,5 +1869,18 @@
       "complexNumbers": "Complex Numbers",
       "complexNumbersSubtitle": "Argand Diagram & Forms"
     }
+  },
+  "checkWork": {
+    "title": "Check my work",
+    "description": "Enter your answer in any form — the CAS verifies whether it is mathematically equivalent.",
+    "inputLabel": "Expression to verify",
+    "inputPlaceholder": "e.g. (x - 2)*(x - 3)",
+    "check": "Verify",
+    "equivalent": "Equivalent — your form matches the answer.",
+    "notEquivalent": "Not equivalent to the expected answer.",
+    "parseError": "Could not parse that expression — check the syntax.",
+    "inconclusive": "Could not verify — try a simpler form.",
+    "verifiedSymbolically": "Verified symbolically",
+    "verifiedNumerically": "Verified numerically"
   }
 }
