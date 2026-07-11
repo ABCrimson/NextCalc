@@ -1044,6 +1044,28 @@
     "inflection": "Wendepunkte",
     "derivative": "Ableitung",
     "integral": "Integral",
+    "relation": {
+      "inputTitle": "Relationen",
+      "addButton": "Relation hinzufügen",
+      "labelField": "Beschriftung",
+      "expressionField": "Ausdruck",
+      "placeholder": "z.B. x^2 + y^2 = 25",
+      "colorLabel": "Farbe für {label}",
+      "removeLabel": "{label} entfernen",
+      "validSingle": "Gültige Relation",
+      "validChained": "Gültig — schattiertes Band",
+      "errorEmpty": "Relation darf nicht leer sein",
+      "errorNotRelation": "Erwartet wird eine Relation, z.B. x^2 + y^2 = 25",
+      "errorInvalid": "Ungültige Relationssyntax",
+      "emptyTitle": "Noch keine Relationen hinzugefügt",
+      "emptyHint": "Klicken Sie auf „Relation hinzufügen“, um zu beginnen",
+      "helperOperators": "Unterstützte Operatoren: =, <, <=, >, >= (auch ≤, ≥)",
+      "helperChained": "Verkettete Vergleiche wie 1 < x < 4 schattieren das Band zwischen zwei Grenzen.",
+      "helperSystem": "Fügen Sie mehrere Relationen hinzu, um ein System zu zeichnen — jede erhält ihre eigene schattierte Region.",
+      "presetsLabel": "Relations-Vorlagen",
+      "plotTitle": "2D-Relationsdiagramm",
+      "plotDescription": "Implizite Kurven und schattierte Ungleichungsbereiche. Ziehen zum Verschieben, Scrollen zum Zoomen."
+    },
     "pageTitle": "Interactive Plots",
     "subtitle": "GPU-accelerated time-frequency domain analysis with interactive visualizations",
     "badge": {
@@ -1055,6 +1077,7 @@
       "2dCartesian": "2D Cartesian",
       "2dPolar": "2D Polar",
       "2dParametric": "2D Parametric",
+      "2dRelation": "2D-Relationen",
       "3dSurface": "3D Surface"
     }
   },

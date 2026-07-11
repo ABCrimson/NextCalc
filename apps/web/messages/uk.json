@@ -1044,6 +1044,28 @@
     "inflection": "Точки перегину",
     "derivative": "Похідна",
     "integral": "Інтеграл",
+    "relation": {
+      "inputTitle": "Співвідношення",
+      "addButton": "Додати співвідношення",
+      "labelField": "Підпис",
+      "expressionField": "Вираз",
+      "placeholder": "напр. x^2 + y^2 = 25",
+      "colorLabel": "Колір для {label}",
+      "removeLabel": "Видалити {label}",
+      "validSingle": "Коректне співвідношення",
+      "validChained": "Дійсно — заштрихована смуга",
+      "errorEmpty": "Співвідношення не може бути порожнім",
+      "errorNotRelation": "Очікується співвідношення, напр. x^2 + y^2 = 25",
+      "errorInvalid": "Некоректний синтаксис співвідношення",
+      "emptyTitle": "Співвідношення ще не додано",
+      "emptyHint": "Натисніть «Додати співвідношення», щоб почати",
+      "helperOperators": "Підтримувані оператори: =, <, <=, >, >= (також ≤, ≥)",
+      "helperChained": "Ланцюгові порівняння на кшталт 1 < x < 4 зафарбовують смугу між двома межами.",
+      "helperSystem": "Додайте кілька співвідношень, щоб побудувати систему — кожне отримає свою зафарбовану область.",
+      "presetsLabel": "Шаблони співвідношень",
+      "plotTitle": "Графік 2D-співвідношень",
+      "plotDescription": "Неявні криві та зафарбовані області нерівностей. Перетягуйте для панорамування, прокручуйте для масштабування."
+    },
     "pageTitle": "Interactive Plots",
     "subtitle": "GPU-accelerated time-frequency domain analysis with interactive visualizations",
     "badge": {
@@ -1055,6 +1077,7 @@
       "2dCartesian": "2D Cartesian",
       "2dPolar": "2D Polar",
       "2dParametric": "2D Parametric",
+      "2dRelation": "2D співвідношення",
       "3dSurface": "3D Surface"
     }
   },

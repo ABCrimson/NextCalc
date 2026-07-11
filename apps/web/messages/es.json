@@ -1044,6 +1044,28 @@
     "inflection": "Puntos de inflexión",
     "derivative": "Derivada",
     "integral": "Integral",
+    "relation": {
+      "inputTitle": "Relaciones",
+      "addButton": "Agregar relación",
+      "labelField": "Etiqueta",
+      "expressionField": "Expresión",
+      "placeholder": "ej. x^2 + y^2 = 25",
+      "colorLabel": "Color para {label}",
+      "removeLabel": "Eliminar {label}",
+      "validSingle": "Relación válida",
+      "validChained": "Válida — banda sombreada",
+      "errorEmpty": "La relación no puede estar vacía",
+      "errorNotRelation": "Se esperaba una relación, ej. x^2 + y^2 = 25",
+      "errorInvalid": "Sintaxis de relación no válida",
+      "emptyTitle": "Aún no se han agregado relaciones",
+      "emptyHint": "Haga clic en «Agregar relación» para comenzar",
+      "helperOperators": "Operadores admitidos: =, <, <=, >, >= (también ≤, ≥)",
+      "helperChained": "Las comparaciones encadenadas como 1 < x < 4 sombrean la banda entre dos límites.",
+      "helperSystem": "Agregue varias relaciones para graficar un sistema; cada una obtiene su propia región sombreada.",
+      "presetsLabel": "Plantillas de relaciones",
+      "plotTitle": "Gráfico de relaciones 2D",
+      "plotDescription": "Curvas implícitas y regiones de desigualdad sombreadas. Arrastre para desplazar, desplácese para hacer zoom."
+    },
     "pageTitle": "Gráficos interactivos",
     "subtitle": "GPU-accelerated time-frequency domain analysis with interactive visualizations",
     "badge": {
@@ -1055,6 +1077,7 @@
       "2dCartesian": "2D Cartesiano",
       "2dPolar": "2D Polar",
       "2dParametric": "2D Paramétrico",
+      "2dRelation": "2D Relaciones",
       "3dSurface": "Superficie 3D"
     }
   },
