@@ -15,11 +15,12 @@
  * @module app/plot/page
  */
 
-import { evaluate } from '@nextcalc/math-engine';
+import { evaluate, parseRelationSystem } from '@nextcalc/math-engine';
 import type {
   Plot2DCartesianConfig,
   Plot2DParametricConfig,
   Plot2DPolarConfig,
+  Plot2DRelationConfig,
 } from '@nextcalc/plot-engine';
 import { Activity, Layers, Maximize2, Zap } from 'lucide-react';
 import { m } from 'motion/react';
@@ -29,6 +30,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { VariableSliders } from '@/components/plot/variable-sliders';
 import {
   type AnalysisFunction,
+  buildRelationConfig,
   type FunctionDefinition,
   FunctionInput,
   Plot2D,
@@ -37,6 +39,9 @@ import {
   PlotExportToolbar,
   type PolarAnalysisFunction,
   PolarAnalysisPanel,
+  RELATION_COLORS,
+  type RelationDefinition,
+  RelationInput,
   SurfaceEditor3D,
 } from '@/components/plots';
 import { Badge } from '@/components/ui/badge';
@@ -391,6 +396,34 @@ const PARAMETRIC_PRESETS: ParametricPreset[] = [
   },
 ];
 
+interface RelationPreset {
+  label: string;
+  /** One expression per line; a system is 2+ expressions rendered together. */
+  expressions: string[];
+}
+
+/** Default viewport for the 2D relations tab — a symmetric window around the origin. */
+const RELATION_VIEWPORT = { xMin: -10, xMax: 10, yMin: -10, yMax: 10 };
+
+const RELATION_PRESETS: RelationPreset[] = [
+  {
+    label: 'Circle x²+y²=25',
+    expressions: ['x^2 + y^2 = 25'],
+  },
+  {
+    label: 'Parabola region y>x²',
+    expressions: ['y > x^2'],
+  },
+  {
+    label: 'Half-disk system',
+    expressions: ['x^2 + y^2 < 25', 'y > 0'],
+  },
+  {
+    label: 'Band (chained)',
+    expressions: ['-2 < x - y < 2'],
+  },
+];
+
 // ---------------------------------------------------------------------------
 // Fix 5: Redesigned preset chip component
 // ---------------------------------------------------------------------------
@@ -514,15 +547,28 @@ export default function PlotsExamplesPage() {
     },
   ]);
 
+  const [relationDefinitions, setRelationDefinitions] = useState<RelationDefinition[]>([
+    {
+      id: 'relation-1',
+      expression: 'x^2 + y^2 = 25',
+      label: 'R1',
+      color: RELATION_COLORS[0] ?? '#06b6d4',
+      isValid: true,
+      relationCount: 1,
+    },
+  ]);
+
   // Slider parameter values for each tab — keyed by parameter name, value is number
   const [cartesianSliderValues, setCartesianSliderValues] = useState<Record<string, number>>({});
   const [polarSliderValues, setPolarSliderValues] = useState<Record<string, number>>({});
   const [parametricSliderValues, setParametricSliderValues] = useState<Record<string, number>>({});
+  const [relationSliderValues, setRelationSliderValues] = useState<Record<string, number>>({});
 
   // Active preset labels for visual indication
   const [activeCartesian, setActiveCartesian] = useState<string | null>(null);
   const [activePolar, setActivePolar] = useState<string | null>(null);
   const [activeParametric, setActiveParametric] = useState<string | null>(null);
+  const [activeRelation, setActiveRelation] = useState<string | null>(null);
 
   // Preset click handlers
   const handleCartesianPreset = useCallback((preset: CartesianPreset) => {
@@ -539,6 +585,30 @@ export default function PlotsExamplesPage() {
     setParametricFunctionsX(preset.xFunctions);
     setParametricFunctionsY(preset.yFunctions);
     setActiveParametric(preset.label);
+  }, []);
+
+  const handleRelationPreset = useCallback((preset: RelationPreset) => {
+    setRelationDefinitions(
+      preset.expressions.map((expression, index) => {
+        // Presets are hand-written and always parse; the try/catch only
+        // guards against a future typo regressing to a crash.
+        let relationCount = 1;
+        try {
+          relationCount = parseRelationSystem(expression).length;
+        } catch {
+          // fall back to 1 — RelationInput will re-validate on next edit
+        }
+        return {
+          id: `${preset.label}-${index}`,
+          expression,
+          label: `R${index + 1}`,
+          color: RELATION_COLORS[index % RELATION_COLORS.length] ?? '#06b6d4',
+          isValid: true,
+          relationCount,
+        };
+      }),
+    );
+    setActiveRelation(preset.label);
   }, []);
 
   // Convert custom functions to plot config functions
@@ -690,6 +760,35 @@ export default function PlotsExamplesPage() {
     title: 'Parametric Curve',
   };
 
+  // Fix 6: 2D relations (implicit curves + shaded inequality systems) — parsing
+  // and field-compilation are non-trivial, so this is memoized like the other
+  // custom-function arrays above.
+  const relationConfig: Plot2DRelationConfig = useMemo(
+    () =>
+      buildRelationConfig(relationDefinitions, {
+        viewport: RELATION_VIEWPORT,
+        xAxis: {
+          label: 'x',
+          min: RELATION_VIEWPORT.xMin,
+          max: RELATION_VIEWPORT.xMax,
+          scale: 'linear',
+          grid: { enabled: true, majorStep: 2, color: '#e5e7eb', opacity: 0.5 },
+          ticks: { enabled: true, format: (v) => v.toFixed(0) },
+        },
+        yAxis: {
+          label: 'y',
+          min: RELATION_VIEWPORT.yMin,
+          max: RELATION_VIEWPORT.yMax,
+          scale: 'linear',
+          grid: { enabled: true, majorStep: 2, color: '#e5e7eb', opacity: 0.5 },
+          ticks: { enabled: true, format: (v) => v.toFixed(0) },
+        },
+        title: t('relation.plotTitle'),
+        sliderValues: relationSliderValues,
+      }),
+    [relationDefinitions, relationSliderValues, t],
+  );
+
   // ---------------------------------------------------------------------------
   // Shared rendering helpers
   // ---------------------------------------------------------------------------
@@ -806,6 +905,12 @@ export default function PlotsExamplesPage() {
                 className="data-[state=active]:bg-linear-to-br/oklab data-[state=active]:from-green-900/50 data-[state=active]:to-teal-900/50 data-[state=active]:text-green-100 data-[state=active]:border data-[state=active]:border-green-500/50 data-[state=active]:shadow-[0_0_15px_oklch(0.596_0.1274_163.23_/_0.3)] transition-all duration-200"
               >
                 {t('tab.2dParametric')}
+              </TabsTrigger>
+              <TabsTrigger
+                value="2d-relation"
+                className="data-[state=active]:bg-linear-to-br/oklab data-[state=active]:from-amber-900/50 data-[state=active]:to-yellow-900/50 data-[state=active]:text-amber-100 data-[state=active]:border data-[state=active]:border-amber-500/50 data-[state=active]:shadow-[0_0_15px_oklch(0.7686_0.1647_70.08_/_0.3)] transition-all duration-200"
+              >
+                {t('tab.2dRelation')}
               </TabsTrigger>
               <TabsTrigger
                 value="3d-surface"
@@ -1177,6 +1282,100 @@ const config = {
   }],
   tRange: { min: 0, max: 2 * Math.PI },
 };`}
+              </pre>
+            </div>
+          </TabsContent>
+
+          {/* ----------------------------------------------------------------
+              2D RELATIONS TAB — implicit curves (F(x,y)=0) and shaded
+              inequality regions, including systems of relations.
+          ---------------------------------------------------------------- */}
+          <TabsContent value="2d-relation" className="space-y-6">
+            <m.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.4 }}
+              className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+            >
+              {/* Sidebar */}
+              <div className="lg:col-span-1">
+                <div className="sticky top-24 space-y-4">
+                  {/* Preset chips card */}
+                  <div className="relative p-5 rounded-xl bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
+                    <div className="absolute inset-0 rounded-xl bg-linear-to-br/oklab from-amber-500/5 to-yellow-500/5 pointer-events-none" />
+                    <div className="relative">
+                      <PresetGroup label={t('relation.presetsLabel')}>
+                        {RELATION_PRESETS.map((preset) => (
+                          <PresetChip
+                            key={preset.label}
+                            label={preset.label}
+                            onClick={() => handleRelationPreset(preset)}
+                            accentGradient="hover:shadow-[0_0_0_1.5px_oklch(0.7686_0.1647_70.08_/_0.6),0_0_14px_oklch(0.7686_0.1647_70.08_/_0.2)]"
+                            isActive={activeRelation === preset.label}
+                          />
+                        ))}
+                      </PresetGroup>
+                    </div>
+                  </div>
+
+                  {/* Relation input card */}
+                  <div className="relative p-5 rounded-xl bg-linear-to-br/oklab from-background/60 via-card/50 to-background/60 backdrop-blur-md border border-border shadow-[0_8px_32px_0_oklch(0_0_0_/_0.37)]">
+                    <div className="absolute inset-0 rounded-xl bg-linear-to-br/oklab from-amber-500/5 to-yellow-500/5 pointer-events-none" />
+                    <div className="relative">
+                      <RelationInput
+                        relations={relationDefinitions}
+                        onChange={(rels) => {
+                          setRelationDefinitions(rels);
+                          setActiveRelation(null);
+                        }}
+                        maxRelations={6}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Variable sliders — shown only when free parameters are detected */}
+                  <VariableSliders
+                    expressions={relationDefinitions.map((rel) => rel.expression)}
+                    onChange={setRelationSliderValues}
+                  />
+                </div>
+              </div>
+
+              {/* Plot area */}
+              {/* Note: PlotExportToolbar only supports function-sampled configs
+                  (cartesian/polar/parametric) — implicit/relation fields have no
+                  simple point series to re-derive, so export is out of scope here. */}
+              <div className="lg:col-span-2 space-y-4">
+                <PlotContainer
+                  title={t('relation.plotTitle')}
+                  description={t('relation.plotDescription')}
+                >
+                  <div className="w-full aspect-[4/3]">
+                    <Plot2D
+                      config={relationConfig}
+                      enableInteractions={true}
+                      enableAnnotations={true}
+                    />
+                  </div>
+                </PlotContainer>
+              </div>
+            </m.div>
+
+            <div className="bg-linear-to-br/oklab from-background/80 to-card/80 p-4 rounded-lg border border-border">
+              <h3 className="font-semibold text-foreground mb-2">Example Code</h3>
+              <pre className="text-xs bg-background/80 text-foreground/80 p-3 rounded overflow-x-auto border border-border">
+                {`import { parseRelationSystem, compileRelationField } from '@nextcalc/math-engine';
+
+const [circle] = parseRelationSystem('x^2 + y^2 = 25');
+const config = {
+  type: '2d-relation',
+  relations: [
+    { field: compileRelationField(circle), op: circle.op },
+  ],
+  viewport: { xMin: -10, xMax: 10, yMin: -10, yMax: 10 },
+};
+
+<Plot2D config={config} />`}
               </pre>
             </div>
           </TabsContent>
