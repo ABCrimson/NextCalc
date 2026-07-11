@@ -2,6 +2,19 @@
 
 All notable changes to NextCalc Pro are documented in this file.
 
+## [1.5.2] - 2026-07-11
+
+> Follow-up to v1.5.1: forum SSR finally delivers real content, the admin profile renders its Architect tier, and the forum background got a genuine visual upgrade.
+
+### Fixed
+- **Forum post SSR streamed "Post not found"** (pre-existing, activated by the June Apollo migration) — during streaming SSR the app fetched its own GraphQL over HTTP via the deployment-specific `VERCEL_URL`, which sits behind Vercel Deployment Protection and returns a 401 challenge; `errorPolicy: 'all'` turned that into a null post. SSR (and the RSC client, same defect class) now execute GraphQL **in-process** via `SchemaLink` over the API package's executable schema — no self-fetch, no origin sensitivity, verified streamed HTML contains the post title, body, and comments under both webpack prod and Turbopack dev (client bundles proven free of server code via the package.json `imports` browser condition). `generateMetadata` now reads the post directly (no view double-count) and a double `| NextCalc Pro` title suffix was fixed.
+- **Admin profile displayed Level 1** — the production account had never actually been promoted (`role` was `USER`; the only "admins" were seed fixtures that never ran in prod), so the v1.5.1 picker gate and the L101 tier could not apply. Added an idempotent `db:promote-admin` script (run: the owner is now the sole ADMIN), and the profile now derives its display tier from role — ADMIN renders as Level 101 Architect across the hero badge, tier text, stats tile, and fallback icon, without faking XP or granting anything to non-admins.
+- **Sign-in "Continue without signing in" linked to `/en/en/...`** — the locale-aware Link double-prefixed the already-localized callbackUrl; switched to the plain Next link.
+
+### Changed
+- **Forum background rebuilt** — the "grain" was a bug: the SVG noise tile had no `background-size`, so a 256px texture stretched across the whole viewport as blotches; it now tiles correctly (soft-light, half opacity in dark). The color shift is now an aurora system: three gradient blobs drifting on 40/60/90s periods with hue animated inside the OKLCH color channel via typed `@property` custom properties (perceptually uniform), compositor-only motion, `prefers-reduced-motion` respected — and the component no longer needs Framer Motion or client-side JS at all.
+- ROADMAP: the Competitive Feature Roadmap placeholder is now the real ranked backlog from the July 2026 analysis vs Desmos / Wolfram Alpha / GeoGebra / Symbolab.
+
 ## [1.5.1] - 2026-07-10
 
 > Hotfix for 8 user-reported production issues found hours after v1.5.0 went live. Root-caused systematically: only one was a v1.5.0 code regression — the rest were pre-existing defects that the release unmasked or that had never been visible.

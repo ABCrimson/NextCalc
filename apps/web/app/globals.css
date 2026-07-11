@@ -215,6 +215,76 @@
   inherits: false;
 }
 
+/* Forum aurora — typed custom properties so the browser can natively
+   interpolate them (untyped custom props used inside a color function or
+   `translate`/`scale` are treated as opaque strings and jump between
+   keyframes instead of animating). Hue is read straight into oklch()
+   rather than driven through filter: hue-rotate(), which rotates in a
+   linear-light RGB space and warps perceived lightness/chroma as it
+   turns — going through oklch() keeps the drift perceptually uniform. */
+@property --aurora-1-tx {
+  syntax: '<percentage>';
+  initial-value: 0%;
+  inherits: false;
+}
+@property --aurora-1-ty {
+  syntax: '<percentage>';
+  initial-value: 0%;
+  inherits: false;
+}
+@property --aurora-1-hue {
+  syntax: '<angle>';
+  initial-value: 264deg;
+  inherits: false;
+}
+@property --aurora-1-scale {
+  syntax: '<number>';
+  initial-value: 1;
+  inherits: false;
+}
+
+@property --aurora-2-tx {
+  syntax: '<percentage>';
+  initial-value: 0%;
+  inherits: false;
+}
+@property --aurora-2-ty {
+  syntax: '<percentage>';
+  initial-value: 0%;
+  inherits: false;
+}
+@property --aurora-2-hue {
+  syntax: '<angle>';
+  initial-value: 300deg;
+  inherits: false;
+}
+@property --aurora-2-scale {
+  syntax: '<number>';
+  initial-value: 1;
+  inherits: false;
+}
+
+@property --aurora-3-tx {
+  syntax: '<percentage>';
+  initial-value: 0%;
+  inherits: false;
+}
+@property --aurora-3-ty {
+  syntax: '<percentage>';
+  initial-value: 0%;
+  inherits: false;
+}
+@property --aurora-3-hue {
+  syntax: '<angle>';
+  initial-value: 60deg;
+  inherits: false;
+}
+@property --aurora-3-scale {
+  syntax: '<number>';
+  initial-value: 1;
+  inherits: false;
+}
+
 /* ============================================
    Base Layer
    ============================================ */
@@ -457,6 +527,99 @@
 
   .animate-mesh {
     animation: mesh-shift 12s ease-in-out infinite;
+  }
+
+  /* ============================================
+     Forum aurora blobs (ForumBackground)
+     ------------------------------------------
+     Three soft radial blobs drifting on independent, non-synchronized
+     periods (40s / 60s / 90s) with uneven keyframe stops so the motion
+     reads as organic rather than a mechanical loop. Only `translate`,
+     `scale` and the oklch() hue channel change — all three are native
+     compositor/paint-cheap animated properties, no canvas, no JS rAF.
+     Alpha is themed per color-scheme: dark mode gets a lighter touch so
+     the glow never crushes toward the near-black background; light mode
+     gets a touch more so it doesn't wash out against the near-white one.
+     ============================================ */
+  .forum-aurora-1 {
+    translate: var(--aurora-1-tx) var(--aurora-1-ty);
+    scale: var(--aurora-1-scale);
+    background: radial-gradient(
+      circle in oklch,
+      oklch(0.55 0.27 var(--aurora-1-hue) / var(--aurora-1-a1, 0.16)) 0%,
+      oklch(0.55 0.27 var(--aurora-1-hue) / var(--aurora-1-a2, 0.06)) 45%,
+      transparent 72%
+    );
+    animation: aurora-drift-1 40s ease-in-out infinite;
+  }
+  [data-theme='dark'] .forum-aurora-1 {
+    --aurora-1-a1: 0.11;
+    --aurora-1-a2: 0.045;
+  }
+
+  .forum-aurora-2 {
+    translate: var(--aurora-2-tx) var(--aurora-2-ty);
+    scale: var(--aurora-2-scale);
+    background: radial-gradient(
+      circle in oklch,
+      oklch(0.63 0.2 var(--aurora-2-hue) / var(--aurora-2-a1, 0.11)) 0%,
+      oklch(0.63 0.2 var(--aurora-2-hue) / var(--aurora-2-a2, 0.045)) 50%,
+      transparent 72%
+    );
+    animation: aurora-drift-2 60s ease-in-out infinite;
+  }
+  [data-theme='dark'] .forum-aurora-2 {
+    --aurora-2-a1: 0.075;
+    --aurora-2-a2: 0.03;
+  }
+
+  .forum-aurora-3 {
+    translate: var(--aurora-3-tx) var(--aurora-3-ty);
+    scale: var(--aurora-3-scale);
+    background: radial-gradient(
+      circle in oklch,
+      oklch(0.72 0.18 var(--aurora-3-hue) / var(--aurora-3-a1, 0.08)) 0%,
+      transparent 70%
+    );
+    animation: aurora-drift-3 90s ease-in-out infinite;
+  }
+  [data-theme='dark'] .forum-aurora-3 {
+    --aurora-3-a1: 0.055;
+  }
+
+  @keyframes aurora-drift-1 {
+    0% { --aurora-1-tx: 0%; --aurora-1-ty: 0%; --aurora-1-hue: 264deg; --aurora-1-scale: 1; }
+    22% { --aurora-1-tx: -6%; --aurora-1-ty: 8%; --aurora-1-hue: 280deg; --aurora-1-scale: 1.08; }
+    48% { --aurora-1-tx: 5%; --aurora-1-ty: 14%; --aurora-1-hue: 250deg; --aurora-1-scale: 0.94; }
+    75% { --aurora-1-tx: 9%; --aurora-1-ty: -4%; --aurora-1-hue: 292deg; --aurora-1-scale: 1.05; }
+    100% { --aurora-1-tx: 0%; --aurora-1-ty: 0%; --aurora-1-hue: 264deg; --aurora-1-scale: 1; }
+  }
+
+  @keyframes aurora-drift-2 {
+    0% { --aurora-2-tx: 0%; --aurora-2-ty: 0%; --aurora-2-hue: 300deg; --aurora-2-scale: 1; }
+    30% { --aurora-2-tx: 7%; --aurora-2-ty: -10%; --aurora-2-hue: 322deg; --aurora-2-scale: 1.1; }
+    55% { --aurora-2-tx: -8%; --aurora-2-ty: -3%; --aurora-2-hue: 284deg; --aurora-2-scale: 0.92; }
+    80% { --aurora-2-tx: -3%; --aurora-2-ty: 9%; --aurora-2-hue: 314deg; --aurora-2-scale: 1.04; }
+    100% { --aurora-2-tx: 0%; --aurora-2-ty: 0%; --aurora-2-hue: 300deg; --aurora-2-scale: 1; }
+  }
+
+  @keyframes aurora-drift-3 {
+    0% { --aurora-3-tx: 0%; --aurora-3-ty: 0%; --aurora-3-hue: 60deg; --aurora-3-scale: 1; }
+    35% { --aurora-3-tx: -10%; --aurora-3-ty: 6%; --aurora-3-hue: 42deg; --aurora-3-scale: 1.12; }
+    60% { --aurora-3-tx: 6%; --aurora-3-ty: 12%; --aurora-3-hue: 78deg; --aurora-3-scale: 0.9; }
+    85% { --aurora-3-tx: 4%; --aurora-3-ty: -8%; --aurora-3-hue: 55deg; --aurora-3-scale: 1.06; }
+    100% { --aurora-3-tx: 0%; --aurora-3-ty: 0%; --aurora-3-hue: 60deg; --aurora-3-scale: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .forum-aurora-1,
+    .forum-aurora-2,
+    .forum-aurora-3 {
+      /* Settle at the @property initial-value for each custom property —
+         the same balanced, centered composition the drift animates
+         around — instead of freezing mid-drift at an arbitrary point. */
+      animation: none;
+    }
   }
 
   /* Shine sweep for buttons */

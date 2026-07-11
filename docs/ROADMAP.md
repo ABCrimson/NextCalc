@@ -26,7 +26,28 @@ Parked pending changes outside this repo's control. Each has a concrete resume c
 
 ## Competitive Feature Roadmap
 
-*Placeholder.* To be filled in by the in-flight competitive analysis (NextCalc Pro vs. Desmos, Wolfram Alpha, GeoGebra, and similar tools). Check back once that analysis lands.
+Filled in 2026-07-11 from the competitive analysis vs Desmos, Wolfram Alpha (incl. Pro), GeoGebra Suite, and Symbolab (accuracy half lives on as `packages/math-engine/src/__tests__/competitive-accuracy.test.ts`).
+
+**Where we stand:** NextCalc is already the deepest free *compute* platform in the field (WebGPU PDE/chaos/direction fields, free step-by-step CAS, collaborative worksheets — no competitor has any of these), but loses the first-impression battle on grapher table stakes: implicit curves, inequality shading, and data tables/regression are what students expect by default from the Desmos era. Step-by-step is the paywall at Symbolab (~$7/mo) and Wolfram Pro ($60+/yr) — every topic we add to *free* steps attacks their core revenue. Deliberately NOT chasing: photo OCR, dynamic geometry, Wolfram-style knowledge base (poor fit for this platform).
+
+**Moats to defend:** the WebGPU compute stack (nobody else runs GPU simulation in a browser), free step-by-step, realtime collaborative worksheets, the CS/ML visualization wedge, full-stack free breadth (offline PWA, free export, 8 locales).
+
+**Ranked backlog:**
+
+| # | Feature | Value | Effort | Sketch |
+|:--|:--------|:------|:-------|:-------|
+| 1 | **Implicit 2D curves** (`F(x,y)=0`) | Critical | Medium | lhs−rhs AST → scalar field on the adaptive grid → existing `marchingSquares()` → existing line pipelines |
+| 2 | **Data tables + arbitrary-model regression** (Desmos tilde-class) | Critical | Medium | Table cell + paste import; parse `y1 ~ a*exp(b*x1)`, symbolic partials from the CAS → Levenberg–Marquardt in `stats/fit`; R², residuals |
+| 3 | **Inequality/region shading** (incl. systems, polar) | High | Medium | Relational parser nodes; per-pixel `sign(F)` WebGPU fragment pass + mask multiply; marching-squares fill fallback |
+| 4 | **Step-by-step for solving/limits/ODEs — kept 100% free** | Critical | Large | `StepTrace` emitter on existing rewrite rules (steps fall out of the solver, no parallel impl); phase: equations → limits → ODEs |
+| 5 | **Unlimited randomized practice generator** | High | Small | Seeded parameterization of existing problem templates; CAS-generated exact answers; seed-in-URL shareable problems |
+| 6 | **GPU Lab** (differentiator): WebGPU sims as slider-driven, shareable worksheet cells | High | Medium | Simulation cell type mounting existing PDE/chaos/field renderers; state in worksheet autosave/share codes; public gallery; GIF export via export-service |
+| 7 | **Distribution explorer** (PDF/CDF, interval shading, t/χ² tests) | High | Medium | `stats` pdf/cdf/quantile through the 2D pipeline + the #3 fill pass; StepTrace-style inference output |
+| 8 | **Verify Solution** (check the student's own work) | Medium | Small | CAS equivalence: `simplify(student − canonical) == 0` + prover numeric probing fallback; wire into solver UI + graded practice |
+| 9 | **Public embed API** (`@nextcalc/embed` + `/embed/[type]`) | High | Medium | Chrome-less embed routes + postMessage protocol + npm loader; free non-commercial; future commercial keys via rate-limiter |
+| 10 | **Classroom-lite** (class codes, live teacher dashboard) | High | Large | Teacher role + Class/Assignment models; dashboard subscribes to the existing per-worksheet collab channels (the plumbing already works cross-instance) |
+
+Also noted (unranked): slider play-button animation (small; prerequisite polish for #6), accessibility sonification/Braille (Desmos-class a11y — revisit after #1–3), exact/arbitrary precision (waits on the WASM build), implicit/parametric 3D surfaces.
 
 ---
 

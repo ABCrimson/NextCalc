@@ -1,6 +1,6 @@
 {
   "name": "@nextcalc/rate-limiter",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "private": true,
   "description": "Rate limiting microservice for NextCalc Pro - enforces API quotas using Cloudflare KV",
   "scripts": {

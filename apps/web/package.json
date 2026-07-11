@@ -1,7 +1,13 @@
 {
   "name": "@nextcalc/web",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "private": true,
+  "imports": {
+    "#graphql/ssr-schema-link": {
+      "browser": "./lib/graphql/ssr-schema-link.browser.ts",
+      "default": "./lib/graphql/ssr-schema-link.server.ts"
+    }
+  },
   "scripts": {
     "dev": "next dev --turbopack --port 3005",
     "build": "next build --webpack",

@@ -23,7 +23,14 @@ import { UPDATE_PROFILE_MUTATION } from '@/lib/graphql/operations';
 import { AVATAR_ICONS } from '@/lib/profile/avatar-icons';
 import { ActivityCalendar } from './activity-calendar';
 import { LevelIcon } from './level-icon';
-import { formatXp, getLevelTier, levelProgress, xpForLevelCached } from './level-utils';
+import {
+  ARCHITECT_LEVEL,
+  formatXp,
+  getLevelTier,
+  levelProgress,
+  resolveDisplayLevel,
+  xpForLevelCached,
+} from './level-utils';
 
 // ---------------------------------------------------------------------------
 // Domain types
@@ -34,6 +41,7 @@ interface UserData {
   name: string | null;
   image: string | null;
   bio: string | null;
+  role: 'USER' | 'MODERATOR' | 'ADMIN';
   createdAt: string;
 }
 
@@ -768,20 +776,26 @@ function HeroAvatar({
 interface HeroCardProps {
   user: UserData;
   progress: ProgressData | null;
+  /** Display level — role-aware (ADMIN → Architect L101), see resolveDisplayLevel. */
+  level: number;
   onEditClick: () => void;
   /** Rendered only for the signed-in ADMIN owner — opens the avatar icon picker. */
   onAvatarEditClick?: () => void;
 }
 
-function HeroCard({ user, progress, onEditClick, onAvatarEditClick }: HeroCardProps) {
+function HeroCard({ user, progress, level, onEditClick, onAvatarEditClick }: HeroCardProps) {
   const t = useTranslations('profile');
   const format = useFormatter();
   const locale = useLocale();
   const currentXp = progress?.experience ?? 0;
-  const currentLevel = progress?.level ?? 1;
+  const currentLevel = level;
   const tier = getLevelTier(currentLevel);
+  // The Architect tier (L101) is assigned by role, not earned via XP: there is
+  // no next level to progress toward, so the bar renders full and the XP text
+  // shows only the real earned XP (no faked denominator).
+  const isArchitect = currentLevel >= ARCHITECT_LEVEL;
   const xpNeeded = xpForLevelCached(currentLevel + 1);
-  const xpProgress = levelProgress(currentXp) * 100;
+  const xpProgress = isArchitect ? 100 : levelProgress(currentXp) * 100;
 
   return (
     <Card>
@@ -872,7 +886,9 @@ function HeroCard({ user, progress, onEditClick, onAvatarEditClick }: HeroCardPr
                   {t('level')} {currentLevel} — <span className={tier.textClass}>{tier.name}</span>
                 </span>
                 <span>
-                  {formatXp(currentXp, locale)} / {formatXp(xpNeeded, locale)} XP
+                  {isArchitect
+                    ? `${formatXp(currentXp, locale)} XP`
+                    : `${formatXp(currentXp, locale)} / ${formatXp(xpNeeded, locale)} XP`}
                 </span>
               </div>
               <div
@@ -928,6 +944,11 @@ export function ProfileOverview({
   const sessionUser = useUser();
   const canPickAvatarIcon = sessionUser?.id === user.id && sessionUser.role === 'ADMIN';
 
+  // Role-aware display level: the ADMIN owner renders as the Architect tier
+  // (L101, admin-only by design); everyone else shows their earned progress
+  // level. Display only — XP and the other progress stats stay real.
+  const displayLevel = resolveDisplayLevel(progress?.level, user.role);
+
   const handleProfileUpdated = useCallback(
     (updated: { name: string | null; bio: string | null }) => {
       setLocalUser((prev) => ({ ...prev, ...updated }));
@@ -966,7 +987,7 @@ export function ProfileOverview({
       icon: '💬',
       description: 'contributed',
     },
-    { label: t('level'), value: progress?.level ?? 1, icon: '⭐', accent: true },
+    { label: t('level'), value: displayLevel, icon: '⭐', accent: true },
     {
       label: t('experience'),
       value: `${format.number(progress?.experience ?? 0)} XP`,
@@ -983,6 +1004,7 @@ export function ProfileOverview({
         <HeroCard
           user={localUser}
           progress={progress}
+          level={displayLevel}
           onEditClick={() => setEditOpen(true)}
           {...(canPickAvatarIcon ? { onAvatarEditClick: () => setAvatarPickerOpen(true) } : {})}
         />

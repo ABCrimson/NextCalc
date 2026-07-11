@@ -19,6 +19,7 @@
  */
 
 import { AlertCircle, Calculator, Loader2 } from 'lucide-react';
+import NextLink from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { signIn as nextAuthSignIn } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
@@ -254,9 +255,11 @@ function SignInContent() {
           </div>
         </div>
 
-        {/* Guest option */}
+        {/* Guest option — callbackUrl is already a fully-localized app path
+            (e.g. /en/profile), so the locale-aware Link would double the
+            locale prefix (/en/en/...). Use the plain next/link here. */}
         <div className="text-center">
-          <Link
+          <NextLink
             href={callbackUrl}
             className={cn(
               'text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline',
@@ -265,7 +268,7 @@ function SignInContent() {
             )}
           >
             {t('continueWithout')}
-          </Link>
+          </NextLink>
         </div>
 
         {/* Legal */}
