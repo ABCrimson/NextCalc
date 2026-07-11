@@ -168,9 +168,10 @@ function GalleryCard({
       <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
         <span className="truncate">{byLabel(user.name ?? '—')}</span>
         <span className="flex items-center gap-3 flex-shrink-0">
-          <span className="flex items-center gap-1" aria-label={viewsAria} title={viewsAria}>
+          <span className="flex items-center gap-1" title={viewsAria}>
             <Eye className="size-3" aria-hidden="true" />
-            {viewsCount}
+            <span aria-hidden="true">{viewsCount}</span>
+            <span className="sr-only">{viewsAria}</span>
           </span>
           <span>{updatedLabel}</span>
         </span>
