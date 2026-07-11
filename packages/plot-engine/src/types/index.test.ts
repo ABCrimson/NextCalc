@@ -17,6 +17,7 @@ import type {
   Plot2DImplicitConfig,
   Plot2DParametricConfig,
   Plot2DPolarConfig,
+  Plot2DRelationConfig,
   Plot2DVectorFieldConfig,
   Plot3DCurveConfig,
   Plot3DParametricCurveConfig,
@@ -31,6 +32,7 @@ import {
   is3DPlot,
   isImplicitPlot,
   isParametricPlot,
+  isRelationPlot,
   isSurfacePlot,
   isVectorFieldPlot,
 } from './index';
@@ -84,6 +86,12 @@ const implicit2D: Plot2DImplicitConfig = {
   viewport: { xMin: -10, xMax: 10, yMin: -10, yMax: 10 },
 };
 
+const relation2D: Plot2DRelationConfig = {
+  type: '2d-relation',
+  relations: [{ field: noop2, op: '<' }],
+  viewport: { xMin: -10, xMax: 10, yMin: -10, yMax: 10 },
+};
+
 const vectorField2D: Plot2DVectorFieldConfig = {
   type: '2d-vector-field',
   field: { x: noop2, y: noop2 },
@@ -123,6 +131,7 @@ const allConfigs: PlotConfig[] = [
   polar2D,
   parametric2D,
   implicit2D,
+  relation2D,
   vectorField2D,
   surface3D,
   parametricSurface3D,
@@ -151,6 +160,10 @@ describe('is2DPlot', () => {
     expect(is2DPlot(implicit2D)).toBe(true);
   });
 
+  it('should return true for 2d-relation', () => {
+    expect(is2DPlot(relation2D)).toBe(true);
+  });
+
   it('should return true for 2d-vector-field', () => {
     expect(is2DPlot(vectorField2D)).toBe(true);
   });
@@ -171,9 +184,9 @@ describe('is2DPlot', () => {
     expect(is2DPlot(parametricCurve3D)).toBe(false);
   });
 
-  it('should classify exactly 5 configs as 2D out of all 9', () => {
+  it('should classify exactly 6 configs as 2D out of all 10', () => {
     const twoDCount = allConfigs.filter(is2DPlot).length;
-    expect(twoDCount).toBe(5);
+    expect(twoDCount).toBe(6);
   });
 });
 
@@ -198,6 +211,10 @@ describe('is3DPlot', () => {
     expect(is3DPlot(implicit2D)).toBe(false);
   });
 
+  it('should return false for 2d-relation', () => {
+    expect(is3DPlot(relation2D)).toBe(false);
+  });
+
   it('should return false for 2d-vector-field', () => {
     expect(is3DPlot(vectorField2D)).toBe(false);
   });
@@ -218,7 +235,7 @@ describe('is3DPlot', () => {
     expect(is3DPlot(parametricCurve3D)).toBe(true);
   });
 
-  it('should classify exactly 4 configs as 3D out of all 9', () => {
+  it('should classify exactly 4 configs as 3D out of all 10', () => {
     const threeDCount = allConfigs.filter(is3DPlot).length;
     expect(threeDCount).toBe(4);
   });
@@ -251,6 +268,10 @@ describe('isParametricPlot', () => {
     expect(isParametricPlot(implicit2D)).toBe(false);
   });
 
+  it('should return false for 2d-relation', () => {
+    expect(isParametricPlot(relation2D)).toBe(false);
+  });
+
   it('should return false for 2d-vector-field', () => {
     expect(isParametricPlot(vectorField2D)).toBe(false);
   });
@@ -271,7 +292,7 @@ describe('isParametricPlot', () => {
     expect(isParametricPlot(parametricCurve3D)).toBe(true);
   });
 
-  it('should classify exactly 4 configs as parametric out of all 9', () => {
+  it('should classify exactly 4 configs as parametric out of all 10', () => {
     const parametricCount = allConfigs.filter(isParametricPlot).length;
     expect(parametricCount).toBe(4);
   });
@@ -296,6 +317,7 @@ describe('isSurfacePlot', () => {
       polar2D,
       parametric2D,
       implicit2D,
+      relation2D,
       vectorField2D,
       curve3D,
       parametricCurve3D,
@@ -305,7 +327,7 @@ describe('isSurfacePlot', () => {
     }
   });
 
-  it('should classify exactly 2 configs as surface plots out of all 9', () => {
+  it('should classify exactly 2 configs as surface plots out of all 10', () => {
     const surfaceCount = allConfigs.filter(isSurfacePlot).length;
     expect(surfaceCount).toBe(2);
   });
@@ -325,6 +347,7 @@ describe('isImplicitPlot', () => {
       cartesian2D,
       polar2D,
       parametric2D,
+      relation2D,
       vectorField2D,
       surface3D,
       parametricSurface3D,
@@ -336,9 +359,40 @@ describe('isImplicitPlot', () => {
     }
   });
 
-  it('should classify exactly 1 config as implicit out of all 9', () => {
+  it('should classify exactly 1 config as implicit out of all 10', () => {
     const implicitCount = allConfigs.filter(isImplicitPlot).length;
     expect(implicitCount).toBe(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// isRelationPlot
+// ---------------------------------------------------------------------------
+
+describe('isRelationPlot', () => {
+  it('should return true for 2d-relation', () => {
+    expect(isRelationPlot(relation2D)).toBe(true);
+  });
+
+  it('should return false for all other plot types', () => {
+    for (const config of allConfigs) {
+      if (config === relation2D) continue;
+      expect(isRelationPlot(config)).toBe(false);
+    }
+  });
+
+  it('should classify exactly 1 config as a relation plot out of all 10', () => {
+    expect(allConfigs.filter(isRelationPlot).length).toBe(1);
+  });
+
+  it('narrows to Plot2DRelationConfig in a renderer-style switch', () => {
+    const config: PlotConfig = relation2D;
+    if (isRelationPlot(config)) {
+      expect(config.relations[0]!.op).toBe('<');
+      expect(config.combine).toBeUndefined();
+    } else {
+      expect(false).toBe(true);
+    }
   });
 });
 
@@ -357,6 +411,7 @@ describe('isVectorFieldPlot', () => {
       polar2D,
       parametric2D,
       implicit2D,
+      relation2D,
       surface3D,
       parametricSurface3D,
       curve3D,
@@ -367,7 +422,7 @@ describe('isVectorFieldPlot', () => {
     }
   });
 
-  it('should classify exactly 1 config as a vector field out of all 9', () => {
+  it('should classify exactly 1 config as a vector field out of all 10', () => {
     const vfCount = allConfigs.filter(isVectorFieldPlot).length;
     expect(vfCount).toBe(1);
   });
@@ -547,6 +602,7 @@ describe('interface structural shapes', () => {
       expect(types).toContain('2d-polar');
       expect(types).toContain('2d-parametric');
       expect(types).toContain('2d-implicit');
+      expect(types).toContain('2d-relation');
       expect(types).toContain('2d-vector-field');
       expect(types).toContain('3d-surface');
       expect(types).toContain('3d-parametric');

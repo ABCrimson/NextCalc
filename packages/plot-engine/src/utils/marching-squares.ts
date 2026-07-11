@@ -192,7 +192,9 @@ function traceContour(
 }
 
 /**
- * Gets the cell case (0-15) based on which corners are inside the contour
+ * Gets the cell case (0-15) based on which corners are inside the contour.
+ * Cells with any NaN corner (singularities, domain holes) return 0 — they are
+ * skipped instead of manufacturing fake contours through undefined regions.
  */
 function getCellCase(grid: number[][], i: number, j: number, isovalue: number): number {
   const rows = grid.length;
@@ -200,10 +202,19 @@ function getCellCase(grid: number[][], i: number, j: number, isovalue: number): 
 
   if (i >= rows - 1 || j >= cols - 1) return 0;
 
-  const v00 = grid[i]![j]! >= isovalue ? 1 : 0; // bottom-left
-  const v10 = grid[i]![j + 1]! >= isovalue ? 1 : 0; // bottom-right
-  const v11 = grid[i + 1]![j + 1]! >= isovalue ? 1 : 0; // top-right
-  const v01 = grid[i + 1]![j]! >= isovalue ? 1 : 0; // top-left
+  const c00 = grid[i]![j]!;
+  const c10 = grid[i]![j + 1]!;
+  const c11 = grid[i + 1]![j + 1]!;
+  const c01 = grid[i + 1]![j]!;
+
+  if (Number.isNaN(c00) || Number.isNaN(c10) || Number.isNaN(c11) || Number.isNaN(c01)) {
+    return 0;
+  }
+
+  const v00 = c00 >= isovalue ? 1 : 0; // bottom-left
+  const v10 = c10 >= isovalue ? 1 : 0; // bottom-right
+  const v11 = c11 >= isovalue ? 1 : 0; // top-right
+  const v01 = c01 >= isovalue ? 1 : 0; // top-left
 
   return v00 | (v10 << 1) | (v11 << 2) | (v01 << 3);
 }
@@ -270,6 +281,124 @@ function getEdgePoint(
   }
 
   return { x, y };
+}
+
+/**
+ * Filled-region marching squares: emits a triangle list covering the region
+ * where `grid >= isovalue`, with sub-cell accuracy at the boundary via the
+ * same edge interpolation as the contour tracer.
+ *
+ * Per cell, the inside region is the cell polygon clipped by the isoline:
+ * a perimeter walk collects inside corners and sign-change edge crossings in
+ * order (every such polygon is the cell rectangle with corner chops — always
+ * convex — so a triangle fan is exact). Saddle cells (cases 5/10) reuse the
+ * contour tracer's center-average disambiguation: center inside yields the
+ * connected hexagon band, center outside yields two separate corner
+ * triangles. Cells with any NaN corner are skipped (holes at singularities).
+ *
+ * @returns Flat `[x, y, x, y, ...]` triangle list in math coordinates,
+ *          suitable for gl.TRIANGLES / WebGPU triangle-list / Path2D.
+ */
+export function marchingSquaresFilledTriangles(
+  grid: number[][],
+  isovalue: number,
+  dx: number,
+  dy: number,
+  viewport: Viewport,
+): Float32Array {
+  const rows = grid.length;
+  if (rows === 0) return new Float32Array(0);
+  const cols = grid[0]!.length;
+  if (cols === 0) return new Float32Array(0);
+
+  const out: number[] = [];
+
+  const pushTriangle = (a: Point2D, b: Point2D, c: Point2D): void => {
+    out.push(a.x, a.y, b.x, b.y, c.x, c.y);
+  };
+
+  for (let i = 0; i < rows - 1; i++) {
+    for (let j = 0; j < cols - 1; j++) {
+      const cellCase = getCellCase(grid, i, j, isovalue);
+      if (cellCase === 0) continue;
+
+      const x0 = viewport.xMin + j * dx;
+      const x1 = viewport.xMin + (j + 1) * dx;
+      const y0 = viewport.yMin + i * dy;
+      const y1 = viewport.yMin + (i + 1) * dy;
+
+      if (cellCase === 15) {
+        // Fully inside: two triangles covering the whole cell
+        pushTriangle({ x: x0, y: y0 }, { x: x1, y: y0 }, { x: x1, y: y1 });
+        pushTriangle({ x: x0, y: y0 }, { x: x1, y: y1 }, { x: x0, y: y1 });
+        continue;
+      }
+
+      const bl = (cellCase & 1) !== 0;
+      const br = (cellCase & 2) !== 0;
+      const tr = (cellCase & 4) !== 0;
+      const tl = (cellCase & 8) !== 0;
+
+      const edgePoint = (edge: number): Point2D | null =>
+        getEdgePoint(grid, i, j, edge, isovalue, dx, dy, viewport);
+
+      // Saddle cells: match resolveSaddleEdges' center-average rule. When the
+      // center is outside, the two inside corners are disjoint triangles; when
+      // inside, fall through to the perimeter walk (connected hexagon band).
+      if (cellCase === 5 || cellCase === 10) {
+        const centerValue =
+          (grid[i]![j]! + grid[i]![j + 1]! + grid[i + 1]![j]! + grid[i + 1]![j + 1]!) / 4;
+        if (centerValue < isovalue) {
+          const e0 = edgePoint(0);
+          const e1 = edgePoint(1);
+          const e2 = edgePoint(2);
+          const e3 = edgePoint(3);
+          if (!e0 || !e1 || !e2 || !e3) continue;
+          if (cellCase === 5) {
+            // BL and TR inside
+            pushTriangle({ x: x0, y: y0 }, e0, e3);
+            pushTriangle({ x: x1, y: y1 }, e2, e1);
+          } else {
+            // BR and TL inside
+            pushTriangle({ x: x1, y: y0 }, e1, e0);
+            pushTriangle({ x: x0, y: y1 }, e3, e2);
+          }
+          continue;
+        }
+      }
+
+      // Perimeter walk: inside corners + sign-change edge crossings, in
+      // order around the cell. The result is the cell rectangle with corner
+      // chops — always convex — so a fan from the first vertex is exact.
+      const poly: Point2D[] = [];
+      if (bl) poly.push({ x: x0, y: y0 });
+      if (bl !== br) {
+        const p = edgePoint(0);
+        if (p) poly.push(p);
+      }
+      if (br) poly.push({ x: x1, y: y0 });
+      if (br !== tr) {
+        const p = edgePoint(1);
+        if (p) poly.push(p);
+      }
+      if (tr) poly.push({ x: x1, y: y1 });
+      if (tr !== tl) {
+        const p = edgePoint(2);
+        if (p) poly.push(p);
+      }
+      if (tl) poly.push({ x: x0, y: y1 });
+      if (tl !== bl) {
+        const p = edgePoint(3);
+        if (p) poly.push(p);
+      }
+
+      for (let k = 1; k < poly.length - 1; k++) {
+        pushTriangle(poly[0]!, poly[k]!, poly[k + 1]!);
+      }
+    }
+  }
+
+  return new Float32Array(out);
 }
 
 /**
