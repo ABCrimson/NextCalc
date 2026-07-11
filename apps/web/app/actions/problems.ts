@@ -7,6 +7,7 @@
  * Each action validates input via Zod, checks auth, and returns a typed result.
  */
 
+import { checkEquivalence, normalizeAnswerExpression } from '@nextcalc/math-engine/equivalence';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
@@ -15,6 +16,34 @@ import {
   FavoriteToggleSchema,
   HintRequestSchema,
 } from '@/lib/validations/learning';
+
+/**
+ * Grade a submitted answer against an expected test-case value.
+ * Exact-match first (original behavior preserved), then CAS equivalence
+ * so mathematically equivalent forms (e.g. "x=2" vs "2", "(x-2)*(x-3)"
+ * vs "x^2-5*x+6", "1/2" vs "0.5") are accepted. The equivalence checker
+ * is conservative — it never claims equivalence it cannot support — and
+ * unparseable expected values degrade gracefully to exact matching.
+ */
+function answerMatchesExpected(answer: string, expected: string): boolean {
+  // (a) Trimmed case-insensitive equality — the original grading rule
+  if (expected.trim().toLowerCase() === answer.trim().toLowerCase()) {
+    return true;
+  }
+  // (b)+(c) Numeric/symbolic equivalence (checkEquivalence covers both:
+  // constant expressions compare numerically, variable expressions via
+  // symbolic simplification with seeded numeric probing).
+  try {
+    const normalizedAnswer = normalizeAnswerExpression(answer);
+    const normalizedExpected = normalizeAnswerExpression(expected);
+    if (normalizedAnswer.length === 0 || normalizedExpected.length === 0) {
+      return false;
+    }
+    return checkEquivalence(normalizedAnswer, normalizedExpected).equivalent;
+  } catch {
+    return false;
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Shared types
@@ -80,12 +109,10 @@ export async function submitAnswer(
       return { success: false, error: 'Problem not found' };
     }
 
-    // Validate answer against test cases
+    // Validate answer against test cases (exact match or CAS-equivalent form)
     const isCorrect =
       problem.testCases.length > 0
-        ? problem.testCases.some(
-            (tc) => tc.expected.trim().toLowerCase() === data.answer.trim().toLowerCase(),
-          )
+        ? problem.testCases.some((tc) => answerMatchesExpected(data.answer, tc.expected))
         : true;
 
     // Get or create user progress

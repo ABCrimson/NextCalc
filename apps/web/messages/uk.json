@@ -421,7 +421,30 @@
     "selectTopic": "Select topic",
     "selectDifficulty": "Select difficulty",
     "selectQuestionCount": "Select question count",
-    "selectTimeLimit": "Select time limit"
+    "selectTimeLimit": "Select time limit",
+    "drill": {
+      "title": "Нескінченне тренування",
+      "description": "Нескінченні випадкові задачі з миттєвою CAS-перевіркою — кожна задача має посилання, яким можна поділитися.",
+      "enter": "Почати нескінченне тренування",
+      "templateLabel": "Тип задачі",
+      "seedLabel": "Сід",
+      "answerLabel": "Ваша відповідь",
+      "answerPlaceholder": "напр. x = 2 або 3/4",
+      "generateAnother": "Згенерувати ще",
+      "checkAnswer": "Перевірити відповідь",
+      "correct": "Правильно! Еквівалентні форми зараховуються.",
+      "incorrect": "Не зовсім — перевірте розв'язання та спробуйте ще раз.",
+      "showHint": "Показати підказку",
+      "hintCost": "{count, plural, one {використано # підказку} few {використано # підказки} many {використано # підказок} other {використано # підказки}}",
+      "attempted": "{count, plural, one {# спроба} few {# спроби} many {# спроб} other {# спроби}}",
+      "correctCount": "{count, plural, one {# правильна відповідь} few {# правильні відповіді} many {# правильних відповідей} other {# правильної відповіді}}",
+      "streak": "{count, plural, other {# поспіль}}",
+      "copyLink": "Копіювати посилання",
+      "linkCopied": "Посилання скопійовано!",
+      "endDrill": "Завершити й зберегти",
+      "sessionSaved": "Сесію збережено — XP та прогрес за темами оновлено.",
+      "signInToSave": "Увійдіть, щоб зберегти прогрес — тренування працює й без цього."
+    }
   },
   "problems": {
     "title": "Бібліотека задач",
@@ -1463,5 +1486,18 @@
       "complexNumbers": "Комплексні числа",
       "complexNumbersSubtitle": "Діаграма Арганда та форми"
     }
+  },
+  "checkWork": {
+    "title": "Перевірити моє розв'язання",
+    "description": "Введіть відповідь у будь-якій формі — CAS перевірить математичну еквівалентність.",
+    "inputLabel": "Вираз для перевірки",
+    "inputPlaceholder": "напр. (x - 2)*(x - 3)",
+    "check": "Перевірити",
+    "equivalent": "Еквівалентно — ваша форма збігається з відповіддю.",
+    "notEquivalent": "Не еквівалентно очікуваній відповіді.",
+    "parseError": "Не вдалося розібрати вираз — перевірте синтаксис.",
+    "inconclusive": "Не вдалося перевірити — спробуйте простішу форму.",
+    "verifiedSymbolically": "Перевірено символьно",
+    "verifiedNumerically": "Перевірено чисельно"
   }
 }

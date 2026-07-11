@@ -454,7 +454,30 @@
     "selectTopic": "Sélectionner un sujet",
     "selectDifficulty": "Sélectionner la difficulté",
     "selectQuestionCount": "Sélectionner le nombre de questions",
-    "selectTimeLimit": "Sélectionner la limite de temps"
+    "selectTimeLimit": "Sélectionner la limite de temps",
+    "drill": {
+      "title": "Entraînement infini",
+      "description": "Des problèmes aléatoires sans fin avec correction instantanée vérifiée par CAS — chaque problème a un lien partageable.",
+      "enter": "Lancer l'entraînement infini",
+      "templateLabel": "Type de problème",
+      "seedLabel": "Graine",
+      "answerLabel": "Votre réponse",
+      "answerPlaceholder": "p. ex. x = 2 ou 3/4",
+      "generateAnother": "Générer un autre",
+      "checkAnswer": "Vérifier la réponse",
+      "correct": "Correct ! Les formes équivalentes sont acceptées.",
+      "incorrect": "Pas tout à fait — vérifiez votre travail et réessayez.",
+      "showHint": "Afficher un indice",
+      "hintCost": "{count, plural, one {# indice utilisé} other {# indices utilisés}}",
+      "attempted": "{count, plural, one {# tentative} other {# tentatives}}",
+      "correctCount": "{count, plural, one {# correcte} other {# correctes}}",
+      "streak": "{count, plural, one {# d'affilée} other {# d'affilée}}",
+      "copyLink": "Copier le lien",
+      "linkCopied": "Lien copié !",
+      "endDrill": "Terminer et enregistrer",
+      "sessionSaved": "Session enregistrée — XP et progression par thème mis à jour.",
+      "signInToSave": "Connectez-vous pour enregistrer votre progression — l'entraînement fonctionne sans."
+    }
   },
   "problems": {
     "title": "Bibliothèque de problèmes",
@@ -1496,5 +1519,18 @@
       "complexNumbers": "Nombres complexes",
       "complexNumbersSubtitle": "Diagramme d'Argand et formes"
     }
+  },
+  "checkWork": {
+    "title": "Vérifier mon travail",
+    "description": "Saisissez votre réponse sous n'importe quelle forme — le CAS vérifie l'équivalence mathématique.",
+    "inputLabel": "Expression à vérifier",
+    "inputPlaceholder": "p. ex. (x - 2)*(x - 3)",
+    "check": "Vérifier",
+    "equivalent": "Équivalent — votre forme correspond à la réponse.",
+    "notEquivalent": "Non équivalent à la réponse attendue.",
+    "parseError": "Impossible d'analyser l'expression — vérifiez la syntaxe.",
+    "inconclusive": "Vérification impossible — essayez une forme plus simple.",
+    "verifiedSymbolically": "Vérifié symboliquement",
+    "verifiedNumerically": "Vérifié numériquement"
   }
 }

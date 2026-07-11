@@ -421,7 +421,30 @@
     "selectTopic": "Select topic",
     "selectDifficulty": "Select difficulty",
     "selectQuestionCount": "Select question count",
-    "selectTimeLimit": "Select time limit"
+    "selectTimeLimit": "Select time limit",
+    "drill": {
+      "title": "Endlos-Training",
+      "description": "Endlose Zufallsaufgaben mit sofortiger CAS-geprüfter Bewertung — jede Aufgabe hat einen teilbaren Link.",
+      "enter": "Endlos-Training starten",
+      "templateLabel": "Aufgabentyp",
+      "seedLabel": "Seed",
+      "answerLabel": "Deine Antwort",
+      "answerPlaceholder": "z. B. x = 2 oder 3/4",
+      "generateAnother": "Neue Aufgabe",
+      "checkAnswer": "Antwort prüfen",
+      "correct": "Richtig! Äquivalente Formen werden akzeptiert.",
+      "incorrect": "Nicht ganz — überprüfe deine Rechnung und versuche es erneut.",
+      "showHint": "Hinweis anzeigen",
+      "hintCost": "{count, plural, one {# Hinweis verwendet} other {# Hinweise verwendet}}",
+      "attempted": "{count, plural, one {# Versuch} other {# Versuche}}",
+      "correctCount": "{count, plural, one {# richtig} other {# richtig}}",
+      "streak": "{count, plural, one {# in Folge} other {# in Folge}}",
+      "copyLink": "Link kopieren",
+      "linkCopied": "Link kopiert!",
+      "endDrill": "Training beenden & speichern",
+      "sessionSaved": "Sitzung gespeichert — XP und Themenfortschritt aktualisiert.",
+      "signInToSave": "Melde dich an, um deinen Fortschritt zu speichern — das Training funktioniert auch ohne."
+    }
   },
   "problems": {
     "title": "Aufgabenbibliothek",
@@ -1463,5 +1486,18 @@
       "complexNumbers": "Komplexe Zahlen",
       "complexNumbersSubtitle": "Argand-Diagramm & Darstellungen"
     }
+  },
+  "checkWork": {
+    "title": "Meine Rechnung prüfen",
+    "description": "Gib deine Antwort in beliebiger Form ein — das CAS prüft die mathematische Äquivalenz.",
+    "inputLabel": "Zu prüfender Ausdruck",
+    "inputPlaceholder": "z. B. (x - 2)*(x - 3)",
+    "check": "Prüfen",
+    "equivalent": "Äquivalent — deine Form stimmt mit der Antwort überein.",
+    "notEquivalent": "Nicht äquivalent zur erwarteten Antwort.",
+    "parseError": "Ausdruck konnte nicht gelesen werden — prüfe die Syntax.",
+    "inconclusive": "Konnte nicht verifiziert werden — versuche eine einfachere Form.",
+    "verifiedSymbolically": "Symbolisch verifiziert",
+    "verifiedNumerically": "Numerisch verifiziert"
   }
 }

@@ -110,6 +110,9 @@ export const PracticeSessionCompleteSchema = z.object({
   bestStreak: z.coerce.number().int().min(0),
   totalTime: z.coerce.number().int().min(0),
   pointsEarned: z.coerce.number().int().min(0),
+  // Drill-mode aggregates (optional — existing callers unaffected)
+  correctCount: z.coerce.number().int().min(0).optional(),
+  topicSlug: z.string().min(1).max(255).optional(),
 });
 
 // ============================================================================

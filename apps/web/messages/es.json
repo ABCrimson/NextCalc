@@ -421,7 +421,30 @@
     "selectTopic": "Seleccionar tema",
     "selectDifficulty": "Seleccionar dificultad",
     "selectQuestionCount": "Seleccionar cantidad de preguntas",
-    "selectTimeLimit": "Seleccionar límite de tiempo"
+    "selectTimeLimit": "Seleccionar límite de tiempo",
+    "drill": {
+      "title": "Práctica infinita",
+      "description": "Problemas aleatorios sin fin con corrección instantánea verificada por CAS — cada problema tiene un enlace para compartir.",
+      "enter": "Iniciar práctica infinita",
+      "templateLabel": "Tipo de problema",
+      "seedLabel": "Semilla",
+      "answerLabel": "Tu respuesta",
+      "answerPlaceholder": "p. ej. x = 2 o 3/4",
+      "generateAnother": "Generar otro",
+      "checkAnswer": "Comprobar respuesta",
+      "correct": "¡Correcto! Se aceptan formas equivalentes.",
+      "incorrect": "No exactamente — revisa tu trabajo e inténtalo de nuevo.",
+      "showHint": "Mostrar pista",
+      "hintCost": "{count, plural, one {# pista usada} other {# pistas usadas}}",
+      "attempted": "{count, plural, one {# intento} other {# intentos}}",
+      "correctCount": "{count, plural, one {# correcta} other {# correctas}}",
+      "streak": "{count, plural, one {# seguida} other {# seguidas}}",
+      "copyLink": "Copiar enlace",
+      "linkCopied": "¡Enlace copiado!",
+      "endDrill": "Terminar y guardar",
+      "sessionSaved": "Sesión guardada — XP y progreso por tema actualizados.",
+      "signInToSave": "Inicia sesión para guardar tu progreso — la práctica funciona sin ella."
+    }
   },
   "problems": {
     "title": "Biblioteca de problemas",
@@ -1463,5 +1486,18 @@
       "complexNumbers": "Números complejos",
       "complexNumbersSubtitle": "Diagrama de Argand y formas"
     }
+  },
+  "checkWork": {
+    "title": "Verificar mi trabajo",
+    "description": "Introduce tu respuesta en cualquier forma — el CAS verifica si es matemáticamente equivalente.",
+    "inputLabel": "Expresión a verificar",
+    "inputPlaceholder": "p. ej. (x - 2)*(x - 3)",
+    "check": "Verificar",
+    "equivalent": "Equivalente — tu forma coincide con la respuesta.",
+    "notEquivalent": "No es equivalente a la respuesta esperada.",
+    "parseError": "No se pudo analizar la expresión — revisa la sintaxis.",
+    "inconclusive": "No se pudo verificar — prueba una forma más simple.",
+    "verifiedSymbolically": "Verificado simbólicamente",
+    "verifiedNumerically": "Verificado numéricamente"
   }
 }

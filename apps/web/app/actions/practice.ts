@@ -199,6 +199,37 @@ export async function completePracticeSession(
       },
     });
 
+    // Topic-progress wiring for drill sessions (generated problems have no
+    // Attempt rows, so aggregates land here). Best-effort: silently skipped
+    // when no Topic row matches the slug.
+    if (data.correctCount !== undefined && data.correctCount > 0 && data.topicSlug) {
+      const topic = await prisma.topic.findUnique({
+        where: { slug: data.topicSlug },
+        select: { id: true },
+      });
+      if (topic) {
+        await prisma.topicProgress.upsert({
+          where: {
+            userProgressId_topicId: {
+              userProgressId: practiceSession.userProgressId,
+              topicId: topic.id,
+            },
+          },
+          update: {
+            problemsSolved: { increment: data.correctCount },
+            timeSpent: { increment: data.totalTime },
+            lastPracticed: new Date(),
+          },
+          create: {
+            userProgressId: practiceSession.userProgressId,
+            topicId: topic.id,
+            problemsSolved: data.correctCount,
+            timeSpent: data.totalTime,
+          },
+        });
+      }
+    }
+
     return {
       success: true,
       data: {
