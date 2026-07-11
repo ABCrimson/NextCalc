@@ -24,6 +24,7 @@ import {
   isSymbolNode,
 } from '../parser/ast';
 import { evaluate } from '../parser/evaluator';
+import { formatTraceNumber, type TraceCollector } from '../trace/step-trace';
 import { differentiate } from './differentiate';
 import { maclaurinSeries, taylorSeries } from './series';
 import { astEquals, simplify, substitute } from './simplify';
@@ -73,6 +74,11 @@ export interface LimitConfig {
   maxLhopitalIterations?: number;
   /** Include step-by-step explanation (default: false) */
   includeSteps?: boolean;
+  /**
+   * Structured step tracing (opt-in). When provided, the computation emits
+   * {ruleId, params, before, after} trace steps. Costs nothing when omitted.
+   */
+  trace?: TraceCollector;
   /** @internal Skip algebraic simplification to prevent recursion */
   _skipAlgebraic?: boolean;
 }
@@ -128,12 +134,24 @@ export function limit(expr: ExpressionNode, variable: string, config: LimitConfi
     tolerance = 1e-10,
     maxLhopitalIterations = 5,
     includeSteps = false,
+    trace,
   } = config;
 
   const steps: string[] = [];
 
   if (includeSteps) {
     steps.push(`Computing lim (${variable}→${formatPoint(point)}) of expression`);
+  }
+
+  // Announce the limit once — the internal recursion after algebraic
+  // simplification (marked by _skipAlgebraic) shares the same collector
+  // and must not emit a second setup step.
+  if (!config._skipAlgebraic) {
+    trace?.emit('limit.setup', expr, expr, {
+      variable,
+      point: formatPoint(point),
+      direction,
+    });
   }
 
   // Step 1: Check for known patterns before direct substitution.
@@ -143,6 +161,10 @@ export function limit(expr: ExpressionNode, variable: string, config: LimitConfi
   // return method: 'direct' instead of the correct method: 'pattern'.
   const patternResult = tryKnownPatterns(expr, variable, point, steps, includeSteps);
   if (patternResult.success) {
+    trace?.emit('limit.pattern', expr, limitValueToNode(patternResult.value), {
+      pattern: patternResult.pattern ?? '',
+      value: formatValueParam(patternResult.value),
+    });
     return {
       value: patternResult.value,
       exists: true,
@@ -155,6 +177,9 @@ export function limit(expr: ExpressionNode, variable: string, config: LimitConfi
   // Step 2: Try direct substitution
   const directResult = tryDirectSubstitution(expr, variable, point, steps, includeSteps);
   if (directResult.success) {
+    trace?.emit('limit.direct', expr, limitValueToNode(directResult.value), {
+      value: formatValueParam(directResult.value),
+    });
     return {
       value: directResult.value,
       exists: directResult.value !== 'undefined' && directResult.value !== 'DNE',
@@ -167,6 +192,9 @@ export function limit(expr: ExpressionNode, variable: string, config: LimitConfi
   if (!config._skipAlgebraic) {
     const algebraicResult = tryAlgebraicSimplification(expr, variable, point, steps, includeSteps);
     if (algebraicResult.success) {
+      trace?.emit('limit.simplify', expr, algebraicResult.simplified);
+      // NOTE: `...config` deliberately carries `trace` through the recursion
+      // so nested L'Hôpital / series steps keep collecting.
       return limit(algebraicResult.simplified, variable, {
         ...config,
         includeSteps: false,
@@ -177,7 +205,11 @@ export function limit(expr: ExpressionNode, variable: string, config: LimitConfi
 
   // Step 4: Apply L'Hôpital's rule for indeterminate forms
   const indeterminateForm = detectIndeterminateForm(directResult);
+  if (indeterminateForm !== 'none') {
+    trace?.emit('limit.indeterminate', expr, expr, { form: indeterminateForm });
+  }
   if (indeterminateForm === '0/0' || indeterminateForm === '∞/∞') {
+    trace?.emit('limit.lhopital', expr, expr, { form: indeterminateForm });
     const lhopitalResult = tryLhopitalsRule(
       expr,
       variable,
@@ -185,6 +217,7 @@ export function limit(expr: ExpressionNode, variable: string, config: LimitConfi
       maxLhopitalIterations,
       steps,
       includeSteps,
+      trace,
     );
     if (lhopitalResult.success) {
       return {
@@ -204,8 +237,11 @@ export function limit(expr: ExpressionNode, variable: string, config: LimitConfi
   // (e.g. when symbolic differentiation produces expressions whose evaluation
   // still requires the numerical evaluator fallback).
   if (typeof point === 'number') {
-    const seriesResult = trySeriesExpansion(expr, variable, point, steps, includeSteps);
+    const seriesResult = trySeriesExpansion(expr, variable, point, steps, includeSteps, trace);
     if (seriesResult.success) {
+      trace?.emit('limit.seriesResult', expr, limitValueToNode(seriesResult.value), {
+        value: formatValueParam(seriesResult.value),
+      });
       return {
         value: seriesResult.value,
         exists: true,
@@ -217,6 +253,7 @@ export function limit(expr: ExpressionNode, variable: string, config: LimitConfi
   }
 
   // Step 6: Numerical approximation (fallback)
+  trace?.emit('limit.numerical', expr, expr);
   const numericalResult = tryNumericalApproximation(
     expr,
     variable,
@@ -227,12 +264,34 @@ export function limit(expr: ExpressionNode, variable: string, config: LimitConfi
     includeSteps,
   );
 
+  if (numericalResult.value !== 'undefined' && numericalResult.value !== 'DNE') {
+    trace?.emit('limit.numericalResult', expr, limitValueToNode(numericalResult.value), {
+      value: formatValueParam(numericalResult.value),
+    });
+  }
+
   return {
     value: numericalResult.value,
     exists: numericalResult.value !== 'undefined' && numericalResult.value !== 'DNE',
     method: 'numerical',
     steps: includeSteps ? steps : undefined,
   };
+}
+
+/**
+ * Convert a limit value into an AST node for trace `after` fields.
+ * Non-numeric values map to the corresponding IEEE constants so that the
+ * node is still a plain ConstantNode (NaN encodes "undefined"/"DNE").
+ */
+function formatValueParam(value: LimitValue): string {
+  return typeof value === 'number' ? formatTraceNumber(value) : formatLimitValue(value);
+}
+
+function limitValueToNode(value: LimitValue): ExpressionNode {
+  if (typeof value === 'number') return createConstantNode(value);
+  if (value === 'infinity') return createConstantNode(Number.POSITIVE_INFINITY);
+  if (value === '-infinity') return createConstantNode(Number.NEGATIVE_INFINITY);
+  return createConstantNode(Number.NaN);
 }
 
 // ============================================================================
@@ -435,6 +494,7 @@ function tryLhopitalsRule(
   maxIterations: number,
   steps: string[],
   includeSteps: boolean,
+  trace?: TraceCollector,
 ): LhopitalResult {
   // L'Hôpital's rule only applies to quotients
   if (!isOperatorNode(expr) || expr.op !== '/') {
@@ -449,6 +509,7 @@ function tryLhopitalsRule(
 
   let currentNum = numerator;
   let currentDen = denominator;
+  let previousQuotient: ExpressionNode = expr;
 
   for (let i = 0; i < maxIterations; i++) {
     // Differentiate numerator and denominator
@@ -462,17 +523,28 @@ function tryLhopitalsRule(
 
       // Try direct substitution
       const newExpr = createOperatorNode('/', 'divide', [currentNum, currentDen]);
+      trace?.emit('limit.lhopitalDifferentiate', previousQuotient, newExpr, {
+        iteration: i + 1,
+      });
+      previousQuotient = newExpr;
       const result = tryDirectSubstitution(newExpr, variable, point, steps, false);
 
       if (result.success) {
         if (includeSteps) {
           steps.push(`L'Hôpital's rule succeeded: ${formatLimitValue(result.value)}`);
         }
+        trace?.emit('limit.lhopitalResult', newExpr, limitValueToNode(result.value), {
+          value: formatValueParam(result.value),
+        });
         return { success: true, value: result.value };
       }
 
       // Check if we still have an indeterminate form
       const form = detectIndeterminateForm(result);
+      trace?.emit('limit.lhopitalIterationCheck', newExpr, newExpr, {
+        iteration: i + 1,
+        form,
+      });
       if (form !== '0/0' && form !== '∞/∞') {
         // No longer an indeterminate form, but substitution failed
         break;
@@ -535,6 +607,7 @@ function trySeriesExpansion(
   point: number,
   steps: string[],
   includeSteps: boolean,
+  trace?: TraceCollector,
 ): SeriesExpansionResult {
   const SERIES_TERMS = 8;
 
@@ -559,7 +632,9 @@ function trySeriesExpansion(
           : taylorSeries(denominator, variable, { center: point, terms: SERIES_TERMS });
 
       // Find the lowest-power non-zero term in each expansion.
+      trace?.emit('limit.seriesTermProbe', numerator, numerator, { part: 'numerator' });
       const numLeading = extractLeadingTerm(numSeries.terms, variable, point);
+      trace?.emit('limit.seriesTermProbe', denominator, denominator, { part: 'denominator' });
       const denLeading = extractLeadingTerm(denSeries.terms, variable, point);
 
       if (numLeading === null || denLeading === null) {
@@ -568,6 +643,13 @@ function trySeriesExpansion(
         }
         return { success: false, value: 'undefined' };
       }
+
+      trace?.emit('limit.series', expr, expr, {
+        numPower: numLeading.power,
+        denPower: denLeading.power,
+        numCoefficient: formatTraceNumber(numLeading.coefficient),
+        denCoefficient: formatTraceNumber(denLeading.coefficient),
+      });
 
       if (includeSteps) {
         steps.push(
@@ -765,6 +847,8 @@ interface PatternResult {
   success: boolean;
   value: LimitValue;
   form?: IndeterminateForm;
+  /** Human-readable pattern name (plain text, ICU-safe) */
+  pattern?: string;
 }
 
 /**
@@ -784,7 +868,7 @@ function tryKnownPatterns(
       if (includeSteps) {
         steps.push('Recognized pattern: sin(x)/x → 1 as x → 0');
       }
-      return { success: true, value: 1, form: '0/0' };
+      return { success: true, value: 1, form: '0/0', pattern: `sin(${variable})/${variable}` };
     }
 
     // Pattern: lim (x→0) (1-cos(x))/x = 0
@@ -793,7 +877,12 @@ function tryKnownPatterns(
       if (includeSteps) {
         steps.push('Recognized pattern: (1-cos(x))/x → 0 as x → 0');
       }
-      return { success: true, value: 0, form: '0/0' };
+      return {
+        success: true,
+        value: 0,
+        form: '0/0',
+        pattern: `(1 - cos(${variable}))/${variable}`,
+      };
     }
 
     // Pattern: lim (x→0) tan(x)/x = 1
@@ -802,7 +891,7 @@ function tryKnownPatterns(
       if (includeSteps) {
         steps.push('Recognized pattern: tan(x)/x → 1 as x → 0');
       }
-      return { success: true, value: 1, form: '0/0' };
+      return { success: true, value: 1, form: '0/0', pattern: `tan(${variable})/${variable}` };
     }
   }
 
@@ -813,7 +902,12 @@ function tryKnownPatterns(
       if (includeSteps) {
         steps.push('Recognized pattern: (1 + 1/x)^x → e as x → ∞');
       }
-      return { success: true, value: Math.E, form: '1^∞' };
+      return {
+        success: true,
+        value: Math.E,
+        form: '1^∞',
+        pattern: `(1 + 1/${variable})^${variable}`,
+      };
     }
   }
 

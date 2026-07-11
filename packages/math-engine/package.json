@@ -59,6 +59,14 @@
       "types": "./src/problems/index.ts",
       "default": "./src/problems/index.ts"
     },
+    "./problems/templates": {
+      "types": "./src/problems/templates/index.ts",
+      "default": "./src/problems/templates/index.ts"
+    },
+    "./equivalence": {
+      "types": "./src/equivalence/index.ts",
+      "default": "./src/equivalence/index.ts"
+    },
     "./prover": {
       "types": "./src/prover/index.ts",
       "default": "./src/prover/index.ts"
@@ -90,6 +98,10 @@
     "./graph-theory": {
       "types": "./src/graph-theory/index.ts",
       "default": "./src/graph-theory/index.ts"
+    },
+    "./trace": {
+      "types": "./src/trace/index.ts",
+      "default": "./src/trace/index.ts"
     }
   },
   "scripts": {

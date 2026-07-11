@@ -21,6 +21,7 @@ export const NodeType = {
   OperatorNode: 'OperatorNode',
   UnaryOperatorNode: 'UnaryOperatorNode',
   FunctionNode: 'FunctionNode',
+  RelationalNode: 'RelationalNode',
 
   // Structural
   ParenthesisNode: 'ParenthesisNode',
@@ -48,6 +49,10 @@ export function isUnaryOperatorNode(node: ExpressionNode): node is UnaryOperator
 
 export function isFunctionNode(node: ExpressionNode): node is FunctionNode {
   return node.type === NodeType.FunctionNode;
+}
+
+export function isRelationalNode(node: ExpressionNode): node is RelationalNode {
+  return node.type === NodeType.RelationalNode;
 }
 
 // Specific node types
@@ -81,8 +86,21 @@ export interface FunctionNode extends ExpressionNode {
   readonly args: readonly ExpressionNode[];
 }
 
+/**
+ * Relational (comparison) node — a binary relation between two expressions.
+ * `=` denotes mathematical equality (an equation, not an assignment).
+ */
+export interface RelationalNode extends ExpressionNode {
+  readonly type: typeof NodeType.RelationalNode;
+  readonly op: RelationalOperator;
+  readonly args: readonly [ExpressionNode, ExpressionNode];
+}
+
 // Supported binary operators
 export type Operator = '+' | '-' | '*' | '/' | '^' | '%';
+
+// Supported relational operators (mathematical `=`, not assignment)
+export type RelationalOperator = '=' | '<' | '<=' | '>' | '>=';
 
 // Supported unary operators
 export type UnaryOperator = '-' | '+';
@@ -182,6 +200,18 @@ export function createFunctionNode(
   } as FunctionNode;
 }
 
+export function createRelationalNode(
+  op: RelationalOperator,
+  args: readonly [ExpressionNode, ExpressionNode],
+): RelationalNode {
+  return {
+    _brand: 'ExpressionNode',
+    type: NodeType.RelationalNode,
+    op,
+    args,
+  } as RelationalNode;
+}
+
 // Visitor pattern for AST traversal
 export interface ASTVisitor<T> {
   visitConstant(node: ConstantNode): T;
@@ -189,6 +219,7 @@ export interface ASTVisitor<T> {
   visitOperator(node: OperatorNode): T;
   visitUnaryOperator(node: UnaryOperatorNode): T;
   visitFunction(node: FunctionNode): T;
+  visitRelational(node: RelationalNode): T;
 }
 
 export function visit<T>(node: ExpressionNode, visitor: ASTVisitor<T>): T {
@@ -203,6 +234,8 @@ export function visit<T>(node: ExpressionNode, visitor: ASTVisitor<T>): T {
       return visitor.visitUnaryOperator(node as UnaryOperatorNode);
     case NodeType.FunctionNode:
       return visitor.visitFunction(node as FunctionNode);
+    case NodeType.RelationalNode:
+      return visitor.visitRelational(node as RelationalNode);
     default:
       throw new Error(`Unknown node type: ${node.type}`);
   }

@@ -1,5 +1,6 @@
 'use client';
 
+import { isValidExpression } from '@nextcalc/math-engine/parser';
 import type { Hint, Problem, SolutionStep } from '@nextcalc/math-engine/problems';
 import {
   ArrowRight,
@@ -18,6 +19,7 @@ import {
 } from 'lucide-react';
 import { AnimatePresence, m } from 'motion/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { CheckWorkPanel } from '@/components/math/check-work-panel';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -118,6 +120,14 @@ export function InteractiveSolver({
   }, [revealedHints, problem.hints]);
 
   const potentialPoints = Math.max(0, problem.points - hintPenalty);
+
+  // "Check my work" canonical: the stored answer with a leading "x ="
+  // stripped — only shown when it parses as a math expression (prose
+  // answers would make the checker meaningless).
+  const checkWorkCanonical = String(problem.solution.answer)
+    .replace(/^[a-zA-Z]\s*=\s*/, '')
+    .trim();
+  const showCheckWork = checkWorkCanonical.length > 0 && isValidExpression(checkWorkCanonical);
 
   // Format time display
   const formatTime = (seconds: number) => {
@@ -287,6 +297,13 @@ export function InteractiveSolver({
                   </m.div>
                 )}
               </AnimatePresence>
+
+              {/* Self-verification aid — separate from the graded submit */}
+              {showCheckWork && (
+                <div className="mt-4">
+                  <CheckWorkPanel canonical={checkWorkCanonical} />
+                </div>
+              )}
 
               <div className="mt-4 flex gap-2">
                 <Button

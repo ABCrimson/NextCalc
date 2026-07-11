@@ -64,6 +64,10 @@ export const derivativePowerRuleTemplate = createTemplate({
   tags: ['derivatives', 'power-rule', 'calculus'],
   prerequisites: ['exponents', 'functions'],
   learningObjectives: ['Apply power rule for derivatives'],
+  canonical: (params) => {
+    const { a, n } = narrow<{ a: number; n: number }>(params);
+    return { kind: 'expression', expression: `${a * n}*x^${n - 1}`, variable: 'x' };
+  },
 });
 
 /**
@@ -110,6 +114,15 @@ export const derivativeProductRuleTemplate = createTemplate({
   tags: ['derivatives', 'product-rule'],
   prerequisites: ['derivatives', 'power-rule'],
   learningObjectives: ['Apply product rule'],
+  canonical: (params) => {
+    const { a, b, c, d } = narrow<{ a: number; b: number; c: number; d: number }>(params);
+    // d/dx[(ax + b)(cx + d)] = 2ac·x + (ad + bc)
+    return {
+      kind: 'expression',
+      expression: `${2 * a * c}*x + ${a * d + b * c}`,
+      variable: 'x',
+    };
+  },
 });
 
 /**
@@ -152,6 +165,14 @@ export const derivativeChainRuleTemplate = createTemplate({
   tags: ['derivatives', 'chain-rule'],
   prerequisites: ['derivatives', 'power-rule'],
   learningObjectives: ['Apply chain rule'],
+  canonical: (params) => {
+    const { a, b, n } = narrow<{ a: number; b: number; n: number }>(params);
+    return {
+      kind: 'expression',
+      expression: `${n * a}*(${a}*x + ${b})^${n - 1}`,
+      variable: 'x',
+    };
+  },
 });
 
 /**
@@ -204,6 +225,16 @@ export const integralPowerRuleTemplate = createTemplate({
   tags: ['integrals', 'power-rule', 'antiderivatives'],
   prerequisites: ['derivatives', 'exponents'],
   learningObjectives: ['Apply power rule for integration'],
+  canonical: (params) => {
+    const { a, n } = narrow<{ a: number; n: number }>(params);
+    // Antiderivative without +C — the grader strips a trailing "+ C"
+    // from student input before checking equivalence.
+    return {
+      kind: 'expression',
+      expression: `(${a}/${n + 1})*x^${n + 1}`,
+      variable: 'x',
+    };
+  },
 });
 
 /**
@@ -255,6 +286,11 @@ export const definiteIntegralTemplate = createTemplate({
   tags: ['integrals', 'definite-integrals', 'ftc'],
   prerequisites: ['integrals', 'ftc'],
   learningObjectives: ['Evaluate definite integrals', 'Apply FTC'],
+  canonical: (params) => {
+    const { a, b, c, n } = narrow<{ a: number; b: number; c: number; n: number }>(params);
+    const newN = n + 1;
+    return { kind: 'number', value: (c * b ** newN) / newN - (c * a ** newN) / newN };
+  },
 });
 
 /**
@@ -290,6 +326,10 @@ export const limitBasicTemplate = createTemplate({
   tags: ['limits', 'continuity'],
   prerequisites: ['functions', 'continuity'],
   learningObjectives: ['Evaluate limits by substitution'],
+  canonical: (params) => {
+    const { a, b, c } = narrow<{ a: number; b: number; c: number }>(params);
+    return { kind: 'number', value: b * a + c };
+  },
 });
 
 /**

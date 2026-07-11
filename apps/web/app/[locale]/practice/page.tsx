@@ -7,11 +7,13 @@ import {
   getProblemsByTopic,
   type Problem,
 } from '@nextcalc/math-engine/problems';
+import { randomSeedString } from '@nextcalc/math-engine/problems/templates';
 import { Play, Settings, Target, Timer, TrendingUp, Zap } from 'lucide-react';
 import { m, useReducedMotion } from 'motion/react';
+import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import type { CSSProperties } from 'react';
-import { useActionState, useCallback, useEffect, useRef, useState } from 'react';
+import { Suspense, useActionState, useCallback, useEffect, useRef, useState } from 'react';
 import type {
   PracticeAttemptResult,
   PracticeSessionResult,
@@ -23,6 +25,7 @@ import {
   startPracticeSession,
 } from '@/app/actions/practice';
 import type { ActionResult } from '@/app/actions/problems';
+import { DrillMode } from '@/components/math/drill-mode';
 import { type PracticeMetrics, PracticeMode } from '@/components/math/practice-mode';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -291,8 +294,9 @@ function StatCard({ data }: { data: StatCardData }) {
  * - Semantic form structure with associated labels
  * - Screen reader announcements via aria-live on the empty-state region
  */
-export default function PracticePage() {
+function PracticePageInner() {
   const t = useTranslations('practice');
+  const searchParams = useSearchParams();
   const [isConfiguring, setIsConfiguring] = useState(true);
   const [problems, setProblems] = useState<ReadonlyArray<Problem>>([]);
   const [config, setConfig] = useState<PracticeConfig>({
@@ -320,6 +324,49 @@ export default function PracticePage() {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const prefersReduced = useReducedMotion() ?? false;
+
+  // ── Infinite-drill URL state (?mode=drill&template=…&seed=…) ────────────
+  const drillActive = searchParams.get('mode') === 'drill';
+  const drillTemplate = searchParams.get('template') ?? 'linear-equation-basic';
+  const drillSeed = searchParams.get('seed');
+
+  // Mint a seed into the URL when drill mode is entered without one, so the
+  // address bar is always shareable and reproduces this exact problem.
+  useEffect(() => {
+    if (drillActive && !drillSeed) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('template', drillTemplate);
+      params.set('seed', randomSeedString());
+      window.history.replaceState(null, '', `?${params.toString()}`);
+    }
+  }, [drillActive, drillSeed, drillTemplate, searchParams]);
+
+  // Shallow URL updates via the native History API (Next 16 keeps
+  // useSearchParams in sync) — no server round-trip per problem.
+  const handleDrillChange = (next: { templateId: string; seed: string }) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('mode', 'drill');
+    params.set('template', next.templateId);
+    params.set('seed', next.seed);
+    window.history.replaceState(null, '', `?${params.toString()}`);
+  };
+
+  const handleEnterDrill = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('mode', 'drill');
+    params.set('template', drillTemplate);
+    params.set('seed', randomSeedString());
+    window.history.pushState(null, '', `?${params.toString()}`);
+  };
+
+  const handleExitDrill = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('mode');
+    params.delete('template');
+    params.delete('seed');
+    const query = params.toString();
+    window.history.pushState(null, '', query ? `?${query}` : window.location.pathname);
+  };
 
   // Load problems from math-engine's in-memory problem database.
   // Applies topic and difficulty filters from the session config, then
@@ -409,6 +456,25 @@ export default function PracticePage() {
     },
     [completeSessionAction],
   );
+
+  // ── Infinite drill mode ─────────────────────────────────────────────────
+  if (drillActive) {
+    return (
+      <div className="relative min-h-screen">
+        <AnimatedBackground prefersReduced={prefersReduced} />
+        <div className="container mx-auto py-8 px-4">
+          {drillSeed && (
+            <DrillMode
+              templateId={drillTemplate}
+              seed={drillSeed}
+              onSeedChange={handleDrillChange}
+              onExit={handleExitDrill}
+            />
+          )}
+        </div>
+      </div>
+    );
+  }
 
   // ── Empty state (no matching problems) ─────────────────────────────────────
   if (!isConfiguring) {
@@ -520,6 +586,58 @@ export default function PracticePage() {
 
         {/* Configuration Form */}
         <div className="max-w-3xl mx-auto">
+          {/* Infinite Drill entry */}
+          <m.div
+            className="mb-6"
+            {...(prefersReduced
+              ? {}
+              : {
+                  initial: 'hidden',
+                  whileInView: 'visible',
+                  viewport: { once: true },
+                  variants: cardVariants,
+                })}
+          >
+            <Card
+              className="backdrop-blur-md bg-card/50 border-border"
+              style={{
+                boxShadow:
+                  '0 0 0 1px oklch(0.65 0.22 264 / 0.10) inset, 0 8px 32px oklch(0.65 0.22 264 / 0.08)',
+              }}
+            >
+              <CardContent className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-5">
+                <div className="flex items-center gap-3">
+                  <span
+                    className="inline-flex items-center justify-center size-9 rounded-xl flex-shrink-0"
+                    style={{
+                      background: 'oklch(0.65 0.22 264 / 0.12)',
+                      border: '1px solid oklch(0.65 0.22 264 / 0.25)',
+                    }}
+                    aria-hidden="true"
+                  >
+                    <Zap className="size-5" style={{ color: 'oklch(0.65 0.22 264)' }} />
+                  </span>
+                  <div>
+                    <div className="font-semibold text-foreground">{t('drill.title')}</div>
+                    <div className="text-sm text-muted-foreground">{t('drill.description')}</div>
+                  </div>
+                </div>
+                <Button
+                  onClick={handleEnterDrill}
+                  className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                  style={{
+                    background:
+                      'linear-gradient(135deg, oklch(0.60 0.22 264), oklch(0.55 0.20 290))',
+                    boxShadow: '0 4px 20px oklch(0.60 0.22 264 / 0.30)',
+                  }}
+                >
+                  <Zap className="size-4 mr-2" aria-hidden="true" />
+                  {t('drill.enter')}
+                </Button>
+              </CardContent>
+            </Card>
+          </m.div>
+
           <m.div
             {...(prefersReduced
               ? {}
@@ -798,5 +916,17 @@ export default function PracticePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * Page shell: useSearchParams (drill deep-links) requires a Suspense
+ * boundary for static prerendering.
+ */
+export default function PracticePage() {
+  return (
+    <Suspense fallback={null}>
+      <PracticePageInner />
+    </Suspense>
   );
 }

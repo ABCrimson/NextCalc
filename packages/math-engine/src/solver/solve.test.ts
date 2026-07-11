@@ -3,6 +3,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import { TraceCollector } from '../trace/step-trace';
 import { Complex, solve, solveInRange } from './solve';
 
 describe('solve', () => {
@@ -97,6 +98,61 @@ describe('solve', () => {
       const hasPi = values.some((v) => Math.abs(v - Math.PI) < 0.1);
 
       expect(hasZero || hasPi).toBe(true);
+    });
+  });
+
+  describe('step tracing (opt-in)', () => {
+    it('emits quadratic trace events with before/after ASTs', () => {
+      const trace = new TraceCollector();
+      const solutions = solve('x^2 - 4', 'x', { trace });
+
+      const ids = trace.steps.map((s) => s.ruleId);
+      expect(ids).toContain('quadratic.coefficients');
+      expect(ids).toContain('quadratic.formula');
+      expect(ids).toContain('quadratic.evaluateRoots');
+
+      for (const step of trace.steps) {
+        expect(step.before._brand).toBe('ExpressionNode');
+        expect(step.after._brand).toBe('ExpressionNode');
+      }
+
+      // The traced call solves identically
+      const values = solutions.map((s) => s.value as number).sort((a, b) => a - b);
+      expect(values[0]).toBeCloseTo(-2, 8);
+      expect(values[1]).toBeCloseTo(2, 8);
+    });
+
+    it('emits linear trace events including the division step', () => {
+      const trace = new TraceCollector();
+      solve('2*x + 4', 'x', { trace });
+
+      const ids = trace.steps.map((s) => s.ruleId);
+      expect(ids).toContain('linear.coefficients');
+      expect(ids).toContain('linear.divide');
+
+      const divide = trace.steps.find((s) => s.ruleId === 'linear.divide');
+      expect(divide?.params['solution']).toBe('-2');
+    });
+
+    it('emits the converged iteration count for numerical solving', () => {
+      const trace = new TraceCollector();
+      solve('exp(x) - 2', 'x', { method: 'numerical', trace });
+
+      const ids = trace.steps.map((s) => s.ruleId);
+      expect(ids).toContain('numeric.newton');
+      expect(ids).toContain('numeric.converged');
+
+      const converged = trace.steps.find((s) => s.ruleId === 'numeric.converged');
+      expect(typeof converged?.params['iterations']).toBe('number');
+      expect(Number(converged?.params['iterations'])).toBeGreaterThan(0);
+    });
+
+    it('returns identical solutions with tracing off (behavioral parity)', () => {
+      const equations = ['x - 5', '2*x + 4', 'x + 3 = 7', 'x^2 - 4', 'x^2 - 4*x + 4', 'x^2 + 1'];
+      for (const equation of equations) {
+        const trace = new TraceCollector();
+        expect(solve(equation, 'x', { trace })).toEqual(solve(equation, 'x'));
+      }
     });
   });
 

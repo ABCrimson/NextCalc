@@ -316,6 +316,7 @@ export {
   integrateAdaptiveSimpson,
   integrateAuto,
   integrateImproper,
+  limitWithSteps,
   maclaurinSeries,
   quickSimplify,
   type SeriesConfig,
@@ -327,3 +328,5 @@ export {
   // Series & LaTeX
   taylorSeries,
 } from './symbolic/index';
+// Step tracing (opt-in structured solver/limit traces)
+export * from './trace/index';

@@ -10,6 +10,7 @@ import type {
   ExpressionNode,
   FunctionNode,
   OperatorNode,
+  RelationalNode,
   SymbolNode,
   UnaryOperatorNode,
 } from './ast';
@@ -167,6 +168,30 @@ class ASTEvaluator implements ASTVisitor<number | bigint | string> {
         return val;
       default:
         throw new EvaluationError(`Unknown unary operator: ${node.op}`);
+    }
+  }
+
+  visitRelational(node: RelationalNode): number | bigint | string {
+    const [left, right] = node.args;
+    const l = Number(visit(left, this));
+    const r = Number(visit(right, this));
+
+    switch (node.op) {
+      case '=': {
+        // Relative tolerance — floating-point fields rarely hit 0 exactly
+        const tolerance = 1e-12 * Math.max(1, Math.abs(l), Math.abs(r));
+        return Math.abs(l - r) <= tolerance ? 1 : 0;
+      }
+      case '<':
+        return l < r ? 1 : 0;
+      case '<=':
+        return l <= r ? 1 : 0;
+      case '>':
+        return l > r ? 1 : 0;
+      case '>=':
+        return l >= r ? 1 : 0;
+      default:
+        throw new EvaluationError(`Unknown relational operator: ${(node as RelationalNode).op}`);
     }
   }
 

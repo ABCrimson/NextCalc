@@ -455,7 +455,30 @@
     "selectTopic": "Sélectionner un sujet",
     "selectDifficulty": "Sélectionner la difficulté",
     "selectQuestionCount": "Sélectionner le nombre de questions",
-    "selectTimeLimit": "Sélectionner la limite de temps"
+    "selectTimeLimit": "Sélectionner la limite de temps",
+    "drill": {
+      "title": "Entraînement infini",
+      "description": "Des problèmes aléatoires sans fin avec correction instantanée vérifiée par CAS — chaque problème a un lien partageable.",
+      "enter": "Lancer l'entraînement infini",
+      "templateLabel": "Type de problème",
+      "seedLabel": "Graine",
+      "answerLabel": "Votre réponse",
+      "answerPlaceholder": "p. ex. x = 2 ou 3/4",
+      "generateAnother": "Générer un autre",
+      "checkAnswer": "Vérifier la réponse",
+      "correct": "Correct ! Les formes équivalentes sont acceptées.",
+      "incorrect": "Pas tout à fait — vérifiez votre travail et réessayez.",
+      "showHint": "Afficher un indice",
+      "hintCost": "{count, plural, one {# indice utilisé} other {# indices utilisés}}",
+      "attempted": "{count, plural, one {# tentative} other {# tentatives}}",
+      "correctCount": "{count, plural, one {# correcte} other {# correctes}}",
+      "streak": "{count, plural, one {# d'affilée} other {# d'affilée}}",
+      "copyLink": "Copier le lien",
+      "linkCopied": "Lien copié !",
+      "endDrill": "Terminer et enregistrer",
+      "sessionSaved": "Session enregistrée — XP et progression par thème mis à jour.",
+      "signInToSave": "Connectez-vous pour enregistrer votre progression — l'entraînement fonctionne sans."
+    }
   },
   "problems": {
     "title": "Bibliothèque de problèmes",
@@ -1064,6 +1087,283 @@
       "directionField": "Champ de direction",
       "csvExport": "Export CSV",
       "aboutTitle": "À propos des méthodes numériques pour les EDO"
+    },
+    "stepRules": {
+      "equation": {
+        "start": {
+          "title": "Poser l'équation",
+          "detail": "Notez l'équation d'origine et identifiez la variable à résoudre."
+        },
+        "moveTermsLeft": {
+          "title": "Regrouper tous les termes d'un côté",
+          "detail": "Soustrayez {rhs} des deux côtés afin que le membre de droite devienne nul."
+        },
+        "classify": {
+          "linear": {
+            "title": "Classer comme équation linéaire",
+            "detail": "L'équation est de degré 1 et se résout en isolant directement la variable."
+          },
+          "quadratic": {
+            "title": "Classer comme équation quadratique",
+            "detail": "L'équation est de degré 2 ; la factorisation ou la formule quadratique donneront ses racines."
+          },
+          "cubic": {
+            "title": "Classer comme équation cubique",
+            "detail": "L'équation est de degré 3 ; une substitution vers la cubique déprimée et la formule de Cardan s'appliquent."
+          },
+          "rational": {
+            "title": "Classer comme équation rationnelle",
+            "detail": "L'équation contient la variable au dénominateur ; il faut donc éliminer les fractions avant de résoudre."
+          },
+          "trigonometric": {
+            "title": "Classer comme équation trigonométrique",
+            "detail": "L'équation comporte une fonction trigonométrique ; sa fonction réciproque isolera la variable."
+          },
+          "exponential": {
+            "title": "Classer comme équation exponentielle",
+            "detail": "La variable figure en exposant ; des logarithmes ou des méthodes numériques sont nécessaires pour la résoudre."
+          },
+          "logarithmic": {
+            "title": "Classer comme équation logarithmique",
+            "detail": "L'équation contient un logarithme de la variable ; exponentier les deux membres l'isolera."
+          },
+          "transcendental": {
+            "title": "Classer comme équation transcendante",
+            "detail": "L'équation mélange des termes algébriques et transcendants ; elle se résout donc numériquement."
+          },
+          "higherPolynomial": {
+            "title": "Classer comme polynôme de degré supérieur",
+            "detail": "L'équation est de degré 4 ou plus ; une recherche numérique des racines remplace une formule fermée."
+          }
+        }
+      },
+      "linear": {
+        "coefficients": {
+          "title": "Identifier les coefficients linéaires",
+          "detail": "Écrivez l'équation sous la forme a·{variable} + b = 0, avec a = {a} et b = {b}."
+        },
+        "isolate": {
+          "title": "Isoler le terme variable",
+          "detail": "Soustrayez le terme constant des deux côtés pour obtenir {a}{variable} = {negB}."
+        },
+        "divide": {
+          "title": "Diviser par le coefficient",
+          "detail": "Diviser les deux côtés par {a} isole {variable}, donnant {variable} = {solution}."
+        },
+        "noSolution": {
+          "title": "Signaler l'absence de solution",
+          "detail": "Le coefficient de la variable est nul alors que la constante {b} ne l'est pas, donc aucune valeur ne satisfait l'équation."
+        },
+        "allReals": {
+          "title": "Signaler que tous les réels sont solutions",
+          "detail": "Les deux coefficients sont nuls, donc tout nombre réel satisfait l'équation."
+        }
+      },
+      "quadratic": {
+        "coefficients": {
+          "title": "Identifier les coefficients quadratiques",
+          "detail": "Écrivez l'équation sous forme standard a{variable}² + b{variable} + c = 0, avec a = {a}, b = {b}, c = {c}."
+        },
+        "factor": {
+          "title": "Factoriser l'expression quadratique",
+          "detail": "Trouvez deux nombres dont le produit vaut {ac} et la somme {b}, donnant les racines {r1} et {r2}."
+        },
+        "zeroProduct": {
+          "title": "Appliquer la propriété du produit nul",
+          "detail": "Le produit factorisé étant nul, au moins un facteur doit s'annuler : {variable} = {r1} ou {variable} = {r2}."
+        },
+        "solveFactors": {
+          "title": "Résoudre chaque facteur",
+          "detail": "En annulant chaque facteur, on obtient les solutions {variable} = {r1} et {variable} = {r2}."
+        },
+        "repeatedRoot": {
+          "title": "Identifier la racine double",
+          "detail": "Le discriminant est nul, donc les deux racines coïncident en {variable} = {r} avec une multiplicité de 2."
+        },
+        "formula": {
+          "title": "Appliquer la formule quadratique",
+          "detail": "Avec a = {a}, b = {b}, c = {c}, le discriminant b² − 4ac vaut {discriminant}."
+        },
+        "evaluateRoots": {
+          "title": "Calculer les racines",
+          "detail": "En substituant dans la formule quadratique, on obtient {variable}₁ = {r1} et {variable}₂ = {r2}."
+        },
+        "complexRoots": {
+          "title": "Calculer les racines complexes",
+          "detail": "Le discriminant {discriminant} est négatif, donnant les racines complexes conjuguées {variable} = {realPart} ± {imagPart}i."
+        }
+      },
+      "cubic": {
+        "coefficients": {
+          "title": "Identifier les coefficients cubiques",
+          "detail": "Écrivez l'équation sous forme standard a{variable}³ + b{variable}² + c{variable} + d = 0, avec a = {a}, b = {b}, c = {c}, d = {d}."
+        },
+        "depress": {
+          "title": "Réduire la cubique",
+          "detail": "Décaler la variable de {shift} élimine le terme quadratique, donnant t³ + {p}t + {q} = 0."
+        },
+        "discriminant": {
+          "title": "Calculer le discriminant cubique",
+          "detail": "Le discriminant Δ = −4p³ − 27q² vaut {delta}, ce qui détermine le nombre de racines réelles."
+        },
+        "roots": {
+          "title": "Calculer les racines de la cubique",
+          "detail": "L'application de la formule de Cardan suivie de la substitution inverse donne les racines {roots} pour {variable}."
+        }
+      },
+      "trig": {
+        "identify": {
+          "title": "Identifier la fonction trigonométrique",
+          "detail": "L'équation comporte {fn}({variable}) ; isoler ce terme est la première étape."
+        },
+        "isolate": {
+          "title": "Isoler l'expression trigonométrique",
+          "detail": "Réarrangez l'équation pour que {fn}({variable}) soit seul égal à une constante."
+        },
+        "inverse": {
+          "title": "Appliquer la fonction trigonométrique réciproque",
+          "detail": "Appliquer la réciproque de {fn} aux deux membres donne la solution principale pour {variable}, ainsi que sa famille périodique."
+        },
+        "principal": {
+          "title": "Calculer la solution principale",
+          "detail": "La valeur principale trouvée numériquement est {variable} = {solutions}."
+        }
+      },
+      "rational": {
+        "domain": {
+          "title": "Énoncer les restrictions du domaine",
+          "detail": "Tout dénominateur contenant {variable} doit être non nul : {denominators} ≠ 0."
+        },
+        "multiplyLcd": {
+          "title": "Multiplier par le dénominateur commun",
+          "detail": "Multiplier les deux côtés par {lcd} élimine toutes les fractions, laissant une équation polynomiale."
+        },
+        "checkExtraneous": {
+          "title": "Vérifier les candidats par rapport au domaine",
+          "detail": "Après exclusion des racines étrangères, {kept} solution(s) candidate(s) respectent les restrictions du domaine."
+        },
+        "extraneousExcluded": {
+          "title": "Exclure une racine étrangère",
+          "detail": "Substituer {variable} = {root} annule un dénominateur, elle est donc rejetée comme étrangère."
+        }
+      },
+      "numeric": {
+        "newton": {
+          "title": "Appliquer la méthode de Newton-Raphson",
+          "detail": "Cette équation n'a pas de solution sous forme close, donc {variable} est affiné itérativement à partir d'une estimation initiale."
+        },
+        "converged": {
+          "title": "Converger vers une solution",
+          "detail": "L'itération a convergé après {iterations} étapes, donnant {solutions}."
+        },
+        "failed": {
+          "title": "Signaler l'absence de convergence",
+          "detail": "L'itération de Newton-Raphson n'a pas convergé à partir de l'estimation initiale par défaut."
+        }
+      },
+      "answer": {
+        "single": {
+          "title": "Indiquer la réponse finale",
+          "detail": "L'équation admet exactement une solution : {variable} = {solution}."
+        },
+        "multiple": {
+          "title": "Indiquer les réponses finales",
+          "detail": "L'équation admet {count} solutions : {variable} = {solutions}."
+        },
+        "none": {
+          "title": "Signaler l'absence de solutions réelles",
+          "detail": "Aucune valeur réelle de la variable ne satisfait l'équation."
+        }
+      },
+      "limit": {
+        "setup": {
+          "title": "Poser la limite",
+          "detail": "Évaluez la limite de l'expression lorsque {variable} tend vers {point}{direction, select, left { par la gauche} right { par la droite} other {}}."
+        },
+        "pattern": {
+          "title": "Reconnaître une limite standard",
+          "detail": "C'est la limite bien connue {pattern}, qui vaut directement {value}."
+        },
+        "direct": {
+          "title": "Substituer directement le point",
+          "detail": "L'expression est continue en ce point, donc la limite est égale à la valeur de la fonction {value}."
+        },
+        "indeterminate": {
+          "title": "Identifier la forme indéterminée",
+          "detail": "La substitution directe produit la forme indéterminée {form}, une analyse plus poussée est donc nécessaire."
+        },
+        "simplify": {
+          "title": "Simplifier l'expression",
+          "detail": "La simplification algébrique produit une expression équivalente dont la limite est plus facile à évaluer."
+        },
+        "lhopital": {
+          "title": "Appliquer la règle de L'Hôpital",
+          "detail": "La limite ayant la forme indéterminée {form}, la limite du quotient équivaut à la limite du quotient des dérivées."
+        },
+        "lhopitalDifferentiate": {
+          "title": "Dériver le numérateur et le dénominateur",
+          "detail": "Dérivez séparément le numérateur et le dénominateur (itération {iteration}), puis examinez la limite du nouveau quotient."
+        },
+        "lhopitalResult": {
+          "title": "Évaluer après la règle de L'Hôpital",
+          "detail": "La substitution dans le quotient dérivé donne {value}."
+        },
+        "series": {
+          "title": "Développer en série de Taylor",
+          "detail": "Le terme dominant du numérateur est d'ordre {numPower} et celui du dénominateur d'ordre {denPower} ; leur comparaison détermine la limite."
+        },
+        "seriesResult": {
+          "title": "Évaluer la comparaison des séries",
+          "detail": "Le rapport des coefficients dominants des séries donne {value}."
+        },
+        "numerical": {
+          "title": "Approximer numériquement",
+          "detail": "Les méthodes symboliques n'ayant pas abouti, l'expression est évaluée en des points proches de la limite pour détecter une convergence."
+        },
+        "numericalResult": {
+          "title": "Confirmer la convergence numérique",
+          "detail": "Les valeurs échantillonnées convergent vers {value}."
+        },
+        "value": {
+          "title": "Indiquer la valeur de la limite",
+          "detail": "En combinant les étapes précédentes, la limite vaut {value}."
+        },
+        "infinite": {
+          "title": "Indiquer que la limite est infinie",
+          "detail": "L'expression croît indéfiniment : la limite vaut {sign}."
+        },
+        "dne": {
+          "title": "Indiquer que la limite n'existe pas",
+          "detail": "Aucune limite finie ou infinie n'a pu être établie ; la limite n'existe donc pas."
+        }
+      }
+    },
+    "limitTab": {
+      "label": "Limite",
+      "shortLabel": "Lim",
+      "approach": "Point d'approche",
+      "pointPlaceholder": "ex. 0, inf, -inf",
+      "direction": "Direction",
+      "directionBoth": "Des deux côtés",
+      "directionLeft": "Par la gauche",
+      "directionRight": "Par la droite",
+      "invalidPoint": "Saisissez un point d'approche valide : un nombre, inf ou -inf."
+    },
+    "stepCategories": {
+      "identification": "Identifier",
+      "simplification": "Simplifier",
+      "differentiation": "Dériver",
+      "integration": "Intégrer",
+      "rearrangement": "Réarranger",
+      "isolation": "Isoler",
+      "factorization": "Factoriser",
+      "formula": "Formule",
+      "substitution": "Substituer",
+      "expansion": "Développer",
+      "identity": "Identité",
+      "finalAnswer": "Réponse",
+      "evaluation": "Évaluer",
+      "limit": "Limite"
     }
   },
   "complex": {
@@ -1143,7 +1443,9 @@
       "2dCartesian": "2D Cartésien",
       "2dPolar": "2D Polaire",
       "2dParametric": "2D Paramétrique",
-      "3dSurface": "Surface 3D"
+      "3dSurface": "Surface 3D",
+      "dataRegression": "Données et régression",
+      "2dRelation": "2D Relations"
     },
     "sliders": {
       "parameters": "Paramètres",
@@ -1167,6 +1469,74 @@
       "valueAria": "{name} vaut {value}",
       "panelLabel": "Curseurs de paramètres",
       "detected": "{count, plural, one {# paramètre détecté} other {# paramètres détectés}}"
+    },
+    "regression": {
+      "title": "Données et régression",
+      "dataTitle": "Tableau de données",
+      "pasteHint": "Collez des données d'un tableur (séparées par des tabulations) directement dans le tableau.",
+      "addColumn": "Ajouter une colonne",
+      "addRow": "Ajouter une ligne",
+      "removeRow": "Supprimer la ligne",
+      "columnName": "Nom de colonne",
+      "invalidColumnName": "Les noms de colonnes doivent commencer par une lettre et être uniques",
+      "modelLabel": "Modèle de régression",
+      "modelPlaceholder": "p. ex. y1 ~ a*exp(b*x1)",
+      "modelValid": "Paramètres : {parameters}",
+      "cannedTitle": "Modèles prédéfinis",
+      "canned": {
+        "linear": "Linéaire",
+        "quadratic": "Quadratique",
+        "exponential": "Exponentielle",
+        "logarithmic": "Logarithmique",
+        "logistic": "Logistique",
+        "sinusoidal": "Sinusoïdale"
+      },
+      "stats": {
+        "title": "Statistiques d'ajustement",
+        "parameters": "Paramètres ajustés",
+        "r2": "R²",
+        "rmse": "RMSE",
+        "iterations": "Itérations"
+      },
+      "status": {
+        "converged": "Convergence atteinte",
+        "maxIterations": "Pas de convergence (limite d'itérations atteinte) — interprétez l'ajustement avec prudence",
+        "invalidModel": "Modèle non valide",
+        "insufficientData": "Pas assez de points de données pour le nombre de paramètres",
+        "singular": "Les paramètres ne peuvent pas être identifiés à partir de ces données",
+        "diverged": "Le modèle ne peut pas être évalué sur ces données"
+      },
+      "residualsToggle": "Afficher les résidus",
+      "dragHint": "Faites glisser les points pour les déplacer ; l'ajustement se met à jour instantanément. Faites glisser l'arrière-plan pour vous déplacer, molette pour zoomer.",
+      "pointLabel": "Point de données ({x}, {y})",
+      "plotTitle": "Données et courbe ajustée",
+      "warnings": {
+        "droppedRows": "{count} lignes avec des valeurs manquantes ou non numériques ont été ignorées",
+        "boundHit": "Le paramètre {name} a atteint sa borne",
+        "zeroVariance": "La colonne dépendante est constante — R² n'est pas significatif"
+      }
+    },
+    "relation": {
+      "inputTitle": "Relations",
+      "addButton": "Ajouter une relation",
+      "labelField": "Étiquette",
+      "expressionField": "Expression",
+      "placeholder": "ex. x^2 + y^2 = 25",
+      "colorLabel": "Couleur pour {label}",
+      "removeLabel": "Supprimer {label}",
+      "validSingle": "Relation valide",
+      "validChained": "Valide — bande ombrée",
+      "errorEmpty": "La relation ne peut pas être vide",
+      "errorNotRelation": "Une relation est attendue, ex. x^2 + y^2 = 25",
+      "errorInvalid": "Syntaxe de relation invalide",
+      "emptyTitle": "Aucune relation ajoutée",
+      "emptyHint": "Cliquez sur « Ajouter une relation » pour commencer",
+      "helperOperators": "Opérateurs pris en charge : =, <, <=, >, >= (aussi ≤, ≥)",
+      "helperChained": "Les comparaisons chaînées comme 1 < x < 4 ombrent la bande entre deux limites.",
+      "helperSystem": "Ajoutez plusieurs relations pour tracer un système : chacune obtient sa propre région ombrée.",
+      "presetsLabel": "Modèles de relations",
+      "plotTitle": "Graphique de relations 2D",
+      "plotDescription": "Courbes implicites et régions d’inégalité ombrées. Glissez pour déplacer, faites défiler pour zoomer."
     }
   },
   "chaos": {
@@ -1583,5 +1953,18 @@
     "by": "par {name}",
     "views": "{count, plural, one {# vue} other {# vues}}",
     "updated": "Mis à jour {time}"
+  },
+  "checkWork": {
+    "title": "Vérifier mon travail",
+    "description": "Saisissez votre réponse sous n'importe quelle forme — le CAS vérifie l'équivalence mathématique.",
+    "inputLabel": "Expression à vérifier",
+    "inputPlaceholder": "p. ex. (x - 2)*(x - 3)",
+    "check": "Vérifier",
+    "equivalent": "Équivalent — votre forme correspond à la réponse.",
+    "notEquivalent": "Non équivalent à la réponse attendue.",
+    "parseError": "Impossible d'analyser l'expression — vérifiez la syntaxe.",
+    "inconclusive": "Vérification impossible — essayez une forme plus simple.",
+    "verifiedSymbolically": "Vérifié symboliquement",
+    "verifiedNumerically": "Vérifié numériquement"
   }
 }

@@ -9,6 +9,7 @@ export * from './calculus-templates';
 export * from './geometry-templates';
 export * from './number-theory-templates';
 export * from './probability-templates';
+export * from './seeded-rng';
 export * from './template-engine';
 
 import { algebraTemplates } from './algebra-templates';

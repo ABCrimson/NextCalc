@@ -217,6 +217,7 @@ describe('AST Visitor Pattern', () => {
       visitOperator: (n: OperatorNode) => `op(${n.op})`,
       visitUnaryOperator: (n: UnaryOperatorNode) => `unary(${n.op})`,
       visitFunction: (n: FunctionNode) => `fn(${n.fn})`,
+      visitRelational: (n) => `rel(${n.op})`,
     };
 
     expect(visit(node, visitor)).toBe('const(42)');
@@ -230,6 +231,7 @@ describe('AST Visitor Pattern', () => {
       visitOperator: () => '',
       visitUnaryOperator: () => '',
       visitFunction: () => '',
+      visitRelational: () => '',
     };
 
     expect(visit(node, visitor)).toBe('x');
@@ -248,6 +250,7 @@ describe('AST Visitor Pattern', () => {
       },
       visitUnaryOperator: () => 0,
       visitFunction: () => 0,
+      visitRelational: () => 0,
     };
 
     expect(visit(node, visitor)).toBe(3);
@@ -278,6 +281,7 @@ describe('AST Visitor Pattern', () => {
         return n.op === '-' ? -val : val;
       },
       visitFunction: () => 0,
+      visitRelational: () => 0,
     };
 
     expect(visit(product, evaluator)).toBe(20);
@@ -292,6 +296,7 @@ describe('AST Visitor Pattern', () => {
       visitOperator: () => 0,
       visitUnaryOperator: (n: UnaryOperatorNode) => -visit(n.args[0], evaluator),
       visitFunction: () => 0,
+      visitRelational: () => 0,
     };
 
     expect(visit(node, evaluator)).toBe(-7);
@@ -310,6 +315,7 @@ describe('AST Visitor Pattern', () => {
         if (n.fn === 'sqrt') return Math.sqrt(arg);
         return 0;
       },
+      visitRelational: () => 0,
     };
 
     expect(visit(node, evaluator)).toBe(3);
