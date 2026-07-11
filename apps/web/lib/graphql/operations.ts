@@ -192,6 +192,32 @@ export const PUBLIC_WORKSHEETS_QUERY = graphql(`
   }
 `);
 
+/**
+ * GPU Lab gallery — public worksheets WITH content so the RSC page can
+ * filter for simulation cells and derive per-card sim badges.
+ * Served with a 60s PUBLIC cache hint by the publicWorksheets resolver.
+ */
+export const GPU_LAB_WORKSHEETS_QUERY = graphql(`
+  query GpuLabWorksheets($limit: Int = 24, $offset: Int = 0) {
+    publicWorksheets(limit: $limit, offset: $offset) {
+      nodes {
+        id
+        title
+        description
+        views
+        updatedAt
+        content
+        user {
+          ...UserSummary
+        }
+      }
+      pageInfo {
+        totalCount
+      }
+    }
+  }
+`);
+
 // ============================================================================
 // WORKSHEET MUTATIONS
 // ============================================================================
