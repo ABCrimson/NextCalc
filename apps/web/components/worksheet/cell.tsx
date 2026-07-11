@@ -34,6 +34,7 @@ import {
   Play,
   Trash2,
   TrendingUp,
+  Zap,
 } from 'lucide-react';
 import { AnimatePresence, m } from 'motion/react';
 import dynamic from 'next/dynamic';
@@ -63,6 +64,7 @@ import {
   type WorksheetCell as WorksheetCellType,
 } from '@/lib/stores/worksheet-store';
 import { cn } from '@/lib/utils';
+import type { SimulationCellContentProps } from './simulation-cell';
 
 // ---------------------------------------------------------------------------
 // Dynamic import for Plot2D to avoid SSR issues with WebGL
@@ -75,6 +77,20 @@ const Plot2D = dynamic(
       <div className="flex items-center justify-center h-64 text-muted-foreground text-sm">
         <Loader2 className="size-5 animate-spin mr-2" aria-hidden="true" />
         Loading plot renderer...
+      </div>
+    ),
+  },
+);
+
+// Simulation cell content (GPU renderers) — client-only, loaded on demand
+const SimulationCellContent = dynamic<SimulationCellContentProps>(
+  () => import('./simulation-cell').then((m) => ({ default: m.SimulationCellContent })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center h-64 text-muted-foreground text-sm">
+        <Loader2 className="size-5 animate-spin mr-2" aria-hidden="true" />
+        Loading simulation...
       </div>
     ),
   },
@@ -119,6 +135,7 @@ const kindMeta = {
   math: { icon: Code2, label: 'Math', color: 'text-blue-400' },
   text: { icon: AlignLeft, label: 'Text', color: 'text-emerald-400' },
   plot: { icon: TrendingUp, label: 'Plot', color: 'text-purple-400' },
+  simulation: { icon: Zap, label: 'Simulation', color: 'text-cyan-400' },
 } as const satisfies Record<
   string,
   { icon: ComponentType<{ className?: string }>; label: string; color: string }
@@ -995,6 +1012,7 @@ export const WorksheetCell = memo(function WorksheetCell({
         )}
         {cell.kind === 'text' && <TextCellContent cell={cell} cellIndex={cellIndex} />}
         {cell.kind === 'plot' && <PlotCellContent cell={cell} cellIndex={cellIndex} />}
+        {cell.kind === 'simulation' && <SimulationCellContent cell={cell} cellIndex={cellIndex} />}
       </div>
     </m.article>
   );
