@@ -976,6 +976,283 @@
       "directionField": "Direction Field",
       "csvExport": "CSV Export",
       "aboutTitle": "About Numerical ODE Methods"
+    },
+    "stepRules": {
+      "equation": {
+        "start": {
+          "title": "Gleichung aufstellen",
+          "detail": "Notiere die ursprüngliche Gleichung und bestimme die zu lösende Variable."
+        },
+        "moveTermsLeft": {
+          "title": "Alle Terme auf eine Seite bringen",
+          "detail": "Subtrahiere {rhs} von beiden Seiten, sodass die rechte Seite null wird."
+        },
+        "classify": {
+          "linear": {
+            "title": "Als lineare Gleichung einordnen",
+            "detail": "Die Gleichung hat den Grad 1 und lässt sich durch direktes Isolieren der Variablen lösen."
+          },
+          "quadratic": {
+            "title": "Als quadratische Gleichung einordnen",
+            "detail": "Die Gleichung hat den Grad 2; Faktorisieren oder die Mitternachtsformel liefern die Lösungen."
+          },
+          "cubic": {
+            "title": "Als kubische Gleichung einordnen",
+            "detail": "Die Gleichung hat den Grad 3; eine Substitution zur reduzierten Kubik und die Cardano-Formel führen zur Lösung."
+          },
+          "rational": {
+            "title": "Als gebrochenrationale Gleichung einordnen",
+            "detail": "Die Gleichung enthält die Variable im Nenner, daher müssen zuerst die Brüche beseitigt werden."
+          },
+          "trigonometric": {
+            "title": "Als trigonometrische Gleichung einordnen",
+            "detail": "Die Gleichung enthält eine trigonometrische Funktion; ihre Umkehrfunktion isoliert die Variable."
+          },
+          "exponential": {
+            "title": "Als Exponentialgleichung einordnen",
+            "detail": "Die Variable steht im Exponenten; Logarithmen oder numerische Verfahren werden zur Lösung benötigt."
+          },
+          "logarithmic": {
+            "title": "Als logarithmische Gleichung einordnen",
+            "detail": "Die Gleichung enthält einen Logarithmus der Variablen; Exponenzieren beider Seiten isoliert sie."
+          },
+          "transcendental": {
+            "title": "Als transzendente Gleichung einordnen",
+            "detail": "Die Gleichung mischt algebraische und transzendente Terme und wird daher numerisch gelöst."
+          },
+          "higherPolynomial": {
+            "title": "Als Polynom höheren Grades einordnen",
+            "detail": "Die Gleichung hat Grad 4 oder höher; anstelle einer geschlossenen Formel wird numerische Nullstellensuche verwendet."
+          }
+        }
+      },
+      "linear": {
+        "coefficients": {
+          "title": "Lineare Koeffizienten bestimmen",
+          "detail": "Schreibe die Gleichung als a·{variable} + b = 0; dabei ist a = {a} und b = {b}."
+        },
+        "isolate": {
+          "title": "Variablenterm isolieren",
+          "detail": "Subtrahiere den konstanten Term von beiden Seiten, sodass {a}{variable} = {negB} entsteht."
+        },
+        "divide": {
+          "title": "Durch den Koeffizienten dividieren",
+          "detail": "Division beider Seiten durch {a} isoliert {variable}, also {variable} = {solution}."
+        },
+        "noSolution": {
+          "title": "Keine Lösung feststellen",
+          "detail": "Der Koeffizient der Variablen ist null, die Konstante {b} jedoch nicht, sodass kein Wert die Gleichung erfüllt."
+        },
+        "allReals": {
+          "title": "Alle reellen Zahlen als Lösung feststellen",
+          "detail": "Beide Koeffizienten sind null, sodass jede reelle Zahl die Gleichung erfüllt."
+        }
+      },
+      "quadratic": {
+        "coefficients": {
+          "title": "Quadratische Koeffizienten bestimmen",
+          "detail": "Schreibe die Gleichung in Normalform a{variable}² + b{variable} + c = 0; dabei ist a = {a}, b = {b}, c = {c}."
+        },
+        "factor": {
+          "title": "Quadratischen Ausdruck faktorisieren",
+          "detail": "Finde zwei Zahlen mit Produkt {ac} und Summe {b}; das ergibt die Nullstellen {r1} und {r2}."
+        },
+        "zeroProduct": {
+          "title": "Nullprodukt-Eigenschaft anwenden",
+          "detail": "Da das faktorisierte Produkt null ergibt, muss mindestens ein Faktor verschwinden: {variable} = {r1} oder {variable} = {r2}."
+        },
+        "solveFactors": {
+          "title": "Jeden Faktor lösen",
+          "detail": "Setzt man jeden Faktor gleich null, ergeben sich die Lösungen {variable} = {r1} und {variable} = {r2}."
+        },
+        "repeatedRoot": {
+          "title": "Doppelte Nullstelle bestimmen",
+          "detail": "Die Diskriminante ist null, sodass beide Nullstellen bei {variable} = {r} mit Vielfachheit 2 zusammenfallen."
+        },
+        "formula": {
+          "title": "Mitternachtsformel anwenden",
+          "detail": "Mit a = {a}, b = {b}, c = {c} ergibt die Diskriminante b² − 4ac den Wert {discriminant}."
+        },
+        "evaluateRoots": {
+          "title": "Nullstellen berechnen",
+          "detail": "Einsetzen in die Mitternachtsformel ergibt {variable}₁ = {r1} und {variable}₂ = {r2}."
+        },
+        "complexRoots": {
+          "title": "Komplexe Nullstellen berechnen",
+          "detail": "Die Diskriminante {discriminant} ist negativ, was die komplex konjugierten Nullstellen {variable} = {realPart} ± {imagPart}i ergibt."
+        }
+      },
+      "cubic": {
+        "coefficients": {
+          "title": "Kubische Koeffizienten bestimmen",
+          "detail": "Schreibe die Gleichung in Normalform a{variable}³ + b{variable}² + c{variable} + d = 0; dabei ist a = {a}, b = {b}, c = {c}, d = {d}."
+        },
+        "depress": {
+          "title": "Kubik reduzieren",
+          "detail": "Eine Verschiebung der Variablen um {shift} entfernt den quadratischen Term und ergibt t³ + {p}t + {q} = 0."
+        },
+        "discriminant": {
+          "title": "Diskriminante der Kubik berechnen",
+          "detail": "Die Diskriminante Δ = −4p³ − 27q² beträgt {delta} und bestimmt, wie viele reelle Nullstellen existieren."
+        },
+        "roots": {
+          "title": "Nullstellen der Kubik berechnen",
+          "detail": "Die Anwendung der Cardano-Formel mit Rücksubstitution ergibt die Nullstellen {roots} für {variable}."
+        }
+      },
+      "trig": {
+        "identify": {
+          "title": "Trigonometrische Funktion bestimmen",
+          "detail": "Die Gleichung enthält {fn}({variable}); das Isolieren dieses Terms ist der erste Schritt."
+        },
+        "isolate": {
+          "title": "Trigonometrischen Ausdruck isolieren",
+          "detail": "Ordne die Gleichung so um, dass {fn}({variable}) allein einer Konstanten entspricht."
+        },
+        "inverse": {
+          "title": "Umkehrfunktion anwenden",
+          "detail": "Die Umkehrfunktion von {fn} auf beide Seiten angewendet liefert die Hauptlösung für {variable} sowie ihre periodische Familie."
+        },
+        "principal": {
+          "title": "Hauptlösung berechnen",
+          "detail": "Der numerisch gefundene Hauptwert ist {variable} = {solutions}."
+        }
+      },
+      "rational": {
+        "domain": {
+          "title": "Definitionsbereich einschränken",
+          "detail": "Jeder Nenner mit {variable} darf nicht null sein: {denominators} ≠ 0."
+        },
+        "multiplyLcd": {
+          "title": "Mit dem Hauptnenner multiplizieren",
+          "detail": "Die Multiplikation beider Seiten mit {lcd} beseitigt alle Brüche und ergibt eine polynomiale Gleichung."
+        },
+        "checkExtraneous": {
+          "title": "Kandidaten gegen den Definitionsbereich prüfen",
+          "detail": "Nach Ausschluss unzulässiger Wurzeln erfüllen {kept} Kandidatenlösung(en) die Definitionsbereich-Einschränkungen."
+        },
+        "extraneousExcluded": {
+          "title": "Unzulässige Wurzel ausschließen",
+          "detail": "Das Einsetzen von {variable} = {root} macht einen Nenner null, daher wird sie als unzulässig verworfen."
+        }
+      },
+      "numeric": {
+        "newton": {
+          "title": "Newton-Raphson-Verfahren anwenden",
+          "detail": "Diese Gleichung hat keine geschlossene Lösung, sodass {variable} ausgehend von einem Startwert iterativ verfeinert wird."
+        },
+        "converged": {
+          "title": "Zur Lösung konvergieren",
+          "detail": "Die Iteration konvergierte nach {iterations} Schritten und ergab {solutions}."
+        },
+        "failed": {
+          "title": "Keine Konvergenz feststellen",
+          "detail": "Das Newton-Raphson-Verfahren konvergierte ausgehend vom Standard-Startwert nicht."
+        }
+      },
+      "answer": {
+        "single": {
+          "title": "Endgültige Lösung angeben",
+          "detail": "Die Gleichung hat genau eine Lösung: {variable} = {solution}."
+        },
+        "multiple": {
+          "title": "Endgültige Lösungen angeben",
+          "detail": "Die Gleichung hat {count} Lösungen: {variable} = {solutions}."
+        },
+        "none": {
+          "title": "Keine reellen Lösungen feststellen",
+          "detail": "Kein reeller Wert der Variablen erfüllt die Gleichung."
+        }
+      },
+      "limit": {
+        "setup": {
+          "title": "Grenzwert aufstellen",
+          "detail": "Berechne den Grenzwert des Ausdrucks, wenn {variable} gegen {point} strebt{direction, select, left { von links} right { von rechts} other {}}."
+        },
+        "pattern": {
+          "title": "Standardgrenzwert erkennen",
+          "detail": "Dies ist der bekannte Grenzwert {pattern}, der direkt {value} ergibt."
+        },
+        "direct": {
+          "title": "Punkt direkt einsetzen",
+          "detail": "Der Ausdruck ist an dieser Stelle stetig, sodass der Grenzwert dem Funktionswert {value} entspricht."
+        },
+        "indeterminate": {
+          "title": "Unbestimmten Ausdruck erkennen",
+          "detail": "Direktes Einsetzen ergibt den unbestimmten Ausdruck {form}, sodass eine weitere Analyse nötig ist."
+        },
+        "simplify": {
+          "title": "Ausdruck vereinfachen",
+          "detail": "Algebraisches Vereinfachen liefert einen äquivalenten Ausdruck, dessen Grenzwert leichter zu bestimmen ist."
+        },
+        "lhopital": {
+          "title": "Regel von de l'Hôpital anwenden",
+          "detail": "Da der Grenzwert die unbestimmte Form {form} hat, entspricht der Grenzwert des Quotienten dem Grenzwert des Quotienten der Ableitungen."
+        },
+        "lhopitalDifferentiate": {
+          "title": "Zähler und Nenner ableiten",
+          "detail": "Leite Zähler und Nenner getrennt ab (Durchlauf {iteration}) und untersuche dann den Grenzwert des neuen Quotienten."
+        },
+        "lhopitalResult": {
+          "title": "Nach der Regel von de l'Hôpital auswerten",
+          "detail": "Das Einsetzen in den abgeleiteten Quotienten ergibt {value}."
+        },
+        "series": {
+          "title": "Als Taylorreihe entwickeln",
+          "detail": "Der führende Term des Zählers hat die Ordnung {numPower}, der des Nenners die Ordnung {denPower}; ihr Vergleich bestimmt den Grenzwert."
+        },
+        "seriesResult": {
+          "title": "Reihenvergleich auswerten",
+          "detail": "Das Verhältnis der führenden Reihenkoeffizienten ergibt {value}."
+        },
+        "numerical": {
+          "title": "Numerisch annähern",
+          "detail": "Symbolische Verfahren blieben ergebnislos, daher wird der Ausdruck an Punkten nahe dem Grenzwert ausgewertet, um Konvergenz festzustellen."
+        },
+        "numericalResult": {
+          "title": "Numerische Konvergenz bestätigen",
+          "detail": "Die abgetasteten Werte konvergieren gegen {value}."
+        },
+        "value": {
+          "title": "Wert des Grenzwerts angeben",
+          "detail": "Zusammengefasst ergibt der Grenzwert {value}."
+        },
+        "infinite": {
+          "title": "Unendlichen Grenzwert feststellen",
+          "detail": "Der Ausdruck wächst unbeschränkt: Der Grenzwert ist {sign}."
+        },
+        "dne": {
+          "title": "Feststellen, dass der Grenzwert nicht existiert",
+          "detail": "Weder ein endlicher noch ein unendlicher Grenzwert konnte ermittelt werden, der Grenzwert existiert also nicht."
+        }
+      }
+    },
+    "limitTab": {
+      "label": "Grenzwert",
+      "shortLabel": "Lim",
+      "approach": "Grenzpunkt",
+      "pointPlaceholder": "z. B. 0, inf, -inf",
+      "direction": "Richtung",
+      "directionBoth": "Beidseitig",
+      "directionLeft": "Von links",
+      "directionRight": "Von rechts",
+      "invalidPoint": "Gib einen gültigen Grenzpunkt ein: eine Zahl, inf oder -inf."
+    },
+    "stepCategories": {
+      "identification": "Identifizieren",
+      "simplification": "Vereinfachen",
+      "differentiation": "Ableiten",
+      "integration": "Integrieren",
+      "rearrangement": "Umstellen",
+      "isolation": "Isolieren",
+      "factorization": "Faktorisieren",
+      "formula": "Formel",
+      "substitution": "Substituieren",
+      "expansion": "Ausmultiplizieren",
+      "identity": "Identität",
+      "finalAnswer": "Antwort",
+      "evaluation": "Auswerten",
+      "limit": "Grenzwert"
     }
   },
   "complex": {

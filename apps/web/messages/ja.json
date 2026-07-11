@@ -1009,6 +1009,283 @@
       "directionField": "方向場",
       "csvExport": "CSVエクスポート",
       "aboutTitle": "ODE数値解法について"
+    },
+    "stepRules": {
+      "equation": {
+        "start": {
+          "title": "方程式を確認する",
+          "detail": "元の方程式を書き出し、解くべき変数を特定します。"
+        },
+        "moveTermsLeft": {
+          "title": "すべての項を一方に移項する",
+          "detail": "両辺から {rhs} を引き、右辺を0にします。"
+        },
+        "classify": {
+          "linear": {
+            "title": "一次方程式として分類する",
+            "detail": "この方程式は次数1なので、変数を直接分離して解くことができます。"
+          },
+          "quadratic": {
+            "title": "二次方程式として分類する",
+            "detail": "この方程式は次数2なので、因数分解または解の公式で解が求まります。"
+          },
+          "cubic": {
+            "title": "三次方程式として分類する",
+            "detail": "この方程式は次数3なので、還元三次式への置換とカルダノの公式を用います。"
+          },
+          "rational": {
+            "title": "分数方程式として分類する",
+            "detail": "この方程式は分母に変数を含むため、解く前に分数を消去する必要があります。"
+          },
+          "trigonometric": {
+            "title": "三角方程式として分類する",
+            "detail": "この方程式は三角関数を含むため、逆三角関数を用いて変数を分離します。"
+          },
+          "exponential": {
+            "title": "指数方程式として分類する",
+            "detail": "変数が指数の位置にあるため、対数や数値解法が必要になります。"
+          },
+          "logarithmic": {
+            "title": "対数方程式として分類する",
+            "detail": "この方程式は変数の対数を含むため、両辺を指数化することで変数を分離できます。"
+          },
+          "transcendental": {
+            "title": "超越方程式として分類する",
+            "detail": "この方程式は代数項と超越項が混在するため、数値的に解きます。"
+          },
+          "higherPolynomial": {
+            "title": "高次多項式として分類する",
+            "detail": "この方程式は次数4以上なので、閉じた公式の代わりに数値的な求根法を用います。"
+          }
+        }
+      },
+      "linear": {
+        "coefficients": {
+          "title": "一次方程式の係数を特定する",
+          "detail": "方程式を a·{variable} + b = 0 の形で書くと、a = {a}、b = {b} です。"
+        },
+        "isolate": {
+          "title": "変数の項を分離する",
+          "detail": "両辺から定数項を引き、{a}{variable} = {negB} を得ます。"
+        },
+        "divide": {
+          "title": "係数で両辺を割る",
+          "detail": "両辺を {a} で割ると {variable} が分離され、{variable} = {solution} となります。"
+        },
+        "noSolution": {
+          "title": "解なしと判定する",
+          "detail": "変数の係数が0である一方で定数 {b} は0でないため、方程式を満たす値は存在しません。"
+        },
+        "allReals": {
+          "title": "すべての実数が解であると判定する",
+          "detail": "両方の係数が0になるため、すべての実数が方程式を満たします。"
+        }
+      },
+      "quadratic": {
+        "coefficients": {
+          "title": "二次方程式の係数を特定する",
+          "detail": "方程式を標準形 a{variable}² + b{variable} + c = 0 で書くと、a = {a}、b = {b}、c = {c} です。"
+        },
+        "factor": {
+          "title": "二次式を因数分解する",
+          "detail": "積が {ac}、和が {b} となる2つの数を見つけると、解 {r1} と {r2} が得られます。"
+        },
+        "zeroProduct": {
+          "title": "積が0になる性質を適用する",
+          "detail": "因数分解された積が0なので、少なくとも1つの因数は0になります: {variable} = {r1} または {variable} = {r2}。"
+        },
+        "solveFactors": {
+          "title": "各因数を解く",
+          "detail": "各因数を0とおくと、解 {variable} = {r1} と {variable} = {r2} が得られます。"
+        },
+        "repeatedRoot": {
+          "title": "重解を特定する",
+          "detail": "判別式が0なので、2つの解は {variable} = {r} で重複度2として一致します。"
+        },
+        "formula": {
+          "title": "解の公式を適用する",
+          "detail": "a = {a}、b = {b}、c = {c} のとき、判別式 b² − 4ac は {discriminant} になります。"
+        },
+        "evaluateRoots": {
+          "title": "解を計算する",
+          "detail": "解の公式に代入すると {variable}₁ = {r1}、{variable}₂ = {r2} が得られます。"
+        },
+        "complexRoots": {
+          "title": "複素数解を計算する",
+          "detail": "判別式 {discriminant} が負であるため、共役複素数解 {variable} = {realPart} ± {imagPart}i が得られます。"
+        }
+      },
+      "cubic": {
+        "coefficients": {
+          "title": "三次方程式の係数を特定する",
+          "detail": "方程式を標準形 a{variable}³ + b{variable}² + c{variable} + d = 0 で書くと、a = {a}、b = {b}、c = {c}、d = {d} です。"
+        },
+        "depress": {
+          "title": "三次式を還元する",
+          "detail": "変数を {shift} だけ平行移動すると二次項が消え、t³ + {p}t + {q} = 0 となります。"
+        },
+        "discriminant": {
+          "title": "三次方程式の判別式を計算する",
+          "detail": "判別式 Δ = −4p³ − 27q² は {delta} であり、これにより実数解の個数が決まります。"
+        },
+        "roots": {
+          "title": "三次方程式の解を計算する",
+          "detail": "カルダノの公式を適用し逆代入すると、{variable} の解 {roots} が得られます。"
+        }
+      },
+      "trig": {
+        "identify": {
+          "title": "三角関数を特定する",
+          "detail": "この方程式には {fn}({variable}) が含まれるため、まずこの項を分離します。"
+        },
+        "isolate": {
+          "title": "三角関数の式を分離する",
+          "detail": "方程式を並べ替えて {fn}({variable}) だけが定数に等しくなるようにします。"
+        },
+        "inverse": {
+          "title": "逆三角関数を適用する",
+          "detail": "両辺に {fn} の逆関数を適用すると、{variable} の主値解とその周期的な解の族が得られます。"
+        },
+        "principal": {
+          "title": "主値解を計算する",
+          "detail": "数値的に求めた主値は {variable} = {solutions} です。"
+        }
+      },
+      "rational": {
+        "domain": {
+          "title": "定義域の制約を示す",
+          "detail": "{variable} を含むすべての分母は0であってはなりません: {denominators} ≠ 0。"
+        },
+        "multiplyLcd": {
+          "title": "最小公分母を掛ける",
+          "detail": "両辺に {lcd} を掛けるとすべての分数が消え、多項式の方程式になります。"
+        },
+        "checkExtraneous": {
+          "title": "候補解を定義域と照合する",
+          "detail": "無関係な解を除外した結果、定義域の制約を満たす候補解は {kept} 個です。"
+        },
+        "extraneousExcluded": {
+          "title": "無関係解を除外する",
+          "detail": "{variable} = {root} を代入すると分母が0になるため、この解は無関係解として除外されます。"
+        }
+      },
+      "numeric": {
+        "newton": {
+          "title": "ニュートン・ラフソン法を適用する",
+          "detail": "この方程式に閉じた形の解は存在しないため、初期値から反復的に {variable} を改善します。"
+        },
+        "converged": {
+          "title": "解に収束する",
+          "detail": "反復は {iterations} 回で収束し、{solutions} が得られました。"
+        },
+        "failed": {
+          "title": "収束しなかったことを報告する",
+          "detail": "既定の初期値からのニュートン・ラフソン反復は収束しませんでした。"
+        }
+      },
+      "answer": {
+        "single": {
+          "title": "最終的な答えを示す",
+          "detail": "この方程式の解はただ1つです: {variable} = {solution}。"
+        },
+        "multiple": {
+          "title": "最終的な答えを示す",
+          "detail": "この方程式には {count} 個の解があります: {variable} = {solutions}。"
+        },
+        "none": {
+          "title": "実数解がないことを報告する",
+          "detail": "この方程式を満たす実数値の変数は存在しません。"
+        }
+      },
+      "limit": {
+        "setup": {
+          "title": "極限を設定する",
+          "detail": "{variable} が {point} に近づくとき{direction, select, left {(左側から)} right {(右側から)} other {}}の式の極限を求めます。"
+        },
+        "pattern": {
+          "title": "標準的な極限を認識する",
+          "detail": "これはよく知られた極限 {pattern} であり、直接 {value} に評価されます。"
+        },
+        "direct": {
+          "title": "点を直接代入する",
+          "detail": "この点で式は連続であるため、極限は関数値 {value} に等しくなります。"
+        },
+        "indeterminate": {
+          "title": "不定形を特定する",
+          "detail": "直接代入すると不定形 {form} になるため、さらなる解析が必要です。"
+        },
+        "simplify": {
+          "title": "式を簡略化する",
+          "detail": "代数的な簡略化により、極限を求めやすい同値な式が得られます。"
+        },
+        "lhopital": {
+          "title": "ロピタルの定理を適用する",
+          "detail": "極限が不定形 {form} であるため、この比の極限は導関数の比の極限に等しくなります。"
+        },
+        "lhopitalDifferentiate": {
+          "title": "分子と分母を微分する",
+          "detail": "分子と分母をそれぞれ微分し(反復 {iteration} 回目)、新しい商の極限を調べます。"
+        },
+        "lhopitalResult": {
+          "title": "ロピタルの定理適用後に評価する",
+          "detail": "微分後の商に代入すると {value} が得られます。"
+        },
+        "series": {
+          "title": "テイラー級数に展開する",
+          "detail": "分子の先頭項の次数は {numPower}、分母の先頭項の次数は {denPower} であり、これらを比較して極限が決まります。"
+        },
+        "seriesResult": {
+          "title": "級数比較を評価する",
+          "detail": "先頭項の係数の比は {value} になります。"
+        },
+        "numerical": {
+          "title": "数値的に近似する",
+          "detail": "記号的な手法では結論が出なかったため、極限に近づく点で式を評価し収束を確認します。"
+        },
+        "numericalResult": {
+          "title": "数値的収束を確認する",
+          "detail": "サンプリングした値は {value} に収束します。"
+        },
+        "value": {
+          "title": "極限値を示す",
+          "detail": "これまでの手順をまとめると、極限は {value} になります。"
+        },
+        "infinite": {
+          "title": "極限が無限大であることを示す",
+          "detail": "式は無限に増大するため、極限は {sign} です。"
+        },
+        "dne": {
+          "title": "極限が存在しないことを示す",
+          "detail": "有限にも無限にも極限を確定できなかったため、極限は存在しません。"
+        }
+      }
+    },
+    "limitTab": {
+      "label": "極限",
+      "shortLabel": "極限",
+      "approach": "近づく点",
+      "pointPlaceholder": "例: 0, inf, -inf",
+      "direction": "方向",
+      "directionBoth": "両側から",
+      "directionLeft": "左側から",
+      "directionRight": "右側から",
+      "invalidPoint": "有効な近づく点を入力してください(数値、inf、-inf のいずれか)。"
+    },
+    "stepCategories": {
+      "identification": "識別",
+      "simplification": "簡略化",
+      "differentiation": "微分",
+      "integration": "積分",
+      "rearrangement": "整理",
+      "isolation": "分離",
+      "factorization": "因数分解",
+      "formula": "公式",
+      "substitution": "代入",
+      "expansion": "展開",
+      "identity": "恒等",
+      "finalAnswer": "答え",
+      "evaluation": "評価",
+      "limit": "極限"
     }
   },
   "complex": {

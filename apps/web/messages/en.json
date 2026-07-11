@@ -1010,6 +1010,283 @@
       "directionField": "Direction Field",
       "csvExport": "CSV Export",
       "aboutTitle": "About Numerical ODE Methods"
+    },
+    "stepRules": {
+      "equation": {
+        "start": {
+          "title": "State the equation",
+          "detail": "Write down the original equation and identify the variable to solve for."
+        },
+        "moveTermsLeft": {
+          "title": "Move all terms to one side",
+          "detail": "Subtract {rhs} from both sides so the right-hand side becomes zero."
+        },
+        "classify": {
+          "linear": {
+            "title": "Classify as a linear equation",
+            "detail": "The equation has degree 1, so it can be solved by isolating the variable directly."
+          },
+          "quadratic": {
+            "title": "Classify as a quadratic equation",
+            "detail": "The equation has degree 2, so factoring or the quadratic formula will find its roots."
+          },
+          "cubic": {
+            "title": "Classify as a cubic equation",
+            "detail": "The equation has degree 3, so a depressed-cubic substitution and Cardano's formula apply."
+          },
+          "rational": {
+            "title": "Classify as a rational equation",
+            "detail": "The equation contains the variable in a denominator, so clearing fractions is required before solving."
+          },
+          "trigonometric": {
+            "title": "Classify as a trigonometric equation",
+            "detail": "The equation involves a trigonometric function, so an inverse trig function will isolate the variable."
+          },
+          "exponential": {
+            "title": "Classify as an exponential equation",
+            "detail": "The variable appears in an exponent, so logarithms or numerical methods are needed to solve it."
+          },
+          "logarithmic": {
+            "title": "Classify as a logarithmic equation",
+            "detail": "The equation contains a logarithm of the variable, so exponentiating both sides will isolate it."
+          },
+          "transcendental": {
+            "title": "Classify as a transcendental equation",
+            "detail": "The equation mixes algebraic and transcendental terms, so it is solved numerically."
+          },
+          "higherPolynomial": {
+            "title": "Classify as a higher-degree polynomial",
+            "detail": "The equation has degree 4 or higher, so numerical root-finding is used instead of a closed-form formula."
+          }
+        }
+      },
+      "linear": {
+        "coefficients": {
+          "title": "Identify the linear coefficients",
+          "detail": "Write the equation in the form a·{variable} + b = 0, giving a = {a} and b = {b}."
+        },
+        "isolate": {
+          "title": "Isolate the variable term",
+          "detail": "Subtract the constant term from both sides to get {a}{variable} = {negB}."
+        },
+        "divide": {
+          "title": "Divide by the coefficient",
+          "detail": "Dividing both sides by {a} isolates {variable}, giving {variable} = {solution}."
+        },
+        "noSolution": {
+          "title": "Report no solution",
+          "detail": "The variable's coefficient is zero while the constant {b} is not, so no value satisfies the equation."
+        },
+        "allReals": {
+          "title": "Report all reals as solutions",
+          "detail": "Both coefficients reduce to zero, so every real number satisfies the equation."
+        }
+      },
+      "quadratic": {
+        "coefficients": {
+          "title": "Identify the quadratic coefficients",
+          "detail": "Write the equation in standard form a{variable}² + b{variable} + c = 0, giving a = {a}, b = {b}, c = {c}."
+        },
+        "factor": {
+          "title": "Factor the quadratic expression",
+          "detail": "Find two numbers whose product is {ac} and whose sum is {b}, giving the roots {r1} and {r2}."
+        },
+        "zeroProduct": {
+          "title": "Apply the zero-product property",
+          "detail": "Since the factored product equals zero, at least one factor must vanish: {variable} = {r1} or {variable} = {r2}."
+        },
+        "solveFactors": {
+          "title": "Solve each factor",
+          "detail": "Setting each factor to zero gives the two solutions {variable} = {r1} and {variable} = {r2}."
+        },
+        "repeatedRoot": {
+          "title": "Identify the repeated root",
+          "detail": "The discriminant is zero, so both roots coincide at {variable} = {r} with multiplicity 2."
+        },
+        "formula": {
+          "title": "Apply the quadratic formula",
+          "detail": "With a = {a}, b = {b}, c = {c}, the discriminant b² − 4ac equals {discriminant}."
+        },
+        "evaluateRoots": {
+          "title": "Evaluate the roots",
+          "detail": "Substituting into the quadratic formula gives {variable}₁ = {r1} and {variable}₂ = {r2}."
+        },
+        "complexRoots": {
+          "title": "Compute the complex roots",
+          "detail": "The discriminant {discriminant} is negative, giving complex conjugate roots {variable} = {realPart} ± {imagPart}i."
+        }
+      },
+      "cubic": {
+        "coefficients": {
+          "title": "Identify the cubic coefficients",
+          "detail": "Write the equation in standard form a{variable}³ + b{variable}² + c{variable} + d = 0, giving a = {a}, b = {b}, c = {c}, d = {d}."
+        },
+        "depress": {
+          "title": "Depress the cubic",
+          "detail": "Shifting the variable by {shift} removes the quadratic term, giving t³ + {p}t + {q} = 0."
+        },
+        "discriminant": {
+          "title": "Compute the cubic discriminant",
+          "detail": "The discriminant Δ = −4p³ − 27q² equals {delta}, determining how many real roots exist."
+        },
+        "roots": {
+          "title": "Compute the cubic roots",
+          "detail": "Applying Cardano's formula and back-substituting gives the roots {roots} for {variable}."
+        }
+      },
+      "trig": {
+        "identify": {
+          "title": "Identify the trigonometric function",
+          "detail": "The equation involves {fn}({variable}), so isolating this term is the first step."
+        },
+        "isolate": {
+          "title": "Isolate the trigonometric expression",
+          "detail": "Rearrange the equation so that {fn}({variable}) equals a constant on its own."
+        },
+        "inverse": {
+          "title": "Apply the inverse trigonometric function",
+          "detail": "Applying the inverse of {fn} to both sides gives the principal solution for {variable}, plus its periodic family."
+        },
+        "principal": {
+          "title": "Compute the principal solution",
+          "detail": "The principal value found numerically is {variable} = {solutions}."
+        }
+      },
+      "rational": {
+        "domain": {
+          "title": "State the domain restrictions",
+          "detail": "Every denominator containing {variable} must be non-zero: {denominators} ≠ 0."
+        },
+        "multiplyLcd": {
+          "title": "Multiply by the least common denominator",
+          "detail": "Multiplying both sides by {lcd} clears all fractions, leaving a polynomial equation."
+        },
+        "checkExtraneous": {
+          "title": "Check candidates against the domain",
+          "detail": "{kept} candidate solution(s) satisfy the domain restrictions after excluding any extraneous roots."
+        },
+        "extraneousExcluded": {
+          "title": "Exclude an extraneous root",
+          "detail": "Substituting {variable} = {root} makes a denominator zero, so it is rejected as extraneous."
+        }
+      },
+      "numeric": {
+        "newton": {
+          "title": "Apply Newton-Raphson iteration",
+          "detail": "This equation has no closed-form solution, so {variable} is refined iteratively from an initial guess."
+        },
+        "converged": {
+          "title": "Converge to a solution",
+          "detail": "The iteration converged after {iterations} steps, yielding {solutions}."
+        },
+        "failed": {
+          "title": "Report non-convergence",
+          "detail": "The Newton-Raphson iteration failed to converge from the default initial guess."
+        }
+      },
+      "answer": {
+        "single": {
+          "title": "State the final answer",
+          "detail": "The equation has exactly one solution: {variable} = {solution}."
+        },
+        "multiple": {
+          "title": "State the final answers",
+          "detail": "The equation has {count} solutions: {variable} = {solutions}."
+        },
+        "none": {
+          "title": "Report no real solutions",
+          "detail": "No real value of the variable satisfies the equation."
+        }
+      },
+      "limit": {
+        "setup": {
+          "title": "Set up the limit",
+          "detail": "Evaluate the limit of the expression as {variable} approaches {point}{direction, select, left { from the left} right { from the right} other {}}."
+        },
+        "pattern": {
+          "title": "Recognize a standard limit",
+          "detail": "This is the well-known limit {pattern}, which evaluates directly to {value}."
+        },
+        "direct": {
+          "title": "Substitute the point directly",
+          "detail": "The expression is continuous at this point, so the limit equals the function value {value}."
+        },
+        "indeterminate": {
+          "title": "Identify the indeterminate form",
+          "detail": "Direct substitution produces the indeterminate form {form}, so further analysis is required."
+        },
+        "simplify": {
+          "title": "Simplify the expression",
+          "detail": "Algebraic simplification produces an equivalent expression whose limit is easier to evaluate."
+        },
+        "lhopital": {
+          "title": "Apply L'Hôpital's rule",
+          "detail": "Since the limit has the indeterminate form {form}, the limit of the ratio equals the limit of the ratio of derivatives."
+        },
+        "lhopitalDifferentiate": {
+          "title": "Differentiate numerator and denominator",
+          "detail": "Differentiate the numerator and denominator separately (iteration {iteration}), then examine the new quotient's limit."
+        },
+        "lhopitalResult": {
+          "title": "Evaluate after L'Hôpital's rule",
+          "detail": "Substituting into the differentiated quotient gives {value}."
+        },
+        "series": {
+          "title": "Expand as a Taylor series",
+          "detail": "The numerator's leading term has order {numPower} and the denominator's has order {denPower}; comparing them determines the limit."
+        },
+        "seriesResult": {
+          "title": "Evaluate the series comparison",
+          "detail": "The ratio of the leading series coefficients gives {value}."
+        },
+        "numerical": {
+          "title": "Approximate numerically",
+          "detail": "Symbolic methods were inconclusive, so the expression is sampled at points approaching the limit to detect convergence."
+        },
+        "numericalResult": {
+          "title": "Confirm numerical convergence",
+          "detail": "The sampled values converge to {value}."
+        },
+        "value": {
+          "title": "State the limit's value",
+          "detail": "Combining the steps above, the limit evaluates to {value}."
+        },
+        "infinite": {
+          "title": "State that the limit is infinite",
+          "detail": "The expression grows without bound: the limit is {sign}."
+        },
+        "dne": {
+          "title": "State that the limit does not exist",
+          "detail": "No finite or infinite limit could be established, so the limit does not exist."
+        }
+      }
+    },
+    "limitTab": {
+      "label": "Limit",
+      "shortLabel": "Lim",
+      "approach": "Approach point",
+      "pointPlaceholder": "e.g. 0, inf, -inf",
+      "direction": "Direction",
+      "directionBoth": "Both sides",
+      "directionLeft": "From the left",
+      "directionRight": "From the right",
+      "invalidPoint": "Enter a valid approach point: a number, inf, or -inf."
+    },
+    "stepCategories": {
+      "identification": "Identify",
+      "simplification": "Simplify",
+      "differentiation": "Differentiate",
+      "integration": "Integrate",
+      "rearrangement": "Rearrange",
+      "isolation": "Isolate",
+      "factorization": "Factor",
+      "formula": "Formula",
+      "substitution": "Substitute",
+      "expansion": "Expand",
+      "identity": "Identity",
+      "finalAnswer": "Answer",
+      "evaluation": "Evaluate",
+      "limit": "Limit"
     }
   },
   "complex": {
