@@ -27,9 +27,18 @@ import {
 import { evaluate } from '../parser/evaluator';
 import { parse } from '../parser/parser';
 import { Complex, type Solution, solve } from '../solver/solve';
+import {
+  curateTrace,
+  formatTraceNumber,
+  TraceCollector,
+  type TraceParams,
+  type TraceRuleId,
+  type TraceStep,
+} from '../trace/step-trace';
 import { differentiate } from './differentiate';
 import { analyzeExpression } from './expression-tree';
 import { astToString } from './integrate';
+import { type LimitDirection, type LimitPoint, limit } from './limits';
 import { astEquals, expand, simplify } from './simplify';
 
 /**
@@ -52,6 +61,16 @@ export interface SolutionStep {
   readonly category: StepCategory;
   /** LaTeX representation of the step */
   readonly latex?: string;
+  /**
+   * Stable rule identifier — makes the step i18n-addressable
+   * (`solver.stepRules.<ruleId>.{title,detail}` on the web layer).
+   */
+  readonly ruleId?: TraceRuleId;
+  /**
+   * Plain-value interpolation params for the localized rule description.
+   * Always plain strings/numbers (never LaTeX — braces break ICU).
+   */
+  readonly params?: TraceParams;
 }
 
 /**
@@ -70,6 +89,7 @@ export const StepCategory = {
   Evaluation: 'Evaluation',
   Identity: 'Identity',
   Formula: 'Formula',
+  Limit: 'Limit',
   FinalAnswer: 'FinalAnswer',
 } as const;
 export type StepCategory = (typeof StepCategory)[keyof typeof StepCategory];
@@ -113,18 +133,98 @@ type EquationType =
   | 'quadratic'
   | 'cubic'
   | 'higher-polynomial'
+  | 'rational'
   | 'trigonometric'
   | 'exponential'
   | 'logarithmic'
   | 'transcendental';
 
+/** Does `node` (or any descendant) reference the variable? */
+function containsVariable(node: ExpressionNode, variable: string): boolean {
+  if (isSymbolNode(node)) return node.name === variable;
+  if (node.args) {
+    for (const arg of node.args) {
+      if (containsVariable(arg, variable)) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * True when the expression contains a division whose denominator involves
+ * the variable — the marker of a rational equation.
+ */
+function hasVariableDenominator(expr: ExpressionNode, variable: string): boolean {
+  if (isOperatorNode(expr) && expr.op === '/') {
+    const denominator = expr.args[1];
+    if (containsVariable(denominator, variable)) return true;
+  }
+  if (expr.args) {
+    for (const arg of expr.args) {
+      if (hasVariableDenominator(arg, variable)) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Collect every distinct denominator sub-expression that contains the
+ * variable (deduplicated by their string form).
+ */
+function collectVariableDenominators(expr: ExpressionNode, variable: string): ExpressionNode[] {
+  const found = new Map<string, ExpressionNode>();
+
+  const walk = (node: ExpressionNode): void => {
+    if (isOperatorNode(node) && node.op === '/') {
+      const denominator = node.args[1];
+      if (containsVariable(denominator, variable)) {
+        found.set(astToString(denominator), denominator);
+      }
+    }
+    if (node.args) {
+      for (const arg of node.args) walk(arg);
+    }
+  };
+
+  walk(expr);
+  return [...found.values()];
+}
+
+/**
+ * Sample offsets used for finite-difference degree detection. The extra
+ * non-integer offsets let classification succeed for expressions with a
+ * pole at an integer sample point (e.g. the LCD product of a rational
+ * equation, which is undefined exactly at the excluded values).
+ */
+const SAMPLE_OFFSETS = [0, 0.1357, 0.2468] as const;
+
 /**
  * Detect the degree / family of a polynomial-like residual expression.
  * The `expr` here is the LHS after moving everything to the left (LHS − RHS).
+ *
+ * @param checkRational - when false, skip the rational-equation check
+ *   (used when reclassifying the already-multiplied LCD product, which may
+ *   still contain division nodes symbolically but is polynomial numerically).
  */
-function detectEquationType(expr: ExpressionNode, variable: string): EquationType {
-  // Check for transcendental functions first
+function detectEquationType(
+  expr: ExpressionNode,
+  variable: string,
+  checkRational = true,
+): EquationType {
   const exprStr = astToString(expr);
+
+  // Rational check runs first: a variable in a denominator makes the finite
+  // difference sampling below unreliable (poles). Denominators containing
+  // transcendental functions stay on the Newton path by design.
+  if (
+    checkRational &&
+    hasVariableDenominator(expr, variable) &&
+    !/\b(sin|cos|tan|exp|log|ln)\b/.test(exprStr)
+  ) {
+    return 'rational';
+  }
+
+  // Check for transcendental functions
   if (/\b(sin|cos|tan|asin|acos|atan|sinh|cosh|tanh)\b/.test(exprStr)) {
     return 'trigonometric';
   }
@@ -135,16 +235,34 @@ function detectEquationType(expr: ExpressionNode, variable: string): EquationTyp
     return 'logarithmic';
   }
 
-  // Polynomial degree detection by sampling
+  // Polynomial degree detection by sampling. Retry with shifted sample
+  // grids when a sample point is undefined (pole of a cancelled factor).
+  for (const offset of SAMPLE_OFFSETS) {
+    const type = classifyByFiniteDifferences(expr, variable, offset);
+    if (type !== null) return type;
+  }
+  return 'transcendental';
+}
+
+/**
+ * Finite-difference polynomial degree classification on the uniform grid
+ * `offset, offset+1, …, offset+4`. Returns null when any sample is
+ * undefined (caller retries with a different offset).
+ */
+function classifyByFiniteDifferences(
+  expr: ExpressionNode,
+  variable: string,
+  offset: number,
+): EquationType | null {
   try {
-    const c0 = evalAt(expr, variable, 0);
-    const c1 = evalAt(expr, variable, 1);
-    const c2 = evalAt(expr, variable, 2);
-    const c3 = evalAt(expr, variable, 3);
-    const c4 = evalAt(expr, variable, 4);
+    const c0 = evalAt(expr, variable, offset);
+    const c1 = evalAt(expr, variable, offset + 1);
+    const c2 = evalAt(expr, variable, offset + 2);
+    const c3 = evalAt(expr, variable, offset + 3);
+    const c4 = evalAt(expr, variable, offset + 4);
 
     if (c0 === null || c1 === null || c2 === null || c3 === null || c4 === null) {
-      return 'transcendental';
+      return null;
     }
 
     // Finite differences to detect degree
@@ -174,7 +292,7 @@ function detectEquationType(expr: ExpressionNode, variable: string): EquationTyp
 
     return 'transcendental';
   } catch {
-    return 'transcendental';
+    return null;
   }
 }
 
@@ -187,6 +305,24 @@ function evalAt(expr: ExpressionNode, variable: string, x: number): number | nul
   } catch {
     return null;
   }
+}
+
+/** Equation type → classification rule id (i18n-addressable). */
+const CLASSIFY_RULE_IDS: Record<EquationType, TraceRuleId> = {
+  linear: 'equation.classify.linear',
+  quadratic: 'equation.classify.quadratic',
+  cubic: 'equation.classify.cubic',
+  'higher-polynomial': 'equation.classify.higherPolynomial',
+  rational: 'equation.classify.rational',
+  trigonometric: 'equation.classify.trigonometric',
+  exponential: 'equation.classify.exponential',
+  logarithmic: 'equation.classify.logarithmic',
+  transcendental: 'equation.classify.transcendental',
+};
+
+/** Format a solution value as a plain (ICU-safe) param string. */
+function solutionValueToParam(value: number | Complex): string {
+  return typeof value === 'number' ? formatTraceNumber(value) : value.toString();
 }
 
 // ============================================================================
@@ -455,6 +591,7 @@ export class StepSolver {
         `We need to find all values of ${variable} that satisfy the equation.`,
         StepCategory.Identification,
         `${nodeToLatex(lhs)} = ${nodeToLatex(rhs)}`,
+        { ruleId: 'equation.start' },
       ),
     );
 
@@ -474,6 +611,7 @@ export class StepSolver {
             `This gives: ${nodeToLatex(simplified)} = 0.`,
           StepCategory.Rearrangement,
           `${nodeToLatex(simplified)} = 0`,
+          { ruleId: 'equation.moveTermsLeft', params: { rhs: astToString(rhs) } },
         ),
       );
     }
@@ -490,6 +628,7 @@ export class StepSolver {
         this.equationTypeExplanation(eqType, variable),
         StepCategory.Identification,
         `${nodeToLatex(simplified)} = 0`,
+        { ruleId: CLASSIFY_RULE_IDS[eqType] },
       ),
     );
 
@@ -506,6 +645,9 @@ export class StepSolver {
       case 'cubic':
         solutions = this.solveCubicWithSteps(simplified, variable, steps);
         break;
+      case 'rational':
+        solutions = this.solveRationalWithSteps(simplified, variable, steps);
+        break;
       case 'trigonometric':
         solutions = this.solveTrigWithSteps(simplified, variable, steps, problem);
         break;
@@ -516,6 +658,7 @@ export class StepSolver {
 
     // Final answer step
     const finalLatex = solutionsToLatex(solutions, variable);
+    const solutionsParam = solutions.map((s) => solutionValueToParam(s.value)).join(', ');
     steps.push(
       this.createStep(
         simplified,
@@ -531,6 +674,14 @@ export class StepSolver {
           : `The solution${solutions.length > 1 ? 's are' : ' is'}: ${finalLatex}`,
         StepCategory.FinalAnswer,
         finalLatex,
+        solutions.length === 0
+          ? { ruleId: 'answer.none' }
+          : solutions.length === 1
+            ? { ruleId: 'answer.single', params: { solution: solutionsParam, variable } }
+            : {
+                ruleId: 'answer.multiple',
+                params: { count: solutions.length, solutions: solutionsParam, variable },
+              },
       ),
     );
 
@@ -565,6 +716,10 @@ export class StepSolver {
           `Here a = ${a} (coefficient of ${variable}) and b = ${b} (constant term).`,
         StepCategory.Identification,
         `${a} \\cdot ${variable} + \\left(${b}\\right) = 0`,
+        {
+          ruleId: 'linear.coefficients',
+          params: { a: formatTraceNumber(a), b: formatTraceNumber(b), variable },
+        },
       ),
     );
 
@@ -582,6 +737,9 @@ export class StepSolver {
             : `Both coefficients are 0, so every value of ${variable} is a solution.`,
           StepCategory.FinalAnswer,
           noSol ? '\\text{No solution}' : `${variable} \\in \\mathbb{R}`,
+          noSol
+            ? { ruleId: 'linear.noSolution', params: { b: formatTraceNumber(b) } }
+            : { ruleId: 'linear.allReals' },
         ),
       );
       return solve(expr, variable);
@@ -597,6 +755,10 @@ export class StepSolver {
         `Subtract the constant term from both sides: ${a} ${variable} = ${-b}.`,
         StepCategory.Isolation,
         `${a} ${variable} = ${-b}`,
+        {
+          ruleId: 'linear.isolate',
+          params: { a: formatTraceNumber(a), negB: formatTraceNumber(-b), variable },
+        },
       ),
     );
 
@@ -613,6 +775,10 @@ export class StepSolver {
         `Dividing both sides of the equation by the coefficient ${a} isolates ${variable}: ${variable} = ${xVal}.`,
         StepCategory.Isolation,
         `${variable} = ${xLatex}`,
+        {
+          ruleId: 'linear.divide',
+          params: { a: formatTraceNumber(a), solution: formatTraceNumber(xVal), variable },
+        },
       ),
     );
 
@@ -650,6 +816,15 @@ export class StepSolver {
           `Here a = ${a}, b = ${b}, c = ${c}.`,
         StepCategory.Identification,
         `${aStr}${variable}^{2} ${b >= 0 ? '+' : ''} ${bStr}${variable} ${c >= 0 ? '+' : ''} ${cStr} = 0`,
+        {
+          ruleId: 'quadratic.coefficients',
+          params: {
+            a: formatTraceNumber(a),
+            b: formatTraceNumber(b),
+            c: formatTraceNumber(c),
+            variable,
+          },
+        },
       ),
     );
 
@@ -683,6 +858,16 @@ export class StepSolver {
             `The expression factors as ${a !== 1 ? `${a}·` : ''}(${variable} ${r1 <= 0 ? '+' : '−'} ${Math.abs(r1)})(${variable} ${r2 <= 0 ? '+' : '−'} ${Math.abs(r2)}).`,
           StepCategory.Factorization,
           r1 === r2 ? `${aPrefix}${f1Latex}^{2} = 0` : `${aPrefix}${f1Latex}${f2Latex} = 0`,
+          {
+            ruleId: 'quadratic.factor',
+            params: {
+              ac: formatTraceNumber(a * c),
+              b: formatTraceNumber(b),
+              r1: formatTraceNumber(r1),
+              r2: formatTraceNumber(r2),
+              variable,
+            },
+          },
         ),
       );
 
@@ -698,6 +883,10 @@ export class StepSolver {
               `So either ${variable} ${r1 <= 0 ? '+' : '−'} ${Math.abs(r1)} = 0 or ${variable} ${r2 <= 0 ? '+' : '−'} ${Math.abs(r2)} = 0.`,
             StepCategory.Isolation,
             `${variable} ${r1 <= 0 ? '+' : '-'} ${Math.abs(r1)} = 0 \\quad \\text{or} \\quad ${variable} ${r2 <= 0 ? '+' : '-'} ${Math.abs(r2)} = 0`,
+            {
+              ruleId: 'quadratic.zeroProduct',
+              params: { r1: formatTraceNumber(r1), r2: formatTraceNumber(r2), variable },
+            },
           ),
         );
 
@@ -710,6 +899,10 @@ export class StepSolver {
             `Solving the first factor: ${variable} = ${r1}. Solving the second factor: ${variable} = ${r2}.`,
             StepCategory.Isolation,
             `${variable} = ${r1} \\quad \\text{or} \\quad ${variable} = ${r2}`,
+            {
+              ruleId: 'quadratic.solveFactors',
+              params: { r1: formatTraceNumber(r1), r2: formatTraceNumber(r2), variable },
+            },
           ),
         );
       } else {
@@ -722,6 +915,10 @@ export class StepSolver {
             `Since the discriminant is 0, both roots are equal: ${variable} = ${r1} (multiplicity 2).`,
             StepCategory.Isolation,
             `${variable} = ${r1} \\quad (\\text{multiplicity } 2)`,
+            {
+              ruleId: 'quadratic.repeatedRoot',
+              params: { r: formatTraceNumber(r1), variable },
+            },
           ),
         );
       }
@@ -747,6 +944,15 @@ export class StepSolver {
           `${discriminant >= 0 ? 'is non-negative, the formula gives real solutions' : 'is negative, the solutions are complex'}.`,
         StepCategory.Formula,
         `${variable} = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a} = \\frac{${-b} \\pm \\sqrt{${discriminant}}}{${2 * a}}`,
+        {
+          ruleId: 'quadratic.formula',
+          params: {
+            a: formatTraceNumber(a),
+            b: formatTraceNumber(b),
+            c: formatTraceNumber(c),
+            discriminant: formatTraceNumber(discriminant),
+          },
+        },
       ),
     );
 
@@ -765,6 +971,14 @@ export class StepSolver {
             `and ${variable}₂ = ${r2exact.toFixed(6).replace(/\.?0+$/, '')}.`,
           StepCategory.Evaluation,
           `${variable}_1 = ${formatDecimal(r1exact)}, \\quad ${variable}_2 = ${formatDecimal(r2exact)}`,
+          {
+            ruleId: 'quadratic.evaluateRoots',
+            params: {
+              r1: formatTraceNumber(r1exact),
+              r2: formatTraceNumber(r2exact),
+              variable,
+            },
+          },
         ),
       );
 
@@ -791,6 +1005,15 @@ export class StepSolver {
           `The two complex conjugate solutions are ${variable} = ${formatDecimal(realPart)} ± ${formatDecimal(imagPart)}i.`,
         StepCategory.Evaluation,
         `${variable} = ${formatDecimal(realPart)} \\pm ${formatDecimal(imagPart)}i`,
+        {
+          ruleId: 'quadratic.complexRoots',
+          params: {
+            realPart: formatTraceNumber(realPart),
+            imagPart: formatTraceNumber(imagPart),
+            discriminant: formatTraceNumber(discriminant),
+            variable,
+          },
+        },
       ),
     );
 
@@ -831,6 +1054,16 @@ export class StepSolver {
           `with a = ${formatDecimal(a)}, b = ${formatDecimal(b)}, c = ${formatDecimal(c)}, d = ${formatDecimal(d)}.`,
         StepCategory.Identification,
         `${formatCoeff(a)}${variable}^{3} + ${formatCoeff(b)}${variable}^{2} + ${formatCoeff(c)}${variable} + ${formatDecimal(d)} = 0`,
+        {
+          ruleId: 'cubic.coefficients',
+          params: {
+            a: formatTraceNumber(a),
+            b: formatTraceNumber(b),
+            c: formatTraceNumber(c),
+            d: formatTraceNumber(d),
+            variable,
+          },
+        },
       ),
     );
 
@@ -848,6 +1081,14 @@ export class StepSolver {
           `t³ + pt + q = 0 where p = ${formatDecimal(p)} and q = ${formatDecimal(q)}.`,
         StepCategory.Substitution,
         `t^3 + ${formatDecimal(p)} \\cdot t + ${formatDecimal(q)} = 0`,
+        {
+          ruleId: 'cubic.depress',
+          params: {
+            shift: formatTraceNumber(b / (3 * a)),
+            p: formatTraceNumber(p),
+            q: formatTraceNumber(q),
+          },
+        },
       ),
     );
 
@@ -868,6 +1109,7 @@ export class StepSolver {
               : 'Since Δ < 0, the cubic has one real root and two complex conjugate roots.'),
         StepCategory.Identification,
         `\\Delta = -4p^3 - 27q^2 = ${formatDecimal(delta)}`,
+        { ruleId: 'cubic.discriminant', params: { delta: formatTraceNumber(delta) } },
       ),
     );
 
@@ -897,10 +1139,161 @@ export class StepSolver {
           '.',
         StepCategory.Evaluation,
         solutionLatex,
+        {
+          ruleId: 'cubic.roots',
+          params: {
+            roots: solutions.map((s) => solutionValueToParam(s.value)).join(', '),
+            variable,
+          },
+        },
       ),
     );
 
     return solutions;
+  }
+
+  // ---- Rational equation: clear denominators, delegate, check extraneous ----
+
+  private solveRationalWithSteps(
+    expr: ExpressionNode,
+    variable: string,
+    steps: SolutionStep[],
+  ): ReadonlyArray<Solution> {
+    const denominators = collectVariableDenominators(expr, variable);
+    if (denominators.length === 0) {
+      // Defensive: classification said rational but no denominator found
+      return this.solveNumericalWithSteps(expr, variable, steps, 'rational');
+    }
+
+    // Step: domain restrictions — denominators must not vanish
+    const denominatorsParam = denominators.map((d) => astToString(d)).join(', ');
+    steps.push(
+      this.createStep(
+        expr,
+        expr,
+        'Domain restrictions',
+        'State the domain restrictions',
+        `Division by zero is undefined, so every denominator containing ${variable} must be non-zero: ` +
+          `${denominators.map((d) => `${astToString(d)} ≠ 0`).join(', ')}. ` +
+          `Any candidate solution violating these restrictions must be rejected as extraneous.`,
+        StepCategory.Identification,
+        denominators.map((d) => `${nodeToLatex(d)} \\neq 0`).join(' \\;,\\quad '),
+        {
+          ruleId: 'rational.domain',
+          params: { denominators: denominatorsParam, variable },
+        },
+      ),
+    );
+
+    // Step: multiply through by every distinct denominator (the LCD up to
+    // repeated factors) to clear the fractions.
+    let product: ExpressionNode = expr;
+    for (const d of denominators) {
+      product = createOperatorNode('*', 'multiply', [product, d] as const);
+    }
+
+    // Best-effort cancelled form for display and delegation. Correctness
+    // does not depend on symbolic cancellation: the delegated solvers work
+    // numerically via sampling, which is valid wherever the product is
+    // defined (it extends continuously across the cleared poles).
+    let cleared: ExpressionNode = product;
+    try {
+      const simplified = simplify(expand(product));
+      if (!hasVariableDenominator(simplified, variable)) {
+        cleared = simplified;
+      }
+    } catch {
+      // keep the raw product
+    }
+
+    const lcdParam = denominators.map((d) => astToString(d)).join(' · ');
+    steps.push(
+      this.createStep(
+        expr,
+        cleared,
+        'Multiply by LCD',
+        'Multiply both sides by the denominators',
+        `Multiplying both sides of the equation by ${lcdParam} clears all fractions. ` +
+          `The equation becomes ${astToString(cleared)} = 0, which is polynomial in ${variable}.`,
+        StepCategory.Rearrangement,
+        `${nodeToLatex(cleared)} = 0`,
+        { ruleId: 'rational.multiplyLcd', params: { lcd: lcdParam } },
+      ),
+    );
+
+    // Reclassify the cleared equation (rational check disabled: the raw
+    // product may still contain division nodes symbolically even though it
+    // is polynomial numerically) and delegate to the matching step solver.
+    const clearedType = detectEquationType(cleared, variable, false);
+
+    let candidates: ReadonlyArray<Solution>;
+    switch (clearedType) {
+      case 'linear':
+        candidates = this.solveLinearWithSteps(cleared, variable, steps, '', '');
+        break;
+      case 'quadratic':
+        candidates = this.solveQuadraticWithSteps(cleared, variable, steps);
+        break;
+      case 'cubic':
+        candidates = this.solveCubicWithSteps(cleared, variable, steps);
+        break;
+      default:
+        candidates = this.solveNumericalWithSteps(cleared, variable, steps, clearedType);
+        break;
+    }
+
+    // Extraneous-root check: evaluate every original denominator at each
+    // candidate; roots that zero a denominator are outside the domain.
+    const kept: Solution[] = [];
+    for (const candidate of candidates) {
+      if (typeof candidate.value !== 'number') {
+        kept.push(candidate);
+        continue;
+      }
+      const rootValue = candidate.value;
+      const zeroedDenominator = denominators.some((d) => {
+        const denomValue = evalAt(d, variable, rootValue);
+        return denomValue !== null && Math.abs(denomValue) < 1e-9;
+      });
+      if (zeroedDenominator) {
+        steps.push(
+          this.createStep(
+            expr,
+            expr,
+            'Exclude extraneous root',
+            `${variable} = ${formatDecimal(rootValue)} is extraneous`,
+            `Substituting ${variable} = ${formatDecimal(rootValue)} makes a denominator zero, ` +
+              `so it violates the domain restrictions and cannot be a solution of the original equation.`,
+            StepCategory.Evaluation,
+            `${variable} \\neq ${formatDecimal(rootValue)}`,
+            {
+              ruleId: 'rational.extraneousExcluded',
+              params: { root: formatTraceNumber(rootValue), variable },
+            },
+          ),
+        );
+      } else {
+        kept.push(candidate);
+      }
+    }
+
+    // Step: summarize the extraneous-root check
+    steps.push(
+      this.createStep(
+        expr,
+        expr,
+        'Check candidates',
+        'Verify candidates against the domain restrictions',
+        kept.length === candidates.length
+          ? `All ${candidates.length === 1 ? 'candidate satisfies' : 'candidates satisfy'} the domain restrictions — none are extraneous.`
+          : `${kept.length} of ${candidates.length} candidate${candidates.length === 1 ? '' : 's'} satisfy the domain restrictions; the rest are extraneous.`,
+        StepCategory.Evaluation,
+        kept.length === 0 ? '\\text{No valid solutions remain}' : solutionsToLatex(kept, variable),
+        { ruleId: 'rational.checkExtraneous', params: { kept: kept.length } },
+      ),
+    );
+
+    return kept;
   }
 
   // ---- Trigonometric equation ----
@@ -927,6 +1320,7 @@ export class StepSolver {
           `We isolate the trigonometric expression and then apply the inverse ${trigFn} function.`,
         StepCategory.Identification,
         `${nodeToLatex(expr)} = 0`,
+        { ruleId: 'trig.identify', params: { fn: trigFn ?? 'sin', variable } },
       ),
     );
 
@@ -945,6 +1339,7 @@ export class StepSolver {
           }.`,
         StepCategory.Isolation,
         `\\${trigFn}(${variable}) = k`,
+        { ruleId: 'trig.isolate', params: { fn: trigFn ?? 'sin', variable } },
       ),
     );
 
@@ -968,6 +1363,7 @@ export class StepSolver {
           : trigFn === 'cos'
             ? `${variable} = \\arccos(k) + 2\\pi n \\quad \\text{or} \\quad ${variable} = -\\arccos(k) + 2\\pi n`
             : `${variable} = \\arctan(k) + \\pi n`,
+        { ruleId: 'trig.inverse', params: { fn: trigFn ?? 'sin', variable } },
       ),
     );
 
@@ -1000,6 +1396,13 @@ export class StepSolver {
           '.',
         StepCategory.Evaluation,
         numLatex,
+        {
+          ruleId: 'trig.principal',
+          params: {
+            solutions: solutions.map((s) => solutionValueToParam(s.value)).join(', '),
+            variable,
+          },
+        },
       ),
     );
 
@@ -1025,10 +1428,36 @@ export class StepSolver {
           `starting from an initial guess, until |${variable}_{n+1} − ${variable}_n| < 10⁻¹⁰.`,
         StepCategory.Formula,
         `${variable}_{n+1} = ${variable}_n - \\frac{f(${variable}_n)}{f'(${variable}_n)}`,
+        { ruleId: 'numeric.newton', params: { eqType, variable } },
       ),
     );
 
-    const solutions = solve(expr, variable);
+    // Run the solver with a trace attached so the converged-iteration count
+    // can be surfaced in the step description.
+    let solutions: ReadonlyArray<Solution>;
+    let iterations: string | number = '≤ 100';
+    try {
+      const trace = new TraceCollector();
+      solutions = solve(expr, variable, { trace });
+      const converged = trace.steps.find((s) => s.ruleId === 'numeric.converged');
+      const traceIterations = converged?.params['iterations'];
+      if (traceIterations !== undefined) iterations = traceIterations;
+    } catch {
+      steps.push(
+        this.createStep(
+          expr,
+          expr,
+          'No convergence',
+          'Newton-Raphson did not converge',
+          'The Newton-Raphson iteration did not converge for the default initial guess. ' +
+            'The equation may have no real solution near the starting point.',
+          StepCategory.Evaluation,
+          '\\text{No convergence}',
+          { ruleId: 'numeric.failed' },
+        ),
+      );
+      return [];
+    }
 
     const numLatex =
       solutions.length > 0
@@ -1052,6 +1481,13 @@ export class StepSolver {
           : 'The Newton-Raphson iteration did not converge for the default initial guess.',
         StepCategory.Evaluation,
         numLatex,
+        {
+          ruleId: 'numeric.converged',
+          params: {
+            solutions: solutions.map((s) => solutionValueToParam(s.value)).join(', '),
+            iterations,
+          },
+        },
       ),
     );
 
@@ -1066,6 +1502,7 @@ export class StepSolver {
       quadratic: 'Quadratic equation (degree 2)',
       cubic: 'Cubic equation (degree 3)',
       'higher-polynomial': 'Higher-degree polynomial',
+      rational: 'Rational equation',
       trigonometric: 'Trigonometric equation',
       exponential: 'Exponential equation',
       logarithmic: 'Logarithmic equation',
@@ -1080,6 +1517,7 @@ export class StepSolver {
       quadratic: `A quadratic equation can have 0, 1, or 2 real solutions. We try factoring first; if the discriminant is not a perfect square, we apply the quadratic formula.`,
       cubic: `A cubic equation has exactly 1 or 3 real solutions. We use the Tschirnhaus-Vieta substitution to convert it to a depressed cubic and apply Cardano's formula.`,
       'higher-polynomial': `Higher-degree polynomial equations are solved numerically using Newton-Raphson iteration.`,
+      rational: `The unknown appears in a denominator. We record the domain restrictions (denominators must not be zero), multiply both sides by the denominators to clear the fractions, solve the resulting polynomial equation, and check every candidate root against the restrictions to exclude extraneous solutions.`,
       trigonometric: `Trigonometric equations are solved by isolating the trig function, computing the principal value using the inverse function, and then applying the appropriate periodicity formula.`,
       exponential: `Exponential equations are solved by taking the natural logarithm of both sides.`,
       logarithmic: `Logarithmic equations are solved by exponentiating both sides with the appropriate base.`,
@@ -1319,6 +1757,7 @@ export class StepSolver {
     explanation: string,
     category: StepCategory,
     latex?: string,
+    meta?: { ruleId: TraceRuleId; params?: TraceParams },
   ): SolutionStep {
     return {
       stepNumber: ++this.stepCounter,
@@ -1329,6 +1768,7 @@ export class StepSolver {
       explanation,
       category,
       ...(latex ? { latex } : {}),
+      ...(meta ? { ruleId: meta.ruleId, params: meta.params ?? {} } : {}),
     };
   }
 }
@@ -1368,4 +1808,274 @@ export function createStepSolver(): StepSolver {
 export function solveWithSteps(problem: string, type?: ProblemType): StepSolution {
   const solver = createStepSolver();
   return solver.solve(problem, type);
+}
+
+// ============================================================================
+// LIMITS WITH STEPS
+// ============================================================================
+
+/** Configuration for {@link limitWithSteps}. */
+export interface LimitWithStepsConfig {
+  /** The point the variable approaches */
+  readonly point: LimitPoint;
+  /** Approach direction (default: 'both') */
+  readonly direction?: LimitDirection;
+}
+
+/** LaTeX for the approach point, with one-sided superscripts. */
+function limitPointToLatex(point: LimitPoint, direction: LimitDirection): string {
+  const base =
+    point === 'infinity' ? '\\infty' : point === '-infinity' ? '-\\infty' : formatDecimal(point);
+  if (direction === 'left') return `${base}^{-}`;
+  if (direction === 'right') return `${base}^{+}`;
+  return base;
+}
+
+/** Map a plain trace value param ('∞', '-∞', 'undefined', '2.5') to LaTeX. */
+function limitValueLatex(value: string): string {
+  if (value === '∞') return '\\infty';
+  if (value === '-∞') return '-\\infty';
+  if (value === 'undefined') return '\\text{undefined}';
+  return value;
+}
+
+interface LimitStepText {
+  readonly operation: string;
+  readonly description: string;
+  readonly explanation: string;
+  readonly latex: string;
+}
+
+/**
+ * English fallback text for a curated limit trace step. These strings mirror
+ * the localized `solver.stepRules.<ruleId>` messages on the web layer — the
+ * UI prefers the translation and falls back to these.
+ */
+function limitStepText(step: TraceStep, variable: string, lim: string): LimitStepText {
+  const str = (key: string): string => String(step.params[key] ?? '');
+  const beforeLatex = `${lim} ${nodeToLatex(step.before)}`;
+  const afterLatex = `${lim} ${nodeToLatex(step.after)}`;
+
+  switch (step.ruleId) {
+    case 'limit.setup':
+      return {
+        operation: 'Setup',
+        description: 'Set up the limit',
+        explanation:
+          `We evaluate the limit of the expression as ${str('variable')} approaches ${str('point')}` +
+          (str('direction') === 'both' ? '' : ` from the ${str('direction')}`) +
+          '.',
+        latex: beforeLatex,
+      };
+    case 'limit.pattern':
+      return {
+        operation: 'Known limit',
+        description: `Recognize the standard limit ${str('pattern')}`,
+        explanation:
+          `This is the well-known limit ${str('pattern')} → ${str('value')}. ` +
+          'It is a standard result that can be cited directly (provable via the squeeze theorem or series expansion).',
+        latex: `${beforeLatex} = ${limitValueLatex(str('value'))}`,
+      };
+    case 'limit.direct':
+      return {
+        operation: 'Substitute',
+        description: 'Substitute the point directly',
+        explanation: `The expression is defined and continuous at the point, so the limit equals the function value: ${str('value')}.`,
+        latex: `${beforeLatex} = ${limitValueLatex(str('value'))}`,
+      };
+    case 'limit.indeterminate':
+      return {
+        operation: 'Indeterminate form',
+        description: `Indeterminate form ${str('form')}`,
+        explanation:
+          `Direct substitution gives the indeterminate form ${str('form')}, which carries no information ` +
+          'about the limit — further analysis is required.',
+        latex:
+          str('form') === '∞/∞'
+            ? `${beforeLatex} \\to \\tfrac{\\infty}{\\infty}`
+            : `${beforeLatex} \\to \\tfrac{0}{0}`,
+      };
+    case 'limit.simplify':
+      return {
+        operation: 'Simplify',
+        description: 'Simplify the expression algebraically',
+        explanation:
+          'Algebraic simplification (cancelling common factors, combining terms) produces an equivalent ' +
+          'expression whose limit is easier to evaluate.',
+        latex: afterLatex,
+      };
+    case 'limit.lhopital':
+      return {
+        operation: "L'Hôpital's rule",
+        description: "Apply L'Hôpital's rule",
+        explanation:
+          `Since the limit has the indeterminate form ${str('form')}, L'Hôpital's rule applies: ` +
+          'the limit of f/g equals the limit of f′/g′ (when the latter exists).',
+        latex: `${lim} \\frac{f(${variable})}{g(${variable})} = ${lim} \\frac{f'(${variable})}{g'(${variable})}`,
+      };
+    case 'limit.lhopitalDifferentiate':
+      return {
+        operation: 'Differentiate',
+        description: `Differentiate numerator and denominator (step ${str('iteration')})`,
+        explanation:
+          'Differentiate the numerator and the denominator separately, then examine the limit of the new quotient.',
+        latex: `${beforeLatex} = ${afterLatex}`,
+      };
+    case 'limit.lhopitalResult':
+      return {
+        operation: 'Evaluate',
+        description: "L'Hôpital's rule yields the limit",
+        explanation: `Substituting into the differentiated quotient gives ${str('value')}.`,
+        latex: `${beforeLatex} = ${limitValueLatex(str('value'))}`,
+      };
+    case 'limit.series':
+      return {
+        operation: 'Series expansion',
+        description: 'Expand numerator and denominator as Taylor series',
+        explanation:
+          `The leading term of the numerator has order ${str('numPower')} and the denominator order ${str('denPower')}. ` +
+          'Comparing leading orders (after cancelling common factors) determines the limit.',
+        latex: beforeLatex,
+      };
+    case 'limit.seriesResult':
+      return {
+        operation: 'Evaluate',
+        description: 'Series comparison yields the limit',
+        explanation: `The ratio of the leading series coefficients gives ${str('value')}.`,
+        latex: `${beforeLatex} = ${limitValueLatex(str('value'))}`,
+      };
+    case 'limit.numerical':
+      return {
+        operation: 'Numerical approximation',
+        description: 'Approach the point numerically',
+        explanation:
+          'Symbolic methods were inconclusive; the expression is evaluated at points progressively ' +
+          'closer to the limit point to detect convergence.',
+        latex: beforeLatex,
+      };
+    case 'limit.numericalResult':
+      return {
+        operation: 'Evaluate',
+        description: 'Numerical approximation converged',
+        explanation: `The sampled values converge to ${str('value')}.`,
+        latex: `${beforeLatex} \\approx ${limitValueLatex(str('value'))}`,
+      };
+    default:
+      return {
+        operation: 'Step',
+        description: step.ruleId,
+        explanation: '',
+        latex: afterLatex,
+      };
+  }
+}
+
+/**
+ * Compute a limit with textbook-shaped, i18n-addressable steps.
+ *
+ * Runs {@link limit} with a fresh {@link TraceCollector}, curates the raw
+ * trace (display-rule whitelist, no-op drop, simplify-run merge) and maps
+ * each trace step to a {@link SolutionStep} with `\lim` LaTeX notation.
+ *
+ * @param expression - Expression source, e.g. `"sin(x)/x"`
+ * @param variable - The limit variable, e.g. `"x"`
+ * @param config - Approach point and optional direction
+ *
+ * @example
+ * ```typescript
+ * const solution = limitWithSteps('sin(x)/x', 'x', { point: 0 });
+ * solution.answer; // 1
+ * solution.steps.map((s) => s.ruleId); // ['limit.setup', 'limit.pattern', 'limit.value']
+ * ```
+ */
+export function limitWithSteps(
+  expression: string,
+  variable: string,
+  config: LimitWithStepsConfig,
+): StepSolution {
+  const startTime = performance.now();
+  const expr = parse(expression);
+  const direction = config.direction ?? 'both';
+
+  const trace = new TraceCollector();
+  const result = limit(expr, variable, { point: config.point, direction, trace });
+  const curated = curateTrace(trace.steps);
+
+  const lim = `\\lim_{${variable} \\to ${limitPointToLatex(config.point, direction)}}`;
+
+  let stepNumber = 0;
+  const steps: SolutionStep[] = curated.map((traceStep) => {
+    stepNumber += 1;
+    const text = limitStepText(traceStep, variable, lim);
+    return {
+      stepNumber,
+      from: traceStep.before,
+      to: traceStep.after,
+      operation: text.operation,
+      description: text.description,
+      explanation: text.explanation,
+      category: StepCategory.Limit,
+      latex: text.latex,
+      ruleId: traceStep.ruleId,
+      params: traceStep.params,
+    };
+  });
+
+  // Final answer step — limit.value | limit.infinite | limit.dne
+  const exprLatex = nodeToLatex(expr);
+  let finalRuleId: TraceRuleId;
+  let finalParams: TraceParams;
+  let valueLatex: string;
+  let description: string;
+  let explanation: string;
+  let answer: number;
+
+  if (result.value === 'infinity' || result.value === '-infinity') {
+    const sign = result.value === 'infinity' ? '∞' : '-∞';
+    finalRuleId = 'limit.infinite';
+    finalParams = { sign };
+    valueLatex = result.value === 'infinity' ? '\\infty' : '-\\infty';
+    description = 'The limit is infinite';
+    explanation = `The expression grows without bound: the limit is ${sign}.`;
+    answer = result.value === 'infinity' ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
+  } else if (typeof result.value === 'number') {
+    const valueParam = formatTraceNumber(result.value);
+    finalRuleId = 'limit.value';
+    finalParams = { value: valueParam };
+    valueLatex = valueParam;
+    description = `The limit is ${valueParam}`;
+    explanation = `Combining the steps above, the limit evaluates to ${valueParam}.`;
+    answer = result.value;
+  } else {
+    finalRuleId = 'limit.dne';
+    finalParams = {};
+    valueLatex = '\\text{DNE}';
+    description = 'The limit does not exist';
+    explanation =
+      'No finite or infinite limit could be established — the limit does not exist (or could not be determined).';
+    answer = Number.NaN;
+  }
+
+  stepNumber += 1;
+  steps.push({
+    stepNumber,
+    from: expr,
+    to: createConstantNode(answer),
+    operation: 'Final Answer',
+    description,
+    explanation,
+    category: StepCategory.FinalAnswer,
+    latex: `${lim} ${exprLatex} = ${valueLatex}`,
+    ruleId: finalRuleId,
+    params: finalParams,
+  });
+
+  const endTime = performance.now();
+  return {
+    problem: expression,
+    problemType: ProblemType.Limit,
+    steps,
+    answer,
+    timeMs: endTime - startTime,
+  };
 }
