@@ -61,7 +61,8 @@
     "templates": "模板",
     "templatesDescription": "即用型计算模板",
     "worksheets": "我的工作表",
-    "worksheetsDescription": "查看和管理您保存的工作表"
+    "worksheetsDescription": "查看和管理您保存的工作表",
+    "gpuLab": "GPU Lab"
   },
   "common": {
     "language": "语言",
@@ -535,7 +536,61 @@
     "cellType": {
       "code": "代码",
       "markdown": "Markdown"
-    }
+    },
+    "simulation": {
+      "label": "仿真",
+      "addCell": "添加仿真单元格",
+      "heat": "热传导",
+      "wave": "波动",
+      "laplace": "拉普拉斯",
+      "lorenz": "洛伦兹",
+      "directionField": "方向场",
+      "preset": "预设",
+      "parameters": "参数",
+      "play": "播放",
+      "pause": "暂停",
+      "reset": "重置",
+      "dismiss": "关闭",
+      "webgpuFallback": "此浏览器不支持 WebGPU,正在使用 WebGL 后备渲染器。",
+      "noGpu": "此仿真需要 GPU 加速(WebGPU 或 WebGL 2),但此浏览器不支持。",
+      "unknownKind": "未知的仿真类型“{kind}”——此单元格由更新版本的 NextCalc 创建。",
+      "params": {
+        "alpha": "扩散系数 α",
+        "waveSpeed": "波速 c",
+        "relaxation": "松弛系数 α",
+        "sigma": "西格玛 σ",
+        "rho": "洛 ρ",
+        "beta": "贝塔 β",
+        "steps": "轨迹步数",
+        "preyGrowth": "猎物增长率 a",
+        "predatorDeath": "捕食者死亡率 b",
+        "mu": "阻尼 μ",
+        "spiralDamping": "螺旋阻尼 α",
+        "damping": "阻尼 γ"
+      },
+      "presets": {
+        "center": "中心",
+        "line": "直线",
+        "corners": "四角",
+        "ring": "圆环",
+        "cross": "十字",
+        "gaussian": "高斯峰",
+        "random": "随机",
+        "doubleGaussian": "双高斯",
+        "sawtooth": "锯齿波",
+        "squarePulse": "方波脉冲",
+        "sinc": "Sinc",
+        "classic": "经典",
+        "lotka-volterra": "洛特卡-沃尔泰拉",
+        "van-der-pol": "范德波尔",
+        "stable-spiral": "稳定螺旋",
+        "pendulum": "单摆"
+      }
+    },
+    "publish": "发布",
+    "unpublish": "取消发布",
+    "published": "已发布",
+    "publishHint": "请先登录并等待工作表自动保存,然后才能发布到 GPU Lab 画廊。"
   },
   "settings": {
     "title": "设置",
@@ -1392,6 +1447,29 @@
       "dataRegression": "数据与回归",
       "2dRelation": "2D 关系式"
     },
+    "sliders": {
+      "parameters": "参数",
+      "dragToAdjust": "拖动调整",
+      "min": "最小",
+      "max": "最大",
+      "value": "数值",
+      "editRangeHint": "点击最小/最大标签可编辑范围。",
+      "play": "播放 {name} 的动画",
+      "pause": "暂停 {name} 的动画",
+      "animationMode": "{name} 的动画模式",
+      "modeLoop": "循环",
+      "modeBounce": "往返",
+      "modeOnce": "单次",
+      "speed": "{name} 的动画速度:{speed}x",
+      "minFor": "{name} 的最小值",
+      "maxFor": "{name} 的最大值",
+      "editBound": "编辑{label}(当前 {value})",
+      "editBoundTitle": "点击编辑{label}",
+      "sliderAria": "参数 {name},当前值 {value},范围 {min} 到 {max}",
+      "valueAria": "{name} 等于 {value}",
+      "panelLabel": "参数滑块",
+      "detected": "{count, plural, other {检测到 # 个参数}}"
+    },
     "regression": {
       "title": "数据与回归",
       "dataTitle": "数据表",
@@ -1866,6 +1944,15 @@
       "complexNumbers": "复数",
       "complexNumbersSubtitle": "Argand 图与各种形式"
     }
+  },
+  "gpuLab": {
+    "title": "GPU Lab",
+    "description": "交互式 GPU 仿真的公共画廊:热方程与波动方程、洛伦兹吸引子以及来自社区工作表的方向场。",
+    "empty": "还没有已发布的仿真。请在工作表中添加仿真单元格并发布。",
+    "openWorksheet": "打开工作表",
+    "by": "作者:{name}",
+    "views": "{count, plural, other {# 次浏览}}",
+    "updated": "更新于 {time}"
   },
   "checkWork": {
     "title": "检查我的答案",

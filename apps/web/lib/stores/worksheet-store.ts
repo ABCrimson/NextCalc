@@ -9,17 +9,23 @@ import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { useShallow } from 'zustand/react/shallow';
+import { DEFAULT_PARAMS, DEFAULT_PRESET, type SimulationKind } from '@/lib/simulation/registry';
 import { generateId } from '@/lib/utils';
+
+export type { SimulationKind };
 
 // ---------------------------------------------------------------------------
 // Domain types
 // ---------------------------------------------------------------------------
 
 /** Discriminated union for cell kind */
-export type CellKind = 'math' | 'text' | 'plot';
+export type CellKind = 'math' | 'text' | 'plot' | 'simulation';
 
 /** Evaluation state for math/plot cells */
 export type EvalStatus = 'idle' | 'pending' | 'success' | 'error';
+
+/** Gallery visibility (mirrors the Prisma WorksheetVisibility enum) */
+export type WorksheetVisibility = 'PRIVATE' | 'UNLISTED' | 'PUBLIC';
 
 /** A single variable binding produced by a math cell */
 export interface VariableBinding {
@@ -69,7 +75,25 @@ export interface PlotCell extends BaseCellFields {
   errorMessage: string | null;
 }
 
-export type WorksheetCell = MathCell | TextCell | PlotCell;
+/**
+ * GPU/CPU simulation cell (PDE heatmap, Lorenz attractor, direction field).
+ *
+ * Serialization invariant: ONLY plain presets/params (strings + numbers) are
+ * stored — never GPU buffers, trajectories, or runtime state. Whether the
+ * simulation is currently running (plus fps/backend) lives in component
+ * state inside SimulationCellContent and is intentionally NOT persisted.
+ */
+export interface SimulationCell extends BaseCellFields {
+  kind: 'simulation';
+  /** Which simulation to mount (see lib/simulation/registry) */
+  sim: SimulationKind;
+  /** Preset name within the sim kind (initial condition / equation preset) */
+  preset: string;
+  /** Slider-bound numeric parameters (α, σ, ρ, β, μ, …) */
+  params: Record<string, number>;
+}
+
+export type WorksheetCell = MathCell | TextCell | PlotCell | SimulationCell;
 
 /** Serialisable worksheet document (for JSON export / localStorage) */
 export interface WorksheetDocument {
@@ -101,6 +125,10 @@ interface WorksheetStore {
     id: string,
     viewport: { xMin: number; xMax: number; yMin: number; yMax: number },
   ) => void;
+  updateSimulation: (
+    id: string,
+    patch: { sim?: SimulationKind; preset?: string; params?: Record<string, number> },
+  ) => void;
 
   // Evaluation (called by components, not by the store itself)
   setMathResult: (id: string, result: string, latex: string, variables: VariableBinding[]) => void;
@@ -116,11 +144,22 @@ interface WorksheetStore {
   worksheetId: string | null;
   version: number;
   isDirty: boolean;
+  /** Server-side gallery visibility of the loaded worksheet */
+  visibility: WorksheetVisibility;
+  setVisibility: (visibility: WorksheetVisibility) => void;
   hydrate: (data: {
     worksheetId: string;
     title: string;
     cells: WorksheetCell[];
     version: number;
+    visibility?: WorksheetVisibility;
+    /**
+     * Fork-on-open: when true (viewer is not the owner), the worksheet is
+     * hydrated as a brand-new local draft (worksheetId null, version 0) so
+     * the viewer's edits autosave as their OWN new worksheet instead of
+     * conflict-spamming updates against the owner's row.
+     */
+    fork?: boolean;
   }) => void;
   markClean: (version: number, worksheetId: string) => void;
 
@@ -180,9 +219,24 @@ function createPlotCell(): PlotCell {
   };
 }
 
+function createSimulationCell(): SimulationCell {
+  const now = Date.now();
+  const sim: SimulationKind = 'pde-heat';
+  return {
+    id: generateId(),
+    kind: 'simulation',
+    sim,
+    preset: DEFAULT_PRESET(sim),
+    params: DEFAULT_PARAMS(sim),
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
 function makeCell(kind: CellKind): WorksheetCell {
   if (kind === 'text') return createTextCell();
   if (kind === 'plot') return createPlotCell();
+  if (kind === 'simulation') return createSimulationCell();
   return createMathCell();
 }
 
@@ -214,6 +268,7 @@ export const useWorksheetStore = create<WorksheetStore>()(
         worksheetId: null,
         version: 0,
         isDirty: false,
+        visibility: 'PRIVATE',
 
         // ---------------------------------------------------------------
         // Cell CRUD
@@ -336,6 +391,29 @@ export const useWorksheetStore = create<WorksheetStore>()(
           });
         },
 
+        updateSimulation: (id, patch) => {
+          set((draft) => {
+            const cell = draft.worksheet.cells.find((c) => c.id === id);
+            if (cell?.kind !== 'simulation') return;
+            if (patch.sim !== undefined && patch.sim !== cell.sim) {
+              // Switching sim kind resets preset + params to the new kind's
+              // registry defaults (old params are meaningless for the new sim).
+              cell.sim = patch.sim;
+              cell.preset = DEFAULT_PRESET(patch.sim);
+              cell.params = DEFAULT_PARAMS(patch.sim);
+            }
+            if (patch.preset !== undefined) {
+              cell.preset = patch.preset;
+            }
+            if (patch.params !== undefined) {
+              cell.params = patch.params;
+            }
+            cell.updatedAt = Date.now();
+            touchWorksheet(draft.worksheet);
+            draft.isDirty = true;
+          });
+        },
+
         // ---------------------------------------------------------------
         // Evaluation state (set by components after async evaluation)
         // ---------------------------------------------------------------
@@ -402,6 +480,7 @@ export const useWorksheetStore = create<WorksheetStore>()(
             draft.worksheetId = null;
             draft.version = 0;
             draft.isDirty = false;
+            draft.visibility = 'PRIVATE';
           });
         },
 
@@ -432,7 +511,7 @@ export const useWorksheetStore = create<WorksheetStore>()(
         importFromJSON: (json) => {
           try {
             const parsed = JSON.parse(json) as WorksheetDocument;
-            const validKinds = new Set<string>(['math', 'text', 'plot']);
+            const validKinds = new Set<string>(['math', 'text', 'plot', 'simulation']);
             // Validate structure and cell kinds
             if (
               typeof parsed.id === 'string' &&
@@ -460,16 +539,30 @@ export const useWorksheetStore = create<WorksheetStore>()(
         // ---------------------------------------------------------------
         hydrate: (data) => {
           set((draft) => {
+            const fork = data.fork === true;
             draft.worksheet = {
-              id: data.worksheetId,
+              // A fork is a brand-new local document — give it its own id so
+              // it never aliases the source worksheet.
+              id: fork ? generateId() : data.worksheetId,
               title: data.title,
               cells: data.cells,
               createdAt: Date.now(),
               updatedAt: Date.now(),
             };
-            draft.worksheetId = data.worksheetId;
-            draft.version = data.version;
+            // Forks detach from the source row: the next dirty autosave hits
+            // saveWorksheet's create branch (worksheetId null) and produces a
+            // new worksheet owned by the viewer.
+            draft.worksheetId = fork ? null : data.worksheetId;
+            draft.version = fork ? 0 : data.version;
+            // A fork is a fresh private draft; otherwise mirror the server row.
+            draft.visibility = fork ? 'PRIVATE' : (data.visibility ?? 'PRIVATE');
             draft.isDirty = false;
+          });
+        },
+
+        setVisibility: (visibility) => {
+          set((draft) => {
+            draft.visibility = visibility;
           });
         },
 
@@ -488,6 +581,7 @@ export const useWorksheetStore = create<WorksheetStore>()(
           worksheet: store.worksheet,
           worksheetId: store.worksheetId,
           version: store.version,
+          visibility: store.visibility,
         }),
       },
     ),
@@ -522,6 +616,7 @@ export const useWorksheetActions = () =>
       updateTextContent: s.updateTextContent,
       updatePlotExpressions: s.updatePlotExpressions,
       updatePlotViewport: s.updatePlotViewport,
+      updateSimulation: s.updateSimulation,
       setMathResult: s.setMathResult,
       setMathError: s.setMathError,
       setMathPending: s.setMathPending,
@@ -533,10 +628,13 @@ export const useWorksheetActions = () =>
       importFromJSON: s.importFromJSON,
       hydrate: s.hydrate,
       markClean: s.markClean,
+      setVisibility: s.setVisibility,
     })),
   );
 
 export const useWorksheetId = () => useWorksheetStore((s) => s.worksheetId);
+
+export const useWorksheetVisibility = () => useWorksheetStore((s) => s.visibility);
 
 export const useWorksheetVersion = () => useWorksheetStore((s) => s.version);
 

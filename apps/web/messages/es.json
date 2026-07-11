@@ -59,7 +59,8 @@
     "algorithmsMenu": "Menú de algoritmos",
     "home": "NextCalc Pro - Inicio",
     "templates": "Plantillas",
-    "templatesDescription": "Plantillas de cálculo listas para usar"
+    "templatesDescription": "Plantillas de cálculo listas para usar",
+    "gpuLab": "GPU Lab"
   },
   "common": {
     "language": "Idioma",
@@ -502,7 +503,61 @@
     "cellType": {
       "code": "Código",
       "markdown": "Markdown"
-    }
+    },
+    "simulation": {
+      "label": "Simulación",
+      "addCell": "Añadir celda de simulación",
+      "heat": "Calor",
+      "wave": "Onda",
+      "laplace": "Laplace",
+      "lorenz": "Lorenz",
+      "directionField": "Campo de direcciones",
+      "preset": "Preajuste",
+      "parameters": "Parámetros",
+      "play": "Reproducir",
+      "pause": "Pausa",
+      "reset": "Reiniciar",
+      "dismiss": "Descartar",
+      "webgpuFallback": "WebGPU no está disponible en este navegador; se usa el renderizador WebGL de respaldo.",
+      "noGpu": "Esta simulación requiere aceleración GPU (WebGPU o WebGL 2), no disponible en este navegador.",
+      "unknownKind": "Tipo de simulación desconocido «{kind}»: esta celda se creó en una versión más reciente de NextCalc.",
+      "params": {
+        "alpha": "Difusividad α",
+        "waveSpeed": "Velocidad de onda c",
+        "relaxation": "Relajación α",
+        "sigma": "Sigma σ",
+        "rho": "Rho ρ",
+        "beta": "Beta β",
+        "steps": "Pasos de la trayectoria",
+        "preyGrowth": "Crecimiento de presas a",
+        "predatorDeath": "Mortalidad de depredadores b",
+        "mu": "Amortiguamiento μ",
+        "spiralDamping": "Amortiguamiento de la espiral α",
+        "damping": "Amortiguamiento γ"
+      },
+      "presets": {
+        "center": "Centro",
+        "line": "Línea",
+        "corners": "Esquinas",
+        "ring": "Anillo",
+        "cross": "Cruz",
+        "gaussian": "Gaussianas",
+        "random": "Aleatorio",
+        "doubleGaussian": "Gaussiana doble",
+        "sawtooth": "Diente de sierra",
+        "squarePulse": "Pulso cuadrado",
+        "sinc": "Sinc",
+        "classic": "Clásico",
+        "lotka-volterra": "Lotka-Volterra",
+        "van-der-pol": "Van der Pol",
+        "stable-spiral": "Espiral estable",
+        "pendulum": "Péndulo"
+      }
+    },
+    "publish": "Publicar",
+    "unpublish": "Retirar publicación",
+    "published": "Publicado",
+    "publishHint": "Inicia sesión y deja que la hoja se guarde automáticamente antes de publicarla en la galería GPU Lab."
   },
   "settings": {
     "title": "Configuración",
@@ -1359,6 +1414,29 @@
       "dataRegression": "Datos y regresión",
       "2dRelation": "2D Relaciones"
     },
+    "sliders": {
+      "parameters": "Parámetros",
+      "dragToAdjust": "arrastra para ajustar",
+      "min": "mín",
+      "max": "máx",
+      "value": "valor",
+      "editRangeHint": "Haz clic en las etiquetas mín/máx para editar el rango.",
+      "play": "Reproducir animación de {name}",
+      "pause": "Pausar animación de {name}",
+      "animationMode": "Modo de animación de {name}",
+      "modeLoop": "Bucle",
+      "modeBounce": "Rebote",
+      "modeOnce": "Una vez",
+      "speed": "Velocidad de animación de {name}: {speed}x",
+      "minFor": "mínimo de {name}",
+      "maxFor": "máximo de {name}",
+      "editBound": "Editar {label} (actual: {value})",
+      "editBoundTitle": "Haz clic para editar {label}",
+      "sliderAria": "Parámetro {name}, valor actual {value}, rango de {min} a {max}",
+      "valueAria": "{name} es igual a {value}",
+      "panelLabel": "Controles deslizantes de parámetros",
+      "detected": "{count, plural, one {# parámetro detectado} other {# parámetros detectados}}"
+    },
     "regression": {
       "title": "Datos y regresión",
       "dataTitle": "Tabla de datos",
@@ -1833,6 +1911,15 @@
       "complexNumbers": "Números complejos",
       "complexNumbersSubtitle": "Diagrama de Argand y formas"
     }
+  },
+  "gpuLab": {
+    "title": "GPU Lab",
+    "description": "Galería pública de simulaciones GPU interactivas: ecuaciones del calor y de ondas, el atractor de Lorenz y campos de direcciones de hojas de la comunidad.",
+    "empty": "Aún no hay simulaciones publicadas. Añade una celda de simulación a una hoja de trabajo y publícala.",
+    "openWorksheet": "Abrir hoja de trabajo",
+    "by": "por {name}",
+    "views": "{count, plural, one {# visita} other {# visitas}}",
+    "updated": "Actualizado {time}"
   },
   "checkWork": {
     "title": "Verificar mi trabajo",

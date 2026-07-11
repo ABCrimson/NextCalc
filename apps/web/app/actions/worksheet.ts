@@ -15,6 +15,7 @@ import {
   DeleteWorksheetSchema,
   LoadWorksheetSchema,
   SaveWorksheetSchema,
+  SetWorksheetVisibilitySchema,
 } from '@/lib/validations/learning';
 import type { ActionResult } from './problems';
 
@@ -134,6 +135,10 @@ export interface LoadWorksheetResult {
   title: string;
   cells: unknown;
   version: number;
+  /** True when the requesting session owns this worksheet (fork-on-open cue) */
+  isOwner: boolean;
+  /** Current gallery visibility (seeds the Publish toggle state) */
+  visibility: 'PRIVATE' | 'UNLISTED' | 'PUBLIC';
 }
 
 export async function loadWorksheet(
@@ -183,6 +188,8 @@ export async function loadWorksheet(
         title: worksheet.title,
         cells: worksheet.content,
         version: worksheet.version,
+        isOwner: userId !== undefined && worksheet.userId === userId,
+        visibility: worksheet.visibility,
       },
     };
   } catch (error) {
@@ -238,5 +245,64 @@ export async function deleteWorksheet(
   } catch (error) {
     console.error('deleteWorksheet error:', error);
     return { success: false, error: 'Failed to delete worksheet' };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// setWorksheetVisibility (publish / unpublish to the GPU Lab gallery)
+// ---------------------------------------------------------------------------
+
+export interface SetWorksheetVisibilityResult {
+  worksheetId: string;
+  visibility: 'PUBLIC' | 'PRIVATE';
+}
+
+export async function setWorksheetVisibility(
+  _prevState: ActionResult<SetWorksheetVisibilityResult>,
+  formData: FormData,
+): Promise<ActionResult<SetWorksheetVisibilityResult>> {
+  try {
+    const raw = Object.fromEntries(formData.entries());
+    const data = SetWorksheetVisibilitySchema.parse(raw);
+
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { success: false, error: 'Sign in to publish worksheets' };
+    }
+
+    // Atomic ownership check in the WHERE clause (same shape as saveWorksheet)
+    try {
+      const updated = await prisma.worksheet.update({
+        where: {
+          id: data.worksheetId,
+          userId: session.user.id,
+          deletedAt: null,
+        },
+        data: { visibility: data.visibility },
+        select: { id: true },
+      });
+
+      // The public gallery lists PUBLIC worksheets — refresh it.
+      revalidatePath('/[locale]/gpu-lab', 'page');
+
+      return {
+        success: true,
+        data: { worksheetId: updated.id, visibility: data.visibility },
+      };
+    } catch (e) {
+      // Prisma P2025: record not found (wrong owner or deleted)
+      if (
+        typeof e === 'object' &&
+        e !== null &&
+        'code' in e &&
+        (e as { code: string }).code === 'P2025'
+      ) {
+        return { success: false, error: 'Worksheet not found' };
+      }
+      throw e;
+    }
+  } catch (error) {
+    console.error('setWorksheetVisibility error:', error);
+    return { success: false, error: 'Failed to update visibility' };
   }
 }

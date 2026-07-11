@@ -89,6 +89,12 @@ export const DeleteWorksheetSchema = z.object({
   worksheetId: z.string().min(1),
 });
 
+/** Publish/unpublish a worksheet to the public GPU Lab gallery. */
+export const SetWorksheetVisibilitySchema = z.object({
+  worksheetId: z.string().min(1),
+  visibility: z.enum(['PUBLIC', 'PRIVATE']),
+});
+
 export const PracticeAttemptSchema = z.object({
   sessionId: z.string().optional(),
   problemId: z.string().min(1),
@@ -164,3 +170,4 @@ export type PracticeSessionComplete = z.infer<typeof PracticeSessionCompleteSche
 export type SaveWorksheet = z.infer<typeof SaveWorksheetSchema>;
 export type LoadWorksheet = z.infer<typeof LoadWorksheetSchema>;
 export type DeleteWorksheet = z.infer<typeof DeleteWorksheetSchema>;
+export type SetWorksheetVisibility = z.infer<typeof SetWorksheetVisibilitySchema>;

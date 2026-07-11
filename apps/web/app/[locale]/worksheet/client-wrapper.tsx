@@ -58,15 +58,20 @@ export function WorksheetClientWrapper({
     }
   }, [initialWorksheetId, loadAction]);
 
-  // Hydrate store when load completes
+  // Hydrate store when load completes.
+  // Fork-on-open: non-owners get a detached local draft (worksheetId null,
+  // version 0) so their edits autosave as a NEW worksheet they own instead of
+  // 409-conflicting against the owner's row.
   useEffect(() => {
     if (loadState.success && loadState.data) {
-      const { worksheetId, title, cells, version } = loadState.data;
+      const { worksheetId, title, cells, version, isOwner, visibility } = loadState.data;
       store.getState().hydrate({
         worksheetId,
         title,
         cells: cells as WorksheetCell[],
         version,
+        visibility,
+        ...(isOwner ? {} : { fork: true }),
       });
     }
   }, [loadState]);

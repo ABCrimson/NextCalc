@@ -59,7 +59,8 @@
     "algorithmsMenu": "Меню алгоритмов",
     "home": "NextCalc Pro — Главная",
     "templates": "Шаблоны",
-    "templatesDescription": "Готовые шаблоны вычислений"
+    "templatesDescription": "Готовые шаблоны вычислений",
+    "gpuLab": "GPU Lab"
   },
   "common": {
     "language": "Язык",
@@ -502,7 +503,61 @@
     "cellType": {
       "code": "Код",
       "markdown": "Markdown"
-    }
+    },
+    "simulation": {
+      "label": "Симуляция",
+      "addCell": "Добавить ячейку симуляции",
+      "heat": "Тепло",
+      "wave": "Волна",
+      "laplace": "Лаплас",
+      "lorenz": "Лоренц",
+      "directionField": "Поле направлений",
+      "preset": "Пресет",
+      "parameters": "Параметры",
+      "play": "Пуск",
+      "pause": "Пауза",
+      "reset": "Сброс",
+      "dismiss": "Скрыть",
+      "webgpuFallback": "WebGPU недоступен в этом браузере — используется резервный рендерер WebGL.",
+      "noGpu": "Для этой симуляции нужно GPU-ускорение (WebGPU или WebGL 2), которое недоступно в этом браузере.",
+      "unknownKind": "Неизвестный тип симуляции «{kind}» — эта ячейка создана в более новой версии NextCalc.",
+      "params": {
+        "alpha": "Коэффициент диффузии α",
+        "waveSpeed": "Скорость волны c",
+        "relaxation": "Релаксация α",
+        "sigma": "Сигма σ",
+        "rho": "Ро ρ",
+        "beta": "Бета β",
+        "steps": "Шаги траектории",
+        "preyGrowth": "Рост жертв a",
+        "predatorDeath": "Гибель хищников b",
+        "mu": "Демпфирование μ",
+        "spiralDamping": "Затухание спирали α",
+        "damping": "Затухание γ"
+      },
+      "presets": {
+        "center": "Центр",
+        "line": "Линия",
+        "corners": "Углы",
+        "ring": "Кольцо",
+        "cross": "Крест",
+        "gaussian": "Гауссианы",
+        "random": "Случайно",
+        "doubleGaussian": "Двойная гауссиана",
+        "sawtooth": "Пила",
+        "squarePulse": "Прямоугольный импульс",
+        "sinc": "Sinc",
+        "classic": "Классика",
+        "lotka-volterra": "Лотка–Вольтерра",
+        "van-der-pol": "Ван дер Поль",
+        "stable-spiral": "Устойчивая спираль",
+        "pendulum": "Маятник"
+      }
+    },
+    "publish": "Опубликовать",
+    "unpublish": "Снять с публикации",
+    "published": "Опубликовано",
+    "publishHint": "Войдите и дождитесь автосохранения листа, чтобы опубликовать его в галерее GPU Lab."
   },
   "settings": {
     "title": "Настройки",
@@ -1359,6 +1414,29 @@
       "dataRegression": "Данные и регрессия",
       "2dRelation": "2D соотношения"
     },
+    "sliders": {
+      "parameters": "Параметры",
+      "dragToAdjust": "перетащите для настройки",
+      "min": "мин",
+      "max": "макс",
+      "value": "значение",
+      "editRangeHint": "Нажмите на подписи мин/макс, чтобы изменить диапазон.",
+      "play": "Запустить анимацию {name}",
+      "pause": "Остановить анимацию {name}",
+      "animationMode": "Режим анимации {name}",
+      "modeLoop": "Цикл",
+      "modeBounce": "Туда-обратно",
+      "modeOnce": "Один раз",
+      "speed": "Скорость анимации {name}: {speed}x",
+      "minFor": "минимум для {name}",
+      "maxFor": "максимум для {name}",
+      "editBound": "Изменить {label} (сейчас {value})",
+      "editBoundTitle": "Нажмите, чтобы изменить {label}",
+      "sliderAria": "Параметр {name}, текущее значение {value}, диапазон от {min} до {max}",
+      "valueAria": "{name} равно {value}",
+      "panelLabel": "Ползунки параметров",
+      "detected": "{count, plural, one {обнаружен # параметр} few {обнаружено # параметра} many {обнаружено # параметров} other {обнаружено # параметра}}"
+    },
     "regression": {
       "title": "Данные и регрессия",
       "dataTitle": "Таблица данных",
@@ -1833,6 +1911,15 @@
       "complexNumbers": "Комплексные числа",
       "complexNumbersSubtitle": "Диаграмма Аргана и формы"
     }
+  },
+  "gpuLab": {
+    "title": "GPU Lab",
+    "description": "Публичная галерея интерактивных GPU-симуляций: уравнения теплопроводности и волны, аттрактор Лоренца и поля направлений из рабочих листов сообщества.",
+    "empty": "Опубликованных симуляций пока нет. Добавьте ячейку симуляции в рабочий лист и опубликуйте его.",
+    "openWorksheet": "Открыть рабочий лист",
+    "by": "автор: {name}",
+    "views": "{count, plural, one {# просмотр} few {# просмотра} many {# просмотров} other {# просмотра}}",
+    "updated": "Обновлено {time}"
   },
   "checkWork": {
     "title": "Проверить моё решение",

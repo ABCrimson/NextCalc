@@ -11,6 +11,11 @@
  *  - Per-slider min/max editing via inline click-to-edit number inputs
  *  - Step size auto-chosen from range (1/200 of span, clamped to 4 d.p.)
  *  - Real-time value display (4 significant figures)
+ *  - Desmos-style play-button animation per slider (loop / bounce / once
+ *    modes, 0.5–4× speed) driven by ONE component-level rAF loop whose tick
+ *    is a React 19.3 useEffectEvent (reads latest state, no re-subscribes)
+ *  - prefers-reduced-motion respected: nothing auto-plays, and flipping the
+ *    OS setting on mid-animation pauses every slider
  *  - Keyboard navigation (arrow keys, Home/End)
  *  - Fully ARIA-labelled range inputs for screen readers
  *  - Framer Motion entrance animation
@@ -20,10 +25,21 @@
  */
 
 import { extractVariables } from '@nextcalc/math-engine';
-import { ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
+import {
+  ArrowLeftRight,
+  ChevronDown,
+  ChevronUp,
+  MoveRight,
+  Pause,
+  Play,
+  Repeat,
+  SlidersHorizontal,
+} from 'lucide-react';
 import { AnimatePresence, m } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import type { ChangeEvent, KeyboardEvent } from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState } from 'react';
+import { useReducedMotion } from '@/lib/hooks/use-reduced-motion';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -64,6 +80,12 @@ const DEFAULT_MIN = -10;
 const DEFAULT_MAX = 10;
 const DEFAULT_VALUE = 1;
 
+/** Time for one full min→max sweep at 1× speed. */
+export const SWEEP_DURATION_MS = 4000;
+
+/** Speed multipliers cycled by the speed button. */
+export const SPEED_STEPS = [0.5, 1, 2, 4] as const;
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -79,6 +101,16 @@ export interface SliderConfig {
 
 /** Map from parameter name to its current slider configuration. */
 export type SliderValues = Record<string, SliderConfig>;
+
+/** Animation playback mode for a single slider. */
+export type SliderAnimMode = 'loop' | 'bounce' | 'once';
+
+/** Runtime animation state for a single slider — local UI state only. */
+interface SliderAnim {
+  mode: SliderAnimMode;
+  speed: number;
+  direction: 1 | -1;
+}
 
 export interface VariableSlidersProps {
   /**
@@ -142,6 +174,87 @@ function detectParameters(expressions: string[]): string[] {
   return Array.from(seen).sort();
 }
 
+/** Next animation mode in the loop → bounce → once cycle. */
+export function nextMode(mode: SliderAnimMode): SliderAnimMode {
+  if (mode === 'loop') return 'bounce';
+  if (mode === 'bounce') return 'once';
+  return 'loop';
+}
+
+/** Next speed multiplier in the 0.5× → 1× → 2× → 4× cycle. */
+export function nextSpeed(speed: number): number {
+  const idx = (SPEED_STEPS as readonly number[]).indexOf(speed);
+  return SPEED_STEPS[(idx + 1) % SPEED_STEPS.length] ?? 1;
+}
+
+/** Inputs for a single rAF-driven animation step (one slider, one frame). */
+export interface SliderStepInput {
+  value: number;
+  min: number;
+  max: number;
+  mode: SliderAnimMode;
+  speed: number;
+  direction: 1 | -1;
+  /** Elapsed time since the previous frame, in milliseconds. */
+  dt: number;
+}
+
+export interface SliderStepResult {
+  /** Next slider value, already clamped to [min, max]. */
+  value: number;
+  /** Next travel direction (only ever flips in 'bounce' mode). */
+  direction: 1 | -1;
+  /** True once a 'once'-mode sweep has reached max — caller should stop it. */
+  finished: boolean;
+}
+
+/**
+ * Pure, framework-free step function for the Desmos-style slider animation.
+ * Advances `value` by `(span / SWEEP_DURATION_MS) * dt * speed` in `direction`,
+ * then applies the mode's boundary behavior:
+ *  - loop: wraps back to `min` at `max`
+ *  - bounce: clamps at the bound and flips `direction`
+ *  - once: clamps at `max` and reports `finished: true`
+ *
+ * Callers are expected to have already verified `max > min` (a degenerate
+ * span is a caller-level no-op, not a step to compute).
+ */
+export function stepSliderValue({
+  value,
+  min,
+  max,
+  mode,
+  speed,
+  direction,
+  dt,
+}: SliderStepInput): SliderStepResult {
+  const span = max - min;
+  const delta = (span / SWEEP_DURATION_MS) * dt * speed * direction;
+  let next = value + delta;
+  let nextDirection = direction;
+  let finished = false;
+
+  if (mode === 'loop') {
+    if (next >= max) next = min;
+  } else if (mode === 'bounce') {
+    if (next >= max) {
+      next = max;
+      nextDirection = -1;
+    } else if (next <= min) {
+      next = min;
+      nextDirection = 1;
+    }
+  } else {
+    // 'once' — stop exactly at max
+    if (next >= max) {
+      next = max;
+      finished = true;
+    }
+  }
+
+  return { value: next, direction: nextDirection, finished };
+}
+
 // ---------------------------------------------------------------------------
 // Sub-component: inline editable min/max label
 // ---------------------------------------------------------------------------
@@ -153,6 +266,7 @@ interface EditableBoundProps {
 }
 
 function EditableBound({ value, label, onChange }: EditableBoundProps) {
+  const t = useTranslations('plots.sliders');
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -206,8 +320,8 @@ function EditableBound({ value, label, onChange }: EditableBoundProps) {
     <button
       type="button"
       onClick={startEdit}
-      aria-label={`Edit ${label} (currently ${value})`}
-      title={`Click to edit ${label}`}
+      aria-label={t('editBound', { label, value: formatValue(value) })}
+      title={t('editBoundTitle', { label })}
       className={[
         'w-14 h-5 px-1 text-[10px] font-mono text-center rounded cursor-pointer',
         'text-muted-foreground hover:text-foreground hover:bg-muted/60',
@@ -227,12 +341,33 @@ function EditableBound({ value, label, onChange }: EditableBoundProps) {
 interface SliderRowProps {
   name: string;
   config: SliderConfig;
+  anim: SliderAnim | undefined;
   onValueChange: (name: string, value: number) => void;
   onMinChange: (name: string, min: number) => void;
   onMaxChange: (name: string, max: number) => void;
+  onTogglePlay: (name: string) => void;
+  onCycleMode: (name: string) => void;
+  onCycleSpeed: (name: string) => void;
 }
 
-function SliderRow({ name, config, onValueChange, onMinChange, onMaxChange }: SliderRowProps) {
+const MODE_ICONS = {
+  loop: Repeat,
+  bounce: ArrowLeftRight,
+  once: MoveRight,
+} as const;
+
+function SliderRow({
+  name,
+  config,
+  anim,
+  onValueChange,
+  onMinChange,
+  onMaxChange,
+  onTogglePlay,
+  onCycleMode,
+  onCycleSpeed,
+}: SliderRowProps) {
+  const t = useTranslations('plots.sliders');
   const { value, min, max } = config;
   const step = niceStep(min, max);
 
@@ -263,6 +398,23 @@ function SliderRow({ name, config, onValueChange, onMinChange, onMaxChange }: Sl
     [name, min, onMaxChange],
   );
 
+  const playing = anim !== undefined;
+  const ModeIcon = anim ? MODE_ICONS[anim.mode] : Repeat;
+  const modeLabel = anim
+    ? anim.mode === 'loop'
+      ? t('modeLoop')
+      : anim.mode === 'bounce'
+        ? t('modeBounce')
+        : t('modeOnce')
+    : t('modeLoop');
+
+  const iconButtonClass = [
+    'flex-shrink-0 size-5 flex items-center justify-center rounded',
+    'text-cyan-300 hover:text-cyan-100 hover:bg-cyan-500/20',
+    'transition-colors duration-150',
+    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+  ].join(' ');
+
   return (
     <m.div
       initial={{ opacity: 0, x: -8 }}
@@ -284,8 +436,51 @@ function SliderRow({ name, config, onValueChange, onMinChange, onMaxChange }: Sl
         {name}
       </span>
 
+      {/* Play/Pause animation toggle */}
+      <button
+        type="button"
+        onClick={() => onTogglePlay(name)}
+        aria-pressed={playing}
+        aria-label={playing ? t('pause', { name }) : t('play', { name })}
+        className={iconButtonClass}
+      >
+        {playing ? (
+          <Pause className="size-3.5" aria-hidden="true" />
+        ) : (
+          <Play className="size-3.5" aria-hidden="true" />
+        )}
+      </button>
+
+      {/* Mode + speed controls — only while animating */}
+      {anim && (
+        <>
+          <button
+            type="button"
+            onClick={() => onCycleMode(name)}
+            aria-label={`${t('animationMode', { name })}: ${modeLabel}`}
+            title={modeLabel}
+            className={iconButtonClass}
+          >
+            <ModeIcon className="size-3.5" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            onClick={() => onCycleSpeed(name)}
+            aria-label={t('speed', { name, speed: anim.speed })}
+            className={[
+              'flex-shrink-0 h-5 min-w-7 px-1 rounded text-[10px] font-mono font-bold',
+              'text-cyan-300 hover:text-cyan-100 hover:bg-cyan-500/20',
+              'transition-colors duration-150',
+              'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+            ].join(' ')}
+          >
+            {anim.speed}×
+          </button>
+        </>
+      )}
+
       {/* Min bound (click to edit) */}
-      <EditableBound value={min} label={`minimum for ${name}`} onChange={handleMinChange} />
+      <EditableBound value={min} label={t('minFor', { name })} onChange={handleMinChange} />
 
       {/* The range slider */}
       <div className="relative flex-1 min-w-0 flex items-center">
@@ -296,7 +491,12 @@ function SliderRow({ name, config, onValueChange, onMinChange, onMaxChange }: Sl
           step={step}
           value={clampedValue}
           onChange={handleChange}
-          aria-label={`Parameter ${name}, current value ${formatValue(clampedValue)}, range ${min} to ${max}`}
+          aria-label={t('sliderAria', {
+            name,
+            value: formatValue(clampedValue),
+            min,
+            max,
+          })}
           aria-valuemin={min}
           aria-valuemax={max}
           aria-valuenow={clampedValue}
@@ -327,7 +527,7 @@ function SliderRow({ name, config, onValueChange, onMinChange, onMaxChange }: Sl
       </div>
 
       {/* Max bound (click to edit) */}
-      <EditableBound value={max} label={`maximum for ${name}`} onChange={handleMaxChange} />
+      <EditableBound value={max} label={t('maxFor', { name })} onChange={handleMaxChange} />
 
       {/* Current value readout */}
       <span
@@ -335,7 +535,7 @@ function SliderRow({ name, config, onValueChange, onMinChange, onMaxChange }: Sl
         role="status"
         aria-live="polite"
         aria-atomic="true"
-        aria-label={`${name} equals ${formatValue(clampedValue)}`}
+        aria-label={t('valueAria', { name, value: formatValue(clampedValue) })}
       >
         {formatValue(clampedValue)}
       </span>
@@ -368,6 +568,8 @@ function SliderRow({ name, config, onValueChange, onMinChange, onMaxChange }: Sl
  * ```
  */
 export function VariableSliders({ expressions, onChange, className = '' }: VariableSlidersProps) {
+  const t = useTranslations('plots.sliders');
+
   // Detect free parameter names from all expressions
   const paramNames = useMemo(() => detectParameters(expressions), [expressions]);
 
@@ -380,8 +582,22 @@ export function VariableSliders({ expressions, onChange, className = '' }: Varia
     return init;
   });
 
+  // Per-slider animation state — local UI state, NOT part of the
+  // SliderConfig/onChange contract. Entry present == slider is playing.
+  const [anims, setAnims] = useState<Record<string, SliderAnim>>({});
+
   // Collapsed state for the panel
   const [collapsed, setCollapsed] = useState(false);
+
+  const reducedMotion = useReducedMotion();
+
+  // Respect prefers-reduced-motion: nothing here ever auto-plays, and if the
+  // user enables reduce-motion while sliders are animating, pause them all.
+  useEffect(() => {
+    if (reducedMotion) {
+      setAnims({});
+    }
+  }, [reducedMotion]);
 
   // When detected parameter list changes:
   //  - Add entries for newly appeared parameters
@@ -435,6 +651,105 @@ export function VariableSliders({ expressions, onChange, className = '' }: Varia
     });
   }, []);
 
+  // ---- Animation controls (React Compiler ON — plain handlers) ----
+
+  const togglePlay = (name: string) => {
+    if (anims[name]) {
+      setAnims((prev) => {
+        const { [name]: _removed, ...rest } = prev;
+        return rest;
+      });
+      return;
+    }
+    // A finished 'once' run restarts from min for an obvious visual cue
+    const cfg = sliders[name];
+    if (cfg && cfg.value >= cfg.max) {
+      handleValueChange(name, cfg.min);
+    }
+    setAnims((prev) => ({ ...prev, [name]: { mode: 'loop', speed: 1, direction: 1 } }));
+  };
+
+  const cycleMode = (name: string) => {
+    setAnims((prev) => {
+      const anim = prev[name];
+      if (!anim) return prev;
+      return { ...prev, [name]: { ...anim, mode: nextMode(anim.mode), direction: 1 } };
+    });
+  };
+
+  const cycleSpeed = (name: string) => {
+    setAnims((prev) => {
+      const anim = prev[name];
+      if (!anim) return prev;
+      return { ...prev, [name]: { ...anim, speed: nextSpeed(anim.speed) } };
+    });
+  };
+
+  // ---- Single component-level rAF driver ----
+  //
+  // The tick is a React 19.3 Effect Event: it reads the LATEST sliders/anims
+  // without being reactive, so the driver effect below only re-subscribes
+  // when animation starts/stops — never per frame or per value change.
+  const tick = useEffectEvent((dt: number) => {
+    for (const [name, anim] of Object.entries(anims)) {
+      const cfg = sliders[name];
+      if (!cfg) {
+        // Parameter vanished (expression edited) — drop its animation
+        setAnims((prev) => {
+          const { [name]: _removed, ...rest } = prev;
+          return rest;
+        });
+        continue;
+      }
+      if (cfg.max - cfg.min <= 0) continue;
+
+      const result = stepSliderValue({
+        value: cfg.value,
+        min: cfg.min,
+        max: cfg.max,
+        mode: anim.mode,
+        speed: anim.speed,
+        direction: anim.direction,
+        dt,
+      });
+
+      if (result.direction !== anim.direction) {
+        setAnims((prev) => {
+          const a = prev[name];
+          return a ? { ...prev, [name]: { ...a, direction: result.direction } } : prev;
+        });
+      }
+
+      if (result.finished) {
+        // 'once' sweep completed — clear the animation entry
+        setAnims((prev) => {
+          const { [name]: _removed, ...rest } = prev;
+          return rest;
+        });
+      }
+
+      // Route through the existing value path so onChange keeps firing
+      handleValueChange(name, result.value);
+    }
+  });
+
+  const hasAnims = Object.keys(anims).length > 0;
+
+  useEffect(() => {
+    if (!hasAnims) return;
+    let rafId = 0;
+    let last = performance.now();
+    const frame = (now: number) => {
+      // Clamp dt so a backgrounded tab doesn't teleport sliders on return
+      const dt = Math.min(now - last, 100);
+      last = now;
+      tick(dt);
+      rafId = requestAnimationFrame(frame);
+    };
+    rafId = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(rafId);
+  }, [hasAnims]);
+
   // Don't render anything when there are no free parameters
   if (paramNames.length === 0) return null;
 
@@ -451,7 +766,7 @@ export function VariableSliders({ expressions, onChange, className = '' }: Varia
         className,
       ].join(' ')}
       role="region"
-      aria-label="Variable parameter sliders"
+      aria-label={t('panelLabel')}
     >
       {/* Subtle gradient overlay */}
       <div
@@ -477,11 +792,11 @@ export function VariableSliders({ expressions, onChange, className = '' }: Varia
               className="size-3.5 text-cyan-400 flex-shrink-0"
               aria-hidden="true"
             />
-            <span className="text-xs font-semibold text-foreground">Parameters</span>
+            <span className="text-xs font-semibold text-foreground">{t('parameters')}</span>
             <span
               className="inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-bold"
               role="img"
-              aria-label={`${paramNames.length} parameter${paramNames.length === 1 ? '' : 's'} detected`}
+              aria-label={t('detected', { count: paramNames.length })}
             >
               {paramNames.length}
             </span>
@@ -507,17 +822,18 @@ export function VariableSliders({ expressions, onChange, className = '' }: Varia
                 {/* Column header labels */}
                 <div className="flex items-center gap-2 pb-1">
                   <span className="flex-shrink-0 w-6" aria-hidden="true" />
+                  <span className="flex-shrink-0 w-5" aria-hidden="true" />
                   <span className="w-14 text-[9px] font-semibold text-muted-foreground text-center uppercase tracking-wide">
-                    min
+                    {t('min')}
                   </span>
                   <span className="flex-1 text-[9px] font-semibold text-muted-foreground text-center uppercase tracking-wide">
-                    drag to adjust
+                    {t('dragToAdjust')}
                   </span>
                   <span className="w-14 text-[9px] font-semibold text-muted-foreground text-center uppercase tracking-wide">
-                    max
+                    {t('max')}
                   </span>
                   <span className="w-14 text-[9px] font-semibold text-muted-foreground text-right uppercase tracking-wide">
-                    value
+                    {t('value')}
                   </span>
                 </div>
 
@@ -530,18 +846,20 @@ export function VariableSliders({ expressions, onChange, className = '' }: Varia
                         key={name}
                         name={name}
                         config={cfg}
+                        anim={anims[name]}
                         onValueChange={handleValueChange}
                         onMinChange={handleMinChange}
                         onMaxChange={handleMaxChange}
+                        onTogglePlay={togglePlay}
+                        onCycleMode={cycleMode}
+                        onCycleSpeed={cycleSpeed}
                       />
                     );
                   })}
                 </AnimatePresence>
 
                 {/* Hint text */}
-                <p className="text-[10px] text-muted-foreground/60 pt-0.5">
-                  Click the min/max labels to edit the range.
-                </p>
+                <p className="text-[10px] text-muted-foreground/60 pt-0.5">{t('editRangeHint')}</p>
               </div>
             </m.div>
           )}

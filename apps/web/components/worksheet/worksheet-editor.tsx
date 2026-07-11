@@ -26,15 +26,29 @@ import {
   ChevronRight,
   Code2,
   Download,
+  Globe,
   Plus,
   RotateCcw,
   Save,
   TrendingUp,
   Upload,
   Variable,
+  Zap,
 } from 'lucide-react';
 import { AnimatePresence, m } from 'motion/react';
-import { type ChangeEvent, type ReactNode, useCallback, useId, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import {
+  type ChangeEvent,
+  type ReactNode,
+  useActionState,
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from 'react';
+import type { ActionResult } from '@/app/actions/problems';
+import { type SetWorksheetVisibilityResult, setWorksheetVisibility } from '@/app/actions/worksheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -42,12 +56,73 @@ import {
   type MathCell,
   useWorksheetActions,
   useWorksheetCells,
+  useWorksheetId,
   useWorksheetTitle,
+  useWorksheetVisibility,
   type WorksheetCell,
 } from '@/lib/stores/worksheet-store';
 import { cn } from '@/lib/utils';
 import { WorksheetCell as CellComponent } from './cell';
 import { CollabBar } from './collab-bar';
+
+// ---------------------------------------------------------------------------
+// Publish-to-gallery toggle (GPU Lab)
+// ---------------------------------------------------------------------------
+
+const initialVisibilityState: ActionResult<SetWorksheetVisibilityResult> = { success: false };
+
+/**
+ * Publishes the current worksheet to the public GPU Lab gallery (visibility
+ * PUBLIC) or takes it private again. Disabled until the worksheet has been
+ * autosaved to the database (worksheetId present — requires sign-in).
+ */
+function PublishButton() {
+  const t = useTranslations('worksheet');
+  const worksheetId = useWorksheetId();
+  const visibility = useWorksheetVisibility();
+  const { setVisibility } = useWorksheetActions();
+  const [state, formAction, isPending] = useActionState(
+    setWorksheetVisibility,
+    initialVisibilityState,
+  );
+
+  // Mirror the server-confirmed visibility into the store
+  useEffect(() => {
+    if (state.success && state.data) {
+      setVisibility(state.data.visibility);
+    }
+  }, [state, setVisibility]);
+
+  const isPublished = visibility === 'PUBLIC';
+  const disabled = worksheetId === null || isPending;
+
+  const handleToggle = () => {
+    if (!worksheetId) return;
+    const fd = new FormData();
+    fd.set('worksheetId', worksheetId);
+    fd.set('visibility', isPublished ? 'PRIVATE' : 'PUBLIC');
+    formAction(fd);
+  };
+
+  return (
+    <Button
+      variant={isPublished ? 'secondary' : 'outline'}
+      size="sm"
+      className="gap-2 text-xs h-8"
+      onClick={handleToggle}
+      disabled={disabled}
+      title={worksheetId === null ? t('publishHint') : undefined}
+      aria-label={isPublished ? t('unpublish') : t('publish')}
+      aria-pressed={isPublished}
+    >
+      <Globe
+        className={cn('size-3.5', isPublished ? 'text-cyan-400' : undefined)}
+        aria-hidden="true"
+      />
+      <span className="hidden sm:inline">{isPublished ? t('published') : t('publish')}</span>
+    </Button>
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Toolbar — title + global actions
@@ -149,6 +224,8 @@ function Toolbar({ titleInputId }: ToolbarProps) {
           <span className="hidden sm:inline">Export</span>
         </Button>
 
+        <PublishButton />
+
         <Button
           variant="outline"
           size="sm"
@@ -238,6 +315,11 @@ function AddCellStrip({ afterId, label }: AddCellStripProps) {
       kind: 'plot',
       icon: <TrendingUp className="size-3.5" aria-hidden="true" />,
       label: 'Add plot cell',
+    },
+    {
+      kind: 'simulation',
+      icon: <Zap className="size-3.5" aria-hidden="true" />,
+      label: 'Add simulation cell',
     },
   ];
 
@@ -374,6 +456,12 @@ function EmptyState({ onAdd }: { onAdd: (kind: CellKind) => void }) {
             label: 'Plot cell',
             color: 'text-purple-400',
           },
+          {
+            kind: 'simulation' as CellKind,
+            icon: Zap,
+            label: 'Simulation cell',
+            color: 'text-cyan-400',
+          },
         ].map(({ kind, icon: Icon, label, color }) => (
           <Button
             key={kind}
@@ -472,6 +560,12 @@ function AddCellFAB() {
       icon: <TrendingUp className="size-4" aria-hidden="true" />,
       label: 'Add Plot',
       color: 'bg-purple-600 hover:bg-purple-500',
+    },
+    {
+      kind: 'simulation',
+      icon: <Zap className="size-4" aria-hidden="true" />,
+      label: 'Add Simulation',
+      color: 'bg-cyan-600 hover:bg-cyan-500',
     },
   ];
 

@@ -61,7 +61,8 @@
     "templates": "Templates",
     "templatesDescription": "Ready-to-use calculation templates",
     "worksheets": "My Worksheets",
-    "worksheetsDescription": "View and manage your saved worksheets"
+    "worksheetsDescription": "View and manage your saved worksheets",
+    "gpuLab": "GPU Lab"
   },
   "common": {
     "language": "Language",
@@ -536,7 +537,61 @@
     "cellType": {
       "code": "Code",
       "markdown": "Markdown"
-    }
+    },
+    "simulation": {
+      "label": "Simulation",
+      "addCell": "Add simulation cell",
+      "heat": "Heat",
+      "wave": "Wave",
+      "laplace": "Laplace",
+      "lorenz": "Lorenz",
+      "directionField": "Direction field",
+      "preset": "Preset",
+      "parameters": "Parameters",
+      "play": "Play",
+      "pause": "Pause",
+      "reset": "Reset",
+      "dismiss": "Dismiss",
+      "webgpuFallback": "WebGPU isn't available in this browser — running on the WebGL fallback renderer.",
+      "noGpu": "This simulation needs GPU acceleration (WebGPU or WebGL 2), which isn't available in this browser.",
+      "unknownKind": "Unknown simulation type \"{kind}\" — this cell was created in a newer version of NextCalc.",
+      "params": {
+        "alpha": "Diffusivity α",
+        "waveSpeed": "Wave speed c",
+        "relaxation": "Relaxation α",
+        "sigma": "Sigma σ",
+        "rho": "Rho ρ",
+        "beta": "Beta β",
+        "steps": "Trajectory steps",
+        "preyGrowth": "Prey growth a",
+        "predatorDeath": "Predator death b",
+        "mu": "Damping μ",
+        "spiralDamping": "Spiral damping α",
+        "damping": "Damping γ"
+      },
+      "presets": {
+        "center": "Center",
+        "line": "Line",
+        "corners": "Corners",
+        "ring": "Ring",
+        "cross": "Cross",
+        "gaussian": "Gaussians",
+        "random": "Random",
+        "doubleGaussian": "Double Gaussian",
+        "sawtooth": "Sawtooth",
+        "squarePulse": "Square pulse",
+        "sinc": "Sinc",
+        "classic": "Classic",
+        "lotka-volterra": "Lotka–Volterra",
+        "van-der-pol": "Van der Pol",
+        "stable-spiral": "Stable spiral",
+        "pendulum": "Pendulum"
+      }
+    },
+    "publish": "Publish",
+    "unpublish": "Unpublish",
+    "published": "Published",
+    "publishHint": "Sign in and let the worksheet autosave before publishing to the GPU Lab gallery."
   },
   "settings": {
     "title": "Settings",
@@ -1393,6 +1448,29 @@
       "dataRegression": "Data & Regression",
       "2dRelation": "2D Relations"
     },
+    "sliders": {
+      "parameters": "Parameters",
+      "dragToAdjust": "drag to adjust",
+      "min": "min",
+      "max": "max",
+      "value": "value",
+      "editRangeHint": "Click the min/max labels to edit the range.",
+      "play": "Play animation for {name}",
+      "pause": "Pause animation for {name}",
+      "animationMode": "Animation mode for {name}",
+      "modeLoop": "Loop",
+      "modeBounce": "Bounce",
+      "modeOnce": "Once",
+      "speed": "Animation speed for {name}: {speed}x",
+      "minFor": "minimum for {name}",
+      "maxFor": "maximum for {name}",
+      "editBound": "Edit {label} (currently {value})",
+      "editBoundTitle": "Click to edit {label}",
+      "sliderAria": "Parameter {name}, current value {value}, range {min} to {max}",
+      "valueAria": "{name} equals {value}",
+      "panelLabel": "Variable parameter sliders",
+      "detected": "{count, plural, one {# parameter detected} other {# parameters detected}}"
+    },
     "regression": {
       "title": "Data & Regression",
       "dataTitle": "Data table",
@@ -1869,6 +1947,15 @@
       "complexNumbers": "Complex Numbers",
       "complexNumbersSubtitle": "Argand Diagram & Forms"
     }
+  },
+  "gpuLab": {
+    "title": "GPU Lab",
+    "description": "A public gallery of interactive GPU simulations — heat and wave equations, the Lorenz attractor, and direction fields from community worksheets.",
+    "empty": "No published simulations yet. Add a simulation cell to a worksheet and publish it to share it here.",
+    "openWorksheet": "Open worksheet",
+    "by": "by {name}",
+    "views": "{count, plural, one {# view} other {# views}}",
+    "updated": "Updated {time}"
   },
   "checkWork": {
     "title": "Check my work",

@@ -162,6 +162,14 @@ const PAGE_COMMANDS = [
     href: '/pde/3d',
   },
   {
+    id: 'page-gpu-lab',
+    label: 'GPU Lab',
+    description: 'Public gallery of shared GPU simulations',
+    icon: Zap,
+    keywords: ['gpu', 'simulation', 'gallery', 'webgpu', 'lab', 'lorenz', 'heatmap', 'worksheet'],
+    href: '/gpu-lab',
+  },
+  {
     id: 'page-ode',
     label: 'ODE Solver',
     description: 'Ordinary differential equations with phase plane',

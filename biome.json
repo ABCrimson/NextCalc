@@ -112,6 +112,7 @@
         "apps/web/components/calculator/eigen-panel.tsx",
         "apps/web/components/calculator/unit-converter.tsx",
         "apps/web/components/profile/level-utils.ts",
+        "apps/web/lib/simulation/initial-conditions.ts",
         "apps/web/app/**/pde/**",
         "apps/web/app/**/graphs-full/**",
         "apps/web/app/**/solver/**",
