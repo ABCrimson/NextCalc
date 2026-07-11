@@ -72,6 +72,10 @@ export const linearEquationTemplate = createTemplate({
   tags: ['linear', 'equations', 'solving'],
   prerequisites: ['arithmetic', 'variables'],
   learningObjectives: ['Solve linear equations', 'Apply inverse operations'],
+  canonical: (params) => {
+    const { a, b, c } = narrow<{ a: number; b: number; c: number }>(params);
+    return { kind: 'solutions', equation: `${a}*x + ${b} = ${c}`, variable: 'x' };
+  },
 });
 
 /**
@@ -154,6 +158,11 @@ export const quadraticEquationTemplate = createTemplate({
   tags: ['quadratic', 'equations', 'formula'],
   prerequisites: ['algebra', 'square-roots'],
   learningObjectives: ['Apply quadratic formula', 'Calculate discriminant'],
+  canonical: (params) => {
+    const { a, b, c } = narrow<{ a: number; b: number; c: number }>(params);
+    // The discriminant >= 0 constraint guarantees real roots
+    return { kind: 'solutions', equation: `${a}*x^2 + ${b}*x + ${c} = 0`, variable: 'x' };
+  },
 });
 
 /**
@@ -171,19 +180,21 @@ export const systemLinearTemplate = createTemplate({
     { name: 'b1', type: 'integer', min: 1, max: 5 },
     { name: 'c1', type: 'integer', min: 1, max: 20 },
     { name: 'a2', type: 'integer', min: 1, max: 5 },
-    { name: 'b2', type: 'integer', min: 1, max: 5 },
     {
-      name: 'c2',
+      name: 'b2',
       type: 'integer',
       min: 1,
-      max: 20,
-      constraint: (_c2, params) => {
-        // Ensure unique solution (determinant != 0)
-        const det =
-          (params['a1'] ?? 0) * (params['b2'] ?? 0) - (params['a2'] ?? 0) * (params['b1'] ?? 0);
+      max: 5,
+      // Ensure unique solution (determinant != 0). The constraint must sit
+      // on b2 — the last parameter the determinant depends on — so retrying
+      // it can actually repair a singular draw (at most one b2 in range is
+      // bad for any fixed a1, b1, a2).
+      constraint: (b2, params) => {
+        const det = (params['a1'] ?? 0) * b2 - (params['a2'] ?? 0) * (params['b1'] ?? 0);
         return det !== 0;
       },
     },
+    { name: 'c2', type: 'integer', min: 1, max: 20 },
   ],
   solution: (params) => {
     const { a1, b1, c1, a2, b2, c2 } = narrow<{
@@ -227,6 +238,21 @@ export const systemLinearTemplate = createTemplate({
   tags: ['systems', 'linear-equations', 'simultaneous'],
   prerequisites: ['linear-equations', 'substitution'],
   learningObjectives: ['Solve systems of equations', "Apply Cramer's rule"],
+  canonical: (params) => {
+    const { a1, b1, c1, a2, b2, c2 } = narrow<{
+      a1: number;
+      b1: number;
+      c1: number;
+      a2: number;
+      b2: number;
+      c2: number;
+    }>(params);
+    // Same Cramer's-rule arithmetic as the solution generator — exact values
+    const det = a1 * b2 - a2 * b1;
+    const x = (c1 * b2 - c2 * b1) / det;
+    const y = (a1 * c2 - a2 * c1) / det;
+    return { kind: 'assignments', variables: ['x', 'y'], values: [x, y] };
+  },
 });
 
 /**
@@ -308,6 +334,12 @@ export const factorizationTemplate = createTemplate({
   tags: ['factoring', 'polynomials', 'quadratics'],
   prerequisites: ['polynomials', 'multiplication'],
   learningObjectives: ['Factor quadratic expressions'],
+  canonical: (params) => {
+    const { b, c } = narrow<{ b: number; c: number }>(params);
+    // Equivalence-graded: any correct factoring of x^2 + bx + c is
+    // mathematically equivalent to the original polynomial.
+    return { kind: 'expression', expression: `x^2 + ${b}*x + ${c}`, variable: 'x' };
+  },
 });
 
 /**
@@ -430,6 +462,16 @@ export const absoluteValueTemplate = createTemplate({
   tags: ['absolute-value', 'equations'],
   prerequisites: ['absolute-value-concept', 'linear-equations'],
   learningObjectives: ['Solve absolute value equations', 'Handle multiple cases'],
+  canonical: (params) => {
+    const { a, b } = narrow<{ a: number; b: number }>(params);
+    // |x + a| = b (b >= 1 > 0) is exactly the quadratic (x + a)^2 = b^2,
+    // expanded here so the closed-form quadratic solver applies.
+    return {
+      kind: 'solutions',
+      equation: `x^2 + ${2 * a}*x + ${a * a - b * b} = 0`,
+      variable: 'x',
+    };
+  },
 });
 
 /**
@@ -476,6 +518,12 @@ export const radicalEquationTemplate = createTemplate({
   tags: ['radicals', 'equations', 'square-roots'],
   prerequisites: ['radicals', 'exponents'],
   learningObjectives: ['Solve radical equations', 'Check for extraneous solutions'],
+  canonical: (params) => {
+    const { a, b } = narrow<{ a: number; b: number }>(params);
+    // sqrt(x + a) = b with b >= 1 has the unique non-extraneous solution
+    // of the squared linear equation x + a = b^2.
+    return { kind: 'solutions', equation: `x + ${a} = ${b * b}`, variable: 'x' };
+  },
 });
 
 /**
@@ -536,6 +584,14 @@ export const rationalSimplificationTemplate = createTemplate({
   tags: ['rational-expressions', 'simplification', 'fractions'],
   prerequisites: ['fractions', 'factoring'],
   learningObjectives: ['Simplify rational expressions', 'Find common factors'],
+  canonical: (params) => {
+    const { a, b, c, d } = narrow<{ a: number; b: number; c: number; d: number }>(params);
+    return {
+      kind: 'expression',
+      expression: `(${a}*x + ${b})/(${c}*x + ${d})`,
+      variable: 'x',
+    };
+  },
 });
 
 /**

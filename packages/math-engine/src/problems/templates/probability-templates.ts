@@ -56,6 +56,10 @@ export const basicProbabilityTemplate = createTemplate({
   tags: ['probability', 'basic'],
   prerequisites: ['fractions', 'counting'],
   learningObjectives: ['Calculate basic probability'],
+  canonical: (params) => {
+    const { red, blue } = narrow<{ red: number; blue: number }>(params);
+    return { kind: 'number', value: red / (red + blue) };
+  },
 });
 
 /**
@@ -122,6 +126,10 @@ export const combinationsTemplate = createTemplate({
   tags: ['combinations', 'combinatorics'],
   prerequisites: ['factorials'],
   learningObjectives: ['Calculate combinations'],
+  canonical: (params) => {
+    const { n, r } = narrow<{ n: number; r: number }>(params);
+    return { kind: 'number', value: combinations(n, r) };
+  },
 });
 
 /**
@@ -175,6 +183,10 @@ export const permutationsTemplate = createTemplate({
   tags: ['permutations', 'combinatorics'],
   prerequisites: ['factorials'],
   learningObjectives: ['Calculate permutations'],
+  canonical: (params) => {
+    const { n, r } = narrow<{ n: number; r: number }>(params);
+    return { kind: 'number', value: permutations(n, r) };
+  },
 });
 
 /**

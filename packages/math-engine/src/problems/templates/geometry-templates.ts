@@ -52,6 +52,11 @@ export const pythagoreanTemplate = createTemplate({
   tags: ['pythagorean', 'right-triangles', 'geometry'],
   prerequisites: ['squares', 'square-roots'],
   learningObjectives: ['Apply Pythagorean theorem'],
+  canonical: (params) => {
+    const { a, b } = narrow<{ a: number; b: number }>(params);
+    // Relative tolerance so rounded decimal answers (e.g. 5.83) pass
+    return { kind: 'number', value: Math.sqrt(a * a + b * b), tolerance: 1e-3 };
+  },
 });
 
 /**
@@ -95,6 +100,12 @@ export const circleAreaTemplate = createTemplate({
   tags: ['circles', 'area', 'geometry'],
   prerequisites: ['pi', 'exponents'],
   learningObjectives: ['Calculate circle area'],
+  canonical: (params) => {
+    const { r } = narrow<{ r: number }>(params);
+    // π-answer: graded numerically with relative tolerance; symbolic
+    // input like "16*pi" evaluates exactly, decimals like 50.27 also pass
+    return { kind: 'number', value: Math.PI * r * r, tolerance: 1e-3 };
+  },
 });
 
 /**
@@ -129,6 +140,10 @@ export const cylinderVolumeTemplate = createTemplate({
   tags: ['cylinders', 'volume', '3d-geometry'],
   prerequisites: ['circles', 'area', 'volume'],
   learningObjectives: ['Calculate cylinder volume'],
+  canonical: (params) => {
+    const { r, h } = narrow<{ r: number; h: number }>(params);
+    return { kind: 'number', value: Math.PI * r * r * h, tolerance: 1e-3 };
+  },
 });
 
 /**
@@ -178,6 +193,12 @@ export const distanceFormulaTemplate = createTemplate({
   tags: ['distance', 'coordinate-geometry'],
   prerequisites: ['pythagorean-theorem', 'coordinates'],
   learningObjectives: ['Apply distance formula'],
+  canonical: (params) => {
+    const { x1, y1, x2, y2 } = narrow<{ x1: number; y1: number; x2: number; y2: number }>(params);
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    return { kind: 'number', value: Math.sqrt(dx * dx + dy * dy), tolerance: 1e-3 };
+  },
 });
 
 /**

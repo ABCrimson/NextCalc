@@ -74,6 +74,10 @@ export const gcdTemplate = createTemplate({
   tags: ['gcd', 'euclidean-algorithm'],
   prerequisites: ['division', 'remainders'],
   learningObjectives: ['Calculate GCD'],
+  canonical: (params) => {
+    const { a, b } = narrow<{ a: number; b: number }>(params);
+    return { kind: 'number', value: gcd(a, b) };
+  },
 });
 
 /**
@@ -112,6 +116,10 @@ export const modularArithmeticTemplate = createTemplate({
   tags: ['modular-arithmetic', 'congruences'],
   prerequisites: ['division', 'remainders'],
   learningObjectives: ['Perform modular arithmetic'],
+  canonical: (params) => {
+    const { a, m } = narrow<{ a: number; m: number }>(params);
+    return { kind: 'number', value: a % m };
+  },
 });
 
 /**
