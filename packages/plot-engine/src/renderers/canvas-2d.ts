@@ -1,13 +1,14 @@
 /**
  * Canvas 2D Renderer — minimal fallback for browsers without WebGL2/WebGPU.
  *
- * Supports 2D Cartesian, polar, and parametric plots using the Canvas 2D API.
- * No shader compilation required — works on every browser, including legacy
- * mobile devices and environments where GPU acceleration is disabled.
+ * Supports 2D Cartesian, polar, parametric, implicit, and relation plots
+ * (shaded inequality regions via batched Path2D fills) using the Canvas 2D
+ * API. No shader compilation required — works on every browser, including
+ * legacy mobile devices and environments where GPU acceleration is disabled.
  *
  * Limitations vs GPU renderers:
  * - No instanced grid rendering (drawn line-by-line instead)
- * - No implicit/vector-field support (throws descriptive error)
+ * - No vector-field support (throws descriptive error)
  * - Lower throughput for high-density plots (>10k points)
  *
  * @module renderers/canvas-2d
@@ -18,13 +19,25 @@ import type {
   IRenderer,
   PerformanceMetrics,
   Plot2DCartesianConfig,
+  Plot2DImplicitConfig,
   Plot2DParametricConfig,
   Plot2DPolarConfig,
+  Plot2DRelationConfig,
   PlotConfig,
   RenderBackend,
   Viewport,
 } from '../types/index';
+import {
+  combineIntersectionGrids,
+  DEFAULT_FIELD_RESOLUTION,
+  ScalarFieldCache,
+} from '../utils/implicit-field';
+import { marchingSquares, marchingSquaresFilledTriangles } from '../utils/marching-squares';
 import { CartesianSampleCache } from '../utils/sample-cache';
+
+/** Dash/gap length for strict-inequality boundaries, in canvas pixels. */
+const STRICT_DASH_PX = 10;
+const STRICT_GAP_PX = 6;
 
 /** Resolve a Color union to a CSS string */
 function colorToCSS(c: Color | undefined, fallback: string): string {
@@ -48,6 +61,10 @@ export class Canvas2DRenderer implements IRenderer {
   // Adaptive-sample cache for Cartesian y = f(x) functions, keyed by
   // function identity + viewport domain (see utils/sample-cache.ts)
   private sampleCache: CartesianSampleCache = new CartesianSampleCache();
+
+  // Scalar-field cache for implicit/relation plots, keyed by field-closure
+  // identity + viewport + resolution (see utils/implicit-field.ts)
+  private fieldCache: ScalarFieldCache = new ScalarFieldCache();
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -81,9 +98,15 @@ export class Canvas2DRenderer implements IRenderer {
       case '2d-parametric':
         this.renderParametric(config);
         break;
+      case '2d-implicit':
+        this.renderImplicit(config);
+        break;
+      case '2d-relation':
+        this.renderRelation(config);
+        break;
       default:
         throw new Error(
-          `Canvas2DRenderer: plot type "${config.type}" is not supported in fallback mode. Use a WebGL-capable browser for full functionality.`,
+          `Canvas2DRenderer: plot type "${config.type}" is not supported in fallback mode (2D Cartesian, polar, parametric, implicit, and relation plots are). Use a WebGL-capable browser for full functionality.`,
         );
     }
 
@@ -98,6 +121,7 @@ export class Canvas2DRenderer implements IRenderer {
 
   dispose(): void {
     this.sampleCache.clear();
+    this.fieldCache.clear();
     this.ctx = null;
   }
 
@@ -447,5 +471,221 @@ export class Canvas2DRenderer implements IRenderer {
       ctx.stroke();
       this.drawCalls++;
     }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Implicit
+  // ---------------------------------------------------------------------------
+
+  private renderImplicit(config: Plot2DImplicitConfig): void {
+    const { fn, viewport, resolution = { x: 200, y: 200 }, style } = config;
+
+    this.clear();
+
+    if (config.xAxis?.grid.enabled && config.yAxis) {
+      this.drawGrid(
+        viewport,
+        colorToCSS(config.xAxis.grid.color, 'rgba(255,255,255,0.1)'),
+        config.xAxis.grid.opacity,
+        config.xAxis.grid.majorStep,
+        config.yAxis.grid.majorStep,
+      );
+    }
+    this.drawAxes(viewport, 'rgba(255,255,255,0.6)');
+
+    const field = this.fieldCache.get(fn, viewport, resolution);
+    const contours = marchingSquares(field.grid, 0, field.dx, field.dy, viewport);
+
+    const color =
+      style?.line?.color && typeof style.line.color === 'string' ? style.line.color : '#f59e0b';
+    this.strokeContours(contours, viewport, color, style?.line?.width ?? 2, false);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Relation (implicit curves + shaded inequality regions)
+  // ---------------------------------------------------------------------------
+
+  private renderRelation(config: Plot2DRelationConfig): void {
+    const ctx = this.ctx!;
+    const { viewport, resolution = DEFAULT_FIELD_RESOLUTION } = config;
+
+    this.clear();
+
+    if (config.xAxis && config.yAxis) {
+      if (config.xAxis.grid.enabled) {
+        this.drawGrid(
+          viewport,
+          colorToCSS(config.xAxis.grid.color, 'rgba(255,255,255,0.1)'),
+          config.xAxis.grid.opacity,
+          config.xAxis.grid.majorStep,
+          config.yAxis.grid.majorStep,
+        );
+      }
+    } else {
+      this.drawGrid(viewport, 'rgba(255,255,255,0.1)', 0.3, 1, 1);
+    }
+    this.drawAxes(viewport, 'rgba(255,255,255,0.6)');
+
+    // Explicit y = f(x) functions rendered alongside the relations
+    const defaultColors = ['#38bdf8', '#f472b6', '#a78bfa', '#34d399'] as const;
+    const explicit = config.explicitFunctions ?? [];
+    let colorIdx = 0;
+    for (const fn of explicit) {
+      const lineColor = colorToCSS(
+        fn.style?.line?.color,
+        defaultColors[colorIdx % defaultColors.length] ?? '#38bdf8',
+      );
+      colorIdx++;
+
+      ctx.strokeStyle = lineColor;
+      ctx.lineWidth = fn.style?.line?.width ?? 2;
+      ctx.lineJoin = 'round';
+      ctx.setLineDash([]);
+      ctx.beginPath();
+
+      const points = this.sampleCache.get(fn.fn, viewport.xMin, viewport.xMax);
+      this.pointCount += points.length;
+
+      let started = false;
+      for (const point of points) {
+        if (!Number.isFinite(point.y)) {
+          started = false;
+          continue;
+        }
+        const cx = this.worldToCanvasX(point.x, viewport);
+        const cy = this.worldToCanvasY(point.y, viewport);
+        if (!started) {
+          ctx.moveTo(cx, cy);
+          started = true;
+        } else {
+          ctx.lineTo(cx, cy);
+        }
+      }
+
+      ctx.stroke();
+      this.drawCalls++;
+    }
+
+    // Sample every relation's field once (cached per fn identity + viewport)
+    const fields = config.relations.map((rel) =>
+      this.fieldCache.get(rel.field, viewport, resolution),
+    );
+
+    const relationColors = ['#06b6d4', '#a855f7', '#10b981', '#f59e0b', '#ef4444'];
+    const lineColorOf = (index: number): string => {
+      const rel = config.relations[index]!;
+      return rel.style?.line?.color && typeof rel.style.line.color === 'string'
+        ? rel.style.line.color
+        : (relationColors[index % relationColors.length] ?? '#06b6d4');
+    };
+
+    // --- Region fills (batched Path2D per layer set) ----------------------
+    const fillable = config.relations
+      .map((rel, index) => ({ rel, index }))
+      .filter(({ rel }) => rel.op !== '=');
+
+    const layerSets: number[][] = [];
+    if (config.combine === 'intersection') {
+      if (fillable.length > 0) layerSets.push(fillable.map((entry) => entry.index));
+    } else {
+      const grouped = new Map<number, number[]>();
+      for (const { rel, index } of fillable) {
+        if (rel.group !== undefined) {
+          const set = grouped.get(rel.group);
+          if (set) {
+            set.push(index);
+          } else {
+            grouped.set(rel.group, [index]);
+          }
+        } else {
+          layerSets.push([index]);
+        }
+      }
+      layerSets.push(...grouped.values());
+    }
+
+    for (const indices of layerSets) {
+      const layers = indices.map((index) => {
+        const op = config.relations[index]!.op;
+        return {
+          grid: fields[index]!.grid,
+          dir: (op === '<' || op === '<=' ? -1 : 1) as 1 | -1,
+        };
+      });
+      const combined = combineIntersectionGrids(layers);
+      const first = fields[indices[0]!]!;
+      const triangles = marchingSquaresFilledTriangles(combined, 0, first.dx, first.dy, viewport);
+      if (triangles.length === 0) continue;
+
+      const path = new Path2D();
+      for (let t = 0; t + 5 < triangles.length; t += 6) {
+        path.moveTo(
+          this.worldToCanvasX(triangles[t]!, viewport),
+          this.worldToCanvasY(triangles[t + 1]!, viewport),
+        );
+        path.lineTo(
+          this.worldToCanvasX(triangles[t + 2]!, viewport),
+          this.worldToCanvasY(triangles[t + 3]!, viewport),
+        );
+        path.lineTo(
+          this.worldToCanvasX(triangles[t + 4]!, viewport),
+          this.worldToCanvasY(triangles[t + 5]!, viewport),
+        );
+        path.closePath();
+      }
+
+      const rel = config.relations[indices[0]!]!;
+      const fill = rel.style?.fill;
+      ctx.globalAlpha = fill?.opacity ?? 0.25;
+      ctx.fillStyle = fill
+        ? colorToCSS(fill.color, lineColorOf(indices[0]!))
+        : lineColorOf(indices[0]!);
+      ctx.fill(path);
+      ctx.globalAlpha = 1;
+      this.drawCalls++;
+    }
+
+    // --- Boundary contours -------------------------------------------------
+    config.relations.forEach((rel, i) => {
+      const field = fields[i]!;
+      const contours = marchingSquares(field.grid, 0, field.dx, field.dy, viewport);
+      const strict = rel.op === '<' || rel.op === '>';
+      this.strokeContours(contours, viewport, lineColorOf(i), rel.style?.line?.width ?? 2, strict);
+    });
+  }
+
+  /** Strokes marching-squares contours, dashed when `strict` is true. */
+  private strokeContours(
+    contours: Array<{ points: Array<{ x: number; y: number }> }>,
+    vp: Omit<Viewport, 'zMin' | 'zMax'>,
+    color: string,
+    width: number,
+    strict: boolean,
+  ): void {
+    const ctx = this.ctx!;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.lineJoin = 'round';
+    ctx.setLineDash(strict ? [STRICT_DASH_PX, STRICT_GAP_PX] : []);
+
+    ctx.beginPath();
+    for (const contour of contours) {
+      if (contour.points.length < 2) continue;
+      this.pointCount += contour.points.length;
+      let started = false;
+      for (const point of contour.points) {
+        const cx = this.worldToCanvasX(point.x, vp);
+        const cy = this.worldToCanvasY(point.y, vp);
+        if (!started) {
+          ctx.moveTo(cx, cy);
+          started = true;
+        } else {
+          ctx.lineTo(cx, cy);
+        }
+      }
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+    this.drawCalls++;
   }
 }
