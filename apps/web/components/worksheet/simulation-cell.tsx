@@ -60,6 +60,7 @@ import {
   SIM_REGISTRY,
   SIMULATION_KINDS,
   type SimulationKind,
+  sanitizeSimParams,
 } from '@/lib/simulation/registry';
 import { type SimulationCell, useWorksheetActions } from '@/lib/stores/worksheet-store';
 import { cn } from '@/lib/utils';
@@ -211,8 +212,15 @@ export function SimulationCellContent({ cell, cellIndex }: SimulationCellContent
   }
 
   // ---- Lorenz trajectory (deferred so slider drags stay responsive) ----
+  // Stored params are clamped to their spec bounds before any compute:
+  // worksheet content is untrusted (forked gallery worksheets are
+  // author-controlled JSON), and e.g. a crafted `steps` value would
+  // otherwise drive an arbitrarily long CPU trajectory loop.
   const deferredParams = useDeferredValue(cell.params);
-  const lorenzData = cell.sim === 'lorenz' ? computeLorenzTrajectory(deferredParams) : null;
+  const lorenzData =
+    cell.sim === 'lorenz'
+      ? computeLorenzTrajectory(sanitizeSimParams('lorenz', cell.preset, deferredParams))
+      : null;
 
   // ---- Handlers (React Compiler ON — no manual memoization) ----
 
@@ -259,6 +267,7 @@ export function SimulationCellContent({ cell, cellIndex }: SimulationCellContent
 
   const registry = SIM_REGISTRY[cell.sim];
   const paramSpecs = getSimParams(cell.sim, cell.preset);
+  const safeParams = sanitizeSimParams(cell.sim, cell.preset, cell.params);
   const presets = registry.presets;
   const noGpuForLorenz = cell.sim === 'lorenz' && backend === 'canvas2d';
   const dfPreset =
@@ -341,7 +350,7 @@ export function SimulationCellContent({ cell, cellIndex }: SimulationCellContent
       >
         <legend className="sr-only">{t('parameters')}</legend>
         {paramSpecs.map((spec) => {
-          const value = cell.params[spec.key] ?? spec.default;
+          const value = safeParams[spec.key] ?? spec.default;
           return (
             <div key={spec.key} className="flex items-center gap-3">
               <span
@@ -413,7 +422,7 @@ export function SimulationCellContent({ cell, cellIndex }: SimulationCellContent
               smoothing
               gpuSolverEnabled={running}
               equationType={PDE_EQUATION[cell.sim]}
-              solverAlpha={cell.params['alpha'] ?? cell.params['c'] ?? 0.1}
+              solverAlpha={safeParams['alpha'] ?? safeParams['c'] ?? 0.1}
             />
           </div>
         )}
@@ -440,12 +449,12 @@ export function SimulationCellContent({ cell, cellIndex }: SimulationCellContent
                 xMax={dfPreset.xMax}
                 yMin={dfPreset.yMin}
                 yMax={dfPreset.yMax}
-                f={(x, y) => dfPreset.f(x, y, cell.params)}
-                g={(x, y) => dfPreset.g(x, y, cell.params)}
+                f={(x, y) => dfPreset.f(x, y, safeParams)}
+                g={(x, y) => dfPreset.g(x, y, safeParams)}
                 equationType={dfPreset.equationType}
                 params={[
-                  cell.params['param0'] ?? dfPreset.params[0]?.default ?? 0,
-                  cell.params['param1'] ?? dfPreset.params[1]?.default ?? 0,
+                  safeParams['param0'] ?? dfPreset.params[0]?.default ?? 0,
+                  safeParams['param1'] ?? dfPreset.params[1]?.default ?? 0,
                 ]}
                 gridN={48}
                 opacity={0.85}

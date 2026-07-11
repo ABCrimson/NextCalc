@@ -7,6 +7,7 @@ import {
   isSimulationKind,
   SIM_REGISTRY,
   SIMULATION_KINDS,
+  sanitizeSimParams,
 } from '@/lib/simulation/registry';
 import en from '@/messages/en.json';
 
@@ -159,6 +160,56 @@ describe('SIM_REGISTRY', () => {
     it('returns the first registry preset for non-direction-field kinds', () => {
       expect(DEFAULT_PRESET('lorenz')).toBe(SIM_REGISTRY['lorenz'].presets[0]);
       expect(DEFAULT_PRESET('pde-heat')).toBe(SIM_REGISTRY['pde-heat'].presets[0]);
+    });
+  });
+
+  describe('sanitizeSimParams', () => {
+    // Worksheet content is untrusted: forked/public gallery worksheets are
+    // author-controlled JSON, so stored params must be clamped before any
+    // compute (a crafted lorenz `steps` would otherwise drive an unbounded
+    // CPU trajectory loop — the sliders only clamp locally-written values).
+    it('clamps out-of-range values to the spec bounds', () => {
+      const safe = sanitizeSimParams('lorenz', 'classic', {
+        sigma: -100,
+        rho: 1e9,
+        beta: 2,
+        steps: 1e9,
+      });
+      expect(safe['sigma']).toBe(0);
+      expect(safe['rho']).toBe(60);
+      expect(safe['beta']).toBe(2);
+      expect(safe['steps']).toBe(5000);
+    });
+
+    it('replaces non-finite and non-numeric values with the spec default', () => {
+      const safe = sanitizeSimParams('lorenz', 'classic', {
+        sigma: Number.NaN,
+        rho: Number.POSITIVE_INFINITY,
+        steps: 'evil' as unknown as number,
+      });
+      expect(safe['sigma']).toBe(10);
+      expect(safe['rho']).toBe(28);
+      expect(safe['beta']).toBe(8 / 3);
+      expect(safe['steps']).toBe(2000);
+    });
+
+    it('drops unknown keys and fills every declared spec key', () => {
+      const safe = sanitizeSimParams('pde-heat', 'center', { __proto__evil: 1 });
+      expect(Object.keys(safe).sort()).toEqual(
+        getSimParams('pde-heat', 'center')
+          .map((s) => s.key)
+          .sort(),
+      );
+    });
+
+    it('uses the active direction-field preset spec, not the registry default', () => {
+      const specs = getSimParams('direction-field', 'van-der-pol');
+      const firstKey = specs[0]?.key;
+      if (!firstKey) throw new Error('van-der-pol preset declares no params');
+      const safe = sanitizeSimParams('direction-field', 'van-der-pol', {
+        [firstKey]: Number.MAX_VALUE,
+      });
+      expect(safe[firstKey]).toBe(specs[0]?.max);
     });
   });
 });

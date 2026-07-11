@@ -246,6 +246,29 @@ export function getSimParams(kind: SimulationKind, preset: string): readonly Sim
   return SIM_REGISTRY[kind].params;
 }
 
+/**
+ * Clamp a stored params map to its spec bounds. Worksheet content is
+ * untrusted input — forked/public gallery worksheets arrive from the server
+ * as author-controlled JSON, so out-of-range or non-finite values must never
+ * reach the renderers (e.g. a crafted `steps` would drive an unbounded
+ * CPU trajectory loop; the sliders only clamp values written locally).
+ */
+export function sanitizeSimParams(
+  kind: SimulationKind,
+  preset: string,
+  params: Readonly<Record<string, number>>,
+): Record<string, number> {
+  const safe: Record<string, number> = {};
+  for (const spec of getSimParams(kind, preset)) {
+    const raw = params[spec.key];
+    safe[spec.key] =
+      typeof raw === 'number' && Number.isFinite(raw)
+        ? Math.min(spec.max, Math.max(spec.min, raw))
+        : spec.default;
+  }
+  return safe;
+}
+
 /** Default preset name for a kind. */
 export function DEFAULT_PRESET(kind: SimulationKind): string {
   if (kind === 'direction-field') return DEFAULT_DIRECTION_FIELD_PRESET;
