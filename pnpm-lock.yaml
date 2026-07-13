@@ -46,8 +46,8 @@ importers:
         specifier: 4.23.0
         version: 4.23.0
       turbo:
-        specifier: 2.10.5-canary.4
-        version: 2.10.5-canary.4
+        specifier: 2.10.5-canary.6
+        version: 2.10.5-canary.6
       typescript:
         specifier: 7.1.0-dev.20260708.3
         version: 7.1.0-dev.20260708.3
@@ -62,7 +62,7 @@ importers:
         version: 5.5.1(graphql@17.0.2)
       '@as-integrations/next':
         specifier: 4.1.0
-        version: 4.1.0(@apollo/server@5.5.1(graphql@17.0.2))(next@16.3.0-preview.5(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708))
+        version: 4.1.0(@apollo/server@5.5.1(graphql@17.0.2))(next@16.3.0-preview.5(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708))
       '@graphql-tools/graphql-file-loader':
         specifier: 8.1.16
         version: 8.1.16(graphql@17.0.2)
@@ -110,7 +110,7 @@ importers:
         version: 15.2.0
       next-auth:
         specifier: 5.0.0-beta.31
-        version: 5.0.0-beta.31(next@16.3.0-preview.5(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708)
+        version: 5.0.0-beta.31(next@16.3.0-preview.5(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708)
       ws:
         specifier: 8.21.0
         version: 8.21.0
@@ -4661,33 +4661,33 @@ packages:
     peerDependencies:
       '@testing-library/dom': '>=7.21.4'
 
-  '@turbo/darwin-64@2.10.5-canary.4':
-    resolution: {integrity: sha512-19315nu5xLuw3FsGcj5T23dhny+hBCo9sW5oJdTZ5FxVKJrCg1xRrMtADD1FGECPy2de78J5Bi9mn3Y1FVgu9g==}
+  '@turbo/darwin-64@2.10.5-canary.6':
+    resolution: {integrity: sha512-ia5iqrc4EXSfFVX7vAzAd/a/WnmtDmuA/suOcK2YNyHgsabmYShwXaiao8XUQmcFEO6sEzRPuNx7vs87LaAPmQ==}
     cpu: [x64]
     os: [darwin]
 
-  '@turbo/darwin-arm64@2.10.5-canary.4':
-    resolution: {integrity: sha512-po916Fz27gnCC6Tp697o72f37WXYies9cGfWG/DcjRvXE9s8Dta83A8nEDv/bd48bbdNjwbDcBsHOrNXEJUL4g==}
+  '@turbo/darwin-arm64@2.10.5-canary.6':
+    resolution: {integrity: sha512-qcUmE3NoCvnFEN9QV7HzNT0CMrJo6lKqsT8xrcc3AoaWjLdLSIxzWw9/TkGmG4MpQ+t+e49TabqHss209CaQOQ==}
     cpu: [arm64]
     os: [darwin]
 
-  '@turbo/linux-64@2.10.5-canary.4':
-    resolution: {integrity: sha512-dIEGfgO3h/v9b31JlLTMVKmhc+Qj4Ofc7ycY3No4tMgN9tXeVK8GYeS8D3L7NSWyvTDtvZdBmDO4bB3hKaMk3g==}
+  '@turbo/linux-64@2.10.5-canary.6':
+    resolution: {integrity: sha512-DYqslnepE1OEKNehoZ3JXNNGyJo49Vv8zuwjjQGRyRHvlPrsvKcskp8mV8Z15tatpaVbHT80Ow/LtJK8tWKCDw==}
     cpu: [x64]
     os: [linux]
 
-  '@turbo/linux-arm64@2.10.5-canary.4':
-    resolution: {integrity: sha512-lU1BVgV0VPdW3PZPMASu63vAxS1DTvUSYVINni0xuFrjKXEPFhc11UcdYEzUrxozhbWGG/8HRlKS5t4Xps7+7A==}
+  '@turbo/linux-arm64@2.10.5-canary.6':
+    resolution: {integrity: sha512-0lIKGWLQQlPRhZFEKEQ315vMFkiexprNbRKjpDjMy4GO6xXCbOGWNx3wFe/kQZRyCcl5+kMEPwl+mzFj4GuL6A==}
     cpu: [arm64]
     os: [linux]
 
-  '@turbo/windows-64@2.10.5-canary.4':
-    resolution: {integrity: sha512-y1w/ysgcF9dUB2Ny10iPgUDJo/OGUo2Wu7W3mCGzam+WoLgT8fyGUQCviMKQ9ZzJrrOoMZOUBax0wdY+phSQlQ==}
+  '@turbo/windows-64@2.10.5-canary.6':
+    resolution: {integrity: sha512-bU9vlsors/PwH9bm5bhbZx2zlYi68Q+QKAAbGPgwR/ZgNAUpymL398lxUrUsRCMusWPCCoMN6A9Ikc1j506XRg==}
     cpu: [x64]
     os: [win32]
 
-  '@turbo/windows-arm64@2.10.5-canary.4':
-    resolution: {integrity: sha512-ysVk94bA8HenH6FB1y5d9fDoBwxDl4a+nD43dvKFc2137TcwCiYrKBYW4Mcy8cgElUTZLg8QL9loOM/12ZrPMw==}
+  '@turbo/windows-arm64@2.10.5-canary.6':
+    resolution: {integrity: sha512-xmDTVaqlK07SFdlsomlkfjD+S4KB0IlPtSNX1Z/4RzrdWLNOSBEpFLizl+RmaACqcJQp3emmU1rfiQz6LVkzdg==}
     cpu: [arm64]
     os: [win32]
 
@@ -8564,8 +8564,8 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
 
-  turbo@2.10.5-canary.4:
-    resolution: {integrity: sha512-ku19wn/NCSNTIma3PRtNMjcqyJl/6tL5f20HRdlhfwQ3W4OZFalsiMkeZA6jbZC9VwmX0Sw2cpZUvNtJlzAHNg==}
+  turbo@2.10.5-canary.6:
+    resolution: {integrity: sha512-5ZHLoFRp2gL9Ura/zrLMGf3Ca4nfVwlmJLxkVbhGG4D0+STtGOV87cwrKD+Yxb+48Ruyg7U+RVcJk61w43EfLg==}
     hasBin: true
 
   type-fest@0.7.1:
@@ -9427,10 +9427,10 @@ snapshots:
       immutable: 5.1.7
       invariant: 2.2.4
 
-  '@as-integrations/next@4.1.0(@apollo/server@5.5.1(graphql@17.0.2))(next@16.3.0-preview.5(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708))':
+  '@as-integrations/next@4.1.0(@apollo/server@5.5.1(graphql@17.0.2))(next@16.3.0-preview.5(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708))':
     dependencies:
       '@apollo/server': 5.5.1(graphql@17.0.2)
-      next: 16.3.0-preview.5(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708)
+      next: 16.3.0-preview.5(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708)
 
   '@auth/core@0.41.2':
     dependencies:
@@ -13472,22 +13472,22 @@ snapshots:
     dependencies:
       '@testing-library/dom': 10.4.1
 
-  '@turbo/darwin-64@2.10.5-canary.4':
+  '@turbo/darwin-64@2.10.5-canary.6':
     optional: true
 
-  '@turbo/darwin-arm64@2.10.5-canary.4':
+  '@turbo/darwin-arm64@2.10.5-canary.6':
     optional: true
 
-  '@turbo/linux-64@2.10.5-canary.4':
+  '@turbo/linux-64@2.10.5-canary.6':
     optional: true
 
-  '@turbo/linux-arm64@2.10.5-canary.4':
+  '@turbo/linux-arm64@2.10.5-canary.6':
     optional: true
 
-  '@turbo/windows-64@2.10.5-canary.4':
+  '@turbo/windows-64@2.10.5-canary.6':
     optional: true
 
-  '@turbo/windows-arm64@2.10.5-canary.4':
+  '@turbo/windows-arm64@2.10.5-canary.6':
     optional: true
 
   '@tweenjs/tween.js@23.1.3': {}
@@ -16208,10 +16208,10 @@ snapshots:
       next: 16.3.0-canary.81(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.62.0-alpha-1783623505000)(babel-plugin-react-compiler@0.0.0-experimental-a1856f3-20260507)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708)
       react: 19.3.0-canary-5123b063-20260708
 
-  next-auth@5.0.0-beta.31(next@16.3.0-preview.5(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708):
+  next-auth@5.0.0-beta.31(next@16.3.0-preview.5(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708):
     dependencies:
       '@auth/core': 0.41.2
-      next: 16.3.0-preview.5(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708)
+      next: 16.3.0-preview.5(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708)
       react: 19.3.0-canary-5123b063-20260708
 
   next-intl-swc-plugin-extractor@4.13.1: {}
@@ -16260,7 +16260,7 @@ snapshots:
       - '@babel/core'
       - babel-plugin-macros
 
-  next@16.3.0-preview.5(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708):
+  next@16.3.0-preview.5(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708):
     dependencies:
       '@next/env': 16.3.0-preview.5
       '@swc/helpers': 0.5.15
@@ -18002,14 +18002,14 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  turbo@2.10.5-canary.4:
+  turbo@2.10.5-canary.6:
     optionalDependencies:
-      '@turbo/darwin-64': 2.10.5-canary.4
-      '@turbo/darwin-arm64': 2.10.5-canary.4
-      '@turbo/linux-64': 2.10.5-canary.4
-      '@turbo/linux-arm64': 2.10.5-canary.4
-      '@turbo/windows-64': 2.10.5-canary.4
-      '@turbo/windows-arm64': 2.10.5-canary.4
+      '@turbo/darwin-64': 2.10.5-canary.6
+      '@turbo/darwin-arm64': 2.10.5-canary.6
+      '@turbo/linux-64': 2.10.5-canary.6
+      '@turbo/linux-arm64': 2.10.5-canary.6
+      '@turbo/windows-64': 2.10.5-canary.6
+      '@turbo/windows-arm64': 2.10.5-canary.6
 
   type-fest@0.7.1: {}
 
