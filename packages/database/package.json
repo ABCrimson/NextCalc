@@ -37,7 +37,7 @@
   "devDependencies": {
     "@types/node": "26.1.1",
     "dotenv": "17.4.2",
-    "prisma": "7.9.0-dev.19",
+    "prisma": "7.9.0-dev.20",
     "tsx": "4.23.0",
     "typescript": "7.1.0-dev.20260708.3"
   }
