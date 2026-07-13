@@ -80,7 +80,7 @@
     "@vitest/ui": "5.0.0-beta.6",
     "@webgpu/types": "0.1.71",
     "axe-core": "4.12.1",
-    "babel-plugin-react-compiler": "0.0.0-experimental-a1856f3-20260507",
+    "babel-plugin-react-compiler": "1.0.0",
     "gray-matter": "4.0.3",
     "happy-dom": "20.10.6",
     "jest-axe": "10.0.0",
