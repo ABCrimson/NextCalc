@@ -62,7 +62,7 @@ importers:
         version: 5.5.1(graphql@17.0.2)
       '@as-integrations/next':
         specifier: 4.1.0
-        version: 4.1.0(@apollo/server@5.5.1(graphql@17.0.2))(next@16.3.0-preview.5(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708))
+        version: 4.1.0(@apollo/server@5.5.1(graphql@17.0.2))(next@16.3.0-preview.5(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708))
       '@graphql-tools/graphql-file-loader':
         specifier: 8.1.16
         version: 8.1.16(graphql@17.0.2)
@@ -110,7 +110,7 @@ importers:
         version: 15.2.0
       next-auth:
         specifier: 5.0.0-beta.31
-        version: 5.0.0-beta.31(next@16.3.0-preview.5(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708)
+        version: 5.0.0-beta.31(next@16.3.0-preview.5(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708)
       ws:
         specifier: 8.21.0
         version: 8.21.0
@@ -261,8 +261,8 @@ importers:
         version: 5.0.14(@types/react@19.2.17)(immer@11.1.11)(react@19.3.0-canary-5123b063-20260708)(use-sync-external-store@1.6.0(react@19.3.0-canary-5123b063-20260708))
     devDependencies:
       '@axe-core/playwright':
-        specifier: 4.12.2-2d3cb18.0
-        version: 4.12.2-2d3cb18.0(playwright-core@1.62.0-alpha-1783623505000)
+        specifier: 4.12.2-6c589ff.0
+        version: 4.12.2-6c589ff.0(playwright-core@1.62.0-alpha-1783623505000)
       '@biomejs/biome':
         specifier: 2.5.3
         version: 2.5.3
@@ -701,8 +701,8 @@ packages:
     peerDependencies:
       '@prisma/client': '>=2.26.0 || >=3 || >=4 || >=5 || >=6'
 
-  '@axe-core/playwright@4.12.2-2d3cb18.0':
-    resolution: {integrity: sha512-1h/emcgXhzrfBwa85Vxqbo03KtztdeOsgW/PqOM89i000geFwYhC+LaMTJLpTjg4xbxQlcirAQmMxoRYs+ZJ/Q==}
+  '@axe-core/playwright@4.12.2-6c589ff.0':
+    resolution: {integrity: sha512-8hoAAXnCwc83DHmnIslp9ptTx/U14qYjAmcB9kvbPTNAW4QBouV0I9FWhOY1APOyipr3GuBf6U+qAzKoGGZcNQ==}
     peerDependencies:
       playwright-core: '>= 1.0.0'
 
@@ -9427,10 +9427,10 @@ snapshots:
       immutable: 5.1.7
       invariant: 2.2.4
 
-  '@as-integrations/next@4.1.0(@apollo/server@5.5.1(graphql@17.0.2))(next@16.3.0-preview.5(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708))':
+  '@as-integrations/next@4.1.0(@apollo/server@5.5.1(graphql@17.0.2))(next@16.3.0-preview.5(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708))':
     dependencies:
       '@apollo/server': 5.5.1(graphql@17.0.2)
-      next: 16.3.0-preview.5(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708)
+      next: 16.3.0-preview.5(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708)
 
   '@auth/core@0.41.2':
     dependencies:
@@ -9449,7 +9449,7 @@ snapshots:
       - '@simplewebauthn/server'
       - nodemailer
 
-  '@axe-core/playwright@4.12.2-2d3cb18.0(playwright-core@1.62.0-alpha-1783623505000)':
+  '@axe-core/playwright@4.12.2-6c589ff.0(playwright-core@1.62.0-alpha-1783623505000)':
     dependencies:
       axe-core: 4.12.1
       playwright-core: 1.62.0-alpha-1783623505000
@@ -16208,10 +16208,10 @@ snapshots:
       next: 16.3.0-canary.81(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.62.0-alpha-1783623505000)(babel-plugin-react-compiler@0.0.0-experimental-a1856f3-20260507)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708)
       react: 19.3.0-canary-5123b063-20260708
 
-  next-auth@5.0.0-beta.31(next@16.3.0-preview.5(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708):
+  next-auth@5.0.0-beta.31(next@16.3.0-preview.5(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708):
     dependencies:
       '@auth/core': 0.41.2
-      next: 16.3.0-preview.5(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708)
+      next: 16.3.0-preview.5(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708)
       react: 19.3.0-canary-5123b063-20260708
 
   next-intl-swc-plugin-extractor@4.13.1: {}
@@ -16260,7 +16260,7 @@ snapshots:
       - '@babel/core'
       - babel-plugin-macros
 
-  next@16.3.0-preview.5(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708):
+  next@16.3.0-preview.5(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.61.1)(react-dom@19.3.0-canary-5123b063-20260708(react@19.3.0-canary-5123b063-20260708))(react@19.3.0-canary-5123b063-20260708):
     dependencies:
       '@next/env': 16.3.0-preview.5
       '@swc/helpers': 0.5.15
