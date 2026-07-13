@@ -15,7 +15,7 @@
     "@cf-wasm/resvg": "0.3.4",
     "@hono/zod-validator": "0.8.0",
     "aws4fetch": "1.0.20",
-    "hono": "4.12.28",
+    "hono": "4.12.30",
     "katex": "0.17.0",
     "modern-pdf-lib": "0.40.2",
     "zod": "4.5.0-canary.20260504T180558"
