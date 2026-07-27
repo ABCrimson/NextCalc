@@ -68,7 +68,7 @@
     "@graphql-typed-document-node/core": "3.2.0",
     "@playwright/test": "1.62.0-alpha-1783623505000",
     "@tailwindcss/postcss": "4.3.2",
-    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/jest-dom": "7.0.0",
     "@testing-library/react": "16.3.2",
     "@testing-library/user-event": "14.6.1",
     "@types/jest-axe": "3.5.9",
