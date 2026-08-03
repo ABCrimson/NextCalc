@@ -42,7 +42,7 @@
     "three": "0.185.1"
   },
   "devDependencies": {
-    "@types/node": "26.1.1",
+    "@types/node": "26.1.2",
     "@types/three": "0.185.1",
     "@webgpu/types": "0.1.71",
     "fast-check": "4.9.0",
