@@ -18,7 +18,7 @@
     "hono": "4.12.28",
     "katex": "0.17.0",
     "modern-pdf-lib": "0.40.2",
-    "zod": "4.5.0-canary.20260504T180558"
+    "zod": "4.5.0-canary.20260820T155656"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.3",

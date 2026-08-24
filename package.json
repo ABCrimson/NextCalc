@@ -22,7 +22,7 @@
     "tsx": "4.23.0",
     "turbo": "2.10.5-canary.4",
     "typescript": "7.1.0-dev.20260708.3",
-    "zod": "4.5.0-canary.20260504T180558"
+    "zod": "4.5.0-canary.20260820T155656"
   },
   "packageManager": "pnpm@11.11.0",
   "engines": {

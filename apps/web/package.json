@@ -58,7 +58,7 @@
     "tailwind-merge": "3.6.0",
     "tailwindcss": "4.3.2",
     "three": "0.185.1",
-    "zod": "4.5.0-canary.20260504T180558",
+    "zod": "4.5.0-canary.20260820T155656",
     "zustand": "5.0.14"
   },
   "devDependencies": {
