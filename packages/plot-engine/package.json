@@ -47,6 +47,6 @@
     "@webgpu/types": "0.1.71",
     "fast-check": "4.9.0",
     "typescript": "6.0.3",
-    "vitest": "5.0.0-beta.6"
+    "vitest": "5.0.0-rc.2"
   }
 }
