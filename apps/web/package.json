@@ -23,7 +23,7 @@
     "db:seed": "pnpm --filter @nextcalc/database db:seed"
   },
   "dependencies": {
-    "@apollo/client": "4.3.0-alpha.2",
+    "@apollo/client": "4.3.0-alpha.10",
     "@apollo/client-integration-nextjs": "0.14.5",
     "@auth/prisma-adapter": "2.11.2",
     "@nextcalc/api": "workspace:*",
