@@ -38,4 +38,4 @@ const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaNeon(new Pool({ connectionString: process.env.DATABASE_URL }));
 ```
 
-See [ARCHITECTURE.md](../../ARCHITECTURE.md#prisma-7-migration-notes) and [docs/wiki/Database-Schema.md](../../docs/wiki/Database-Schema.md) for the full schema reference, enums, and indexing conventions.
+See [ARCHITECTURE.md](../../docs/ARCHITECTURE.md#prisma-7-migration-notes) and [docs/wiki/Database-Schema.md](../../docs/wiki/Database-Schema.md) for the full schema reference, enums, and indexing conventions.

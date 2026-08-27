@@ -107,7 +107,7 @@ The app is an installable PWA via `@serwist/next`: `next.config.ts` wraps the Ne
 
 ## Further Reading
 
-- [ARCHITECTURE.md](../../ARCHITECTURE.md) -- system-wide architecture and design decisions
+- [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) -- system-wide architecture and design decisions
 - [DEVELOPMENT.md](../../DEVELOPMENT.md) -- monorepo developer guide
 - [docs/SETUP.md](../../docs/SETUP.md) -- database and OAuth setup
 - [docs/wiki](https://github.com/ABCrimson/NextCalc/wiki) -- full reference wiki

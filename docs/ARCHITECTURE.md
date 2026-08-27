@@ -102,7 +102,7 @@ GPU-accelerated mathematical visualization engine.
 | `export/` | PNG, SVG, CSV export |
 | `types/` | Plot configuration types |
 
-**Tech:** Three.js 0.185-line, D3 7.9, WebGL 2, WebGPU (progressive enhancement); TypeScript stays on 6.0.x here (see [DEVELOPMENT.md](DEVELOPMENT.md#typescript))
+**Tech:** Three.js 0.185-line, D3 7.9, WebGL 2, WebGPU (progressive enhancement); TypeScript stays on 6.0.x here (see [DEVELOPMENT.md](../DEVELOPMENT.md#typescript))
 
 ### @nextcalc/database
 
@@ -128,7 +128,7 @@ GraphQL API integrated into the Next.js app via route handler.
 
 **Key features:**
 - Auth is configurable via `setAuthFunction()` -- real NextAuth injected from the web route handler
-- DataLoaders for N+1 prevention (see the canonical table in [docs/wiki/GraphQL-API.md](docs/wiki/GraphQL-API.md) for the current list)
+- DataLoaders for N+1 prevention (see the canonical table in [docs/wiki/GraphQL-API.md](wiki/GraphQL-API.md) for the current list)
 - Resolvers: user, worksheet, folder, calculation, forum, comment, upvote
 - Upstash Redis caching in `src/lib/cache.ts` with `invalidateByPrefix` via SCAN
 - API package exports source `.ts` files (not dist/) for monorepo dev
@@ -283,7 +283,7 @@ Key differences from Prisma 6 that affect this codebase:
 
 The API batches N+1 queries per GraphQL request lifecycle using DataLoader instances defined in `apps/api/src/lib/dataloaders.ts`, created fresh per request (via the Apollo Server context factory) to ensure proper request-scoped batching and no cross-request data leakage.
 
-The canonical, up-to-date list of DataLoaders and what each batches lives in [docs/wiki/GraphQL-API.md](docs/wiki/GraphQL-API.md#dataloaders) -- refer there rather than duplicating the table.
+The canonical, up-to-date list of DataLoaders and what each batches lives in [docs/wiki/GraphQL-API.md](wiki/GraphQL-API.md#dataloaders) -- refer there rather than duplicating the table.
 
 ## Key Design Decisions
 

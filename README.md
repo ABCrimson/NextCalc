@@ -279,7 +279,7 @@ pnpm dev
 | Document | Description |
 |:---------|:------------|
 | **[DEVELOPMENT.md](DEVELOPMENT.md)** | Developer guide, commands, and conventions |
-| **[ARCHITECTURE.md](ARCHITECTURE.md)** | System architecture and design decisions |
+| **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** | System architecture and design decisions |
 | **[docs/SETUP.md](docs/SETUP.md)** | Database (Neon) and OAuth (Google, GitHub) setup |
 | **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** | Deployment guide for Vercel and Cloudflare |
 | **[docs/ROADMAP.md](docs/ROADMAP.md)** | Feature roadmap and backlog |

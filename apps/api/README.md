@@ -413,7 +413,7 @@ Set in Vercel dashboard:
 
 ## Support
 
-- Architecture: [ARCHITECTURE.md](../../ARCHITECTURE.md)
+- Architecture: [ARCHITECTURE.md](../../docs/ARCHITECTURE.md)
 - Development: [DEVELOPMENT.md](../../DEVELOPMENT.md)
 - Issues: [GitHub Issues](https://github.com/ABCrimson/NextCalc/issues)
 
