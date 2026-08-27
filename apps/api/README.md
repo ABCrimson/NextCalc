@@ -89,6 +89,7 @@ apps/api/
 │   │   ├── dataloaders.ts     # DataLoader instances (N+1 prevention) -- see docs/wiki/GraphQL-API.md for the current list
 │   │   ├── prisma.ts          # Prisma client re-export
 │   │   ├── auth-stub.ts       # Configurable auth function (setAuthFunction injection point)
+│   │   ├── cache-control.ts   # Typed access to Apollo's info.cacheControl (setCacheHint without any-casts)
 │   │   ├── cache.ts           # Upstash Redis caching (with invalidateByPrefix)
 │   │   ├── errors.ts          # Custom error classes
 │   │   ├── validation.ts      # Zod input schemas

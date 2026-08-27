@@ -141,7 +141,7 @@ GraphQL API integrated into the Next.js app via route handler.
 
 Shared TypeScript type definitions used across the monorepo.
 
-**Exports:** `Calculation`, `HistoryEntry`, and other shared interfaces.
+**Exports:** `CalculatorState`, `HistoryEntry`, `CalculatorAction`, `AngleMode`, `ComputeMode` (all from `src/calculator.ts`, re-exported via `src/index.ts`).
 
 ### Cloudflare Workers
 

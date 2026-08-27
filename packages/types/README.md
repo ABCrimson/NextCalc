@@ -15,7 +15,7 @@ Shared TypeScript type definitions used across the monorepo -- keeps the calcula
 ## Usage
 
 ```typescript
-import type { Calculation, HistoryEntry } from '@nextcalc/types';
+import type { CalculatorState, HistoryEntry } from '@nextcalc/types';
 ```
 
 ## Commands

@@ -145,7 +145,7 @@ packages/
 ```typescript
 import { evaluateExpression } from '@nextcalc/math-engine';
 import { WebGL2DRenderer } from '@nextcalc/plot-engine';
-import type { Calculation } from '@nextcalc/types';
+import type { CalculatorState } from '@nextcalc/types';
 import { prisma } from '@nextcalc/database';
 ```
 
