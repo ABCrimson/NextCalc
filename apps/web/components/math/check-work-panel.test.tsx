@@ -1,7 +1,14 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { CheckWorkPanel } from './check-work-panel';
+
+// Warm the equivalence module (mathjs graph) the component dynamic-imports on
+// first check: a cold transform of that graph can exceed findByText's 1s poll
+// window, flaking the first test that clicks "check".
+beforeAll(async () => {
+  await import('@nextcalc/math-engine/equivalence');
+});
 
 // Query by placeholder: happy-dom cannot resolve label[for] against React 19
 // useId identifiers (guillemet characters), so label-text queries miss.

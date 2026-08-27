@@ -12,21 +12,21 @@
     "lint": "biome check ."
   },
   "dependencies": {
-    "@cf-wasm/resvg": "0.3.4",
-    "@hono/zod-validator": "0.8.0",
+    "@cf-wasm/resvg": "0.4.0",
+    "@hono/zod-validator": "0.9.0",
     "aws4fetch": "1.0.20",
-    "hono": "4.12.28",
-    "katex": "0.17.0",
+    "hono": "4.13.5",
+    "katex": "0.18.4",
     "modern-pdf-lib": "0.40.2",
-    "zod": "4.5.0-canary.20260504T180558"
+    "zod": "4.5.0-canary.20260827T054049"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.3",
-    "@cloudflare/workers-types": "5.20260708.1",
-    "@types/node": "26.1.1",
-    "typescript": "7.1.0-dev.20260708.3",
-    "vitest": "5.0.0-beta.6",
-    "wrangler": "4.110.0"
+    "@biomejs/biome": "2.5.10",
+    "@cloudflare/workers-types": "5.20260827.1",
+    "@types/node": "26.4.0",
+    "typescript": "7.1.0-dev.20260826.1",
+    "vitest": "5.0.0-rc.2",
+    "wrangler": "4.127.0"
   },
   "engines": {
     "node": ">=24.0.0"

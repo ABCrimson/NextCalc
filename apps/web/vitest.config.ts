@@ -59,6 +59,11 @@ export default defineConfig({
 
     watch: false,
 
+    // Vitest 5: persist module transforms across runs (the mathjs/math-engine
+    // graph is re-transformed on every cold run otherwise, which pushes the
+    // first dynamic import in a test past testing-library's 1s poll window).
+    fsModuleCache: true,
+
     reporters: ['default'],
 
     // Increase timeout for async tests

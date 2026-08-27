@@ -1,5 +1,5 @@
 /**
- * Prisma 7 Client Singleton with Neon Serverless Adapter
+ * Prisma 8 Client Singleton with Neon Serverless Adapter
  *
  * Shared database client for the NextCalc Pro monorepo.
  * Uses singleton pattern to prevent multiple instances during development HMR.
@@ -58,7 +58,7 @@ function createPrismaClient(): PrismaClient {
     return createMockPrismaClient();
   }
 
-  // PrismaNeon in Prisma 7 creates its own Pool internally from the config we pass.
+  // PrismaNeon in Prisma 8 creates its own Pool internally from the config we pass.
   // Pass a config object (not a Pool instance) so the internal Pool gets correct options.
   const poolConfig = { connectionString };
 

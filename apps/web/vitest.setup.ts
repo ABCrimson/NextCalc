@@ -1,8 +1,8 @@
 /**
  * Vitest Setup File
  * @testing-library/react 16.3.2
- * @testing-library/jest-dom 6.9.1
- * jest-axe 10.0.0
+ * @testing-library/jest-dom 7.0.1
+ * jest-axe 11.0.0
  * happy-dom
  */
 

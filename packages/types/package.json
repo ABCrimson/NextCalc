@@ -9,7 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.3",
-    "typescript": "7.1.0-dev.20260708.3"
+    "@biomejs/biome": "2.5.10",
+    "typescript": "7.1.0-dev.20260826.1"
   }
 }

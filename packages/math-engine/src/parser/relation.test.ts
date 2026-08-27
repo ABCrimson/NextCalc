@@ -40,16 +40,12 @@ describe('normalizeRelationSyntax', () => {
 });
 
 describe('isRelationalExpression', () => {
-  it.each([
-    'x^2+y^2=25',
-    'y<2*x+1',
-    'x>=1',
-    '1<x<2',
-    'x ≤ y',
-    'x ≥ y',
-  ])('detects %s as relational', (expr) => {
-    expect(isRelationalExpression(expr)).toBe(true);
-  });
+  it.each(['x^2+y^2=25', 'y<2*x+1', 'x>=1', '1<x<2', 'x ≤ y', 'x ≥ y'])(
+    'detects %s as relational',
+    (expr) => {
+      expect(isRelationalExpression(expr)).toBe(true);
+    },
+  );
 
   it.each(['sin(x)', 'x^2 + 1', '2*pi'])('detects %s as non-relational', (expr) => {
     expect(isRelationalExpression(expr)).toBe(false);

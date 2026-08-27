@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - **Node.js** 24+ (26 recommended; two installs exist on this machine: `C:\nvm4w\nodejs\node.exe` v24.8.0 and `C:\Program Files\nodejs\node.exe` v26.0.0-nightly)
-- **pnpm** 11 GA (the `packageManager` field in the root `package.json` pins the exact version -- do not restate it here)
+- **pnpm** 12 (the `packageManager` field in the root `package.json` pins the exact version -- do not restate it here)
 
 > **Note (Windows):** If pnpm is not in PATH, invoke it via:
 > ```bash
@@ -160,14 +160,14 @@ import { prisma } from '@nextcalc/database';
 
 ### TypeScript
 
-TypeScript 7 (the native Go-based compiler, `tsc` built from the `typescript-go` codebase) is the `typecheck` gate for 8 of the monorepo's 10 packages -- `@nextcalc/api`, `@nextcalc/database`, `@nextcalc/math-engine`, `@nextcalc/types`, and the three `apps/workers/*` packages, plus the root tooling. Two packages remain pinned to `typescript@6.0.x` (the classic JS-hosted compiler) because of upstream blockers:
+TypeScript 7 (the native Go-based compiler, `tsc` built from the `typescript-go` codebase) is the `typecheck` gate for **all 10 packages** in the monorepo. The two former TS 6.0.x holdouts were unblocked and migrated (2026-08-27, on the `typescript@7.1.0-dev` line):
 
-| Package | Stays on TS 6.0.x because... | Unblocks when... |
-|:--------|:------------------------------|:------------------|
-| `@nextcalc/web` | Next.js's build-time type checker and `graphql-codegen` both need the TypeScript **JS API**, which doesn't ship until TS 7.1 | Next.js adds native-compiler support and codegen picks up the 7.1 JS API |
-| `@nextcalc/plot-engine` | three.js's TSL (`node-material`) union types hang the native Go checker (an upstream `typescript-go` limitation, not a bug in this codebase) | The TSL type-expansion issue is fixed upstream in `typescript-go` |
+| Package | Was pinned to TS 6.0.x because... | Verified unblocked by... |
+|:--------|:-----------------------------------|:--------------------------|
+| `@nextcalc/web` | Next.js's build-time type checker and `graphql-codegen` both needed the TypeScript **JS API**, which didn't ship until TS 7.1 | `next build` (with `ignoreBuildErrors: false`) and `graphql-codegen` both green on `7.1.0-dev` (codegen output byte-identical) |
+| `@nextcalc/plot-engine` | three.js's TSL (`node-material`) union types hung the native Go checker | `tsc --noEmit` completes in seconds on `7.1.0-dev`; the upstream type-expansion issue is fixed |
 
-There is no advisory/non-blocking "tsgo" job anymore -- the old dual-track (`typecheck` blocking on TS 6 + `typecheck:fast` advisory on TS7 `tsgo`) was removed once TS7 became the real gate for most of the repo. `pnpm turbo run typecheck` now runs the correct compiler per package automatically (each package's own `devDependencies.typescript` decides which one).
+There is no advisory/non-blocking "tsgo" job anymore -- the old dual-track (`typecheck` blocking on TS 6 + `typecheck:fast` advisory on TS7 `tsgo`) was removed once TS7 became the real gate. `pnpm turbo run typecheck` runs the same native compiler in every package (each package's own `devDependencies.typescript` decides, and they are all pinned to the same version).
 
 Regardless of which compiler gates a given package:
 
