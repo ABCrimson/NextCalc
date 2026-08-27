@@ -20,7 +20,9 @@
     "typecheck": "tsc --noEmit --project tsconfig.typecheck.json",
     "db:test": "tsx scripts/test-database-connection.ts",
     "db:setup": "tsx scripts/setup-database.ts",
-    "db:seed": "pnpm --filter @nextcalc/database db:seed"
+    "db:seed": "pnpm --filter @nextcalc/database db:seed",
+    "icons:levels": "tsx scripts/generate-level-icons.ts",
+    "icons:favicons": "tsx scripts/generate-favicons.ts"
   },
   "dependencies": {
     "@apollo/client": "4.3.0-alpha.2",

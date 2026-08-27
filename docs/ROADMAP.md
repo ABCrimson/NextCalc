@@ -32,6 +32,8 @@ Filled in 2026-07-11 from the competitive analysis vs Desmos, Wolfram Alpha (inc
 
 **Moats to defend:** the WebGPU compute stack (nobody else runs GPU simulation in a browser), free step-by-step, realtime collaborative worksheets, the CS/ML visualization wedge, full-stack free breadth (offline PWA, free export, 8 locales).
 
+> **Wave 1 shipped 2026-07-11** (PRs #77–#81): items **1, 2, 3, 4 (equations + limits; ODEs deferred), 5, 6, 8** plus the slider play-button animation. Remaining: **7, 9, 10** and the unranked items. See `docs/HANDOFF.md` for the full continuation guide (deferred sub-items, review state, process notes).
+
 **Ranked backlog:**
 
 | # | Feature | Value | Effort | Sketch |
@@ -295,7 +297,7 @@ All technical debt items have been addressed as of v1.0.0:
 - [x] 10 named tiers (Novice → Transcendent) + admin-only Architect (L101)
 - [x] OKLCH color progression per level, XP formatting helpers
 - [x] Programmatic crystal SVG component (`LevelIcon`) with 10 visual tiers
-- [x] ~~Pre-generated 103 SVG files via Node.js script (`generate-level-icons.ts`)~~ and ~~static SVG loader component (`LevelIconStatic`)~~ -- removed in the 2026-07 evergreen sweep as dead weight; `LevelIcon` renders every tier live and was the only one actually used
+- [x] Pre-generated 103 SVG files via `scripts/generate-level-icons.ts` (runtime DB data — `User.image` avatar URLs; restored after the 2026-07 sweep deleted them). Since 2026-08 the art lives in `lib/level-icons/` and is shared by the script and the live `LevelIcon` component (one source of truth); ~~`LevelIconStatic`~~ removed
 - [x] 3 L101 special variants: Prismatic Crown, Cosmic Nexus, Phoenix Crystal
 - [x] Level icon as default avatar in navigation and profile
 - [x] XP bar with tier name display in profile HeroCard

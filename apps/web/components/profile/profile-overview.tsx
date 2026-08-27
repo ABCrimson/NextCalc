@@ -758,7 +758,8 @@ function HeroAvatar({
           role="img"
           aria-label={`Avatar for ${name ?? 'user'}`}
         >
-          <LevelIcon level={level} size={112} />
+          {/* The icon scales with the circle (96px below sm, 112px from sm) so its outer effects are never cropped */}
+          <LevelIcon level={level} size={112} className="flex size-full [&>svg]:size-full" />
         </div>
       )}
       {/* Level badge — inside aria-hidden parent; no aria-label needed */}

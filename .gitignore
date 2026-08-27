@@ -28,3 +28,13 @@ apps/web/public/swe-worker*
 # Git worktrees
 .worktrees/
 .vercel
+
+# Test coverage output
+coverage/
+
+# Playwright MCP session artifacts
+.playwright-mcp/
+
+# Secrets
+*.pem
+*credentials*

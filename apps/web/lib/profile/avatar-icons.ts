@@ -12,6 +12,8 @@
  * here is rejected.
  */
 
+import { type Icon101Variant, LEVEL_ICON_FILES } from '@/lib/level-icons';
+
 export interface AvatarIconEntry {
   /** Same-origin public path stored in `User.image`. */
   readonly path: string;
@@ -21,31 +23,25 @@ export interface AvatarIconEntry {
   readonly label: string;
 }
 
-/** The three special level-101 variants (see `LevelIcon` / scripts/generate-level-icons.ts). */
-const LEVEL_101_VARIANTS = [
-  { file: 'level-101.svg', label: 'Prismatic Crown' },
-  { file: 'level-101-cosmic-nexus.svg', label: 'Cosmic Nexus' },
-  { file: 'level-101-phoenix-crystal.svg', label: 'Phoenix Crystal' },
-] as const;
+/** Display labels for the three level-101 Architect variants. */
+const LEVEL_101_LABELS: Readonly<Record<Icon101Variant, string>> = {
+  'prismatic-crown': 'Prismatic Crown',
+  'cosmic-nexus': 'Cosmic Nexus',
+  'phoenix-crystal': 'Phoenix Crystal',
+};
 
-/** All 103 selectable icons: levels 1–100 plus the three level-101 variants. */
-export const AVATAR_ICONS: readonly AvatarIconEntry[] = [
-  ...Array.from({ length: 100 }, (_, i): AvatarIconEntry => {
-    const level = i + 1;
-    return {
-      path: `/icons/levels/level-${String(level).padStart(3, '0')}.svg`,
-      level,
-      label: String(level),
-    };
+/**
+ * All 103 selectable icons: levels 1–100 plus the three level-101 variants —
+ * derived from the icon module's file list so the whitelist can never drift
+ * from what `scripts/generate-level-icons.ts` actually writes.
+ */
+export const AVATAR_ICONS: readonly AvatarIconEntry[] = LEVEL_ICON_FILES.map(
+  ({ file, level, variant101 }): AvatarIconEntry => ({
+    path: `/icons/levels/${file}`,
+    level,
+    label: variant101 ? LEVEL_101_LABELS[variant101] : String(level),
   }),
-  ...LEVEL_101_VARIANTS.map(
-    ({ file, label }): AvatarIconEntry => ({
-      path: `/icons/levels/${file}`,
-      level: 101,
-      label,
-    }),
-  ),
-];
+);
 
 /** Whitelisted `User.image` values, in catalog order. */
 export const AVATAR_ICON_PATHS: readonly string[] = AVATAR_ICONS.map((icon) => icon.path);
