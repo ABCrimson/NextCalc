@@ -245,10 +245,10 @@ app/[locale]/
 | `solver/` | Algebraic + ODE equation solver |
 | `units/` | Unit conversion engine |
 | `fourier/` | FFT, IFFT, spectral analysis, Fourier series |
-| `graph-theory/` | Graph algorithms (Dijkstra, BFS, DFS, MST, PageRank) |
+| `graph-theory/` | Graph algorithms (MST, topological sort, SCC, max flow, TSP, coloring) |
 | `game-theory/` | Nash equilibrium, dominant strategies |
 | `prover/` | Logic core + proof search |
-| `algorithms/` | Sorting, searching, crypto, ML |
+| `algorithms/` | Sorting, searching, shortest paths (Dijkstra, A*), PageRank, crypto, ML |
 | `equivalence/` | CAS answer-equivalence grading (`checkEquivalence`) |
 | `trace/` | StepTrace — structured step-by-step solution steps |
 

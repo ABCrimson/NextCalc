@@ -6,6 +6,8 @@
 3. [Fourier Series Expansion](#fourier-series-expansion)
 4. [Window Functions](#window-functions)
 5. [Advanced Applications](#advanced-applications)
+6. [Performance Benchmarks](#performance-benchmarks)
+7. [Error Handling](#error-handling)
 
 ## Fast Fourier Transform
 
@@ -409,7 +411,7 @@ benchmarkFFT();
 ## Error Handling
 
 ```typescript
-import { fft, fourierSeries } from '@nextcalc/math-engine/fourier';
+import { fft, ifft, fourierSeries } from '@nextcalc/math-engine/fourier';
 
 try {
   // Empty signal

@@ -27,12 +27,12 @@ Each row is an importable subpath, e.g. `import { differentiate } from '@nextcal
 | `./complex` | Complex number arithmetic (`Complex` class) |
 | `./units` | Unit conversion engine (SI + imperial) |
 | `./fourier` | FFT, IFFT, spectral analysis, Fourier series -- see [FOURIER_EXAMPLES.md](FOURIER_EXAMPLES.md) |
-| `./graph-theory` | Graph algorithms: Dijkstra, BFS/DFS, MST, PageRank, SCC, max flow, TSP, coloring -- see [GRAPH_THEORY_EXAMPLES.md](GRAPH_THEORY_EXAMPLES.md) |
+| `./graph-theory` | Graph algorithms: MST (Kruskal/Prim), topological sort, SCC (Tarjan/Kosaraju), max flow + min cut, TSP heuristics, coloring, bipartite/cycle checks -- see [GRAPH_THEORY_EXAMPLES.md](GRAPH_THEORY_EXAMPLES.md) |
 | `./game-theory` | Nash equilibrium, dominant strategies |
 | `./chaos` | Lorenz attractor, bifurcation maps |
 | `./calculus` | Vector calculus, line/surface integrals |
 | `./differential` | Differential equations (ODE/PDE support) |
-| `./algorithms` | Sorting, searching, cryptography (RSA, Miller-Rabin), quantum simulation, ML algorithms |
+| `./algorithms` | Sorting, searching, shortest paths (Dijkstra, A*, Bellman-Ford, Floyd-Warshall), PageRank, cryptography (RSA, Miller-Rabin), quantum simulation, ML algorithms |
 | `./knowledge` | Mathematical knowledge base (formulas, theorems) |
 | `./problems` | Practice problem generation |
 | `./problems/templates` | Seeded problem-template engine for randomized drill practice |
@@ -57,7 +57,8 @@ const derivative = simplify(differentiate(parse('x^3 + 2*x^2 + x'), 'x'));
 ```
 
 ```typescript
-import { dijkstra, kruskal, pageRank } from '@nextcalc/math-engine/graph-theory';
+import { kruskal, tarjanSCC, maxFlow } from '@nextcalc/math-engine/graph-theory';
+import { dijkstra, pageRank } from '@nextcalc/math-engine/algorithms';
 import { fft, fourierSeries } from '@nextcalc/math-engine/fourier';
 ```
 

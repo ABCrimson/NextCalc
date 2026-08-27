@@ -5,7 +5,8 @@
 - **Node.js** 24+ (26 recommended; on this machine `C:\Program Files\nodejs\node.exe` is v26.8.1 — the old `C:\nvm4w` install no longer exists)
 - **pnpm** 12 (the `packageManager` field in the root `package.json` pins the exact version -- do not restate it here)
 
-> **Note (Windows):** If pnpm is not in PATH, invoke it via:
+> [!NOTE]
+> **Windows:** If pnpm is not in PATH, invoke it via:
 > ```bash
 > powershell.exe -ExecutionPolicy Bypass -Command "& 'C:\Program Files\nodejs\npx.cmd' --yes pnpm@latest <command>"
 > ```

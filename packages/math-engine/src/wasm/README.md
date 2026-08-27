@@ -1,5 +1,6 @@
 # MPFR/GMP WebAssembly Module
 
+> [!WARNING]
 > **Status: scaffolding only** — no compiled WASM artifacts are built yet. When the module is unavailable, `getHighPrecision()` **throws** rather than silently degrading precision; the pure-JS mock (`createMockWASM` in `src/wasm/mock.ts`) is only used by tests/dev, not substituted into production. The MPFR/Emscripten build described below is the target, not the current state.
 
 This directory contains the WebAssembly module for arbitrary precision arithmetic using MPFR (Multiple Precision Floating-Point Reliable Library) and GMP (GNU Multiple Precision Arithmetic Library).

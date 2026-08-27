@@ -9,6 +9,7 @@
 6. [Traveling Salesman Problem](#traveling-salesman-problem)
 7. [Cycle Detection](#cycle-detection)
 8. [Real-World Applications](#real-world-applications)
+9. [Performance Benchmarks](#performance-benchmarks)
 
 ## Minimum Spanning Tree
 
