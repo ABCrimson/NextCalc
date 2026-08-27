@@ -1,8 +1,22 @@
+import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { withSentryConfig } from '@sentry/nextjs';
 import withSerwistInit from '@serwist/next';
 import type { NextConfig } from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
+
+/**
+ * Exact pins read straight from this package's manifest. The homepage hero
+ * badges are rendered from these (see lib/stack-versions.ts) so marketing copy
+ * can never drift from what actually ships — they were hardcoded literals once
+ * and silently went a major version stale in production.
+ */
+const pkg = JSON.parse(readFileSync(resolve(import.meta.dirname, 'package.json'), 'utf8')) as {
+  dependencies: Record<string, string>;
+  devDependencies: Record<string, string>;
+};
+
+const pin = (name: string): string => pkg.dependencies[name] ?? pkg.devDependencies[name] ?? '';
 
 /**
  * Next.js Configuration
@@ -16,6 +30,15 @@ import createNextIntlPlugin from 'next-intl/plugin';
  */
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+
+  // Build-time constants, inlined as string literals (no package.json ever
+  // reaches the client bundle). Formatted for display by lib/stack-versions.ts.
+  env: {
+    NEXT_PUBLIC_STACK_TYPESCRIPT: pin('typescript'),
+    NEXT_PUBLIC_STACK_TAILWIND: pin('tailwindcss'),
+    NEXT_PUBLIC_STACK_REACT: pin('react'),
+    NEXT_PUBLIC_STACK_NEXT: pin('next'),
+  },
 
   // React Compiler — automatic memoization (stable top-level option in 16.3).
   // Manual useMemo/useCallback/memo remain valid but are no longer required

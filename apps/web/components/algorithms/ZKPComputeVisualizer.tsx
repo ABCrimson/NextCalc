@@ -14,7 +14,7 @@
  *
  * Follows project conventions:
  * - React 19.3: no forwardRef, ref as prop, named imports only.
- * - TypeScript 6.0 strict / exactOptionalPropertyTypes.
+ * - TypeScript strict mode / `exactOptionalPropertyTypes`.
  * - Zero `any` / `as any`.
  * - Glass-morphism card style.
  * - OKLCH colour tokens via Tailwind semantic classes.

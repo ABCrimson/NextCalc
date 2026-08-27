@@ -19,7 +19,7 @@
  * - React 19.3: named imports, ref as prop, no forwardRef
  * - Semantic color tokens throughout
  * - Zero `as any` in production code
- * - TypeScript 6.0 strict + exactOptionalPropertyTypes
+ * - TypeScript strict mode + `exactOptionalPropertyTypes`
  */
 
 import {

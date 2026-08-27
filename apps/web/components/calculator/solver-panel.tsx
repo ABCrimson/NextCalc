@@ -302,7 +302,7 @@ const MODE_META: Readonly<
 /**
  * Typed view over an AST node object.
  * Using an interface (not Record<string,unknown>) avoids TS4111 index-signature
- * errors that occur with bracket-vs-dot notation in TypeScript 6 strict mode.
+ * errors that occur with bracket-vs-dot notation in TypeScript strict mode.
  */
 interface AstNodeShape {
   readonly type: string;

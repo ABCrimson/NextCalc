@@ -22,7 +22,7 @@
  *   VERTEX = 0x1, FRAGMENT = 0x2, COMPUTE = 0x4
  *
  * TypeScript compliance:
- * - TypeScript 6.0 strict / exactOptionalPropertyTypes.
+ * - TypeScript strict mode / `exactOptionalPropertyTypes`.
  * - Zero `any` / `as any`.
  * - React 19.3: no forwardRef, no displayName.
  *

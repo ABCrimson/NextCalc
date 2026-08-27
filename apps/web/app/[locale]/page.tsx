@@ -14,6 +14,7 @@ import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { type CSSProperties, Suspense } from 'react';
 import { Link } from '@/i18n/navigation';
+import { STACK_VERSIONS } from '@/lib/stack-versions';
 
 const InstallPWA = dynamic(
   () => import('@/components/install-pwa').then((mod) => ({ default: mod.InstallPWA })),
@@ -193,8 +194,12 @@ export default function Home() {
           </div>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             {t.rich('home.hero.subtitle' as Parameters<typeof t>[0], {
-              react: () => <span className="font-semibold text-foreground">React 19.3.0</span>,
-              nextjs: () => <span className="font-semibold text-foreground">Next.js 16.3.0</span>,
+              react: () => (
+                <span className="font-semibold text-foreground">React {STACK_VERSIONS.react}</span>
+              ),
+              nextjs: () => (
+                <span className="font-semibold text-foreground">Next.js {STACK_VERSIONS.next}</span>
+              ),
             })}
           </p>
 
@@ -218,14 +223,14 @@ export default function Home() {
               className="group relative px-4 py-2 rounded-full bg-linear-to-r/oklab from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/40 hover:shadow-xl hover:shadow-blue-500/60 transition-all duration-300 hover:scale-105 overflow-hidden"
             >
               <div className="absolute inset-0 bg-linear-to-r/oklab from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
-              <span className="relative z-10">TypeScript 6.0</span>
+              <span className="relative z-10">TypeScript {STACK_VERSIONS.typescript}</span>
             </m.div>
             <m.div
               variants={badgeVariants}
               className="group relative px-4 py-2 rounded-full bg-linear-to-r/oklab from-purple-500 to-pink-600 text-white shadow-lg shadow-purple-500/40 hover:shadow-xl hover:shadow-purple-500/60 transition-all duration-300 hover:scale-105 overflow-hidden"
             >
               <div className="absolute inset-0 bg-linear-to-r/oklab from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
-              <span className="relative z-10">Tailwind 4.3.2</span>
+              <span className="relative z-10">Tailwind {STACK_VERSIONS.tailwind}</span>
             </m.div>
             <m.div
               variants={badgeVariants}

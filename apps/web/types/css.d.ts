@@ -1,7 +1,7 @@
 /**
  * CSS Module Type Declarations
  *
- * TypeScript 6.0 with noUncheckedSideEffectImports requires
+ * TypeScript with `noUncheckedSideEffectImports` requires
  * type declarations for side-effect imports like CSS files.
  *
  * This file declares module types for:

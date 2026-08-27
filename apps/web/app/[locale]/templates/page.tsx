@@ -62,7 +62,7 @@ interface Template {
    * with a human-readable message for domain-level invalid inputs.
    *
    * Using a getter callback rather than `Record<string, number>` avoids the
-   * TypeScript 6 `exactOptionalPropertyTypes` narrowing issue where index
+   * `exactOptionalPropertyTypes` narrowing issue where index
    * access on `Record<string, number>` returns `number | undefined`.
    */
   calculate: (get: FieldGetter) => number;
