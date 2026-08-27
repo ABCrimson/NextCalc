@@ -5,6 +5,7 @@ import { Inter, JetBrains_Mono } from 'next/font/google';
 import { cookies } from 'next/headers';
 import { getLocale } from 'next-intl/server';
 import type { ReactNode } from 'react';
+import { STACK_VERSIONS } from '@/lib/stack-versions';
 import './globals.css';
 
 const inter = Inter({
@@ -19,15 +20,20 @@ const jetbrainsMono = JetBrains_Mono({
   display: 'swap',
 });
 
-// Next.js 16.2.0: Enhanced Metadata API with comprehensive SEO + PWA
+// Version strings come from STACK_VERSIONS (derived from package.json at build time).
+// They are user-facing via search results and social cards, so a hardcoded literal here
+// goes stale invisibly — this metadata claimed a Next.js version two minors behind what shipped.
+const REACT_LABEL = `React ${STACK_VERSIONS.react}`;
+const NEXT_LABEL = `Next.js ${STACK_VERSIONS.next}`;
+
+// Enhanced Metadata API with comprehensive SEO + PWA
 export const metadata: Metadata = {
   metadataBase: new URL(process.env['NEXT_PUBLIC_APP_URL'] || 'http://localhost:3005'),
   title: {
     template: '%s | NextCalc Pro',
     default: 'NextCalc Pro - Modern Scientific Calculator',
   },
-  description:
-    'Advanced scientific calculator powered by React 19.3.0, Next.js 16.2.0, with symbolic math, WASM-powered precision, and real-time calculations',
+  description: `Advanced scientific calculator powered by ${REACT_LABEL}, ${NEXT_LABEL}, with symbolic math, WASM-powered precision, and real-time calculations`,
   keywords: [
     'calculator',
     'scientific calculator',
@@ -37,8 +43,8 @@ export const metadata: Metadata = {
     'symbolic math',
     'LaTeX',
     'graphing calculator',
-    'React 19.3.0',
-    'Next.js 16.2.0',
+    REACT_LABEL,
+    NEXT_LABEL,
     'PWA',
     'offline calculator',
   ],
@@ -61,7 +67,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'NextCalc Pro - Modern Scientific Calculator',
-    description: 'Advanced scientific calculator powered by React 19.3.0 and Next.js 16.2.0',
+    description: `Advanced scientific calculator powered by ${REACT_LABEL} and ${NEXT_LABEL}`,
   },
   robots: {
     index: true,
@@ -90,7 +96,7 @@ export const metadata: Metadata = {
   applicationName: 'NextCalc Pro',
 };
 
-// Next.js 16.2.0: Viewport configuration
+// Viewport configuration
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,

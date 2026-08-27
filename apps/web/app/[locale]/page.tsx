@@ -193,12 +193,19 @@ export default function Home() {
             <div className="h-1.5 w-full bg-linear-to-r/oklab from-primary via-calculator-operator to-calculator-equals rounded-full mt-3 shadow-lg shadow-primary/50 animate-pulse" />
           </div>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            {/* <react>/<nextjs> are rich-text TAGS, not {simple} arguments: next-intl only
+                accepts a function for a tag, so the previous `{react}` placeholder silently
+                rendered nothing and this sentence shipped with two blank gaps. */}
             {t.rich('home.hero.subtitle' as Parameters<typeof t>[0], {
-              react: () => (
-                <span className="font-semibold text-foreground">React {STACK_VERSIONS.react}</span>
+              react: (chunks) => (
+                <span className="font-semibold text-foreground">
+                  {chunks} {STACK_VERSIONS.react}
+                </span>
               ),
-              nextjs: () => (
-                <span className="font-semibold text-foreground">Next.js {STACK_VERSIONS.next}</span>
+              nextjs: (chunks) => (
+                <span className="font-semibold text-foreground">
+                  {chunks} {STACK_VERSIONS.next}
+                </span>
               ),
             })}
           </p>

@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { formatVersion, STACK_MANIFEST_KEYS } from '../lib/stack-versions';
@@ -80,12 +80,55 @@ describe('badge wiring', () => {
 
 describe('no hardcoded versions in user-facing copy', () => {
   const HOMEPAGE = resolve(WEB_ROOT, 'app/[locale]/page.tsx');
+  const LAYOUT = resolve(WEB_ROOT, 'app/layout.tsx');
+  const VERSION_LITERAL = /(TypeScript|Tailwind|React|Next\.js|Turbopack)\s+v?\d+\.\d+/g;
+
+  it('the SEO metadata never hardcodes a stack version literal', () => {
+    // layout.tsx feeds search results and social cards — it shipped "Next.js 16.2.0"
+    // while 16.4 canary was live, invisible to every gate.
+    const offenders = [...readFileSync(LAYOUT, 'utf8').matchAll(VERSION_LITERAL)].map((m) => m[0]);
+    expect(
+      offenders,
+      `Hardcoded version literal(s) in app/layout.tsx: ${offenders.join(', ')}. ` +
+        'Build the string from STACK_VERSIONS instead.',
+    ).toEqual([]);
+  });
+
+  it('no locale message hardcodes a stack version literal', () => {
+    const dir = resolve(WEB_ROOT, 'messages');
+    const offenders: string[] = [];
+    for (const file of readdirSync(dir).filter((f) => f.endsWith('.json'))) {
+      for (const m of readFileSync(resolve(dir, file), 'utf8').matchAll(VERSION_LITERAL)) {
+        offenders.push(`${file}: ${m[0]}`);
+      }
+    }
+    expect(
+      offenders,
+      `Hardcoded version literal(s) in messages/: ${offenders.join(', ')}. ` +
+        'Translation copy must not carry version numbers — they go stale in every language at once.',
+    ).toEqual([]);
+  });
+
+  it('the hero subtitle uses rich-text TAGS, not simple arguments', () => {
+    // next-intl only accepts a function for a <tag>. When the message used {react}
+    // and the code passed a function, the value rendered as NOTHING and the live
+    // sentence read "powered by  + " with two blank gaps.
+    const dir = resolve(WEB_ROOT, 'messages');
+    for (const file of readdirSync(dir).filter((f) => f.endsWith('.json'))) {
+      const messages = JSON.parse(readFileSync(resolve(dir, file), 'utf8')) as {
+        home?: { hero?: { subtitle?: string } };
+      };
+      const subtitle = messages.home?.hero?.subtitle ?? '';
+      expect(subtitle, `${file} hero.subtitle must not use {react}`).not.toMatch(/\{react\}/);
+      expect(subtitle, `${file} hero.subtitle must not use {nextjs}`).not.toMatch(/\{nextjs\}/);
+      expect(subtitle, `${file} hero.subtitle must use <react> tag`).toMatch(/<react>/);
+      expect(subtitle, `${file} hero.subtitle must use <nextjs> tag`).toMatch(/<nextjs>/);
+    }
+  });
 
   it('the homepage never hardcodes a stack version literal', () => {
     const source = readFileSync(HOMEPAGE, 'utf8');
-    const offenders = [
-      ...source.matchAll(/(TypeScript|Tailwind|React|Next\.js|Turbopack)\s+v?\d+\.\d+/g),
-    ].map((m) => m[0]);
+    const offenders = [...source.matchAll(VERSION_LITERAL)].map((m) => m[0]);
 
     expect(
       offenders,

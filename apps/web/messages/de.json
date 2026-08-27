@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "NextCalc Pro",
-    "tagline": "Moderner wissenschaftlicher Taschenrechner mit React 19.3.0 + Next.js 16.2.0",
+    "tagline": "Moderner wissenschaftlicher Taschenrechner mit React + Next.js",
     "footer": "Erstellt mit modernsten Web-Technologien"
   },
   "nav": {
@@ -1889,7 +1889,7 @@
   "home": {
     "hero": {
       "title": "NextCalc Pro",
-      "subtitle": "Moderner wissenschaftlicher Taschenrechner mit {react} + {nextjs}"
+      "subtitle": "Moderner wissenschaftlicher Taschenrechner mit <react>React</react> + <nextjs>Next.js</nextjs>"
     },
     "explore": {
       "title": "Erweiterte Funktionen entdecken",

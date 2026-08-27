@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "NextCalc Pro",
-    "tagline": "Calculadora científica moderna basada en React 19.3.0 + Next.js 16.2.0",
+    "tagline": "Calculadora científica moderna basada en React + Next.js",
     "footer": "Construido con tecnologías web de vanguardia"
   },
   "nav": {
@@ -1889,7 +1889,7 @@
   "home": {
     "hero": {
       "title": "NextCalc Pro",
-      "subtitle": "Calculadora científica moderna basada en {react} + {nextjs}"
+      "subtitle": "Calculadora científica moderna basada en <react>React</react> + <nextjs>Next.js</nextjs>"
     },
     "explore": {
       "title": "Explore las funciones avanzadas",

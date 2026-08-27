@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "NextCalc Pro",
-    "tagline": "Современный научный калькулятор на базе React 19.3.0 + Next.js 16.2.0",
+    "tagline": "Современный научный калькулятор на базе React + Next.js",
     "footer": "Создан с использованием передовых веб-технологий"
   },
   "nav": {
@@ -1889,7 +1889,7 @@
   "home": {
     "hero": {
       "title": "NextCalc Pro",
-      "subtitle": "Современный научный калькулятор на базе {react} + {nextjs}"
+      "subtitle": "Современный научный калькулятор на базе <react>React</react> + <nextjs>Next.js</nextjs>"
     },
     "explore": {
       "title": "Откройте расширенные возможности",

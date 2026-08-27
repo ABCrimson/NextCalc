@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "NextCalc Pro",
-    "tagline": "React 19.3.0 + Next.js 16.2.0 搭載のモダン関数電卓",
+    "tagline": "React + Next.js 搭載のモダン関数電卓",
     "footer": "最先端のWeb技術で構築"
   },
   "nav": {
@@ -1922,7 +1922,7 @@
   "home": {
     "hero": {
       "title": "NextCalc Pro",
-      "subtitle": "{react} + {nextjs} 搭載のモダン関数電卓"
+      "subtitle": "<react>React</react> + <nextjs>Next.js</nextjs> 搭載のモダン関数電卓"
     },
     "explore": {
       "title": "高度な機能を探索",

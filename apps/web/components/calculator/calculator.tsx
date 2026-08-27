@@ -21,7 +21,7 @@ import { ShortcutsModal } from './shortcuts-modal';
 
 export function Calculator() {
   const t = useTranslations('calc');
-  // React 19.3.0: useTransition for non-blocking state updates
+  // React 19: useTransition for non-blocking state updates
   const [isPending, startTransition] = useTransition();
 
   // Performance-optimized selectors (prevents unnecessary re-renders)
@@ -30,7 +30,7 @@ export function Calculator() {
   const angleMode = useCalculatorAngleMode();
   const memory = useCalculatorMemory();
 
-  // React 19.3.0: useOptimistic for instant feedback before async calculation completes
+  // React 19: useOptimistic for instant feedback before async calculation completes
   const [optimisticResult, setOptimisticResult] = useOptimistic(
     state.result,
     (_currentResult, newResult: string | number | null) => newResult,
@@ -114,7 +114,7 @@ export function Calculator() {
   }, []);
 
   const handleInput = (action: CalculatorAction) => {
-    // Wrap all state updates in startTransition (React 19.3.0 best practice)
+    // Wrap all state updates in startTransition (React 19 best practice)
     startTransition(() => {
       // Show immediate optimistic feedback for evaluation
       if (

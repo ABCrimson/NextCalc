@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "NextCalc Pro",
-    "tagline": "基于 React 19.3.0 + Next.js 16.2.0 的现代科学计算器",
+    "tagline": "基于 React + Next.js 的现代科学计算器",
     "footer": "采用前沿 Web 技术构建"
   },
   "nav": {
@@ -1922,7 +1922,7 @@
   "home": {
     "hero": {
       "title": "NextCalc Pro",
-      "subtitle": "基于 {react} + {nextjs} 的现代科学计算器"
+      "subtitle": "基于 <react>React</react> + <nextjs>Next.js</nextjs> 的现代科学计算器"
     },
     "explore": {
       "title": "探索高级功能",
