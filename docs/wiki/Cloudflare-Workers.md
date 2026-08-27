@@ -10,7 +10,7 @@ Three edge microservices deployed to Cloudflare's global network for sub-50ms re
 | Export Service | `export.nextcalc.io` | LaTeX to PDF/PNG/SVG | R2 bucket |
 | Rate Limiter | `ratelimit.nextcalc.io` | API quota enforcement | Durable Object (+ KV index) |
 
-**Tech**: Hono 4.12, Wrangler 4.x, Zod, TypeScript 7 native, strict mode
+**Tech**: Hono 4.13, Wrangler 4.x, Zod, TypeScript 7 native, strict mode
 
 ---
 
@@ -99,7 +99,7 @@ cd apps/workers/rate-limiter && pnpm run deploy
 
 **CI/CD:** Push to `apps/workers/**` or `pnpm-lock.yaml` on `main` triggers `.github/workflows/deploy-workers.yml`. Also supports `workflow_dispatch` for manual runs. Requires the `CLOUDFLARE_API_TOKEN` GitHub secret (the account is hardcoded as `account_id` in each `wrangler.jsonc`, so no `CLOUDFLARE_ACCOUNT_ID` secret is needed). Each worker deploys independently (`fail-fast: false`). Uses `actions/checkout@v7` and `actions/setup-node@v6`.
 
-> **Note:** Use `pnpm run deploy` (not `pnpm deploy`) — pnpm 11 treats `deploy` as a built-in command.
+> **Note:** Use `pnpm run deploy` (not `pnpm deploy`) — pnpm treats `deploy` as a built-in command.
 
 ## Monitoring
 

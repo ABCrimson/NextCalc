@@ -1,6 +1,6 @@
 # Math Engine
 
-`@nextcalc/math-engine` is the core mathematical computation library with 20 subpath export modules.
+`@nextcalc/math-engine` is the core mathematical computation library with 23 subpath export modules.
 
 ## Modules
 
@@ -22,6 +22,9 @@
 | Calculus | `@nextcalc/math-engine/calculus` | Vector calculus, line/surface integrals |
 | Differential | `@nextcalc/math-engine/differential` | ODE/PDE support |
 | Problems | `@nextcalc/math-engine/problems` | Practice problem generation |
+| Templates | `@nextcalc/math-engine/problems/templates` | Seeded problem-template engine for randomized drills |
+| Equivalence | `@nextcalc/math-engine/equivalence` | CAS answer-equivalence grading (`checkEquivalence`, `checkGradedAnswer`) |
+| Trace | `@nextcalc/math-engine/trace` | StepTrace -- structured, rule-tagged solution steps (`limitWithSteps`) |
 | Prover | `@nextcalc/math-engine/prover` | Logic core + proof search |
 | Knowledge | `@nextcalc/math-engine/knowledge` | Mathematical knowledge base |
 | Content | `@nextcalc/math-engine/content` | Educational content, LaTeX/Markdown |

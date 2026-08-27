@@ -55,7 +55,7 @@ Build order enforced by Turborepo:
 1. `@nextcalc/types` (no deps)
 2. `@nextcalc/math-engine` (depends on mathjs)
 3. `@nextcalc/database` (depends on Prisma + Neon adapter)
-4. `@nextcalc/plot-engine` (depends on math-engine, Three.js, D3)
+4. `@nextcalc/plot-engine` (depends on math-engine, Three.js)
 5. `@nextcalc/api` (depends on database)
 6. `@nextcalc/web` (depends on all above)
 
@@ -86,6 +86,8 @@ Core mathematical computation library with subpath exports.
 | `problems/` | Problem generation | practice problem sets |
 | `prover/` | Mathematical proof engine | proof steps, verification |
 | `content/` | Educational content | lessons, explanations |
+| `equivalence/` | CAS answer-equivalence grading | `checkEquivalence()`, `checkGradedAnswer()` |
+| `trace/` | StepTrace step-by-step emitter | `DISPLAY_RULES`, `limitWithSteps()` |
 | `wasm/` | WASM arbitrary precision (scaffolded) | `getWASMManager()`, `getHighPrecision()` (throws in production if unbuilt; mock is tests/dev only) |
 
 **Tech:** Math.js 15.2, TypeScript 7 native, Vitest 5
@@ -102,11 +104,11 @@ GPU-accelerated mathematical visualization engine.
 | `export/` | PNG, SVG, CSV export |
 | `types/` | Plot configuration types |
 
-**Tech:** Three.js 0.185-line, D3 7.9, WebGL 2, WebGPU (progressive enhancement); TypeScript stays on 6.0.x here (see [DEVELOPMENT.md](../DEVELOPMENT.md#typescript))
+**Tech:** Three.js 0.185-line, WebGL 2, WebGPU (progressive enhancement); TypeScript 7.1-dev native (the former TS 6.0.x holdout migrated 2026-08-27 -- see [DEVELOPMENT.md](../DEVELOPMENT.md#typescript))
 
 ### @nextcalc/database
 
-Shared Prisma 7 database package.
+Shared Prisma database package (Prisma 8 dev line).
 
 - **Schema:** `packages/database/prisma/schema.prisma` (single source of truth)
 - **Config:** `packages/database/prisma.config.ts` (loads env from `apps/web/.env.local` via dotenv)
@@ -115,7 +117,7 @@ Shared Prisma 7 database package.
 
 **Tables:** 30 models in total. Core tables include users, accounts, sessions, worksheets, folders, forum_posts, comments, upvotes, audit_logs; the remainder cover the learning/content domain (problems, hints, test cases, topics, theorems, algorithms, user progress, attempts, achievements, etc.).
 
-**Tech:** Prisma 7.9 dev, @neondatabase/serverless 1.1, @prisma/adapter-neon 7.9 dev (exact pins in `packages/database/package.json`)
+**Tech:** Prisma 8.1 dev, @neondatabase/serverless 1.1, @prisma/adapter-neon 8.1 dev (exact pins in `packages/database/package.json`)
 
 ### @nextcalc/api
 
@@ -151,7 +153,7 @@ Three edge microservices deployed to Cloudflare's global network:
 | export-service | LaTeX to PDF/PNG/SVG conversion | 8788 | R2 bucket |
 | rate-limiter | API quota enforcement (sliding window) | 8789 | Durable Object (+ KV id index) |
 
-**Tech:** Hono 4.12, Wrangler 4.x, Zod, TypeScript 7 native
+**Tech:** Hono 4.13, Wrangler 4.x, Zod, TypeScript 7 native
 
 ## Data Flow
 
@@ -236,8 +238,8 @@ Colors are defined in `apps/web/app/globals.css` using the OKLCH color space (P3
 ### Component Library
 
 - **shadcn/ui** -- CLI-installed components (not npm package), stored in `apps/web/components/ui/`
-- **Radix UI** -- Unified `radix-ui@1.6` package (replaces individual `@radix-ui/*` packages)
-- **Framer Motion** -- Layout animations, `prefers-reduced-motion` support
+- **Radix UI** -- Unified `radix-ui@1.7` package (replaces individual `@radix-ui/*` packages)
+- **Motion** (`motion/react`) -- Layout animations, `prefers-reduced-motion` support
 
 ### Favicon & PWA Icons
 
@@ -269,11 +271,11 @@ export const useStore = create<State>()(
 );
 ```
 
-## Prisma 7 Migration Notes
+## Prisma Migration Notes
 
-Key differences from Prisma 6 that affect this codebase:
+Key differences (introduced in Prisma 7, still current on the Prisma 8 dev line) from Prisma 6 that affect this codebase:
 
-- **Adapter configuration**: `PrismaNeon` takes a `{ connectionString }` config object, **not** a `Pool` instance. Prisma 7's adapter creates its own Pool internally. Passing a Pool directly causes "No database host or connection string" errors.
+- **Adapter configuration**: `PrismaNeon` takes a `{ connectionString }` config object, **not** a `Pool` instance. The adapter creates its own Pool internally. Passing a Pool directly causes "No database host or connection string" errors.
 - **Generated client output**: The `output` path in `schema.prisma` must be explicit (`packages/database/src/generated/prisma/`). The generated directory is gitignored and regenerated on `postinstall`.
 - **Config file location**: `prisma.config.ts` lives at the package root (`packages/database/prisma.config.ts`), not inside the `prisma/` subfolder. It loads environment variables from `apps/web/.env.local` via dotenv.
 - **Generator name**: Use `prisma-client` (not `prisma-client-js`).
@@ -319,7 +321,7 @@ The canonical, up-to-date list of DataLoaders and what each batches lives in [do
 
 - **Library:** `next-intl` with App Router integration
 - **Locales:** en, ru, es, uk, de, fr, ja, zh (8 languages)
-- **Translation files:** `apps/web/messages/{locale}.json` (1,200+ keys per locale; not all locales at full parity)
+- **Translation files:** `apps/web/messages/{locale}.json` (1,500+ keys per locale, 1,609 in `en`; not all locales at full parity)
 - **Routing:** `[locale]` dynamic segment (e.g., `/en/plot`, `/ru/matrix`)
 - **Proxy:** Locale detection + redirect in `apps/web/proxy.ts` (Next.js 16 renamed `middleware.ts` → `proxy.ts`)
 

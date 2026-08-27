@@ -4,13 +4,13 @@ Backend GraphQL API for NextCalc Pro, built with Apollo Server, Prisma, and Next
 
 ## Tech Stack
 
-- **Database:** Neon PostgreSQL with Prisma 7 (via the shared `@nextcalc/database` package)
+- **Database:** Neon PostgreSQL with Prisma 8 (dev line, via the shared `@nextcalc/database` package)
 - **API:** GraphQL (graphql 17) with Apollo Server 5.5
 - **Authentication:** Auth.js v5 (NextAuth 5.0 beta) with OAuth + jose 6.2 JWT verification
 - **Caching:** Upstash Redis
 - **Rate Limiting:** Upstash Rate Limit
 - **Connection Pooling:** Neon Serverless Driver
-- **Language:** TypeScript 7 native (this package is one of the 8/10 gated by the native `tsc` Go compiler -- see [DEVELOPMENT.md](../../DEVELOPMENT.md#typescript))
+- **Language:** TypeScript 7 native (all 10 packages are gated by the native `tsc` Go compiler -- see [DEVELOPMENT.md](../../DEVELOPMENT.md#typescript))
 - **Linting/Formatting:** Biome 2.x
 
 > Exact pinned versions live in [`apps/api/package.json`](package.json).
@@ -18,7 +18,7 @@ Backend GraphQL API for NextCalc Pro, built with Apollo Server, Prisma, and Next
 ## Prerequisites
 
 - Node.js 24+ (26 recommended)
-- pnpm 11+
+- pnpm 12+
 - PostgreSQL database (Neon recommended)
 - Upstash Redis account (free tier)
 

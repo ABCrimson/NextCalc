@@ -87,13 +87,11 @@ jobs:
   # ---------------------------------------------------------------------------
   # Typecheck (tsc --noEmit across all packages via turbo)
   #
-  # TypeScript 7 (native compiler) is the gate for every package except:
-  # - @nextcalc/web: Next.js build-time checking + graphql-codegen need the
-  #   TypeScript JS API, which ships in TS 7.1 (web stays on tsc 6.0.3)
-  # - @nextcalc/plot-engine: three.js TSL node-union types hang the native
-  #   checker (upstream typescript-go limitation; stays on tsc 6.0.3)
-  # Re-unify on TS 7.x when Next.js supports the native compiler and the
-  # TSL type expansion is fixed upstream.
+  # TypeScript 7 (native Go compiler, 7.1.0-dev line) is the gate for ALL 10
+  # packages as of 2026-08-27 — the former holdouts (@nextcalc/web,
+  # @nextcalc/plot-engine) migrated once TS 7.1 shipped its JS API and the
+  # three.js TSL type-expansion hang was fixed upstream. See
+  # DEVELOPMENT.md#typescript.
   # ---------------------------------------------------------------------------
   typecheck:
     name: Typecheck

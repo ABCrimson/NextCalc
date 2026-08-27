@@ -196,7 +196,7 @@ X-RateLimit-Tier: pro
 ### Prerequisites
 
 - Node.js 24+ (26 recommended)
-- pnpm 11+
+- pnpm 12+
 - Cloudflare account
 - Wrangler CLI 4.x (see each worker's `package.json` for the exact pin)
 
@@ -353,9 +353,10 @@ Monitor workers in the Cloudflare dashboard:
 
 All workers have observability enabled in `wrangler.jsonc`:
 
-```toml
-[observability]
-enabled = true
+```jsonc
+"observability": {
+  "enabled": true
+}
 ```
 
 This provides:
@@ -392,9 +393,10 @@ wrangler r2 bucket create nextcalc-exports-public
 **3. CORS Errors**
 
 Solution: Verify `ALLOWED_ORIGINS` in `wrangler.jsonc`:
-```toml
-[vars]
-ALLOWED_ORIGINS = "http://localhost:3005,https://nextcalc.io"
+```jsonc
+"vars": {
+  "ALLOWED_ORIGINS": "http://localhost:3005,https://nextcalc.io"
+}
 ```
 
 **4. Rate Limit Always 429**

@@ -47,4 +47,4 @@ GitHub wikis are backed by their own git repository (`<repo>.wiki.git`), indepen
 
 ## Last-synced state
 
-As of 2026-07-10, the live wiki reflects **v1.5.0** — synced immediately after the v1.5.0 release (evergreen sweep, PR #74) from this directory at the release commit. `Home.md`, `_Footer.md`, and `_Sidebar.md` all display "v1.5.0".
+As of 2026-08-27, the live wiki reflects **v1.5.2 plus the 2026-08-27 accuracy refresh** (stack versions after the evergreen bump: Next 16.4 canary, TS 7.1-dev on all 10 packages, Prisma 8.1 dev, pnpm 12, Vitest 5 RC). `Home.md`, `_Footer.md`, and `_Sidebar.md` all display "v1.5.2".

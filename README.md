@@ -3,7 +3,7 @@
 </div>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Next.js-16.3-000?logo=nextdotjs&logoColor=white" alt="Next.js" />
+  <img src="https://img.shields.io/badge/Next.js-16.4-000?logo=nextdotjs&logoColor=white" alt="Next.js" />
   <img src="https://img.shields.io/badge/React-19.3-61DAFB?logo=react&logoColor=white" alt="React" />
   <img src="https://img.shields.io/badge/TypeScript-7-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/github/actions/workflow/status/ABCrimson/NextCalc/ci.yml?branch=main&label=CI&logo=github" alt="CI" />
@@ -15,24 +15,27 @@
 
 ### What's New
 
-> **Current release: v1.5.1** — hotfix restoring avatars, comment upvotes, comment posting, Lorenz particles, ODE auto-fit, and the PDE 3D colormap (see CHANGELOG), on top of the 2026-07 evergreen sweep: every dependency at its absolute-newest published version (TypeScript 7.1 native compiler as the typecheck gate for 8 of 10 packages), React Compiler enabled, real cross-instance GraphQL subscriptions, a competitive-accuracy regression suite, a net −9k-line dead-code purge, and a pre-merge adversarial review whose findings (including a years-old CAS infinite loop) are all fixed. Full detail in [CHANGELOG.md](CHANGELOG.md).
+> [!NOTE]
+> **Current release: v1.5.2** — forum SSR now executes GraphQL in-process (no more "Post not found" streams), the admin profile renders its Architect tier, and the forum background became a compositor-only OKLCH aurora — on top of v1.5.1's hotfixes (avatars, comment upvotes, comment posting, Lorenz particles, ODE auto-fit, PDE 3D colormap) and the 2026-07 evergreen sweep. Full detail in [CHANGELOG.md](CHANGELOG.md).
+
+> **Evergreen bump (2026-08-27, unreleased):** 63 dependency bumps landed post-v1.5.2 — Next.js 16.4 canary, TypeScript 7.1-dev (the native Go compiler now gates **all 10 packages**; the last two TS 6 holdouts migrated), Prisma 8.1 dev, Vitest 5 RC, pnpm 12 — with the full 4,550-test suite green.
 
 <details>
 <summary><strong>Highlights</strong></summary>
 
 | Category | Improvements |
 |:---------|:-------------|
-| **Dependencies** | Next.js 16.3 canary, React 19.3 canary, TypeScript 7 native (6 for web + plot-engine), GraphQL 17, Apollo 5.5, Prisma 7.9 dev, Three.js 0.185-line, Biome 2.x, Turbo 2.10, Vitest 5, Wrangler 4.x |
+| **Dependencies** | Next.js 16.4 canary, React 19.3 canary, TypeScript 7.1-dev native (all 10 packages), GraphQL 17, Apollo 5.5, Prisma 8.1 dev, Three.js 0.185-line, Biome 2.x, Turbo 2.10 canary, Vitest 5 RC, Wrangler 4.x, pnpm 12 |
 | **Newest idioms** | TSL-compute Lorenz particles, GTAO SSAO, next-intl `useFormatter`, serwist 10, tagged-PDF export (modern-pdf-lib), modern-cmdk command palette |
 | **Lint sweep** | Biome 2.x — 2,222 warnings + 221 infos → 0 warnings (real fixes; only documented, principled overrides) |
-| **CI/CD** | Node 26, TypeScript 7 native typecheck gates 8/10 packages (web + plot-engine stay on TS 6 pending upstream), gate green |
+| **CI/CD** | Node 26, TypeScript 7 native typecheck gates all 10 packages (single job, no advisory track), gate green |
 
 </details>
 
 <h3 align="center">Scientific Calculator &amp; Mathematical Visualization Platform</h3>
 
 <p align="center">
-  48 pages &middot; 8 languages &middot; GPU-accelerated WebGL / WebGPU &middot; Edge computing
+  49 pages &middot; 8 languages &middot; GPU-accelerated WebGL / WebGPU &middot; Edge computing
 </p>
 
 <p align="center">
@@ -85,7 +88,7 @@ Interactive demos for Transformers, Zero-Knowledge Proofs, Quantum Computing, Pa
 <td width="33%" valign="top">
 
 **8 Languages**
-Full i18n with 1200+ keys per locale: English, Russian, Spanish, Ukrainian, German, French, Japanese, Chinese.
+Full i18n with 1,500+ keys per locale (1,609 in `en`): English, Russian, Spanish, Ukrainian, German, French, Japanese, Chinese.
 
 </td>
 </tr>
@@ -113,7 +116,7 @@ graph TB
     end
 
     subgraph Storage["Storage Layer"]
-        G[("Neon PostgreSQL<br/>Prisma 7")]
+        G[("Neon PostgreSQL<br/>Prisma 8")]
         H[("Upstash Redis<br/>Cache + PubSub")]
         I[("R2 Bucket<br/>Exports")]
         J[("Durable Object<br/>Rate Limits")]
@@ -136,26 +139,25 @@ graph TB
 
 | Category | Technology | Version |
 |:---------|:-----------|:--------|
-| Language | TypeScript | 7 native (8/10 packages); 6 for `web` + `plot-engine` |
-| Framework | Next.js | 16.3 canary |
+| Language | TypeScript | 7.1-dev native (all 10 packages) |
+| Framework | Next.js | 16.4 canary |
 | UI Library | React | 19.3 canary |
 | Styling | Tailwind CSS | 4.3 |
-| Components | Radix UI (unified) | 1.6 |
-| Animation | Motion (`motion/react`) | 12.x |
+| Components | Radix UI (unified) | 1.7 rc |
+| Animation | Motion (`motion/react`) | 13.x |
 | State | Zustand | 5.0 |
 | Math | Math.js | 15.2 |
 | 3D Rendering | Three.js | 0.185-line |
-| 2D Charts | D3.js | 7.9 |
-| LaTeX | KaTeX | 0.17 |
-| ORM | Prisma | 7.9 dev |
+| LaTeX | KaTeX | 0.18 |
+| ORM | Prisma | 8.1 dev |
 | Auth | NextAuth + jose | 5.0 / 6.2 |
 | GraphQL | Apollo Server / Client | 5.5 / 4.3 |
 | GraphQL spec | graphql | 17 |
 | Cache | Upstash Redis | 1.38 |
-| Workers | Hono on Cloudflare | 4.12 |
+| Workers | Hono on Cloudflare | 4.13 |
 | Build | Turborepo | 2.10 canary |
 | Linting | Biome | 2.x |
-| Testing | Vitest + Playwright | 5.0 |
+| Testing | Vitest + Playwright | 5.0 rc / 1.63 alpha |
 
 > Exact pinned versions live in each package's `package.json`.
 
@@ -173,15 +175,15 @@ NextCalc/
 │       ├── export-service/    #   LaTeX to PDF/PNG/SVG export
 │       └── rate-limiter/      #   API rate limiting via Durable Object
 ├── packages/
-│   ├── math-engine/           # Core math library (20 subpath modules)
+│   ├── math-engine/           # Core math library (23 subpath modules)
 │   ├── plot-engine/           # GPU visualization engine
-│   ├── database/              # Prisma 7 shared package
+│   ├── database/              # Prisma 8 shared package
 │   └── types/                 # Shared TypeScript types
 └── docs/                      # Documentation
 ```
 
 <details>
-<summary><strong>apps/web</strong> — 48 page routes</summary>
+<summary><strong>apps/web</strong> — 49 page routes</summary>
 
 ```
 app/[locale]/
@@ -200,30 +202,35 @@ app/[locale]/
 ├── auth/signin/          # OAuth sign-in (GitHub, Google)
 ├── chaos/                # Lorenz attractor + bifurcation (WebGPU)
 ├── complex/              # Complex number operations
+├── formulas/             # Formula library (70+ formulas)
 ├── forum/                # Community forum with GraphQL
 ├── fourier/              # Fourier analysis
 ├── game-theory/          # Nash equilibrium solver
+├── gpu-lab/              # WebGPU simulation gallery
 ├── graphs-full/          # Full graph algorithm suite
 ├── learn/                # Interactive learning platform
 ├── matrix/               # Matrix operations
 ├── ml-algorithms/        # ML algorithm demos
-├── pde/                  # PDE solver (heat, wave, Laplace)
-├── plot/                 # 2D/3D function plotter
-├── practice/             # Practice problems
+├── pde/                  # PDE solver (heat, wave, Laplace) + 3D view
+├── plot/                 # 2D/3D function plotter + relations + regression
+├── practice/             # Practice problems + Infinite Drill
 ├── problems/             # Problem browser + number theory
 ├── profile/              # User profile
 ├── settings/             # User settings
+├── share/[code]/         # Shared calculation pages
 ├── solver/               # Equation + ODE solver
 ├── stats/                # Statistics calculator
 ├── symbolic/taylor/      # Taylor series expansion
+├── templates/            # Calculation templates
 ├── units/                # Unit converter
-└── worksheet/            # Jupyter-like worksheet
+├── worksheet/            # Jupyter-like worksheet editor
+└── worksheets/           # My Worksheets listing
 ```
 
 </details>
 
 <details>
-<summary><strong>packages/math-engine</strong> — 20 subpath export modules (key modules shown)</summary>
+<summary><strong>packages/math-engine</strong> — 23 subpath export modules (key modules shown)</summary>
 
 | Module | Description |
 |:-------|:------------|
@@ -242,6 +249,8 @@ app/[locale]/
 | `game-theory/` | Nash equilibrium, dominant strategies |
 | `prover/` | Logic core + proof search |
 | `algorithms/` | Sorting, searching, crypto, ML |
+| `equivalence/` | CAS answer-equivalence grading (`checkEquivalence`) |
+| `trace/` | StepTrace — structured step-by-step solution steps |
 
 </details>
 
@@ -270,7 +279,7 @@ pnpm dev
 # Open http://localhost:3005
 ```
 
-> **Prerequisites**: Node.js >= 24.0.0 (CI runs Node 26), pnpm >= 11
+> **Prerequisites**: Node.js >= 24.0.0 (CI runs Node 26), pnpm >= 12
 
 ---
 

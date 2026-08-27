@@ -121,7 +121,7 @@ pnpm run deploy
 
 ### Worker Configuration
 
-Each worker's `wrangler.toml` needs:
+Each worker's `wrangler.jsonc` needs:
 
 - Correct KV namespace IDs (rate-limiter)
 - Correct R2 bucket names (export-service)
@@ -225,13 +225,13 @@ The CI pipeline (`.github/workflows/ci.yml`) runs 5 jobs on every push to `main`
 |-----|-------------|---------|
 | **Install** | `pnpm install --frozen-lockfile` + Prisma generate + cache `node_modules` | 10 min |
 | **Lint** | `pnpm turbo run lint` (Biome) | 10 min |
-| **Typecheck** | `pnpm turbo run typecheck` -- TypeScript 7 native (the Go-based compiler) gates 8 of the 10 packages; `@nextcalc/web` and `@nextcalc/plot-engine` still run classic `tsc` 6.0.x (see [DEVELOPMENT.md](../DEVELOPMENT.md#typescript) for why). There is no separate advisory/`tsgo` job -- this single job is the real gate for every package. | 15 min |
+| **Typecheck** | `pnpm turbo run typecheck` -- TypeScript 7 native (the Go-based compiler, `7.1.0-dev` line) gates **all 10 packages** as of 2026-08-27 (see [DEVELOPMENT.md](../DEVELOPMENT.md#typescript)). There is no separate advisory/`tsgo` job -- this single job is the real gate for every package. | 15 min |
 | **Build** | `pnpm turbo run build` (requires `AUTH_SECRET` env var) | 20 min |
 | **Test** | `pnpm turbo run test` (Vitest, with 300s timeout) | 10 min |
 
 **Key details:**
 - Actions: `actions/checkout@v7`, `actions/setup-node@v6`, `pnpm/action-setup@v6`
-- Node 26 (the `engines.node` floor stays `>=24` for Vercel's cap), pnpm 11 with `--frozen-lockfile`
+- Node 26 (the `engines.node` floor stays `>=24` for Vercel's cap), pnpm 12 (resolved from the `packageManager` field) with `--frozen-lockfile`
 - `AUTH_SECRET: ci-build-placeholder` must be set in the Build step (NextAuth requires it at build time)
 - Turbo remote caching via `TURBO_TOKEN` / `TURBO_TEAM` secrets
 - Test step handles Vitest cleanup timeout (exit code 124 treated as success)
@@ -284,11 +284,11 @@ After deploying, verify:
 
 ### Cloudflare Workers
 
-Configure custom domains via Cloudflare Dashboard or `wrangler.toml`:
+Configure custom domains via Cloudflare Dashboard or `wrangler.jsonc`:
 
-```toml
-routes = [
-  { pattern = "cas.nextcalc.io/*", zone_name = "nextcalc.io" }
+```jsonc
+"routes": [
+  { "pattern": "cas.nextcalc.io", "custom_domain": true }
 ]
 ```
 

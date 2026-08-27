@@ -1,6 +1,6 @@
 # Database Schema
 
-Prisma 7 with Neon PostgreSQL serverless adapter. Schema: `packages/database/prisma/schema.prisma`.
+Prisma (8.1 dev line) with Neon PostgreSQL serverless adapter. Schema: `packages/database/prisma/schema.prisma`.
 
 ---
 

@@ -35,6 +35,9 @@ Each row is an importable subpath, e.g. `import { differentiate } from '@nextcal
 | `./algorithms` | Sorting, searching, cryptography (RSA, Miller-Rabin), quantum simulation, ML algorithms |
 | `./knowledge` | Mathematical knowledge base (formulas, theorems) |
 | `./problems` | Practice problem generation |
+| `./problems/templates` | Seeded problem-template engine for randomized drill practice |
+| `./equivalence` | CAS answer-equivalence grading (`checkEquivalence`, `checkGradedAnswer`) |
+| `./trace` | StepTrace -- structured, rule-tagged step-by-step emission (`DISPLAY_RULES`, `limitWithSteps`) |
 | `./prover` | Logic core + proof search (BFS/DFS/iterative deepening) |
 | `./content` | Educational content (lessons, LaTeX/Markdown explanations) |
 | `./wasm` | Arbitrary precision arithmetic (`getWASMManager()`, `getHighPrecision()`) -- scaffolded, no native build yet |

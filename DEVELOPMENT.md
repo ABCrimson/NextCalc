@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- **Node.js** 24+ (26 recommended; two installs exist on this machine: `C:\nvm4w\nodejs\node.exe` v24.8.0 and `C:\Program Files\nodejs\node.exe` v26.0.0-nightly)
+- **Node.js** 24+ (26 recommended; on this machine `C:\Program Files\nodejs\node.exe` is v26.8.1 — the old `C:\nvm4w` install no longer exists)
 - **pnpm** 12 (the `packageManager` field in the root `package.json` pins the exact version -- do not restate it here)
 
 > **Note (Windows):** If pnpm is not in PATH, invoke it via:
@@ -195,7 +195,7 @@ Regardless of which compiler gates a given package:
 - `Slot` is a namespace -- use `Slot.Root` as the component
 - When using `asChild` with Button, Radix `Slot.Root` expects a single child
 
-### Prisma 7
+### Prisma
 
 - Always import from `@nextcalc/database`, never from `@prisma/client`
 - Schema lives at `packages/database/prisma/schema.prisma`

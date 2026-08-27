@@ -1,6 +1,6 @@
 # @nextcalc/database
 
-Shared Prisma 7 database package -- the single source of truth for the schema and generated client, used by both `apps/web` and `apps/api`.
+Shared Prisma database package (Prisma 8 dev line) -- the single source of truth for the schema and generated client, used by both `apps/web` and `apps/api`.
 
 ## Layout
 
@@ -28,7 +28,7 @@ pnpm --filter @nextcalc/database db:studio          # Open Prisma Studio (port 5
 
 ## Adapter Gotcha
 
-`PrismaNeon` takes a **config object**, not a `Pool` instance -- Prisma 7's adapter creates its own connection pool internally via `connect()`:
+`PrismaNeon` takes a **config object**, not a `Pool` instance -- since Prisma 7, the adapter creates its own connection pool internally via `connect()`:
 
 ```typescript
 // Correct
@@ -38,4 +38,4 @@ const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaNeon(new Pool({ connectionString: process.env.DATABASE_URL }));
 ```
 
-See [ARCHITECTURE.md](../../docs/ARCHITECTURE.md#prisma-7-migration-notes) and [docs/wiki/Database-Schema.md](../../docs/wiki/Database-Schema.md) for the full schema reference, enums, and indexing conventions.
+See [ARCHITECTURE.md](../../docs/ARCHITECTURE.md#prisma-migration-notes) and [docs/wiki/Database-Schema.md](../../docs/wiki/Database-Schema.md) for the full schema reference, enums, and indexing conventions.

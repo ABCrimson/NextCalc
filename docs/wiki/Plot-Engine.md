@@ -1,6 +1,6 @@
 # Plot Engine
 
-`@nextcalc/plot-engine` is a GPU-accelerated mathematical visualization engine. It is one of two packages in the monorepo still built with classic TypeScript 6.0.x rather than the TypeScript 7 native compiler, because three.js's TSL union types hang the native `typescript-go` checker (see [[Architecture]]).
+`@nextcalc/plot-engine` is a GPU-accelerated mathematical visualization engine. Like every package in the monorepo, it is typechecked by the TypeScript 7 native (Go) compiler — the three.js TSL union-type hang that once kept it on classic TypeScript 6.0.x was fixed upstream, and it migrated to the `7.1.0-dev` line on 2026-08-27 (see [[Architecture]]).
 
 ## Renderer Pipeline
 

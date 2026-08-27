@@ -72,11 +72,11 @@ Or via GitHub Actions: `.github/workflows/deploy-workers.yml` triggers on change
 
 1. **Install** -- pnpm install + dependency caching
 2. **Lint** -- Biome
-3. **Typecheck** -- TypeScript 7 native gates 8/10 packages; `@nextcalc/web` and `@nextcalc/plot-engine` stay on classic `tsc` 6.0.x (upstream blockers -- see [[Home]] and `DEVELOPMENT.md`). One job, no separate advisory track.
+3. **Typecheck** -- TypeScript 7 native (7.1-dev line) gates **all 10 packages** as of 2026-08-27 (see [[Home]] and `DEVELOPMENT.md`). One job, no separate advisory track.
 4. **Test** -- Vitest
 5. **Build** -- Turborepo (all packages). Requires `AUTH_SECRET` env var for NextAuth.
 
-**CI tooling**: `actions/checkout@v7`, `actions/setup-node@v6`, and `pnpm/action-setup@v6` (pnpm 11 GA). CI runs on Node 26, while the Vercel runtime caps at Node 24.x.
+**CI tooling**: `actions/checkout@v7`, `actions/setup-node@v6`, and `pnpm/action-setup@v6` (pnpm 12, resolved from the `packageManager` field). CI runs on Node 26, while the Vercel runtime caps at Node 24.x.
 
 ---
 

@@ -8,13 +8,13 @@ Browser Client (Next.js 16 + React 19.3)
     +-- Vercel Edge Network
     |     +-- App Router + SSR
     |     +-- GraphQL API (Apollo Server 5.5)
-    |           +-- Neon PostgreSQL (Prisma 7)
+    |           +-- Neon PostgreSQL (Prisma 8)
     |           +-- Upstash Redis (cache + PubSub)
     |
     +-- Cloudflare Workers
           +-- CAS Service (symbolic math)
           +-- Export Service (LaTeX to PDF/PNG/SVG) --> R2 Bucket
-          +-- Rate Limiter --> KV Store
+          +-- Rate Limiter --> Durable Object (SQLite) + KV id index
 ```
 
 ## Package Dependency Graph
@@ -39,7 +39,7 @@ Browser Client (Next.js 16 + React 19.3)
 1. `@nextcalc/types` (no deps)
 2. `@nextcalc/math-engine` (depends on mathjs)
 3. `@nextcalc/database` (depends on Prisma + Neon adapter)
-4. `@nextcalc/plot-engine` (depends on math-engine, Three.js, D3)
+4. `@nextcalc/plot-engine` (depends on math-engine, Three.js)
 5. `@nextcalc/api` (depends on database)
 6. `@nextcalc/web` (depends on all above)
 
@@ -65,7 +65,7 @@ Apollo Client --> /api/graphql route --> Apollo Server
 ### Edge Worker Flow
 
 ```
-Client --> Cloudflare Worker --> Rate Limit Check (KV)
+Client --> Cloudflare Worker --> Rate Limit Check (Durable Object)
     --> Process Request (CAS / Export)
     --> (if export) Store to R2 --> Return URL
 ```
@@ -108,9 +108,9 @@ WebSocket subscriptions authenticate via JWT tokens passed in the connection `co
 
 The Cloudflare rate-limiter Worker uses a constant-time comparison of SHA-256 digests (a custom `timingSafeEqual` helper, since the Web Crypto API has no native timing-safe compare) for API key validation, preventing timing-based side-channel attacks on the shared secret.
 
-## Prisma 7 Adapter Pattern
+## Prisma Adapter Pattern
 
-The database package uses Prisma 7's Neon serverless adapter. The adapter constructor takes a **config object**, not a Pool instance:
+The database package uses Prisma's Neon serverless adapter (Prisma 8 dev line; the pattern is unchanged since Prisma 7). The adapter constructor takes a **config object**, not a Pool instance:
 
 ```typescript
 // Correct
@@ -121,9 +121,9 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaNeon(pool);
 ```
 
-Prisma 7 creates its own connection pool internally via the adapter's `connect()` method.
+Prisma creates its own connection pool internally via the adapter's `connect()` method.
 
-### Schema Features (7.3+)
+### Schema Features (introduced in 7.3+)
 
 | Feature | Since | Description |
 |:--------|:------|:------------|
@@ -161,7 +161,7 @@ Custom geometric crystal favicon using the OKLCH glass-morphism design language.
 - **XP Formula**: RS3-style `sum(floor(i + 300 * 2^(i/7)) / 4)` — exponential curve, 100 levels
 - **10 Tiers**: Novice (1-10), Apprentice (11-20), Journeyman (21-30), Adept (31-40), Expert (41-50), Master (51-60), Grandmaster (61-70), Legend (71-80), Mythic (81-90), Transcendent (91-100)
 - **Admin Tier**: Architect (L101) — admin-only, 3 special icon variants
-- **Level Icons**: Programmatic crystal SVGs rendered live by the `LevelIcon` component (the pre-generated static-SVG variant and its generator script were removed in the 2026-07 evergreen sweep as dead weight -- `LevelIcon` covers all tiers on its own)
+- **Level Icons**: Programmatic crystal SVGs rendered live by the `LevelIcon` component. The 103 pre-generated SVGs in `public/icons/levels/` are **runtime data** — production `User.image` avatar rows reference them by URL (v1.5.0 deleted them as "dead code" and broke every avatar; they were restored in v1.5.1). Since 2026-08 the art lives in `lib/level-icons/`, shared by the generator script (`pnpm icons:levels`) and the live component — one source of truth
 - **OKLCH Colors**: Per-level hue progression through full spectrum, per-tier CSS classes
 - **Files**: `apps/web/components/profile/level-utils.ts`, `level-icon.tsx`
 
@@ -169,5 +169,5 @@ Custom geometric crystal favicon using the OKLCH glass-morphism design language.
 
 - **Library**: `next-intl` with App Router
 - **Locales**: en, ru, es, uk, de, fr, ja, zh (8 languages)
-- **Translation files**: `apps/web/messages/{locale}.json` (1200+ keys per locale)
+- **Translation files**: `apps/web/messages/{locale}.json` (1,500+ keys per locale, 1,609 in `en`; see [[Internationalization]] for per-locale counts)
 - **Routing**: `[locale]` dynamic segment (e.g., `/en/plot`, `/ru/matrix`)

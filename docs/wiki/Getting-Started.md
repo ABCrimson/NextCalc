@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - **Node.js** >= 24.0.0 (CI runs 26)
-- **pnpm** >= 11
+- **pnpm** >= 12
 
 ## Installation
 
@@ -69,7 +69,7 @@ pnpm dev
 
 ## Troubleshooting
 
-### Prisma 7 client not generated
+### Prisma client not generated
 
 If you see errors about missing Prisma client or unresolved `@nextcalc/database` imports, the generated client needs to be created:
 
@@ -96,11 +96,11 @@ If you see `"No database host or connection string"` or connection timeout error
 1. Verify `DATABASE_URL` is set correctly in `apps/web/.env.local`
 2. Ensure your Neon project is active (free-tier projects suspend after 5 minutes of inactivity)
 3. Confirm the connection string uses `?sslmode=require`
-4. Note: Prisma 7's `PrismaNeon` adapter takes a config object `{ connectionString }`, **not** a Pool instance
+4. Note: the `PrismaNeon` adapter (Prisma 7+) takes a config object `{ connectionString }`, **not** a Pool instance
 
 ### Build fails with allowBuilds error
 
-pnpm 11 requires an `allowBuilds` map in `pnpm-workspace.yaml` for packages with postinstall scripts:
+pnpm 11+ (this repo runs pnpm 12) requires an `allowBuilds` map in `pnpm-workspace.yaml` for packages with postinstall scripts:
 
 ```yaml
 # pnpm-workspace.yaml
@@ -109,7 +109,7 @@ allowBuilds:
   prisma: true
 ```
 
-The older `pnpm.onlyBuiltDependencies` field in `package.json` is not reliably supported in pnpm 11.
+The older `pnpm.onlyBuiltDependencies` field in `package.json` is not reliably supported in pnpm 11+.
 
 ---
 

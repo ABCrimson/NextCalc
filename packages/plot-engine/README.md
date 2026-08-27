@@ -7,8 +7,7 @@ GPU-accelerated mathematical visualization engine for NextCalc Pro.
 - **Custom WebGL 2D Renderer**: Lightweight (<15KB) renderer optimized for mathematical functions
 - **Three.js 3D Renderer**: Full-featured 3D surface and parametric plot rendering (lazy-loaded)
 - **Canvas 2D Fallback**: Software renderer for browsers without WebGL/WebGPU support
-- **Adaptive Sampling**: Intelligent function sampling with recursive subdivision
-- **Web Worker Support**: Non-blocking sampling for complex functions
+- **Adaptive Sampling**: Intelligent function sampling with recursive subdivision and per-function caching
 - **Interactive Controls**: Pan, zoom, and rotate with mouse, touch, and keyboard
 - **9 Colormaps**: viridis, plasma, turbo, rainbow, inferno, coolwarm, cividis, magma, spectral
 - **HDR Cubemap Themes**: 5 procedural space cubemap backgrounds with configurable resolution
@@ -300,14 +299,8 @@ const renderer = await createBest2DRenderer(canvas);
 ## Testing
 
 ```bash
-# Run tests
-pnpm test
-
-# Run tests in watch mode
-pnpm test:watch
-
-# Run tests with coverage
-pnpm test:coverage
+# Run tests (Vitest; watch mode is Vitest's default -- press q to quit)
+pnpm --filter @nextcalc/plot-engine test
 ```
 
 ## License

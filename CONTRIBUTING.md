@@ -28,9 +28,9 @@ For full setup instructions (database, OAuth, environment variables), see [docs/
 ### Prerequisites
 
 - **Node.js** >= 24.0.0 (CI runs Node 26)
-- **pnpm** >= 11
+- **pnpm** >= 12
 
-See [DEVELOPMENT.md](DEVELOPMENT.md) for the full command reference, project structure, and detailed code-style conventions (TypeScript strict mode, React 19.3 patterns, Biome 2.5.1, semantic color tokens, focus rings).
+See [DEVELOPMENT.md](DEVELOPMENT.md) for the full command reference, project structure, and detailed code-style conventions (TypeScript strict mode, React 19.3 patterns, Biome 2.x, semantic color tokens, focus rings).
 
 ---
 
@@ -86,7 +86,7 @@ When modifying user-facing text, update all 8 locale files in `apps/web/messages
 
 - `en.json`, `ru.json`, `es.json`, `uk.json`, `de.json`, `fr.json`, `ja.json`, `zh.json`
 
-Each file contains 1200+ translation keys. The app uses next-intl path-prefix routing (configured in `apps/web/i18n/routing.ts`), so to verify your changes render correctly across locales, run the app locally and visit the locale-prefixed path (e.g., `http://localhost:3005/es` for Spanish, `http://localhost:3005/ja` for Japanese). Check that text fits within UI containers -- some languages expand significantly (German, Russian) while others may be more compact (Chinese, Japanese).
+Each file contains 1,500+ translation keys (1,609 in `en`; not all locales are at full parity). The app uses next-intl path-prefix routing (configured in `apps/web/i18n/routing.ts`), so to verify your changes render correctly across locales, run the app locally and visit the locale-prefixed path (e.g., `http://localhost:3005/es` for Spanish, `http://localhost:3005/ja` for Japanese). Check that text fits within UI containers -- some languages expand significantly (German, Russian) while others may be more compact (Chinese, Japanese).
 
 If you add new keys, add them to **all 8 files**. Missing keys will fall back to the English string, which may break the UI for non-English users.
 

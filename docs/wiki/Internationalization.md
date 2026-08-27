@@ -6,16 +6,16 @@ NextCalc Pro supports 8 languages via `next-intl` with the Next.js App Router.
 
 | Code | Language | Status |
 |:-----|:---------|:-------|
-| `en` | English | Complete (1278 keys, source of truth) |
-| `ru` | Russian | Mostly complete (1224 keys) |
-| `es` | Spanish | Mostly complete (1224 keys) |
-| `uk` | Ukrainian | Mostly complete (1224 keys) |
-| `de` | German | Mostly complete (1224 keys) |
-| `fr` | French | Mostly complete (1275 keys) |
-| `ja` | Japanese | Mostly complete (1275 keys) |
-| `zh` | Chinese (Simplified) | Mostly complete (1275 keys) |
+| `en` | English | Complete (1,609 keys, source of truth) |
+| `ru` | Russian | Mostly complete (1,577 keys) |
+| `es` | Spanish | Mostly complete (1,577 keys) |
+| `uk` | Ukrainian | Mostly complete (1,577 keys) |
+| `de` | German | Mostly complete (1,577 keys) |
+| `fr` | French | Mostly complete (1,606 keys) |
+| `ja` | Japanese | Mostly complete (1,606 keys) |
+| `zh` | Chinese (Simplified) | Mostly complete (1,606 keys) |
 
-> Non-English locales retain some English fallbacks: `fr`/`ja`/`zh` hold 1275 keys and `de`/`es`/`ru`/`uk` hold 1224 keys, versus 1278 in `en`.
+> Non-English locales retain some English fallbacks: `fr`/`ja`/`zh` hold 1,606 keys and `de`/`es`/`ru`/`uk` hold 1,577 keys, versus 1,609 in `en`.
 
 ## File Structure
 
@@ -77,22 +77,22 @@ Keys are nested by namespace:
 ## Adding a New Language
 
 1. Create `apps/web/messages/{code}.json` (copy structure from `en.json`)
-2. Translate all 1278 keys
+2. Translate all 1,609 keys
 3. Add the locale code to `apps/web/i18n/routing.ts` (locales are defined via `defineRouting`)
 4. Register the locale in the `messageImports` map in `apps/web/i18n/request.ts` (e.g. `{code}: () => import('../messages/{code}.json')`) -- otherwise its messages won't load
 5. Test: `pnpm dev` and navigate to `/{code}/`
 
 ## Key Namespaces
 
-A sample of the ~34 namespaces in `en.json`:
+A sample of the 37 namespaces in `en.json`:
 
 | Namespace | Keys | Description |
 |:----------|:-----|:------------|
 | `common` | 50 | Shared UI labels (Submit, Cancel, etc.) |
-| `nav` | 57 | Navigation links |
+| `nav` | 58 | Navigation links |
 | `calc` | 56 | Calculator UI |
-| `plots` | 41 | Plotting interface |
-| `algorithms` | 130 | Algorithm pages |
+| `plots` | 120 | Plotting interface (incl. relations, regression, sliders) |
+| `algorithms` | 132 | Algorithm pages |
 | `settings` | 70 | Settings page |
 | `auth` | 30 | Authentication UI |
 | `forum` | 63 | Forum interface |

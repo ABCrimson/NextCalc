@@ -26,7 +26,7 @@ Ensure OAuth provider credentials are set in `.env.local`. Only include provider
 
 ### PrismaNeon adapter "No database host" error
 
-Pass `{ connectionString }` config object to `new PrismaNeon()`, NOT a Pool instance. Prisma 7's adapter creates its own Pool internally.
+Pass `{ connectionString }` config object to `new PrismaNeon()`, NOT a Pool instance. The adapter (Prisma 7+) creates its own Pool internally.
 
 ---
 

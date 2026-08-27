@@ -2,7 +2,7 @@
 
 **Scientific Calculator & Mathematical Visualization Platform**
 
-> **Current Release: v1.4.0** (June 29, 2026) — [Release Notes](https://github.com/ABCrimson/NextCalc/releases/tag/v1.4.0)
+> **Current Release: v1.5.2** (July 11, 2026) — [Release Notes](https://github.com/ABCrimson/NextCalc/releases/tag/v1.5.2)
 
 [Live Demo](https://nextcalc.io) | [GitHub Repository](https://github.com/ABCrimson/NextCalc) | [Releases](https://github.com/ABCrimson/NextCalc/releases)
 
@@ -10,24 +10,32 @@
 
 ## Overview
 
-NextCalc Pro is a comprehensive scientific calculator and mathematical visualization platform built as a monorepo with Next.js 16, React 19, TypeScript (7 native for most packages, 6 for `web` and `plot-engine`), and GPU-accelerated rendering.
+NextCalc Pro is a comprehensive scientific calculator and mathematical visualization platform built as a monorepo with Next.js 16, React 19, TypeScript 7 (the native Go compiler gates all 10 packages), and GPU-accelerated rendering.
 
 ### Key Numbers
 
-- **48** page routes
+- **49** page routes
 - **8** languages (en, ru, es, uk, de, fr, ja, zh)
-- **20** math engine modules
+- **23** math engine modules
 - **3** Cloudflare Workers
 - **22** GraphQL queries + **20** mutations + **2** subscriptions
 - **9** colormaps + **5** HDR cubemap themes
 
 ---
 
-## Latest Updates (v1.5.x)
+## Latest Updates
+
+### Evergreen bump (2026-08-27, post-v1.5.2, unreleased)
+
+63 dependency bumps landed after the v1.5.2 release: **Next.js 16.4 canary**, **TypeScript 7.1-dev now gates all 10 packages** (the last two TS 6.0.x holdouts — `web` and `plot-engine` — migrated once TS 7.1 shipped its JS API and the three.js TSL checker hang was fixed upstream), **Prisma 8.1 dev**, **Vitest 5 RC**, **pnpm 12**, Hono 4.13, KaTeX 0.18, Motion 13, radix-ui 1.7 rc — with the full 4,550-test suite green.
+
+### v1.5.x releases
+
+**v1.5.2** — forum post SSR now executes GraphQL in-process via `SchemaLink` (no more deployment-protection 401s turning into "Post not found"), the admin profile renders its Architect tier, and the forum background became a compositor-only OKLCH aurora.
 
 **v1.5.1 hotfix** — restored the level-icon avatars (they were data-referenced, not dead code), fixed comment upvotes (a schema defect dating to February — they had never worked), comment posting no longer collapses the thread, Lorenz GPU particles render again (upright, in their cage), ODE view auto-fits the solution, PDE 3D colormap works in the default view, and the profile owner gained an admin-only avatar icon picker.
 
-- **Evergreen dependency sweep**: every dependency at its absolute-newest published version in any channel — Next.js 16.3 canary, React 19.3 canary, graphql 17, Vitest 5, Prisma 7.9, pnpm 11 GA — and **TypeScript 7.1 (native Go compiler) is now the blocking typecheck gate for 8 of the 10 packages** (full-workspace typecheck ~6 min → ~22 s); `@nextcalc/web` and `@nextcalc/plot-engine` remain on classic TypeScript 6.0.x pending upstream fixes -- see [[Architecture]]
+- **Evergreen dependency sweep (v1.5.0)**: every dependency at its absolute-newest published version in any channel — Next.js 16.3 canary, React 19.3 canary, graphql 17, Vitest 5, Prisma 7.9, pnpm 11 GA — and TypeScript 7.1 (native Go compiler) became the blocking typecheck gate for 8 of the 10 packages (full-workspace typecheck ~6 min → ~22 s); the remaining two migrated in the 2026-08 bump above -- see [[Architecture]]
 - **React Compiler enabled** across the web app, plus GraphQL fragment masking with `useFragment`
 - **Real cross-instance GraphQL subscriptions**: Redis Streams events are actually consumed (overlap-proof, tip-anchored polling) — multi-instance SSE delivery now works
 - **Plot correctness**: adaptive-sampling fixes (grid-resonance aliasing that flattened functions like sin(10πx), lost discontinuity breaks at asymptotes, an inverted refinement criterion), bounded sample cache, stale-geometry and VAO fixes — see [[Plot-Engine]]
@@ -50,7 +58,7 @@ NextCalc Pro is a comprehensive scientific calculator and mathematical visualiza
 |:------|:------------|
 | [[Getting Started]] | Install, configure, and run locally |
 | [[Architecture]] | System design, data flow, and design decisions |
-| [[Math Engine]] | 20 computation modules with usage examples |
+| [[Math Engine]] | 23 computation modules with usage examples |
 | [[Plot Engine]] | GPU rendering pipeline and colormaps |
 | [[GraphQL API]] | Full API reference (queries, mutations, types) |
 | [[Cloudflare Workers]] | Edge microservices (CAS, export, rate limiter) |
@@ -65,16 +73,18 @@ NextCalc Pro is a comprehensive scientific calculator and mathematical visualiza
 
 | Category | Technology |
 |:---------|:-----------|
-| Framework | Next.js 16.3 canary + React 19.3 canary |
-| Language | TypeScript 7 native (8/10 packages); TypeScript 6 for `web` + `plot-engine` -- see [[Architecture]] |
+| Framework | Next.js 16.4 canary + React 19.3 canary |
+| Language | TypeScript 7.1-dev native (all 10 packages) -- see [[Architecture]] |
 | Styling | Tailwind CSS 4.3 (OKLCH) |
 | State | Zustand 5.0 |
 | 3D | Three.js 0.185-line |
-| ORM | Prisma 7.9 dev |
+| ORM | Prisma 8.1 dev |
 | GraphQL | Apollo Server 5.5 / Client 4.3 |
 | Cache | Upstash Redis |
-| Workers | Hono 4.12 on Cloudflare |
+| Workers | Hono 4.13 on Cloudflare |
 | Build | Turborepo 2.10 canary |
+| Testing | Vitest 5 RC + Playwright 1.63 alpha |
 | Linting | Biome 2.x |
+| Package manager | pnpm 12 |
 
 > Exact pinned versions live in each package's `package.json`.

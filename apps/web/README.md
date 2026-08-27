@@ -1,11 +1,11 @@
 # NextCalc Pro Web
 
-The main product surface: a Next.js 16 App Router frontend serving the scientific calculator, 2D/3D plotting, symbolic math, algorithm visualizations, forum, and learning platform -- 48 page routes across 8 locales.
+The main product surface: a Next.js 16 App Router frontend serving the scientific calculator, 2D/3D plotting, symbolic math, algorithm visualizations, forum, and learning platform -- 49 page routes across 8 locales.
 
 ## Tech Stack
 
 - **Framework:** Next.js 16 (App Router, Turbopack dev / Webpack build), React 19.3
-- **Language:** TypeScript 6.0.x -- this package is one of two in the monorepo still pinned to the classic compiler (not the TypeScript 7 native/Go compiler most other packages use), because Next.js's build-time type checker and `graphql-codegen` both need the TypeScript JS API, which only ships in TS 7.1 (see [DEVELOPMENT.md](../../DEVELOPMENT.md#typescript))
+- **Language:** TypeScript 7.1-dev native (the Go-based compiler) -- this package was one of two former TS 6.0.x holdouts, unblocked and migrated 2026-08-27 once the TS 7.1 JS API shipped for Next.js's build-time type checker and `graphql-codegen` (see [DEVELOPMENT.md](../../DEVELOPMENT.md#typescript))
 - **Styling:** Tailwind CSS 4 (CSS-first `@theme` config, OKLCH color tokens)
 - **Components:** Radix UI (unified `radix-ui` package) + shadcn/ui (CLI-installed, lives in `components/ui/`)
 - **Animation:** Motion (`motion/react`)
@@ -29,6 +29,7 @@ apps/web/
 │   │   ├── forum/           #   Community forum (GraphQL)
 │   │   ├── fourier/         #   Fourier analysis
 │   │   ├── game-theory/     #   Nash equilibrium solver
+│   │   ├── gpu-lab/         #   WebGPU simulation gallery (fork-on-open)
 │   │   ├── graphs-full/     #   Full graph algorithm suite
 │   │   ├── learn/           #   Interactive learning platform
 │   │   ├── matrix/          #   Matrix operations

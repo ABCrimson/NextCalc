@@ -26,7 +26,7 @@ Beyond these flagship demos, the module also exports `ZKPComputeVisualizer`, gra
   - Semantic HTML
 - **Responsive**: Mobile-first design, works on all screen sizes
 - **Dark Mode**: Full theme support (light/dark/high-contrast)
-- **Animated**: Smooth Framer Motion animations with `prefers-reduced-motion` support
+- **Animated**: Smooth Motion (`motion/react`) animations with `prefers-reduced-motion` support
 - **Educational**: Built-in explanations and interactive learning modes
 - **Performant**: Optimized rendering, lazy loading, memoization
 

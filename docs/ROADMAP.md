@@ -8,9 +8,10 @@ Parked pending changes outside this repo's control. Each has a concrete resume c
 
 | Item | Blocked on | Resume condition |
 |:-----|:-----------|:------------------|
-| **TypeScript 7 unification** for `@nextcalc/web` and `@nextcalc/plot-engine` | Next.js's build-time type checker and `graphql-codegen` both need the TypeScript **JS API**, which doesn't ship until TS 7.1; separately, three.js's TSL union types hang the native `typescript-go` checker (upstream limitation) | TS 7.1 ships its JS API **and** Next.js adds native-compiler support **and** the TSL type-expansion issue is fixed upstream in `typescript-go`. See [DEVELOPMENT.md](../DEVELOPMENT.md#typescript) for the current split. |
 | **`cacheComponents` (Next.js 16 Partial Prerendering)** ⟂ **next-intl** | [next-intl issue #1493](https://github.com/amannn/next-intl/issues/1493) is still open as of 2026-07 — `cacheComponents` isn't a config flip here, it's a real per-page migration blocked by how next-intl accesses the request locale; a migration attempt was made and reverted | Issue #1493 resolves upstream, or next-intl ships a cacheComponents-compatible locale API |
 | **graphql 17 peer support** | `graphql-ws` and `graphql-sse` (and `@apollo/server`'s own peer range) still pin `graphql@16`; this repo forces `graphql@17` via a `pnpm-workspace.yaml` peer override, not a fork | [graphql-ws PR #672](https://github.com/enisdenjo/graphql-ws/pull/672) merges and ships, and the other packages follow with a `graphql@17` peer range |
+
+> **Resolved 2026-08-27:** the former **TypeScript 7 unification** blocker (for `@nextcalc/web` and `@nextcalc/plot-engine`) cleared upstream — TS 7.1-dev shipped its JS API and the TSL type-expansion hang was fixed — and both packages migrated. The native compiler now gates all 10 packages; see [DEVELOPMENT.md](../DEVELOPMENT.md#typescript).
 
 ## WASM Native Build (math-engine arbitrary precision)
 
@@ -119,7 +120,7 @@ Also noted (unranked): slider play-button animation (small; prerequisite polish 
 
 ### Backend Infrastructure
 - [x] GraphQL API with Apollo Server 5.5 + jose 6.2 JWT verification (`apps/api/`)
-- [x] Prisma 7 shared database package (`packages/database/`)
+- [x] Prisma shared database package (`packages/database/`, now on the Prisma 8 dev line)
 - [x] NextAuth v5 with Google + GitHub OAuth
 - [x] Upstash Redis integration (caching + rate limiting)
 - [x] Apollo Client integration in web app
@@ -153,7 +154,7 @@ Also noted (unranked): slider play-button animation (small; prerequisite polish 
 - [x] Real Sentry capture (`@sentry/nextjs`) — manual error capture, breadcrumbs, error boundaries, and `onRequestError` wired via `instrumentation.ts` / `instrumentation-client.ts` (the old client/server stub configs were folded in; activate by setting a DSN)
 - [x] Content Security Policy (CSP) headers -- Nosecone with nonces, HSTS, permissions policy
 - [x] Rate limiter wired to GraphQL SSE stream endpoint
-- [x] `next-intl` configured with ~1,278 translation keys (en) across 48 page routes — 8 locales (en, ru, es, uk, de, fr, ja, zh; not all at full key parity)
+- [x] `next-intl` configured with 1,609 translation keys (en) across 49 page routes — 8 locales (en, ru, es, uk, de, fr, ja, zh; not all at full key parity)
 - [x] Vercel Analytics + Speed Insights
 - [x] Dependabot for dependency vulnerability scanning
 - [x] Bookmarks store (Zustand + localStorage persistence)
@@ -220,7 +221,7 @@ Also noted (unranked): slider play-button animation (small; prerequisite polish 
 - [x] Set up Neon production database -- schema pushed to ep-cool-dew-aex6zq7t (US East 2)
 - [x] Configure production environment variables on Vercel -- DATABASE_URL, OAuth, Redis, AUTH_SECRET, NEXTAUTH_URL
 - [x] Deploy web app to Vercel -- live at https://nextcalc.io
-- [x] Create Cloudflare R2 buckets -- 4 buckets (public/private + dev) in ENAM region _(verify provisioning — `apps/workers/export-service/wrangler.toml` still carries a create-buckets TODO; see Modernization → Remaining)_
+- [x] Create Cloudflare R2 buckets -- 4 buckets (public/private + dev) in ENAM region _(verify provisioning — `apps/workers/export-service/wrangler.jsonc` still carries a create-buckets TODO; see Other Open Items above)_
 - [x] Register workers.dev subdomain (albert-r-badalov.workers.dev)
 - [x] Set ADMIN_KEY secret via `wrangler secret put ADMIN_KEY`
 - [x] Deploy 3 Cloudflare Workers to production -- cas.nextcalc.io, ratelimit.nextcalc.io, export.nextcalc.io
