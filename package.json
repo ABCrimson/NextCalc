@@ -1,5 +1,6 @@
 {
   "name": "nextcalc-pro",
+  "license": "MIT",
   "version": "1.5.2",
   "private": true,
   "scripts": {
