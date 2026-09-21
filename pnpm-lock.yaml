@@ -557,8 +557,8 @@ importers:
         specifier: 1.1.0
         version: 1.1.0
       '@prisma/adapter-neon':
-        specifier: 8.1.0-dev.2
-        version: 8.1.0-dev.2
+        specifier: 8.1.0-dev.7
+        version: 8.1.0-dev.7
       '@prisma/client':
         specifier: 8.1.0-dev.2
         version: 8.1.0-dev.2(prisma@8.1.0-dev.2(@types/react-dom@19.2.3(@types/react@19.2.18))(@types/react@19.2.18)(magicast@0.5.3)(react-dom@19.3.0-canary-a1124489-20260826(react@19.3.0-canary-a1124489-20260826))(react@19.3.0-canary-a1124489-20260826)(typescript@7.1.0-dev.20260826.1))(typescript@7.1.0-dev.20260826.1)
@@ -3043,8 +3043,8 @@ packages:
   '@poppinss/exception@1.2.3':
     resolution: {integrity: sha512-dCED+QRChTVatE9ibtoaxc+WkdzOSjYTKi/+uacHWIsfodVfpsueo3+DKpgU5Px8qXjgmXkSvhXvSCz3fnP9lw==}
 
-  '@prisma/adapter-neon@8.1.0-dev.2':
-    resolution: {integrity: sha512-Ggv++bR6/0M+bHjko74fvtCU23jA3TEB9tZ8uORdbLYDYk971LTNWVs3eRJt2ix8BU2PExoBgPL0LU8AnrFXoA==}
+  '@prisma/adapter-neon@8.1.0-dev.7':
+    resolution: {integrity: sha512-qtv2gPeDdkvRZBbo+SEavJWbx9HHO/dXxnuoolarZfkcZbKBhA8wPo2tLi7Mfw90UzFZOIyRI1xf2m0Ptaq+ow==}
 
   '@prisma/client-runtime-utils@8.1.0-dev.2':
     resolution: {integrity: sha512-jToEAyYONpZXnc9IMek/m3Ev/vBgNbuZACJBN41b+aONWqnJC5OrwwNRFJU2Iu6DTENju0UBEL6OkP9VwLHJUg==}
@@ -3070,11 +3070,14 @@ packages:
   '@prisma/debug@8.1.0-dev.2':
     resolution: {integrity: sha512-s1Zfqc1v0NOGeyiub/RUkBA9dpNngtw0ptTHVu/qL5t2l/bc2SRdJ0Plr8v2qK/TAQtNDe9b8kAsLRJizmtA2A==}
 
+  '@prisma/debug@8.1.0-dev.7':
+    resolution: {integrity: sha512-7KkfKlSXhzagWq55cQRC1ejn4wfBJILY5gRGNX7eRSgnCPwPhFAZTHTU3c5lkMXQ7xrDX0rmThiRnsTqkWeydw==}
+
   '@prisma/dev@0.24.17':
     resolution: {integrity: sha512-UvdZzmpFwknnfreh6Jije84ekkYGPYEJhXG1tFzCsCfQyzJifrOo38eZc0qajzvaC6OLUOrN9ML5XfCnEZL9DA==}
 
-  '@prisma/driver-adapter-utils@8.1.0-dev.2':
-    resolution: {integrity: sha512-yhRcDrrqgAvtBYU+2ZsSkNUGYVhByz3RbOJznVtaWjrUHMbWjBDjJJ/tg253TOMm8TxmKlEOO9UMuVrd9QWPrw==}
+  '@prisma/driver-adapter-utils@8.1.0-dev.7':
+    resolution: {integrity: sha512-RMNYhj23cN21L5r/0thwzLxfWFLpZzdPkHHy5AAODuUnmmPKjZrtX1mG6WDdh4+rLo4lF7iMZIkVjd4cQwgYcQ==}
 
   '@prisma/engines-version@7.10.0-4.0edf323efd1d98336f3f0a68684b56f689b900d3':
     resolution: {integrity: sha512-8OJ6RuZTZ06eFUOtBwxVmv8XMmOW6HWN5F+uxUbZkGxR0Bfab1dfAdXaHPmR5mb59E+fmUo8IOzXlbLY1SClbw==}
@@ -7279,11 +7282,6 @@ packages:
   named-placeholders@1.1.6:
     resolution: {integrity: sha512-Tz09sEL2EEuv5fFowm419c1+a/jSMiBjI9gHxVLrVdbUkkNUUfjsVYs9pVZu5oCon/kmRh9TfLEObFtkVxmY0w==}
     engines: {node: '>=8.0.0'}
-
-  nanoid@3.3.15:
-    resolution: {integrity: sha512-y7Wygv/7mEOvxTuEQDB8StXdMRBWf1kR/tlhAzBRUFkB2jfcLOAxO/SHmOO2zgz1pVgK29/kyupn059/bCHdjA==}
-    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
-    hasBin: true
 
   nanoid@3.3.18:
     resolution: {integrity: sha512-DTg4MJbGMWkfi6VZFdNt2/caMbQy4Ou+Op/hJQvGEWcnVfoA1QA+xzRKAzw9jD6+GVOOeYr/mIcuDSdug6F6+w==}
@@ -11693,7 +11691,7 @@ snapshots:
       detect-libc: 2.1.2
       is-glob: 4.0.3
       node-addon-api: 7.1.1
-      picomatch: 4.0.4
+      picomatch: 4.0.7
     optionalDependencies:
       '@parcel/watcher-android-arm64': 2.5.6
       '@parcel/watcher-darwin-arm64': 2.5.6
@@ -11747,10 +11745,10 @@ snapshots:
 
   '@poppinss/exception@1.2.3': {}
 
-  '@prisma/adapter-neon@8.1.0-dev.2':
+  '@prisma/adapter-neon@8.1.0-dev.7':
     dependencies:
       '@neondatabase/serverless': 1.1.0
-      '@prisma/driver-adapter-utils': 8.1.0-dev.2
+      '@prisma/driver-adapter-utils': 8.1.0-dev.7
       postgres-array: 3.0.4
 
   '@prisma/client-runtime-utils@8.1.0-dev.2': {}
@@ -11775,6 +11773,8 @@ snapshots:
 
   '@prisma/debug@8.1.0-dev.2': {}
 
+  '@prisma/debug@8.1.0-dev.7': {}
+
   '@prisma/dev@0.24.17(typescript@7.1.0-dev.20260826.1)':
     dependencies:
       '@electric-sql/pglite': 0.4.3
@@ -11795,9 +11795,9 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@prisma/driver-adapter-utils@8.1.0-dev.2':
+  '@prisma/driver-adapter-utils@8.1.0-dev.7':
     dependencies:
-      '@prisma/debug': 8.1.0-dev.2
+      '@prisma/debug': 8.1.0-dev.7
 
   '@prisma/engines-version@7.10.0-4.0edf323efd1d98336f3f0a68684b56f689b900d3': {}
 
@@ -14258,7 +14258,7 @@ snapshots:
 
   buffer-image-size@0.6.4:
     dependencies:
-      '@types/node': 26.1.1
+      '@types/node': 26.4.0
 
   buffer@6.0.3:
     dependencies:
@@ -16234,8 +16234,6 @@ snapshots:
     dependencies:
       lru.min: 1.1.3
 
-  nanoid@3.3.15: {}
-
   nanoid@3.3.18: {}
 
   nanotar@0.2.1:
@@ -17266,7 +17264,7 @@ snapshots:
 
   postcss@8.5.16:
     dependencies:
-      nanoid: 3.3.15
+      nanoid: 3.3.18
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
@@ -18168,8 +18166,8 @@ snapshots:
 
   tinyglobby@0.2.17:
     dependencies:
-      fdir: 6.5.0(picomatch@4.0.4)
-      picomatch: 4.0.4
+      fdir: 6.5.0(picomatch@4.0.7)
+      picomatch: 4.0.7
 
   tinyrainbow@3.1.1: {}
 
