@@ -24,7 +24,7 @@
     "@biomejs/biome": "2.5.10",
     "@cloudflare/workers-types": "5.20260827.1",
     "@types/node": "26.4.0",
-    "typescript": "7.1.0-dev.20260826.1",
+    "typescript": "7.1.0-dev.20260918.1",
     "vitest": "5.0.0-rc.2",
     "wrangler": "4.127.0"
   },
