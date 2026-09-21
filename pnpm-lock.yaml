@@ -257,7 +257,7 @@ importers:
         version: 0.14.5(@apollo/client@4.3.0-rc.0(graphql-ws@6.0.8(crossws@0.3.5)(graphql@17.0.2)(ws@8.21.0))(graphql@17.0.2)(react-dom@19.3.0-canary-a1124489-20260826(react@19.3.0-canary-a1124489-20260826))(react@19.3.0-canary-a1124489-20260826)(rxjs@8.0.0-alpha.14))(@types/react@19.2.18)(graphql@17.0.2)(next@16.4.0-canary.9(@babel/core@7.29.7(supports-color@10.2.2))(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0-alpha-2026-08-27)(@types/node@26.4.0)(babel-plugin-react-compiler@0.0.0-experimental-a1856f3-20260507)(react-dom@19.3.0-canary-a1124489-20260826(react@19.3.0-canary-a1124489-20260826))(react@19.3.0-canary-a1124489-20260826))(react-dom@19.3.0-canary-a1124489-20260826(react@19.3.0-canary-a1124489-20260826))(react@19.3.0-canary-a1124489-20260826)(rxjs@8.0.0-alpha.14)
       '@auth/prisma-adapter':
         specifier: 2.11.3
-        version: 2.11.3(@prisma/client@8.1.0-dev.2(typescript@7.1.0-dev.20260826.1))
+        version: 2.11.3(@prisma/client@8.1.0-dev.7(typescript@7.1.0-dev.20260826.1))
       '@nextcalc/api':
         specifier: workspace:*
         version: link:../api
@@ -560,8 +560,8 @@ importers:
         specifier: 8.1.0-dev.2
         version: 8.1.0-dev.2
       '@prisma/client':
-        specifier: 8.1.0-dev.2
-        version: 8.1.0-dev.2(prisma@8.1.0-dev.2(@types/react-dom@19.2.3(@types/react@19.2.18))(@types/react@19.2.18)(magicast@0.5.3)(react-dom@19.3.0-canary-a1124489-20260826(react@19.3.0-canary-a1124489-20260826))(react@19.3.0-canary-a1124489-20260826)(typescript@7.1.0-dev.20260826.1))(typescript@7.1.0-dev.20260826.1)
+        specifier: 8.1.0-dev.7
+        version: 8.1.0-dev.7(prisma@8.1.0-dev.2(@types/react-dom@19.2.3(@types/react@19.2.18))(@types/react@19.2.18)(magicast@0.5.3)(react-dom@19.3.0-canary-a1124489-20260826(react@19.3.0-canary-a1124489-20260826))(react@19.3.0-canary-a1124489-20260826)(typescript@7.1.0-dev.20260826.1))(typescript@7.1.0-dev.20260826.1)
     devDependencies:
       '@types/node':
         specifier: 26.4.0
@@ -3046,11 +3046,11 @@ packages:
   '@prisma/adapter-neon@8.1.0-dev.2':
     resolution: {integrity: sha512-Ggv++bR6/0M+bHjko74fvtCU23jA3TEB9tZ8uORdbLYDYk971LTNWVs3eRJt2ix8BU2PExoBgPL0LU8AnrFXoA==}
 
-  '@prisma/client-runtime-utils@8.1.0-dev.2':
-    resolution: {integrity: sha512-jToEAyYONpZXnc9IMek/m3Ev/vBgNbuZACJBN41b+aONWqnJC5OrwwNRFJU2Iu6DTENju0UBEL6OkP9VwLHJUg==}
+  '@prisma/client-runtime-utils@8.1.0-dev.7':
+    resolution: {integrity: sha512-G4AK3bABh6VTRqT6u3tXZqxH+av0L1+iNpcd3fapQF/0vIHCIzKeNJJaWZK0daDyjDrbv8vznCS7X7Xko5pwAQ==}
 
-  '@prisma/client@8.1.0-dev.2':
-    resolution: {integrity: sha512-jQ20m+PR7qg46zqduVzJWdwAQnOuRqp1D7/0/sNzZst5XHfC5iTLqb5ymyIXBWQ2qDvGjH27oR6pgRplp9gLRg==}
+  '@prisma/client@8.1.0-dev.7':
+    resolution: {integrity: sha512-GnSRNi9m2EDYcGDauxY6qK3Lum9jU2EAyn/o2tJvWTKuWkzR0nt/UJZU25DxusChuD3lQLJOQVbTh1saMSR1eg==}
     engines: {node: ^20.19 || ^22.12 || >=24.0}
     peerDependencies:
       prisma: '*'
@@ -7280,11 +7280,6 @@ packages:
     resolution: {integrity: sha512-Tz09sEL2EEuv5fFowm419c1+a/jSMiBjI9gHxVLrVdbUkkNUUfjsVYs9pVZu5oCon/kmRh9TfLEObFtkVxmY0w==}
     engines: {node: '>=8.0.0'}
 
-  nanoid@3.3.15:
-    resolution: {integrity: sha512-y7Wygv/7mEOvxTuEQDB8StXdMRBWf1kR/tlhAzBRUFkB2jfcLOAxO/SHmOO2zgz1pVgK29/kyupn059/bCHdjA==}
-    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
-    hasBin: true
-
   nanoid@3.3.18:
     resolution: {integrity: sha512-DTg4MJbGMWkfi6VZFdNt2/caMbQy4Ou+Op/hJQvGEWcnVfoA1QA+xzRKAzw9jD6+GVOOeYr/mIcuDSdug6F6+w==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
@@ -9522,10 +9517,10 @@ snapshots:
       preact: 10.24.3
       preact-render-to-string: 6.5.11(preact@10.24.3)
 
-  '@auth/prisma-adapter@2.11.3(@prisma/client@8.1.0-dev.2(typescript@7.1.0-dev.20260826.1))':
+  '@auth/prisma-adapter@2.11.3(@prisma/client@8.1.0-dev.7(typescript@7.1.0-dev.20260826.1))':
     dependencies:
       '@auth/core': 0.41.3
-      '@prisma/client': 8.1.0-dev.2(prisma@8.1.0-dev.2(@types/react-dom@19.2.3(@types/react@19.2.18))(@types/react@19.2.18)(magicast@0.5.3)(react-dom@19.3.0-canary-a1124489-20260826(react@19.3.0-canary-a1124489-20260826))(react@19.3.0-canary-a1124489-20260826)(typescript@7.1.0-dev.20260826.1))(typescript@7.1.0-dev.20260826.1)
+      '@prisma/client': 8.1.0-dev.7(prisma@8.1.0-dev.2(@types/react-dom@19.2.3(@types/react@19.2.18))(@types/react@19.2.18)(magicast@0.5.3)(react-dom@19.3.0-canary-a1124489-20260826(react@19.3.0-canary-a1124489-20260826))(react@19.3.0-canary-a1124489-20260826)(typescript@7.1.0-dev.20260826.1))(typescript@7.1.0-dev.20260826.1)
     transitivePeerDependencies:
       - '@simplewebauthn/browser'
       - '@simplewebauthn/server'
@@ -11693,7 +11688,7 @@ snapshots:
       detect-libc: 2.1.2
       is-glob: 4.0.3
       node-addon-api: 7.1.1
-      picomatch: 4.0.4
+      picomatch: 4.0.7
     optionalDependencies:
       '@parcel/watcher-android-arm64': 2.5.6
       '@parcel/watcher-darwin-arm64': 2.5.6
@@ -11753,11 +11748,11 @@ snapshots:
       '@prisma/driver-adapter-utils': 8.1.0-dev.2
       postgres-array: 3.0.4
 
-  '@prisma/client-runtime-utils@8.1.0-dev.2': {}
+  '@prisma/client-runtime-utils@8.1.0-dev.7': {}
 
-  '@prisma/client@8.1.0-dev.2(prisma@8.1.0-dev.2(@types/react-dom@19.2.3(@types/react@19.2.18))(@types/react@19.2.18)(magicast@0.5.3)(react-dom@19.3.0-canary-a1124489-20260826(react@19.3.0-canary-a1124489-20260826))(react@19.3.0-canary-a1124489-20260826)(typescript@7.1.0-dev.20260826.1))(typescript@7.1.0-dev.20260826.1)':
+  '@prisma/client@8.1.0-dev.7(prisma@8.1.0-dev.2(@types/react-dom@19.2.3(@types/react@19.2.18))(@types/react@19.2.18)(magicast@0.5.3)(react-dom@19.3.0-canary-a1124489-20260826(react@19.3.0-canary-a1124489-20260826))(react@19.3.0-canary-a1124489-20260826)(typescript@7.1.0-dev.20260826.1))(typescript@7.1.0-dev.20260826.1)':
     dependencies:
-      '@prisma/client-runtime-utils': 8.1.0-dev.2
+      '@prisma/client-runtime-utils': 8.1.0-dev.7
     optionalDependencies:
       prisma: 8.1.0-dev.2(@types/react-dom@19.2.3(@types/react@19.2.18))(@types/react@19.2.18)(magicast@0.5.3)(react-dom@19.3.0-canary-a1124489-20260826(react@19.3.0-canary-a1124489-20260826))(react@19.3.0-canary-a1124489-20260826)(typescript@7.1.0-dev.20260826.1)
       typescript: 7.1.0-dev.20260826.1
@@ -14258,7 +14253,7 @@ snapshots:
 
   buffer-image-size@0.6.4:
     dependencies:
-      '@types/node': 26.1.1
+      '@types/node': 26.4.0
 
   buffer@6.0.3:
     dependencies:
@@ -16234,8 +16229,6 @@ snapshots:
     dependencies:
       lru.min: 1.1.3
 
-  nanoid@3.3.15: {}
-
   nanoid@3.3.18: {}
 
   nanotar@0.2.1:
@@ -17266,7 +17259,7 @@ snapshots:
 
   postcss@8.5.16:
     dependencies:
-      nanoid: 3.3.15
+      nanoid: 3.3.18
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
@@ -18168,8 +18161,8 @@ snapshots:
 
   tinyglobby@0.2.17:
     dependencies:
-      fdir: 6.5.0(picomatch@4.0.4)
-      picomatch: 4.0.4
+      fdir: 6.5.0(picomatch@4.0.7)
+      picomatch: 4.0.7
 
   tinyrainbow@3.1.1: {}
 
