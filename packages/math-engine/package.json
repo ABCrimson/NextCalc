@@ -119,9 +119,9 @@
     "mathjs": "15.2.0"
   },
   "devDependencies": {
-    "@types/node": "26.4.0",
-    "fast-check": "4.9.0",
+    "@types/node": "26.6.4",
+    "fast-check": "4.10.2",
     "typescript": "7.1.0-dev.20260826.1",
-    "vitest": "5.0.0-rc.2"
+    "vitest": "5.0.3"
   }
 }
