@@ -39,7 +39,7 @@
     "lint:fix": "biome check --write ."
   },
   "dependencies": {
-    "three": "0.185.1"
+    "three": "0.186.1"
   },
   "devDependencies": {
     "@types/node": "26.4.0",
